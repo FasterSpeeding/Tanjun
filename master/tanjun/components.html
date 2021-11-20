@@ -387,7 +387,7 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
 
 
-<span class="k">class</span> <span class="nc">_ComponentManager</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">_ComponentManager</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_copy&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1293,7 +1293,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Make a loader/unloader for this component.</span>
 
 <span class="sd">        This enables loading, unloading and reloading of this component into a</span>
@@ -1309,7 +1309,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tanjun.abc.AbstractLoader</span>
+<span class="sd">        tanjun.abc.ClientLoader</span>
 <span class="sd">            The loader for this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ComponentManager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span>
@@ -2227,7 +2227,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Make a loader/unloader for this component.</span>
 
 <span class="sd">        This enables loading, unloading and reloading of this component into a</span>
@@ -2243,7 +2243,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tanjun.abc.AbstractLoader</span>
+<span class="sd">        tanjun.abc.ClientLoader</span>
 <span class="sd">            The loader for this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ComponentManager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span>
@@ -4350,12 +4350,12 @@ If the component isn't bound to a client.</li>
 
         
             <span class="def">def</span>
-            <span class="name">make_loader</span><span class="signature">(self, *, copy: bool = True) -&gt; <a href="abc.html#AbstractLoader">tanjun.abc.AbstractLoader</a></span>:
+            <span class="name">make_loader</span><span class="signature">(self, *, copy: bool = True) -&gt; <a href="abc.html#ClientLoader">tanjun.abc.ClientLoader</a></span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Make a loader/unloader for this component.</span>
 
 <span class="sd">        This enables loading, unloading and reloading of this component into a</span>
@@ -4371,7 +4371,7 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tanjun.abc.AbstractLoader</span>
+<span class="sd">        tanjun.abc.ClientLoader</span>
 <span class="sd">            The loader for this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ComponentManager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span>
@@ -4397,7 +4397,7 @@ Whether to copy the component before loading it into a client.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong><a href="abc.html#AbstractLoader">tanjun.abc.AbstractLoader</a></strong>: The loader for this component.</li>
+<li><strong><a href="abc.html#ClientLoader">tanjun.abc.ClientLoader</a></strong>: The loader for this component.</li>
 </ul>
 </div>
 

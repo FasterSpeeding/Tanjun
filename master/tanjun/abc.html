@@ -31,13 +31,13 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="class" href="#AbstractLoader">AbstractLoader</a>
+                    <a class="class" href="#ClientLoader">ClientLoader</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#AbstractLoader.load">load</a>
+                                <a class="function" href="#ClientLoader.load">load</a>
                         </li>
                         <li>
-                                <a class="function" href="#AbstractLoader.unload">unload</a>
+                                <a class="function" href="#ClientLoader.unload">unload</a>
                         </li>
                 </ul>
 
@@ -761,7 +761,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;AbstractLoader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClientLoader&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BaseSlashCommandT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSigT&quot;</span><span class="p">,</span>
@@ -4141,7 +4141,7 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        For this to work the module has to have at least one unloading enabled</span>
-<span class="sd">        `tanjun.abc.AbstractLoader` present.</span>
+<span class="sd">        `tanjun.abc.ClientLoader` present.</span>
 
 <span class="sd">        ```py</span>
 <span class="sd">        @tanjun.as_unloader</span>
@@ -4152,7 +4152,7 @@
 <span class="sd">        or</span>
 
 <span class="sd">        ```py</span>
-<span class="sd">        # as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="sd">        # as_loader&#39;s returned ClientLoader handles both loading and unloading.</span>
 <span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().as_loader(unload_component)</span>
 <span class="sd">        ```</span>
 
@@ -4186,7 +4186,7 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one AbstractLoader</span>
+<span class="sd">        For this to work the module has to have at least one ClientLoader</span>
 <span class="sd">        which handles both loading and unloading present.</span>
 
 <span class="sd">        Parameters</span>
@@ -4211,7 +4211,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">AbstractLoader</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ClientLoader</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Interface of logic used to load and unload components into a generic client.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
@@ -4250,18 +4250,18 @@
         </details>
 
             </section>
-                <section id="AbstractLoader">
+                <section id="ClientLoader">
                                 <div class="attr class">
-        <a class="headerlink" href="#AbstractLoader">#&nbsp;&nbsp</a>
+        <a class="headerlink" href="#ClientLoader">#&nbsp;&nbsp</a>
 
         
         <span class="def">class</span>
-        <span class="name">AbstractLoader</span><wbr>(<span class="base">abc.ABC</span>):
+        <span class="name">ClientLoader</span><wbr>(<span class="base">abc.ABC</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AbstractLoader</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ClientLoader</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Interface of logic used to load and unload components into a generic client.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
@@ -4303,8 +4303,8 @@
 </div>
 
 
-                            <div id="AbstractLoader.load" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#AbstractLoader.load">#&nbsp;&nbsp</a>
+                            <div id="ClientLoader.load" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ClientLoader.load">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
@@ -4350,8 +4350,8 @@ The client to load commands and listeners for.</li>
 
 
                             </div>
-                            <div id="AbstractLoader.unload" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#AbstractLoader.unload">#&nbsp;&nbsp</a>
+                            <div id="ClientLoader.unload" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ClientLoader.unload">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
@@ -14343,7 +14343,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        For this to work the module has to have at least one unloading enabled</span>
-<span class="sd">        `tanjun.abc.AbstractLoader` present.</span>
+<span class="sd">        `tanjun.abc.ClientLoader` present.</span>
 
 <span class="sd">        ```py</span>
 <span class="sd">        @tanjun.as_unloader</span>
@@ -14354,7 +14354,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        or</span>
 
 <span class="sd">        ```py</span>
-<span class="sd">        # as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="sd">        # as_loader&#39;s returned ClientLoader handles both loading and unloading.</span>
 <span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().as_loader(unload_component)</span>
 <span class="sd">        ```</span>
 
@@ -14388,7 +14388,7 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one AbstractLoader</span>
+<span class="sd">        For this to work the module has to have at least one ClientLoader</span>
 <span class="sd">        which handles both loading and unloading present.</span>
 
 <span class="sd">        Parameters</span>
@@ -16114,7 +16114,7 @@ module will fail to resolve.</p></li>
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        For this to work the module has to have at least one unloading enabled</span>
-<span class="sd">        `tanjun.abc.AbstractLoader` present.</span>
+<span class="sd">        `tanjun.abc.ClientLoader` present.</span>
 
 <span class="sd">        ```py</span>
 <span class="sd">        @tanjun.as_unloader</span>
@@ -16125,7 +16125,7 @@ module will fail to resolve.</p></li>
 <span class="sd">        or</span>
 
 <span class="sd">        ```py</span>
-<span class="sd">        # as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="sd">        # as_loader&#39;s returned ClientLoader handles both loading and unloading.</span>
 <span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().as_loader(unload_component)</span>
 <span class="sd">        ```</span>
 
@@ -16161,7 +16161,7 @@ used to find unloaders.</p>
 <h6 id="examples">Examples</h6>
 
 <p>For this to work the module has to have at least one unloading enabled
-<code><a href="#AbstractLoader">tanjun.abc.AbstractLoader</a></code> present.</p>
+<code><a href="#ClientLoader">tanjun.abc.ClientLoader</a></code> present.</p>
 
 <div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_unloader</span>
 <span class="k">def</span> <span class="nf">unload_component</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -16170,7 +16170,7 @@ used to find unloaders.</p>
 
 <p>or</p>
 
-<div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned ClientLoader handles both loading and unloading.</span>
 <span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">as_loader</span><span class="p">(</span><span class="n">unload_component</span><span class="p">)</span>
 </code></pre></div>
 
@@ -16219,7 +16219,7 @@ Path of one or more modules to unload.</p>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one AbstractLoader</span>
+<span class="sd">        For this to work the module has to have at least one ClientLoader</span>
 <span class="sd">        which handles both loading and unloading present.</span>
 
 <span class="sd">        Parameters</span>
@@ -16254,7 +16254,7 @@ used to find loaders and unloaders.</p>
 
 <h6 id="examples">Examples</h6>
 
-<p>For this to work the module has to have at least one AbstractLoader
+<p>For this to work the module has to have at least one ClientLoader
 which handles both loading and unloading present.</p>
 
 <h6 id="parameters">Parameters</h6>

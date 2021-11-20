@@ -464,7 +464,7 @@
 <span class="n">_LOGGER</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.clients&quot;</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">_LoaderDescriptor</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">):</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
+<span class="k">class</span> <span class="nc">_LoaderDescriptor</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">):</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
@@ -493,7 +493,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 
-<span class="k">class</span> <span class="nc">_UnloaderDescriptor</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">):</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
+<span class="k">class</span> <span class="nc">_UnloaderDescriptor</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">):</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
@@ -2190,7 +2190,7 @@
     <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -2237,7 +2237,7 @@
     <span class="k">def</span> <span class="nf">_unload_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -4031,7 +4031,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
     <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -4078,7 +4078,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
     <span class="k">def</span> <span class="nf">_unload_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
@@ -7781,7 +7781,7 @@ used to find unloaders.</p>
 <h6 id="examples">Examples</h6>
 
 <p>For this to work the module has to have at least one unloading enabled
-<code><a href="abc.html#AbstractLoader">tanjun.abc.AbstractLoader</a></code> present.</p>
+<code><a href="abc.html#ClientLoader">tanjun.abc.ClientLoader</a></code> present.</p>
 
 <div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_unloader</span>
 <span class="k">def</span> <span class="nf">unload_component</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -7790,7 +7790,7 @@ used to find unloaders.</p>
 
 <p>or</p>
 
-<div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned ClientLoader handles both loading and unloading.</span>
 <span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">as_loader</span><span class="p">(</span><span class="n">unload_component</span><span class="p">)</span>
 </code></pre></div>
 
@@ -7862,7 +7862,7 @@ used to find loaders and unloaders.</p>
 
 <h6 id="examples">Examples</h6>
 
-<p>For this to work the module has to have at least one AbstractLoader
+<p>For this to work the module has to have at least one ClientLoader
 which handles both loading and unloading present.</p>
 
 <h6 id="parameters">Parameters</h6>
