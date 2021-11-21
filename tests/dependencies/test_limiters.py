@@ -57,14 +57,14 @@ import tanjun
 )
 @pytest.mark.asyncio()
 async def test__get_ctx_target(resource_type: tanjun.BucketResource, mock_ctx: tanjun.abc.Context, expected: int):
-    assert await tanjun.dependencies._get_ctx_target(mock_ctx, resource_type) == expected
+    assert await tanjun.dependencies.limiters._get_ctx_target(mock_ctx, resource_type) == expected
 
 
 @pytest.mark.asyncio()
 async def test__get_ctx_target_when_parent_channel():
     mock_context = mock.Mock()
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result is mock_context.get_channel.return_value.parent_id
     mock_context.get_channel.assert_called_once_with()
@@ -76,7 +76,7 @@ async def test__get_ctx_target_when_parent_channel_defaults_to_guild_id():
     mock_context = mock.Mock()
     mock_context.get_channel.return_value.parent_id = None
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result is mock_context.guild_id
     mock_context.get_channel.assert_called_once_with()
@@ -89,7 +89,7 @@ async def test__get_ctx_target_when_parent_channel_falls_back_to_rest():
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.TextableGuildChannel))
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result is mock_context.fetch_channel.return_value.parent_id
     mock_context.get_channel.assert_called_once_with()
@@ -102,7 +102,7 @@ async def test__get_ctx_target_when_parent_channel_falls_back_to_rest_and_defaul
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.TextableGuildChannel, parent_id=None))
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result is mock_context.guild_id
     mock_context.get_channel.assert_called_once_with()
@@ -113,7 +113,7 @@ async def test__get_ctx_target_when_parent_channel_falls_back_to_rest_and_defaul
 async def test__get_ctx_target_when_parent_channel_and_dm_bound():
     mock_context = mock.Mock(guild_id=None)
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result is mock_context.channel_id
 
@@ -132,7 +132,7 @@ async def test__get_ctx_target_when_top_role():
     mock_context.member.get_roles = mock.Mock(return_value=mock_roles)
     mock_context.member.fetch_roles = mock.AsyncMock()
 
-    assert await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 123321
+    assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 123321
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_not_called()
@@ -152,7 +152,7 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
 
-    assert await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
+    assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_awaited_once_with()
@@ -162,7 +162,7 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
 async def test__get_ctx_target_when_top_role_when_dm_bound():
     mock_context = mock.Mock(guild_id=None)
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result is mock_context.channel_id
 
@@ -171,7 +171,7 @@ async def test__get_ctx_target_when_top_role_when_dm_bound():
 async def test__get_ctx_target_when_top_role_when_no_member_in_guild():
     mock_context = mock.Mock(guild_id=654124, member=None)
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result == 654124
 
@@ -182,7 +182,7 @@ async def test__get_ctx_target_when_top_role_when_no_roles_or_only_1_role(role_i
     mock_context = mock.Mock(guild_id=123312)
     mock_context.member.role_ids = role_ids
 
-    result = await tanjun.dependencies._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result == 123312
 
@@ -190,25 +190,25 @@ async def test__get_ctx_target_when_top_role_when_no_roles_or_only_1_role(role_i
 @pytest.mark.asyncio()
 async def test__get_ctx_target_when_unexpected_type():
     with pytest.raises(ValueError, match="Unexpected type 1"):
-        await tanjun.dependencies._get_ctx_target(mock.Mock(), tanjun.BucketResource.MEMBER)
+        await tanjun.dependencies.limiters._get_ctx_target(mock.Mock(), tanjun.BucketResource.MEMBER)
 
 
 class Test_Cooldown:
     def test_has_expired_property(self):
         with mock.patch.object(time, "monotonic", side_effect=[69.0, 72.0]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=60.0))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=60.0))
 
             assert cooldown.has_expired() is False
 
     def test_has_expired_property_when_has_expired(self):
         with mock.patch.object(time, "monotonic", side_effect=[69.0, 96.0]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=26.5))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=26.5))
 
             assert cooldown.has_expired() is True
 
     def test_increment(self):
         with mock.patch.object(time, "monotonic", side_effect=[50.0, 55.0]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=69.420))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=69.420))
             cooldown.counter = 2
 
             cooldown.increment()
@@ -218,7 +218,7 @@ class Test_Cooldown:
 
     def test_increment_when_counter_is_0(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 420.0]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=69.00))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=69.00))
 
             cooldown.increment()
 
@@ -227,7 +227,7 @@ class Test_Cooldown:
 
     def test_increment_when_passed_reset_after(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 422.5]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=2.0))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=2.0))
             cooldown.counter = 2
 
             cooldown.increment()
@@ -237,20 +237,20 @@ class Test_Cooldown:
 
     def test_must_wait_until(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 422.0]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=10.5, limit=3))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=10.5, limit=3))
             cooldown.counter = 3
 
             assert cooldown.must_wait_until() == 7.5
 
     def test_must_wait_until_when_resource_limit_not_hit(self):
-        cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=2.0, limit=3))
+        cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=2.0, limit=3))
         cooldown.counter = 2
 
         assert cooldown.must_wait_until() is None
 
     def test_must_wait_until_when_reset_after_reached(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 425.5]):
-            cooldown = tanjun.dependencies._Cooldown(mock.Mock(reset_after=5.0, limit=3))
+            cooldown = tanjun.dependencies.limiters._Cooldown(mock.Mock(reset_after=5.0, limit=3))
             cooldown.counter = 3
 
             assert cooldown.must_wait_until() is None
@@ -259,7 +259,7 @@ class Test_Cooldown:
 class Test_CooldownBucket:
     @pytest.mark.asyncio()
     async def test_check(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=None))
         bucket.mapping[hikari.Snowflake(3333)] = mock_cooldown
         mock_context = mock.Mock()
@@ -273,7 +273,7 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_check_when_wait_for(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=321.123123123))
         bucket.mapping[hikari.Snowflake(3333)] = mock_cooldown
         mock_context = mock.Mock()
@@ -287,7 +287,7 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_check_when_no_cooldown(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_context = mock.Mock()
         mock_context.author.id = hikari.Snowflake(3333)
 
@@ -298,11 +298,11 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_check_creates_new_cooldown_when_increment_and_not_present(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_context = mock.Mock()
         mock_context.author.id = hikari.Snowflake(455445)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             result = await bucket.check(mock_context, increment=True)
 
             cooldown.assert_called_once_with(bucket)
@@ -314,7 +314,7 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_check_when_increment(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=None))
         bucket.mapping[hikari.Snowflake(421123)] = mock_cooldown
         mock_context = mock.Mock()
@@ -328,7 +328,7 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_check_doesnt_increment_when_wait_until(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=123.321))
         bucket.mapping[hikari.Snowflake(421123)] = mock_cooldown
         mock_context = mock.Mock()
@@ -342,13 +342,13 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_increment(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_cooldown = mock.Mock()
         bucket.mapping[hikari.Snowflake(65234)] = mock_cooldown
         mock_context = mock.Mock()
         mock_context.author.id = hikari.Snowflake(65234)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_not_called()
@@ -356,11 +356,11 @@ class Test_CooldownBucket:
 
     @pytest.mark.asyncio()
     async def test_increment_creates_new_cooldown(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         mock_context = mock.Mock()
         mock_context.author.id = hikari.Snowflake(321)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_called_once_with(bucket)
@@ -371,7 +371,7 @@ class Test_CooldownBucket:
         mock_cooldown_1 = mock.Mock(has_expired=mock.Mock(return_value=False))
         mock_cooldown_2 = mock.Mock(has_expired=mock.Mock(return_value=False))
         mock_cooldown_3 = mock.Mock(has_expired=mock.Mock(return_value=False))
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.USER, 123, 321.123)
         bucket.mapping = {
             hikari.Snowflake(123312): mock_cooldown_1,
             hikari.Snowflake(4321123): mock.Mock(has_expired=mock.Mock(return_value=True)),
@@ -390,7 +390,7 @@ class Test_CooldownBucket:
         }
 
     def test_copy(self):
-        bucket = tanjun.dependencies._CooldownBucket(tanjun.BucketResource.PARENT_CHANNEL, 123, 321.123)
+        bucket = tanjun.dependencies.limiters._CooldownBucket(tanjun.BucketResource.PARENT_CHANNEL, 123, 321.123)
         bucket.mapping[hikari.Snowflake(321123)] = mock.Mock()
 
         new_bucket = bucket.copy()
@@ -405,7 +405,7 @@ class Test_CooldownBucket:
 class Test_MemberCooldownResource:
     @pytest.mark.asyncio()
     async def test_check(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=None))
         bucket.mapping[hikari.Snowflake(654123)] = {hikari.Snowflake(3333): mock_cooldown}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(654123))
@@ -419,7 +419,7 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_when_wait_for(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=321.757564646969))
         bucket.mapping[hikari.Snowflake(543)] = {hikari.Snowflake(123): mock_cooldown}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(543))
@@ -433,7 +433,7 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_when_increment(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=None))
         bucket.mapping[hikari.Snowflake(3123)] = {hikari.Snowflake(123312): mock_cooldown}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(3123))
@@ -447,7 +447,7 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_doesnt_increment_when_wait_for(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=321.324123))
         bucket.mapping[hikari.Snowflake(3123)] = {hikari.Snowflake(123312): mock_cooldown}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(3123))
@@ -461,12 +461,12 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_creates_new_cooldown_when_increment(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         bucket.mapping[hikari.Snowflake(4554444445)] = {hikari.Snowflake(123312): mock.Mock()}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(4554444445))
         mock_context.author.id = hikari.Snowflake(555)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             result = await bucket.check(mock_context, increment=True)
 
             cooldown.assert_called_once_with(bucket)
@@ -479,11 +479,11 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_for_new_guild_when_increment(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_context = mock.Mock(guild_id=hikari.Snowflake(543))
         mock_context.author.id = hikari.Snowflake(123)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             result = await bucket.check(mock_context, increment=True)
 
             cooldown.assert_called_once_with(bucket)
@@ -495,7 +495,7 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_dm_fallback(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=None))
         bucket.dm_fallback[hikari.Snowflake(564123123)] = mock_cooldown
         mock_context = mock.Mock(channel_id=hikari.Snowflake(564123123), guild_id=None)
@@ -508,7 +508,7 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_dm_fallback_when_wait_for(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=321.757564646969))
         bucket.dm_fallback[hikari.Snowflake(54123123)] = mock_cooldown
         mock_context = mock.Mock(channel_id=54123123, guild_id=None)
@@ -521,7 +521,7 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_dm_fallback_when_increment(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock(must_wait_until=mock.Mock(return_value=None))
         bucket.dm_fallback[hikari.Snowflake(6512312)] = mock_cooldown
         mock_context = mock.Mock(channel_id=hikari.Snowflake(6512312), guild_id=None)
@@ -534,10 +534,10 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_dm_fallback_creates_new_cooldown_when_increment(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_context = mock.Mock(channel_id=hikari.Snowflake(959595), guild_id=None)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             result = await bucket.check(mock_context, increment=True)
 
             cooldown.assert_called_once_with(bucket)
@@ -549,13 +549,13 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_increment(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock()
         bucket.mapping[hikari.Snowflake(65123123)] = {hikari.Snowflake(53123): mock_cooldown}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(65123123))
         mock_context.author.id = hikari.Snowflake(53123)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_not_called()
@@ -563,12 +563,12 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_increment_creates_new_cooldown(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         bucket.mapping[hikari.Snowflake(696969)] = {hikari.Snowflake(696969): mock.Mock()}
         mock_context = mock.Mock(guild_id=hikari.Snowflake(696969))
         mock_context.author.id = hikari.Snowflake(65123)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_called_once_with(bucket)
@@ -578,11 +578,11 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_increment_for_new_guild(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_context = mock.Mock(guild_id=hikari.Snowflake(696969))
         mock_context.author.id = hikari.Snowflake(65123)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_called_once_with(bucket)
@@ -591,12 +591,12 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_increment_dm_fallback(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_cooldown = mock.Mock()
         bucket.dm_fallback[hikari.Snowflake(54123)] = mock_cooldown
         mock_context = mock.Mock(channel_id=hikari.Snowflake(54123), guild_id=None)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_not_called()
@@ -604,10 +604,10 @@ class Test_MemberCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_increment_dm_fallback_creates_new_cooldown(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         mock_context = mock.Mock(channel_id=hikari.Snowflake(767676767676), guild_id=None)
 
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown:
             await bucket.increment(mock_context)
 
             cooldown.assert_called_once_with(bucket)
@@ -621,7 +621,7 @@ class Test_MemberCooldownResource:
         mock_dm_cooldown_1 = mock.Mock(has_expired=mock.Mock(return_value=False))
         mock_dm_cooldown_2 = mock.Mock(has_expired=mock.Mock(return_value=False))
         mock_dm_cooldown_3 = mock.Mock(has_expired=mock.Mock(return_value=False))
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         bucket.mapping = {
             hikari.Snowflake(54123): {
                 hikari.Snowflake(123312): mock_cooldown_1,
@@ -662,7 +662,7 @@ class Test_MemberCooldownResource:
         }
 
     def test_copy(self):
-        bucket = tanjun.dependencies._MemberCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._MemberCooldownResource(123, 321.123)
         bucket.mapping[hikari.Snowflake(321123)] = mock.Mock()
         bucket.dm_fallback[hikari.Snowflake(541123)] = mock.Mock()
 
@@ -678,10 +678,10 @@ class Test_MemberCooldownResource:
 class Test_GlobalCooldownResource:
     @pytest.mark.asyncio()
     async def test_check(self):
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown_cls:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown_cls:
             cooldown_cls.return_value.must_wait_until.return_value = None
 
-            resource = tanjun.dependencies._GlobalCooldownResource(123, 312.123)
+            resource = tanjun.dependencies.limiters._GlobalCooldownResource(123, 312.123)
 
         result = await resource.check(mock.Mock())
 
@@ -692,10 +692,10 @@ class Test_GlobalCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_when_increment(self):
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown_cls:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown_cls:
             cooldown_cls.return_value.must_wait_until.return_value = None
 
-            resource = tanjun.dependencies._GlobalCooldownResource(123, 312.123)
+            resource = tanjun.dependencies.limiters._GlobalCooldownResource(123, 312.123)
 
         result = await resource.check(mock.Mock(), increment=True)
 
@@ -706,10 +706,10 @@ class Test_GlobalCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_check_doesnt_increment_when_wait_until(self):
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown_cls:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown_cls:
             cooldown_cls.return_value.must_wait_until.return_value = 541.123
 
-            resource = tanjun.dependencies._GlobalCooldownResource(123, 312.123)
+            resource = tanjun.dependencies.limiters._GlobalCooldownResource(123, 312.123)
 
         result = await resource.check(mock.Mock(), increment=True)
 
@@ -720,20 +720,20 @@ class Test_GlobalCooldownResource:
 
     @pytest.mark.asyncio()
     async def test_increment(self):
-        with mock.patch.object(tanjun.dependencies, "_Cooldown") as cooldown_cls:
+        with mock.patch.object(tanjun.dependencies.limiters, "_Cooldown") as cooldown_cls:
             cooldown_cls.return_value.must_wait_until.return_value = None
 
-            resource = tanjun.dependencies._GlobalCooldownResource(123, 312.123)
+            resource = tanjun.dependencies.limiters._GlobalCooldownResource(123, 312.123)
 
         await resource.increment(mock.Mock())
 
         cooldown_cls.return_value.increment.assert_called_once_with()
 
     def test_cleanup(self):
-        tanjun.dependencies._GlobalCooldownResource(123, 312.123).cleanup()
+        tanjun.dependencies.limiters._GlobalCooldownResource(123, 312.123).cleanup()
 
     def test_copy(self):
-        bucket = tanjun.dependencies._GlobalCooldownResource(123, 321.123)
+        bucket = tanjun.dependencies.limiters._GlobalCooldownResource(123, 321.123)
         bucket.bucket.increment()
 
         new_bucket = bucket.copy()
@@ -930,7 +930,7 @@ class TestInMemoryCooldownManager:
     def test_set_bucket(self, resource_type: tanjun.BucketResource):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
-        with mock.patch.object(tanjun.dependencies, "_CooldownBucket") as cooldown_bucket:
+        with mock.patch.object(tanjun.dependencies.limiters, "_CooldownBucket") as cooldown_bucket:
             manager.set_bucket("gay catgirl", resource_type, 123, 43.123)
 
             assert manager._buckets["gay catgirl"] is cooldown_bucket.return_value
@@ -942,7 +942,7 @@ class TestInMemoryCooldownManager:
     ):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
-        with mock.patch.object(tanjun.dependencies, "_CooldownBucket") as cooldown_bucket:
+        with mock.patch.object(tanjun.dependencies.limiters, "_CooldownBucket") as cooldown_bucket:
             manager.set_bucket("gay catgirl", tanjun.BucketResource.USER, 444, reset_after)
 
             assert manager._buckets["gay catgirl"] is cooldown_bucket.return_value
@@ -951,7 +951,7 @@ class TestInMemoryCooldownManager:
     def test_set_bucket_for_member_resource(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
-        with mock.patch.object(tanjun.dependencies, "_MemberCooldownResource") as cooldown_bucket:
+        with mock.patch.object(tanjun.dependencies.limiters, "_MemberCooldownResource") as cooldown_bucket:
             manager.set_bucket("meowth", tanjun.BucketResource.MEMBER, 64, 42.0)
 
             assert manager._buckets["meowth"] is cooldown_bucket.return_value
@@ -960,7 +960,7 @@ class TestInMemoryCooldownManager:
     def test_set_bucket_for_global_resource(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
-        with mock.patch.object(tanjun.dependencies, "_GlobalCooldownResource") as cooldown_bucket:
+        with mock.patch.object(tanjun.dependencies.limiters, "_GlobalCooldownResource") as cooldown_bucket:
             manager.set_bucket("meow", tanjun.BucketResource.GLOBAL, 420, 69.420)
 
             assert manager._buckets["meow"] is cooldown_bucket.return_value
@@ -969,7 +969,7 @@ class TestInMemoryCooldownManager:
     def test_set_bucket_when_is_default(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
-        with mock.patch.object(tanjun.dependencies, "_CooldownBucket") as cooldown_bucket:
+        with mock.patch.object(tanjun.dependencies.limiters, "_CooldownBucket") as cooldown_bucket:
             manager.set_bucket("default", tanjun.BucketResource.USER, 777, 666.0)
 
             assert manager._buckets["default"] is cooldown_bucket.return_value
@@ -1065,7 +1065,7 @@ class TestCooldownPreExecution:
 def test_with_cooldown():
     mock_command = mock.Mock()
 
-    with mock.patch.object(tanjun.dependencies, "CooldownPreExecution") as mock_pre_execution:
+    with mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution:
         tanjun.with_cooldown("catgirl x catgirl", error_message="pussy cat pussy cat", owners_exempt=False)(
             mock_command
         )
@@ -1080,7 +1080,7 @@ def test_with_cooldown_when_no_set_hooks():
     mock_command = mock.Mock(hooks=None)
 
     stack = contextlib.ExitStack()
-    mock_pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies, "CooldownPreExecution"))
+    mock_pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution"))
     any_hooks = stack.enter_context(mock.patch.object(tanjun.hooks, "AnyHooks"))
 
     with stack:
@@ -1272,216 +1272,3 @@ class TestLazyConstant:
             result = constant.acquire()
             lock.assert_called_once_with()
             assert result is lock.return_value
-
-
-@pytest.mark.skip(reason="Not Implemented")
-@pytest.mark.asyncio()
-async def test_make_lc_resolver_when_already_cached():
-    ...
-
-
-@pytest.mark.skip(reason="Not Implemented")
-@pytest.mark.asyncio()
-async def test_make_lc_resolver():
-    ...
-
-
-def test_inject_lc():
-    stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
-    make_lc_resolver = stack.enter_context(mock.patch.object(tanjun.dependencies, "make_lc_resolver"))
-    mock_type: type[typing.Any] = mock.Mock()
-
-    with stack:
-        result = tanjun.inject_lc(mock_type)
-
-    assert result is inject.return_value
-    inject.assert_called_once_with(callback=make_lc_resolver.return_value)
-    make_lc_resolver.assert_called_once_with(mock_type)
-
-
-@pytest.mark.asyncio()
-async def test_fetch_my_user_when_cached():
-    mock_client = mock.Mock()
-
-    result = await tanjun.dependencies.fetch_my_user(mock_client)
-
-    assert result is mock_client.cache.get_me.return_value
-    mock_client.cache.get_me.assert_called_once_with()
-    mock_client.rest.fetch_my_user.assert_not_called()
-
-
-@pytest.mark.asyncio()
-async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
-    mock_client = mock.Mock()
-    mock_client.rest.token_type = hikari.TokenType.BEARER
-    mock_client.cache.get_me.return_value = None
-
-    with pytest.raises(
-        RuntimeError, match="Cannot fetch current user with a REST client that's bound to a client credentials token"
-    ):
-        await tanjun.dependencies.fetch_my_user(mock_client)
-
-    mock_client.cache.get_me.assert_called_once_with()
-    mock_client.rest.fetch_my_user.assert_not_called()
-
-
-@pytest.mark.asyncio()
-async def test_fetch_my_user_when_not_cache_bound_falls_back_to_rest():
-    mock_client = mock.Mock()
-    mock_client.rest.token_type = hikari.TokenType.BOT
-    mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())
-    mock_client.cache = None
-
-    result = await tanjun.dependencies.fetch_my_user(mock_client)
-
-    assert result is mock_client.rest.fetch_my_user.return_value
-    mock_client.rest.fetch_my_user.assert_called_once_with()
-
-
-def test_set_standard_dependencies():
-    mock_client = mock.Mock(tanjun.Client)
-    mock_client.set_type_dependency.return_value = mock_client
-    stack = contextlib.ExitStack()
-    owner_check = stack.enter_context(mock.patch.object(tanjun.dependencies, "OwnerCheck"))
-    lazy_constant = stack.enter_context(mock.patch.object(tanjun.dependencies, "LazyConstant"))
-
-    with stack:
-        tanjun.dependencies.set_standard_dependencies(mock_client)
-
-    owner_check.assert_called_once_with()
-    lazy_constant.assert_called_once_with(tanjun.dependencies.fetch_my_user)
-    lazy_constant.__getitem__.assert_called_once_with(hikari.OwnUser)
-    mock_client.set_type_dependency.assert_has_calls(
-        [
-            mock.call(tanjun.dependencies.AbstractOwnerCheck, owner_check.return_value),
-            mock.call(lazy_constant.__getitem__.return_value, lazy_constant.return_value),
-        ]
-    )
-
-
-@pytest.mark.asyncio()
-async def test_cache_callback():
-    mock_callback = mock.Mock()
-    mock_context = mock.Mock()
-    with mock.patch.object(
-        tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
-    ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback)
-
-        callback_descriptor.assert_called_once_with(mock_callback)
-
-    with mock.patch.object(time, "monotonic"):
-        results = await asyncio.gather(
-            *(
-                cached_callback(1, ctx=mock_context),
-                cached_callback(2, ctx=mock.Mock()),
-                cached_callback(3, ctx=mock.Mock()),
-                cached_callback(4, ctx=mock.Mock()),
-                cached_callback(5, ctx=mock.Mock()),
-                cached_callback(6, ctx=mock.Mock()),
-            )
-        )
-
-    callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context, 1)
-    assert len(results) == 6
-    assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
-
-
-@pytest.mark.asyncio()
-async def test_cache_callback_when_expired():
-    mock_callback = mock.Mock()
-    mock_first_context = mock.Mock()
-    mock_second_context = mock.Mock()
-    mock_first_result = mock.Mock()
-    mock_second_result = mock.Mock()
-    with mock.patch.object(
-        tanjun.injecting,
-        "CallbackDescriptor",
-        return_value=mock.Mock(resolve=mock.AsyncMock(side_effect=[mock_first_result, mock_second_result])),
-    ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=4))
-
-        callback_descriptor.assert_called_once_with(mock_callback)
-
-    with mock.patch.object(time, "monotonic", return_value=123.111):
-        first_result = await cached_callback(0, ctx=mock_first_context)
-
-    with mock.patch.object(time, "monotonic", return_value=128.11):
-        results = await asyncio.gather(
-            *(
-                cached_callback(1, ctx=mock_second_context),
-                cached_callback(2, ctx=mock.Mock()),
-                cached_callback(3, ctx=mock.Mock()),
-                cached_callback(4, ctx=mock.Mock()),
-                cached_callback(5, ctx=mock.Mock()),
-                cached_callback(6, ctx=mock.Mock()),
-            )
-        )
-
-    callback_descriptor.return_value.resolve.assert_has_awaits(
-        [mock.call(mock_first_context, 0), mock.call(mock_second_context, 1)]
-    )
-    assert first_result is mock_first_result
-    assert len(results) == 6
-    assert all(r is mock_second_result for r in results)
-
-
-@pytest.mark.asyncio()
-async def test_cache_callback_when_not_expired():
-    mock_callback = mock.Mock()
-    mock_context = mock.Mock()
-    with mock.patch.object(
-        tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
-    ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=15))
-
-        callback_descriptor.assert_called_once_with(mock_callback)
-
-    with mock.patch.object(time, "monotonic", return_value=853.123):
-        first_result = await cached_callback(0, ctx=mock_context)
-
-    with mock.patch.object(time, "monotonic", return_value=866.123):
-        results = await asyncio.gather(
-            *(
-                cached_callback(1, ctx=mock.Mock()),
-                cached_callback(2, ctx=mock.Mock()),
-                cached_callback(3, ctx=mock.Mock()),
-                cached_callback(4, ctx=mock.Mock()),
-                cached_callback(5, ctx=mock.Mock()),
-                cached_callback(6, ctx=mock.Mock()),
-            )
-        )
-
-    callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context, 0)
-    assert first_result is callback_descriptor.return_value.resolve.return_value
-    assert len(results) == 6
-    assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
-
-
-def test_cached_inject():
-    stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
-    cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies, "cache_callback"))
-    mock_callback = mock.Mock()
-
-    with stack:
-        result = tanjun.cached_inject(mock_callback, expire_after=datetime.timedelta(seconds=15))
-
-    assert result is inject.return_value
-    inject.assert_called_once_with(callback=cache_callback.return_value)
-    cache_callback.assert_called_once_with(mock_callback, expire_after=datetime.timedelta(seconds=15))
-
-
-def test_cached_inject_with_defaults():
-    stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
-    cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies, "cache_callback"))
-    mock_callback = mock.Mock()
-
-    with stack:
-        result = tanjun.cached_inject(mock_callback)
-
-    assert result is inject.return_value
-    inject.assert_called_once_with(callback=cache_callback.return_value)
-    cache_callback.assert_called_once_with(mock_callback, expire_after=None)
