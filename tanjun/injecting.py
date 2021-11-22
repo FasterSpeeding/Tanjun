@@ -860,11 +860,6 @@ class InjectorClient:
         -------
         Self
             The client instance to allow chaining.
-
-        Raises
-        ------
-        ValueError
-            If both `callback` and `type` are specified or if neither is specified.
         """
         self._type_dependencies[type_] = value
         return self
@@ -899,7 +894,7 @@ class InjectorClient:
 
         Raises
         ------
-        ValueError
+        KeyError
             If `type_` is not registered.
         """
         del self._type_dependencies[type_]

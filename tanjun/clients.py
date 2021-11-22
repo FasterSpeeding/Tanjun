@@ -274,64 +274,8 @@ def as_unloader(
     return _UnloaderDescriptor(callback, standard_impl)
 
 
-class ClientCallbackNames(str, enum.Enum):
-    """Enum of the client callback names dispatched by the standard `Client`."""
-
-    CLOSED = "closed"
-    """Called when the client has finished closing.
-
-    No positional arguments are provided for this event.
-    """
-
-    CLOSING = "closing"
-    """Called when the client is initially instructed to close.
-
-    No positional arguments are provided for this event.
-    """
-
-    COMPONENT_ADDED = "component_added"
-    """Called when a component is added to an active client.
-
-    .. warning::
-        This event isn't dispatched for components which were registered while
-        the client is inactive.
-
-    The first positional argument is the `tanjun.abc.Component` being added.
-    """
-
-    COMPONENT_REMOVED = "component_removed"
-    """Called when a component is added to an active client.
-
-    .. warning::
-        This event isn't dispatched for components which were removed while
-        the client is inactive.
-
-    The first positional argument is the `tanjun.abc.Component` being removed.
-    """
-
-    MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
-    """Called when a message command is not found.
-
-    `tanjun.abc.MessageContext` is provided as the first positional argument.
-    """
-
-    SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
-    """Called when a slash command is not found.
-
-    `tanjun.abc.MessageContext` is provided as the first positional argument.
-    """
-
-    STARTED = "started"
-    """Called when the client has finished starting.
-
-    No positional arguments are provided for this event.
-    """
-
-    STARTING = "starting"
-    """Called when the client is initially instructed to start.
-
-    No positional arguments are provided for this event.
-    """
+ClientCallbackNames = tanjun_abc.ClientCallbackNames
+"""Alias of `tanjun.abc.ClientCallbackNames`."""
 
 
 class MessageAcceptsEnum(str, enum.Enum):
@@ -380,10 +324,9 @@ async def _wrap_client_callback(
     callback: injecting.CallbackDescriptor[None],
     ctx: injecting.AbstractInjectionContext,
     args: tuple[str, ...],
-    kwargs: dict[str, typing.Any],
 ) -> None:
     try:
-        await callback.resolve(ctx, *args, **kwargs)
+        await callback.resolve(ctx, *args)
 
     except Exception as exc:
         _LOGGER.error("Client callback raised exception", exc_info=exc)
@@ -567,7 +510,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
-        dependencies.set_standard_dependencies(self)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -660,6 +602,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if voice:
             self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
+
+        dependencies.set_standard_dependencies(self)
 
     @classmethod
     def from_gateway_bot(
@@ -1388,7 +1332,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self.remove_component(self._components[name])
 
-    def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
+    def add_client_callback(
+        self: _ClientT, name: typing.Union[str, tanjun_abc.ClientCallbackNames], callback: tanjun_abc.MetaEventSig, /
+    ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         descriptor = injecting.CallbackDescriptor(callback)
         name = name.casefold()
@@ -1402,35 +1348,20 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    async def dispatch_client_callback(self, name: str, /, *args: typing.Any, **kwargs: typing.Any) -> None:
-        """Dispatch a client callback.
-
-        Parameters
-        ----------
-        name : str
-            The name of the callback to dispatch.
-
-        Other Parameters
-        ----------------
-        *args : typing.Any
-            Positional arguments to pass to the callback(s).
-        **kwargs : typing.Any
-            Keyword arguments to pass to the callback(s).
-
-        Raises
-        ------
-        KeyError
-            If no callbacks are registered for the given name.
-        """
+    async def dispatch_client_callback(
+        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /, *args: typing.Any
+    ) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         if callbacks := self._client_callbacks.get(name):
             calls = (
-                _wrap_client_callback(callback, injecting.BasicInjectionContext(self), args, kwargs)
-                for callback in callbacks
+                _wrap_client_callback(callback, injecting.BasicInjectionContext(self), args) for callback in callbacks
             )
             await asyncio.gather(*calls)
 
-    def get_client_callbacks(self, name: str, /) -> collections.Collection[tanjun_abc.MetaEventSig]:
+    def get_client_callbacks(
+        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
+    ) -> collections.Collection[tanjun_abc.MetaEventSig]:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         if result := self._client_callbacks.get(name):
@@ -1438,7 +1369,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return ()
 
-    def remove_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
+    def remove_client_callback(
+        self: _ClientT, name: typing.Union[str, tanjun_abc.ClientCallbackNames], callback: tanjun_abc.MetaEventSig, /
+    ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         self._client_callbacks[name].remove(typing.cast("injecting.CallbackDescriptor[None]", callback))
@@ -1448,7 +1381,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     def with_client_callback(
-        self, name: str, /
+        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
         def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:

@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded `is_alive` attribute to the Client abstract interface.
 - Upgraded `clear_slash_commands`, `declare_global_commands`, `declare_slash_command` and 
   `declare_slash_commands` to the Client abstract interface.
+- `Client.dispatch_client_callback` and `ClientCallbackNames` to the abstract interface.
 - Client and Component are now bound to a specific event loop with said loop being exposed by a `loop` property.
 - `BaseSlashCommand.tracked_command`.
 - Upgraded `load_modules`, `unload_modules` and `reload_modules` to the Client abstract interface.
 - `Component.make_loader` shorthand method for making a module loader and unloader for a component.
 - `tanjun.abc.ClientLoader` to make loaders more standard and easier to custom implement.
+- Command cooldowns.
 
 ### Changed
 - Renamed `Client.clear_commands` to `Client.clear_slash_commands`.

@@ -29,30 +29,27 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Default dependency classes used within Tanjun and their abstract interfaces."""
+"""Dependency utilities used for managing data."""
 from __future__ import annotations
 
 __all__: list[str] = [
-    "AbstractOwnerCheck",
     "cache_callback",
     "cached_inject",
+    "fetch_my_user",
     "LazyConstant",
     "inject_lc",
     "make_lc_resolver",
-    "OwnerCheck",
 ]
 
-import abc
 import asyncio
 import datetime
-import logging
 import time
 import typing
 
 import hikari
 
-from . import abc as tanjun_abc
-from . import injecting
+from .. import abc as tanjun_abc
+from .. import injecting
 
 if typing.TYPE_CHECKING:
     import contextlib
@@ -61,121 +58,6 @@ if typing.TYPE_CHECKING:
     _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
 _T = typing.TypeVar("_T")
-_LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
-
-
-class AbstractOwnerCheck(abc.ABC):
-    """Interface used to check if a user is deemed to be the bot's "owner"."""
-
-    __slots__ = ()
-
-    @abc.abstractmethod
-    async def check_ownership(self, client: tanjun_abc.Client, user: hikari.User, /) -> bool:
-        """Check whether this object is owned by the given object.
-
-        Parameters
-        ----------
-        client : tanjun.abc.Client
-            The Tanjun client this check is being called by.
-        user : hikari.User
-            The user to check ownership for.
-
-        Returns
-        -------
-        bool
-            Whether the bot is owned by the provided user.
-        """
-
-
-class _CachedValue(typing.Generic[_T]):
-    __slots__ = ("_expire_after", "_last_called", "_lock", "_result")
-
-    def __init__(self, *, expire_after: typing.Optional[datetime.timedelta]) -> None:
-        self._expire_after = expire_after.total_seconds() if expire_after else None
-        self._last_called: typing.Optional[float] = None
-        self._lock: typing.Optional[asyncio.Lock] = None
-        self._result: typing.Optional[_T] = None
-
-    @property
-    def _has_expired(self) -> bool:
-        return self._expire_after is not None and (
-            not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
-        )
-
-    async def acquire(self, callback: collections.Callable[[], collections.Awaitable[_T]], /) -> _T:
-        if self._result is not None and not self._has_expired:
-            return self._result
-
-        if self._lock is None:
-            self._lock = asyncio.Lock()
-
-        async with self._lock:
-            if self._result is not None and not self._has_expired:
-                return self._result
-
-            self._result = await callback()
-            self._last_called = time.monotonic()
-            # This is set to None afterwards to ensure that it isn't persisted between loops.
-            self._lock = None
-            return self._result
-
-
-class OwnerCheck(AbstractOwnerCheck):
-    """Default implementation of the owner check interface.
-
-    .. warning::
-        `fallback_to_application` is only possible when the REST client
-        is bound to a Bot token.
-    """
-
-    __slots__ = ("_expire_after", "_fallback_to_application", "_owner_ids", "_value")
-
-    def __init__(
-        self,
-        *,
-        expire_after: datetime.timedelta = datetime.timedelta(minutes=5),
-        fallback_to_application: bool = True,
-        owners: typing.Optional[hikari.SnowflakeishSequence[hikari.User]] = None,
-    ) -> None:
-        """Initiate a new owner check dependency.
-
-        Other Parameters
-        ----------------
-        expire_after : datetime.timedelta
-            The amount of time to cache application owner data for.
-
-            This defaults to 5 minutes and is only applicable if `rest` is also
-            passed.
-        fallback_to_application : bool
-            Whether this check should fallback to checking the application's owners
-            if the user isn't in `owners.
-
-            This only works when the bot's rest client is bound to a Bot token.
-        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]
-            Sequence of objects and IDs of the users that are allowed to use the
-            bot's "owners".
-        """
-        self._expire_after = expire_after
-        self._fallback_to_application = fallback_to_application
-        self._owner_ids = {hikari.Snowflake(id_) for id_ in owners} if owners else set[hikari.Snowflake]()
-        self._value = _CachedValue[hikari.Application](expire_after=expire_after)
-
-    async def check_ownership(self, client: tanjun_abc.Client, user: hikari.User, /) -> bool:
-        if user.id in self._owner_ids:
-            return True
-
-        if not self._fallback_to_application:
-            return False
-
-        if client.rest.token_type is not hikari.TokenType.BOT:
-            _LOGGER.warning(
-                "Owner checks cannot fallback to application owners when bound to an OAuth2 "
-                "client credentials token and may always fail unless bound to a Bot token."
-            )
-            return False
-
-        application = await self._value.acquire(client.rest.fetch_application)
-        return user.id in application.team.members if application.team else user.id == application.owner.id
 
 
 class LazyConstant(typing.Generic[_T]):
@@ -371,21 +253,6 @@ async def fetch_my_user(
         raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
 
     return await client.rest.fetch_my_user()
-
-
-def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
-    """Set the standard dependencies for Tanjun.
-
-    Parameters
-    ----------
-    client: tanjun.injecting.InjectorClient
-        The injector client to set the standard dependencies on.
-    """
-    (
-        client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-            LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
-        )
-    )
 
 
 class _CacheCallback(typing.Generic[_T]):

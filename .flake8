@@ -25,6 +25,7 @@ ignore =
 # F405: __all__ field may be undefined or defined from star imports
 per-file-ignores =
     tanjun/__init__.py: F403,F405
+    tanjun/dependencies/__init__.py: F403,F405
     # Doc errors don't matter in the tests
     tests/*.py:         D100, D104
 

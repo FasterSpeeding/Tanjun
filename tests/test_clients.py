@@ -711,6 +711,7 @@ class TestClient:
             add_client_callback = add_client_callback_
 
         client = StubClient(mock.Mock())
+        add_client_callback_.reset_mock()
         mock_callback = mock.Mock()
 
         result = client.with_client_callback("aye")(mock_callback)
