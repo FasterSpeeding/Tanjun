@@ -89,39 +89,13 @@ class ComponentLoader(abc.ABC):
         __slots__ = ()
 
     @abc.abstractmethod
-    def bind_self(self, component: tanjun_abc.Component, /) -> ComponentLoader:
-        """If applicable, bind the component to any internal loader as `self`.
-
-        This will be called before `load_into_component` when loading from the
-        component's attributes and will preferable copy the loader.
-
-        Parameters
-        ----------
-        component : tanjun.abc.Component
-            The component to bind to.
-
-        Returns
-        -------
-        ComponentLoader
-            The loader with `self` binded.
-        """
-        return self
-
-
-    @abc.abstractmethod
-    def load_into_component(self, component: tanjun_abc.Component, /) -> typing.Mapping[str, typing.Any]:
+    def load_into_component(self, component: tanjun_abc.Component, /) -> None:
         """Load the object into the component.
 
         Parameters
         ----------
         component : tanjun.abc.Component
             The component this object should be loaded into.
-
-        Returns
-        -------
-        typing.Mapping[str, typing.Any]
-            A mapping of attribute names to values that should be set on the
-            component if this being loaded from the component's attributes.
         """
 
 
@@ -200,12 +174,6 @@ class Component(tanjun_abc.Component):
 
         When this is `True`, message command names will not be allowed to contain
         spaces and will have to be unique to one command within the component.
-    load_from_attributes : bool
-        Whether this component should load entities which implement `ComponentLoader`
-        from its attributes such as commands.
-
-        This may be useful when an inheritance pattern is employed, defaults
-        to `False` and will only work if the class isn't slotted.
     """
 
     __slots__ = (
@@ -237,7 +205,6 @@ class Component(tanjun_abc.Component):
         message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None,
         name: typing.Optional[str] = None,
         strict: bool = False,
-        load_from_attributes: bool = False,
     ) -> None:
         self._checks: list[checks_.InjectableCheck] = (
             [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
@@ -258,9 +225,6 @@ class Component(tanjun_abc.Component):
         self._on_open: list[injecting.CallbackDescriptor[None]] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
-
-        if load_from_attributes and type(self) is not Component:  # No need to run this on the base class.
-            self._load_from_properties()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
@@ -1029,10 +993,9 @@ class Component(tanjun_abc.Component):
         return False
 
     def _load_from_properties(self) -> None:
-        for name, member in inspect.getmembers(self):
+        for _, member in inspect.getmembers(self):
             if isinstance(member, ComponentLoader):
-                if result := member.bind_self(self).load_into_component(self):
-                    setattr(self, name, result)
+                member.load_into_component(self)
 
     async def close(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.

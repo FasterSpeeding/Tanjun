@@ -46,12 +46,9 @@ import pytest
 
 import tanjun
 
-mock_global_slash_command = mock.Mock(tanjun.abc.SlashCommand)
-mock_global_slash_command.parent = None
-mock_owned_global_slash_command = mock.Mock(tanjun.abc.SlashCommand)
-mock_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
-mock_global_message_command.parent = None
-mock_owned_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
+mock_global_loader_1 = mock.Mock(tanjun.ComponentLoader)
+mock_global_loader_2 = mock.Mock(tanjun.ComponentLoader)
+mock_global_loader_3 = mock.Mock(tanjun.ComponentLoader)
 
 
 class TestComponent:
@@ -81,127 +78,87 @@ class TestComponent:
     def test_copy(self):
         ...
 
-    def test_detect_commands(self):
+    def test_load_from_scope(self):
         # Some of the variables in this test have a type: ignore and noqa on them,
         # this is to silence warnings about these variables being "unused" which
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
         baz = 1  # type: ignore  # noqa: F841
-        mock_owned_slash_command = mock.Mock(tanjun.abc.SlashCommand)  # type: ignore  # noqa: F841
-        mock_message_command = mock.Mock(tanjun.abc.MessageCommand)
-        mock_message_command.parent = None
+        mock_loader_1 = mock.Mock(tanjun.ComponentLoader)
         foo = None  # type: ignore  # noqa: F841
         bar = object()  # type: ignore  # noqa: F841
-        mock_slash_command = mock.Mock(tanjun.abc.SlashCommand)
-        mock_slash_command.parent = None
-        mock_owned_message_command = mock.Mock(tanjun.abc.MessageCommand)  # type: ignore  # noqa: F841
-        mock_add_slash_command = mock.Mock()
-        mock_add_message_command = mock.Mock()
+        mock_loader_2 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_3 = mock.Mock(tanjun.ComponentLoader)
 
-        class StubComponent(tanjun.Component):
-            add_slash_command = mock_add_slash_command
-            add_message_command = mock_add_message_command
+        component = tanjun.Component()
 
-        component = StubComponent()
-
-        result = component.detect_commands()
+        result = component.load_from_scope()
 
         assert result is component
-        mock_add_message_command.assert_called_once_with(mock_message_command)
-        mock_add_slash_command.assert_called_once_with(mock_slash_command)
+        mock_loader_1.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_loader_2.load_into_component.assert_called_once_with(mock_loader_2)
+        mock_loader_3.load_into_component.assert_called_once_with(mock_loader_3)
 
-    def test_detect_commands_when_including_globals(self):
+    def test_load_from_scope_when_including_globals(self):
         # Some of the variables in this test have a type: ignore and noqa on them,
         # this is to silence warnings about these variables being "unused" which
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
         baz = 1  # type: ignore  # noqa: F841
-        mock_message_command = mock.Mock(tanjun.abc.MessageCommand)
-        mock_message_command.parent = None
+        mock_loader_1 = mock.Mock(tanjun.ComponentLoader)
         foo = None  # type: ignore  # noqa: F841
+        mock_loader_2 = mock.Mock(tanjun.ComponentLoader)
         mock_owned_slash_command = mock.Mock(tanjun.abc.SlashCommand)  # type: ignore  # noqa: F841
+        mock_loader_3 = mock.Mock(tanjun.ComponentLoader)
         bar = object()  # type: ignore  # noqa: F841
-        mock_slash_command = mock.Mock(tanjun.abc.SlashCommand)
-        mock_slash_command.parent = None
-        mock_add_slash_command = mock.Mock()
-        mock_add_message_command = mock.Mock()
-        mock_global_slash_command = mock.Mock(tanjun.abc.SlashCommand)
-        mock_global_slash_command.parent = None
-        mock_owned_message_command = mock.Mock(tanjun.abc.MessageCommand)  # type: ignore  # noqa: F841
-        mock_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
-        mock_global_message_command.parent = None
 
-        class StubComponent(tanjun.Component):
-            add_slash_command = mock_add_slash_command
-            add_message_command = mock_add_message_command
+        component = tanjun.Component()
 
-        component = StubComponent()
-
-        result = component.detect_commands(include_globals=True)
+        result = component.load_from_scope(include_globals=True)
 
         assert result is component
-        mock_add_slash_command.assert_has_calls(
-            [
-                mock.call(mock_slash_command),
-                mock.call(mock_global_slash_command),
-                mock.call(globals()["mock_global_slash_command"]),
-            ]
-        )
-        mock_add_message_command.assert_has_calls(
-            [
-                mock.call(mock_message_command),
-                mock.call(mock_global_message_command),
-                mock.call(globals()["mock_global_message_command"]),
-            ]
-        )
+        mock_loader_1.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_loader_2.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_loader_3.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_global_loader_1.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_global_loader_2.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_global_loader_3.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_global_loader_1.reset_mock()
+        mock_global_loader_2.reset_mock()
+        mock_global_loader_3.reset_mock()
 
-    def test_detect_commands_with_explicitly_passed_scope(self):
-        _mock_slash_command_1 = mock.Mock(tanjun.abc.SlashCommand)
-        _mock_slash_command_1.parent = None
-        _mock_slash_command_2 = mock.Mock(tanjun.abc.SlashCommand)
-        _mock_slash_command_2.parent = None
-        _mock_message_command_1 = mock.Mock(tanjun.abc.MessageCommand)
-        _mock_message_command_1.parent = None
-        _mock_message_command_2 = mock.Mock(tanjun.abc.MessageCommand)
-        _mock_message_command_2.parent = None
-        mock_ignored_slash_command = mock.Mock(tanjun.abc.SlashCommand)
-        mock_ignored_slash_command.parent = None
-        mock_ignored_message_command = mock.Mock(tanjun.abc.MessageCommand)
-        mock_ignored_message_command.parent = None
-        mock_add_slash_command = mock.Mock()
-        mock_add_message_command = mock.Mock()
+    def test_load_from_scope_with_explicitly_passed_scope(self):
+        mock_un_used_loader = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_1 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_2 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_3 = mock.Mock(tanjun.ComponentLoader)
         scope = {
             "foo": "bar",
-            "a_command": _mock_slash_command_1,
+            "a_command": mock_loader_1,
             "bar": None,
-            "other_command": _mock_message_command_1,
+            "other_command": mock_loader_2,
             "buz": object(),
-            "a": _mock_message_command_2,
-            "e": _mock_slash_command_2,
+            "a": mock_loader_3,
             "owned_slash_command": mock.Mock(tanjun.abc.SlashCommand),
             "owned_message_command": mock.Mock(tanjun.abc.MessageCommand),
         }
 
-        class StubComponent(tanjun.Component):
-            add_slash_command = mock_add_slash_command
-            add_message_command = mock_add_message_command
+        component = tanjun.Component()
 
-        component = StubComponent()
-
-        result = component.detect_commands(scope=scope)
+        result = component.load_from_scope(scope=scope)
 
         assert result is component
-        mock_add_slash_command.assert_has_calls([mock.call(_mock_slash_command_1), mock.call(_mock_slash_command_2)])
-        mock_add_message_command.assert_has_calls(
-            [mock.call(_mock_message_command_1), mock.call(_mock_message_command_2)]
-        )
+        mock_un_used_loader.load_into_component.assert_not_called()
+        mock_loader_1.load_into_component.assert_called_once_with(component)
+        mock_loader_2.load_into_component.assert_called_once_with(component)
+        mock_loader_3.load_into_component.assert_called_once_with(component)
 
-    def test_detect_commands_when_both_include_globals_and_passed_scope(self):
+    def test_load_from_scope_when_both_include_globals_and_passed_scope(self):
         component = tanjun.Component()
         with pytest.raises(ValueError, match="Cannot specify include_globals as True when scope is passed"):
-            component.detect_commands(include_globals=True, scope={})  # type: ignore
+            component.load_from_scope(include_globals=True, scope={})  # type: ignore
 
-    def test_detect_commands_when_stack_inspection_not_supported(self):
+    def test_load_from_scope_when_stack_inspection_not_supported(self):
         component = tanjun.Component()
 
         with mock.patch.object(inspect, "currentframe", return_value=None):
@@ -209,7 +166,7 @@ class TestComponent:
                 RuntimeError,
                 match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
             ):
-                component.detect_commands()
+                component.load_from_scope()
 
     def test_set_ephemeral_default(self):
         client = tanjun.Component().set_ephemeral_default(False)

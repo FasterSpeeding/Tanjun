@@ -193,13 +193,6 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLo
         self._component = component
         return self
 
-    def load_into_component(self: _PartialCommandT, component: abc.Component, /) -> typing.Optional[_PartialCommandT]:
-        for check in self._checks:
-            if isinstance(check, _LoadableInjector):
-                check.make_method_type(component)
-
-        return None
-
 
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
 
@@ -907,14 +900,6 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
         return super().copy(_new=_new)
 
-    def load_into_component(
-        self: _BaseSlashCommandT, component: abc.Component, /
-    ) -> typing.Optional[_BaseSlashCommandT]:
-        super().load_into_component(component)
-        if not self._parent:
-            component.add_slash_command(self)
-            return self
-
 
 class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     __slots__ = ("_commands", "_default_permission")
@@ -1072,14 +1057,9 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         await ctx.mark_not_found()
 
-    def load_into_component(
-        self: _SlashCommandGroupT, component: abc.Component, /
-    ) -> typing.Optional[_SlashCommandGroupT]:
-        for command in self._commands.values():
-            if isinstance(command, components.ComponentLoader):
-                command.load_into_component(component)
-
-        return super().load_into_component(component)
+    def load_into_component(self, component: abc.Component, /) -> None:
+        if not self._parent:
+            component.add_slash_command(self)
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
@@ -1920,16 +1900,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         return super().copy(_new=_new, parent=parent)
 
-    def load_into_component(self: _SlashCommandT, component: abc.Component, /) -> typing.Optional[_SlashCommandT]:
-        if isinstance(self._callback.callback, types.MethodType):
-            raise ValueError("Callback is already a method type")
-
-        super().load_into_component(component)
-        self._callback = injecting.CallbackDescriptor(types.MethodType(self._callback.callback, component))
-
+    def load_into_component(self, component: abc.Component, /) -> None:
         if not self._parent:
             component.add_slash_command(self)
-            return self
 
 
 def as_message_command(
@@ -2114,16 +2087,10 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
-    def load_into_component(self: _MessageCommandT, component: abc.Component, /) -> typing.Optional[_MessageCommandT]:
-        if isinstance(self._callback, types.MethodType):
-            raise ValueError("Callback is already a method type")
-
-        super().load_into_component(component)
-        self._callback = injecting.CallbackDescriptor(types.MethodType(self._callback.callback, component))
+    def load_into_component(self, component: abc.Component, /) -> None:
 
         if not self._parent:
             component.add_message_command(self)
-            return self
 
 
 class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageCommandGroup):
@@ -2279,13 +2246,6 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         await super().execute(ctx, hooks=hooks)
 
-    def load_into_component(
-        self: _MessageCommandGroupT, component: abc.Component, /
-    ) -> typing.Optional[_MessageCommandGroupT]:
-        super().load_into_component(component)
-        for command in self._commands:
-            if isinstance(command, components.ComponentLoader):
-                command.load_into_component(component)
-
+    def load_into_component(self, component: abc.Component, /) -> None:
         if not self._parent:
-            return self
+            component.add_message_command(self)

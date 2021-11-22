@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BaseSlashCommand.tracked_command_id is no-longer used in command builders and cannot passed to
   `as_slash_command`, `slash_command_group`, `SlashCommand.__init__` and `SlashCommandGroup.__init__`
   as `command_id` anymore.
+- `load_from_attributes` behaviour from the standard Component implementation.
 
 ## [2.1.4a1] - 2021-11-15
 ### Added
