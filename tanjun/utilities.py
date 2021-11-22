@@ -33,7 +33,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "async_chain",
     "gather_checks",
     "ALL_PERMISSIONS",
     "CastedView",
@@ -61,15 +60,6 @@ if typing.TYPE_CHECKING:
 _KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 _OtherValueT = typing.TypeVar("_OtherValueT")
-
-
-async def async_chain(
-    iterable: collections.Iterable[collections.AsyncIterable[_ValueT]],
-) -> collections.AsyncIterator[_ValueT]:
-    """Make an asynchronous iterator of the elements within multiple asynchronous iterators."""
-    for async_iterable in iterable:
-        async for value in async_iterable:
-            yield value
 
 
 async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.InjectableCheck], /) -> bool:

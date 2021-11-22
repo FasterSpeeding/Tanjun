@@ -29,48 +29,46 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Default dependency utilities used within Tanjun and their abstract interfaces."""
+"""Callback dependencies used for getting context and client based data."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    # __init__.py
-    "set_standard_dependencies",
-    # callbacks.py
-    "fetch_my_user",
-    # data.py
-    "cache_callback",
-    "cached_inject",
-    "LazyConstant",
-    "inject_lc",
-    "make_lc_resolver",
-    # limiters.py
-    "AbstractCooldownManager",
-    "BucketResource",
-    "CooldownPreExecution",
-    "InMemoryCooldownManager",
-    "with_cooldown",
-    # owners.py
-    "AbstractOwnerCheck",
-    "OwnerCheck",
-]
+__all__: list[str] = ["fetch_my_user"]
 
 import hikari
 
+from .. import abc
 from .. import injecting
-from .callbacks import *
-from .data import *
-from .limiters import *
-from .owners import *
 
 
-def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
-    """Set the standard dependencies for Tanjun.
+async def fetch_my_user(
+    client: abc.Client = injecting.inject(type=abc.Client),
+) -> hikari.OwnUser:
+    """Fetch the current user from the client's cache or rest client.
+
+    .. note::
+        This is used in the standard `LazyConstant[hikari.OwnUser]`
+        dependency.
 
     Parameters
     ----------
-    client: tanjun.injecting.InjectorClient
-        The injector client to set the standard dependencies on.
+    client : tanjun.abc.Client
+        The client to use to fetch the user.
+
+    Returns
+    -------
+    hikari.OwnUser
+        The current user.
+
+    Raises
+    ------
+    RuntimeError
+        If the cache couldn't be used to get the current user and the REST
+        client is not bound to a Bot token.
     """
-    client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-        LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
-    )
+    if client.cache and (user := client.cache.get_me()):
+        return user
+
+    if client.rest.token_type is not hikari.TokenType.BOT:
+        raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
+
+    return await client.rest.fetch_my_user()

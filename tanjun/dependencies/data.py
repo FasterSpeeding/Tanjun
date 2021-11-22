@@ -32,28 +32,20 @@
 """Dependency utilities used for managing data."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    "cache_callback",
-    "cached_inject",
-    "fetch_my_user",
-    "LazyConstant",
-    "inject_lc",
-    "make_lc_resolver",
-]
+__all__: list[str] = ["cache_callback", "cached_inject", "LazyConstant", "inject_lc", "make_lc_resolver"]
 
 import asyncio
 import datetime
 import time
 import typing
 
-import hikari
-
-from .. import abc as tanjun_abc
 from .. import injecting
 
 if typing.TYPE_CHECKING:
     import contextlib
     from collections import abc as collections
+
+    from .. import abc as tanjun_abc
 
     _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
@@ -219,40 +211,6 @@ def inject_lc(type_: type[_T], /) -> _T:
     ```
     """
     return injecting.inject(callback=make_lc_resolver(type_))
-
-
-async def fetch_my_user(
-    client: tanjun_abc.Client = injecting.inject(type=tanjun_abc.Client),
-) -> hikari.OwnUser:
-    """Fetch the current user from the client's cache or rest client.
-
-    .. note::
-        This is used in the standard `LazyConstant[hikari.OwnUser]`
-        dependency.
-
-    Parameters
-    ----------
-    client : tanjun.abc.Client
-        The client to use to fetch the user.
-
-    Returns
-    -------
-    hikari.OwnUser
-        The current user.
-
-    Raises
-    ------
-    RuntimeError
-        If the cache couldn't be used to get the current user and the REST
-        client is not bound to a Bot token.
-    """
-    if client.cache and (user := client.cache.get_me()):
-        return user
-
-    if client.rest.token_type is not hikari.TokenType.BOT:
-        raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
-
-    return await client.rest.fetch_my_user()
 
 
 class _CacheCallback(typing.Generic[_T]):

@@ -52,7 +52,7 @@ def test_set_standard_dependencies():
         tanjun.dependencies.set_standard_dependencies(mock_client)
 
     owner_check.assert_called_once_with()
-    lazy_constant.assert_called_once_with(tanjun.dependencies.data.fetch_my_user)
+    lazy_constant.assert_called_once_with(tanjun.dependencies.fetch_my_user)
     lazy_constant.__getitem__.assert_called_once_with(hikari.OwnUser)
     mock_client.set_type_dependency.assert_has_calls(
         [

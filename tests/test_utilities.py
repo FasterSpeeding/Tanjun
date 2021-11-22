@@ -50,19 +50,6 @@ def async_iter_mock(*values: _T) -> collections.AsyncIterable[_T]:
 
 
 @pytest.mark.asyncio()
-async def test_async_chain():
-    resources = (
-        async_iter_mock(1, 2, 3),
-        async_iter_mock(99, 55, 44),
-        async_iter_mock(444, 333, 222),
-    )
-
-    results = [result async for result in utilities.async_chain(resources)]
-
-    assert results == [1, 2, 3, 99, 55, 44, 444, 333, 222]
-
-
-@pytest.mark.asyncio()
 async def test_gather_checks_handles_no_checks():
     assert await utilities.gather_checks(mock.Mock(), ()) is True
 

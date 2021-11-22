@@ -40,7 +40,6 @@ import time
 import typing
 from unittest import mock
 
-import hikari
 import pytest
 
 import tanjun
@@ -124,45 +123,6 @@ def test_inject_lc():
     assert result is inject.return_value
     inject.assert_called_once_with(callback=make_lc_resolver.return_value)
     make_lc_resolver.assert_called_once_with(mock_type)
-
-
-@pytest.mark.asyncio()
-async def test_fetch_my_user_when_cached():
-    mock_client = mock.Mock()
-
-    result = await tanjun.dependencies.data.fetch_my_user(mock_client)
-
-    assert result is mock_client.cache.get_me.return_value
-    mock_client.cache.get_me.assert_called_once_with()
-    mock_client.rest.fetch_my_user.assert_not_called()
-
-
-@pytest.mark.asyncio()
-async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
-    mock_client = mock.Mock()
-    mock_client.rest.token_type = hikari.TokenType.BEARER
-    mock_client.cache.get_me.return_value = None
-
-    with pytest.raises(
-        RuntimeError, match="Cannot fetch current user with a REST client that's bound to a client credentials token"
-    ):
-        await tanjun.dependencies.data.fetch_my_user(mock_client)
-
-    mock_client.cache.get_me.assert_called_once_with()
-    mock_client.rest.fetch_my_user.assert_not_called()
-
-
-@pytest.mark.asyncio()
-async def test_fetch_my_user_when_not_cache_bound_falls_back_to_rest():
-    mock_client = mock.Mock()
-    mock_client.rest.token_type = hikari.TokenType.BOT
-    mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())
-    mock_client.cache = None
-
-    result = await tanjun.dependencies.data.fetch_my_user(mock_client)
-
-    assert result is mock_client.rest.fetch_my_user.return_value
-    mock_client.rest.fetch_my_user.assert_called_once_with()
 
 
 @pytest.mark.asyncio()

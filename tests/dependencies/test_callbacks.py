@@ -29,48 +29,52 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Default dependency utilities used within Tanjun and their abstract interfaces."""
-from __future__ import annotations
 
-__all__: list[str] = [
-    # __init__.py
-    "set_standard_dependencies",
-    # callbacks.py
-    "fetch_my_user",
-    # data.py
-    "cache_callback",
-    "cached_inject",
-    "LazyConstant",
-    "inject_lc",
-    "make_lc_resolver",
-    # limiters.py
-    "AbstractCooldownManager",
-    "BucketResource",
-    "CooldownPreExecution",
-    "InMemoryCooldownManager",
-    "with_cooldown",
-    # owners.py
-    "AbstractOwnerCheck",
-    "OwnerCheck",
-]
+# pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
+# This leads to too many false-positives around mocks.
+from unittest import mock
 
 import hikari
+import pytest
 
-from .. import injecting
-from .callbacks import *
-from .data import *
-from .limiters import *
-from .owners import *
+import tanjun
 
 
-def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
-    """Set the standard dependencies for Tanjun.
+@pytest.mark.asyncio()
+async def test_fetch_my_user_when_cached():
+    mock_client = mock.Mock()
 
-    Parameters
-    ----------
-    client: tanjun.injecting.InjectorClient
-        The injector client to set the standard dependencies on.
-    """
-    client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-        LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
-    )
+    result = await tanjun.dependencies.fetch_my_user(mock_client)
+
+    assert result is mock_client.cache.get_me.return_value
+    mock_client.cache.get_me.assert_called_once_with()
+    mock_client.rest.fetch_my_user.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
+    mock_client = mock.Mock()
+    mock_client.rest.token_type = hikari.TokenType.BEARER
+    mock_client.cache.get_me.return_value = None
+
+    with pytest.raises(
+        RuntimeError, match="Cannot fetch current user with a REST client that's bound to a client credentials token"
+    ):
+        await tanjun.dependencies.fetch_my_user(mock_client)
+
+    mock_client.cache.get_me.assert_called_once_with()
+    mock_client.rest.fetch_my_user.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_fetch_my_user_when_not_cache_bound_falls_back_to_rest():
+    mock_client = mock.Mock()
+    mock_client.rest.token_type = hikari.TokenType.BOT
+    mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())
+    mock_client.cache = None
+
+    result = await tanjun.dependencies.fetch_my_user(mock_client)
+
+    assert result is mock_client.rest.fetch_my_user.return_value
+    mock_client.rest.fetch_my_user.assert_called_once_with()
