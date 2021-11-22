@@ -150,7 +150,7 @@ class OwnerCheck(AbstractOwnerCheck):
         else:
             expire_after = float(expire_after)
 
-        if expire_after < 0:  # TODO: test coverage
+        if expire_after <= 0:
             raise ValueError("Expire after must be greater than 0 seconds")
 
         self._fallback_to_application = fallback_to_application

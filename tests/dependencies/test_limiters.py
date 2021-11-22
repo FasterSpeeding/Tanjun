@@ -748,18 +748,24 @@ class Test_GlobalCooldownResource:
 
 class TestInMemoryCooldownManager:
     @pytest.mark.asyncio()
-    async def _gc(self):
+    async def test__gc(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_bucket_1 = mock.Mock()
         mock_bucket_2 = mock.Mock()
         mock_bucket_3 = mock.Mock()
         manager._buckets = {"e": mock_bucket_1, "a": mock_bucket_2, "f": mock_bucket_3}
+        mock_error = Exception("test")
 
-        await asyncio.wait_for(manager._gc(), timeout=0.1)
+        with mock.patch.object(asyncio, "sleep", side_effect=[None, None, mock_error]) as sleep:
+            with pytest.raises(Exception) as exc_info:  # noqa: PT011, PT012
+                await asyncio.wait_for(manager._gc(), timeout=0.5)
 
-        mock_bucket_1.cleanup.assert_called_once_with()
-        mock_bucket_2.cleanup.assert_called_once_with()
-        mock_bucket_3.cleanup.assert_called_once_with()
+                assert exc_info.value is mock_error
+                sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
+
+        mock_bucket_1.cleanup.assert_has_calls([mock.call(), mock.call()])
+        mock_bucket_2.cleanup.assert_has_calls([mock.call(), mock.call()])
+        mock_bucket_3.cleanup.assert_has_calls([mock.call(), mock.call()])
 
     def test_add_to_client(self):
         mock_client = mock.Mock(tanjun.Client, is_alive=False)
