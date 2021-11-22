@@ -2917,7 +2917,7 @@ class Client(abc.ABC):
         """Object of the Hikari voice component this client was initialised with."""
 
     @abc.abstractmethod
-    async def clear_slash_commands(
+    async def clear_application_commands(
         self,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
@@ -2995,7 +2995,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def declare_slash_command(
+    async def declare_application_command(
         self,
         command: BaseSlashCommand,
         /,
@@ -3037,7 +3037,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def declare_slash_commands(
+    async def declare_application_commands(
         self,
         commands: collections.Iterable[BaseSlashCommand],
         /,
