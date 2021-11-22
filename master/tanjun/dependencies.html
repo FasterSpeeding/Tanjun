@@ -34,6 +34,9 @@
                     <a class="function" href="#set_standard_dependencies">set_standard_dependencies</a>
             </li>
             <li>
+                    <a class="function" href="#fetch_my_user">fetch_my_user</a>
+            </li>
+            <li>
                     <a class="function" href="#cache_callback">cache_callback</a>
             </li>
             <li>
@@ -226,6 +229,8 @@
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># __init__.py</span>
     <span class="s2">&quot;set_standard_dependencies&quot;</span><span class="p">,</span>
+    <span class="c1"># callbacks.py</span>
+    <span class="s2">&quot;fetch_my_user&quot;</span><span class="p">,</span>
     <span class="c1"># data.py</span>
     <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cached_inject&quot;</span><span class="p">,</span>
@@ -246,6 +251,7 @@
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
+<span class="kn">from</span> <span class="nn">.callbacks</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.limiters</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.owners</span> <span class="kn">import</span> <span class="o">*</span>
@@ -299,6 +305,83 @@
 <ul>
 <li><strong>client</strong> (<a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>):
 The injector client to set the standard dependencies on.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="fetch_my_user">
+                            <div class="attr function"><a class="headerlink" href="#fetch_my_user">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">fetch_my_user</span><span class="signature">(
+    client: <a href="abc.html#Client">tanjun.abc.Client</a> = &lt;<a href="injecting.html#Injected">tanjun.injecting.Injected</a> object&gt;
+) -&gt; hikari.users.OwnUser</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This is used in the standard `LazyConstant[hikari.OwnUser]`</span>
+<span class="sd">        dependency.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    client : tanjun.abc.Client</span>
+<span class="sd">        The client to use to fetch the user.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hikari.OwnUser</span>
+<span class="sd">        The current user.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the cache couldn&#39;t be used to get the current user and the REST</span>
+<span class="sd">        client is not bound to a Bot token.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">user</span> <span class="o">:=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">user</span>
+
+    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">token_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot fetch current user with a REST client that&#39;s bound to a client credentials token&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Fetch the current user from the client's cache or rest client.</p>
+
+<p><em>Note:</em>
+This is used in the standard <code>LazyConstant[hikari.OwnUser]</code>
+dependency.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
+The client to use to fetch the user.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.OwnUser</strong>: The current user.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the cache couldn't be used to get the current user and the REST
+client is not bound to a Bot token.</li>
 </ul>
 </div>
 
