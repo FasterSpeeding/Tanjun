@@ -618,64 +618,8 @@
     <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">ClientCallbackNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Enum of the client callback names dispatched by the standard `Client`.&quot;&quot;&quot;</span>
-
-    <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when the client has finished closing.</span>
-
-<span class="sd">    No positional arguments are provided for this event.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">CLOSING</span> <span class="o">=</span> <span class="s2">&quot;closing&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to close.</span>
-
-<span class="sd">    No positional arguments are provided for this event.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">COMPONENT_ADDED</span> <span class="o">=</span> <span class="s2">&quot;component_added&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This event isn&#39;t dispatched for components which were registered while</span>
-<span class="sd">        the client is inactive.</span>
-
-<span class="sd">    The first positional argument is the `tanjun.abc.Component` being added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">COMPONENT_REMOVED</span> <span class="o">=</span> <span class="s2">&quot;component_removed&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This event isn&#39;t dispatched for components which were removed while</span>
-<span class="sd">        the client is inactive.</span>
-
-<span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
-
-<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
-
-<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when the client has finished starting.</span>
-
-<span class="sd">    No positional arguments are provided for this event.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">STARTING</span> <span class="o">=</span> <span class="s2">&quot;starting&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to start.</span>
-
-<span class="sd">    No positional arguments are provided for this event.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="n">ClientCallbackNames</span> <span class="o">=</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span>
+<span class="sd">&quot;&quot;&quot;Alias of `tanjun.abc.ClientCallbackNames`.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">MessageAcceptsEnum</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
@@ -724,10 +668,9 @@
     <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">,</span>
     <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
-    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Client callback raised exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">exc</span><span class="p">)</span>
@@ -911,7 +854,6 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
         <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
 
@@ -1004,6 +946,8 @@
 
         <span class="k">if</span> <span class="n">voice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">,</span> <span class="n">voice</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">voice</span><span class="p">),</span> <span class="n">voice</span><span class="p">)</span>
+
+        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_gateway_bot</span><span class="p">(</span>
@@ -1732,7 +1676,9 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
@@ -1746,35 +1692,20 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            The name of the callback to dispatch.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        *args : typing.Any</span>
-<span class="sd">            Positional arguments to pass to the callback(s).</span>
-<span class="sd">        **kwargs : typing.Any</span>
-<span class="sd">            Keyword arguments to pass to the callback(s).</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        KeyError</span>
-<span class="sd">            If no callbacks are registered for the given name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -1782,7 +1713,9 @@
 
         <span class="k">return</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;injecting.CallbackDescriptor[None]&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
@@ -1792,7 +1725,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
@@ -2752,7 +2685,6 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
         <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
 
@@ -2845,6 +2777,8 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
         <span class="k">if</span> <span class="n">voice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">,</span> <span class="n">voice</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">voice</span><span class="p">),</span> <span class="n">voice</span><span class="p">)</span>
+
+        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_gateway_bot</span><span class="p">(</span>
@@ -3573,7 +3507,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
@@ -3587,35 +3523,20 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            The name of the callback to dispatch.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        *args : typing.Any</span>
-<span class="sd">            Positional arguments to pass to the callback(s).</span>
-<span class="sd">        **kwargs : typing.Any</span>
-<span class="sd">            Keyword arguments to pass to the callback(s).</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        KeyError</span>
-<span class="sd">            If no callbacks are registered for the given name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -3623,7 +3544,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
         <span class="k">return</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;injecting.CallbackDescriptor[None]&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
@@ -3633,7 +3556,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
@@ -4418,7 +4341,6 @@ after a rename.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
         <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
 
@@ -4511,6 +4433,8 @@ after a rename.</p>
 
         <span class="k">if</span> <span class="n">voice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">,</span> <span class="n">voice</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">voice</span><span class="p">),</span> <span class="n">voice</span><span class="p">)</span>
+
+        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -6340,7 +6264,7 @@ Name of the component to remove from this client.</li>
             <span class="def">def</span>
             <span class="name">add_client_callback</span><span class="signature">(
     self: ~_ClientT,
-    name: str,
+    name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; ~_ClientT</span>:
@@ -6348,7 +6272,9 @@ Name of the component to remove from this client.</li>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
@@ -6370,7 +6296,7 @@ Name of the component to remove from this client.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>_name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -6396,36 +6322,24 @@ detail around the <code>name</code> being subscribed to.</p></li>
 
         
             <span class="def">async def</span>
-            <span class="name">dispatch_client_callback</span><span class="signature">(self, name: str, /, *args: Any, **kwargs: Any) -&gt; None</span>:
+            <span class="name">dispatch_client_callback</span><span class="signature">(
+    self,
+    name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
+    /,
+    *args: Any
+) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            The name of the callback to dispatch.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        *args : typing.Any</span>
-<span class="sd">            Positional arguments to pass to the callback(s).</span>
-<span class="sd">        **kwargs : typing.Any</span>
-<span class="sd">            Keyword arguments to pass to the callback(s).</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        KeyError</span>
-<span class="sd">            If no callbacks are registered for the given name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 </pre></div>
@@ -6437,7 +6351,7 @@ detail around the <code>name</code> being subscribed to.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>name</strong> (str):
+<li><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name of the callback to dispatch.</li>
 </ul>
 
@@ -6446,8 +6360,6 @@ The name of the callback to dispatch.</li>
 <ul>
 <li><strong>*args</strong> (typing.Any):
 Positional arguments to pass to the callback(s).</li>
-<li><strong>**kwargs</strong> (typing.Any):
-Keyword arguments to pass to the callback(s).</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
@@ -6466,14 +6378,16 @@ Keyword arguments to pass to the callback(s).</li>
             <span class="def">def</span>
             <span class="name">get_client_callbacks</span><span class="signature">(
     self,
-    name: str,
+    name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     /
 ) -&gt; collections.abc.Collection[collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -6489,7 +6403,7 @@ Keyword arguments to pass to the callback(s).</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name to get the callbacks registered for.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -6511,7 +6425,7 @@ The name to get the callbacks registered for.</p>
             <span class="def">def</span>
             <span class="name">remove_client_callback</span><span class="signature">(
     self: ~_ClientT,
-    name: str,
+    name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; ~_ClientT</span>:
@@ -6519,7 +6433,9 @@ The name to get the callbacks registered for.</p>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;injecting.CallbackDescriptor[None]&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
@@ -6536,7 +6452,7 @@ The name to get the callbacks registered for.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -6567,7 +6483,7 @@ The callback to remove from the client's callbacks.</li>
             <span class="def">def</span>
             <span class="name">with_client_callback</span><span class="signature">(
     self,
-    name: str,
+    name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     /
 ) -&gt; collections.abc.Callable[[~MetaEventSigT], ~MetaEventSigT]</span>:
     </div>
@@ -6575,7 +6491,7 @@ The callback to remove from the client's callbacks.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
@@ -6601,7 +6517,7 @@ The callback to remove from the client's callbacks.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -8149,7 +8065,10 @@ The interaction to execute a command based on.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ClientCallbackNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Enum of the client callback names dispatched by the standard `Client`.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Enum of the standard client callback names.</span>
+
+<span class="sd">    These should be dispatched by all `Client` implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when the client has finished closing.</span>
@@ -8210,7 +8129,9 @@ The interaction to execute a command based on.</li>
 
         </details>
 
-            <div class="docstring"><p>Enum of the client callback names dispatched by the standard <code><a href="#Client">Client</a></code>.</p>
+            <div class="docstring"><p>Enum of the standard client callback names.</p>
+
+<p>These should be dispatched by all <code><a href="#Client">Client</a></code> implementations.</p>
 </div>
 
 

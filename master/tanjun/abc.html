@@ -148,6 +148,36 @@
 
             </li>
             <li>
+                    <a class="class" href="#ClientCallbackNames">ClientCallbackNames</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.CLOSED">CLOSED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.CLOSING">CLOSING</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.COMPONENT_ADDED">COMPONENT_ADDED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.COMPONENT_REMOVED">COMPONENT_REMOVED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">MESSAGE_COMMAND_NOT_FOUND</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.SLASH_COMMAND_NOT_FOUND">SLASH_COMMAND_NOT_FOUND</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.STARTED">STARTED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.STARTING">STARTING</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#Hooks">Hooks</a>
                             <ul class="memberlist">
                         <li>
@@ -661,6 +691,9 @@
                                 <a class="function" href="#Client.add_client_callback">add_client_callback</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.dispatch_client_callback">dispatch_client_callback</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.get_client_callbacks">get_client_callbacks</a>
                         </li>
                         <li>
@@ -766,6 +799,7 @@
     <span class="s2">&quot;CheckSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSigT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Context&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClientCallbackNames&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Hooks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MetaEventSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MetaEventSigT&quot;</span><span class="p">,</span>
@@ -794,6 +828,7 @@
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">enum</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
@@ -3478,6 +3513,69 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
+<span class="k">class</span> <span class="nc">ClientCallbackNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enum of the standard client callback names.</span>
+
+<span class="sd">    These should be dispatched by all `Client` implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished closing.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CLOSING</span> <span class="o">=</span> <span class="s2">&quot;closing&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to close.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPONENT_ADDED</span> <span class="o">=</span> <span class="s2">&quot;component_added&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were registered while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPONENT_REMOVED</span> <span class="o">=</span> <span class="s2">&quot;component_removed&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were removed while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished starting.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">STARTING</span> <span class="o">=</span> <span class="s2">&quot;starting&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to start.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
 <span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract interface of a Tanjun client.</span>
 
@@ -3832,12 +3930,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a client callback.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        _name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -3855,12 +3953,36 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
+<span class="sd">            The name of the callback to dispatch.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            Positional arguments to pass to the callback(s).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no callbacks are registered for the given name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a collection of the callbacks registered for a specific name.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name to get the callbacks registered for.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -3872,12 +3994,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a client callback.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -3898,7 +4020,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Add a client callback through a decorator call.</span>
 
 <span class="sd">        Examples</span>
@@ -3913,7 +4037,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -6693,6 +6817,261 @@ nature, and will trigger this exception if they occur.</li>
 </div>
 
 
+                            </div>
+                </section>
+                <section id="ClientCallbackNames">
+                                <div class="attr class">
+        <a class="headerlink" href="#ClientCallbackNames">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ClientCallbackNames</span><wbr>(<span class="base">builtins.str</span>, <span class="base">enum.Enum</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ClientCallbackNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enum of the standard client callback names.</span>
+
+<span class="sd">    These should be dispatched by all `Client` implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished closing.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CLOSING</span> <span class="o">=</span> <span class="s2">&quot;closing&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to close.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPONENT_ADDED</span> <span class="o">=</span> <span class="s2">&quot;component_added&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were registered while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPONENT_REMOVED</span> <span class="o">=</span> <span class="s2">&quot;component_removed&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were removed while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished starting.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">STARTING</span> <span class="o">=</span> <span class="s2">&quot;starting&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to start.</span>
+
+<span class="sd">    No positional arguments are provided for this event.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Enum of the standard client callback names.</p>
+
+<p>These should be dispatched by all <code><a href="#Client">Client</a></code> implementations.</p>
+</div>
+
+
+                            <div id="ClientCallbackNames.CLOSED" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.CLOSED">#&nbsp;&nbsp</a>
+
+        <span class="name">CLOSED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.CLOSED">ClientCallbackNames.CLOSED</a>: &#39;closed&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when the client has finished closing.</p>
+
+<p>No positional arguments are provided for this event.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.CLOSING" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.CLOSING">#&nbsp;&nbsp</a>
+
+        <span class="name">CLOSING</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.CLOSING">ClientCallbackNames.CLOSING</a>: &#39;closing&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when the client is initially instructed to close.</p>
+
+<p>No positional arguments are provided for this event.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.COMPONENT_ADDED" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.COMPONENT_ADDED">#&nbsp;&nbsp</a>
+
+        <span class="name">COMPONENT_ADDED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.COMPONENT_ADDED">ClientCallbackNames.COMPONENT_ADDED</a>: &#39;component_added&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a component is added to an active client.</p>
+
+<p><em>Warning:</em>
+This event isn't dispatched for components which were registered while
+the client is inactive.</p>
+
+<p>The first positional argument is the <code><a href="#Component">tanjun.abc.Component</a></code> being added.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.COMPONENT_REMOVED" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.COMPONENT_REMOVED">#&nbsp;&nbsp</a>
+
+        <span class="name">COMPONENT_REMOVED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.COMPONENT_REMOVED">ClientCallbackNames.COMPONENT_REMOVED</a>: &#39;component_removed&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a component is added to an active client.</p>
+
+<p><em>Warning:</em>
+This event isn't dispatched for components which were removed while
+the client is inactive.</p>
+
+<p>The first positional argument is the <code><a href="#Component">tanjun.abc.Component</a></code> being removed.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">#&nbsp;&nbsp</a>
+
+        <span class="name">MESSAGE_COMMAND_NOT_FOUND</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND</a>: &#39;message_command_not_found&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a message command is not found.</p>
+
+<p><code><a href="#MessageContext">tanjun.abc.MessageContext</a></code> is provided as the first positional argument.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.SLASH_COMMAND_NOT_FOUND" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.SLASH_COMMAND_NOT_FOUND">#&nbsp;&nbsp</a>
+
+        <span class="name">SLASH_COMMAND_NOT_FOUND</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.SLASH_COMMAND_NOT_FOUND">ClientCallbackNames.SLASH_COMMAND_NOT_FOUND</a>: &#39;slash_command_not_found&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a slash command is not found.</p>
+
+<p><code><a href="#MessageContext">tanjun.abc.MessageContext</a></code> is provided as the first positional argument.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.STARTED" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.STARTED">#&nbsp;&nbsp</a>
+
+        <span class="name">STARTED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.STARTED">ClientCallbackNames.STARTED</a>: &#39;started&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when the client has finished starting.</p>
+
+<p>No positional arguments are provided for this event.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.STARTING" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.STARTING">#&nbsp;&nbsp</a>
+
+        <span class="name">STARTING</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.STARTING">ClientCallbackNames.STARTING</a>: &#39;starting&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when the client is initially instructed to start.</p>
+
+<p>No positional arguments are provided for this event.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>enum.Enum</dt>
+                                <dd id="ClientCallbackNames.name" class="variable">name</dd>
+                <dd id="ClientCallbackNames.value" class="variable">value</dd>
+
+            </div>
+            <div><dt>builtins.str</dt>
+                                <dd id="ClientCallbackNames.encode" class="function">encode</dd>
+                <dd id="ClientCallbackNames.replace" class="function">replace</dd>
+                <dd id="ClientCallbackNames.split" class="function">split</dd>
+                <dd id="ClientCallbackNames.rsplit" class="function">rsplit</dd>
+                <dd id="ClientCallbackNames.join" class="function">join</dd>
+                <dd id="ClientCallbackNames.capitalize" class="function">capitalize</dd>
+                <dd id="ClientCallbackNames.casefold" class="function">casefold</dd>
+                <dd id="ClientCallbackNames.title" class="function">title</dd>
+                <dd id="ClientCallbackNames.center" class="function">center</dd>
+                <dd id="ClientCallbackNames.count" class="function">count</dd>
+                <dd id="ClientCallbackNames.expandtabs" class="function">expandtabs</dd>
+                <dd id="ClientCallbackNames.find" class="function">find</dd>
+                <dd id="ClientCallbackNames.partition" class="function">partition</dd>
+                <dd id="ClientCallbackNames.index" class="function">index</dd>
+                <dd id="ClientCallbackNames.ljust" class="function">ljust</dd>
+                <dd id="ClientCallbackNames.lower" class="function">lower</dd>
+                <dd id="ClientCallbackNames.lstrip" class="function">lstrip</dd>
+                <dd id="ClientCallbackNames.rfind" class="function">rfind</dd>
+                <dd id="ClientCallbackNames.rindex" class="function">rindex</dd>
+                <dd id="ClientCallbackNames.rjust" class="function">rjust</dd>
+                <dd id="ClientCallbackNames.rstrip" class="function">rstrip</dd>
+                <dd id="ClientCallbackNames.rpartition" class="function">rpartition</dd>
+                <dd id="ClientCallbackNames.splitlines" class="function">splitlines</dd>
+                <dd id="ClientCallbackNames.strip" class="function">strip</dd>
+                <dd id="ClientCallbackNames.swapcase" class="function">swapcase</dd>
+                <dd id="ClientCallbackNames.translate" class="function">translate</dd>
+                <dd id="ClientCallbackNames.upper" class="function">upper</dd>
+                <dd id="ClientCallbackNames.startswith" class="function">startswith</dd>
+                <dd id="ClientCallbackNames.endswith" class="function">endswith</dd>
+                <dd id="ClientCallbackNames.removeprefix" class="function">removeprefix</dd>
+                <dd id="ClientCallbackNames.removesuffix" class="function">removesuffix</dd>
+                <dd id="ClientCallbackNames.isascii" class="function">isascii</dd>
+                <dd id="ClientCallbackNames.islower" class="function">islower</dd>
+                <dd id="ClientCallbackNames.isupper" class="function">isupper</dd>
+                <dd id="ClientCallbackNames.istitle" class="function">istitle</dd>
+                <dd id="ClientCallbackNames.isspace" class="function">isspace</dd>
+                <dd id="ClientCallbackNames.isdecimal" class="function">isdecimal</dd>
+                <dd id="ClientCallbackNames.isdigit" class="function">isdigit</dd>
+                <dd id="ClientCallbackNames.isnumeric" class="function">isnumeric</dd>
+                <dd id="ClientCallbackNames.isalpha" class="function">isalpha</dd>
+                <dd id="ClientCallbackNames.isalnum" class="function">isalnum</dd>
+                <dd id="ClientCallbackNames.isidentifier" class="function">isidentifier</dd>
+                <dd id="ClientCallbackNames.isprintable" class="function">isprintable</dd>
+                <dd id="ClientCallbackNames.zfill" class="function">zfill</dd>
+                <dd id="ClientCallbackNames.format" class="function">format</dd>
+                <dd id="ClientCallbackNames.format_map" class="function">format_map</dd>
+                <dd id="ClientCallbackNames.maketrans" class="function">maketrans</dd>
+
+            </div>
+                                </dl>
                             </div>
                 </section>
                 <section id="Hooks">
@@ -14034,12 +14413,12 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a client callback.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        _name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -14057,12 +14436,36 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
+<span class="sd">            The name of the callback to dispatch.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            Positional arguments to pass to the callback(s).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no callbacks are registered for the given name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a collection of the callbacks registered for a specific name.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name to get the callbacks registered for.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -14074,12 +14477,12 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a client callback.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -14100,7 +14503,9 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Add a client callback through a decorator call.</span>
 
 <span class="sd">        Examples</span>
@@ -14115,7 +14520,7 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -15247,7 +15652,7 @@ Name of the component to remove from this client.</li>
             <span class="def">def</span>
             <span class="name">add_client_callback</span><span class="signature">(
     self: ~_T,
-    name: str,
+    name: Union[str, <a href="#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; ~_T</span>:
@@ -15256,12 +15661,12 @@ Name of the component to remove from this client.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a client callback.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        _name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -15286,7 +15691,7 @@ Name of the component to remove from this client.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>_name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -15307,6 +15712,72 @@ detail around the <code>name</code> being subscribed to.</p></li>
 
 
                             </div>
+                            <div id="Client.dispatch_client_callback" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.dispatch_client_callback">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">dispatch_client_callback</span><span class="signature">(
+    self,
+    name: Union[str, <a href="#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
+    /,
+    *args: Any
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
+<span class="sd">            The name of the callback to dispatch.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            Positional arguments to pass to the callback(s).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no callbacks are registered for the given name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Dispatch a client callback.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
+The name of the callback to dispatch.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*args</strong> (typing.Any):
+Positional arguments to pass to the callback(s).</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>KeyError</strong>: If no callbacks are registered for the given name.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Client.get_client_callbacks" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Client.get_client_callbacks">#&nbsp;&nbsp</a>
 
@@ -15315,7 +15786,7 @@ detail around the <code>name</code> being subscribed to.</p></li>
             <span class="def">def</span>
             <span class="name">get_client_callbacks</span><span class="signature">(
     self,
-    name: str,
+    name: Union[str, <a href="#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     /
 ) -&gt; collections.abc.Collection[collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]]]</span>:
     </div>
@@ -15323,12 +15794,14 @@ detail around the <code>name</code> being subscribed to.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a collection of the callbacks registered for a specific name.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name to get the callbacks registered for.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -15347,7 +15820,7 @@ detail around the <code>name</code> being subscribed to.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name to get the callbacks registered for.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -15370,7 +15843,7 @@ The name to get the callbacks registered for.</p>
             <span class="def">def</span>
             <span class="name">remove_client_callback</span><span class="signature">(
     self: ~_T,
-    name: str,
+    name: Union[str, <a href="#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; ~_T</span>:
@@ -15379,12 +15852,12 @@ The name to get the callbacks registered for.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a client callback.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -15412,7 +15885,7 @@ The name to get the callbacks registered for.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -15444,7 +15917,7 @@ The callback to remove from the client's callbacks.</li>
             <span class="def">def</span>
             <span class="name">with_client_callback</span><span class="signature">(
     self,
-    name: str,
+    name: Union[str, <a href="#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     /
 ) -&gt; collections.abc.Callable[[~MetaEventSigT], ~MetaEventSigT]</span>:
     </div>
@@ -15452,7 +15925,9 @@ The callback to remove from the client's callbacks.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Add a client callback through a decorator call.</span>
 
 <span class="sd">        Examples</span>
@@ -15467,7 +15942,7 @@ The callback to remove from the client's callbacks.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        name : typing.Union[str, ClientCallbackNames]</span>
 <span class="sd">            The name this callback is being registered to.</span>
 
 <span class="sd">            This is case-insensitive.</span>
@@ -15499,7 +15974,7 @@ The callback to remove from the client's callbacks.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (str):
+<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>

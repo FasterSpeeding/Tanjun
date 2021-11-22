@@ -712,7 +712,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
@@ -727,11 +729,15 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
@@ -740,7 +746,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
@@ -1646,7 +1654,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
@@ -1661,11 +1671,15 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
@@ -1674,7 +1688,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
@@ -2877,7 +2893,7 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="def">def</span>
             <span class="name">add_client_callback</span><span class="signature">(
     self: ~_ComponentT,
-    event_name: str,
+    event_name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; ~_ComponentT</span>:
@@ -2885,7 +2901,9 @@ client propagate and decide the ephemeral default behaviour.</p>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
@@ -2913,14 +2931,16 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="def">def</span>
             <span class="name">get_client_callbacks</span><span class="signature">(
     self,
-    event_name: str,
+    event_name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     /
 ) -&gt; collections.abc.Collection[collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">()</span>
 </pre></div>
@@ -2937,7 +2957,7 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="def">def</span>
             <span class="name">remove_client_callback</span><span class="signature">(
     self,
-    event_name: str,
+    event_name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; None</span>:
@@ -2945,7 +2965,9 @@ client propagate and decide the ephemeral default behaviour.</p>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
@@ -2967,14 +2989,16 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="def">def</span>
             <span class="name">with_client_callback</span><span class="signature">(
     self,
-    event_name: str,
+    event_name: Union[str, <a href="abc.html#ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>],
     /
 ) -&gt; collections.abc.Callable[[~MetaEventSigT], ~MetaEventSigT]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
