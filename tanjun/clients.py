@@ -900,7 +900,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     async def _on_stopping_event(self, _: hikari.StoppingEvent, /) -> None:
         await self.close()
 
-    async def clear_slash_commands(
+    async def clear_application_commands(
         self,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
@@ -948,11 +948,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             if command.is_global
         )
-        return await self.declare_slash_commands(
+        return await self.declare_application_commands(
             commands, command_ids, application=application, guild=guild, force=force
         )
 
-    async def declare_slash_command(
+    async def declare_application_command(
         self,
         command: tanjun_abc.BaseSlashCommand,
         /,
@@ -987,7 +987,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return response
 
-    async def declare_slash_commands(
+    async def declare_application_commands(
         self,
         commands: collections.Iterable[tanjun_abc.BaseSlashCommand],
         /,
