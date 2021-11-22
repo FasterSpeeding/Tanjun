@@ -62,7 +62,6 @@ from . import utilities
 
 if typing.TYPE_CHECKING:
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
-    _T = typing.TypeVar("_T")
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
@@ -90,19 +89,27 @@ class ComponentLoader(abc.ABC):
         __slots__ = ()
 
     @abc.abstractmethod
-    def copy(self: _T) -> _T:
-        """Copy the object.
+    def bind_self(self, component: tanjun_abc.Component, /) -> ComponentLoader:
+        """If applicable, bind the component to any internal loader as `self`.
 
-        This will be called before load_into_component.
+        This will be called before `load_into_component` when loading from the
+        component's attributes and will preferable copy the loader.
+
+        Parameters
+        ----------
+        component : tanjun.abc.Component
+            The component to bind to.
 
         Returns
         -------
-        Self
-            The copied object.
+        ComponentLoader
+            The loader with `self` binded.
         """
+        return self
+
 
     @abc.abstractmethod
-    def load_into_component(self, component: tanjun_abc.Component, /) -> typing.Optional[typing.Any]:
+    def load_into_component(self, component: tanjun_abc.Component, /) -> typing.Mapping[str, typing.Any]:
         """Load the object into the component.
 
         Parameters
@@ -112,9 +119,9 @@ class ComponentLoader(abc.ABC):
 
         Returns
         -------
-        typing.Optional[typing.Any]
-            An object to replace the attribute this object was found at.
-            If `None` is returned, the attribute will be left as-is.
+        typing.Mapping[str, typing.Any]
+            A mapping of attribute names to values that should be set on the
+            component if this being loaded from the component's attributes.
         """
 
 
@@ -193,6 +200,12 @@ class Component(tanjun_abc.Component):
 
         When this is `True`, message command names will not be allowed to contain
         spaces and will have to be unique to one command within the component.
+    load_from_attributes : bool
+        Whether this component should load entities which implement `ComponentLoader`
+        from its attributes such as commands.
+
+        This may be useful when an inheritance pattern is employed, defaults
+        to `False` and will only work if the class isn't slotted.
     """
 
     __slots__ = (
@@ -337,30 +350,30 @@ class Component(tanjun_abc.Component):
         return copy.copy(self).copy(_new=False)
 
     @typing.overload
-    def detect_commands(
+    def load_from_scope(
         self: _ComponentT, *, scope: typing.Optional[collections.Mapping[str, typing.Any]] = None
     ) -> _ComponentT:
         ...
 
     @typing.overload
-    def detect_commands(self: _ComponentT, *, include_globals: bool = False) -> _ComponentT:
+    def load_from_scope(self: _ComponentT, *, include_globals: bool = False) -> _ComponentT:
         ...
 
-    def detect_commands(
+    def load_from_scope(
         self: _ComponentT,
         *,
         include_globals: bool = False,
         scope: typing.Optional[collections.Mapping[str, typing.Any]] = None,
     ) -> _ComponentT:
-        """Load top-level commands into the component from the calling scope.
+        """Load entries such as top-level commands into the component from the calling scope.
 
         Notes
         -----
         * This will ignore commands which are owned by command groups.
-        * This will detect commands from the calling scope unless `scope` is
-          passed but this isn't possible in a stack-less python implementation;
-          in stack-less environments the scope will have to be explicitly
-          passed as `scope`.
+        * This will detect entries from the calling scope which implement
+          `ComponentLoader` unless `scope` is passed but this isn't possible
+          in a stack-less python implementation; in stack-less environments the
+          scope will have to be explicitly passed as `scope`.
 
         Other Parameters
         ----------------
@@ -372,7 +385,8 @@ class Component(tanjun_abc.Component):
             and will only ever be needed when the local scope is different
             from the global scope.
         scope : typing.Optional[collections.Mapping[str, typing.Any]]
-            The scope to detect commands from.
+            The scope to detect entries which implement `ComponentLoader`
+            from.
 
             This overrides the default usage of stackframe introspection.
 
@@ -411,14 +425,10 @@ class Component(tanjun_abc.Component):
             "global and local" if include_globals else "local",
         )
         for value in values_iter:
-            if isinstance(value, tanjun_abc.BaseSlashCommand) and not value.parent:
-                self.add_slash_command(value)
-            elif isinstance(value, tanjun_abc.MessageCommand) and not value.parent:
-                self.add_message_command(value)
+            if isinstance(value, ComponentLoader):
+                value.load_into_component(self)
 
         return self
-
-    # def into_loader()
 
     def set_ephemeral_default(self: _ComponentT, state: typing.Optional[bool], /) -> _ComponentT:
         """Set whether slash contexts executed in this component should default to ephemeral responses.
@@ -1021,7 +1031,7 @@ class Component(tanjun_abc.Component):
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
             if isinstance(member, ComponentLoader):
-                if result := member.copy().load_into_component(self):
+                if result := member.bind_self(self).load_into_component(self):
                     setattr(self, name, result)
 
     async def close(self) -> None:
