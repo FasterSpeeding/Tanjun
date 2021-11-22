@@ -32,7 +32,14 @@
 """Dependency utilities used for managing data."""
 from __future__ import annotations
 
-__all__: list[str] = ["cache_callback", "cached_inject", "LazyConstant", "inject_lc", "make_lc_resolver"]
+__all__: list[str] = [
+    "cache_callback",
+    "cached_inject",
+    "fetch_my_user",
+    "LazyConstant",
+    "inject_lc",
+    "make_lc_resolver",
+]
 
 import asyncio
 import datetime

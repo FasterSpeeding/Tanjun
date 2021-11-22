@@ -68,8 +68,6 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     client: tanjun.injecting.InjectorClient
         The injector client to set the standard dependencies on.
     """
-    from . import data
-
     client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-        LazyConstant[hikari.OwnUser], LazyConstant(data.fetch_my_user)
+        LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
     )
