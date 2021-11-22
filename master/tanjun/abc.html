@@ -664,16 +664,16 @@
                                 <a class="variable" href="#Client.voice">voice</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.clear_slash_commands">clear_slash_commands</a>
+                                <a class="function" href="#Client.clear_application_commands">clear_application_commands</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.declare_global_commands">declare_global_commands</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.declare_slash_command">declare_slash_command</a>
+                                <a class="function" href="#Client.declare_application_command">declare_application_command</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.declare_slash_commands">declare_slash_commands</a>
+                                <a class="function" href="#Client.declare_application_commands">declare_application_commands</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.add_component">add_component</a>
@@ -3678,7 +3678,7 @@
         <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3756,7 +3756,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -3798,7 +3798,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
@@ -14161,7 +14161,7 @@ If the component isn't bound to a client.</li>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -14239,7 +14239,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -14281,7 +14281,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
@@ -14995,13 +14995,13 @@ to this command client.</p>
 
 
                             </div>
-                            <div id="Client.clear_slash_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.clear_slash_commands">#&nbsp;&nbsp</a>
+                            <div id="Client.clear_application_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.clear_application_commands">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">async def</span>
-            <span class="name">clear_slash_commands</span><span class="signature">(
+            <span class="name">clear_application_commands</span><span class="signature">(
     self,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
@@ -15012,7 +15012,7 @@ to this command client.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -15186,13 +15186,13 @@ of only 200 application command creates per day (per guild or globally).</p></li
 
 
                             </div>
-                            <div id="Client.declare_slash_command" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.declare_slash_command">#&nbsp;&nbsp</a>
+                            <div id="Client.declare_application_command" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.declare_application_command">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">async def</span>
-            <span class="name">declare_slash_command</span><span class="signature">(
+            <span class="name">declare_application_command</span><span class="signature">(
     self,
     command: <a href="#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>,
     /,
@@ -15206,7 +15206,7 @@ of only 200 application command creates per day (per guild or globally).</p></li
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -15289,13 +15289,13 @@ Object or ID of the guild to register the command with.</p>
 
 
                             </div>
-                            <div id="Client.declare_slash_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.declare_slash_commands">#&nbsp;&nbsp</a>
+                            <div id="Client.declare_application_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.declare_application_commands">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">async def</span>
-            <span class="name">declare_slash_commands</span><span class="signature">(
+            <span class="name">declare_application_commands</span><span class="signature">(
     self,
     commands: collections.abc.Iterable[<a href="#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>],
     /,
@@ -15310,7 +15310,7 @@ Object or ID of the guild to register the command with.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>

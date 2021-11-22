@@ -109,7 +109,7 @@
                                 <a class="variable" href="#Client.voice">voice</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.clear_slash_commands">clear_slash_commands</a>
+                                <a class="function" href="#Client.clear_application_commands">clear_application_commands</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_global_commands">set_global_commands</a>
@@ -118,10 +118,10 @@
                                 <a class="function" href="#Client.declare_global_commands">declare_global_commands</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.declare_slash_command">declare_slash_command</a>
+                                <a class="function" href="#Client.declare_application_command">declare_application_command</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.declare_slash_commands">declare_slash_commands</a>
+                                <a class="function" href="#Client.declare_application_commands">declare_application_commands</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_auto_defer_after">set_auto_defer_after</a>
@@ -1244,7 +1244,7 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_stopping_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">StoppingEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1292,11 +1292,11 @@
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_application_commands</span><span class="p">(</span>
             <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -1331,7 +1331,7 @@
 
         <span class="k">return</span> <span class="n">response</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
@@ -3075,7 +3075,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_stopping_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">StoppingEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3123,11 +3123,11 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_application_commands</span><span class="p">(</span>
             <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
         <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -3162,7 +3162,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
         <span class="k">return</span> <span class="n">response</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
@@ -5009,12 +5009,12 @@ the client.</p>
 
 
                             </div>
-                            <div id="Client.clear_slash_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.clear_slash_commands">#&nbsp;&nbsp</a>
+                            <div id="Client.clear_application_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.clear_application_commands">#&nbsp;&nbsp</a>
 
         
             <span class="def">async def</span>
-            <span class="name">clear_slash_commands</span><span class="signature">(
+            <span class="name">clear_application_commands</span><span class="signature">(
     self,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
@@ -5024,7 +5024,7 @@ the client.</p>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5143,7 +5143,7 @@ Use <code><a href="#Client.declare_global_commands">Client.declare_global_comman
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_application_commands</span><span class="p">(</span>
             <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
         <span class="p">)</span>
 </pre></div>
@@ -5199,12 +5199,12 @@ of only 200 application command creates per day (per guild or globally).</p></li
 
 
                             </div>
-                            <div id="Client.declare_slash_command" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.declare_slash_command">#&nbsp;&nbsp</a>
+                            <div id="Client.declare_application_command" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.declare_application_command">#&nbsp;&nbsp</a>
 
         
             <span class="def">async def</span>
-            <span class="name">declare_slash_command</span><span class="signature">(
+            <span class="name">declare_application_command</span><span class="signature">(
     self,
     command: <a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>,
     /,
@@ -5217,7 +5217,7 @@ of only 200 application command creates per day (per guild or globally).</p></li
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -5294,12 +5294,12 @@ Object or ID of the guild to register the command with.</p>
 
 
                             </div>
-                            <div id="Client.declare_slash_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.declare_slash_commands">#&nbsp;&nbsp</a>
+                            <div id="Client.declare_application_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.declare_application_commands">#&nbsp;&nbsp</a>
 
         
             <span class="def">async def</span>
-            <span class="name">declare_slash_commands</span><span class="signature">(
+            <span class="name">declare_application_commands</span><span class="signature">(
     self,
     commands: collections.abc.Iterable[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>],
     /,
@@ -5313,7 +5313,7 @@ Object or ID of the guild to register the command with.</p>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_application_commands</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
