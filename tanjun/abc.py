@@ -3460,7 +3460,7 @@ class Client(abc.ABC):
         or
 
         ```py
-        loader = tanjun.Component("trans component").detect_commands().make_loader()
+        loader = tanjun.Component("trans component").load_from_scope().make_loader()
         ```
 
         Parameters
@@ -3516,7 +3516,7 @@ class Client(abc.ABC):
 
         ```py
         # as_loader's returned ClientLoader handles both loading and unloading.
-        loader = tanjun.Component("trans component").detect_commands().as_loader(unload_component)
+        loader = tanjun.Component("trans component").load_from_scope().as_loader(unload_component)
         ```
 
         Parameters

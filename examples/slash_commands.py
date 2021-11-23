@@ -149,18 +149,10 @@ async def defer_command(ctx: tanjun.abc.SlashContext) -> None:
     await ctx.edit_initial_response("Done 👍")
 
 
-# Here we define a loader which can be used to easily load this example
-# components into a bot from a link (assuming the environment has all the
-# right configurations setup.)
-@tanjun.as_loader
-def load_examples(client: tanjun.abc.Client) -> None:
-    client.add_component(component.copy())
-
-
-# Here we define an unloader which can be used to easily unload and reload
-# this example components in a bot from a link.
-@tanjun.as_unloader
-def unload_examples(client: tanjun.Client) -> None:
-    # Since there's no guarantee the stored component will still be the
-    # same as component, we remove it by name.
-    client.remove_component_by_name(component.name)
+# Here we use make_loader to define a loader which can be used to both load
+# and unload and reload this example component into a bot from a link
+# (assuming the environment has all the right configurations setup).
+#
+# Alternatively @tanjun.as_loader and @tanjun.as_unloader can be used
+# for more fine-grained control.
+slash_loader = component.make_loader()

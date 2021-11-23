@@ -55,16 +55,22 @@ async def note_remove(ctx: tanjun.abc.Context, name: str, force: bool) -> None:
     await ctx.respond(f"Force removed {name} note" if force else f"Removed {name} note")
 
 
-# Here we define a loader which can be used to easily load this example
+# Here we define a loader which can be used to load this example
 # components into a bot from a link (assuming the environment has all the
-# right configurations setup.)
+# right configurations setup).
+#
+# Alternatively component.make_loader() can be used as a shorthand for both
+# as_loader and as_unloader.
 @tanjun.as_loader
 def load_examples(client: tanjun.abc.Client) -> None:
     client.add_component(component.copy())
 
 
-# Here we define an unloader which can be used to easily unload and reload
+# Here we define an unloader which can be used to unload and reload
 # this example components in a bot from a link.
+#
+# Alternatively component.make_loader() can be used as a shorthand for both
+# as_loader and as_unloader.
 @tanjun.as_unloader
 def unload_examples(client: tanjun.Client) -> None:
     # Since there's no guarantee the stored component will still be the
