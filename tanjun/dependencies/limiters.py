@@ -261,6 +261,9 @@ class _Cooldown:
         self.reset_after = reset_after
         self.will_reset_after = time.monotonic() + reset_after
 
+    def has_expired(self) -> bool:
+        return time.monotonic() >= self.will_reset_after
+
     def increment(self: _CooldownT) -> _CooldownT:
         if self.counter == 0:
             self.will_reset_after = time.monotonic() + self.reset_after
@@ -279,18 +282,18 @@ class _Cooldown:
             return time_left
 
 
-_InnerResourceT = typing.TypeVar("_InnerResourceT")
+class _InnerResourceProto(typing.Protocol):
+    def has_expired(self) -> bool:
+        raise NotImplementedError
+
+
+_InnerResourceT = typing.TypeVar("_InnerResourceT", bound=_InnerResourceProto)
 
 
 class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
-    __slots__ = ("has_expired", "make_resource")
+    __slots__ = ("make_resource",)
 
-    def __init__(
-        self,
-        has_expired: collections.Callable[[_InnerResourceT], bool],
-        make_resource: _InnerResourceSig[_InnerResourceT],
-    ) -> None:
-        self.has_expired = has_expired
+    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
         self.make_resource = make_resource
 
     @abc.abstractmethod
@@ -316,13 +319,8 @@ _InnerResourceSig = collections.Callable[[], _InnerResourceT]
 class _FlatResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("mapping", "resource")
 
-    def __init__(
-        self,
-        resource: BucketResource,
-        has_expired: collections.Callable[[_InnerResourceT], bool],
-        make_resource: _InnerResourceSig[_InnerResourceT],
-    ) -> None:
-        super().__init__(has_expired, make_resource)
+    def __init__(self, resource: BucketResource, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+        super().__init__(make_resource)
         self.mapping: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.resource = resource
 
@@ -339,22 +337,18 @@ class _FlatResource(_BaseResource[_InnerResourceT]):
 
     def cleanup(self) -> None:
         for target_id, resource in self.mapping.copy().items():
-            if self.has_expired(resource):
+            if resource.has_expired():
                 del self.mapping[target_id]
 
     def copy(self) -> _FlatResource[_InnerResourceT]:
-        return _FlatResource(self.resource, self.has_expired, self.make_resource)
+        return _FlatResource(self.resource, self.make_resource)
 
 
 class _MemberResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("dm_fallback", "mapping")
 
-    def __init__(
-        self,
-        has_expired: collections.Callable[[_InnerResourceT], bool],
-        make_resource: _InnerResourceSig[_InnerResourceT],
-    ) -> None:
-        super().__init__(has_expired, make_resource)
+    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+        super().__init__(make_resource)
         self.dm_fallback: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _InnerResourceT]] = {}
 
@@ -387,29 +381,25 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
     def cleanup(self) -> None:
         for guild_id, mapping in self.mapping.copy().items():
             for bucket_id, resource in mapping.copy().items():
-                if self.has_expired(resource):
+                if resource.has_expired():
                     del mapping[bucket_id]
 
             if not mapping:
                 del self.mapping[guild_id]
 
         for bucket_id, resource in self.dm_fallback.copy().items():
-            if self.has_expired(resource):
+            if resource.has_expired():
                 del self.dm_fallback[bucket_id]
 
     def copy(self) -> _MemberResource[_InnerResourceT]:
-        return _MemberResource(self.has_expired, self.make_resource)
+        return _MemberResource(self.make_resource)
 
 
 class _GlobalResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("bucket",)
 
-    def __init__(
-        self,
-        has_expired: collections.Callable[[_InnerResourceT], bool],
-        make_resource: _InnerResourceSig[_InnerResourceT],
-    ) -> None:
-        super().__init__(has_expired, make_resource)
+    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+        super().__init__(make_resource)
         self.bucket = make_resource()
 
     async def try_into_inner(self, _: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
@@ -422,21 +412,19 @@ class _GlobalResource(_BaseResource[_InnerResourceT]):
         pass
 
     def copy(self) -> _GlobalResource[_InnerResourceT]:
-        return _GlobalResource(self.has_expired, self.make_resource)
+        return _GlobalResource(self.make_resource)
 
 
 def _to_bucket(
-    resource: BucketResource,
-    has_expired: collections.Callable[[_InnerResourceT], bool],
-    make_resource: _InnerResourceSig[_InnerResourceT],
+    resource: BucketResource, make_resource: _InnerResourceSig[_InnerResourceT]
 ) -> _BaseResource[_InnerResourceT]:
     if resource is BucketResource.MEMBER:
-        return _MemberResource(has_expired, make_resource)
+        return _MemberResource(make_resource)
 
     if resource is BucketResource.GLOBAL:
-        return _GlobalResource(has_expired, make_resource)
+        return _GlobalResource(make_resource)
 
-    return _FlatResource(resource, has_expired, make_resource)
+    return _FlatResource(resource, make_resource)
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
@@ -466,13 +454,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
-            BucketResource.USER, self._has_expired, lambda: _Cooldown(limit=2, reset_after=5)
+            BucketResource.USER, lambda: _Cooldown(limit=2, reset_after=5)
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
-
-    @staticmethod
-    def _has_expired(cooldown: _Cooldown, /) -> bool:
-        return time.monotonic() >= cooldown.will_reset_after
 
     def _get_or_default(self, bucket_id: str, /) -> _BaseResource[_Cooldown]:
         if bucket := self._buckets.get(bucket_id):
@@ -600,7 +584,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         def _build_cooldown() -> _Cooldown:
             return _Cooldown(limit=limit, reset_after=reset_after)
 
-        bucket = self._buckets[bucket_id] = _to_bucket(resource, self._has_expired, _build_cooldown)
+        bucket = self._buckets[bucket_id] = _to_bucket(resource, _build_cooldown)
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -730,6 +714,9 @@ class _ConcurrencyLimit:
 
         raise ValueError("Cannot release a limit that has not been acquired")
 
+    def has_expired(self) -> bool:
+        return self.counter == 0
+
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     """In-memory standard implementation of `AbstractConcurrencyLimiter`."""
@@ -740,13 +727,9 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         self._active_ctxs: dict[tuple[str, tanjun_abc.Context], _ConcurrencyLimit] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
         self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
-            BucketResource.USER, self._has_expired, lambda: _ConcurrencyLimit(limit=1)
+            BucketResource.USER, lambda: _ConcurrencyLimit(limit=1)
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
-
-    @staticmethod
-    def _has_expired(limit: _ConcurrencyLimit, /) -> bool:
-        return limit.counter == 0
 
     async def _gc(self) -> None:
         while True:
@@ -798,9 +781,9 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket.", bucket_id)
             bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
 
-        # incrementing multiple times for the same context could lead to weird
-        # edge cases based on how we internally track this, so we internally
-        # de-duplicate this.
+        # incrementing a bucket multiple times for the same context could lead
+        # to weird edge cases based on how we internally track this, so we
+        # internally de-duplicate this.
         elif (bucket_id, ctx) in self._active_ctxs:
             return True
 
@@ -822,7 +805,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         def _build_limit() -> _ConcurrencyLimit:
             return _ConcurrencyLimit(limit=limit)
 
-        bucket = self._buckets[bucket_id] = _to_bucket(resource, self._has_expired, _build_limit)
+        bucket = self._buckets[bucket_id] = _to_bucket(resource, _build_limit)
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
