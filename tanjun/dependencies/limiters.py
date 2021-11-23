@@ -117,7 +117,7 @@ class AbstractCooldownManager(abc.ABC):
 
 
 class AbstractConcurrencyLimiter(abc.ABC):
-    """Interface used foro limiting command concurrency."""
+    """Interface used for limiting command concurrent usage."""
 
     __slots__ = ()
 
@@ -314,7 +314,7 @@ _InnerResourceSig = collections.Callable[[], _InnerResourceT]
 
 
 class _FlatResource(_BaseResource[_InnerResourceT]):
-    __slots__ = ("resource", "mapping")
+    __slots__ = ("mapping", "resource")
 
     def __init__(
         self,
@@ -323,8 +323,8 @@ class _FlatResource(_BaseResource[_InnerResourceT]):
         make_resource: _InnerResourceSig[_InnerResourceT],
     ) -> None:
         super().__init__(has_expired, make_resource)
-        self.resource = resource
         self.mapping: dict[hikari.Snowflake, _InnerResourceT] = {}
+        self.resource = resource
 
     async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
         return self.mapping.get(await _get_ctx_target(ctx, self.resource))
@@ -461,14 +461,14 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     )
     """
 
-    __slots__ = ("_buckets", "_default_bucket_template", "_gc_loop")
+    __slots__ = ("_buckets", "_default_bucket_template", "_gc_task")
 
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
             BucketResource.USER, self._has_expired, lambda: _Cooldown(limit=2, reset_after=5)
         )
-        self._gc_loop: typing.Optional[asyncio.Task[None]] = None
+        self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
     @staticmethod
     def _has_expired(cooldown: _Cooldown, /) -> bool:
@@ -478,7 +478,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if bucket := self._buckets.get(bucket_id):
             return bucket
 
-        _LOGGER.info("No cooldown found for {bucket_id}, falling back to 'default' bucket.")
+        _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket.", bucket_id)
         bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
         return bucket
 
@@ -522,32 +522,32 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         (await self._get_or_default(bucket_id).into_inner(ctx)).increment()
 
     def close(self) -> None:
-        """Stop the event manager.
+        """Stop the cooldown manager.
 
         Raises
         ------
         RuntimeError
-            If the event manager is not running.
+            If the cooldown manager is not running.
         """
-        if not self._gc_loop:
+        if not self._gc_task:
             raise RuntimeError("Cooldown manager is not active")
 
-        self._gc_loop.cancel()
-        self._gc_loop = None
+        self._gc_task.cancel()
+        self._gc_task = None
 
     def open(self, *, _loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
-        """Start the event manager.
+        """Start the cooldown manager.
 
         Raises
         ------
         RuntimeError
-            If the event manager is already running.
+            If the cooldown manager is already running.
             If called in a thread with no running event loop.
         """
-        if self._gc_loop:
+        if self._gc_task:
             raise RuntimeError("Cooldown manager is already running")
 
-        self._gc_loop = (_loop or asyncio.get_running_loop()).create_task(self._gc())
+        self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
     def set_bucket(
         self: _InMemoryCooldownManagerT,
@@ -721,20 +721,20 @@ class _ConcurrencyLimit:
             self.counter += 1
             return True
 
-        return True
+        return False
 
     def release(self) -> None:
         if self.counter > 0:
             self.counter -= 1
+            return
 
-        else:
-            raise ValueError("Cannot release a limit that has not been acquired")
+        raise ValueError("Cannot release a limit that has not been acquired")
 
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     """In-memory standard implementation of `AbstractConcurrencyLimiter`."""
 
-    __slots__ = ("_buckets", "_default_bucket_template")
+    __slots__ = ("_active_ctxs", "_buckets", "_default_bucket_template", "_gc_task")
 
     def __init__(self) -> None:
         self._active_ctxs: dict[tuple[str, tanjun_abc.Context], _ConcurrencyLimit] = {}
@@ -742,27 +742,73 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
             BucketResource.USER, self._has_expired, lambda: _ConcurrencyLimit(limit=1)
         )
+        self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
     @staticmethod
-    def _has_expired(_: _ConcurrencyLimit) -> typing.NoReturn:
-        raise RuntimeError("This should never be called")
+    def _has_expired(limit: _ConcurrencyLimit, /) -> bool:
+        return limit.counter == 0
+
+    async def _gc(self) -> None:
+        while True:
+            await asyncio.sleep(10)
+            for bucket in self._buckets.values():
+                bucket.cleanup()
 
     def add_to_client(self, client: injecting.InjectorClient, /) -> None:
         client.set_type_dependency(AbstractConcurrencyLimiter, self)
+        # TODO: the injection client should be upgraded to the abstract Client.
+        assert isinstance(client, tanjun_abc.Client)
+        client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
+        client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
+        if client.is_alive:
+            assert client.loop is not None
+            self.open(_loop=client.loop)
+
+    def close(self) -> None:
+        """Stop the concurrency manager.
+
+        Raises
+        ------
+        RuntimeError
+            If the concurrency manager is not running.
+        """
+        if not self._gc_task:
+            raise RuntimeError("Cooldown manager is not active")
+
+        self._gc_task.cancel()
+        self._gc_task = None
+
+    def open(self, *, _loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+        """Start the concurrency manager.
+
+        Raises
+        ------
+        RuntimeError
+            If the concurrency manager is already running.
+            If called in a thread with no running event loop.
+        """
+        if self._gc_task:
+            raise RuntimeError("Cooldown manager is already running")
+
+        self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
     async def try_acquire(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> bool:
         bucket = self._buckets.get(bucket_id)
         if not bucket:
-            _LOGGER.info("No concurrency limit found for {bucket_id}, falling back to 'default' bucket.")
+            _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket.", bucket_id)
             bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
 
-        return (await bucket.into_inner(ctx)).acquire()
+        if result := (limit := await bucket.into_inner(ctx)).acquire():
+            self._active_ctxs[(bucket_id, ctx)] = limit
+
+        return result
 
     async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
-        self._active_ctxs[(bucket_id, ctx)].release()
+        if limit := self._active_ctxs.pop((bucket_id, ctx), None):
+            limit.release()
 
     def set_bucket(
-        self: _InMemoryConcurrencyLimiterT, bucket_id: str, resource: BucketResource, limit: int
+        self: _InMemoryConcurrencyLimiterT, bucket_id: str, resource: BucketResource, limit: int, /
     ) -> _InMemoryConcurrencyLimiterT:
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
@@ -817,7 +863,7 @@ def with_concurrency_limit(
     bucket_id: str,
     /,
     *,
-    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+    error_message: str = "This resource is currently busy; please try again later.",
 ) -> collections.Callable[[CommandT], CommandT]:
     def decorator(command: CommandT, /) -> CommandT:
         hooks_ = command.hooks
