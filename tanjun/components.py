@@ -84,9 +84,7 @@ OnCallbackSigT = typing.TypeVar("OnCallbackSigT", bound=OnCallbackSig)
 class ComponentLoader(abc.ABC):
     """Abstract interface used for loading utility into a standard `Component`."""
 
-    # This fucks with MyPy even though at runtime python just straight out ignores slots when considering protocol
-    if not typing.TYPE_CHECKING:  # compatibility.
-        __slots__ = ()
+    __slots__ = ()
 
     @abc.abstractmethod
     def load_into_component(self, component: tanjun_abc.Component, /) -> None:

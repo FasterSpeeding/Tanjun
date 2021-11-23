@@ -33,10 +33,15 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AbstractConcurrencyLimiter",
     "AbstractCooldownManager",
     "BucketResource",
+    "ConcurrencyPreExecution",
+    "ConcurrencyPostExecution",
     "CooldownPreExecution",
+    "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
+    "with_concurrency_limit",
     "with_cooldown",
 ]
 
@@ -47,6 +52,7 @@ import enum
 import logging
 import time
 import typing
+from collections import abc as collections
 
 import hikari
 
@@ -57,9 +63,8 @@ from .. import injecting
 from . import owners
 
 if typing.TYPE_CHECKING:
-    from collections import abc as collections
-
     _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
+    _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
@@ -108,6 +113,39 @@ class AbstractCooldownManager(abc.ABC):
             The cooldown bucket's ID.
         ctx : tanjun.abc.Context
             The context of the command.
+        """
+
+
+class AbstractConcurrencyLimiter(abc.ABC):
+    """Interface used foro limiting command concurrency."""
+
+    __slots__ = ()
+
+    @abc.abstractmethod
+    async def try_acquire(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> bool:
+        """Try to acquire a concurrency lock on a bucket.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The concurrency bucket to acquire.
+        ctx : tanjun.abc.Context
+            The context to acquire this resource lock with.
+
+        Returns
+        -------
+        bool
+            Whether the lock was acquired.
+        """
+
+    @abc.abstractmethod
+    async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        """Release a concurrency lock on a bucket.
+
+        Raises
+        ------
+        RuntimeError
+            If nothing has this resource acquired.
         """
 
 
@@ -211,183 +249,194 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
     raise ValueError(f"Unexpected type {type_}")
 
 
+_CooldownT = typing.TypeVar("_CooldownT", bound="_Cooldown")
+
+
 class _Cooldown:
-    __slots__ = ("counter", "will_reset_after", "resource")
+    __slots__ = ("counter", "limit", "reset_after", "will_reset_after")
 
-    def __init__(self, resource: _BaseCooldownResource, /) -> None:
+    def __init__(self, /, *, limit: int, reset_after: float) -> None:
         self.counter = 0
-        self.will_reset_after = time.monotonic() + resource.reset_after
-        self.resource = resource
+        self.limit = limit
+        self.reset_after = reset_after
+        self.will_reset_after = time.monotonic() + reset_after
 
-    def has_expired(self) -> bool:
-        return time.monotonic() >= self.will_reset_after
-
-    def increment(self) -> None:
+    def increment(self: _CooldownT) -> _CooldownT:
         if self.counter == 0:
-            self.will_reset_after = time.monotonic() + self.resource.reset_after
+            self.will_reset_after = time.monotonic() + self.reset_after
 
         elif (current_time := time.monotonic()) >= self.will_reset_after:
             self.counter = 0
-            self.will_reset_after = current_time + self.resource.reset_after
+            self.will_reset_after = current_time + self.reset_after
 
-        self.counter += 1
+        elif self.counter < self.limit:
+            self.counter += 1
+
+        return self
 
     def must_wait_until(self) -> typing.Optional[float]:
-        if self.counter >= self.resource.limit and (time_left := self.will_reset_after - time.monotonic()) > 0:
+        if self.counter >= self.limit and (time_left := self.will_reset_after - time.monotonic()) > 0:
             return time_left
 
 
-class _BaseCooldownResource(abc.ABC):
-    __slots__ = ("limit", "reset_after")
+_InnerResourceT = typing.TypeVar("_InnerResourceT")
 
-    def __init__(self, limit: int, reset_after: float) -> None:
-        self.limit = limit
-        self.reset_after = reset_after
 
-    @abc.abstractmethod
-    async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
-        raise NotImplementedError
+class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
+    __slots__ = ("has_expired", "make_resource")
 
-    @abc.abstractmethod
-    async def increment(self, ctx: tanjun_abc.Context, /) -> None:
-        raise NotImplementedError
+    def __init__(
+        self,
+        has_expired: collections.Callable[[_InnerResourceT], bool],
+        make_resource: _InnerResourceSig[_InnerResourceT],
+    ) -> None:
+        self.has_expired = has_expired
+        self.make_resource = make_resource
 
     @abc.abstractmethod
     def cleanup(self) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self) -> _BaseCooldownResource:
+    def copy(self) -> _BaseResource[_InnerResourceT]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def into_inner(self, ctx: tanjun_abc.Context, /) -> _InnerResourceT:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
         raise NotImplementedError
 
 
-def _check_cooldown_mapping(
-    resource: _BaseCooldownResource,
-    mapping: dict[hikari.Snowflake, _Cooldown],
-    target: hikari.Snowflake,
-    increment: bool,
-) -> typing.Optional[float]:
-    cooldown = mapping.get(target)
-    if increment:
-        if cooldown:
-            wait_until = cooldown.must_wait_until()
-
-        else:
-            cooldown = mapping[target] = _Cooldown(resource)
-            wait_until = None
-
-        if wait_until is None:
-            cooldown.increment()
-
-        return wait_until
-
-    return cooldown.must_wait_until() if cooldown else None
+_InnerResourceSig = collections.Callable[[], _InnerResourceT]
 
 
-class _CooldownBucket(_BaseCooldownResource):
-    __slots__ = ("type", "mapping")
+class _FlatResource(_BaseResource[_InnerResourceT]):
+    __slots__ = ("resource", "mapping")
 
-    def __init__(self, resource_type: BucketResource, limit: int, reset_after: float) -> None:
-        super().__init__(limit, reset_after)
-        self.type = resource_type
-        self.mapping: dict[hikari.Snowflake, _Cooldown] = {}
+    def __init__(
+        self,
+        resource: BucketResource,
+        has_expired: collections.Callable[[_InnerResourceT], bool],
+        make_resource: _InnerResourceSig[_InnerResourceT],
+    ) -> None:
+        super().__init__(has_expired, make_resource)
+        self.resource = resource
+        self.mapping: dict[hikari.Snowflake, _InnerResourceT] = {}
 
-    async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
-        return _check_cooldown_mapping(self, self.mapping, await _get_ctx_target(ctx, self.type), increment)
+    async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
+        return self.mapping.get(await _get_ctx_target(ctx, self.resource))
 
-    async def increment(self, ctx: tanjun_abc.Context, /) -> None:
-        target = await _get_ctx_target(ctx, self.type)
-        if not (cooldown := self.mapping.get(target)):
-            cooldown = self.mapping[target] = _Cooldown(self)
+    async def into_inner(self, ctx: tanjun_abc.Context, /) -> _InnerResourceT:
+        target = await _get_ctx_target(ctx, self.resource)
+        if resource := self.mapping.get(target):
+            return resource
 
-        cooldown.increment()
+        resource = self.mapping[target] = self.make_resource()
+        return resource
 
     def cleanup(self) -> None:
-        for target_id, cooldown in self.mapping.copy().items():
-            if cooldown.has_expired():
+        for target_id, resource in self.mapping.copy().items():
+            if self.has_expired(resource):
                 del self.mapping[target_id]
 
-    def copy(self) -> _CooldownBucket:
-        return _CooldownBucket(resource_type=self.type, limit=self.limit, reset_after=self.reset_after)
+    def copy(self) -> _FlatResource[_InnerResourceT]:
+        return _FlatResource(self.resource, self.has_expired, self.make_resource)
 
 
-class _MemberCooldownResource(_BaseCooldownResource):
+class _MemberResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("dm_fallback", "mapping")
 
-    def __init__(self, limit: int, reset_after: float) -> None:
-        super().__init__(limit, reset_after)
-        self.dm_fallback: dict[hikari.Snowflake, _Cooldown] = {}
-        self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _Cooldown]] = {}
+    def __init__(
+        self,
+        has_expired: collections.Callable[[_InnerResourceT], bool],
+        make_resource: _InnerResourceSig[_InnerResourceT],
+    ) -> None:
+        super().__init__(has_expired, make_resource)
+        self.dm_fallback: dict[hikari.Snowflake, _InnerResourceT] = {}
+        self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _InnerResourceT]] = {}
 
-    async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
+    async def into_inner(self, ctx: tanjun_abc.Context, /) -> _InnerResourceT:
         if not ctx.guild_id:
-            return _check_cooldown_mapping(self, self.dm_fallback, ctx.channel_id, increment)
+            if resource := self.dm_fallback.get(ctx.channel_id):
+                return resource
 
-        mapping = self.mapping.get(ctx.guild_id)
-        if mapping is None and increment:
-            self.mapping[ctx.guild_id] = {}
-            mapping = self.mapping[ctx.guild_id]
+            resource = self.dm_fallback[ctx.channel_id] = self.make_resource()
+            return resource
 
-        return _check_cooldown_mapping(self, mapping, ctx.author.id, increment) if mapping is not None else None
+        if (guild_mapping := self.mapping.get(ctx.guild_id)) is not None:
+            if resource := guild_mapping.get(ctx.author.id):
+                return resource
 
-    async def increment(self, ctx: tanjun_abc.Context, /) -> None:
+            resource = guild_mapping[ctx.author.id] = self.make_resource()
+            return resource
+
+        resource = self.make_resource()
+        self.mapping[ctx.guild_id] = {ctx.author.id: resource}
+        return resource
+
+    async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
         if not ctx.guild_id:
-            cooldown = self.dm_fallback.get(ctx.channel_id)
-            if not cooldown:
-                cooldown = self.dm_fallback[ctx.channel_id] = _Cooldown(self)
+            return self.dm_fallback.get(ctx.channel_id)
 
-            return cooldown.increment()
-
-        if guild_cooldowns := self.mapping.get(ctx.guild_id):
-            cooldown = guild_cooldowns.get(ctx.author.id)
-            if not cooldown:
-                cooldown = guild_cooldowns[ctx.author.id] = _Cooldown(self)
-
-        else:
-            cooldown = _Cooldown(self)
-            self.mapping[ctx.guild_id] = {ctx.author.id: cooldown}
-
-        cooldown.increment()
+        if guild_mapping := self.mapping.get(ctx.guild_id):
+            return guild_mapping.get(ctx.author.id)
 
     def cleanup(self) -> None:
         for guild_id, mapping in self.mapping.copy().items():
-            for bucket_id, cooldown in mapping.copy().items():
-                if cooldown.has_expired():
+            for bucket_id, resource in mapping.copy().items():
+                if self.has_expired(resource):
                     del mapping[bucket_id]
 
             if not mapping:
                 del self.mapping[guild_id]
 
-        for bucket_id, cooldown in self.dm_fallback.copy().items():
-            if cooldown.has_expired():
+        for bucket_id, resource in self.dm_fallback.copy().items():
+            if self.has_expired(resource):
                 del self.dm_fallback[bucket_id]
 
-    def copy(self) -> _MemberCooldownResource:
-        return _MemberCooldownResource(self.limit, self.reset_after)
+    def copy(self) -> _MemberResource[_InnerResourceT]:
+        return _MemberResource(self.has_expired, self.make_resource)
 
 
-class _GlobalCooldownResource(_BaseCooldownResource):
+class _GlobalResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("bucket",)
 
-    def __init__(self, limit: int, reset_after: float) -> None:
-        super().__init__(limit, reset_after)
-        self.bucket = _Cooldown(self)
+    def __init__(
+        self,
+        has_expired: collections.Callable[[_InnerResourceT], bool],
+        make_resource: _InnerResourceSig[_InnerResourceT],
+    ) -> None:
+        super().__init__(has_expired, make_resource)
+        self.bucket = make_resource()
 
-    async def check(self, _: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
-        wait_for = self.bucket.must_wait_until()
-        if increment and wait_for is None:
-            self.bucket.increment()
+    async def try_into_inner(self, _: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
+        return self.bucket
 
-        return wait_for
-
-    async def increment(self, _: tanjun_abc.Context, /) -> None:
-        self.bucket.increment()
+    async def into_inner(self, _: tanjun_abc.Context, /) -> _InnerResourceT:
+        return self.bucket
 
     def cleanup(self) -> None:
         pass
 
-    def copy(self) -> _GlobalCooldownResource:
-        return _GlobalCooldownResource(self.limit, self.reset_after)
+    def copy(self) -> _GlobalResource[_InnerResourceT]:
+        return _GlobalResource(self.has_expired, self.make_resource)
+
+
+def _to_bucket(
+    resource: BucketResource,
+    has_expired: collections.Callable[[_InnerResourceT], bool],
+    make_resource: _InnerResourceSig[_InnerResourceT],
+) -> _BaseResource[_InnerResourceT]:
+    if resource is BucketResource.MEMBER:
+        return _MemberResource(has_expired, make_resource)
+
+    if resource is BucketResource.GLOBAL:
+        return _GlobalResource(has_expired, make_resource)
+
+    return _FlatResource(resource, has_expired, make_resource)
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
@@ -415,15 +464,21 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     __slots__ = ("_buckets", "_default_bucket_template", "_gc_loop")
 
     def __init__(self) -> None:
-        self._buckets: dict[str, _BaseCooldownResource] = {}
-        self._default_bucket_template: _BaseCooldownResource = _CooldownBucket(BucketResource.USER, 2, 5)
+        self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
+        self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
+            BucketResource.USER, self._has_expired, lambda: _Cooldown(limit=2, reset_after=5)
+        )
         self._gc_loop: typing.Optional[asyncio.Task[None]] = None
 
-    def _get_or_default(self, bucket_id: str, /) -> _BaseCooldownResource:
+    @staticmethod
+    def _has_expired(cooldown: _Cooldown, /) -> bool:
+        return time.monotonic() >= cooldown.will_reset_after
+
+    def _get_or_default(self, bucket_id: str, /) -> _BaseResource[_Cooldown]:
         if bucket := self._buckets.get(bucket_id):
             return bucket
 
-        _LOGGER.info("No route found for {bucket_id}, falling back to 'default' bucket.")
+        _LOGGER.info("No cooldown found for {bucket_id}, falling back to 'default' bucket.")
         bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
         return bucket
 
@@ -458,15 +513,13 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
     ) -> typing.Optional[float]:
         if increment:
-            return await self._get_or_default(bucket_id).check(ctx, increment=increment)
+            return (await self._get_or_default(bucket_id).into_inner(ctx)).increment().must_wait_until()
 
-        bucket = self._buckets.get(bucket_id)
-        return await bucket.check(ctx, increment=increment) if bucket else None
+        if (bucket := self._buckets.get(bucket_id)) and (cooldown := await bucket.try_into_inner(ctx)):
+            return cooldown.increment().must_wait_until()
 
-    def increment_cooldown(
-        self, bucket_id: str, ctx: tanjun_abc.Context, /
-    ) -> collections.Coroutine[typing.Any, typing.Any, None]:
-        return self._get_or_default(bucket_id).increment(ctx)
+    async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        (await self._get_or_default(bucket_id).into_inner(ctx)).increment()
 
     def close(self) -> None:
         """Stop the event manager.
@@ -499,9 +552,10 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def set_bucket(
         self: _InMemoryCooldownManagerT,
         bucket_id: str,
-        resource_type: BucketResource,
+        resource: BucketResource,
         limit: int,
         reset_after: typing.Union[int, float, datetime.timedelta],
+        /,
     ) -> _InMemoryCooldownManagerT:
         """Set the cooldown for a specific bucket.
 
@@ -513,7 +567,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             ..  note::
                 "default" is a special bucket that is as a template used when
                 the bucket ID isn't found.
-        resource_type : tanjun.BucketResource
+        resource : tanjun.BucketResource
             The type of resource to use for the cooldown.
         limit : int
             The number of uses per cooldown period.
@@ -543,16 +597,10 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        if resource_type is BucketResource.MEMBER:
-            bucket = _MemberCooldownResource(limit, reset_after)
+        def _build_cooldown() -> _Cooldown:
+            return _Cooldown(limit=limit, reset_after=reset_after)
 
-        elif resource_type is BucketResource.GLOBAL:
-            bucket = _GlobalCooldownResource(limit, reset_after)
-
-        else:
-            bucket = _CooldownBucket(resource_type, limit, reset_after)
-
-        self._buckets[bucket_id] = bucket
+        bucket = self._buckets[bucket_id] = _to_bucket(resource, self._has_expired, _build_cooldown)
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -617,7 +665,7 @@ def with_cooldown(
     *,
     error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
     owners_exempt: bool = True,
-) -> typing.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[CommandT], CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
     .. warning::
@@ -643,7 +691,7 @@ def with_cooldown(
 
     Returns
     -------
-    typing.Callable[[CommandT], CommandT]
+    collections.Callable[[CommandT], CommandT]
         A decorator that adds a `CooldownPreExecution` hook to the command.
     """
 
@@ -655,6 +703,130 @@ def with_cooldown(
 
         hooks_.add_pre_execution(
             CooldownPreExecution(bucket_id, error_message=error_message, owners_exempt=owners_exempt)
+        )
+        return command
+
+    return decorator
+
+
+class _ConcurrencyLimit:
+    __slots__ = ("counter", "limit")
+
+    def __init__(self, limit: int) -> None:
+        self.counter = 0
+        self.limit = limit
+
+    def acquire(self) -> bool:
+        if self.counter < self.limit:
+            self.counter += 1
+            return True
+
+        return True
+
+    def release(self) -> None:
+        if self.counter > 0:
+            self.counter -= 1
+
+        else:
+            raise ValueError("Cannot release a limit that has not been acquired")
+
+
+class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
+    """In-memory standard implementation of `AbstractConcurrencyLimiter`."""
+
+    __slots__ = ("_buckets", "_default_bucket_template")
+
+    def __init__(self) -> None:
+        self._active_ctxs: dict[tuple[str, tanjun_abc.Context], _ConcurrencyLimit] = {}
+        self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
+        self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
+            BucketResource.USER, self._has_expired, lambda: _ConcurrencyLimit(limit=1)
+        )
+
+    @staticmethod
+    def _has_expired(_: _ConcurrencyLimit) -> typing.NoReturn:
+        raise RuntimeError("This should never be called")
+
+    def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+        client.set_type_dependency(AbstractConcurrencyLimiter, self)
+
+    async def try_acquire(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> bool:
+        bucket = self._buckets.get(bucket_id)
+        if not bucket:
+            _LOGGER.info("No concurrency limit found for {bucket_id}, falling back to 'default' bucket.")
+            bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
+
+        return (await bucket.into_inner(ctx)).acquire()
+
+    async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        self._active_ctxs[(bucket_id, ctx)].release()
+
+    def set_bucket(
+        self: _InMemoryConcurrencyLimiterT, bucket_id: str, resource: BucketResource, limit: int
+    ) -> _InMemoryConcurrencyLimiterT:
+        if limit <= 0:
+            raise ValueError("limit must be greater than 0")
+
+        def _build_limit() -> _ConcurrencyLimit:
+            return _ConcurrencyLimit(limit=limit)
+
+        bucket = self._buckets[bucket_id] = _to_bucket(resource, self._has_expired, _build_limit)
+        if bucket_id == "default":
+            self._default_bucket_template = bucket.copy()
+
+        return self
+
+
+class ConcurrencyPreExecution:
+    __slots__ = ("_bucket_id", "_error_message")
+
+    def __init__(
+        self,
+        bucket_id: str,
+        /,
+        *,
+        error_message: str = "This resource is currently busy; please try again later.",
+    ) -> None:
+        self._bucket_id = bucket_id
+        self._error_message = error_message
+
+    async def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        limiter: AbstractConcurrencyLimiter = injecting.inject(type=AbstractConcurrencyLimiter),
+    ) -> None:
+        if not await limiter.try_acquire(self._bucket_id, ctx):
+            raise errors.CommandError(self._error_message)
+
+
+class ConcurrencyPostExecution:
+    __slots__ = ("_bucket_id",)
+
+    def __init__(self, bucket_id: str, /) -> None:
+        self._bucket_id = bucket_id
+
+    async def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        limiter: AbstractConcurrencyLimiter = injecting.inject(type=AbstractConcurrencyLimiter),
+    ) -> None:
+        await limiter.release(self._bucket_id, ctx)
+
+
+def with_concurrency_limit(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+) -> collections.Callable[[CommandT], CommandT]:
+    def decorator(command: CommandT, /) -> CommandT:
+        hooks_ = command.hooks
+        if not hooks_:
+            hooks_ = hooks.AnyHooks()
+            command.set_hooks(hooks_)
+
+        hooks_.add_pre_execution(ConcurrencyPreExecution(bucket_id, error_message=error_message)).add_post_execution(
+            ConcurrencyPostExecution(bucket_id)
         )
         return command
 

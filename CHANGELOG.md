@@ -5,11 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Changed
+### Added
+- Concurrency limiter dependency (in a similar style to cooldowns).
+
+# Changed
 - `cached_inject` and `cache_callback` now both accept `float` and `int` seconds for `expire_after`.
 - `Owners.__init__` now accepts `float` and `int` seconds for `expire_after`.
 - Rename `tanjun.dependencies.owners.OwnerCheck` and `tanjun.dependencies.owners.AbstractOwnerCheck`
   to `Owners` and `AbstractOwners`.
+- `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
+
 
 ## [2.2.0a1]
 ### Added
