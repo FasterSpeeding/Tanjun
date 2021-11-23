@@ -272,7 +272,7 @@ class _Cooldown:
             self.counter = 0
             self.will_reset_after = current_time + self.reset_after
 
-        elif self.counter < self.limit:
+        if self.counter < self.limit:
             self.counter += 1
 
         return self
