@@ -61,32 +61,6 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
     return typing.cast(type[_T], new_cls)
 
 
-class Test_LoadableInjector:
-    def test_make_method_type(self):
-        mock_component = mock.Mock()
-        mock_callback = mock.Mock()
-
-        def callback(self: typing.Any):
-            return mock_callback(self)
-
-        loadable = tanjun.commands._LoadableInjector(callback)
-
-        loadable.make_method_type(mock_component)
-        result = loadable.callback()
-
-        assert result is mock_callback.return_value
-        mock_callback.assert_called_once_with(mock_component)
-
-    def test_make_method_type_when_already_method_type(self):
-        class MockLoadableInjector(tanjun.commands._LoadableInjector):
-            overwrite_callback = mock.Mock()
-
-        loadable = MockLoadableInjector(mock.Mock(types.MethodType))
-
-        with pytest.raises(ValueError, match="Callback is already a method type"):
-            loadable.make_method_type(mock.Mock())
-
-
 class TestPartialCommand:
     @pytest.fixture()
     def command(self) -> tanjun.commands.PartialCommand[typing.Any]:
@@ -166,16 +140,12 @@ class TestPartialCommand:
         assert command.checks == ()
 
     def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        def mock_check() -> bool:
-            raise NotImplementedError
+        mock_check = mock.Mock()
+        add_check = mock.Mock()
+        command = stub_class(tanjun.PartialCommand, add_check=add_check)()
 
         assert command.with_check(mock_check) is mock_check
-
-        assert len(command._checks) == 1
-        check = next(iter(command._checks))
-        assert isinstance(check, tanjun.commands._LoadableInjector)
-        assert check.callback is mock_check
-        assert command.checks == (mock_check,)
+        add_check.assert_called_once_with(mock_check)
 
     def test_with_check_when_already_present(self, command: tanjun.commands.PartialCommand[typing.Any]):
         def mock_check() -> bool:
@@ -195,20 +165,6 @@ class TestPartialCommand:
         command.bind_component(mock_component)
 
         assert command.component is mock_component
-
-    def test_load_into_component(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        mock_check_1 = mock.MagicMock(tanjun.commands._LoadableInjector)
-        mock_check_2 = mock.Mock()
-        mock_check_3 = mock.MagicMock(tanjun.commands._LoadableInjector)
-        mock_component = mock.Mock()
-        command._checks = [mock_check_1, mock_check_2, mock_check_3]
-
-        result = command.load_into_component(mock_component)
-
-        assert result is None
-        mock_check_1.make_method_type.assert_called_once_with(mock_component)
-        mock_check_2.make_method_type.assert_not_called()
-        mock_check_3.make_method_type.assert_called_once_with(mock_component)
 
 
 def test_slash_command_group():
@@ -713,9 +669,8 @@ class TestBaseSlashCommand:
         mock_component = mock.Mock()
         command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
 
-        result = command.load_into_component(mock_component)
+        command.load_into_component(mock_component)
 
-        assert result is command
         mock_component.add_slash_command.assert_called_once_with(command)
 
 
@@ -921,10 +876,6 @@ class TestSlashCommandGroup:
         mock_command.execute.assert_awaited_once_with(mock_context, option=mock_sub_option, hooks=mock_hooks)
         mock_command.check_context.assert_awaited_once_with(mock_context)
         mock_context.set_ephemeral_default.assert_not_called()
-
-    @pytest.mark.skip(reason="TODO")
-    def test_load_into_component(self):
-        ...
 
 
 class TestSlashCommand:
@@ -1827,10 +1778,6 @@ class TestSlashCommand:
     def test_copy(self):
         ...
 
-    @pytest.mark.skip(reason="TODO")
-    def test_load_into_component(self):
-        ...
-
 
 def test_as_message_command():
     mock_callback = mock.Mock()
@@ -1951,9 +1898,13 @@ class TestMessageCommand:
     async def test_execute(self):
         ...
 
-    @pytest.mark.skip(reason="TODO")
     def test_load_into_component(self):
-        ...
+        mock_component = mock.Mock()
+        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+
+        command.load_into_component(mock_component)
+
+        mock_component.add_message_command.assert_called_once_with(command)
 
 
 class TestMessageCommandGroup:
@@ -2313,7 +2264,3 @@ class TestMessageCommandGroup:
         mock_command_2.check_context.assert_awaited_once_with(mock_context)
         mock_command_1.execute.assert_not_called()
         mock_command_2.execute.assert_not_called()
-
-    @pytest.mark.skip(reason="TODO")
-    def test_load_into_component(self):
-        ...

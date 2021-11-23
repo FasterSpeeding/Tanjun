@@ -59,7 +59,6 @@ __all__: list[str] = [
 
 import copy
 import re
-import types
 import typing
 import warnings
 from collections import abc as collections
@@ -95,16 +94,6 @@ ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[list[typing.Any]] = []
-
-
-class _LoadableInjector(checks_.InjectableCheck):
-    __slots__ = ()
-
-    def make_method_type(self, component: abc.Component, /) -> None:
-        if isinstance(self.callback, types.MethodType):
-            raise ValueError("Callback is already a method type")
-
-        self.overwrite_callback(types.MethodType(self.callback, component))
 
 
 class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLoader):
@@ -179,9 +168,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLo
         return self
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
-        if check not in self._checks:
-            self._checks.append(_LoadableInjector(check))
-
+        self.add_check(check)
         return check
 
     def bind_client(self: _PartialCommandT, client: abc.Client, /) -> _PartialCommandT:
@@ -900,6 +887,11 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
         return super().copy(_new=_new)
 
+    def load_into_component(self, component: abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.components.load_into_component>>.
+        if not self._parent:
+            component.add_slash_command(self)
+
 
 class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     __slots__ = ("_commands", "_default_permission")
@@ -1056,10 +1048,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
                 return
 
         await ctx.mark_not_found()
-
-    def load_into_component(self, component: abc.Component, /) -> None:
-        if not self._parent:
-            component.add_slash_command(self)
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
@@ -1900,10 +1888,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         return super().copy(_new=_new, parent=parent)
 
-    def load_into_component(self, component: abc.Component, /) -> None:
-        if not self._parent:
-            component.add_slash_command(self)
-
 
 def as_message_command(
     name: str, /, *names: str
@@ -2088,7 +2072,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def load_into_component(self, component: abc.Component, /) -> None:
-
+        # <<inherited docstring from tanjun.components.load_into_component>>.
         if not self._parent:
             component.add_message_command(self)
 
@@ -2245,7 +2229,3 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
                 return
 
         await super().execute(ctx, hooks=hooks)
-
-    def load_into_component(self, component: abc.Component, /) -> None:
-        if not self._parent:
-            component.add_message_command(self)

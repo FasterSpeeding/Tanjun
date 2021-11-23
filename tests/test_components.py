@@ -95,9 +95,9 @@ class TestComponent:
         result = component.load_from_scope()
 
         assert result is component
-        mock_loader_1.load_into_component.assert_called_once_with(mock_loader_1)
-        mock_loader_2.load_into_component.assert_called_once_with(mock_loader_2)
-        mock_loader_3.load_into_component.assert_called_once_with(mock_loader_3)
+        mock_loader_1.load_into_component.assert_called_once_with(component)
+        mock_loader_2.load_into_component.assert_called_once_with(component)
+        mock_loader_3.load_into_component.assert_called_once_with(component)
 
     def test_load_from_scope_when_including_globals(self):
         # Some of the variables in this test have a type: ignore and noqa on them,
@@ -117,12 +117,12 @@ class TestComponent:
         result = component.load_from_scope(include_globals=True)
 
         assert result is component
-        mock_loader_1.load_into_component.assert_called_once_with(mock_loader_1)
-        mock_loader_2.load_into_component.assert_called_once_with(mock_loader_1)
-        mock_loader_3.load_into_component.assert_called_once_with(mock_loader_1)
-        mock_global_loader_1.load_into_component.assert_called_once_with(mock_loader_1)
-        mock_global_loader_2.load_into_component.assert_called_once_with(mock_loader_1)
-        mock_global_loader_3.load_into_component.assert_called_once_with(mock_loader_1)
+        mock_loader_1.load_into_component.assert_called_once_with(component)
+        mock_loader_2.load_into_component.assert_called_once_with(component)
+        mock_loader_3.load_into_component.assert_called_once_with(component)
+        mock_global_loader_1.load_into_component.assert_called_once_with(component)
+        mock_global_loader_2.load_into_component.assert_called_once_with(component)
+        mock_global_loader_3.load_into_component.assert_called_once_with(component)
         mock_global_loader_1.reset_mock()
         mock_global_loader_2.reset_mock()
         mock_global_loader_3.reset_mock()
@@ -352,7 +352,7 @@ class TestComponent:
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update({"add_client_callback": add_client_callback}),
-        )(load_from_attributes=False)
+        )()
         mock_callback = mock.Mock()
 
         result = component.with_client_callback("aye")(mock_callback)
@@ -370,7 +370,7 @@ class TestComponent:
             exec_body=lambda ns: ns.update(
                 {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
             ),
-        )(load_from_attributes=False)
+        )()
 
         result = component.add_command(mock_command)
 
@@ -388,7 +388,7 @@ class TestComponent:
             exec_body=lambda ns: ns.update(
                 {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
             ),
-        )(load_from_attributes=False)
+        )()
 
         result = component.add_command(mock_command)
 
@@ -427,7 +427,7 @@ class TestComponent:
             exec_body=lambda ns: ns.update(
                 {"remove_message_command": remove_message_command, "remove_slash_command": remove_slash_command}
             ),
-        )(load_from_attributes=False)
+        )()
 
         result = component.remove_command(mock_command)
 
@@ -445,7 +445,7 @@ class TestComponent:
             exec_body=lambda ns: ns.update(
                 {"remove_message_command": remove_message_command, "remove_slash_command": remove_slash_command}
             ),
-        )(load_from_attributes=False)
+        )()
 
         component.remove_command(mock_command)
 
@@ -477,7 +477,7 @@ class TestComponent:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
-        )(load_from_attributes=False)
+        )()
         mock_command = mock.Mock()
 
         result = component.with_command(mock_command)
@@ -490,7 +490,7 @@ class TestComponent:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
-        )(load_from_attributes=False)
+        )()
         mock_command = mock.Mock()
 
         result = component.with_command(copy=True)(mock_command)
@@ -561,7 +561,7 @@ class TestComponent:
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update({"add_slash_command": add_slash_command}),
-        )(load_from_attributes=False)
+        )()
 
         result = component.with_slash_command(mock_command)
 
@@ -576,7 +576,7 @@ class TestComponent:
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update({"add_slash_command": add_slash_command}),
-        )(load_from_attributes=False)
+        )()
 
         result = component.with_slash_command(copy=True)(mock_command)
 
@@ -694,7 +694,7 @@ class TestComponent:
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update({"add_message_command": add_message_command}),
-        )(load_from_attributes=False)
+        )()
 
         result = component.with_message_command(mock_command)
 
@@ -708,7 +708,7 @@ class TestComponent:
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update({"add_message_command": add_message_command}),
-        )(load_from_attributes=False)
+        )()
 
         result = component.with_message_command(copy=True)(mock_command)
 
@@ -818,7 +818,7 @@ class TestComponent:
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
-        )(load_from_attributes=False)
+        )()
         mock_listener = mock.Mock()
 
         result = component.with_listener(hikari.Event)(mock_listener)
