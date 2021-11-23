@@ -255,7 +255,7 @@ _CooldownT = typing.TypeVar("_CooldownT", bound="_Cooldown")
 class _Cooldown:
     __slots__ = ("counter", "limit", "reset_after", "will_reset_after")
 
-    def __init__(self, /, *, limit: int, reset_after: float) -> None:
+    def __init__(self, *, limit: int, reset_after: float) -> None:
         self.counter = 0
         self.limit = limit
         self.reset_after = reset_after
@@ -797,6 +797,12 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if not bucket:
             _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket.", bucket_id)
             bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
+
+        # incrementing multiple times for the same context could lead to weird
+        # edge cases based on how we internally track this, so we internally
+        # de-duplicate this.
+        elif (bucket_id, ctx) in self._active_ctxs:
+            return True
 
         if result := (limit := await bucket.into_inner(ctx)).acquire():
             self._active_ctxs[(bucket_id, ctx)] = limit
