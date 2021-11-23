@@ -44,10 +44,15 @@ __all__: list[str] = [
     "inject_lc",
     "make_lc_resolver",
     # limiters.py
+    "AbstractConcurrencyLimiter",
     "AbstractCooldownManager",
     "BucketResource",
+    "ConcurrencyPreExecution",
+    "ConcurrencyPostExecution",
     "CooldownPreExecution",
+    "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
+    "with_concurrency_limit",
     "with_cooldown",
     # owners.py
     "AbstractOwners",
