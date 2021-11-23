@@ -146,7 +146,6 @@ class OwnerCheck(AbstractOwnerCheck):
         """
         if isinstance(expire_after, datetime.timedelta):
             expire_after = expire_after.total_seconds()
-
         else:
             expire_after = float(expire_after)
 
