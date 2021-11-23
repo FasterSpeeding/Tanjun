@@ -396,14 +396,14 @@ client is not bound to a Bot token.</li>
     callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /,
     *,
-    expire_after: Optional[datetime.timedelta] = None
+    expire_after: Union[int, float, datetime.timedelta, NoneType] = None
 ) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
@@ -417,8 +417,8 @@ client is not bound to a Bot token.</li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
-<span class="sd">        The amount of time to cache the result for.</span>
+<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
 
@@ -427,6 +427,12 @@ client is not bound to a Bot token.</li>
 <span class="sd">    Callable[..., Awaitable[_T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If expire_after is not a valid value.</span>
+<span class="sd">        If expire_after is not less than or equal to 0 seconds.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
 </pre></div>
@@ -448,8 +454,8 @@ The callback to cache the result of.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (typing.Optional[datetime.timedelta]):
-The amount of time to cache the result for.</p>
+<li><p><strong>expire_after</strong> (typing.Union[int, float, datetime.timedelta, None]):
+The amount of time to cache the result for in seconds.</p>
 
 <p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
 </ul>
@@ -459,6 +465,13 @@ The amount of time to cache the result for.</p>
 <ul>
 <li><strong>Callable[..., Awaitable[_T]]</strong>: A callback which will cache the result of the given callback after the
 first call.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If expire_after is not a valid value.
+If expire_after is not less than or equal to 0 seconds.</li>
 </ul>
 </div>
 
@@ -473,36 +486,19 @@ first call.</li>
     callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /,
     *,
-    expire_after: Optional[datetime.timedelta] = None
+    expire_after: Union[float, int, datetime.timedelta, NoneType] = None
 ) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
 
 <span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
 <span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to inject.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
-<span class="sd">        The amount of time to cache the result for.</span>
-
-<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
-<span class="sd">        Injector used to resolve the cached callback.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -517,6 +513,29 @@ first call.</li>
 <span class="sd">        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)</span>
 <span class="sd">    ) -&gt; None:</span>
 <span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : CallbackSig[_T]</span>
+<span class="sd">        The callback to inject.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">        The amount of time to cache the result for in seconds.</span>
+
+<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the cached callback.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If expire_after is not a valid value.</span>
+<span class="sd">        If expire_after is not less than or equal to 0 seconds.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
@@ -527,28 +546,6 @@ first call.</li>
 
 <p>This acts like <code><a href="injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
 should also be assigned to a parameter's default to be used.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>callback</strong> (CallbackSig[_T]):
-The callback to inject.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>expire_after</strong> (typing.Optional[datetime.timedelta]):
-The amount of time to cache the result for.</p>
-
-<p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong><a href="injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the cached callback.</li>
-</ul>
 
 <h6 id="example">Example</h6>
 
@@ -563,6 +560,35 @@ async def command(
     ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, db: Database = <a href="../tanjun.html#cached_inject">tanjun.cached_inject</a>(resolve_database)
 ) -> None:
     raise NotImplementedError</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>callback</strong> (CallbackSig[_T]):
+The callback to inject.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>expire_after</strong> (typing.Union[int, float, datetime.timedelta, None]):
+The amount of time to cache the result for in seconds.</p>
+
+<p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong><a href="injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the cached callback.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If expire_after is not a valid value.
+If expire_after is not less than or equal to 0 seconds.</li>
+</ul>
 </div>
 
 
@@ -2342,7 +2368,6 @@ The user to check ownership for.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-
         <span class="k">else</span><span class="p">:</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">expire_after</span><span class="p">)</span>
 
@@ -2422,7 +2447,6 @@ is bound to a Bot token.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-
         <span class="k">else</span><span class="p">:</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">expire_after</span><span class="p">)</span>
 
