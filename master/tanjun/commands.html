@@ -138,18 +138,12 @@
                         <li>
                                 <a class="function" href="#MessageCommandGroup.execute">execute</a>
                         </li>
-                        <li>
-                                <a class="function" href="#MessageCommandGroup.load_into_component">load_into_component</a>
-                        </li>
                 </ul>
 
             </li>
             <li>
                     <a class="class" href="#PartialCommand">PartialCommand</a>
                             <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#PartialCommand.__init__">PartialCommand</a>
-                        </li>
                         <li>
                                 <a class="variable" href="#PartialCommand.checks">checks</a>
                         </li>
@@ -185,9 +179,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#PartialCommand.bind_component">bind_component</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#PartialCommand.load_into_component">load_into_component</a>
                         </li>
                 </ul>
 
@@ -288,9 +279,6 @@
                         <li>
                                 <a class="function" href="#SlashCommand.copy">copy</a>
                         </li>
-                        <li>
-                                <a class="function" href="#SlashCommand.load_into_component">load_into_component</a>
-                        </li>
                 </ul>
 
             </li>
@@ -320,9 +308,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#SlashCommandGroup.execute">execute</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#SlashCommandGroup.load_into_component">load_into_component</a>
                         </li>
                 </ul>
 
@@ -436,7 +421,6 @@
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">types</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
@@ -474,17 +458,7 @@
 <span class="n">_EMPTY_LIST</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
 
-<span class="k">class</span> <span class="nc">_LoadableInjector</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">make_method_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_callback</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
-
-<span class="k">class</span> <span class="nc">PartialCommand</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">PartialCommand</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">],</span> <span class="n">components</span><span class="o">.</span><span class="n">ComponentLoader</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for the standard ExecutableCommand implementations.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;_metadata&quot;</span><span class="p">)</span>
@@ -556,9 +530,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_LoadableInjector</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
@@ -569,13 +541,6 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_PartialCommandT</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">_LoadableInjector</span><span class="p">):</span>
-                <span class="n">check</span><span class="o">.</span><span class="n">make_method_type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="kc">None</span>
 
 
 <span class="n">_SCOMMAND_NAME_REG</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[a-z0-9_-]{1,32}$&quot;</span><span class="p">)</span>
@@ -1284,13 +1249,10 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="n">_new</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_BaseSlashCommandT</span><span class="p">]:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.components.load_into_component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 
 
 <span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
@@ -1448,15 +1410,6 @@
                 <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandGroupT</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
@@ -2297,17 +2250,6 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="n">_new</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandT</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
-
 
 <span class="k">def</span> <span class="nf">as_message_command</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span>
@@ -2491,16 +2433,10 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">own_hooks</span><span class="o">.</span><span class="n">trigger_post_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_MessageCommandT</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
+    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.components.load_into_component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 
 
 <span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">):</span>
@@ -2655,17 +2591,6 @@
                 <span class="k">return</span>
 
         <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_MessageCommandGroupT</span><span class="p">]:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -3345,16 +3270,10 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">own_hooks</span><span class="o">.</span><span class="n">trigger_post_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_MessageCommandT</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
+    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.components.load_into_component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -3718,30 +3637,29 @@ The parent of this command.</li>
 
         
             <span class="def">def</span>
-            <span class="name">load_into_component</span><span class="signature">(
-    self: ~_MessageCommandT,
-    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
-    /
-) -&gt; Optional[~_MessageCommandT]</span>:
+            <span class="name">load_into_component</span><span class="signature">(self, component: <a href="abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_MessageCommandT</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.components.load_into_component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Load the object into the component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>component</strong> (<a href="abc.html#Component">tanjun.abc.Component</a>):
+The component this object should be loaded into.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -3924,17 +3842,6 @@ The parent of this command.</li>
                 <span class="k">return</span>
 
         <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_MessageCommandGroupT</span><span class="p">]:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -4361,37 +4268,6 @@ The command to add.</li>
     
 
                             </div>
-                            <div id="MessageCommandGroup.load_into_component" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MessageCommandGroup.load_into_component">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">load_into_component</span><span class="signature">(
-    self: ~_MessageCommandGroupT,
-    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
-    /
-) -&gt; Optional[~_MessageCommandGroupT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_MessageCommandGroupT</span><span class="p">]:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
@@ -4404,6 +4280,7 @@ The command to add.</li>
                 <dd id="MessageCommandGroup.set_parent" class="function"><a href="#MessageCommand.set_parent">set_parent</a></dd>
                 <dd id="MessageCommandGroup.set_parser" class="function"><a href="#MessageCommand.set_parser">set_parser</a></dd>
                 <dd id="MessageCommandGroup.check_context" class="function"><a href="#MessageCommand.check_context">check_context</a></dd>
+                <dd id="MessageCommandGroup.load_into_component" class="function"><a href="#MessageCommand.load_into_component">load_into_component</a></dd>
 
             </div>
             <div><dt><a href="#PartialCommand">PartialCommand</a></dt>
@@ -4426,12 +4303,12 @@ The command to add.</li>
 
         
         <span class="def">class</span>
-        <span class="name">PartialCommand</span><wbr>(<span class="base"><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand[~ContextT]</a></span>):
+        <span class="name">PartialCommand</span><wbr>(<span class="base"><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand[~ContextT]</a></span>, <span class="base"><a href="components.html#ComponentLoader">tanjun.components.ComponentLoader</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">PartialCommand</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">PartialCommand</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">],</span> <span class="n">components</span><span class="o">.</span><span class="n">ComponentLoader</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for the standard ExecutableCommand implementations.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;_metadata&quot;</span><span class="p">)</span>
@@ -4503,9 +4380,7 @@ The command to add.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_LoadableInjector</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
@@ -4516,13 +4391,6 @@ The command to add.</li>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_PartialCommandT</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">_LoadableInjector</span><span class="p">):</span>
-                <span class="n">check</span><span class="o">.</span><span class="n">make_method_type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -4531,40 +4399,6 @@ The command to add.</li>
 </div>
 
 
-                            <div id="PartialCommand.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#PartialCommand.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">PartialCommand</span><span class="signature">(
-    *,
-    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[~ContextT]] = None,
-    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span> <span class="k">if</span> <span class="n">metadata</span> <span class="k">else</span> <span class="p">{}</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div id="PartialCommand.checks" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#PartialCommand.checks">#&nbsp;&nbsp</a>
 
@@ -4795,9 +4629,7 @@ The check to remove.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_LoadableInjector</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 </pre></div>
 
@@ -4855,32 +4687,14 @@ The check to remove.</li>
     
 
                             </div>
-                            <div id="PartialCommand.load_into_component" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#PartialCommand.load_into_component">#&nbsp;&nbsp</a>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="components.html#ComponentLoader">tanjun.components.ComponentLoader</a></dt>
+                                <dd id="PartialCommand.load_into_component" class="function"><a href="components.html#ComponentLoader.load_into_component">load_into_component</a></dd>
 
-        
-            <span class="def">def</span>
-            <span class="name">load_into_component</span><span class="signature">(
-    self: ~_PartialCommandT,
-    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
-    /
-) -&gt; Optional[~_PartialCommandT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_PartialCommandT</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">_LoadableInjector</span><span class="p">):</span>
-                <span class="n">check</span><span class="o">.</span><span class="n">make_method_type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="kc">None</span>
-</pre></div>
-
-        </details>
-
-    
-
+            </div>
+                                </dl>
                             </div>
                 </section>
                 <section id="BaseSlashCommand">
@@ -5020,13 +4834,10 @@ The check to remove.</li>
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="n">_new</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_BaseSlashCommandT</span><span class="p">]:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.components.load_into_component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -5331,27 +5142,29 @@ default for contexts used by this command.</p>
 
         
             <span class="def">def</span>
-            <span class="name">load_into_component</span><span class="signature">(
-    self: ~_BaseSlashCommandT,
-    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
-    /
-) -&gt; Optional[~_BaseSlashCommandT]</span>:
+            <span class="name">load_into_component</span><span class="signature">(self, component: <a href="abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_BaseSlashCommandT</span><span class="p">]:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.components.load_into_component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Load the object into the component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>component</strong> (<a href="abc.html#Component">tanjun.abc.Component</a>):
+The component this object should be loaded into.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -6227,17 +6040,6 @@ default for contexts used by this command.</p>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="n">_new</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="n">_new</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandT</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -7769,37 +7571,6 @@ being used.</p></li>
 
 
                             </div>
-                            <div id="SlashCommand.load_into_component" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#SlashCommand.load_into_component">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">load_into_component</span><span class="signature">(
-    self: ~_SlashCommandT,
-    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
-    /
-) -&gt; Optional[~_SlashCommandT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandT</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Callback is already a method type&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
@@ -7815,6 +7586,7 @@ being used.</p></li>
                 <dd id="SlashCommand.set_ephemeral_default" class="function"><a href="#BaseSlashCommand.set_ephemeral_default">set_ephemeral_default</a></dd>
                 <dd id="SlashCommand.set_parent" class="function"><a href="#BaseSlashCommand.set_parent">set_parent</a></dd>
                 <dd id="SlashCommand.check_context" class="function"><a href="#BaseSlashCommand.check_context">check_context</a></dd>
+                <dd id="SlashCommand.load_into_component" class="function"><a href="#BaseSlashCommand.load_into_component">load_into_component</a></dd>
 
             </div>
             <div><dt><a href="#PartialCommand">PartialCommand</a></dt>
@@ -7998,15 +7770,6 @@ being used.</p></li>
                 <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandGroupT</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -8382,35 +8145,6 @@ Command to add to this group.</li>
     
 
                             </div>
-                            <div id="SlashCommandGroup.load_into_component" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#SlashCommandGroup.load_into_component">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">load_into_component</span><span class="signature">(
-    self: ~_SlashCommandGroupT,
-    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
-    /
-) -&gt; Optional[~_SlashCommandGroupT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandGroupT</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
@@ -8426,6 +8160,7 @@ Command to add to this group.</li>
                 <dd id="SlashCommandGroup.set_ephemeral_default" class="function"><a href="#BaseSlashCommand.set_ephemeral_default">set_ephemeral_default</a></dd>
                 <dd id="SlashCommandGroup.set_parent" class="function"><a href="#BaseSlashCommand.set_parent">set_parent</a></dd>
                 <dd id="SlashCommandGroup.check_context" class="function"><a href="#BaseSlashCommand.check_context">check_context</a></dd>
+                <dd id="SlashCommandGroup.load_into_component" class="function"><a href="#BaseSlashCommand.load_into_component">load_into_component</a></dd>
 
             </div>
             <div><dt><a href="#PartialCommand">PartialCommand</a></dt>

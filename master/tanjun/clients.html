@@ -7614,7 +7614,7 @@ used to find loaders.</p>
 
 <p>or</p>
 
-<div class="codehilite"><pre><span></span><code><span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">make_loader</span><span class="p">()</span>
+<div class="codehilite"><pre><span></span><code><span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load_from_scope</span><span class="p">()</span><span class="o">.</span><span class="n">make_loader</span><span class="p">()</span>
 </code></pre></div>
 
 <h6 id="parameters">Parameters</h6>
@@ -7707,7 +7707,7 @@ used to find unloaders.</p>
 <p>or</p>
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned ClientLoader handles both loading and unloading.</span>
-<span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">as_loader</span><span class="p">(</span><span class="n">unload_component</span><span class="p">)</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load_from_scope</span><span class="p">()</span><span class="o">.</span><span class="n">as_loader</span><span class="p">(</span><span class="n">unload_component</span><span class="p">)</span>
 </code></pre></div>
 
 <h6 id="parameters">Parameters</h6>
