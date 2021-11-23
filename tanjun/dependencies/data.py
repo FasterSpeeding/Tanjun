@@ -217,13 +217,27 @@ class _CacheCallback(typing.Generic[_T]):
     __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result")
 
     def __init__(
-        self, callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta]
+        self,
+        callback: injecting.CallbackSig[_T],
+        /,
+        *,
+        expire_after: typing.Union[int, float, datetime.timedelta, None],
     ) -> None:
         self._callback = injecting.CallbackDescriptor(callback)
-        self._expire_after = expire_after.total_seconds() if expire_after else None
         self._last_called: typing.Optional[float] = None
         self._lock: typing.Optional[asyncio.Lock] = None
         self._result: typing.Union[_T, injecting.Undefined] = injecting.UNDEFINED
+        if expire_after is None:
+            pass
+        elif isinstance(expire_after, datetime.timedelta):
+            expire_after = expire_after.total_seconds()
+        else:
+            expire_after = float(expire_after)
+
+        if expire_after is not None and expire_after <= 0:
+            raise ValueError("expire_after must be more than 0 seconds")
+
+        self._expire_after = expire_after
 
     @property
     def _has_expired(self) -> bool:
@@ -257,7 +271,7 @@ class _CacheCallback(typing.Generic[_T]):
 
 
 def cache_callback(
-    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Union[int, float, datetime.timedelta, None] = None
 ) -> collections.Callable[..., collections.Awaitable[_T]]:
     """Cache the result of a callback within a dependency injection context.
 
@@ -271,8 +285,8 @@ def cache_callback(
 
     Other Parameters
     ----------------
-    expire_after : typing.Optional[datetime.timedelta]
-        The amount of time to cache the result for.
+    expire_after : typing.Union[int, float, datetime.timedelta, None]
+        The amount of time to cache the result for in seconds.
 
         Leave this as `None` to cache for the runtime of the application.
 
@@ -281,34 +295,23 @@ def cache_callback(
     Callable[..., Awaitable[_T]]
         A callback which will cache the result of the given callback after the
         first call.
+
+    Raises
+    ------
+    ValueError
+        If expire_after is not a valid value.
+        If expire_after is not less than or equal to 0 seconds.
     """
     return _CacheCallback(callback, expire_after=expire_after)
 
 
 def cached_inject(
-    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Union[float, int, datetime.timedelta, None] = None
 ) -> _T:
     """Inject a callback with caching.
 
     This acts like `tanjun.injecting.inject` and the result of it
     should also be assigned to a parameter's default to be used.
-
-    Parameters
-    ----------
-    callback : CallbackSig[_T]
-        The callback to inject.
-
-    Other Parameters
-    ----------------
-    expire_after : typing.Optional[datetime.timedelta]
-        The amount of time to cache the result for.
-
-        Leave this as `None` to cache for the runtime of the application.
-
-    Returns
-    -------
-    tanjun.injecting.Injected[_T]
-        Injector used to resolve the cached callback.
 
     Example
     -------
@@ -323,5 +326,28 @@ def cached_inject(
         ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)
     ) -> None:
         raise NotImplementedError
+
+    Parameters
+    ----------
+    callback : CallbackSig[_T]
+        The callback to inject.
+
+    Other Parameters
+    ----------------
+    expire_after : typing.Union[int, float, datetime.timedelta, None]
+        The amount of time to cache the result for in seconds.
+
+        Leave this as `None` to cache for the runtime of the application.
+
+    Returns
+    -------
+    tanjun.injecting.Injected[_T]
+        Injector used to resolve the cached callback.
+
+    Raises
+    ------
+    ValueError
+        If expire_after is not a valid value.
+        If expire_after is not less than or equal to 0 seconds.
     """
     return injecting.inject(callback=cache_callback(callback, expire_after=expire_after))

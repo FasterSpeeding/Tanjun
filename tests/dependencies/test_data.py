@@ -125,6 +125,13 @@ def test_inject_lc():
     make_lc_resolver.assert_called_once_with(mock_type)
 
 
+@pytest.mark.parametrize("expire_after", [0.0, -1, datetime.timedelta(seconds=-2)])
+@pytest.mark.asyncio()
+def test_cache_callback_when_invalid_expire_after(expire_after: typing.Union[float, int, datetime.timedelta]):
+    with pytest.raises(ValueError, match="expire_after must be more than 0 seconds"):
+        tanjun.cache_callback(mock.Mock(), expire_after=expire_after)
+
+
 @pytest.mark.asyncio()
 async def test_cache_callback():
     mock_callback = mock.Mock()
@@ -153,8 +160,9 @@ async def test_cache_callback():
     assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
 
 
+@pytest.mark.parametrize("expire_after", [4, 4.0, datetime.timedelta(seconds=4)])
 @pytest.mark.asyncio()
-async def test_cache_callback_when_expired():
+async def test_cache_callback_when_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
     mock_callback = mock.Mock()
     mock_first_context = mock.Mock()
     mock_second_context = mock.Mock()
@@ -165,7 +173,7 @@ async def test_cache_callback_when_expired():
         "CallbackDescriptor",
         return_value=mock.Mock(resolve=mock.AsyncMock(side_effect=[mock_first_result, mock_second_result])),
     ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=4))
+        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=expire_after)
 
         callback_descriptor.assert_called_once_with(mock_callback)
 
@@ -192,14 +200,15 @@ async def test_cache_callback_when_expired():
     assert all(r is mock_second_result for r in results)
 
 
+@pytest.mark.parametrize("expire_after", [15, 15.0, datetime.timedelta(seconds=15)])
 @pytest.mark.asyncio()
-async def test_cache_callback_when_not_expired():
+async def test_cache_callback_when_not_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
     mock_callback = mock.Mock()
     mock_context = mock.Mock()
     with mock.patch.object(
         tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
     ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=15))
+        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=expire_after)
 
         callback_descriptor.assert_called_once_with(mock_callback)
 

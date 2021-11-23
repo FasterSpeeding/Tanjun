@@ -153,9 +153,12 @@ class TestOwnerCheck:
         assert all(result is True for result in results)
         mock_client.rest.fetch_application.assert_awaited_once_with()
 
+    @pytest.mark.parametrize("expire_after", [datetime.timedelta(seconds=60), 60, 60.0])
     @pytest.mark.asyncio()
-    async def test_check_ownership_application_expires_cache(self):
-        check = tanjun.dependencies.OwnerCheck(expire_after=datetime.timedelta(seconds=60))
+    async def test_check_ownership_application_expires_cache(
+        self, expire_after: typing.Union[float, int, datetime.timedelta]
+    ):
+        check = tanjun.dependencies.OwnerCheck(expire_after=expire_after)
         mock_client = mock.Mock()
         application_1 = mock.Mock(team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()}))
         application_2 = mock.Mock(team=mock.Mock(members={64123: mock.Mock()}))
