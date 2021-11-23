@@ -31,13 +31,10 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="class" href="#AbstractOwnerCheck">AbstractOwnerCheck</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#AbstractOwnerCheck.check_ownership">check_ownership</a>
-                        </li>
-                </ul>
-
+                    <a class="function" href="#set_standard_dependencies">set_standard_dependencies</a>
+            </li>
+            <li>
+                    <a class="function" href="#fetch_my_user">fetch_my_user</a>
             </li>
             <li>
                     <a class="function" href="#cache_callback">cache_callback</a>
@@ -76,6 +73,93 @@
                     <a class="function" href="#make_lc_resolver">make_lc_resolver</a>
             </li>
             <li>
+                    <a class="class" href="#AbstractCooldownManager">AbstractCooldownManager</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractCooldownManager.check_cooldown">check_cooldown</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractCooldownManager.increment_cooldown">increment_cooldown</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#BucketResource">BucketResource</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#BucketResource.USER">USER</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BucketResource.MEMBER">MEMBER</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BucketResource.CHANNEL">CHANNEL</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BucketResource.PARENT_CHANNEL">PARENT_CHANNEL</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BucketResource.TOP_ROLE">TOP_ROLE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BucketResource.GUILD">GUILD</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#BucketResource.GLOBAL">GLOBAL</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#CooldownPreExecution">CooldownPreExecution</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#CooldownPreExecution.__init__">CooldownPreExecution</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#InMemoryCooldownManager">InMemoryCooldownManager</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.__init__">InMemoryCooldownManager</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.add_to_client">add_to_client</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.check_cooldown">check_cooldown</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.increment_cooldown">increment_cooldown</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.open">open</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.set_bucket">set_bucket</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="function" href="#with_cooldown">with_cooldown</a>
+            </li>
+            <li>
+                    <a class="class" href="#AbstractOwnerCheck">AbstractOwnerCheck</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractOwnerCheck.check_ownership">check_ownership</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#OwnerCheck">OwnerCheck</a>
                             <ul class="memberlist">
                         <li>
@@ -103,7 +187,7 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.dependencies    </h1>
 
-                        <div class="docstring"><p>Default dependency classes used within Tanjun and their abstract interfaces.</p>
+                        <div class="docstring"><p>Default dependency utilities used within Tanjun and their abstract interfaces.</p>
 </div>
 
                         <details>
@@ -139,318 +223,107 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
-<span class="sd">&quot;&quot;&quot;Default dependency classes used within Tanjun and their abstract interfaces.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Default dependency utilities used within Tanjun and their abstract interfaces.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;AbstractOwnerCheck&quot;</span><span class="p">,</span>
+    <span class="c1"># __init__.py</span>
+    <span class="s2">&quot;set_standard_dependencies&quot;</span><span class="p">,</span>
+    <span class="c1"># callbacks.py</span>
+    <span class="s2">&quot;fetch_my_user&quot;</span><span class="p">,</span>
+    <span class="c1"># data.py</span>
     <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cached_inject&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span>
     <span class="s2">&quot;inject_lc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span>
+    <span class="c1"># limiters.py</span>
+    <span class="s2">&quot;AbstractCooldownManager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BucketResource&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CooldownPreExecution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InMemoryCooldownManager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_cooldown&quot;</span><span class="p">,</span>
+    <span class="c1"># owners.py</span>
+    <span class="s2">&quot;AbstractOwnerCheck&quot;</span><span class="p">,</span>
     <span class="s2">&quot;OwnerCheck&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">typing</span>
-
 <span class="kn">import</span> <span class="nn">hikari</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
-
-<span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">contextlib</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
-
-    <span class="n">_LazyConstantT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_LazyConstantT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;LazyConstant[typing.Any]&quot;</span><span class="p">)</span>
-
-<span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
-<span class="n">_LOGGER</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
+<span class="kn">from</span> <span class="nn">.callbacks</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.limiters</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.owners</span> <span class="kn">import</span> <span class="o">*</span>
 
 
-<span class="k">class</span> <span class="nc">AbstractOwnerCheck</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Interface used to check if a user is deemed to be the bot&#39;s &quot;owner&quot;.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether this object is owned by the given object.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        client : tanjun.abc.Client</span>
-<span class="sd">            The Tanjun client this check is being called by.</span>
-<span class="sd">        user : hikari.User</span>
-<span class="sd">            The user to check ownership for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the bot is owned by the provided user.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-
-<span class="k">class</span> <span class="nc">_CachedValue</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_last_called&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_result&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="k">if</span> <span class="n">expire_after</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_has_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
-
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">callback</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
-            <span class="c1"># This is set to None afterwards to ensure that it isn&#39;t persisted between loops.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-
-<span class="k">class</span> <span class="nc">OwnerCheck</span><span class="p">(</span><span class="n">AbstractOwnerCheck</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Default implementation of the owner check interface.</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        `fallback_to_application` is only possible when the REST client</span>
-<span class="sd">        is bound to a Bot token.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_fallback_to_application&quot;</span><span class="p">,</span> <span class="s2">&quot;_owner_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">expire_after</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
-        <span class="n">fallback_to_application</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">owners</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initiate a new owner check dependency.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        expire_after : datetime.timedelta</span>
-<span class="sd">            The amount of time to cache application owner data for.</span>
-
-<span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
-<span class="sd">            passed.</span>
-<span class="sd">        fallback_to_application : bool</span>
-<span class="sd">            Whether this check should fallback to checking the application&#39;s owners</span>
-<span class="sd">            if the user isn&#39;t in `owners.</span>
-
-<span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
-<span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
-<span class="sd">            bot&#39;s &quot;owners&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">=</span> <span class="n">expire_after</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span> <span class="o">=</span> <span class="n">fallback_to_application</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_owner_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">id_</span><span class="p">)</span> <span class="k">for</span> <span class="n">id_</span> <span class="ow">in</span> <span class="n">owners</span><span class="p">}</span> <span class="k">if</span> <span class="n">owners</span> <span class="k">else</span> <span class="nb">set</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">_CachedValue</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">](</span><span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner_ids</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">token_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">:</span>
-            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Owner checks cannot fallback to application owners when bound to an OAuth2 &quot;</span>
-                <span class="s2">&quot;client credentials token and may always fail unless bound to a Bot token.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="n">application</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_application</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">members</span> <span class="k">if</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span> <span class="k">else</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">application</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">id</span>
-
-
-<span class="k">class</span> <span class="nc">LazyConstant</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Injected type used to hold and generate lazy constants.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        To easily resolve this type use `inject_lc`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initiate a new lazy constant.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitable[_T]]</span>
-<span class="sd">            Callback used to resolve this to a constant value.</span>
-
-<span class="sd">            This supports dependency injection and may either be sync or asynchronous.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Descriptor of the callback used to get this constant&#39;s initial value.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
-
-    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the value of this constant if set, else `None`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
-
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Clear the internally stored value.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Set the constant value.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        value : _T</span>
-<span class="sd">            The value to set.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If the constant has already been set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Constant value already set.&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">AbstractAsyncContextManager</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Acquire this lazy constant to&#39;s asynchronous lock.</span>
-
-<span class="sd">        This is used to ensure that the value is only generated once</span>
-<span class="sd">        and should be kept acquired until `LazyConstant.set_value` is called.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        contextlib.AbstractAsyncContextManager[typing.Any]</span>
-<span class="sd">            Context manager that can be used to acquire the lock.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="c1"># Error if this is called outside of a running event loop.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span>
-
-
-<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * This is internally used by `inject_lc`.</span>
-<span class="sd">    * For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
-<span class="sd">      dependency for the passed `type_`.</span>
+<span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Set the standard dependencies for Tanjun.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    type_ : type[_T]</span>
-<span class="sd">        The type of the constant to resolve.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., collections.abc.Awaitable[_T]]</span>
-<span class="sd">        An injected callback used to resolve the LazyConstant.</span>
+<span class="sd">    client: tanjun.injecting.InjectorClient</span>
+<span class="sd">        The injector client to set the standard dependencies on.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractOwnerCheck</span><span class="p">,</span> <span class="n">OwnerCheck</span><span class="p">())</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
+        <span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">],</span> <span class="n">LazyConstant</span><span class="p">(</span><span class="n">fetch_my_user</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span>
+        </details>
 
-        <span class="k">async</span> <span class="k">with</span> <span class="n">constant</span><span class="o">.</span><span class="n">acquire</span><span class="p">():</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">value</span>
+            </section>
+                <section id="set_standard_dependencies">
+                            <div class="attr function"><a class="headerlink" href="#set_standard_dependencies">#&nbsp;&nbsp</a>
 
-            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">constant</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-            <span class="n">constant</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result</span>
+        
+            <span class="def">def</span>
+            <span class="name">set_standard_dependencies</span><span class="signature">(client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+    </div>
 
-    <span class="k">return</span> <span class="n">resolve</span>
-
-
-<span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
-
-<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
-<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
-<span class="sd">        dependency for the passed `type_`.</span>
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Set the standard dependencies for Tanjun.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    type_ : type[_T]</span>
-<span class="sd">        The type of the constant to resolve.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
-<span class="sd">        Injector used to resolve the LazyConstant.</span>
-
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    @component.with_command</span>
-<span class="sd">    @tanjun.as_message_command</span>
-<span class="sd">    async def command(</span>
-<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
-<span class="sd">        application: hikari.Application = tanjun.inject_lc(hikari.Application)</span>
-<span class="sd">    ) -&gt; None:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    ...</span>
-
-<span class="sd">    async def resolve_app(</span>
-<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
-<span class="sd">    ) -&gt; hikari.Application:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
-<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
-<span class="sd">    )</span>
-<span class="sd">    ```</span>
+<span class="sd">    client: tanjun.injecting.InjectorClient</span>
+<span class="sd">        The injector client to set the standard dependencies on.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractOwnerCheck</span><span class="p">,</span> <span class="n">OwnerCheck</span><span class="p">())</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
+        <span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">],</span> <span class="n">LazyConstant</span><span class="p">(</span><span class="n">fetch_my_user</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the standard dependencies for Tanjun.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (<a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>):
+The injector client to set the standard dependencies on.</li>
+</ul>
+</div>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+                </section>
+                <section id="fetch_my_user">
+                            <div class="attr function"><a class="headerlink" href="#fetch_my_user">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">fetch_my_user</span><span class="signature">(
+    client: <a href="abc.html#Client">tanjun.abc.Client</a> = &lt;<a href="injecting.html#Injected">tanjun.injecting.Injected</a> object&gt;
+) -&gt; hikari.users.OwnUser</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 
@@ -481,231 +354,38 @@
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot fetch current user with a REST client that&#39;s bound to a client credentials token&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-
-
-<span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Set the standard dependencies for Tanjun.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    client: tanjun.injecting.InjectorClient</span>
-<span class="sd">        The injector client to set the standard dependencies on.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="p">(</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractOwnerCheck</span><span class="p">,</span> <span class="n">OwnerCheck</span><span class="p">())</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
-            <span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">],</span> <span class="n">LazyConstant</span><span class="p">(</span><span class="n">fetch_my_user</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">_CacheCallback</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_last_called&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_result&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="k">if</span> <span class="n">expire_after</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_T</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_has_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="c1"># Positional arg(s) may be guaranteed under some contexts so we want to pass those through.</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
-
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
-            <span class="c1"># This is set to None afterwards to ensure that it isn&#39;t persisted between loops.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-
-<span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        This is internally used by `cached_inject`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to cache the result of.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
-<span class="sd">        The amount of time to cache the result for.</span>
-
-<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Callable[..., Awaitable[_T]]</span>
-<span class="sd">        A callback which will cache the result of the given callback after the</span>
-<span class="sd">        first call.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
-
-<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
-<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to inject.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
-<span class="sd">        The amount of time to cache the result for.</span>
-
-<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
-<span class="sd">        Injector used to resolve the cached callback.</span>
-
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    async def resolve_database(</span>
-<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
-<span class="sd">    ) -&gt; Database:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    @tanjun.as_message_command(&quot;command name&quot;)</span>
-<span class="sd">    async def command(</span>
-<span class="sd">        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)</span>
-<span class="sd">    ) -&gt; None:</span>
-<span class="sd">        raise NotImplementedError</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            </section>
-                <section id="AbstractOwnerCheck">
-                                <div class="attr class">
-        <a class="headerlink" href="#AbstractOwnerCheck">#&nbsp;&nbsp</a>
+            <div class="docstring"><p>Fetch the current user from the client's cache or rest client.</p>
 
-        
-        <span class="def">class</span>
-        <span class="name">AbstractOwnerCheck</span><wbr>(<span class="base">abc.ABC</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AbstractOwnerCheck</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Interface used to check if a user is deemed to be the bot&#39;s &quot;owner&quot;.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether this object is owned by the given object.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        client : tanjun.abc.Client</span>
-<span class="sd">            The Tanjun client this check is being called by.</span>
-<span class="sd">        user : hikari.User</span>
-<span class="sd">            The user to check ownership for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the bot is owned by the provided user.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Interface used to check if a user is deemed to be the bot's "owner".</p>
-</div>
-
-
-                            <div id="AbstractOwnerCheck.check_ownership" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#AbstractOwnerCheck.check_ownership">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">async def</span>
-            <span class="name">check_ownership</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, user: hikari.users.User, /) -&gt; bool</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Check whether this object is owned by the given object.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        client : tanjun.abc.Client</span>
-<span class="sd">            The Tanjun client this check is being called by.</span>
-<span class="sd">        user : hikari.User</span>
-<span class="sd">            The user to check ownership for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the bot is owned by the provided user.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Check whether this object is owned by the given object.</p>
+<p><em>Note:</em>
+This is used in the standard <code>LazyConstant[hikari.OwnUser]</code>
+dependency.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
-The Tanjun client this check is being called by.</li>
-<li><strong>user</strong> (hikari.User):
-The user to check ownership for.</li>
+The client to use to fetch the user.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>bool</strong>: Whether the bot is owned by the provided user.</li>
+<li><strong>hikari.OwnUser</strong>: The current user.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the cache couldn't be used to get the current user and the REST
+client is not bound to a Bot token.</li>
 </ul>
 </div>
 
 
-                            </div>
                 </section>
                 <section id="cache_callback">
                             <div class="attr function"><a class="headerlink" href="#cache_callback">#&nbsp;&nbsp</a>
@@ -1364,13 +1044,1263 @@ The type of the constant to resolve.</li>
 
 
                 </section>
+                <section id="AbstractCooldownManager">
+                                <div class="attr class">
+        <a class="headerlink" href="#AbstractCooldownManager">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">AbstractCooldownManager</span><wbr>(<span class="base">abc.ABC</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AbstractCooldownManager</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface used for managing command calldowns.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_cooldown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Check if a bucket is on cooldown for the provided context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket to check.</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context of the command.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        increment : bool</span>
+<span class="sd">            Whether this cool should increment the bucket&#39;s use counter it</span>
+<span class="sd">            isn&#39;t depleted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[float]</span>
+<span class="sd">            When this command will next be usable in the current context if its</span>
+<span class="sd">            in cooldown else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Increment the cooldown of a cooldown bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket&#39;s ID.</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context of the command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Interface used for managing command calldowns.</p>
+</div>
+
+
+                            <div id="AbstractCooldownManager.check_cooldown" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractCooldownManager.check_cooldown">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">check_cooldown</span><span class="signature">(
+    self,
+    bucket_id: str,
+    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
+    /,
+    *,
+    increment: bool = False
+) -&gt; Optional[float]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_cooldown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Check if a bucket is on cooldown for the provided context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket to check.</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context of the command.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        increment : bool</span>
+<span class="sd">            Whether this cool should increment the bucket&#39;s use counter it</span>
+<span class="sd">            isn&#39;t depleted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[float]</span>
+<span class="sd">            When this command will next be usable in the current context if its</span>
+<span class="sd">            in cooldown else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Check if a bucket is on cooldown for the provided context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket to check.</li>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context of the command.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>increment</strong> (bool):
+Whether this cool should increment the bucket's use counter it
+isn't depleted.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[float]</strong>: When this command will next be usable in the current context if its
+in cooldown else <code>None</code>.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="AbstractCooldownManager.increment_cooldown" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractCooldownManager.increment_cooldown">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">increment_cooldown</span><span class="signature">(self, bucket_id: str, ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Increment the cooldown of a cooldown bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket&#39;s ID.</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context of the command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Increment the cooldown of a cooldown bucket.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket's ID.</li>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context of the command.</li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
+                <section id="BucketResource">
+                                <div class="attr class">
+        <a class="headerlink" href="#BucketResource">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">BucketResource</span><wbr>(<span class="base">builtins.int</span>, <span class="base">enum.Enum</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BucketResource</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Resource target types used within command calldowns and concurrency limiters.&quot;&quot;&quot;</span>
+
+    <span class="n">USER</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sd">&quot;&quot;&quot;A per-user cooldown bucket.&quot;&quot;&quot;</span>
+
+    <span class="n">MEMBER</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="sd">&quot;&quot;&quot;A per-guild member cooldown bucket.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        When executed in a DM this will be per-DM.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CHANNEL</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="sd">&quot;&quot;&quot;A per-channel cooldown bucket.&quot;&quot;&quot;</span>
+
+    <span class="n">PARENT_CHANNEL</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="sd">&quot;&quot;&quot;A per-parent channel cooldown bucket.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        For DM channels this will be per-DM, for guild channels with no parents</span>
+<span class="sd">        this&#39;ll be per-guild.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># CATEGORY = 4</span>
+    <span class="c1"># &quot;&quot;&quot;A per-category cooldown bucket.</span>
+
+    <span class="c1"># .. note::</span>
+    <span class="c1">#     For DM channels this will be per-DM, for guild channels with no parent</span>
+    <span class="c1">#     category this&#39;ll be per-guild.</span>
+    <span class="c1"># &quot;&quot;&quot;</span>
+
+    <span class="n">TOP_ROLE</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="sd">&quot;&quot;&quot;A per-highest role cooldown bucket.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        When executed in a DM this will be per-DM, with this defaulting to</span>
+<span class="sd">        targeting the @everyone role if they have no real roles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">GUILD</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="sd">&quot;&quot;&quot;A per-guild cooldown bucket.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        When executed in a DM this will be per-DM.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">GLOBAL</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="sd">&quot;&quot;&quot;A global cooldown bucket.&quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resource target types used within command calldowns and concurrency limiters.</p>
+</div>
+
+
+                            <div id="BucketResource.USER" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.USER">#&nbsp;&nbsp</a>
+
+        <span class="name">USER</span><span class="default_value"> = &lt;<a href="#BucketResource.USER">BucketResource.USER</a>: 0&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A per-user cooldown bucket.</p>
+</div>
+
+
+                            </div>
+                            <div id="BucketResource.MEMBER" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.MEMBER">#&nbsp;&nbsp</a>
+
+        <span class="name">MEMBER</span><span class="default_value"> = &lt;<a href="#BucketResource.MEMBER">BucketResource.MEMBER</a>: 1&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A per-guild member cooldown bucket.</p>
+
+<p><em>Note:</em>
+When executed in a DM this will be per-DM.</p>
+</div>
+
+
+                            </div>
+                            <div id="BucketResource.CHANNEL" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.CHANNEL">#&nbsp;&nbsp</a>
+
+        <span class="name">CHANNEL</span><span class="default_value"> = &lt;<a href="#BucketResource.CHANNEL">BucketResource.CHANNEL</a>: 2&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A per-channel cooldown bucket.</p>
+</div>
+
+
+                            </div>
+                            <div id="BucketResource.PARENT_CHANNEL" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.PARENT_CHANNEL">#&nbsp;&nbsp</a>
+
+        <span class="name">PARENT_CHANNEL</span><span class="default_value"> = &lt;<a href="#BucketResource.PARENT_CHANNEL">BucketResource.PARENT_CHANNEL</a>: 3&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A per-parent channel cooldown bucket.</p>
+
+<p><em>Note:</em>
+For DM channels this will be per-DM, for guild channels with no parents
+this'll be per-guild.</p>
+</div>
+
+
+                            </div>
+                            <div id="BucketResource.TOP_ROLE" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.TOP_ROLE">#&nbsp;&nbsp</a>
+
+        <span class="name">TOP_ROLE</span><span class="default_value"> = &lt;<a href="#BucketResource.TOP_ROLE">BucketResource.TOP_ROLE</a>: 5&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A per-highest role cooldown bucket.</p>
+
+<p><em>Note:</em>
+When executed in a DM this will be per-DM, with this defaulting to
+targeting the @everyone role if they have no real roles.</p>
+</div>
+
+
+                            </div>
+                            <div id="BucketResource.GUILD" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.GUILD">#&nbsp;&nbsp</a>
+
+        <span class="name">GUILD</span><span class="default_value"> = &lt;<a href="#BucketResource.GUILD">BucketResource.GUILD</a>: 6&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A per-guild cooldown bucket.</p>
+
+<p><em>Note:</em>
+When executed in a DM this will be per-DM.</p>
+</div>
+
+
+                            </div>
+                            <div id="BucketResource.GLOBAL" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BucketResource.GLOBAL">#&nbsp;&nbsp</a>
+
+        <span class="name">GLOBAL</span><span class="default_value"> = &lt;<a href="#BucketResource.GLOBAL">BucketResource.GLOBAL</a>: 7&gt;</span>
+    </div>
+
+            <div class="docstring"><p>A global cooldown bucket.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>enum.Enum</dt>
+                                <dd id="BucketResource.name" class="variable">name</dd>
+                <dd id="BucketResource.value" class="variable">value</dd>
+
+            </div>
+            <div><dt>builtins.int</dt>
+                                <dd id="BucketResource.conjugate" class="function">conjugate</dd>
+                <dd id="BucketResource.bit_length" class="function">bit_length</dd>
+                <dd id="BucketResource.to_bytes" class="function">to_bytes</dd>
+                <dd id="BucketResource.from_bytes" class="function">from_bytes</dd>
+                <dd id="BucketResource.as_integer_ratio" class="function">as_integer_ratio</dd>
+                <dd id="BucketResource.real" class="variable">real</dd>
+                <dd id="BucketResource.imag" class="variable">imag</dd>
+                <dd id="BucketResource.numerator" class="variable">numerator</dd>
+                <dd id="BucketResource.denominator" class="variable">denominator</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="CooldownPreExecution">
+                                <div class="attr class">
+        <a class="headerlink" href="#CooldownPreExecution">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">CooldownPreExecution</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CooldownPreExecution</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Pre-execution hook used to manage a command&#39;s cooldowns.</span>
+
+<span class="sd">    To avoid race-conditions this handles both erroring when the bucket is hit</span>
+<span class="sd">    instead and incrementing the bucket&#39;s use counter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bucket_id : str</span>
+<span class="sd">        The cooldown bucket&#39;s ID.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    error_message : str</span>
+<span class="sd">        The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again&quot;.</span>
+<span class="sd">    owners_exempt : bool</span>
+<span class="sd">        Whether owners should be exempt from the cooldown.</span>
+
+<span class="sd">        Defaults to `True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_owners_exempt&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again&quot;</span><span class="p">,</span>
+        <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="o">=</span> <span class="n">owners_exempt</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+        <span class="n">cooldowns</span><span class="p">:</span> <span class="n">AbstractCooldownManager</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractCooldownManager</span><span class="p">),</span>
+        <span class="c1"># TODO: default to None for the owner check as this should only require</span>
+        <span class="c1"># the owner check dependency if owner_exempt is True.</span>
+        <span class="n">owner_check</span><span class="p">:</span> <span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwnerCheck</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwnerCheck</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">owner_check</span><span class="o">.</span><span class="n">check_ownership</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">wait_for</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">cooldowns</span><span class="o">.</span><span class="n">check_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cooldown</span><span class="o">=</span><span class="n">wait_for</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Pre-execution hook used to manage a command's cooldowns.</p>
+
+<p>To avoid race-conditions this handles both erroring when the bucket is hit
+instead and incrementing the bucket's use counter.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket's ID.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>error_message</strong> (str):
+The error message to send in response as a command error if the check fails.</p>
+
+<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".</p></li>
+<li><p><strong>owners_exempt</strong> (bool):
+Whether owners should be exempt from the cooldown.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
+</ul>
+</div>
+
+
+                            <div id="CooldownPreExecution.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CooldownPreExecution.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">CooldownPreExecution</span><span class="signature">(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again&#39;,
+    owners_exempt: bool = True
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again&quot;</span><span class="p">,</span>
+        <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="o">=</span> <span class="n">owners_exempt</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                </section>
+                <section id="InMemoryCooldownManager">
+                                <div class="attr class">
+        <a class="headerlink" href="#InMemoryCooldownManager">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">InMemoryCooldownManager</span><wbr>(<span class="base"><a href="#AbstractCooldownManager">tanjun.dependencies.AbstractCooldownManager</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InMemoryCooldownManager</span><span class="p">(</span><span class="n">AbstractCooldownManager</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;In-memory standard implementation of `AbstractCooldownManager`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    `InMemoryCooldownManager.set_bucket` may be used to set a cooldown for a</span>
+<span class="sd">    specific bucket:</span>
+
+<span class="sd">    ```py</span>
+<span class="sd">    (</span>
+<span class="sd">        InMemoryCooldownManager()</span>
+<span class="sd">        # Set the default bucket template to a per-user 10 uses per-60 seconds cooldown.</span>
+<span class="sd">        .set_bucket(&quot;default&quot;, tanjun.BucketResource.USER, 10, 60)</span>
+<span class="sd">        # Set the &quot;moderation&quot; bucket to a per-guild 100 uses per-5 minutes cooldown.</span>
+<span class="sd">        .set_bucket(&quot;moderation&quot;, tanjun.BucketResource.GUILD, 100, datetime.timedelta(minutes=5))</span>
+<span class="sd">        .set_bucket()</span>
+<span class="sd">        # add_to_client will setup the cooldown manager (setting it as an</span>
+<span class="sd">        # injected dependency and registering callbacks to manage it).</span>
+<span class="sd">        .add_to_client(client)</span>
+<span class="sd">    )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_buckets&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_bucket_template&quot;</span><span class="p">,</span> <span class="s2">&quot;_gc_loop&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseCooldownResource</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseCooldownResource</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_get_or_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseCooldownResource</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">bucket</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No route found for </span><span class="si">{bucket_id}</span><span class="s2">, falling back to &#39;default&#39; bucket.&quot;</span><span class="p">)</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">bucket</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_gc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">bucket</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add this cooldown manager to a tanjun client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This registers the manager as a type dependency and manages opening</span>
+<span class="sd">            and closing the manager based on the client&#39;s life cycle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to add this cooldown manager to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractCooldownManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">loop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_loop</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_cooldown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span>
+
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span> <span class="k">if</span> <span class="n">bucket</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Stop the event manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the event manager is not running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is not active&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the event manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the event manager is already running.</span>
+<span class="sd">            If called in a thread with no running event loop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is already running&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span>
+        <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">resource_type</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span>
+        <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">reset_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the cooldown for a specific bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The ID of the bucket to set the cooldown for.</span>
+
+<span class="sd">            ..  note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
+<span class="sd">                the bucket ID isn&#39;t found.</span>
+<span class="sd">        resource_type : tanjun.BucketResource</span>
+<span class="sd">            The type of resource to use for the cooldown.</span>
+<span class="sd">        limit : int</span>
+<span class="sd">            The number of uses per cooldown period.</span>
+<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">            The cooldown period.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This cooldown manager to allow chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an invalid resource type is given.</span>
+<span class="sd">            If reset_after or limit are negative, 0 or invalid.</span>
+<span class="sd">            if limit is less 0 or negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reset_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
+            <span class="n">reset_after</span> <span class="o">=</span> <span class="n">reset_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reset_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">reset_after</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;reset_after must be greater than 0 seconds&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">MEMBER</span><span class="p">:</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_MemberCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">:</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_GlobalCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">resource_type</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>In-memory standard implementation of <code><a href="#AbstractCooldownManager">AbstractCooldownManager</a></code>.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p><code><a href="#InMemoryCooldownManager.set_bucket">InMemoryCooldownManager.set_bucket</a></code> may be used to set a cooldown for a
+specific bucket:</p>
+
+<p>```py
+(
+    InMemoryCooldownManager()
+    # Set the default bucket template to a per-user 10 uses per-60 seconds cooldown.
+    .set_bucket("default", <a href="../tanjun.html#BucketResource.USER">tanjun.BucketResource.USER</a>, 10, 60)
+    # Set the "moderation" bucket to a per-guild 100 uses per-5 minutes cooldown.
+    .set_bucket("moderation", <a href="../tanjun.html#BucketResource.GUILD">tanjun.BucketResource.GUILD</a>, 100, datetime.timedelta(minutes=5))
+    .set_bucket()
+    # add_to_client will setup the cooldown manager (setting it as an
+    # injected dependency and registering callbacks to manage it).
+    .add_to_client(client)
+)</p>
+</div>
+
+
+                            <div id="InMemoryCooldownManager.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">InMemoryCooldownManager</span><span class="signature">()</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseCooldownResource</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseCooldownResource</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="InMemoryCooldownManager.add_to_client" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.add_to_client">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_to_client</span><span class="signature">(self, client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add this cooldown manager to a tanjun client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This registers the manager as a type dependency and manages opening</span>
+<span class="sd">            and closing the manager based on the client&#39;s life cycle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to add this cooldown manager to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractCooldownManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">loop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_loop</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add this cooldown manager to a tanjun client.</p>
+
+<p><em>Note:</em>
+This registers the manager as a type dependency and manages opening
+and closing the manager based on the client's life cycle.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
+The client to add this cooldown manager to.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryCooldownManager.check_cooldown" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.check_cooldown">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">check_cooldown</span><span class="signature">(
+    self,
+    bucket_id: str,
+    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
+    /,
+    *,
+    increment: bool = False
+) -&gt; Optional[float]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_cooldown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span>
+
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span> <span class="k">if</span> <span class="n">bucket</span> <span class="k">else</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Check if a bucket is on cooldown for the provided context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket to check.</li>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context of the command.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>increment</strong> (bool):
+Whether this cool should increment the bucket's use counter it
+isn't depleted.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[float]</strong>: When this command will next be usable in the current context if its
+in cooldown else <code>None</code>.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryCooldownManager.increment_cooldown" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.increment_cooldown">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">increment_cooldown</span><span class="signature">(
+    self,
+    bucket_id: str,
+    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
+    /
+) -&gt; collections.abc.Coroutine[typing.Any, typing.Any, None]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Increment the cooldown of a cooldown bucket.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket's ID.</li>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context of the command.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryCooldownManager.close" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.close">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">close</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Stop the event manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the event manager is not running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is not active&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Stop the event manager.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the event manager is not running.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryCooldownManager.open" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.open">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">open</span><span class="signature">(
+    self,
+    *,
+    _loop: Optional[asyncio.events.AbstractEventLoop] = None
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the event manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the event manager is already running.</span>
+<span class="sd">            If called in a thread with no running event loop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is already running&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Start the event manager.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the event manager is already running.
+If called in a thread with no running event loop.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryCooldownManager.set_bucket" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.set_bucket">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_bucket</span><span class="signature">(
+    self: ~_InMemoryCooldownManagerT,
+    bucket_id: str,
+    resource_type: <a href="#limiters.BucketResource">tanjun.dependencies.limiters.BucketResource</a>,
+    limit: int,
+    reset_after: Union[int, float, datetime.timedelta]
+) -&gt; ~_InMemoryCooldownManagerT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span>
+        <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">resource_type</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span>
+        <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">reset_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the cooldown for a specific bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The ID of the bucket to set the cooldown for.</span>
+
+<span class="sd">            ..  note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
+<span class="sd">                the bucket ID isn&#39;t found.</span>
+<span class="sd">        resource_type : tanjun.BucketResource</span>
+<span class="sd">            The type of resource to use for the cooldown.</span>
+<span class="sd">        limit : int</span>
+<span class="sd">            The number of uses per cooldown period.</span>
+<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">            The cooldown period.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This cooldown manager to allow chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an invalid resource type is given.</span>
+<span class="sd">            If reset_after or limit are negative, 0 or invalid.</span>
+<span class="sd">            if limit is less 0 or negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reset_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
+            <span class="n">reset_after</span> <span class="o">=</span> <span class="n">reset_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reset_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">reset_after</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;reset_after must be greater than 0 seconds&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">MEMBER</span><span class="p">:</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_MemberCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">:</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_GlobalCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">resource_type</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the cooldown for a specific bucket.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>bucket_id</strong> (str):
+The ID of the bucket to set the cooldown for.</p>
+
+<p><em>Note:</em>
+"default" is a special bucket that is as a template used when
+the bucket ID isn't found.</p></li>
+<li><strong>resource_type</strong> (<a href="../tanjun.html#BucketResource">tanjun.BucketResource</a>):
+The type of resource to use for the cooldown.</li>
+<li><strong>limit</strong> (int):
+The number of uses per cooldown period.</li>
+<li><strong>reset_after</strong> (int, float, datetime.timedelta):
+The cooldown period.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: This cooldown manager to allow chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If an invalid resource type is given.
+If reset_after or limit are negative, 0 or invalid.
+if limit is less 0 or negative.</li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
+                <section id="with_cooldown">
+                            <div class="attr function"><a class="headerlink" href="#with_cooldown">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_cooldown</span><span class="signature">(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again&#39;,
+    owners_exempt: bool = True
+) -&gt; Callable[[~CommandT], ~CommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_cooldown</span><span class="p">(</span>
+    <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again&quot;</span><span class="p">,</span>
+    <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a pre-execution hook used to manage a command&#39;s cooldown through a decorator call.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        Cooldowns will only work if there&#39;s a setup injected `AbstractCooldownManager`</span>
+<span class="sd">        dependency with `InMemoryCooldownManager` being usable as a standard in-memory</span>
+<span class="sd">        cooldown manager.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bucket_id : str</span>
+<span class="sd">        The cooldown bucket&#39;s ID.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    error_message : str</span>
+<span class="sd">        The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again&quot;.</span>
+<span class="sd">    owners_exempt : bool</span>
+<span class="sd">        Whether owners should be exempt from the cooldown.</span>
+
+<span class="sd">        Defaults to `True`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    typing.Callable[[CommandT], CommandT]</span>
+<span class="sd">        A decorator that adds a `CooldownPreExecution` hook to the command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+        <span class="n">hooks_</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">hooks</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_</span><span class="p">:</span>
+            <span class="n">hooks_</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">set_hooks</span><span class="p">(</span><span class="n">hooks_</span><span class="p">)</span>
+
+        <span class="n">hooks_</span><span class="o">.</span><span class="n">add_pre_execution</span><span class="p">(</span>
+            <span class="n">CooldownPreExecution</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">,</span> <span class="n">owners_exempt</span><span class="o">=</span><span class="n">owners_exempt</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">command</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a pre-execution hook used to manage a command's cooldown through a decorator call.</p>
+
+<p><em>Warning:</em>
+Cooldowns will only work if there's a setup injected <code><a href="#AbstractCooldownManager">AbstractCooldownManager</a></code>
+dependency with <code><a href="#InMemoryCooldownManager">InMemoryCooldownManager</a></code> being usable as a standard in-memory
+cooldown manager.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket's ID.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>error_message</strong> (str):
+The error message to send in response as a command error if the check fails.</p>
+
+<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".</p></li>
+<li><p><strong>owners_exempt</strong> (bool):
+Whether owners should be exempt from the cooldown.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Callable[[CommandT], CommandT]</strong>: A decorator that adds a <code><a href="#CooldownPreExecution">CooldownPreExecution</a></code> hook to the command.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="AbstractOwnerCheck">
+                                <div class="attr class">
+        <a class="headerlink" href="#AbstractOwnerCheck">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">AbstractOwnerCheck</span><wbr>(<span class="base">abc.ABC</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AbstractOwnerCheck</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface used to check if a user is deemed to be the bot&#39;s &quot;owner&quot;.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check whether this object is owned by the given object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The Tanjun client this check is being called by.</span>
+<span class="sd">        user : hikari.User</span>
+<span class="sd">            The user to check ownership for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether the bot is owned by the provided user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Interface used to check if a user is deemed to be the bot's "owner".</p>
+</div>
+
+
+                            <div id="AbstractOwnerCheck.check_ownership" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractOwnerCheck.check_ownership">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">check_ownership</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, user: hikari.users.User, /) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check whether this object is owned by the given object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The Tanjun client this check is being called by.</span>
+<span class="sd">        user : hikari.User</span>
+<span class="sd">            The user to check ownership for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether the bot is owned by the provided user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Check whether this object is owned by the given object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
+The Tanjun client this check is being called by.</li>
+<li><strong>user</strong> (hikari.User):
+The user to check ownership for.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the bot is owned by the provided user.</li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="OwnerCheck">
                                 <div class="attr class">
         <a class="headerlink" href="#OwnerCheck">#&nbsp;&nbsp</a>
 
         
         <span class="def">class</span>
-        <span class="name">OwnerCheck</span><wbr>(<span class="base"><a href="#AbstractOwnerCheck">AbstractOwnerCheck</a></span>):
+        <span class="name">OwnerCheck</span><wbr>(<span class="base"><a href="#AbstractOwnerCheck">tanjun.dependencies.AbstractOwnerCheck</a></span>):
     </div>
 
                 <details>
@@ -1383,12 +2313,12 @@ The type of the constant to resolve.</li>
 <span class="sd">        is bound to a Bot token.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_fallback_to_application&quot;</span><span class="p">,</span> <span class="s2">&quot;_owner_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_fallback_to_application&quot;</span><span class="p">,</span> <span class="s2">&quot;_owner_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">expire_after</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
         <span class="n">fallback_to_application</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">owners</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1396,8 +2326,8 @@ The type of the constant to resolve.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : datetime.timedelta</span>
-<span class="sd">            The amount of time to cache application owner data for.</span>
+<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
 <span class="sd">            passed.</span>
@@ -1410,7 +2340,15 @@ The type of the constant to resolve.</li>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s &quot;owners&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">=</span> <span class="n">expire_after</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
+            <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">expire_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">expire_after</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">expire_after</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expire after must be greater than 0 seconds&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span> <span class="o">=</span> <span class="n">fallback_to_application</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_owner_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">id_</span><span class="p">)</span> <span class="k">for</span> <span class="n">id_</span> <span class="ow">in</span> <span class="n">owners</span><span class="p">}</span> <span class="k">if</span> <span class="n">owners</span> <span class="k">else</span> <span class="nb">set</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">_CachedValue</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">](</span><span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
@@ -1449,7 +2387,7 @@ is bound to a Bot token.</p>
         
             <span class="name">OwnerCheck</span><span class="signature">(
     *,
-    expire_after: datetime.timedelta = datetime.timedelta(seconds=300),
+    expire_after: Union[datetime.timedelta, int, float] = datetime.timedelta(seconds=300),
     fallback_to_application: bool = True,
     owners: Optional[Sequence[Union[hikari.users.User, hikari.snowflakes.Snowflake, int]]] = None
 )</span>
@@ -1460,7 +2398,7 @@ is bound to a Bot token.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">expire_after</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
         <span class="n">fallback_to_application</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">owners</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1468,8 +2406,8 @@ is bound to a Bot token.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : datetime.timedelta</span>
-<span class="sd">            The amount of time to cache application owner data for.</span>
+<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
 <span class="sd">            passed.</span>
@@ -1482,7 +2420,15 @@ is bound to a Bot token.</p>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s &quot;owners&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">=</span> <span class="n">expire_after</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
+            <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">expire_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">expire_after</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">expire_after</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expire after must be greater than 0 seconds&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span> <span class="o">=</span> <span class="n">fallback_to_application</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_owner_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">id_</span><span class="p">)</span> <span class="k">for</span> <span class="n">id_</span> <span class="ow">in</span> <span class="n">owners</span><span class="p">}</span> <span class="k">if</span> <span class="n">owners</span> <span class="k">else</span> <span class="nb">set</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">_CachedValue</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">](</span><span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
@@ -1495,8 +2441,8 @@ is bound to a Bot token.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (datetime.timedelta):
-The amount of time to cache application owner data for.</p>
+<li><p><strong>expire_after</strong> (typing.Union[datetime.timedelta, int, float]):
+The amount of time to cache application owner data for in seconds.</p>
 
 <p>This defaults to 5 minutes and is only applicable if <code>rest</code> is also
 passed.</p></li>

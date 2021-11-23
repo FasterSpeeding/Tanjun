@@ -1108,11 +1108,6 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to allow chaining.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If both `callback` and `type` are specified or if neither is specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -1147,7 +1142,7 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        KeyError</span>
 <span class="sd">            If `type_` is not registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
@@ -3226,11 +3221,6 @@ level.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to allow chaining.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If both `callback` and `type` are specified or if neither is specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -3265,7 +3255,7 @@ level.</p></li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        KeyError</span>
 <span class="sd">            If `type_` is not registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
@@ -3389,11 +3379,6 @@ level.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to allow chaining.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If both `callback` and `type` are specified or if neither is specified.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -3420,12 +3405,6 @@ The type of the dependency to resolve.</li>
 
 <ul>
 <li><strong>Self</strong>: The client instance to allow chaining.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>ValueError</strong>: If both <code>callback</code> and <code>type</code> are specified or if neither is specified.</li>
 </ul>
 </div>
 
@@ -3506,7 +3485,7 @@ The associated type.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        KeyError</span>
 <span class="sd">            If `type_` is not registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
@@ -3533,7 +3512,7 @@ The associated type.</li>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>ValueError</strong>: If <code>type_</code> is not registered.</li>
+<li><strong>KeyError</strong>: If <code>type_</code> is not registered.</li>
 </ul>
 </div>
 
