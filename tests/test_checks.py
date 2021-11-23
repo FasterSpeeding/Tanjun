@@ -470,3 +470,43 @@ def test_with_check(command: mock.Mock):
 
     assert result is command
     command.add_check.assert_called_once_with(mock_check)
+
+
+async def test_any_checks_when_first_check_passes():
+    ...
+
+
+async def test_any_checks_when_last_check_passes():
+    ...
+
+
+async def test_any_checks_when_check_passes():
+    ...
+
+
+async def test_any_checks_when_all_fail():
+    ...
+
+
+async def test_any_checks_when_all_fail_and_halt_execution():
+    ...
+
+
+async def test_any_checks_when_all_fail_and_error_message():
+    ...
+
+
+async def test_all_checks():
+    ...
+
+
+async def test_all_checks_when_first_fails():
+    ...
+
+
+async def test_all_checks_when_last_fails():
+    ...
+
+
+async def test_all_checks_when_check_fails():
+    ...

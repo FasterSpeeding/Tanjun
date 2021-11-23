@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Concurrency limiter dependency (in a similar style to cooldowns).
 - `disable_bucket` method to the in-memory concurrency and cooldown manager impls.
+- `any_checks` and `all_checks` utility functions for more garnular check flow control.
 
 ### Changed
 - `cached_inject` and `cache_callback` now both accept `float` and `int` seconds for `expire_after`.

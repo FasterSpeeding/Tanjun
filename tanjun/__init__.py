@@ -112,6 +112,8 @@ __all__: list[str] = [
     "ClientCallbackNames",
     # checks.py
     "checks",
+    "all_checks",
+    "any_checks",
     "with_check",
     "with_dm_check",
     "with_guild_check",
