@@ -73,6 +73,18 @@
                     <a class="function" href="#make_lc_resolver">make_lc_resolver</a>
             </li>
             <li>
+                    <a class="class" href="#AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractConcurrencyLimiter.try_acquire">try_acquire</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractConcurrencyLimiter.release">release</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#AbstractCooldownManager">AbstractCooldownManager</a>
                             <ul class="memberlist">
                         <li>
@@ -112,10 +124,55 @@
 
             </li>
             <li>
+                    <a class="class" href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ConcurrencyPreExecution.__init__">ConcurrencyPreExecution</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ConcurrencyPostExecution.__init__">ConcurrencyPostExecution</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#CooldownPreExecution">CooldownPreExecution</a>
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#CooldownPreExecution.__init__">CooldownPreExecution</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.__init__">InMemoryConcurrencyLimiter</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.add_to_client">add_to_client</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.open">open</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.try_acquire">try_acquire</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.release">release</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.set_bucket">set_bucket</a>
                         </li>
                 </ul>
 
@@ -146,6 +203,9 @@
                         </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="function" href="#with_concurrency_limit">with_concurrency_limit</a>
             </li>
             <li>
                     <a class="function" href="#with_cooldown">with_cooldown</a>
@@ -238,10 +298,15 @@
     <span class="s2">&quot;inject_lc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span>
     <span class="c1"># limiters.py</span>
+    <span class="s2">&quot;AbstractConcurrencyLimiter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AbstractCooldownManager&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BucketResource&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ConcurrencyPreExecution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ConcurrencyPostExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CooldownPreExecution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;InMemoryConcurrencyLimiter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InMemoryCooldownManager&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_concurrency_limit&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_cooldown&quot;</span><span class="p">,</span>
     <span class="c1"># owners.py</span>
     <span class="s2">&quot;AbstractOwners&quot;</span><span class="p">,</span>
@@ -1073,6 +1138,125 @@ The type of the constant to resolve.</li>
 
 
                 </section>
+                <section id="AbstractConcurrencyLimiter">
+                                <div class="attr class">
+        <a class="headerlink" href="#AbstractConcurrencyLimiter">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">AbstractConcurrencyLimiter</span><wbr>(<span class="base">abc.ABC</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AbstractConcurrencyLimiter</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface used for limiting command concurrent usage.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to acquire a concurrency lock on a bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency bucket to acquire.</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context to acquire this resource lock with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether the lock was acquired.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Release a concurrency lock on a bucket.&quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Interface used for limiting command concurrent usage.</p>
+</div>
+
+
+                            <div id="AbstractConcurrencyLimiter.try_acquire" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractConcurrencyLimiter.try_acquire">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">try_acquire</span><span class="signature">(self, bucket_id: str, ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, /) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to acquire a concurrency lock on a bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency bucket to acquire.</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context to acquire this resource lock with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether the lock was acquired.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Try to acquire a concurrency lock on a bucket.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency bucket to acquire.</li>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context to acquire this resource lock with.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the lock was acquired.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="AbstractConcurrencyLimiter.release" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractConcurrencyLimiter.release">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">release</span><span class="signature">(self, bucket_id: str, ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Release a concurrency lock on a bucket.&quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Release a concurrency lock on a bucket.</p>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="AbstractCooldownManager">
                                 <div class="attr class">
         <a class="headerlink" href="#AbstractCooldownManager">#&nbsp;&nbsp</a>
@@ -1105,14 +1289,14 @@ The type of the constant to resolve.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        increment : bool</span>
-<span class="sd">            Whether this cool should increment the bucket&#39;s use counter it</span>
-<span class="sd">            isn&#39;t depleted.</span>
+<span class="sd">            Whether this call should increment the bucket&#39;s use counter if</span>
+<span class="sd">            it isn&#39;t depleted.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[float]</span>
-<span class="sd">            When this command will next be usable in the current context if its</span>
-<span class="sd">            in cooldown else `None`.</span>
+<span class="sd">            When this command will next be usable for the provided context</span>
+<span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -1168,14 +1352,14 @@ The type of the constant to resolve.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        increment : bool</span>
-<span class="sd">            Whether this cool should increment the bucket&#39;s use counter it</span>
-<span class="sd">            isn&#39;t depleted.</span>
+<span class="sd">            Whether this call should increment the bucket&#39;s use counter if</span>
+<span class="sd">            it isn&#39;t depleted.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[float]</span>
-<span class="sd">            When this command will next be usable in the current context if its</span>
-<span class="sd">            in cooldown else `None`.</span>
+<span class="sd">            When this command will next be usable for the provided context</span>
+<span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -1196,15 +1380,15 @@ The context of the command.</li>
 
 <ul>
 <li><strong>increment</strong> (bool):
-Whether this cool should increment the bucket's use counter it
-isn't depleted.</li>
+Whether this call should increment the bucket's use counter if
+it isn't depleted.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[float]</strong>: When this command will next be usable in the current context if its
-in cooldown else <code>None</code>.</li>
+<li><strong>typing.Optional[float]</strong>: When this command will next be usable for the provided context
+if it's in cooldown else <code>None</code>.</li>
 </ul>
 </div>
 
@@ -1433,6 +1617,174 @@ When executed in a DM this will be per-DM.</p>
                                 </dl>
                             </div>
                 </section>
+                <section id="ConcurrencyPreExecution">
+                                <div class="attr class">
+        <a class="headerlink" href="#ConcurrencyPreExecution">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ConcurrencyPreExecution</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConcurrencyPreExecution</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Pre-execution hook used to acquire a bucket concurrency limiter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bucket_id : str</span>
+<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    error_message : str</span>
+<span class="sd">        The error message to send in response as a command error if this fails</span>
+<span class="sd">        to acquire the concurrency limit.</span>
+
+<span class="sd">        Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Pre-execution hook used to acquire a bucket concurrency limiter.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency limit bucket's ID.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>error_message</strong> (str):
+The error message to send in response as a command error if this fails
+to acquire the concurrency limit.</p>
+
+<p>Defaults to "This resource is currently busy; please try again later.".</p></li>
+</ul>
+</div>
+
+
+                            <div id="ConcurrencyPreExecution.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ConcurrencyPreExecution.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ConcurrencyPreExecution</span><span class="signature">(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = &#39;This resource is currently busy; please try again later.&#39;
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                </section>
+                <section id="ConcurrencyPostExecution">
+                                <div class="attr class">
+        <a class="headerlink" href="#ConcurrencyPostExecution">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ConcurrencyPostExecution</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConcurrencyPostExecution</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Post-execution hook used to release a bucket concurrency limiter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bucket_id : str</span>
+<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Post-execution hook used to release a bucket concurrency limiter.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency limit bucket's ID.</li>
+</ul>
+</div>
+
+
+                            <div id="ConcurrencyPostExecution.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ConcurrencyPostExecution.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ConcurrencyPostExecution</span><span class="signature">(bucket_id: str, /)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                </section>
                 <section id="CooldownPreExecution">
                                 <div class="attr class">
         <a class="headerlink" href="#CooldownPreExecution">#&nbsp;&nbsp</a>
@@ -1460,7 +1812,7 @@ When executed in a DM this will be per-DM.</p>
 <span class="sd">    error_message : str</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
-<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again&quot;.</span>
+<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
 <span class="sd">    owners_exempt : bool</span>
 <span class="sd">        Whether owners should be exempt from the cooldown.</span>
 
@@ -1474,7 +1826,7 @@ When executed in a DM this will be per-DM.</p>
         <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again&quot;</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
         <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
@@ -1516,7 +1868,7 @@ The cooldown bucket's ID.</li>
 <li><p><strong>error_message</strong> (str):
 The error message to send in response as a command error if the check fails.</p>
 
-<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".</p></li>
+<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".</p></li>
 <li><p><strong>owners_exempt</strong> (bool):
 Whether owners should be exempt from the cooldown.</p>
 
@@ -1533,7 +1885,7 @@ Whether owners should be exempt from the cooldown.</p>
     bucket_id: str,
     /,
     *,
-    error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again&#39;,
+    error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again.&#39;,
     owners_exempt: bool = True
 )</span>
     </div>
@@ -1545,7 +1897,7 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again&quot;</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
         <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
@@ -1556,6 +1908,510 @@ Whether owners should be exempt from the cooldown.</p>
         </details>
 
     
+
+                            </div>
+                </section>
+                <section id="InMemoryConcurrencyLimiter">
+                                <div class="attr class">
+        <a class="headerlink" href="#InMemoryConcurrencyLimiter">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">InMemoryConcurrencyLimiter</span><wbr>(<span class="base"><a href="#AbstractConcurrencyLimiter">tanjun.dependencies.AbstractConcurrencyLimiter</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InMemoryConcurrencyLimiter</span><span class="p">(</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;In-memory standard implementation of `AbstractConcurrencyLimiter`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    `InMemoryConcurrencyLimiter.set_bucket` may be used to set the concurrency</span>
+<span class="sd">    limits for a specific bucket:</span>
+
+<span class="sd">    ```py</span>
+<span class="sd">    (</span>
+<span class="sd">        InMemoryConcurrencyLimiter()</span>
+<span class="sd">        # Set the default bucket template to 10 concurrent uses of the command per-user.</span>
+<span class="sd">        .set_bucket(&quot;default&quot;, tanjun.BucketResource.USER, 10)</span>
+<span class="sd">        # Set the &quot;moderation&quot; bucket with a limit of 5 concurrent uses per-guild.</span>
+<span class="sd">        .set_bucket(&quot;moderation&quot;, tanjun.BucketResource.GUILD, 5)</span>
+<span class="sd">        .set_bucket()</span>
+<span class="sd">        # add_to_client will setup the concurrency manager (setting it as an</span>
+<span class="sd">        # injected dependency and registering callbacks to manage it).</span>
+<span class="sd">        .add_to_client(client)</span>
+<span class="sd">    )</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_acquiring_ctxs&quot;</span><span class="p">,</span> <span class="s2">&quot;_buckets&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_bucket_template&quot;</span><span class="p">,</span> <span class="s2">&quot;_gc_task&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">],</span> <span class="n">_ConcurrencyLimit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_ConcurrencyLimit</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_ConcurrencyLimit</span><span class="p">]</span> <span class="o">=</span> <span class="n">_FlatResource</span><span class="p">(</span>
+            <span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_gc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">bucket</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add this concurrency manager to a tanjun client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This registers the manager as a type dependency and manages opening</span>
+<span class="sd">            and closing the manager based on the client&#39;s life cycle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to add this concurrency manager to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">loop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_loop</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Stop the concurrency manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the concurrency manager is not running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Concurrency manager is not active&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the concurrency manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the concurrency manager is already running.</span>
+<span class="sd">            If called in a thread with no running event loop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Concurrency manager is already running&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractConcurrencyLimiter&gt;&gt;.</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bucket</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No concurrency limit found for </span><span class="si">%r</span><span class="s2">, falling back to &#39;default&#39; bucket&quot;</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">)</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># incrementing a bucket multiple times for the same context could lead</span>
+        <span class="c1"># to weird edge cases based on how we internally track this, so we</span>
+        <span class="c1"># internally de-duplicate this.</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># This won&#39;t ever be the case if it just had to make a new bucket, hence the elif.</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="p">(</span><span class="n">limit</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">acquire</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="p">[(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">limit</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractConcurrencyLimiter&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">limit</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">limit</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the concurrency limit for a specific bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The ID of the bucket to set the concurrency limit for.</span>
+
+<span class="sd">            ..  note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
+<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">        resource : tanjun.BucketResource</span>
+<span class="sd">            The type of resource to target for the concurrency limit.</span>
+<span class="sd">        limit : int</span>
+<span class="sd">            The maximum number of concurrent uses to allow.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The concurrency manager to allow call chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an invalid resource type is given.</span>
+<span class="sd">            if limit is less 0 or negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
+
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>In-memory standard implementation of <code><a href="#AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a></code>.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p><code><a href="#InMemoryConcurrencyLimiter.set_bucket">InMemoryConcurrencyLimiter.set_bucket</a></code> may be used to set the concurrency
+limits for a specific bucket:</p>
+
+<div class="codehilite"><pre><span></span><code><span class="p">(</span>
+    <span class="n">InMemoryConcurrencyLimiter</span><span class="p">()</span>
+    <span class="c1"># Set the default bucket template to 10 concurrent uses of the command per-user.</span>
+    <span class="o">.</span><span class="n">set_bucket</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="c1"># Set the &quot;moderation&quot; bucket with a limit of 5 concurrent uses per-guild.</span>
+    <span class="o">.</span><span class="n">set_bucket</span><span class="p">(</span><span class="s2">&quot;moderation&quot;</span><span class="p">,</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">GUILD</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">set_bucket</span><span class="p">()</span>
+    <span class="c1"># add_to_client will setup the concurrency manager (setting it as an</span>
+    <span class="c1"># injected dependency and registering callbacks to manage it).</span>
+    <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+
+
+                            <div id="InMemoryConcurrencyLimiter.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">InMemoryConcurrencyLimiter</span><span class="signature">()</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">],</span> <span class="n">_ConcurrencyLimit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_ConcurrencyLimit</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_ConcurrencyLimit</span><span class="p">]</span> <span class="o">=</span> <span class="n">_FlatResource</span><span class="p">(</span>
+            <span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="InMemoryConcurrencyLimiter.add_to_client" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.add_to_client">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_to_client</span><span class="signature">(self, client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add this concurrency manager to a tanjun client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This registers the manager as a type dependency and manages opening</span>
+<span class="sd">            and closing the manager based on the client&#39;s life cycle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to add this concurrency manager to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">loop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">_loop</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add this concurrency manager to a tanjun client.</p>
+
+<p><em>Note:</em>
+This registers the manager as a type dependency and manages opening
+and closing the manager based on the client's life cycle.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
+The client to add this concurrency manager to.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryConcurrencyLimiter.close" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.close">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">close</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Stop the concurrency manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the concurrency manager is not running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Concurrency manager is not active&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Stop the concurrency manager.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the concurrency manager is not running.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryConcurrencyLimiter.open" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.open">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">open</span><span class="signature">(
+    self,
+    *,
+    _loop: Optional[asyncio.events.AbstractEventLoop] = None
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the concurrency manager.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the concurrency manager is already running.</span>
+<span class="sd">            If called in a thread with no running event loop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Concurrency manager is already running&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Start the concurrency manager.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the concurrency manager is already running.
+If called in a thread with no running event loop.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryConcurrencyLimiter.try_acquire" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.try_acquire">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">try_acquire</span><span class="signature">(self, bucket_id: str, ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, /) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractConcurrencyLimiter&gt;&gt;.</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bucket</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No concurrency limit found for </span><span class="si">%r</span><span class="s2">, falling back to &#39;default&#39; bucket&quot;</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">)</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># incrementing a bucket multiple times for the same context could lead</span>
+        <span class="c1"># to weird edge cases based on how we internally track this, so we</span>
+        <span class="c1"># internally de-duplicate this.</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># This won&#39;t ever be the case if it just had to make a new bucket, hence the elif.</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="p">(</span><span class="n">limit</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">acquire</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="p">[(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">limit</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Try to acquire a concurrency lock on a bucket.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency bucket to acquire.</li>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context to acquire this resource lock with.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the lock was acquired.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryConcurrencyLimiter.release" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.release">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">release</span><span class="signature">(self, bucket_id: str, ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractConcurrencyLimiter&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">limit</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">limit</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Release a concurrency lock on a bucket.</p>
+</div>
+
+
+                            </div>
+                            <div id="InMemoryConcurrencyLimiter.set_bucket" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.set_bucket">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_bucket</span><span class="signature">(
+    self: ~_InMemoryConcurrencyLimiterT,
+    bucket_id: str,
+    resource: <a href="#limiters.BucketResource">tanjun.dependencies.limiters.BucketResource</a>,
+    limit: int,
+    /
+) -&gt; ~_InMemoryConcurrencyLimiterT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the concurrency limit for a specific bucket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The ID of the bucket to set the concurrency limit for.</span>
+
+<span class="sd">            ..  note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
+<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">        resource : tanjun.BucketResource</span>
+<span class="sd">            The type of resource to target for the concurrency limit.</span>
+<span class="sd">        limit : int</span>
+<span class="sd">            The maximum number of concurrent uses to allow.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The concurrency manager to allow call chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an invalid resource type is given.</span>
+<span class="sd">            if limit is less 0 or negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
+
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the concurrency limit for a specific bucket.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>bucket_id</strong> (str):
+The ID of the bucket to set the concurrency limit for.</p>
+
+<p><em>Note:</em>
+"default" is a special bucket that is as a template used when
+a bucket ID isn't found.</p></li>
+<li><strong>resource</strong> (<a href="../tanjun.html#BucketResource">tanjun.BucketResource</a>):
+The type of resource to target for the concurrency limit.</li>
+<li><strong>limit</strong> (int):
+The maximum number of concurrent uses to allow.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The concurrency manager to allow call chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If an invalid resource type is given.
+if limit is less 0 or negative.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -1575,7 +2431,7 @@ Whether owners should be exempt from the cooldown.</p>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    `InMemoryCooldownManager.set_bucket` may be used to set a cooldown for a</span>
+<span class="sd">    `InMemoryCooldownManager.set_bucket` may be used to set the cooldown for a</span>
 <span class="sd">    specific bucket:</span>
 
 <span class="sd">    ```py</span>
@@ -1590,20 +2446,23 @@ Whether owners should be exempt from the cooldown.</p>
 <span class="sd">        # injected dependency and registering callbacks to manage it).</span>
 <span class="sd">        .add_to_client(client)</span>
 <span class="sd">    )</span>
+<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_buckets&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_bucket_template&quot;</span><span class="p">,</span> <span class="s2">&quot;_gc_loop&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_buckets&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_bucket_template&quot;</span><span class="p">,</span> <span class="s2">&quot;_gc_task&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseCooldownResource</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseCooldownResource</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]</span> <span class="o">=</span> <span class="n">_FlatResource</span><span class="p">(</span>
+            <span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_get_or_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseCooldownResource</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_or_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">bucket</span>
 
-        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No route found for </span><span class="si">{bucket_id}</span><span class="s2">, falling back to &#39;default&#39; bucket.&quot;</span><span class="p">)</span>
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No cooldown found for </span><span class="si">%r</span><span class="s2">, falling back to &#39;default&#39; bucket&quot;</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">)</span>
         <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">bucket</span>
 
@@ -1637,51 +2496,52 @@ Whether owners should be exempt from the cooldown.</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">check_cooldown</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
 
-        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span> <span class="k">if</span> <span class="n">bucket</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
+        <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Stop the event manager.</span>
+        <span class="sd">&quot;&quot;&quot;Stop the cooldown manager.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If the event manager is not running.</span>
+<span class="sd">            If the cooldown manager is not running.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is not active&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Start the event manager.</span>
+        <span class="sd">&quot;&quot;&quot;Start the cooldown manager.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If the event manager is already running.</span>
+<span class="sd">            If the cooldown manager is already running.</span>
 <span class="sd">            If called in a thread with no running event loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is already running&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span>
         <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">resource_type</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span>
+        <span class="n">resource</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span>
         <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">reset_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">],</span>
+        <span class="o">/</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the cooldown for a specific bucket.</span>
 
@@ -1692,9 +2552,9 @@ Whether owners should be exempt from the cooldown.</p>
 
 <span class="sd">            ..  note::</span>
 <span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
-<span class="sd">                the bucket ID isn&#39;t found.</span>
-<span class="sd">        resource_type : tanjun.BucketResource</span>
-<span class="sd">            The type of resource to use for the cooldown.</span>
+<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">        resource : tanjun.BucketResource</span>
+<span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
 <span class="sd">        reset_after : int, float, datetime.timedelta</span>
@@ -1703,7 +2563,7 @@ Whether owners should be exempt from the cooldown.</p>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
-<span class="sd">            This cooldown manager to allow chaining.</span>
+<span class="sd">            The cooldown manager to allow call chaining.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1723,16 +2583,9 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">MEMBER</span><span class="p">:</span>
-            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_MemberCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">:</span>
-            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_GlobalCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">resource_type</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span>
+            <span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="n">reset_after</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -1745,21 +2598,21 @@ Whether owners should be exempt from the cooldown.</p>
 
 <h6 id="examples">Examples</h6>
 
-<p><code><a href="#InMemoryCooldownManager.set_bucket">InMemoryCooldownManager.set_bucket</a></code> may be used to set a cooldown for a
+<p><code><a href="#InMemoryCooldownManager.set_bucket">InMemoryCooldownManager.set_bucket</a></code> may be used to set the cooldown for a
 specific bucket:</p>
 
-<p>```py
-(
-    InMemoryCooldownManager()
-    # Set the default bucket template to a per-user 10 uses per-60 seconds cooldown.
-    .set_bucket("default", <a href="../tanjun.html#BucketResource.USER">tanjun.BucketResource.USER</a>, 10, 60)
-    # Set the "moderation" bucket to a per-guild 100 uses per-5 minutes cooldown.
-    .set_bucket("moderation", <a href="../tanjun.html#BucketResource.GUILD">tanjun.BucketResource.GUILD</a>, 100, datetime.timedelta(minutes=5))
-    .set_bucket()
-    # add_to_client will setup the cooldown manager (setting it as an
-    # injected dependency and registering callbacks to manage it).
-    .add_to_client(client)
-)</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span>
+    <span class="n">InMemoryCooldownManager</span><span class="p">()</span>
+    <span class="c1"># Set the default bucket template to a per-user 10 uses per-60 seconds cooldown.</span>
+    <span class="o">.</span><span class="n">set_bucket</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="c1"># Set the &quot;moderation&quot; bucket to a per-guild 100 uses per-5 minutes cooldown.</span>
+    <span class="o">.</span><span class="n">set_bucket</span><span class="p">(</span><span class="s2">&quot;moderation&quot;</span><span class="p">,</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">GUILD</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">set_bucket</span><span class="p">()</span>
+    <span class="c1"># add_to_client will setup the cooldown manager (setting it as an</span>
+    <span class="c1"># injected dependency and registering callbacks to manage it).</span>
+    <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
 </div>
 
 
@@ -1773,9 +2626,11 @@ specific bucket:</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseCooldownResource</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseCooldownResource</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span><span class="p">:</span> <span class="n">_BaseResource</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]</span> <span class="o">=</span> <span class="n">_FlatResource</span><span class="p">(</span>
+            <span class="n">BucketResource</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -1853,11 +2708,12 @@ The client to add this cooldown manager to.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_cooldown</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
 
-        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="n">increment</span><span class="p">)</span> <span class="k">if</span> <span class="n">bucket</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1877,15 +2733,15 @@ The context of the command.</li>
 
 <ul>
 <li><strong>increment</strong> (bool):
-Whether this cool should increment the bucket's use counter it
-isn't depleted.</li>
+Whether this call should increment the bucket's use counter if
+it isn't depleted.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[float]</strong>: When this command will next be usable in the current context if its
-in cooldown else <code>None</code>.</li>
+<li><strong>typing.Optional[float]</strong>: When this command will next be usable for the provided context
+if it's in cooldown else <code>None</code>.</li>
 </ul>
 </div>
 
@@ -1895,21 +2751,15 @@ in cooldown else <code>None</code>.</li>
                                         <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.increment_cooldown">#&nbsp;&nbsp</a>
 
         
-            <span class="def">def</span>
-            <span class="name">increment_cooldown</span><span class="signature">(
-    self,
-    bucket_id: str,
-    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
-    /
-) -&gt; collections.abc.Coroutine[typing.Any, typing.Any, None]</span>:
+            <span class="def">async def</span>
+            <span class="name">increment_cooldown</span><span class="signature">(self, bucket_id: str, ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
+        <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1939,28 +2789,28 @@ The context of the command.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Stop the event manager.</span>
+        <span class="sd">&quot;&quot;&quot;Stop the cooldown manager.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If the event manager is not running.</span>
+<span class="sd">            If the cooldown manager is not running.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is not active&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Stop the event manager.</p>
+            <div class="docstring"><p>Stop the cooldown manager.</p>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>RuntimeError</strong>: If the event manager is not running.</li>
+<li><strong>RuntimeError</strong>: If the cooldown manager is not running.</li>
 </ul>
 </div>
 
@@ -1981,28 +2831,28 @@ The context of the command.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Start the event manager.</span>
+        <span class="sd">&quot;&quot;&quot;Start the cooldown manager.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        RuntimeError</span>
-<span class="sd">            If the event manager is already running.</span>
+<span class="sd">            If the cooldown manager is already running.</span>
 <span class="sd">            If called in a thread with no running event loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cooldown manager is already running&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_loop</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Start the event manager.</p>
+            <div class="docstring"><p>Start the cooldown manager.</p>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>RuntimeError</strong>: If the event manager is already running.
+<li><strong>RuntimeError</strong>: If the cooldown manager is already running.
 If called in a thread with no running event loop.</li>
 </ul>
 </div>
@@ -2017,9 +2867,10 @@ If called in a thread with no running event loop.</li>
             <span class="name">set_bucket</span><span class="signature">(
     self: ~_InMemoryCooldownManagerT,
     bucket_id: str,
-    resource_type: <a href="#limiters.BucketResource">tanjun.dependencies.limiters.BucketResource</a>,
+    resource: <a href="#limiters.BucketResource">tanjun.dependencies.limiters.BucketResource</a>,
     limit: int,
-    reset_after: Union[int, float, datetime.timedelta]
+    reset_after: Union[int, float, datetime.timedelta],
+    /
 ) -&gt; ~_InMemoryCooldownManagerT</span>:
     </div>
 
@@ -2028,9 +2879,10 @@ If called in a thread with no running event loop.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span>
         <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">resource_type</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span>
+        <span class="n">resource</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span>
         <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">reset_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">],</span>
+        <span class="o">/</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the cooldown for a specific bucket.</span>
 
@@ -2041,9 +2893,9 @@ If called in a thread with no running event loop.</li>
 
 <span class="sd">            ..  note::</span>
 <span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
-<span class="sd">                the bucket ID isn&#39;t found.</span>
-<span class="sd">        resource_type : tanjun.BucketResource</span>
-<span class="sd">            The type of resource to use for the cooldown.</span>
+<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">        resource : tanjun.BucketResource</span>
+<span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
 <span class="sd">        reset_after : int, float, datetime.timedelta</span>
@@ -2052,7 +2904,7 @@ If called in a thread with no running event loop.</li>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
-<span class="sd">            This cooldown manager to allow chaining.</span>
+<span class="sd">            The cooldown manager to allow call chaining.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -2072,16 +2924,9 @@ If called in a thread with no running event loop.</li>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">MEMBER</span><span class="p">:</span>
-            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_MemberCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">resource_type</span> <span class="ow">is</span> <span class="n">BucketResource</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">:</span>
-            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_GlobalCooldownResource</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">bucket</span> <span class="o">=</span> <span class="n">_CooldownBucket</span><span class="p">(</span><span class="n">resource_type</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span>
+            <span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="n">reset_after</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2100,9 +2945,9 @@ The ID of the bucket to set the cooldown for.</p>
 
 <p><em>Note:</em>
 "default" is a special bucket that is as a template used when
-the bucket ID isn't found.</p></li>
-<li><strong>resource_type</strong> (<a href="../tanjun.html#BucketResource">tanjun.BucketResource</a>):
-The type of resource to use for the cooldown.</li>
+a bucket ID isn't found.</p></li>
+<li><strong>resource</strong> (<a href="../tanjun.html#BucketResource">tanjun.BucketResource</a>):
+The type of resource to target for the cooldown.</li>
 <li><strong>limit</strong> (int):
 The number of uses per cooldown period.</li>
 <li><strong>reset_after</strong> (int, float, datetime.timedelta):
@@ -2112,7 +2957,7 @@ The cooldown period.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>Self</strong>: This cooldown manager to allow chaining.</li>
+<li><strong>Self</strong>: The cooldown manager to allow call chaining.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
@@ -2127,6 +2972,102 @@ if limit is less 0 or negative.</li>
 
                             </div>
                 </section>
+                <section id="with_concurrency_limit">
+                            <div class="attr function"><a class="headerlink" href="#with_concurrency_limit">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_concurrency_limit</span><span class="signature">(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = &#39;This resource is currently busy; please try again later.&#39;
+) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_concurrency_limit</span><span class="p">(</span>
+    <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add the hooks used to manage a command&#39;s concurrency limit through a decorator call.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        Concurrency limiters will only work if there&#39;s a setup injected</span>
+<span class="sd">        `AbstractConcurrencyLimiter` dependency with `InMemoryConcurrencyLimiter`</span>
+<span class="sd">        being usable as a standard in-memory concurrency manager.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bucket_id : str</span>
+<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    error_message : str</span>
+<span class="sd">        The error message to send in response as a command error if this fails</span>
+<span class="sd">        to acquire the concurrency limit.</span>
+
+<span class="sd">        Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">        A decorator that adds the concurrency limiter hooks to a command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+        <span class="n">hooks_</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">hooks</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_</span><span class="p">:</span>
+            <span class="n">hooks_</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">set_hooks</span><span class="p">(</span><span class="n">hooks_</span><span class="p">)</span>
+
+        <span class="n">hooks_</span><span class="o">.</span><span class="n">add_pre_execution</span><span class="p">(</span><span class="n">ConcurrencyPreExecution</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span><span class="o">.</span><span class="n">add_post_execution</span><span class="p">(</span>
+            <span class="n">ConcurrencyPostExecution</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">command</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add the hooks used to manage a command's concurrency limit through a decorator call.</p>
+
+<p><em>Warning:</em>
+Concurrency limiters will only work if there's a setup injected
+<code><a href="#AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a></code> dependency with <code><a href="#InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a></code>
+being usable as a standard in-memory concurrency manager.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency limit bucket's ID.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>error_message</strong> (str):
+The error message to send in response as a command error if this fails
+to acquire the concurrency limit.</p>
+
+<p>Defaults to "This resource is currently busy; please try again later.".</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A decorator that adds the concurrency limiter hooks to a command.</li>
+</ul>
+</div>
+
+
+                </section>
                 <section id="with_cooldown">
                             <div class="attr function"><a class="headerlink" href="#with_cooldown">#&nbsp;&nbsp</a>
 
@@ -2136,9 +3077,9 @@ if limit is less 0 or negative.</li>
     bucket_id: str,
     /,
     *,
-    error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again&#39;,
+    error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again.&#39;,
     owners_exempt: bool = True
-) -&gt; Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
     </div>
 
                 <details>
@@ -2147,9 +3088,9 @@ if limit is less 0 or negative.</li>
     <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again&quot;</span><span class="p">,</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
     <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a pre-execution hook used to manage a command&#39;s cooldown through a decorator call.</span>
 
 <span class="sd">    .. warning::</span>
@@ -2167,7 +3108,7 @@ if limit is less 0 or negative.</li>
 <span class="sd">    error_message : str</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
-<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again&quot;.</span>
+<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
 <span class="sd">    owners_exempt : bool</span>
 <span class="sd">        Whether owners should be exempt from the cooldown.</span>
 
@@ -2175,7 +3116,7 @@ if limit is less 0 or negative.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    typing.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
 <span class="sd">        A decorator that adds a `CooldownPreExecution` hook to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2215,7 +3156,7 @@ The cooldown bucket's ID.</li>
 <li><p><strong>error_message</strong> (str):
 The error message to send in response as a command error if the check fails.</p>
 
-<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".</p></li>
+<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".</p></li>
 <li><p><strong>owners_exempt</strong> (bool):
 Whether owners should be exempt from the cooldown.</p>
 
@@ -2225,7 +3166,7 @@ Whether owners should be exempt from the cooldown.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Callable[[CommandT], CommandT]</strong>: A decorator that adds a <code><a href="#CooldownPreExecution">CooldownPreExecution</a></code> hook to the command.</li>
+<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A decorator that adds a <code><a href="#CooldownPreExecution">CooldownPreExecution</a></code> hook to the command.</li>
 </ul>
 </div>
 
