@@ -110,10 +110,11 @@ class LazyConstant(typing.Generic[_T]):
         return self
 
     def acquire(self) -> contextlib.AbstractAsyncContextManager[typing.Any]:
-        """Acquire this lazy constant to's asynchronous lock.
+        """Acquire this lazy constant as an asynchronous lock.
 
         This is used to ensure that the value is only generated once
-        and should be kept acquired until `LazyConstant.set_value` is called.
+        and should be kept acquired until `LazyConstant.set_value` has
+        been called.
 
         Returns
         -------
