@@ -553,9 +553,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
             ..  note::
                 "default" is a special bucket that is as a template used when
-                the bucket ID isn't found.
+                a bucket ID isn't found.
         resource : tanjun.BucketResource
-            The type of resource to use for the cooldown.
+            The type of resource to target for the cooldown.
         limit : int
             The number of uses per cooldown period.
         reset_after : int, float, datetime.timedelta
@@ -834,6 +834,32 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     def set_bucket(
         self: _InMemoryConcurrencyLimiterT, bucket_id: str, resource: BucketResource, limit: int, /
     ) -> _InMemoryConcurrencyLimiterT:
+        """Set the concurrency limit for a specific bucket.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The ID of the bucket to set the concurrency limit for.
+
+            ..  note::
+                "default" is a special bucket that is as a template used when
+                a bucket ID isn't found.
+        resource : tanjun.BucketResource
+            The type of resource to target for the concurrency limit.
+        limit : int
+            The maximum number of concurrent uses to allow.
+
+        Returns
+        -------
+        Self
+            This concurrency manager to allow chaining.
+
+        Raises
+        ------
+        ValueError
+            If an invalid resource type is given.
+            if limit is less 0 or negative.
+        """
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 

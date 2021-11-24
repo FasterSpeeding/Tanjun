@@ -17,10 +17,6 @@ ignore =
     E203,      # whitespace before ':'
     E231,      # missing whitespace after ','
 
-    D100,      # Temporarily disabled until doc coverage brought up to 100%
-    D101,      # Temporarily disabled until doc coverage brought up to 100%.
-    D103       # Temporarily disabled until doc coverage brought up to 100%.
-
 # F403: cannot detect unused vars if we use starred import
 # F405: __all__ field may be undefined or defined from star imports
 per-file-ignores =
