@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Concurrency limiter dependency (in a similar style to cooldowns).
 
-# Changed
+### Changed
 - `cached_inject` and `cache_callback` now both accept `float` and `int` seconds for `expire_after`.
 - `Owners.__init__` now accepts `float` and `int` seconds for `expire_after`.
 - Rename `tanjun.dependencies.owners.OwnerCheck` and `tanjun.dependencies.owners.AbstractOwnerCheck`
