@@ -663,8 +663,7 @@ def with_mentionable_slash_option(
 
 def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
     if isinstance(converter, conversion.InjectableConverter):
-        # pyright needs this cast
-        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)  # type: ignore [redundant-cast]
+        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)
 
     return conversion.InjectableConverter(conversion.override_type(converter))
 
