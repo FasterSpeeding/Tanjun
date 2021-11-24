@@ -149,7 +149,8 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
     """
 
     async def resolve(
-        constant: LazyConstant[_T] = injecting.inject(type=LazyConstant[type_]),
+        # LazyConstant gets type arguments at runtime
+        constant: LazyConstant[_T] = injecting.inject(type=LazyConstant[type_]),  # type: ignore[valid-type]
         ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
     ) -> _T:
         """Resolve a lazy constant."""

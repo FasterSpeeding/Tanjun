@@ -59,6 +59,9 @@ ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.In
 """Union of the response types which are valid for application command interactions."""
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")
+class _SENTINEL_TYPE:
+    pass
+_SENTINEL = _SENTINEL_TYPE()
 
 
 def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
@@ -596,7 +599,7 @@ class SlashOption(tanjun_abc.SlashOption):
     def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
         ...
 
-    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(self, *, default: typing.Union[_T, _SENTINEL_TYPE] = _SENTINEL) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.USER:
@@ -604,7 +607,7 @@ class SlashOption(tanjun_abc.SlashOption):
             if member := self._interaction.resolved.members.get(hikari.Snowflake(self.value)):
                 return member
 
-            if default is not ...:
+            if not isinstance(default, _SENTINEL_TYPE):
                 return default
 
             raise LookupError("User isn't in the current guild") from None
@@ -616,7 +619,7 @@ class SlashOption(tanjun_abc.SlashOption):
                 return member
 
             if target_id in self._interaction.resolved.users:
-                if default is not ...:
+                if not isinstance(default, _SENTINEL_TYPE):
                     return default
 
                 raise LookupError("User isn't in the current guild")
@@ -743,6 +746,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
 
+    # TODO: figure out why this is making mypy bug out?
     @property
     def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
@@ -1381,3 +1385,5 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
         if ensure_result:
             return await self._interaction.fetch_initial_response()
+        else:
+            return None

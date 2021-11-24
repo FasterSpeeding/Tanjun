@@ -110,6 +110,8 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
         if content == name or content.startswith(name) and content[len(name)] == " ":
             return name
 
+    return None
+
 
 ALL_PERMISSIONS: typing.Final[hikari.Permissions] = hikari.Permissions.all_permissions()
 """All of all the known permissions based on the linked version of Hikari."""
@@ -278,13 +280,13 @@ async def fetch_permissions(
     if guild.owner_id == member.user.id:
         return ALL_PERMISSIONS
 
-    roles = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
-    if not roles:
+    roles_ = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
+    if not roles_:
         raw_roles = await client.rest.fetch_roles(member.guild_id)
-        roles = {role.id: role for role in raw_roles}
+        roles_ = {role.id: role for role in raw_roles}
 
     # Admin permission overrides all overwrites and is only applicable to roles.
-    if (permissions := _calculate_role_permissions(roles, member)) & permissions.ADMINISTRATOR:
+    if (permissions := _calculate_role_permissions(roles_, member)) & permissions.ADMINISTRATOR:
         return ALL_PERMISSIONS
 
     if not channel:

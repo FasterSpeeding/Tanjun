@@ -72,5 +72,5 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
         The injector client to set the standard dependencies on.
     """
     client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-        LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
+        LazyConstant[hikari.OwnUser], LazyConstant[hikari.OwnUser](fetch_my_user)
     )

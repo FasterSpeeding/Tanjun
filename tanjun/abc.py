@@ -2466,7 +2466,7 @@ class Component(abc.ABC):
     def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
         ...
 
-    @abc.abstractmethod
+    @abc.abstractmethod  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
     def with_slash_command(
         self, command: BaseSlashCommandT = ..., /, *, copy: bool = False
     ) -> typing.Union[BaseSlashCommandT, collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]]:
@@ -2533,7 +2533,7 @@ class Component(abc.ABC):
     def with_message_command(self, *, copy: bool = False) -> collections.Callable[[MessageCommandT], MessageCommandT]:
         ...
 
-    @abc.abstractmethod
+    @abc.abstractmethod  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
     def with_message_command(
         self, command: MessageCommandT = ..., /, *, copy: bool = False
     ) -> typing.Union[MessageCommandT, collections.Callable[[MessageCommandT], MessageCommandT]]:

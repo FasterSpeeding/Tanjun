@@ -198,6 +198,10 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             )
 
 
+def f(x: injecting.CallbackSig[object]) -> None:
+    assert isinstance(x, BaseConverter)
+    print('hi!')
+
 class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
     """A specialised injectable callback which accounts for special casing `BaseConverter`.
 
@@ -215,8 +219,10 @@ class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
 
     async def __call__(self, ctx: tanjun_abc.Context, value: ArgumentT, /) -> _ValueT:
         if self._is_base_converter:
-            assert isinstance(self.callback, BaseConverter)
-            return typing.cast(_ValueT, await self.callback(value, ctx))
+            # mypy does not understand this for some weird reason (should be investigated)
+            callback: typing.Union[injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]] = self.callback
+            assert isinstance(callback, BaseConverter)
+            return typing.cast(_ValueT, await callback(value, ctx))
 
         return await self.resolve_with_command_context(ctx, value)
 

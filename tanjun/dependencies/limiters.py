@@ -173,8 +173,8 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if ctx.guild_id is None:
             return ctx.channel_id
 
-        if channel := ctx.get_channel():
-            return channel.parent_id or ctx.guild_id
+        if cached_channel := ctx.get_channel():
+            return cached_channel.parent_id or ctx.guild_id
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.TextableGuildChannel)
@@ -235,6 +235,8 @@ class _Cooldown:
     def must_wait_until(self) -> typing.Optional[float]:
         if self.counter >= self.resource.limit and (time_left := self.will_reset_after - time.monotonic()) > 0:
             return time_left
+
+        return None
 
 
 class _BaseCooldownResource(abc.ABC):
@@ -542,6 +544,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
+
+        bucket: _BaseCooldownResource
 
         if resource_type is BucketResource.MEMBER:
             bucket = _MemberCooldownResource(limit, reset_after)

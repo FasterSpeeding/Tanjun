@@ -663,7 +663,8 @@ def with_mentionable_slash_option(
 
 def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
     if isinstance(converter, conversion.InjectableConverter):
-        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)
+        # pyright needs this cast
+        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)  # type: ignore [redundant-cast]
 
     return conversion.InjectableConverter(conversion.override_type(converter))
 
@@ -1079,7 +1080,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         )
 
         self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}
 
@@ -1147,13 +1148,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
-            converters = list(map(_convert_to_injectable, converters))
+            converters_ = list(map(_convert_to_injectable, converters))
 
         else:
-            converters = [_convert_to_injectable(converters)]
+            converters_ = [_convert_to_injectable(converters)]
 
         if self._client:
-            for converter in converters:
+            for converter in converters_:
                 if isinstance(converter.callback, conversion.BaseConverter):
                     converter.callback.check_client(self._client, f"{self._name}'s slash option '{name}'")
 
@@ -1191,7 +1192,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 name=name,
                 option_type=type_,
                 always_float=always_float,
-                converters=converters,
+                converters=converters_,
                 default=default,
                 only_member=only_member,
             )
@@ -1276,8 +1277,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             actual_choices = {}
             warned = False
             for choice in choices:
-                if isinstance(choice, tuple):
-                    if not warned:
+                if isinstance(choice, tuple):  # type: ignore[unreachable]  # the point of this is for deprecation
+                    if not warned:  # type: ignore[unreachable]  # mypy sees `warned = True` and messes up.
                         warnings.warn(
                             "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
                             "please pass a mapping instead.",
@@ -1786,6 +1787,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
         for tracked_option in self._tracked_options.values():
+            member: typing.Optional[hikari.InteractionMember]
             if not (option := ctx.options.get(tracked_option.name)):
                 if tracked_option.default is _UNDEFINED_DEFAULT:
                     raise RuntimeError(  # TODO: ConversionError?
@@ -1797,7 +1799,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                     keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
-                member: typing.Optional[hikari.InteractionMember] = None
+                member = None
                 if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
                     raise errors.ConversionError(
                         f"Couldn't find member for provided user: {option.value}", tracked_option.name
@@ -1812,22 +1814,18 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 keyword_args[option.name] = option.resolve_to_role()
 
             elif option.type is hikari.OptionType.MENTIONABLE:
-                if option.type is hikari.OptionType.ROLE:
-                    keyword_args[option.name] = option.resolve_to_role()
+                member = None
+                if tracked_option.is_only_member and not (member := option.resolve_to_member()):
+                    raise errors.ConversionError(
+                        f"Couldn't find member for provided user: {option.value}", tracked_option.name
+                    )
 
-                else:
-                    member: typing.Optional[hikari.InteractionMember] = None
-                    if tracked_option.is_only_member and not (member := option.resolve_to_member()):
-                        raise errors.ConversionError(
-                            f"Couldn't find member for provided user: {option.value}", tracked_option.name
-                        )
-
-                    keyword_args[option.name] = member or option.resolve_to_mentionable()
+                keyword_args[option.name] = member or option.resolve_to_mentionable()
 
             else:
                 value = option.value
-                # To be type safe we obfuscate the fact that discord's double type will provide am int or float
-                # depending on the value Disocrd input by always casting to float.
+                # To be type safe we obfuscate the fact that discord's double type will provide an int or float
+                # depending on the value Discord inputs by always casting to float.
                 if tracked_option.type is hikari.OptionType.FLOAT and tracked_option.is_always_float:
                     value = float(value)
 
@@ -1955,7 +1953,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = injecting.CallbackDescriptor[None](callback)
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup] = None
         self._parser = parser
@@ -2198,8 +2196,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             return
 
         for command in self._commands:
-            if (name := utilities.match_prefix_names(content, command.names)) is not None:
-                yield name, command
+            # `name_` is `name`, but mypy doesn't allow redefining types (from `str` to `Optional[str]`)
+            if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
+                yield name_, command
 
     async def execute(
         self,
