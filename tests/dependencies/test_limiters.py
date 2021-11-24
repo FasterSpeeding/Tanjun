@@ -571,8 +571,8 @@ class Test_GlobalResource:
         mock_resource_maker = mock.Mock()
         bucket = tanjun.dependencies.limiters._GlobalResource(mock_resource_maker)
 
-        assert await bucket.into_inner(mock.Mock()) is mock_resource_maker.return_value
-        assert await bucket.into_inner(mock.Mock()) is mock_resource_maker.return_value
+        assert await bucket.try_into_inner(mock.Mock()) is mock_resource_maker.return_value
+        assert await bucket.try_into_inner(mock.Mock()) is mock_resource_maker.return_value
         mock_resource_maker.assert_called_once_with()
 
     def test_cleanup(self):
@@ -1193,3 +1193,402 @@ class TestLazyConstant:
             result = constant.acquire()
             lock.assert_called_once_with()
             assert result is lock.return_value
+
+
+class Test_ConcurrencyLimit:
+    def test_acquire(self):
+        limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
+
+        result = limit.acquire()
+
+        assert result is True
+        assert limit.counter == 1
+
+    def test_acquire_when_couldnt_acquire(self):
+        limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
+        limit.counter = 2
+
+        result = limit.acquire()
+
+        assert result is False
+        assert limit.counter == 2
+
+    def test_release(self):
+        limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
+        limit.counter = 2
+
+        limit.release()
+
+        assert limit.counter == 1
+
+    def test_release_when_not_acquired(self):
+        limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
+
+        with pytest.raises(RuntimeError, match="Cannot release a limit that has not been acquired"):
+            limit.release()
+
+    def test_has_expired(self):
+        limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
+        limit.counter = 1
+
+        assert limit.has_expired() is False
+
+    def test_has_expired_when_has_expired(self):
+        limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
+        limit.counter = 0
+
+        assert limit.has_expired() is True
+
+
+class TestInMemoryConcurrencyLimiter:
+    @pytest.mark.asyncio()
+    async def test__gc(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+        mock_bucket_1 = mock.Mock()
+        mock_bucket_2 = mock.Mock()
+        mock_bucket_3 = mock.Mock()
+        manager._buckets = {"e": mock_bucket_1, "a": mock_bucket_2, "f": mock_bucket_3}
+        mock_error = Exception("test")
+
+        with mock.patch.object(asyncio, "sleep", side_effect=[None, None, mock_error]) as sleep:
+            with pytest.raises(Exception) as exc_info:  # noqa: PT011, PT012
+                await asyncio.wait_for(manager._gc(), timeout=0.5)
+
+                assert exc_info.value is mock_error
+                sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
+
+        mock_bucket_1.cleanup.assert_has_calls([mock.call(), mock.call()])
+        mock_bucket_2.cleanup.assert_has_calls([mock.call(), mock.call()])
+        mock_bucket_3.cleanup.assert_has_calls([mock.call(), mock.call()])
+
+    def test_add_to_client(self):
+        mock_client = mock.Mock(tanjun.Client, is_alive=False)
+        mock_open = mock.Mock()
+
+        class StubManager(tanjun.dependencies.InMemoryConcurrencyLimiter):
+            open = mock_open
+
+        manager = StubManager()
+        manager.add_to_client(mock_client)
+
+        mock_client.add_client_callback.assert_has_calls(
+            [
+                mock.call(tanjun.abc.ClientCallbackNames.STARTING, manager.open),
+                mock.call(tanjun.abc.ClientCallbackNames.CLOSING, manager.close),
+            ]
+        )
+        mock_open.assert_not_called()
+
+    def test_add_to_client_when_client_is_active(self):
+        mock_client = mock.Mock(tanjun.Client, is_alive=True)
+        mock_open = mock.Mock()
+
+        class StubManager(tanjun.dependencies.InMemoryConcurrencyLimiter):
+            open = mock_open
+
+        manager = StubManager()
+        manager.add_to_client(mock_client)
+
+        mock_client.add_client_callback.assert_has_calls(
+            [
+                mock.call(tanjun.abc.ClientCallbackNames.STARTING, manager.open),
+                mock.call(tanjun.abc.ClientCallbackNames.CLOSING, manager.close),
+            ]
+        )
+        mock_open.assert_called_once_with(_loop=mock_client.loop)
+
+    def test_close(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+        mock_gc_task = mock.Mock()
+        manager._gc_task = mock_gc_task
+
+        manager.close()
+
+        mock_gc_task.cancel.assert_called_once_with()
+
+    def test_close_when_not_active(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+
+        with pytest.raises(RuntimeError, match="Concurrency manager is not active"):
+            manager.close()
+
+    def test_open(self):
+        mock_gc = mock.Mock()
+
+        class StubManager(tanjun.dependencies.InMemoryConcurrencyLimiter):
+            _gc = mock_gc
+
+        manager = StubManager()
+
+        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
+            manager.open()
+
+            assert manager._gc_task is get_running_loop.return_value.create_task.return_value
+            get_running_loop.assert_called_once_with()
+            get_running_loop.return_value.create_task.assert_called_once_with(mock_gc.return_value)
+            mock_gc.assert_called_once_with()
+
+    def test_open_with_passed_through_loop(self):
+        mock_gc = mock.Mock()
+        mock_loop = mock.Mock()
+
+        class StubManager(tanjun.dependencies.InMemoryConcurrencyLimiter):
+            _gc = mock_gc
+
+        manager = StubManager()
+
+        manager.open(_loop=mock_loop)
+
+        assert manager._gc_task is mock_loop.create_task.return_value
+        mock_loop.create_task.assert_called_once_with(mock_gc.return_value)
+        mock_gc.assert_called_once_with()
+
+    def test_open_when_already_active(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+        manager._gc_task = mock.Mock()
+
+        with pytest.raises(RuntimeError, match="Concurrency manager is already running"):
+            manager.open()
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire(self):
+        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_bucket.into_inner.return_value.acquire.return_value = True
+        mock_context = mock.Mock()
+        manager = tanjun.InMemoryConcurrencyLimiter()
+        manager._buckets["aye"] = mock_bucket
+
+        result = await manager.try_acquire("aye", mock_context)
+
+        assert result is True
+        mock_bucket.into_inner.assert_called_once_with(mock_context)
+        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
+        assert manager._active_ctxs[("aye", mock_context)] is mock_bucket.into_inner.return_value
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire_when_failed_to_acquire(self):
+        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_bucket.into_inner.return_value.acquire.return_value = False
+        mock_context = mock.Mock()
+        manager = tanjun.InMemoryConcurrencyLimiter()
+        manager._buckets["nya"] = mock_bucket
+
+        result = await manager.try_acquire("nya", mock_context)
+
+        assert result is False
+        mock_bucket.into_inner.assert_called_once_with(mock_context)
+        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
+        assert ("nya", mock_context) not in manager._active_ctxs
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire_for_already_acquired_context(self):
+        mock_bucket = mock.Mock()
+        mock_context = mock.Mock()
+        mock_limiter = mock.Mock()
+        manager = tanjun.InMemoryConcurrencyLimiter()
+        manager._buckets["ayee"] = mock_bucket
+        manager._active_ctxs[("ayee", mock_context)] = mock_limiter
+
+        result = await manager.try_acquire("ayee", mock_context)
+
+        assert result is True
+        mock_bucket.into_inner.assert_not_called()
+        mock_limiter.acquire.assert_not_called()
+        assert manager._active_ctxs[("ayee", mock_context)] is mock_limiter
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire_falls_back_to_default_bucket(self):
+        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_bucket.into_inner.return_value.acquire.return_value = True
+        mock_bucket_template = mock.Mock()
+        mock_bucket_template.copy.return_value = mock_bucket
+        mock_context = mock.Mock()
+        manager = tanjun.InMemoryConcurrencyLimiter()
+        manager._default_bucket_template = mock_bucket_template
+
+        result = await manager.try_acquire("yeet", mock_context)
+
+        assert result is True
+        mock_bucket_template.copy.assert_called_once_with()
+        mock_bucket.into_inner.assert_called_once_with(mock_context)
+        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
+        assert manager._active_ctxs[("yeet", mock_context)] is mock_bucket.into_inner.return_value
+        assert manager._buckets["yeet"] is mock_bucket
+
+    @pytest.mark.asyncio()
+    async def test_release(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+        mock_context = mock.Mock()
+        mock_limiter = mock.Mock()
+        manager._active_ctxs[("nya", mock_context)] = mock_limiter
+
+        await manager.release("nya", mock_context)
+
+        assert ("nya", mock_context) not in manager._active_ctxs
+        mock_limiter.release.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_release_for_unknown_context(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+        mock_context = mock.Mock()
+
+        await manager.release("meow", mock_context)
+
+    @pytest.mark.parametrize(
+        "resource_type",
+        [
+            tanjun.BucketResource.USER,
+            tanjun.BucketResource.CHANNEL,
+            tanjun.BucketResource.PARENT_CHANNEL,
+            tanjun.BucketResource.TOP_ROLE,
+            tanjun.BucketResource.GUILD,
+        ],
+    )
+    def test_set_bucket(self, resource_type: tanjun.BucketResource):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+
+        with mock.patch.object(tanjun.dependencies.limiters, "_FlatResource") as cooldown_bucket:
+            manager.set_bucket("gay catgirl", resource_type, 321)
+
+            assert manager._buckets["gay catgirl"] is cooldown_bucket.return_value
+            assert cooldown_bucket.call_count == 1
+            assert len(cooldown_bucket.call_args_list[0].args) == 2
+            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert cooldown_bucket.call_args_list[0].args[0] is resource_type
+
+            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown = cooldown_maker()
+            assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
+            assert cooldown.limit == 321
+
+    def test_set_bucket_for_member_resource(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+
+        with mock.patch.object(tanjun.dependencies.limiters, "_MemberResource") as cooldown_bucket:
+            manager.set_bucket("meowth", tanjun.BucketResource.MEMBER, 69)
+
+            assert manager._buckets["meowth"] is cooldown_bucket.return_value
+            assert cooldown_bucket.call_count == 1
+            assert len(cooldown_bucket.call_args_list[0].args) == 1
+            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+
+            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown = cooldown_maker()
+            assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
+            assert cooldown.limit == 69
+
+    def test_set_bucket_for_global_resource(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+
+        with mock.patch.object(tanjun.dependencies.limiters, "_GlobalResource") as cooldown_bucket:
+            manager.set_bucket("meow", tanjun.BucketResource.GLOBAL, 42069)
+
+            assert manager._buckets["meow"] is cooldown_bucket.return_value
+            assert cooldown_bucket.call_count == 1
+            assert len(cooldown_bucket.call_args_list[0].args) == 1
+            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+
+            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown = cooldown_maker()
+            assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
+            assert cooldown.limit == 42069
+
+    def test_set_bucket_when_is_default(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+
+        with mock.patch.object(tanjun.dependencies.limiters, "_FlatResource") as cooldown_bucket:
+            manager.set_bucket("default", tanjun.BucketResource.USER, 697)
+
+            assert manager._buckets["default"] is cooldown_bucket.return_value
+            assert manager._default_bucket_template is cooldown_bucket.return_value.copy.return_value
+            cooldown_bucket.return_value.copy.assert_called_once_with()
+
+            assert cooldown_bucket.call_count == 1
+            assert len(cooldown_bucket.call_args_list[0].args) == 2
+            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert cooldown_bucket.call_args_list[0].args[0] is tanjun.BucketResource.USER
+
+            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown = cooldown_maker()
+            assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
+            assert cooldown.limit == 697
+
+    def test_set_bucket_when_limit_is_negative(self):
+        manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
+
+        with pytest.raises(ValueError, match="limit must be greater than 0"):
+            manager.set_bucket("gay catgirl", tanjun.BucketResource.USER, -1)
+
+
+class TestConcurrencyPreExecution:
+    @pytest.mark.asyncio()
+    async def test_call(self):
+        mock_context = mock.Mock()
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = True
+        hook = tanjun.ConcurrencyPreExecution("bucket boobs")
+
+        await hook(mock_context, mock_limiter)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket boobs", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails(self):
+        mock_context = mock.Mock()
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        hook = tanjun.ConcurrencyPreExecution("bucket catgirls", error_message="an error message")
+
+        with pytest.raises(tanjun.CommandError, match="an error message"):
+            await hook(mock_context, mock_limiter)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
+
+
+class TestConcurrencyPostExecution:
+    @pytest.mark.asyncio()
+    async def test_call(self):
+        mock_context = mock.Mock()
+        mock_limiter = mock.AsyncMock()
+        hook = tanjun.ConcurrencyPostExecution("aye bucket")
+
+        await hook(mock_context, mock_limiter)
+
+        mock_limiter.release.assert_awaited_once_with("aye bucket", mock_context)
+
+
+def test_with_concurrency_limit():
+    mock_command = mock.Mock()
+    stack = contextlib.ExitStack()
+    pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution"))
+    post_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution"))
+
+    result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
+
+    assert result is mock_command
+    mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_command.hooks.add_pre_execution.return_value.add_post_execution.assert_called_once_with(
+        post_execution.return_value
+    )
+    pre_execution.assert_called_once_with("bucket me", error_message="aye message")
+    post_execution.assert_called_once_with("bucket me")
+
+
+def test_with_concurrency_limit_makes_new_hooks():
+    mock_command = mock.Mock(hooks=None)
+    stack = contextlib.ExitStack()
+    any_hooks = stack.enter_context(mock.patch.object(tanjun.hooks, "AnyHooks"))
+    pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution"))
+    post_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution"))
+
+    result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
+
+    assert result is mock_command
+    any_hooks.assert_called_once_with()
+    mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
+    any_hooks.return_value.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    any_hooks.return_value.add_pre_execution.return_value.add_post_execution.assert_called_once_with(
+        post_execution.return_value
+    )
+    pre_execution.assert_called_once_with("bucket me", error_message="aye message")
+    post_execution.assert_called_once_with("bucket me")

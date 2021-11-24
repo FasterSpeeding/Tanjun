@@ -711,7 +711,7 @@ class _ConcurrencyLimit:
             self.counter -= 1
             return
 
-        raise ValueError("Cannot release a limit that has not been acquired")
+        raise RuntimeError("Cannot release a limit that has not been acquired")
 
     def has_expired(self) -> bool:
         return self.counter == 0
@@ -755,7 +755,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             If the concurrency manager is not running.
         """
         if not self._gc_task:
-            raise RuntimeError("Cooldown manager is not active")
+            raise RuntimeError("Concurrency manager is not active")
 
         self._gc_task.cancel()
         self._gc_task = None
@@ -770,7 +770,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             If called in a thread with no running event loop.
         """
         if self._gc_task:
-            raise RuntimeError("Cooldown manager is already running")
+            raise RuntimeError("Concurrency manager is already running")
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
