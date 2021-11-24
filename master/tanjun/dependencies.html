@@ -662,10 +662,11 @@ If expire_after is not less than or equal to 0 seconds.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">AbstractAsyncContextManager</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Acquire this lazy constant to&#39;s asynchronous lock.</span>
+        <span class="sd">&quot;&quot;&quot;Acquire this lazy constant as an asynchronous lock.</span>
 
 <span class="sd">        This is used to ensure that the value is only generated once</span>
-<span class="sd">        and should be kept acquired until `LazyConstant.set_value` is called.</span>
+<span class="sd">        and should be kept acquired until `LazyConstant.set_value` has</span>
+<span class="sd">        been called.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -850,10 +851,11 @@ The value to set.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">AbstractAsyncContextManager</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Acquire this lazy constant to&#39;s asynchronous lock.</span>
+        <span class="sd">&quot;&quot;&quot;Acquire this lazy constant as an asynchronous lock.</span>
 
 <span class="sd">        This is used to ensure that the value is only generated once</span>
-<span class="sd">        and should be kept acquired until `LazyConstant.set_value` is called.</span>
+<span class="sd">        and should be kept acquired until `LazyConstant.set_value` has</span>
+<span class="sd">        been called.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -870,10 +872,11 @@ The value to set.</li>
 
         </details>
 
-            <div class="docstring"><p>Acquire this lazy constant to's asynchronous lock.</p>
+            <div class="docstring"><p>Acquire this lazy constant as an asynchronous lock.</p>
 
 <p>This is used to ensure that the value is only generated once
-and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyConstant.set_value</a></code> is called.</p>
+and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyConstant.set_value</a></code> has
+been called.</p>
 
 <h6 id="returns">Returns</h6>
 
