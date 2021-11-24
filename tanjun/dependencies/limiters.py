@@ -457,7 +457,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if bucket := self._buckets.get(bucket_id):
             return bucket
 
-        _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket.", bucket_id)
+        _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
         bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
         return bucket
 
@@ -708,7 +708,7 @@ class _ConcurrencyLimit:
             self.counter -= 1
             return
 
-        raise RuntimeError("Cannot release a limit that has not been acquired, this should never happen.")
+        raise RuntimeError("Cannot release a limit that has not been acquired, this should never happen")
 
     def has_expired(self) -> bool:
         return self.counter == 0
@@ -806,7 +806,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
         bucket = self._buckets.get(bucket_id)
         if not bucket:
-            _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket.", bucket_id)
+            _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket", bucket_id)
             bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
 
         # incrementing a bucket multiple times for the same context could lead
