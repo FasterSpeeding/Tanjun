@@ -21,8 +21,8 @@ A list of all the available tasks can be found by running `nox -l` with blue nam
 by default when `nox -s` is called alone. To call specific tasks you just call `nox -s name1 name2` where any number
 of tasks can be called at once by specifying their name after `-s`.
 
-It's worth noting that the reformat nox task will reformat additions to the project in-order to make them match
-the expected style and is one of the default tasks and that nox will generate virtual environments for each task
+It's worth noting that the reformat nox task (which is run by default) will reformat additions to the project
+in-order to make them match  the expected style and that nox will generate virtual environments for each task
 instead of pollution the environment it was installed into.
 
 ### Documentation style
@@ -67,7 +67,7 @@ good references for how projects should be type-hinted to be `type-complete`.
 * Since this project supports python 3.9+, the `typing` types which were deprecated by
   [PEP 585](https://www.python.org/dev/peps/pep-0585/) should be avoided in favour of their `collections.abc`,
   builtin, `re` and `contextlib` equivalents.
-* The standard way for using `collections.abc` types within this project is to `import collections.abc as collections`.
+* The standard approach for using `collections.abc` types within this project is to `import collections.abc as collections`.
 ---
 
 ### Versioning
@@ -77,18 +77,18 @@ This project follows [semantic versioning 2.0.0](https://semver.org/) and [PEP 4
 ### General enforced style
 
 * All modules present in Tanjun should start with the commented out licence (including the source encoding and cython
- languave level declarations), a relevant component documentation string, `from __future__ import annotations`, an
+  language level declarations), a relevant component documentation string, `from __future__ import annotations`, an
  `__all__` declaration and then imports. For an example see any of Tanjun's current components.
-* Public type variables (e.g. `CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]` should be
-  included in the `__all__` of the module they're declared in but not included in the `__all__` of any parent modules
-  and should also be documented.
+* Public type variables (e.g. `CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]`) should be
+  included in the `__all__` of the module they're declared in and should also be documented but
+  should not included in the `__all__` of any parent module(s).
+  .
 * [pep8](https://www.python.org/dev/peps/pep-0008/) should be followed as much as possible with notable cases where its
   ignored being that [black](https://github.com/psf/black) style may override this.
 * The maximum character count for a line is 120 characters and this may only ever be ignored for docstrings where types
   go over this count, in which case a `# noqa: E501 - Line too long` should be added after the doc-string (on the same
   line as its trailing `"""`.
-* All top-level modules should be included explicitly imported into `Tanjun.__init__` and included in
-  `Tanjun.__init__.__all__` for type-completness with only the most important of their contents needing to be included in
-  `Tanjun.__init__.__all__`.
+* All top-level modules should be explicitly imported into `Tanjun.__init__` and included in`Tanjun.__init__.__all__`
+* for type-completness with only the most important of their contents needing to be included in `Tanjun.__init__.__all__`.
 
 
