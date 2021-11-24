@@ -432,7 +432,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
     Examples
     --------
-    `InMemoryCooldownManager.set_bucket` may be used to set a cooldown for a
+    `InMemoryCooldownManager.set_bucket` may be used to set the cooldown for a
     specific bucket:
 
     ```py
@@ -447,6 +447,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         # injected dependency and registering callbacks to manage it).
         .add_to_client(client)
     )
+    ```
     """
 
     __slots__ = ("_buckets", "_default_bucket_template", "_gc_task")
@@ -496,6 +497,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
     ) -> typing.Optional[float]:
+        # <<inherited docstring from AbstractCooldownManager>>.
         if increment:
             return (await self._get_or_default(bucket_id).into_inner(ctx)).increment().must_wait_until()
 
@@ -503,6 +505,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             return cooldown.must_wait_until()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        # <<inherited docstring from AbstractCooldownManager>>.
         (await self._get_or_default(bucket_id).into_inner(ctx)).increment()
 
     def close(self) -> None:
@@ -606,7 +609,7 @@ class CooldownPreExecution:
     error_message : str
         The error message to send in response as a command error if the check fails.
 
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
+        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
     owners_exempt : bool
         Whether owners should be exempt from the cooldown.
 
@@ -620,7 +623,7 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+        error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
         owners_exempt: bool = True,
     ) -> None:
         self._bucket_id = bucket_id
@@ -646,7 +649,7 @@ def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
     owners_exempt: bool = True,
 ) -> collections.Callable[[CommandT], CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
@@ -666,7 +669,7 @@ def with_cooldown(
     error_message : str
         The error message to send in response as a command error if the check fails.
 
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
+        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
     owners_exempt : bool
         Whether owners should be exempt from the cooldown.
 
@@ -718,7 +721,27 @@ class _ConcurrencyLimit:
 
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
-    """In-memory standard implementation of `AbstractConcurrencyLimiter`."""
+    """In-memory standard implementation of `AbstractConcurrencyLimiter`.
+
+    Examples
+    --------
+    `InMemoryConcurrencyLimiter.set_bucket` may be used to set the concurrency
+    limits for a specific bucket:
+
+    ```py
+    (
+        InMemoryConcurrencyLimiter()
+        # Set the default bucket template to 10 concurrent uses of the command per-user.
+        .set_bucket("default", tanjun.BucketResource.USER, 10)
+        # Set the "moderation" bucket with a limit of 5 concurrent uses per-guild.
+        .set_bucket("moderation", tanjun.BucketResource.GUILD, 5)
+        .set_bucket()
+        # add_to_client will setup the concurrency manager (setting it as an
+        # injected dependency and registering callbacks to manage it).
+        .add_to_client(client)
+    )
+    ```
+    """
 
     __slots__ = ("_active_ctxs", "_buckets", "_default_bucket_template", "_gc_task")
 
@@ -737,6 +760,17 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
                 bucket.cleanup()
 
     def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+        """Add this concurrency manager to a tanjun client.
+
+        .. note::
+            This registers the manager as a type dependency and manages opening
+            and closing the manager based on the client's life cycle.
+
+        Parameters
+        ----------
+        client : tanjun.abc.Client
+            The client to add this concurrency manager to.
+        """
         client.set_type_dependency(AbstractConcurrencyLimiter, self)
         # TODO: the injection client should be upgraded to the abstract Client.
         assert isinstance(client, tanjun_abc.Client)
@@ -775,6 +809,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
     async def try_acquire(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> bool:
+        # <<inherited docstring from AbstractConcurrencyLimiter>>.
         bucket = self._buckets.get(bucket_id)
         if not bucket:
             _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket.", bucket_id)
@@ -792,6 +827,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         return result
 
     async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        # <<inherited docstring from AbstractConcurrencyLimiter>>.
         if limit := self._active_ctxs.pop((bucket_id, ctx), None):
             limit.release()
 
@@ -809,6 +845,22 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
 
 class ConcurrencyPreExecution:
+    """Pre-execution hook used to acquire a bucket concurrency limiter.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The concurrency limit bucket's ID.
+
+    Other Parameters
+    ----------------
+    error_message : str
+        The error message to send in response as a command error if this fails
+        to acquire the concurrency limit.
+
+        Defaults to "This resource is currently busy; please try again later.".
+    """
+
     __slots__ = ("_bucket_id", "_error_message")
 
     def __init__(
@@ -831,6 +883,14 @@ class ConcurrencyPreExecution:
 
 
 class ConcurrencyPostExecution:
+    """Post-execution hook used to release a bucket concurrency limiter.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The concurrency limit bucket's ID.
+    """
+
     __slots__ = ("_bucket_id",)
 
     def __init__(self, bucket_id: str, /) -> None:
@@ -850,6 +910,32 @@ def with_concurrency_limit(
     *,
     error_message: str = "This resource is currently busy; please try again later.",
 ) -> collections.Callable[[CommandT], CommandT]:
+    """Add the hooks used to manage a command's concurrency limit through a decorator call.
+
+    .. warning::
+        Concurrency limiters will only work if there's a setup injected
+        `AbstractConcurrencyLimiter` dependency with `InMemoryConcurrencyLimiter`
+        being usable as a standard in-memory concurrency manager.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The concurrency limit bucket's ID.
+
+    Other Parameters
+    ----------------
+    error_message : str
+        The error message to send in response as a command error if this fails
+        to acquire the concurrency limit.
+
+        Defaults to "This resource is currently busy; please try again later.".
+
+    Returns
+    -------
+    collections.abc.Callable[[CommandT], CommandT]
+        A decorator that adds the concurrency limiter hooks to a command.
+    """
+
     def decorator(command: CommandT, /) -> CommandT:
         hooks_ = command.hooks
         if not hooks_:

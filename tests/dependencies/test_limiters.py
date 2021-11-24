@@ -962,7 +962,7 @@ class TestCooldownPreExecution:
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
-        with pytest.raises(tanjun.CommandError, match="Please wait 69.42 seconds before using this command again"):
+        with pytest.raises(tanjun.CommandError, match="Please wait 69.42 seconds before using this command again."):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri", mock_context, increment=True)
@@ -976,7 +976,7 @@ class TestCooldownPreExecution:
         mock_cooldown_manager.check_cooldown.return_value = 420.69420
         mock_owner_check = mock.AsyncMock()
 
-        with pytest.raises(tanjun.CommandError, match="Please wait 420.69 seconds before using this command again"):
+        with pytest.raises(tanjun.CommandError, match="Please wait 420.69 seconds before using this command again."):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
