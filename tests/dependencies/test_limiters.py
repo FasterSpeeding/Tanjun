@@ -1559,6 +1559,8 @@ class TestConcurrencyPostExecution:
 
 def test_with_concurrency_limit():
     mock_command = mock.Mock()
+    mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
+    mock_command.hooks.add_post_execution.return_value = mock_command.hooks
     stack = contextlib.ExitStack()
     pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution"))
     post_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution"))
@@ -1567,9 +1569,7 @@ def test_with_concurrency_limit():
 
     assert result is mock_command
     mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
-    mock_command.hooks.add_pre_execution.return_value.add_post_execution.assert_called_once_with(
-        post_execution.return_value
-    )
+    mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
     pre_execution.assert_called_once_with("bucket me", error_message="aye message")
     post_execution.assert_called_once_with("bucket me")
 
@@ -1580,6 +1580,8 @@ def test_with_concurrency_limit_makes_new_hooks():
     any_hooks = stack.enter_context(mock.patch.object(tanjun.hooks, "AnyHooks"))
     pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution"))
     post_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution"))
+    any_hooks.return_value.add_pre_execution.return_value = any_hooks.return_value
+    any_hooks.return_value.add_post_execution.return_value = any_hooks.return_value
 
     result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
 
@@ -1587,8 +1589,6 @@ def test_with_concurrency_limit_makes_new_hooks():
     any_hooks.assert_called_once_with()
     mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
     any_hooks.return_value.add_pre_execution.assert_called_once_with(pre_execution.return_value)
-    any_hooks.return_value.add_pre_execution.return_value.add_post_execution.assert_called_once_with(
-        post_execution.return_value
-    )
+    any_hooks.return_value.add_post_execution.assert_called_once_with(post_execution.return_value)
     pre_execution.assert_called_once_with("bucket me", error_message="aye message")
     post_execution.assert_called_once_with("bucket me")
