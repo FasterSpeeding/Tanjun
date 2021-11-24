@@ -45,15 +45,15 @@ import pytest
 import tanjun
 
 
-class TestOwnerCheck:
+class TestOwners:
     @pytest.mark.parametrize("value", [0, -1.0, datetime.timedelta(seconds=-2)])
     def test_init_with_invalid_expire_after(self, value: typing.Union[int, float, datetime.timedelta]):
         with pytest.raises(ValueError, match="Expire after must be greater than 0 seconds"):
-            tanjun.OwnerCheck(expire_after=-1)
+            tanjun.Owners(expire_after=-1)
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_user_in_owner_ids(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
 
         result = await check.check_ownership(mock_client, mock.Mock(id=7634))
@@ -63,7 +63,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_falling_back_to_application(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634], fallback_to_application=False)
+        check = tanjun.dependencies.Owners(owners=[123, 7634], fallback_to_application=False)
         mock_client = mock.Mock()
 
         result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
@@ -73,7 +73,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_token_type_is_not_bot(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         mock_client.rest.token_type = hikari.TokenType.BEARER
 
@@ -84,7 +84,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_application_owner(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
@@ -97,7 +97,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_application_owner(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
@@ -110,7 +110,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_application_team_member(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
@@ -125,7 +125,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_team_member(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
@@ -140,7 +140,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_application_caching_behaviour(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
@@ -158,7 +158,7 @@ class TestOwnerCheck:
     async def test_check_ownership_application_expires_cache(
         self, expire_after: typing.Union[float, int, datetime.timedelta]
     ):
-        check = tanjun.dependencies.OwnerCheck(expire_after=expire_after)
+        check = tanjun.dependencies.Owners(expire_after=expire_after)
         mock_client = mock.Mock()
         application_1 = mock.Mock(team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()}))
         application_2 = mock.Mock(team=mock.Mock(members={64123: mock.Mock()}))

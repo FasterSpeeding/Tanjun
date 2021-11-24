@@ -1102,10 +1102,10 @@ def test_with_cooldown_when_no_set_hooks():
         any_hooks.assert_called_once_with()
 
 
-class TestOwnerCheck:
+class TestOwners:
     @pytest.mark.asyncio()
     async def test_check_ownership_when_user_in_owner_ids(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
 
         result = await check.check_ownership(mock_client, mock.Mock(id=7634))
@@ -1115,7 +1115,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_falling_back_to_application(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634], fallback_to_application=False)
+        check = tanjun.dependencies.Owners(owners=[123, 7634], fallback_to_application=False)
         mock_client = mock.Mock()
 
         result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
@@ -1125,7 +1125,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_token_type_is_not_bot(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         mock_client.rest.token_type = hikari.TokenType.BEARER
 
@@ -1136,7 +1136,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_application_owner(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
@@ -1149,7 +1149,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_application_owner(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
@@ -1162,7 +1162,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_application_team_member(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
@@ -1177,7 +1177,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_team_member(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
@@ -1192,7 +1192,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_application_caching_behaviour(self):
-        check = tanjun.dependencies.OwnerCheck(owners=[123, 7634])
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock()
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
@@ -1207,7 +1207,7 @@ class TestOwnerCheck:
 
     @pytest.mark.asyncio()
     async def test_check_ownership_application_expires_cache(self):
-        check = tanjun.dependencies.OwnerCheck(expire_after=datetime.timedelta(seconds=60))
+        check = tanjun.dependencies.Owners(expire_after=datetime.timedelta(seconds=60))
         mock_client = mock.Mock()
         application_1 = mock.Mock(team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()}))
         application_2 = mock.Mock(team=mock.Mock(members={64123: mock.Mock()}))

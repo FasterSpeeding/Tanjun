@@ -602,7 +602,7 @@ class CooldownPreExecution:
         cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
         # TODO: default to None for the owner check as this should only require
         # the owner check dependency if owner_exempt is True.
-        owner_check: owners.AbstractOwnerCheck = injecting.inject(type=owners.AbstractOwnerCheck),
+        owner_check: owners.AbstractOwners = injecting.inject(type=owners.AbstractOwners),
     ) -> None:
         if self._owners_exempt and await owner_check.check_ownership(ctx.client, ctx.author):
             return
