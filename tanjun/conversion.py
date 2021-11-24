@@ -198,10 +198,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             )
 
 
-def f(x: injecting.CallbackSig[object]) -> None:
-    assert isinstance(x, BaseConverter)
-    print('hi!')
-
 class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
     """A specialised injectable callback which accounts for special casing `BaseConverter`.
 

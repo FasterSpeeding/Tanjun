@@ -59,8 +59,12 @@ ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.In
 """Union of the response types which are valid for application command interactions."""
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")
+
+
 class _SENTINEL_TYPE:
     pass
+
+
 _SENTINEL = _SENTINEL_TYPE()
 
 
@@ -599,7 +603,9 @@ class SlashOption(tanjun_abc.SlashOption):
     def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
         ...
 
-    def resolve_to_member(self, *, default: typing.Union[_T, _SENTINEL_TYPE] = _SENTINEL) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(
+        self, *, default: typing.Union[_T, _SENTINEL_TYPE] = _SENTINEL
+    ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.USER:
