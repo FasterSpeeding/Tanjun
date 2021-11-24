@@ -50,8 +50,8 @@ __all__: list[str] = [
     "InMemoryCooldownManager",
     "with_cooldown",
     # owners.py
-    "AbstractOwnerCheck",
-    "OwnerCheck",
+    "AbstractOwners",
+    "Owners",
 ]
 
 import hikari
@@ -71,6 +71,6 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     client: tanjun.injecting.InjectorClient
         The injector client to set the standard dependencies on.
     """
-    client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
+    client.set_type_dependency(AbstractOwners, Owners()).set_type_dependency(
         LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
     )
