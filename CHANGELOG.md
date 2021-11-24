@@ -15,8 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `Owners` and `AbstractOwners`.
 - `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
 
-
-## [2.2.0a1]
+## [2.2.0a1] - 2021-11-23
 ### Added
 - Upgraded `is_alive` attribute to the Client abstract interface.
 - Upgraded `clear_application_commands`, `declare_global_commands`, `declare_slash_command` and 

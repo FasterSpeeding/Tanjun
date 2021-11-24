@@ -500,7 +500,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             return (await self._get_or_default(bucket_id).into_inner(ctx)).increment().must_wait_until()
 
         if (bucket := self._buckets.get(bucket_id)) and (cooldown := await bucket.try_into_inner(ctx)):
-            return cooldown.increment().must_wait_until()
+            return cooldown.must_wait_until()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
         (await self._get_or_default(bucket_id).into_inner(ctx)).increment()
@@ -581,10 +581,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        def _build_cooldown() -> _Cooldown:
-            return _Cooldown(limit=limit, reset_after=reset_after)
-
-        bucket = self._buckets[bucket_id] = _to_bucket(resource, _build_cooldown)
+        bucket = self._buckets[bucket_id] = _to_bucket(
+            resource, lambda: _Cooldown(limit=limit, reset_after=reset_after)
+        )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -675,7 +674,7 @@ def with_cooldown(
 
     Returns
     -------
-    collections.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[CommandT], CommandT]
         A decorator that adds a `CooldownPreExecution` hook to the command.
     """
 
@@ -802,10 +801,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        def _build_limit() -> _ConcurrencyLimit:
-            return _ConcurrencyLimit(limit=limit)
-
-        bucket = self._buckets[bucket_id] = _to_bucket(resource, _build_limit)
+        bucket = self._buckets[bucket_id] = _to_bucket(resource, lambda: _ConcurrencyLimit(limit=limit))
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
