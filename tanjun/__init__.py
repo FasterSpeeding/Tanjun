@@ -175,8 +175,10 @@ __all__: list[str] = [
     "BucketResource",
     "cached_inject",
     "inject_lc",
+    "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
     "LazyConstant",
+    "with_concurrency_limit",
     "with_cooldown",
     # errors.py
     "errors",

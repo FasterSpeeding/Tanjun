@@ -495,7 +495,7 @@ def as_self_injecting(
     Examples
     --------
     ```py
-    def make_callback(client: tanjun.Client) -> typing.Callable[[], int]:
+    def make_callback(client: tanjun.Client) -> collections.abc.Callable[[], int]:
         @tanjun.as_self_injected(client)
         async def get_int_value(
             redis: redis.Client = tanjun.inject(type=redis.Client)
