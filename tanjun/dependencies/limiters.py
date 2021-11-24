@@ -93,14 +93,14 @@ class AbstractCooldownManager(abc.ABC):
         Other Parameters
         ----------------
         increment : bool
-            Whether this cool should increment the bucket's use counter it
-            isn't depleted.
+            Whether this call should increment the bucket's use counter if
+            it isn't depleted.
 
         Returns
         -------
         typing.Optional[float]
-            When this command will next be usable in the current context if its
-            in cooldown else `None`.
+            When this command will next be usable for the provided context
+            if it's in cooldown else `None`.
         """
 
     @abc.abstractmethod
@@ -140,13 +140,7 @@ class AbstractConcurrencyLimiter(abc.ABC):
 
     @abc.abstractmethod
     async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
-        """Release a concurrency lock on a bucket.
-
-        Raises
-        ------
-        RuntimeError
-            If nothing has this resource acquired.
-        """
+        """Release a concurrency lock on a bucket."""
 
 
 class BucketResource(int, enum.Enum):
@@ -564,7 +558,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         Returns
         -------
         Self
-            This cooldown manager to allow chaining.
+            The cooldown manager to allow call chaining.
 
         Raises
         ------
@@ -714,7 +708,7 @@ class _ConcurrencyLimit:
             self.counter -= 1
             return
 
-        raise RuntimeError("Cannot release a limit that has not been acquired")
+        raise RuntimeError("Cannot release a limit that has not been acquired, this should never happen.")
 
     def has_expired(self) -> bool:
         return self.counter == 0
@@ -743,10 +737,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     ```
     """
 
-    __slots__ = ("_active_ctxs", "_buckets", "_default_bucket_template", "_gc_task")
+    __slots__ = ("_acquiring_ctxs", "_buckets", "_default_bucket_template", "_gc_task")
 
     def __init__(self) -> None:
-        self._active_ctxs: dict[tuple[str, tanjun_abc.Context], _ConcurrencyLimit] = {}
+        self._acquiring_ctxs: dict[tuple[str, tanjun_abc.Context], _ConcurrencyLimit] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
         self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
             BucketResource.USER, lambda: _ConcurrencyLimit(limit=1)
@@ -818,17 +812,17 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         # incrementing a bucket multiple times for the same context could lead
         # to weird edge cases based on how we internally track this, so we
         # internally de-duplicate this.
-        elif (bucket_id, ctx) in self._active_ctxs:
-            return True
+        elif (bucket_id, ctx) in self._acquiring_ctxs:
+            return True  # This won't ever be the case if it just had to make a new bucket, hence the elif.
 
         if result := (limit := await bucket.into_inner(ctx)).acquire():
-            self._active_ctxs[(bucket_id, ctx)] = limit
+            self._acquiring_ctxs[(bucket_id, ctx)] = limit
 
         return result
 
     async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
-        if limit := self._active_ctxs.pop((bucket_id, ctx), None):
+        if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release()
 
     def set_bucket(
@@ -852,7 +846,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         Returns
         -------
         Self
-            This concurrency manager to allow chaining.
+            The concurrency manager to allow call chaining.
 
         Raises
         ------

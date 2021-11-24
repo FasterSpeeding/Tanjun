@@ -1363,7 +1363,7 @@ class TestInMemoryConcurrencyLimiter:
         assert result is True
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert manager._active_ctxs[("aye", mock_context)] is mock_bucket.into_inner.return_value
+        assert manager._acquiring_ctxs[("aye", mock_context)] is mock_bucket.into_inner.return_value
 
     @pytest.mark.asyncio()
     async def test_try_acquire_when_failed_to_acquire(self):
@@ -1378,7 +1378,7 @@ class TestInMemoryConcurrencyLimiter:
         assert result is False
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert ("nya", mock_context) not in manager._active_ctxs
+        assert ("nya", mock_context) not in manager._acquiring_ctxs
 
     @pytest.mark.asyncio()
     async def test_try_acquire_for_already_acquired_context(self):
@@ -1387,14 +1387,14 @@ class TestInMemoryConcurrencyLimiter:
         mock_limiter = mock.Mock()
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["ayee"] = mock_bucket
-        manager._active_ctxs[("ayee", mock_context)] = mock_limiter
+        manager._acquiring_ctxs[("ayee", mock_context)] = mock_limiter
 
         result = await manager.try_acquire("ayee", mock_context)
 
         assert result is True
         mock_bucket.into_inner.assert_not_called()
         mock_limiter.acquire.assert_not_called()
-        assert manager._active_ctxs[("ayee", mock_context)] is mock_limiter
+        assert manager._acquiring_ctxs[("ayee", mock_context)] is mock_limiter
 
     @pytest.mark.asyncio()
     async def test_try_acquire_falls_back_to_default_bucket(self):
@@ -1412,7 +1412,7 @@ class TestInMemoryConcurrencyLimiter:
         mock_bucket_template.copy.assert_called_once_with()
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert manager._active_ctxs[("yeet", mock_context)] is mock_bucket.into_inner.return_value
+        assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_bucket.into_inner.return_value
         assert manager._buckets["yeet"] is mock_bucket
 
     @pytest.mark.asyncio()
@@ -1420,11 +1420,11 @@ class TestInMemoryConcurrencyLimiter:
         manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
         mock_context = mock.Mock()
         mock_limiter = mock.Mock()
-        manager._active_ctxs[("nya", mock_context)] = mock_limiter
+        manager._acquiring_ctxs[("nya", mock_context)] = mock_limiter
 
         await manager.release("nya", mock_context)
 
-        assert ("nya", mock_context) not in manager._active_ctxs
+        assert ("nya", mock_context) not in manager._acquiring_ctxs
         mock_limiter.release.assert_called_once_with()
 
     @pytest.mark.asyncio()
