@@ -147,20 +147,20 @@ class BucketResource(int, enum.Enum):
     """Resource target types used within command calldowns and concurrency limiters."""
 
     USER = 0
-    """A per-user cooldown bucket."""
+    """A per-user resource bucket."""
 
     MEMBER = 1
-    """A per-guild member cooldown bucket.
+    """A per-guild member resource bucket.
 
     .. note::
         When executed in a DM this will be per-DM.
     """
 
     CHANNEL = 2
-    """A per-channel cooldown bucket."""
+    """A per-channel resource bucket."""
 
     PARENT_CHANNEL = 3
-    """A per-parent channel cooldown bucket.
+    """A per-parent channel resource bucket.
 
     .. note::
         For DM channels this will be per-DM, for guild channels with no parents
@@ -168,7 +168,7 @@ class BucketResource(int, enum.Enum):
     """
 
     # CATEGORY = 4
-    # """A per-category cooldown bucket.
+    # """A per-category resource bucket.
 
     # .. note::
     #     For DM channels this will be per-DM, for guild channels with no parent
@@ -176,7 +176,7 @@ class BucketResource(int, enum.Enum):
     # """
 
     TOP_ROLE = 5
-    """A per-highest role cooldown bucket.
+    """A per-highest role resource bucket.
 
     .. note::
         When executed in a DM this will be per-DM, with this defaulting to
@@ -184,14 +184,14 @@ class BucketResource(int, enum.Enum):
     """
 
     GUILD = 6
-    """A per-guild cooldown bucket.
+    """A per-guild resource bucket.
 
     .. note::
         When executed in a DM this will be per-DM.
     """
 
     GLOBAL = 7
-    """A global cooldown bucket."""
+    """A global resource bucket."""
 
 
 async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> hikari.Snowflake:
@@ -229,8 +229,8 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if not ctx.guild_id:
             return ctx.channel_id
 
-        # If they don't have a member object but this is in a guild context then we'll have to assume they're
-        # @everyone cause they might be a webhook or something.
+        # If they don't have a member object but this is in a guild context then we'll have to assume they
+        # only have @everyone since they might be a webhook or something.
         if not ctx.member or len(ctx.member.role_ids) <= 1:  # If they only have 1 role ID then this is @everyone.
             return ctx.guild_id
 
@@ -247,24 +247,29 @@ _CooldownT = typing.TypeVar("_CooldownT", bound="_Cooldown")
 
 
 class _Cooldown:
-    __slots__ = ("counter", "limit", "reset_after", "will_reset_after")
+    __slots__ = ("counter", "limit", "reset_after", "resets_at")
 
     def __init__(self, *, limit: int, reset_after: float) -> None:
         self.counter = 0
         self.limit = limit
         self.reset_after = reset_after
-        self.will_reset_after = time.monotonic() + reset_after
+        self.resets_at = time.monotonic() + reset_after
 
     def has_expired(self) -> bool:
-        return time.monotonic() >= self.will_reset_after
+        # Expiration doesn't actually matter for cases where the limit is -1.
+        return time.monotonic() >= self.resets_at
 
     def increment(self: _CooldownT) -> _CooldownT:
-        if self.counter == 0:
-            self.will_reset_after = time.monotonic() + self.reset_after
+        # A limit of -1 is special cased to mean no limit, so there's no need to increment the counter.
+        if self.limit == -1:
+            return self
 
-        elif (current_time := time.monotonic()) >= self.will_reset_after:
+        if self.counter == 0:
+            self.resets_at = time.monotonic() + self.reset_after
+
+        elif (current_time := time.monotonic()) >= self.resets_at:
             self.counter = 0
-            self.will_reset_after = current_time + self.reset_after
+            self.resets_at = current_time + self.reset_after
 
         if self.counter < self.limit:
             self.counter += 1
@@ -272,7 +277,11 @@ class _Cooldown:
         return self
 
     def must_wait_until(self) -> typing.Optional[float]:
-        if self.counter >= self.limit and (time_left := self.will_reset_after - time.monotonic()) > 0:
+        # A limit of -1 is special cased to mean no limit, so we don't need to wait.
+        if self.limit == -1:
+            return
+
+        if self.counter >= self.limit and (time_left := self.resets_at - time.monotonic()) > 0:
             return time_left
 
 
@@ -530,6 +539,33 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
+    def disable_bucket(self: _InMemoryCooldownManagerT, bucket_id: str) -> _InMemoryCooldownManagerT:
+        """Disable a cooldown bucket.
+
+        This will stop the bucket from ever hitting a cooldown and also
+        prevents the bucket from defaulting.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The bucket to disable.
+
+            ..  note::
+                "default" is a special bucket which is used as a template used
+                for unknown bucket IDs.
+
+        Returns
+        -------
+        Self
+            This cooldown manager to allow for chaining.
+        """
+        # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
+        bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _Cooldown(limit=-1, reset_after=-1))
+        if bucket_id == "default":
+            self._default_bucket_template = bucket.copy()
+
+        return self
+
     def set_bucket(
         self: _InMemoryCooldownManagerT,
         bucket_id: str,
@@ -546,8 +582,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The ID of the bucket to set the cooldown for.
 
             ..  note::
-                "default" is a special bucket that is as a template used when
-                a bucket ID isn't found.
+                "default" is a special bucket which is used as a template used
+                for unknown bucket IDs.
         resource : tanjun.BucketResource
             The type of resource to target for the cooldown.
         limit : int
@@ -579,7 +615,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             raise ValueError("limit must be greater than 0")
 
         bucket = self._buckets[bucket_id] = _to_bucket(
-            resource, lambda: _Cooldown(limit=limit, reset_after=reset_after)
+            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after)
         )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
@@ -701,6 +737,10 @@ class _ConcurrencyLimit:
             self.counter += 1
             return True
 
+        # A limit of -1 means unlimited so we don't need to keep count.
+        if self.limit == -1:
+            return True
+
         return False
 
     def release(self) -> None:
@@ -708,9 +748,14 @@ class _ConcurrencyLimit:
             self.counter -= 1
             return
 
+        # A limit of -1 means unlimited so we don't need to keep count.
+        if self.limit == -1:
+            return
+
         raise RuntimeError("Cannot release a limit that has not been acquired, this should never happen")
 
     def has_expired(self) -> bool:
+        # Expiration doesn't actually matter for cases where the limit is -1.
         return self.counter == 0
 
 
@@ -825,6 +870,32 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release()
 
+    def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str) -> _InMemoryConcurrencyLimiterT:
+        """Disable a concurrency bucket.
+
+        This will stop the bucket from ever hitting a cooldown and also
+        prevents the bucket from defaulting.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The bucket to disable.
+
+            ..  note::
+                "default" is a special bucket which is used as a template used
+                for unknown bucket IDs.
+
+        Returns
+        -------
+        Self
+            This cooldown manager to allow for chaining.
+        """
+        bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(limit=-1))
+        if bucket_id == "default":
+            self._default_bucket_template = bucket.copy()
+
+        return self
+
     def set_bucket(
         self: _InMemoryConcurrencyLimiterT, bucket_id: str, resource: BucketResource, limit: int, /
     ) -> _InMemoryConcurrencyLimiterT:
@@ -836,8 +907,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The ID of the bucket to set the concurrency limit for.
 
             ..  note::
-                "default" is a special bucket that is as a template used when
-                a bucket ID isn't found.
+                "default" is a special bucket which is used as a template used
+                for unknown bucket IDs.
         resource : tanjun.BucketResource
             The type of resource to target for the concurrency limit.
         limit : int
@@ -857,7 +928,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        bucket = self._buckets[bucket_id] = _to_bucket(resource, lambda: _ConcurrencyLimit(limit=limit))
+        bucket = self._buckets[bucket_id] = _to_bucket(BucketResource(resource), lambda: _ConcurrencyLimit(limit=limit))
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
