@@ -686,7 +686,7 @@ class _AnyChecks(_Check):
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
             try:
-                if await check.resolve_with_command_context(ctx):
+                if await check.resolve_with_command_context(ctx, ctx):
                     return True
 
             except errors.FailedCheck:
@@ -757,7 +757,7 @@ class _AllChecks(_Check):
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
-            if not await check.resolve_with_command_context(ctx):
+            if not await check.resolve_with_command_context(ctx, ctx):
                 return False
 
         return True
