@@ -279,7 +279,7 @@ class _Cooldown:
     def must_wait_until(self) -> typing.Optional[float]:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
         if self.limit == -1:
-            return
+            return None
 
         if self.counter >= self.limit and (time_left := self.resets_at - time.monotonic()) > 0:
             return time_left
@@ -604,18 +604,18 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             if limit is less 0 or negative.
         """
         if isinstance(reset_after, datetime.timedelta):
-            reset_after = reset_after.total_seconds()
+            reset_after_seconds = reset_after.total_seconds()
         else:
-            reset_after = float(reset_after)
+            reset_after_seconds = float(reset_after)
 
-        if reset_after <= 0:
+        if reset_after_seconds <= 0:
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
         bucket = self._buckets[bucket_id] = _to_bucket(
-            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after)
+            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after_seconds)
         )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
