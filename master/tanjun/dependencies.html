@@ -172,6 +172,9 @@
                                 <a class="function" href="#InMemoryConcurrencyLimiter.release">release</a>
                         </li>
                         <li>
+                                <a class="function" href="#InMemoryConcurrencyLimiter.disable_bucket">disable_bucket</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#InMemoryConcurrencyLimiter.set_bucket">set_bucket</a>
                         </li>
                 </ul>
@@ -197,6 +200,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#InMemoryCooldownManager.open">open</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#InMemoryCooldownManager.disable_bucket">disable_bucket</a>
                         </li>
                         <li>
                                 <a class="function" href="#InMemoryCooldownManager.set_bucket">set_bucket</a>
@@ -1450,20 +1456,20 @@ The context of the command.</li>
     <span class="sd">&quot;&quot;&quot;Resource target types used within command calldowns and concurrency limiters.&quot;&quot;&quot;</span>
 
     <span class="n">USER</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="sd">&quot;&quot;&quot;A per-user cooldown bucket.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A per-user resource bucket.&quot;&quot;&quot;</span>
 
     <span class="n">MEMBER</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="sd">&quot;&quot;&quot;A per-guild member cooldown bucket.</span>
+    <span class="sd">&quot;&quot;&quot;A per-guild member resource bucket.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        When executed in a DM this will be per-DM.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">CHANNEL</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="sd">&quot;&quot;&quot;A per-channel cooldown bucket.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A per-channel resource bucket.&quot;&quot;&quot;</span>
 
     <span class="n">PARENT_CHANNEL</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="sd">&quot;&quot;&quot;A per-parent channel cooldown bucket.</span>
+    <span class="sd">&quot;&quot;&quot;A per-parent channel resource bucket.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        For DM channels this will be per-DM, for guild channels with no parents</span>
@@ -1471,7 +1477,7 @@ The context of the command.</li>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># CATEGORY = 4</span>
-    <span class="c1"># &quot;&quot;&quot;A per-category cooldown bucket.</span>
+    <span class="c1"># &quot;&quot;&quot;A per-category resource bucket.</span>
 
     <span class="c1"># .. note::</span>
     <span class="c1">#     For DM channels this will be per-DM, for guild channels with no parent</span>
@@ -1479,7 +1485,7 @@ The context of the command.</li>
     <span class="c1"># &quot;&quot;&quot;</span>
 
     <span class="n">TOP_ROLE</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="sd">&quot;&quot;&quot;A per-highest role cooldown bucket.</span>
+    <span class="sd">&quot;&quot;&quot;A per-highest role resource bucket.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        When executed in a DM this will be per-DM, with this defaulting to</span>
@@ -1487,14 +1493,14 @@ The context of the command.</li>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">GUILD</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="sd">&quot;&quot;&quot;A per-guild cooldown bucket.</span>
+    <span class="sd">&quot;&quot;&quot;A per-guild resource bucket.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        When executed in a DM this will be per-DM.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">GLOBAL</span> <span class="o">=</span> <span class="mi">7</span>
-    <span class="sd">&quot;&quot;&quot;A global cooldown bucket.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A global resource bucket.&quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -1509,7 +1515,7 @@ The context of the command.</li>
         <span class="name">USER</span><span class="default_value"> = &lt;<a href="#BucketResource.USER">BucketResource.USER</a>: 0&gt;</span>
     </div>
 
-            <div class="docstring"><p>A per-user cooldown bucket.</p>
+            <div class="docstring"><p>A per-user resource bucket.</p>
 </div>
 
 
@@ -1520,7 +1526,7 @@ The context of the command.</li>
         <span class="name">MEMBER</span><span class="default_value"> = &lt;<a href="#BucketResource.MEMBER">BucketResource.MEMBER</a>: 1&gt;</span>
     </div>
 
-            <div class="docstring"><p>A per-guild member cooldown bucket.</p>
+            <div class="docstring"><p>A per-guild member resource bucket.</p>
 
 <p><em>Note:</em>
 When executed in a DM this will be per-DM.</p>
@@ -1534,7 +1540,7 @@ When executed in a DM this will be per-DM.</p>
         <span class="name">CHANNEL</span><span class="default_value"> = &lt;<a href="#BucketResource.CHANNEL">BucketResource.CHANNEL</a>: 2&gt;</span>
     </div>
 
-            <div class="docstring"><p>A per-channel cooldown bucket.</p>
+            <div class="docstring"><p>A per-channel resource bucket.</p>
 </div>
 
 
@@ -1545,7 +1551,7 @@ When executed in a DM this will be per-DM.</p>
         <span class="name">PARENT_CHANNEL</span><span class="default_value"> = &lt;<a href="#BucketResource.PARENT_CHANNEL">BucketResource.PARENT_CHANNEL</a>: 3&gt;</span>
     </div>
 
-            <div class="docstring"><p>A per-parent channel cooldown bucket.</p>
+            <div class="docstring"><p>A per-parent channel resource bucket.</p>
 
 <p><em>Note:</em>
 For DM channels this will be per-DM, for guild channels with no parents
@@ -1560,7 +1566,7 @@ this'll be per-guild.</p>
         <span class="name">TOP_ROLE</span><span class="default_value"> = &lt;<a href="#BucketResource.TOP_ROLE">BucketResource.TOP_ROLE</a>: 5&gt;</span>
     </div>
 
-            <div class="docstring"><p>A per-highest role cooldown bucket.</p>
+            <div class="docstring"><p>A per-highest role resource bucket.</p>
 
 <p><em>Note:</em>
 When executed in a DM this will be per-DM, with this defaulting to
@@ -1575,7 +1581,7 @@ targeting the @everyone role if they have no real roles.</p>
         <span class="name">GUILD</span><span class="default_value"> = &lt;<a href="#BucketResource.GUILD">BucketResource.GUILD</a>: 6&gt;</span>
     </div>
 
-            <div class="docstring"><p>A per-guild cooldown bucket.</p>
+            <div class="docstring"><p>A per-guild resource bucket.</p>
 
 <p><em>Note:</em>
 When executed in a DM this will be per-DM.</p>
@@ -1589,7 +1595,7 @@ When executed in a DM this will be per-DM.</p>
         <span class="name">GLOBAL</span><span class="default_value"> = &lt;<a href="#BucketResource.GLOBAL">BucketResource.GLOBAL</a>: 7&gt;</span>
     </div>
 
-            <div class="docstring"><p>A global cooldown bucket.</p>
+            <div class="docstring"><p>A global resource bucket.</p>
 </div>
 
 
@@ -2033,6 +2039,32 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">limit</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
+    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Disable a concurrency limit bucket.</span>
+
+<span class="sd">        This will stop the bucket from ever hitting a concurrency limit</span>
+<span class="sd">        and also prevents the bucket from defaulting.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The bucket to disable.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This concurrency manager to allow for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GlobalResource</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
     <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">BucketResource</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
@@ -2043,9 +2075,9 @@ Whether owners should be exempt from the cooldown.</p>
 <span class="sd">        bucket_id : str</span>
 <span class="sd">            The ID of the bucket to set the concurrency limit for.</span>
 
-<span class="sd">            ..  note::</span>
-<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
-<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
 <span class="sd">        resource : tanjun.BucketResource</span>
 <span class="sd">            The type of resource to target for the concurrency limit.</span>
 <span class="sd">        limit : int</span>
@@ -2065,7 +2097,7 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
 
-        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">))</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span><span class="n">BucketResource</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2324,6 +2356,73 @@ The context to acquire this resource lock with.</li>
 
 
                             </div>
+                            <div id="InMemoryConcurrencyLimiter.disable_bucket" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.disable_bucket">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">disable_bucket</span><span class="signature">(
+    self: ~_InMemoryConcurrencyLimiterT,
+    bucket_id: str
+) -&gt; ~_InMemoryConcurrencyLimiterT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Disable a concurrency limit bucket.</span>
+
+<span class="sd">        This will stop the bucket from ever hitting a concurrency limit</span>
+<span class="sd">        and also prevents the bucket from defaulting.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The bucket to disable.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This concurrency manager to allow for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GlobalResource</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Disable a concurrency limit bucket.</p>
+
+<p>This will stop the bucket from ever hitting a concurrency limit
+and also prevents the bucket from defaulting.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>bucket_id</strong> (str):
+The bucket to disable.</p>
+
+<p><em>Note:</em>
+"default" is a special bucket which is used as a template
+for unknown bucket IDs.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: This concurrency manager to allow for chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="InMemoryConcurrencyLimiter.set_bucket" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#InMemoryConcurrencyLimiter.set_bucket">#&nbsp;&nbsp</a>
 
@@ -2350,9 +2449,9 @@ The context to acquire this resource lock with.</li>
 <span class="sd">        bucket_id : str</span>
 <span class="sd">            The ID of the bucket to set the concurrency limit for.</span>
 
-<span class="sd">            ..  note::</span>
-<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
-<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
 <span class="sd">        resource : tanjun.BucketResource</span>
 <span class="sd">            The type of resource to target for the concurrency limit.</span>
 <span class="sd">        limit : int</span>
@@ -2372,7 +2471,7 @@ The context to acquire this resource lock with.</li>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
 
-        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">))</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span><span class="n">BucketResource</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_ConcurrencyLimit</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2390,8 +2489,8 @@ The context to acquire this resource lock with.</li>
 The ID of the bucket to set the concurrency limit for.</p>
 
 <p><em>Note:</em>
-"default" is a special bucket that is as a template used when
-a bucket ID isn't found.</p></li>
+"default" is a special bucket which is used as a template
+for unknown bucket IDs.</p></li>
 <li><strong>resource</strong> (<a href="../tanjun.html#BucketResource">tanjun.BucketResource</a>):
 The type of resource to target for the concurrency limit.</li>
 <li><strong>limit</strong> (int):
@@ -2535,6 +2634,33 @@ if limit is less 0 or negative.</li>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
 
+    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Disable a cooldown bucket.</span>
+
+<span class="sd">        This will stop the bucket from ever hitting a cooldown and also</span>
+<span class="sd">        prevents the bucket from defaulting.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The bucket to disable.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This cooldown manager to allow for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GlobalResource</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
     <span class="k">def</span> <span class="nf">set_bucket</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span>
         <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2550,9 +2676,9 @@ if limit is less 0 or negative.</li>
 <span class="sd">        bucket_id : str</span>
 <span class="sd">            The ID of the bucket to set the cooldown for.</span>
 
-<span class="sd">            ..  note::</span>
-<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
-<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
 <span class="sd">        resource : tanjun.BucketResource</span>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
@@ -2584,7 +2710,7 @@ if limit is less 0 or negative.</li>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
 
         <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span>
-            <span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="n">reset_after</span><span class="p">)</span>
+            <span class="n">BucketResource</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="n">reset_after</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -2859,6 +2985,74 @@ If called in a thread with no running event loop.</li>
 
 
                             </div>
+                            <div id="InMemoryCooldownManager.disable_bucket" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.disable_bucket">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">disable_bucket</span><span class="signature">(
+    self: ~_InMemoryCooldownManagerT,
+    bucket_id: str
+) -&gt; ~_InMemoryCooldownManagerT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Disable a cooldown bucket.</span>
+
+<span class="sd">        This will stop the bucket from ever hitting a cooldown and also</span>
+<span class="sd">        prevents the bucket from defaulting.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The bucket to disable.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This cooldown manager to allow for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GlobalResource</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Disable a cooldown bucket.</p>
+
+<p>This will stop the bucket from ever hitting a cooldown and also
+prevents the bucket from defaulting.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>bucket_id</strong> (str):
+The bucket to disable.</p>
+
+<p><em>Note:</em>
+"default" is a special bucket which is used as a template
+for unknown bucket IDs.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: This cooldown manager to allow for chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="InMemoryCooldownManager.set_bucket" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#InMemoryCooldownManager.set_bucket">#&nbsp;&nbsp</a>
 
@@ -2891,9 +3085,9 @@ If called in a thread with no running event loop.</li>
 <span class="sd">        bucket_id : str</span>
 <span class="sd">            The ID of the bucket to set the cooldown for.</span>
 
-<span class="sd">            ..  note::</span>
-<span class="sd">                &quot;default&quot; is a special bucket that is as a template used when</span>
-<span class="sd">                a bucket ID isn&#39;t found.</span>
+<span class="sd">            .. note::</span>
+<span class="sd">                &quot;default&quot; is a special bucket which is used as a template</span>
+<span class="sd">                for unknown bucket IDs.</span>
 <span class="sd">        resource : tanjun.BucketResource</span>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
@@ -2925,7 +3119,7 @@ If called in a thread with no running event loop.</li>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limit must be greater than 0&quot;</span><span class="p">)</span>
 
         <span class="n">bucket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="p">[</span><span class="n">bucket_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_bucket</span><span class="p">(</span>
-            <span class="n">resource</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="n">reset_after</span><span class="p">)</span>
+            <span class="n">BucketResource</span><span class="p">(</span><span class="n">resource</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_Cooldown</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">reset_after</span><span class="o">=</span><span class="n">reset_after</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">bucket_id</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_bucket_template</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -2944,8 +3138,8 @@ If called in a thread with no running event loop.</li>
 The ID of the bucket to set the cooldown for.</p>
 
 <p><em>Note:</em>
-"default" is a special bucket that is as a template used when
-a bucket ID isn't found.</p></li>
+"default" is a special bucket which is used as a template
+for unknown bucket IDs.</p></li>
 <li><strong>resource</strong> (<a href="../tanjun.html#BucketResource">tanjun.BucketResource</a>):
 The type of resource to target for the cooldown.</li>
 <li><strong>limit</strong> (int):
