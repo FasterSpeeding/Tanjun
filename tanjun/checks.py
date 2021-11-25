@@ -704,7 +704,7 @@ def all_checks(
     Returns
     -------
     collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
-        A check which will pass if all of the passed check callbacks pass.
+        A check which will pass if all of the provided check callbacks pass.
     """
     checks_ = [injecting.CallbackDescriptor(check)]
     checks_.extend(map(injecting.CallbackDescriptor[bool], checks))
@@ -716,7 +716,7 @@ def with_all_checks(
     /,
     *checks: tanjun_abc.CheckSig,
 ) -> collections.Callable[[CommandT], CommandT]:
-    """Add a check which'll pass if any of the passed checks pass through a decorator call.
+    """Add a check which'll pass if any of the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
     rather than concurrently.
@@ -731,7 +731,7 @@ def with_all_checks(
     Returns
     -------
     collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
-        A check which will pass if all of the passed check callbacks pass.
+        A check which will pass if all of the provided check callbacks pass.
     """
     return lambda c: c.add_check(all_checks(check, *checks))
 
@@ -825,7 +825,7 @@ def with_any_checks(
     error_message: typing.Optional[str],
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
-    """Add a check which'll pass if all the passed checks pass through a decorator call.
+    """Add a check which'll pass if all the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
     rather than concurrently.
