@@ -1567,7 +1567,6 @@ class TestInMemoryConcurrencyLimiter:
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == -1
 
-
     @pytest.mark.parametrize(
         "resource_type",
         [
