@@ -550,7 +550,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         bucket_id : str
             The bucket to disable.
 
-            ..  note::
+            .. note::
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
 
@@ -581,7 +581,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         bucket_id : str
             The ID of the bucket to set the cooldown for.
 
-            ..  note::
+            .. note::
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
         resource : tanjun.BucketResource
@@ -881,7 +881,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         bucket_id : str
             The bucket to disable.
 
-            ..  note::
+            .. note::
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
 
@@ -906,7 +906,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         bucket_id : str
             The ID of the bucket to set the concurrency limit for.
 
-            ..  note::
+            .. note::
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
         resource : tanjun.BucketResource
