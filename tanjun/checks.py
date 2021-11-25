@@ -689,7 +689,7 @@ def all_checks(
     /,
     *checks: tanjun_abc.CheckSig,
 ) -> collections.Callable[[tanjun_abc.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
-    """Combine multiple check callbacks into a check which'll only pass if all the callbacks pass.
+    """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
     rather than concurrently.
@@ -716,7 +716,7 @@ def with_all_checks(
     /,
     *checks: tanjun_abc.CheckSig,
 ) -> collections.Callable[[CommandT], CommandT]:
-    """Add a check which'll pass if any of the provided checks pass through a decorator call.
+    """Add a check which will pass if any of the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
     rather than concurrently.
