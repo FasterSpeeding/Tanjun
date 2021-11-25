@@ -269,7 +269,7 @@ def type_check(session: nox.Session) -> None:
 
 @nox.session(name="verify-types", reuse_venv=True)
 def verify_types(session: nox.Session) -> None:
-    """Verify the "type completness" of types exported by the library using Pyright."""
+    """Verify the "type completeness" of types exported by the library using Pyright."""
     _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")
 
 
