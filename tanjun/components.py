@@ -542,10 +542,10 @@ class Component(tanjun_abc.Component):
         ...
 
     @typing.overload
-    def with_command(self, *, copy: bool = False) -> collections.Callable[[CommandT], CommandT]:
+    def with_command(self, /, *, copy: bool = False) -> collections.Callable[[CommandT], CommandT]:
         ...
 
-    def with_command(  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
+    def with_command(
         self, command: typing.Optional[CommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[CommandT]:
         """Add a command to this component through a decorator call.
@@ -595,11 +595,11 @@ class Component(tanjun_abc.Component):
 
     @typing.overload
     def with_slash_command(
-        self, *, copy: bool = False
+        self, /, *, copy: bool = False
     ) -> collections.Callable[[tanjun_abc.BaseSlashCommandT], tanjun_abc.BaseSlashCommandT]:
         ...
 
-    def with_slash_command(  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
+    def with_slash_command(
         self, command: typing.Optional[tanjun_abc.BaseSlashCommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[tanjun_abc.BaseSlashCommandT]:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -664,11 +664,11 @@ class Component(tanjun_abc.Component):
 
     @typing.overload
     def with_message_command(
-        self, *, copy: bool = False
+        self, /, *, copy: bool = False
     ) -> collections.Callable[[tanjun_abc.MessageCommandT], tanjun_abc.MessageCommandT]:
         ...
 
-    def with_message_command(  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
+    def with_message_command(
         self, command: typing.Optional[tanjun_abc.MessageCommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[tanjun_abc.MessageCommandT]:
         # <<inherited docstring from tanjun.abc.Component>>.

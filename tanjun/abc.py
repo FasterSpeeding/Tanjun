@@ -2463,7 +2463,7 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
+    def with_slash_command(self, /, *, copy: bool = False) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
         ...
 
     @abc.abstractmethod  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
@@ -2530,7 +2530,7 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_message_command(self, *, copy: bool = False) -> collections.Callable[[MessageCommandT], MessageCommandT]:
+    def with_message_command(self, /, *, copy: bool = False) -> collections.Callable[[MessageCommandT], MessageCommandT]:
         ...
 
     @abc.abstractmethod  # type: ignore[misc]  # https://github.com/python/mypy/issues/11606
