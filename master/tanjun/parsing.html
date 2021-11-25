@@ -87,9 +87,6 @@
                         <li>
                                 <a class="variable" href="#Option.names">names</a>
                         </li>
-                        <li>
-                                <a class="variable" href="#Option.is_multi">is_multi</a>
-                        </li>
                 </ul>
 
             </li>
@@ -100,6 +97,9 @@
                                 <a class="function" href="#Parameter.__init__">Parameter</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Parameter.converters">converters</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Parameter.default">default</a>
                         </li>
                         <li>
@@ -107,9 +107,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Parameter.is_multi">is_multi</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Parameter.converters">converters</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Parameter.key">key</a>
@@ -887,7 +884,7 @@
 
 
 <span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -902,9 +899,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
@@ -923,6 +920,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -998,7 +1007,7 @@
 
 
 <span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1539,10 +1548,10 @@
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt><a href="#Parameter">Parameter</a></dt>
-                                <dd id="Argument.default" class="variable"><a href="#Parameter.default">default</a></dd>
+                                <dd id="Argument.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
+                <dd id="Argument.default" class="variable"><a href="#Parameter.default">default</a></dd>
                 <dd id="Argument.is_greedy" class="variable"><a href="#Parameter.is_greedy">is_greedy</a></dd>
                 <dd id="Argument.is_multi" class="variable"><a href="#Parameter.is_multi">is_multi</a></dd>
-                <dd id="Argument.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
                 <dd id="Argument.key" class="variable"><a href="#Parameter.key">key</a></dd>
                 <dd id="Argument.needs_injector" class="variable"><a href="#Parameter.needs_injector">needs_injector</a></dd>
                 <dd id="Argument.bind_client" class="function"><a href="#Parameter.bind_client">bind_client</a></dd>
@@ -1579,7 +1588,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1672,22 +1681,14 @@
     
 
                             </div>
-                            <div id="Option.is_multi" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Option.is_multi">#&nbsp;&nbsp</a>
-
-        <span class="name">is_multi</span>
-    </div>
-
-    
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt><a href="#Parameter">Parameter</a></dt>
-                                <dd id="Option.default" class="variable"><a href="#Parameter.default">default</a></dd>
+                                <dd id="Option.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
+                <dd id="Option.default" class="variable"><a href="#Parameter.default">default</a></dd>
                 <dd id="Option.is_greedy" class="variable"><a href="#Parameter.is_greedy">is_greedy</a></dd>
-                <dd id="Option.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
+                <dd id="Option.is_multi" class="variable"><a href="#Parameter.is_multi">is_multi</a></dd>
                 <dd id="Option.key" class="variable"><a href="#Parameter.key">key</a></dd>
                 <dd id="Option.needs_injector" class="variable"><a href="#Parameter.needs_injector">needs_injector</a></dd>
                 <dd id="Option.bind_client" class="function"><a href="#Parameter.bind_client">bind_client</a></dd>
@@ -1711,7 +1712,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1726,9 +1727,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
@@ -1747,6 +1748,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1836,9 +1849,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
@@ -1857,10 +1870,19 @@
     
 
                             </div>
+                            <div id="Parameter.converters" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Parameter.converters">#&nbsp;&nbsp</a>
+
+        <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
+    </div>
+
+    
+
+                            </div>
                             <div id="Parameter.default" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.default">#&nbsp;&nbsp</a>
 
-        <span class="name">default</span>
+        <span class="name">default</span><span class="annotation">: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
     </div>
 
     
@@ -1869,7 +1891,7 @@
                             <div id="Parameter.is_greedy" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.is_greedy">#&nbsp;&nbsp</a>
 
-        <span class="name">is_greedy</span>
+        <span class="name">is_greedy</span><span class="annotation">: bool</span>
     </div>
 
     
@@ -1878,16 +1900,7 @@
                             <div id="Parameter.is_multi" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.is_multi">#&nbsp;&nbsp</a>
 
-        <span class="name">is_multi</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="Parameter.converters" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Parameter.converters">#&nbsp;&nbsp</a>
-
-        <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
+        <span class="name">is_multi</span><span class="annotation">: bool</span>
     </div>
 
     

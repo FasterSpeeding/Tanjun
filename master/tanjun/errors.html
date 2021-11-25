@@ -240,6 +240,9 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
 
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 
@@ -265,9 +268,7 @@
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;The response error message.</span>
 
-<span class="sd">    If this is an empty string or `None` then this will silently end</span>
-<span class="sd">    command execution otherwise Tanjun will try to send the string message in</span>
-<span class="sd">    response.</span>
+<span class="sd">    Tanjun will try to send the string message as a response.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -437,9 +438,7 @@
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;The response error message.</span>
 
-<span class="sd">    If this is an empty string or `None` then this will silently end</span>
-<span class="sd">    command execution otherwise Tanjun will try to send the string message in</span>
-<span class="sd">    response.</span>
+<span class="sd">    Tanjun will try to send the string message as a response.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -507,9 +506,7 @@ that triggered the current command.</li>
 
             <div class="docstring"><p>The response error message.</p>
 
-<p>If this is an empty string or <code>None</code> then this will silently end
-command execution otherwise Tanjun will try to send the string message in
-response.</p>
+<p>Tanjun will try to send the string message as a response.</p>
 </div>
 
 
@@ -735,6 +732,9 @@ other commands from being tried.</p>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
 
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
@@ -766,10 +766,12 @@ other commands from being tried.</p>
                             <div id="MissingDependencyError.message" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MissingDependencyError.message">#&nbsp;&nbsp</a>
 
-        <span class="name">message</span>
+        <span class="name">message</span><span class="annotation">: str</span><span class="default_value"> = &lt;member &#39;message&#39; of &#39;MissingDependencyError&#39; objects&gt;</span>
     </div>
 
-    
+            <div class="docstring"><p>The error's message.</p>
+</div>
+
 
                             </div>
                             <div class="inherited">
