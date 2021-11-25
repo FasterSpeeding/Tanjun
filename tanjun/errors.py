@@ -79,6 +79,9 @@ class MissingDependencyError(TanjunError):
 
     __slots__ = ("message",)
 
+    message: str
+    """The error's message."""
+
     def __init__(self, message: str) -> None:
         self.message = message
 
@@ -104,9 +107,7 @@ class CommandError(TanjunError):
     message: str
     """The response error message.
 
-    If this is an empty string or `None` then this will silently end
-    command execution otherwise Tanjun will try to send the string message in
-    response.
+    Tanjun will try to send the string message as a response.
     """
 
     def __init__(self, message: str, /) -> None:

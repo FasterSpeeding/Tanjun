@@ -221,7 +221,7 @@ class GuildCheck(_Check):
 
 
 class AuthorPermissionCheck(_Check):
-    __slots__ = ("permissions",)
+    __slots__ = ("_permissions",)
 
     def __init__(
         self,
@@ -232,7 +232,7 @@ class AuthorPermissionCheck(_Check):
         halt_execution: bool = False,
     ) -> None:
         super().__init__(error_message=error_message, halt_execution=halt_execution)
-        self.permissions = permissions
+        self._permissions = permissions
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         if not ctx.member:
@@ -253,11 +253,11 @@ class AuthorPermissionCheck(_Check):
         else:
             permissions = await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
-        return self._handle_result((self.permissions & permissions) == self.permissions)
+        return self._handle_result((self._permissions & permissions) == self._permissions)
 
 
 class OwnPermissionCheck(_Check):
-    __slots__ = ("permissions",)
+    __slots__ = ("_permissions",)
 
     def __init__(
         self,
@@ -268,7 +268,7 @@ class OwnPermissionCheck(_Check):
         halt_execution: bool = False,
     ) -> None:
         super().__init__(error_message=error_message, halt_execution=halt_execution)
-        self.permissions = permissions
+        self._permissions = permissions
 
     async def __call__(
         self,
@@ -294,7 +294,7 @@ class OwnPermissionCheck(_Check):
 
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-        return self._handle_result((permissions & self.permissions) == self.permissions)
+        return self._handle_result((permissions & self._permissions) == self._permissions)
 
 
 @typing.overload
