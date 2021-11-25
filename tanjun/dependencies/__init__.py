@@ -44,14 +44,19 @@ __all__: list[str] = [
     "inject_lc",
     "make_lc_resolver",
     # limiters.py
+    "AbstractConcurrencyLimiter",
     "AbstractCooldownManager",
     "BucketResource",
+    "ConcurrencyPreExecution",
+    "ConcurrencyPostExecution",
     "CooldownPreExecution",
+    "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
+    "with_concurrency_limit",
     "with_cooldown",
     # owners.py
-    "AbstractOwnerCheck",
-    "OwnerCheck",
+    "AbstractOwners",
+    "Owners",
 ]
 
 import hikari
@@ -71,6 +76,6 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     client: tanjun.injecting.InjectorClient
         The injector client to set the standard dependencies on.
     """
-    client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
+    client.set_type_dependency(AbstractOwners, Owners()).set_type_dependency(
         LazyConstant[hikari.OwnUser], LazyConstant[hikari.OwnUser](fetch_my_user)
     )

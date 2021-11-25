@@ -1306,6 +1306,7 @@ class SlashContext(Context, abc.ABC):
         """
 
     @property
+    @abc.abstractmethod
     def expires_at(self) -> datetime.datetime:
         """When this application command context expires.
 
@@ -2736,6 +2737,7 @@ class Component(abc.ABC):
             execute with the current context.
         """
 
+    @abc.abstractmethod
     async def close(self) -> None:
         """Close the component.
 
@@ -2745,6 +2747,7 @@ class Component(abc.ABC):
             If the component isn't running.
         """
 
+    @abc.abstractmethod
     async def open(self) -> None:
         """Start the component.
 
@@ -3117,6 +3120,7 @@ class Client(abc.ABC):
             The client instance to allow chained calls.
         """
 
+    @abc.abstractmethod
     def get_component_by_name(self, name: str, /) -> typing.Optional[Component]:
         """Get a component from this client by name.
 
@@ -3497,6 +3501,7 @@ class Client(abc.ABC):
             If the module is not found.
         """
 
+    @abc.abstractmethod
     def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         # <<inherited docstring from tanjun.abc.Client>>.
         """Unload entities from this client based on unloaders in one or more modules.
@@ -3543,6 +3548,7 @@ class Client(abc.ABC):
             If no unloaders are found in the module.
         """
 
+    @abc.abstractmethod
     def reload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         # <<inherited docstring from tanjun.abc.Client>>.
         """Reload entities in this client based on the loaders in loaded module(s).

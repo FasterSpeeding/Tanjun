@@ -175,8 +175,10 @@ __all__: list[str] = [
     "BucketResource",
     "cached_inject",
     "inject_lc",
+    "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
     "LazyConstant",
+    "with_concurrency_limit",
     "with_cooldown",
     # errors.py
     "errors",
@@ -240,4 +242,4 @@ __email__: typing.Final[str] = "lucina@lmbyrne.dev"
 __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/issues"
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
-__version__: typing.Final[str] = "2.2.0a1"
+__version__: typing.Final[str] = "2.2.1a1"

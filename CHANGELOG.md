@@ -5,11 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Concurrency limiter dependency (in a similar style to cooldowns).
+- `disable_bucket` method to the in-memory concurrency and cooldown manager impls.
+
 ### Changed
 - `cached_inject` and `cache_callback` now both accept `float` and `int` seconds for `expire_after`.
-- `OwnerCheck.__init__` now accepts `float` and `int` seconds for `expire_after`.
+- `Owners.__init__` now accepts `float` and `int` seconds for `expire_after`.
+- Renamed `tanjun.dependencies.owners.OwnerCheck` and `tanjun.dependencies.owners.AbstractOwnerCheck`
+  to `Owners` and `AbstractOwners` respectively.
+- `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
 
-## [2.2.0a1]
+## [2.2.0a1] - 2021-11-23
 ### Added
 - Upgraded `is_alive` attribute to the Client abstract interface.
 - Upgraded `clear_application_commands`, `declare_global_commands`, `declare_slash_command` and 

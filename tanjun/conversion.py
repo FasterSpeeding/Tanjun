@@ -67,7 +67,7 @@ import datetime
 import operator
 import re
 import typing
-import urllib.parse
+import urllib.parse as urlparse
 import warnings
 from collections import abc as collections
 
@@ -561,12 +561,12 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
         raise ValueError("Voice state couldn't be found for current guild")
 
 
-class _IDMatcher(typing.Protocol):
+class _IDMatcherSig(typing.Protocol):
     def __call__(self, value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         raise NotImplementedError
 
 
-def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
+def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
     def parse(value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         """Parse a snowflake from a string or int value.
 
@@ -618,14 +618,14 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
     return parse
 
 
-_IDSearcher = collections.Callable[[ArgumentT], collections.Iterator[hikari.Snowflake]]
+_IDSearcherSig = collections.Callable[[ArgumentT], collections.Iterator[hikari.Snowflake]]
 
 
 def _range_check(snowflake: hikari.Snowflake, /) -> bool:
     return snowflake.min() <= snowflake <= snowflake.max()
 
 
-def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcher:
+def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
     def parse(value: ArgumentT, /) -> collections.Iterator[hikari.Snowflake]:
         """Iterate over the snowflakes in a string.
 
@@ -668,7 +668,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcher:
 
 
 _SNOWFLAKE_REGEX = re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>")
-parse_snowflake: _IDMatcher = _make_snowflake_parser(_SNOWFLAKE_REGEX)
+parse_snowflake: _IDMatcherSig = _make_snowflake_parser(_SNOWFLAKE_REGEX)
 """Parse a snowflake from a string or int value.
 
 Parameters
@@ -692,7 +692,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_snowflakes = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
+search_snowflakes: _IDSearcherSig = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
 """Iterate over the snowflakes in a string.
 
 Parameters
@@ -707,7 +707,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _CHANNEL_ID_REGEX = re.compile(r"<#(\d+)>")
-parse_channel_id: _IDMatcher = _make_snowflake_parser(_CHANNEL_ID_REGEX)
+parse_channel_id: _IDMatcherSig = _make_snowflake_parser(_CHANNEL_ID_REGEX)
 """Parse a channel ID from a string or int value.
 
 Parameters
@@ -731,7 +731,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_channel_ids = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
+search_channel_ids: _IDSearcherSig = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
 """Iterate over the channel IDs in a string.
 
 Parameters
@@ -746,7 +746,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _EMOJI_ID_REGEX = re.compile(r"<a?:\w+:(\d+)>")
-parse_emoji_id: _IDMatcher = _make_snowflake_parser(_EMOJI_ID_REGEX)
+parse_emoji_id: _IDMatcherSig = _make_snowflake_parser(_EMOJI_ID_REGEX)
 """Parse an Emoji ID from a string or int value.
 
 Parameters
@@ -770,7 +770,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_emoji_ids = _make_snowflake_searcher(_EMOJI_ID_REGEX)
+search_emoji_ids: _IDSearcherSig = _make_snowflake_searcher(_EMOJI_ID_REGEX)
 """Iterate over the emoji IDs in a string.
 
 Parameters
@@ -785,7 +785,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _ROLE_ID_REGEX = re.compile(r"<@&(\d+)>")
-parse_role_id: _IDMatcher = _make_snowflake_parser(_ROLE_ID_REGEX)
+parse_role_id: _IDMatcherSig = _make_snowflake_parser(_ROLE_ID_REGEX)
 """Parse a role ID from a string or int value.
 
 Parameters
@@ -809,7 +809,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_role_ids = _make_snowflake_searcher(_ROLE_ID_REGEX)
+search_role_ids: _IDSearcherSig = _make_snowflake_searcher(_ROLE_ID_REGEX)
 """Iterate over the role IDs in a string.
 
 Parameters
@@ -824,7 +824,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _USER_ID_REGEX = re.compile(r"<@!?(\d+)>")
-parse_user_id: _IDMatcher = _make_snowflake_parser(_USER_ID_REGEX)
+parse_user_id: _IDMatcherSig = _make_snowflake_parser(_USER_ID_REGEX)
 """Parse a user ID from a string or int value.
 
 Parameters
@@ -848,7 +848,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_user_ids = _make_snowflake_searcher(_USER_ID_REGEX)
+search_user_ids: _IDSearcherSig = _make_snowflake_searcher(_USER_ID_REGEX)
 """Iterate over the user IDs in a string.
 
 Parameters
@@ -865,7 +865,7 @@ collections.abc.Iterator[hikari.Snowflake]
 
 def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
-        """Convert an argument to a `urlib.parse` type.
+        """Convert an argument to a `urllib.parse` type.
 
         Parameters
         ----------
@@ -890,7 +890,7 @@ def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> coll
     return parse
 
 
-defragment_url = _build_url_parser(urllib.parse.urldefrag)
+defragment_url: collections.Callable[[str], urlparse.DefragResult] = _build_url_parser(urlparse.urldefrag)
 """Convert an argument to a defragmented URL.
 
 Parameters
@@ -900,7 +900,7 @@ value: str
 
 Returns
 -------
-urlib.parse.DefragResult
+urllib.parse.DefragResult
     The parsed URL.
 
 Raises
@@ -909,7 +909,7 @@ ValueError
     If the argument couldn't be parsed.
 """
 
-parse_url = _build_url_parser(urllib.parse.urlparse)
+parse_url: collections.Callable[[str], urlparse.ParseResult] = _build_url_parser(urlparse.urlparse)
 """Convert an argument to a parsed URL.
 
 Parameters
@@ -919,7 +919,7 @@ value: str
 
 Returns
 -------
-urlib.parse.ParseResult
+urllib.parse.ParseResult
     The parsed URL.
 
 Raises
@@ -929,7 +929,7 @@ ValueError
 """
 
 
-split_url = _build_url_parser(urllib.parse.urlsplit)
+split_url: collections.Callable[[str], urlparse.SplitResult] = _build_url_parser(urlparse.urlsplit)
 """Convert an argument to a split URL.
 
 Parameters
@@ -939,7 +939,7 @@ value: str
 
 Returns
 -------
-urlib.parse.SplitResult
+urllib.parse.SplitResult
     The split URL.
 
 Raises
@@ -1074,9 +1074,9 @@ _TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callabl
     bytearray: lambda d: bytearray(d, "utf-8"),
     datetime.datetime: to_datetime,
     hikari.Snowflake: parse_snowflake,
-    urllib.parse.DefragResult: defragment_url,
-    urllib.parse.ParseResult: parse_url,
-    urllib.parse.SplitResult: split_url,
+    urlparse.DefragResult: defragment_url,
+    urlparse.ParseResult: parse_url,
+    urlparse.SplitResult: split_url,
 }
 
 

@@ -45,7 +45,7 @@ def test_set_standard_dependencies():
     mock_client = mock.Mock(tanjun.Client)
     mock_client.set_type_dependency.return_value = mock_client
     stack = contextlib.ExitStack()
-    owner_check = stack.enter_context(mock.patch.object(tanjun.dependencies, "OwnerCheck"))
+    owner_check = stack.enter_context(mock.patch.object(tanjun.dependencies, "Owners"))
     lazy_constant = stack.enter_context(mock.patch.object(tanjun.dependencies, "LazyConstant"))
 
     with stack:
@@ -56,7 +56,7 @@ def test_set_standard_dependencies():
     lazy_constant.__getitem__.assert_called_once_with(hikari.OwnUser)
     mock_client.set_type_dependency.assert_has_calls(
         [
-            mock.call(tanjun.dependencies.AbstractOwnerCheck, owner_check.return_value),
+            mock.call(tanjun.dependencies.AbstractOwners, owner_check.return_value),
             mock.call(lazy_constant.__getitem__.return_value, lazy_constant.return_value),
         ]
     )

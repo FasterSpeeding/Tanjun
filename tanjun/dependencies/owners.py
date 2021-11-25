@@ -32,7 +32,7 @@
 """Dependency used for managing owner checks."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwnerCheck", "OwnerCheck"]
+__all__: list[str] = ["AbstractOwners", "Owners"]
 
 import abc
 import asyncio
@@ -53,7 +53,7 @@ _T = typing.TypeVar("_T")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
 
-class AbstractOwnerCheck(abc.ABC):
+class AbstractOwners(abc.ABC):
     """Interface used to check if a user is deemed to be the bot's "owner"."""
 
     __slots__ = ()
@@ -109,7 +109,7 @@ class _CachedValue(typing.Generic[_T]):
             return self._result
 
 
-class OwnerCheck(AbstractOwnerCheck):
+class Owners(AbstractOwners):
     """Default implementation of the owner check interface.
 
     .. warning::

@@ -141,3 +141,22 @@ jobs:
 
       - name: Run type checker
         run: python -m nox -s type-check -- --force-env
+
+  verify-type-completeness:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r nox-requirements.txt
+
+      - name: Run verify types
+        run: python -m nox -s verify-types -- --force-env
