@@ -236,8 +236,6 @@ class _Cooldown:
         if self.counter >= self.resource.limit and (time_left := self.will_reset_after - time.monotonic()) > 0:
             return time_left
 
-        return None
-
 
 class _BaseCooldownResource(abc.ABC):
     __slots__ = ("limit", "reset_after")
@@ -545,10 +543,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        bucket: _BaseCooldownResource
-
         if resource_type is BucketResource.MEMBER:
-            bucket = _MemberCooldownResource(limit, reset_after)
+            bucket: _BaseCooldownResource = _MemberCooldownResource(limit, reset_after)
 
         elif resource_type is BucketResource.GLOBAL:
             bucket = _GlobalCooldownResource(limit, reset_after)

@@ -134,3 +134,7 @@ show_error_codes = true
 # these are used by pyright
 warn_unused_ignores = false
 warn_redundant_casts = false
+
+# compatibility with pyright
+allow_redefinition = true
+disable_error_code = ["return"]

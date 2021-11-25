@@ -1688,15 +1688,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if self._cached_application_id:
             return self._cached_application_id
 
-        application: typing.Union[hikari.AuthorizationApplication, hikari.Application]
-
         if self._rest.token_type == hikari.TokenType.BOT:
-            application = await self._rest.fetch_application()
+            self._cached_application_id = hikari.Snowflake(await self._rest.fetch_application())
 
         else:
-            application = (await self._rest.fetch_authorization()).application
+            self._cached_application_id = hikari.Snowflake((await self._rest.fetch_authorization()).application)
 
-        self._cached_application_id = hikari.Snowflake(application)
         return self._cached_application_id
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ClientT:

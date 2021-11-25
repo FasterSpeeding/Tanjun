@@ -1391,5 +1391,3 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
         if ensure_result:
             return await self._interaction.fetch_initial_response()
-        else:
-            return None

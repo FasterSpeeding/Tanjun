@@ -1786,7 +1786,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
         for tracked_option in self._tracked_options.values():
-            member: typing.Optional[hikari.InteractionMember]
             if not (option := ctx.options.get(tracked_option.name)):
                 if tracked_option.default is _UNDEFINED_DEFAULT:
                     raise RuntimeError(  # TODO: ConversionError?
@@ -1798,7 +1797,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                     keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
-                member = None
+                member: typing.Optional[hikari.InteractionMember] = None
                 if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
                     raise errors.ConversionError(
                         f"Couldn't find member for provided user: {option.value}", tracked_option.name
@@ -2195,7 +2194,6 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             return
 
         for command in self._commands:
-            # `name_` is `name`, but mypy doesn't allow redefining types (from `str` to `Optional[str]`)
             if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
                 yield name_, command
 
