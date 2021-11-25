@@ -249,8 +249,6 @@ def test_coverage(session: nox.Session) -> None:
 
 
 def _run_pyright(session: nox.Session, *args: str) -> None:
-    install_requirements(session, ".[tests, type_checking]", "-r", "nox-requirements.txt")
-
     if _try_find_option(session, "--force-env", when_empty="True"):
         session.env["PYRIGHT_PYTHON_GLOBAL_NODE"] = "off"
 
@@ -264,12 +262,14 @@ def _run_pyright(session: nox.Session, *args: str) -> None:
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
     """Statically analyse and veirfy this project using Pyright."""
+    install_requirements(session, ".[tests, type_checking]", "-r", "nox-requirements.txt")
     _run_pyright(session)
 
 
 @nox.session(name="verify-types", reuse_venv=True)
 def verify_types(session: nox.Session) -> None:
     """Verify the "type completeness" of types exported by the library using Pyright."""
+    install_requirements(session, ".[type_checking]")
     _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")
 
 
