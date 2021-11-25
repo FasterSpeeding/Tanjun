@@ -639,7 +639,7 @@ def with_multi_option(
 
 
 class Parameter:
-    __slots__ = ("_client", "_component", "_converters", "default", "is_greedy", "is_multi", "_key")
+    __slots__ = ("_client", "_component", "_converters", "_default", "_is_greedy", "_is_multi", "_key")
 
     def __init__(
         self,
@@ -654,9 +654,9 @@ class Parameter:
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[conversion.InjectableConverter[typing.Any]] = []
-        self.default = default
-        self.is_greedy = greedy
-        self.is_multi = multi
+        self._default = default
+        self._is_greedy = greedy
+        self._is_multi = multi
         self._key = key
 
         if key.startswith("-"):
@@ -675,6 +675,18 @@ class Parameter:
     @property
     def converters(self) -> collections.Sequence[ConverterSig]:
         return tuple(converter.callback for converter in self._converters)
+
+    @property
+    def default(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
+        return self._default
+
+    @property
+    def is_greedy(self) -> bool:
+        return self._is_greedy
+
+    @property
+    def is_multi(self) -> bool:
+        return self._is_multi
 
     @property
     def key(self) -> str:
@@ -750,7 +762,7 @@ class Argument(Parameter):
 
 
 class Option(Parameter):
-    __slots__ = ("_empty_value", "is_multi", "_names")
+    __slots__ = ("_empty_value", "_names")
 
     def __init__(
         self,
