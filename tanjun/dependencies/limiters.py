@@ -551,7 +551,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The bucket to disable.
 
             ..  note::
-                "default" is a special bucket which is used as a template used
+                "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
 
         Returns
@@ -582,7 +582,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The ID of the bucket to set the cooldown for.
 
             ..  note::
-                "default" is a special bucket which is used as a template used
+                "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
         resource : tanjun.BucketResource
             The type of resource to target for the cooldown.
@@ -871,10 +871,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             limit.release()
 
     def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str) -> _InMemoryConcurrencyLimiterT:
-        """Disable a concurrency bucket.
+        """Disable a concurrency limit bucket.
 
-        This will stop the bucket from ever hitting a cooldown and also
-        prevents the bucket from defaulting.
+        This will stop the bucket from ever hitting a concurrency limit
+        and also prevents the bucket from defaulting.
 
         Parameters
         ----------
@@ -882,13 +882,13 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The bucket to disable.
 
             ..  note::
-                "default" is a special bucket which is used as a template used
+                "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
 
         Returns
         -------
         Self
-            This cooldown manager to allow for chaining.
+            This concurrency manager to allow for chaining.
         """
         bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(limit=-1))
         if bucket_id == "default":
@@ -907,7 +907,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The ID of the bucket to set the concurrency limit for.
 
             ..  note::
-                "default" is a special bucket which is used as a template used
+                "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
         resource : tanjun.BucketResource
             The type of resource to target for the concurrency limit.
