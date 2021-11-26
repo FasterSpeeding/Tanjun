@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `tanjun.dependencies.owners.OwnerCheck` and `tanjun.dependencies.owners.AbstractOwnerCheck`
   to `Owners` and `AbstractOwners` respectively.
 - `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
+- Updated application command name and option name checking to allow for all unicode \w characters
+  rather than just ASCII.
 
 ### Removed
 - `TanjunWarning` and `StateWarning`.

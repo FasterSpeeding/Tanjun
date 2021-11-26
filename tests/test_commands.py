@@ -575,7 +575,7 @@ class Test_CommandBuilder:
     ...
 
 
-_INVALID_NAMES = ["a" * 33, "", "'#'#42123", "Dicksy", "MORGAN", "StAnLey"]
+_INVALID_NAMES = ["a" * 33, "", "'#'#42123"]
 
 
 class TestBaseSlashCommand:
@@ -583,10 +583,13 @@ class TestBaseSlashCommand:
     def test__init__with_invalid_name(self, name: str):
         with pytest.raises(
             ValueError,
-            match=f"Invalid command name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             stub_class(tanjun.BaseSlashCommand)(name, "desccc")
+
+    def test__init__when_name_isnt_lowercase(self):
+        with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
+            stub_class(tanjun.BaseSlashCommand)("VooDOo", "desccc")
 
     def test__init__when_description_too_long(self):
         with pytest.raises(
@@ -1011,10 +1014,18 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_str_option(name, "aye")
+
+    def test_test_add_str_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Invalid name provided, 'BeBooBp' must be lowercase",
+        ):
+            command.add_str_option("BeBooBp", "aye")
 
     def test_test_add_str_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1119,10 +1130,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_int_option(name, "aye")
+
+    def test_test_add_int_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'YAWN' must be lowercase"):
+            command.add_int_option("YAWN", "aye")
 
     def test_test_add_int_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1239,10 +1255,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_float_option(name, "aye")
+
+    def test_test_add_float_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'Bloop' must be lowercase"):
+            command.add_float_option("Bloop", "aye")
 
     def test_test_add_float_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1323,10 +1344,18 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_bool_option(name, "aye")
+
+    def test_test_add_bool_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Invalid name provided, 'SNOOO' must be lowercase",
+        ):
+            command.add_bool_option("SNOOO", "aye")
 
     def test_test_add_bool_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1401,10 +1430,18 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_user_option(name, "aye")
+
+    def test_test_add_user_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Invalid name provided, 'WWWWWWWWWWW' must be lowercase",
+        ):
+            command.add_user_option("WWWWWWWWWWW", "aye")
 
     def test_test_add_user_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1470,10 +1507,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_member_option(name, "aye")
+
+    def test_test_add_member_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'YEET' must be lowercase"):
+            command.add_member_option("YEET", "aye")
 
     def test_test_add_member_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1580,10 +1622,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_channel_option(name, "aye")
+
+    def test_test_add_channel_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'MeOw' must be lowercase"):
+            command.add_channel_option("MeOw", "aye")
 
     def test_test_add_channel_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1658,10 +1705,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_role_option(name, "aye")
+
+    def test_test_add_role_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'MeeP' must be lowercase"):
+            command.add_role_option("MeeP", "aye")
 
     def test_test_add_role_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1684,10 +1736,10 @@ class TestSlashCommand:
             command.add_role_option("namae", "aye")
 
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_mentionable_option("owo", "iwi", default="ywy")
+        command.add_mentionable_option("単純", "iwi", default="ywy")
 
         option = command.build().options[0]
-        assert option.name == "owo"
+        assert option.name == "単純"
         assert option.description == "iwi"
         assert option.is_required is False
         assert option.options is None
@@ -1736,10 +1788,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_mentionable_option(name, "aye")
+
+    def test_test_add_mentionable_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'Sharlette' must be lowercase"):
+            command.add_mentionable_option("Sharlette", "aye")
 
     def test_test_add_mentionable_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")

@@ -181,7 +181,15 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLo
         return self
 
 
-_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
+_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
+
+
+def _validate_name(name: str) -> None:
+    if not _SCOMMAND_NAME_REG.fullmatch(name):
+        raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
+
+    if name.lower() != name:
+        raise ValueError(f"Invalid name provided, {name!r} must be lowercase")
 
 
 def slash_command_group(
@@ -193,7 +201,7 @@ def slash_command_group(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> SlashCommandGroup:
-    """Create a slash command group.
+    r"""Create a slash command group.
 
     Examples
     --------
@@ -228,6 +236,8 @@ def slash_command_group(
     ----------
     name : str
         The name of the command group.
+
+        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
     description : str
         The description of the command group.
 
@@ -255,7 +265,8 @@ def slash_command_group(
     ------
     ValueError
         Raises a value error for any of the following reasons:
-        * If the command name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name has uppercase characters.
         * If the description is over 100 characters long.
     """
     return SlashCommandGroup(
@@ -303,7 +314,9 @@ def as_slash_command(
     Parameters
     ----------
     name : str
-        The command's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        The command's name.
+
+        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
     description : str
         The command's description.
         This should be inclusively between 1-100 characters in length.
@@ -339,7 +352,8 @@ def as_slash_command(
     ------
     ValueError
         Raises a value error for any of the following reasons:
-        * If the command name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name has uppercase characters.
         * If the description is over 100 characters long.
     """
     return lambda c: SlashCommand(
@@ -778,11 +792,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         _stack: int = 0,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
-        if not _SCOMMAND_NAME_REG.fullmatch(name):
-            raise ValueError(
-                f"Invalid command name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
-            )
-
+        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
@@ -1134,11 +1144,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        if not _SCOMMAND_NAME_REG.fullmatch(name):
-            raise ValueError(
-                f"Invalid command option name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
-            )
-
+        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The option description cannot be over 100 characters in length")
 
@@ -1209,7 +1215,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        """Add a string option to the slash command.
+        r"""Add a string option to the slash command.
 
         .. note::
             As a shorthand, `choices` also supports passing strings in place of
@@ -1219,7 +1225,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1261,7 +1269,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1313,12 +1322,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        """Add an integer option to the slash command.
+        r"""Add an integer option to the slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1359,7 +1370,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1388,12 +1400,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        """Add a float option to a slash command.
+        r"""Add a float option to a slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1441,7 +1455,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1467,12 +1482,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a boolean option to a slash command.
+        r"""Add a boolean option to a slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1499,7 +1516,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1516,7 +1534,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a user option to a slash command.
+        r"""Add a user option to a slash command.
 
         .. note::
             This may result in `hikari.InteractionMember` or
@@ -1526,7 +1544,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1553,7 +1573,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1568,7 +1589,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         *,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> _SlashCommandT:
-        """Add a member option to a slash command.
+        r"""Add a member option to a slash command.
 
         .. note::
             This will always result in `hikari.InteractionMember`.
@@ -1582,7 +1603,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1602,7 +1625,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1618,7 +1642,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         types: typing.Optional[collections.Collection[type[hikari.PartialChannel]]] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a channel option to a slash command.
+        r"""Add a channel option to a slash command.
 
         .. note::
             This will always result in `hikari.InteractionChannel`.
@@ -1626,7 +1650,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1657,7 +1683,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If an invalid type is passed in `types`.
@@ -1692,12 +1719,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a role option to a slash command.
+        r"""Add a role option to a slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1724,7 +1753,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1739,7 +1769,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a mentionable option to a slash command.
+        r"""Add a mentionable option to a slash command.
 
         .. note::
             This may target roles, guild members or users and results in
@@ -1748,7 +1778,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1775,7 +1807,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
