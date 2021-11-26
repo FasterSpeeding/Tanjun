@@ -64,17 +64,16 @@ __all__: list[str] = [
 
 import abc
 import datetime
+import logging
 import operator
 import re
 import typing
 import urllib.parse as urlparse
-import warnings
 from collections import abc as collections
 
 import hikari
 
 from . import abc as tanjun_abc
-from . import errors
 from . import injecting
 
 if typing.TYPE_CHECKING:
@@ -82,6 +81,7 @@ if typing.TYPE_CHECKING:
 
 ArgumentT = typing.Union[str, int, float]
 _ValueT = typing.TypeVar("_ValueT")
+_LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
 
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
@@ -177,24 +177,22 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         """
         if not client.cache:
             if self.requires_cache:
-                warnings.warn(
+                _LOGGER.warning(
                     f"Converter {self!r} registered with {parent_name} will always fail with a stateless client.",
-                    category=errors.StateWarning,
                 )
 
             elif self.cache_components:
-                warnings.warn(
+                _LOGGER.warning(
                     f"Converter {self!r} registered with {parent_name} may not perform optimally in a stateless client.",
                 )
 
         # elif missing_components := (self.cache_components & ~client.cache.components):
-        #     warnings.warn(
+        #     _LOGGER.warning(
 
         if client.shards and (missing_intents := self.intents & ~client.shards.intents):
-            warnings.warn(
+            _LOGGER.warning(
                 f"Converter {self!r} registered with {parent_name} may not perform as expected "
                 f"without the following intents: {missing_intents}",
-                category=errors.StateWarning,
             )
 
 

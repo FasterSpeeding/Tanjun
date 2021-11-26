@@ -193,8 +193,6 @@ __all__: list[str] = [
     "TooManyArgumentsError",
     "ParserError",
     "TanjunError",
-    "TanjunWarning",
-    "StateWarning",
     # hooks.py
     "hooks",
     "AnyHooks",

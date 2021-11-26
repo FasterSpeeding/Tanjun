@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `Owners` and `AbstractOwners` respectively.
 - `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
 
+### Removed
+- `TanjunWarning` and `StateWarning`.
+
 ## [2.2.0a1] - 2021-11-23
 ### Added
 - Upgraded `is_alive` attribute to the Client abstract interface.
