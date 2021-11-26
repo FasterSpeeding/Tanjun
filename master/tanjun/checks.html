@@ -31,6 +31,12 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
+                    <a class="function" href="#all_checks">all_checks</a>
+            </li>
+            <li>
+                    <a class="function" href="#any_checks">any_checks</a>
+            </li>
+            <li>
                     <a class="variable" href="#CallbackReturnT">CallbackReturnT</a>
             </li>
             <li>
@@ -98,6 +104,12 @@
                         </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="function" href="#with_all_checks">with_all_checks</a>
+            </li>
+            <li>
+                    <a class="function" href="#with_any_checks">with_any_checks</a>
             </li>
             <li>
                     <a class="function" href="#with_check">with_check</a>
@@ -180,6 +192,8 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;all_checks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;any_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CallbackReturnT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CommandT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;OwnerCheck&quot;</span><span class="p">,</span>
@@ -189,6 +203,8 @@
     <span class="s2">&quot;GuildCheck&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AuthorPermissionCheck&quot;</span><span class="p">,</span>
     <span class="s2">&quot;OwnPermissionCheck&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_all_checks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_any_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_check&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_dm_check&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_guild_check&quot;</span><span class="p">,</span>
@@ -810,11 +826,376 @@
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_AllChecks</span><span class="p">(</span><span class="n">_Check</span><span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="n">checks</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">check</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">all_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Combine multiple check callbacks into a check which will only pass if all the callbacks pass.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>
+<span class="sd">        A check which will pass if all of the provided check callbacks pass.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
+    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_AllChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">with_all_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which will pass if any of the provided checks pass through a decorator call.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>
+<span class="sd">        A check which will pass if all of the provided check callbacks pass.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">all_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">_AnyChecks</span><span class="p">(</span><span class="n">_Check</span><span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,</span> <span class="s2">&quot;_suppress&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_halt_execution&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">]],</span>
+        <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="n">checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_suppress</span> <span class="o">=</span> <span class="n">suppress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_halt_execution</span> <span class="o">=</span> <span class="n">halt_execution</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="k">await</span> <span class="n">check</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suppress</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_halt_execution</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">any_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">),</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Combine multiple checks into a check which&#39;ll pass if any of the callbacks pass.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">        The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">        This takes priority over `halt_execution`.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    suppress : tuple[type[Exception], ...]</span>
+<span class="sd">        Tuple of the exceptions to suppress when a check fails.</span>
+
+<span class="sd">        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).</span>
+<span class="sd">    halt_execution : bool</span>
+<span class="sd">        Whether this check should raise `tanjun.errors.HaltExecution` to</span>
+<span class="sd">        end the execution search when it fails instead of returning `False`.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">        A decorator which adds the generated check to a command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
+    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_AnyChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">,</span> <span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">with_any_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">),</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if all the provided checks pass through a decorator call.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">        The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">        This takes priority over `halt_execution`.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    suppress : tuple[type[Exception], ...]</span>
+<span class="sd">        Tuple of the exceptions to suppress when a check fails.</span>
+
+<span class="sd">        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).</span>
+<span class="sd">    halt_execution : bool</span>
+<span class="sd">        Whether this check should raise `tanjun.errors.HaltExecution` to</span>
+<span class="sd">        end the execution search when it fails instead of returning `False`.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">        A decorator which adds the generated check to a command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
+        <span class="n">any_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">)</span>
+    <span class="p">)</span>
 </pre></div>
 
         </details>
 
             </section>
+                <section id="all_checks">
+                            <div class="attr function"><a class="headerlink" href="#all_checks">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">all_checks</span><span class="signature">(
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    /,
+    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]
+) -&gt; collections.abc.Callable[[<a href="abc.html#Context">tanjun.abc.Context</a>], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">all_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Combine multiple check callbacks into a check which will only pass if all the callbacks pass.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>
+<span class="sd">        A check which will pass if all of the provided check callbacks pass.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
+    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_AllChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Combine multiple check callbacks into a check which will only pass if all the callbacks pass.</p>
+
+<p>This ensures that the callbacks are run in the order they were supplied in
+rather than concurrently.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (typing_abc.CheckSig):
+The first check callback to combine.</li>
+<li><strong>*checks</strong> (typing_abc.CheckSig):
+Additional check callbacks to combine.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</strong>: A check which will pass if all of the provided check callbacks pass.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="any_checks">
+                            <div class="attr function"><a class="headerlink" href="#any_checks">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">any_checks</span><span class="signature">(
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    /,
+    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    suppress: tuple[type[Exception], ...] = (&lt;class &#39;<a href="errors.html#CommandError">tanjun.errors.CommandError</a>&#39;&gt;, &lt;class &#39;<a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a>&#39;&gt;),
+    error_message: Optional[str],
+    halt_execution: bool = False
+) -&gt; collections.abc.Callable[[<a href="abc.html#Context">tanjun.abc.Context</a>], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">any_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">),</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Combine multiple checks into a check which&#39;ll pass if any of the callbacks pass.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">        The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">        This takes priority over `halt_execution`.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    suppress : tuple[type[Exception], ...]</span>
+<span class="sd">        Tuple of the exceptions to suppress when a check fails.</span>
+
+<span class="sd">        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).</span>
+<span class="sd">    halt_execution : bool</span>
+<span class="sd">        Whether this check should raise `tanjun.errors.HaltExecution` to</span>
+<span class="sd">        end the execution search when it fails instead of returning `False`.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">        A decorator which adds the generated check to a command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
+    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_AnyChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">,</span> <span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Combine multiple checks into a check which'll pass if any of the callbacks pass.</p>
+
+<p>This ensures that the callbacks are run in the order they were supplied in
+rather than concurrently.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (typing_abc.CheckSig):
+The first check callback to combine.</li>
+<li><strong>*checks</strong> (typing_abc.CheckSig):
+Additional check callbacks to combine.</li>
+<li><p><strong>error_message</strong> (typing.Optional[str]):
+The error message to send in response as a command error if the check fails.</p>
+
+<p>This takes priority over <code>halt_execution</code>.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>suppress</strong> (tuple[type[Exception], ...]):
+Tuple of the exceptions to suppress when a check fails.</p>
+
+<p>Defaults to (<code><a href="errors.html#CommandError">tanjun.errors.CommandError</a></code>, <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code>).</p></li>
+<li><p><strong>halt_execution</strong> (bool):
+Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code> to
+end the execution search when it fails instead of returning <code>False</code>.</p>
+
+<p>Defaults to <code>False</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.Callable[[CommandT], CommandT]</strong>: A decorator which adds the generated check to a command.</li>
+</ul>
+</div>
+
+
+                </section>
                 <section id="CallbackReturnT">
                                 <div class="attr variable"><a class="headerlink" href="#CallbackReturnT">#&nbsp;&nbsp</a>
 
@@ -1309,6 +1690,176 @@ while decorating a function.</p>
     
 
                             </div>
+                </section>
+                <section id="with_all_checks">
+                            <div class="attr function"><a class="headerlink" href="#with_all_checks">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_all_checks</span><span class="signature">(
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    /,
+    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]
+) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_all_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which will pass if any of the provided checks pass through a decorator call.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>
+<span class="sd">        A check which will pass if all of the provided check callbacks pass.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">all_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a check which will pass if any of the provided checks pass through a decorator call.</p>
+
+<p>This ensures that the callbacks are run in the order they were supplied in
+rather than concurrently.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (typing_abc.CheckSig):
+The first check callback to combine.</li>
+<li><strong>*checks</strong> (typing_abc.CheckSig):
+Additional check callbacks to combine.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</strong>: A check which will pass if all of the provided check callbacks pass.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="with_any_checks">
+                            <div class="attr function"><a class="headerlink" href="#with_any_checks">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_any_checks</span><span class="signature">(
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    /,
+    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    suppress: tuple[type[Exception], ...] = (&lt;class &#39;<a href="errors.html#CommandError">tanjun.errors.CommandError</a>&#39;&gt;, &lt;class &#39;<a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a>&#39;&gt;),
+    error_message: Optional[str],
+    halt_execution: bool = False
+) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_any_checks</span><span class="p">(</span>
+    <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
+    <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">),</span>
+    <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if all the provided checks pass through a decorator call.</span>
+
+<span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
+<span class="sd">    rather than concurrently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    check : typing_abc.CheckSig</span>
+<span class="sd">        The first check callback to combine.</span>
+<span class="sd">    *checks : typing_abc.CheckSig</span>
+<span class="sd">        Additional check callbacks to combine.</span>
+<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">        The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">        This takes priority over `halt_execution`.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    suppress : tuple[type[Exception], ...]</span>
+<span class="sd">        Tuple of the exceptions to suppress when a check fails.</span>
+
+<span class="sd">        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).</span>
+<span class="sd">    halt_execution : bool</span>
+<span class="sd">        Whether this check should raise `tanjun.errors.HaltExecution` to</span>
+<span class="sd">        end the execution search when it fails instead of returning `False`.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">        A decorator which adds the generated check to a command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
+        <span class="n">any_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a check which'll pass if all the provided checks pass through a decorator call.</p>
+
+<p>This ensures that the callbacks are run in the order they were supplied in
+rather than concurrently.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (typing_abc.CheckSig):
+The first check callback to combine.</li>
+<li><strong>*checks</strong> (typing_abc.CheckSig):
+Additional check callbacks to combine.</li>
+<li><p><strong>error_message</strong> (typing.Optional[str]):
+The error message to send in response as a command error if the check fails.</p>
+
+<p>This takes priority over <code>halt_execution</code>.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>suppress</strong> (tuple[type[Exception], ...]):
+Tuple of the exceptions to suppress when a check fails.</p>
+
+<p>Defaults to (<code><a href="errors.html#CommandError">tanjun.errors.CommandError</a></code>, <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code>).</p></li>
+<li><p><strong>halt_execution</strong> (bool):
+Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code> to
+end the execution search when it fails instead of returning <code>False</code>.</p>
+
+<p>Defaults to <code>False</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.Callable[[CommandT], CommandT]</strong>: A decorator which adds the generated check to a command.</li>
+</ul>
+</div>
+
+
                 </section>
                 <section id="with_check">
                             <div class="attr function"><a class="headerlink" href="#with_check">#&nbsp;&nbsp</a>
