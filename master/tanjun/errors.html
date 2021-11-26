@@ -126,18 +126,6 @@
                 </ul>
 
             </li>
-            <li>
-                    <a class="class" href="#TanjunWarning">TanjunWarning</a>
-                            <ul class="memberlist">
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#StateWarning">StateWarning</a>
-                            <ul class="memberlist">
-                </ul>
-
-            </li>
     </ul>
 
 
@@ -203,8 +191,6 @@
     <span class="s2">&quot;TooManyArgumentsError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ParserError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TanjunError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TanjunWarning&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;StateWarning&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">typing</span>
@@ -215,12 +201,6 @@
 
 <span class="k">class</span> <span class="nc">TanjunError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The base class for all errors raised by Tanjun.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-
-<span class="k">class</span> <span class="nc">TanjunWarning</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The base class for all warnings raised by Tanjun.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
@@ -395,12 +375,6 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">StateWarning</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Warning raised when a utility is loaded without access to state stores it depends on.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 </pre></div>
 
         </details>
@@ -1119,82 +1093,6 @@ message content.</p>
             <div><dt>builtins.BaseException</dt>
                                 <dd id="TanjunError.with_traceback" class="function">with_traceback</dd>
                 <dd id="TanjunError.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="TanjunWarning">
-                                <div class="attr class">
-        <a class="headerlink" href="#TanjunWarning">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">TanjunWarning</span><wbr>(<span class="base">builtins.RuntimeWarning</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TanjunWarning</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The base class for all warnings raised by Tanjun.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>The base class for all warnings raised by Tanjun.</p>
-</div>
-
-
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.RuntimeWarning</dt>
-                                <dd id="TanjunWarning.__init__" class="function">RuntimeWarning</dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="TanjunWarning.with_traceback" class="function">with_traceback</dd>
-                <dd id="TanjunWarning.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="StateWarning">
-                                <div class="attr class">
-        <a class="headerlink" href="#StateWarning">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">StateWarning</span><wbr>(<span class="base">builtins.RuntimeWarning</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">StateWarning</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Warning raised when a utility is loaded without access to state stores it depends on.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Warning raised when a utility is loaded without access to state stores it depends on.</p>
-</div>
-
-
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.RuntimeWarning</dt>
-                                <dd id="StateWarning.__init__" class="function">RuntimeWarning</dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="StateWarning.with_traceback" class="function">with_traceback</dd>
-                <dd id="StateWarning.args" class="variable">args</dd>
 
             </div>
                                 </dl>

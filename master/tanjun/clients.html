@@ -854,10 +854,29 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
-        <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
+        <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> initialised with the following components: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Event-managed client&quot;</span> <span class="k">if</span> <span class="n">event_managed</span> <span class="k">else</span> <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">name</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span>
+                        <span class="p">(</span><span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;event manager&quot;</span><span class="p">,</span> <span class="n">events</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;interaction server&quot;</span><span class="p">,</span> <span class="n">server</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;rest&quot;</span><span class="p">,</span> <span class="n">rest</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;shard manager&quot;</span><span class="p">,</span> <span class="n">shards</span><span class="p">),</span>
+                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="n">value</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
 
-        <span class="c1"># TODO: separate slash and gateway checks?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">server</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Client initiaited without an event manager or interaction server, &quot;</span>
+                <span class="s2">&quot;automatic command dispatch will be unavailable.&quot;</span>
+            <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_accepts</span> <span class="o">=</span> <span class="n">MessageAcceptsEnum</span><span class="o">.</span><span class="n">ALL</span> <span class="k">if</span> <span class="n">events</span> <span class="k">else</span> <span class="n">MessageAcceptsEnum</span><span class="o">.</span><span class="n">NONE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
@@ -905,14 +924,25 @@
         <span class="n">declare_global_commands</span> <span class="o">=</span> <span class="n">declare_global_commands</span> <span class="ow">or</span> <span class="n">set_global_commands</span>
         <span class="n">command_ids</span> <span class="o">=</span> <span class="n">command_ids</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">command_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">command_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot declare global guilds in multiple-guilds and pass command IDs&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">command_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot provide specific command_ids while automatically &quot;</span>
+                    <span class="s2">&quot;declaring commands marked as &#39;global&#39; in multiple-guilds on startup&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">guild</span> <span class="ow">in</span> <span class="n">declare_global_commands</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registering startup command declarer for </span><span class="si">%s</span><span class="s2"> guild&quot;</span><span class="p">,</span> <span class="n">guild</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_StartDeclarer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">guild</span><span class="p">))</span>
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">declare_global_commands</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registering startup command declarer for global commands&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">command_ids</span><span class="p">:</span>
+                    <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;No command IDs passed for startup command declarer, this could lead to previously set &quot;</span>
+                        <span class="s2">&quot;command permissions being lost when commands are renamed.&quot;</span>
+                    <span class="p">)</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span>
                     <span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_StartDeclarer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -1400,7 +1430,9 @@
         <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully declared </span><span class="si">%s</span><span class="s2"> (top-level) </span><span class="si">%s</span><span class="s2"> commands&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">),</span> <span class="n">target_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;declared </span><span class="si">%s</span><span class="s2"> command ids: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target_type</span><span class="p">,</span> <span class="p">{</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">}</span>
+                <span class="s2">&quot;Declared </span><span class="si">%s</span><span class="s2"> command ids; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">target_type</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">),</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">responses</span>
@@ -2685,10 +2717,29 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
-        <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
+        <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> initialised with the following components: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Event-managed client&quot;</span> <span class="k">if</span> <span class="n">event_managed</span> <span class="k">else</span> <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">name</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span>
+                        <span class="p">(</span><span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;event manager&quot;</span><span class="p">,</span> <span class="n">events</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;interaction server&quot;</span><span class="p">,</span> <span class="n">server</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;rest&quot;</span><span class="p">,</span> <span class="n">rest</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;shard manager&quot;</span><span class="p">,</span> <span class="n">shards</span><span class="p">),</span>
+                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="n">value</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
 
-        <span class="c1"># TODO: separate slash and gateway checks?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">server</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Client initiaited without an event manager or interaction server, &quot;</span>
+                <span class="s2">&quot;automatic command dispatch will be unavailable.&quot;</span>
+            <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_accepts</span> <span class="o">=</span> <span class="n">MessageAcceptsEnum</span><span class="o">.</span><span class="n">ALL</span> <span class="k">if</span> <span class="n">events</span> <span class="k">else</span> <span class="n">MessageAcceptsEnum</span><span class="o">.</span><span class="n">NONE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
@@ -2736,14 +2787,25 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="n">declare_global_commands</span> <span class="o">=</span> <span class="n">declare_global_commands</span> <span class="ow">or</span> <span class="n">set_global_commands</span>
         <span class="n">command_ids</span> <span class="o">=</span> <span class="n">command_ids</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">command_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">command_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot declare global guilds in multiple-guilds and pass command IDs&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">command_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot provide specific command_ids while automatically &quot;</span>
+                    <span class="s2">&quot;declaring commands marked as &#39;global&#39; in multiple-guilds on startup&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">guild</span> <span class="ow">in</span> <span class="n">declare_global_commands</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registering startup command declarer for </span><span class="si">%s</span><span class="s2"> guild&quot;</span><span class="p">,</span> <span class="n">guild</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_StartDeclarer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">guild</span><span class="p">))</span>
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">declare_global_commands</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registering startup command declarer for global commands&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">command_ids</span><span class="p">:</span>
+                    <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;No command IDs passed for startup command declarer, this could lead to previously set &quot;</span>
+                        <span class="s2">&quot;command permissions being lost when commands are renamed.&quot;</span>
+                    <span class="p">)</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span>
                     <span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_StartDeclarer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -3231,7 +3293,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully declared </span><span class="si">%s</span><span class="s2"> (top-level) </span><span class="si">%s</span><span class="s2"> commands&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">),</span> <span class="n">target_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;declared </span><span class="si">%s</span><span class="s2"> command ids: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target_type</span><span class="p">,</span> <span class="p">{</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">}</span>
+                <span class="s2">&quot;Declared </span><span class="si">%s</span><span class="s2"> command ids; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">target_type</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">),</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">responses</span>
@@ -4341,10 +4405,29 @@ after a rename.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
-        <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
+        <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> initialised with the following components: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Event-managed client&quot;</span> <span class="k">if</span> <span class="n">event_managed</span> <span class="k">else</span> <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">name</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span>
+                        <span class="p">(</span><span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;event manager&quot;</span><span class="p">,</span> <span class="n">events</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;interaction server&quot;</span><span class="p">,</span> <span class="n">server</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;rest&quot;</span><span class="p">,</span> <span class="n">rest</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;shard manager&quot;</span><span class="p">,</span> <span class="n">shards</span><span class="p">),</span>
+                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="n">value</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
 
-        <span class="c1"># TODO: separate slash and gateway checks?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">server</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Client initiaited without an event manager or interaction server, &quot;</span>
+                <span class="s2">&quot;automatic command dispatch will be unavailable.&quot;</span>
+            <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_accepts</span> <span class="o">=</span> <span class="n">MessageAcceptsEnum</span><span class="o">.</span><span class="n">ALL</span> <span class="k">if</span> <span class="n">events</span> <span class="k">else</span> <span class="n">MessageAcceptsEnum</span><span class="o">.</span><span class="n">NONE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
@@ -4392,14 +4475,25 @@ after a rename.</p>
         <span class="n">declare_global_commands</span> <span class="o">=</span> <span class="n">declare_global_commands</span> <span class="ow">or</span> <span class="n">set_global_commands</span>
         <span class="n">command_ids</span> <span class="o">=</span> <span class="n">command_ids</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">command_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">command_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot declare global guilds in multiple-guilds and pass command IDs&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">command_ids</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot provide specific command_ids while automatically &quot;</span>
+                    <span class="s2">&quot;declaring commands marked as &#39;global&#39; in multiple-guilds on startup&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">guild</span> <span class="ow">in</span> <span class="n">declare_global_commands</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registering startup command declarer for </span><span class="si">%s</span><span class="s2"> guild&quot;</span><span class="p">,</span> <span class="n">guild</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_StartDeclarer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">guild</span><span class="p">))</span>
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">declare_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">declare_global_commands</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registering startup command declarer for global commands&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">command_ids</span><span class="p">:</span>
+                    <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;No command IDs passed for startup command declarer, this could lead to previously set &quot;</span>
+                        <span class="s2">&quot;command permissions being lost when commands are renamed.&quot;</span>
+                    <span class="p">)</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span>
                     <span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_StartDeclarer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -5382,7 +5476,9 @@ Object or ID of the guild to register the command with.</p>
         <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully declared </span><span class="si">%s</span><span class="s2"> (top-level) </span><span class="si">%s</span><span class="s2"> commands&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">),</span> <span class="n">target_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;declared </span><span class="si">%s</span><span class="s2"> command ids: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">target_type</span><span class="p">,</span> <span class="p">{</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">}</span>
+                <span class="s2">&quot;Declared </span><span class="si">%s</span><span class="s2"> command ids; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">target_type</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">),</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">responses</span>
