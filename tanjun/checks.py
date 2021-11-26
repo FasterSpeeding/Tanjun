@@ -34,6 +34,8 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "all_checks",
+    "any_checks",
     "CallbackReturnT",
     "CommandT",
     "OwnerCheck",
@@ -43,6 +45,8 @@ __all__: list[str] = [
     "GuildCheck",
     "AuthorPermissionCheck",
     "OwnPermissionCheck",
+    "with_all_checks",
+    "with_any_checks",
     "with_check",
     "with_dm_check",
     "with_guild_check",
@@ -664,3 +668,196 @@ def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[CommandT]
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(check)
+
+
+class _AllChecks(_Check):
+    __slots__ = ("_checks",)
+
+    def __init__(self, checks: list[injecting.CallbackDescriptor[bool]]) -> None:
+        self._checks = checks
+
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+        for check in self._checks:
+            if not await check.resolve_with_command_context(ctx, ctx):
+                return False
+
+        return True
+
+
+def all_checks(
+    check: tanjun_abc.CheckSig,
+    /,
+    *checks: tanjun_abc.CheckSig,
+) -> collections.Callable[[tanjun_abc.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+    """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
+
+    This ensures that the callbacks are run in the order they were supplied in
+    rather than concurrently.
+
+    Parameters
+    ----------
+    check : typing_abc.CheckSig
+        The first check callback to combine.
+    *checks : typing_abc.CheckSig
+        Additional check callbacks to combine.
+
+    Returns
+    -------
+    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
+        A check which will pass if all of the provided check callbacks pass.
+    """
+    checks_ = [injecting.CallbackDescriptor(check)]
+    checks_.extend(map(injecting.CallbackDescriptor[bool], checks))
+    return _AllChecks(checks_)
+
+
+def with_all_checks(
+    check: tanjun_abc.CheckSig,
+    /,
+    *checks: tanjun_abc.CheckSig,
+) -> collections.Callable[[CommandT], CommandT]:
+    """Add a check which will pass if any of the provided checks pass through a decorator call.
+
+    This ensures that the callbacks are run in the order they were supplied in
+    rather than concurrently.
+
+    Parameters
+    ----------
+    check : typing_abc.CheckSig
+        The first check callback to combine.
+    *checks : typing_abc.CheckSig
+        Additional check callbacks to combine.
+
+    Returns
+    -------
+    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
+        A check which will pass if all of the provided check callbacks pass.
+    """
+    return lambda c: c.add_check(all_checks(check, *checks))
+
+
+class _AnyChecks(_Check):
+    __slots__ = ("_checks", "_suppress", "_error_message", "_halt_execution")
+
+    def __init__(
+        self,
+        checks: list[injecting.CallbackDescriptor[bool]],
+        suppress: tuple[type[Exception], ...],
+        error_message: typing.Optional[str],
+        halt_execution: bool,
+    ) -> None:
+        self._checks = checks
+        self._suppress = suppress
+        self._error_message = error_message
+        self._halt_execution = halt_execution
+
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+        for check in self._checks:
+            try:
+                if await check.resolve_with_command_context(ctx, ctx):
+                    return True
+
+            except errors.FailedCheck:
+                pass
+
+            except self._suppress:
+                pass
+
+        if self._error_message is not None:
+            raise errors.CommandError(self._error_message)
+        if self._halt_execution:
+            raise errors.HaltExecution
+
+        return False
+
+
+def any_checks(
+    check: tanjun_abc.CheckSig,
+    /,
+    *checks: tanjun_abc.CheckSig,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+    error_message: typing.Optional[str],
+    halt_execution: bool = False,
+) -> collections.Callable[[tanjun_abc.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+    """Combine multiple checks into a check which'll pass if any of the callbacks pass.
+
+    This ensures that the callbacks are run in the order they were supplied in
+    rather than concurrently.
+
+    Parameters
+    ----------
+    check : typing_abc.CheckSig
+        The first check callback to combine.
+    *checks : typing_abc.CheckSig
+        Additional check callbacks to combine.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        This takes priority over `halt_execution`.
+
+    Other Parameters
+    ----------------
+    suppress : tuple[type[Exception], ...]
+        Tuple of the exceptions to suppress when a check fails.
+
+        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).
+    halt_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    Returns
+    -------
+    collections.Callable[[CommandT], CommandT]
+        A decorator which adds the generated check to a command.
+    """
+    checks_ = [injecting.CallbackDescriptor(check)]
+    checks_.extend(map(injecting.CallbackDescriptor[bool], checks))
+    return _AnyChecks(checks_, suppress, error_message, halt_execution)
+
+
+def with_any_checks(
+    check: tanjun_abc.CheckSig,
+    /,
+    *checks: tanjun_abc.CheckSig,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+    error_message: typing.Optional[str],
+    halt_execution: bool = False,
+) -> collections.Callable[[CommandT], CommandT]:
+    """Add a check which'll pass if all the provided checks pass through a decorator call.
+
+    This ensures that the callbacks are run in the order they were supplied in
+    rather than concurrently.
+
+    Parameters
+    ----------
+    check : typing_abc.CheckSig
+        The first check callback to combine.
+    *checks : typing_abc.CheckSig
+        Additional check callbacks to combine.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        This takes priority over `halt_execution`.
+
+    Other Parameters
+    ----------------
+    suppress : tuple[type[Exception], ...]
+        Tuple of the exceptions to suppress when a check fails.
+
+        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).
+    halt_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    Returns
+    -------
+    collections.Callable[[CommandT], CommandT]
+        A decorator which adds the generated check to a command.
+    """
+    return lambda c: c.add_check(
+        any_checks(check, *checks, suppress=suppress, error_message=error_message, halt_execution=halt_execution)
+    )
