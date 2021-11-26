@@ -104,6 +104,7 @@ profile = "black"
 force_single_line = true
 
 [tool.pyright]
+# include=["test.py"]
 include = ["examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"

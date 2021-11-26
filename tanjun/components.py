@@ -35,7 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "CommandT",
     "Component",
-    "ComponentLoader",
+    "AbstractComponentLoader",
     "OnCallbackSig",
     "OnCallbackSigT",
     "WithCommandReturnSig",
@@ -81,7 +81,7 @@ OnCallbackSigT = typing.TypeVar("OnCallbackSigT", bound=OnCallbackSig)
 """Generic version of `OnCallbackSig`."""
 
 
-class ComponentLoader(abc.ABC):
+class AbstractComponentLoader(abc.ABC):
     """Abstract interface used for loading utility into a standard `Component`."""
 
     __slots__ = ()
@@ -333,7 +333,7 @@ class Component(tanjun_abc.Component):
         -----
         * This will ignore commands which are owned by command groups.
         * This will detect entries from the calling scope which implement
-          `ComponentLoader` unless `scope` is passed but this isn't possible
+          `AbstractComponentLoader` unless `scope` is passed but this isn't possible
           in a stack-less python implementation; in stack-less environments the
           scope will have to be explicitly passed as `scope`.
 
@@ -347,7 +347,7 @@ class Component(tanjun_abc.Component):
             and will only ever be needed when the local scope is different
             from the global scope.
         scope : typing.Optional[collections.Mapping[str, typing.Any]]
-            The scope to detect entries which implement `ComponentLoader`
+            The scope to detect entries which implement `AbstractComponentLoader`
             from.
 
             This overrides the default usage of stackframe introspection.
@@ -387,7 +387,7 @@ class Component(tanjun_abc.Component):
             "global and local" if include_globals else "local",
         )
         for value in values_iter:
-            if isinstance(value, ComponentLoader):
+            if isinstance(value, AbstractComponentLoader):
                 value.load_into_component(self)
 
         return self
@@ -994,7 +994,7 @@ class Component(tanjun_abc.Component):
 
     def _load_from_properties(self) -> None:
         for _, member in inspect.getmembers(self):
-            if isinstance(member, ComponentLoader):
+            if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
     async def close(self) -> None:
