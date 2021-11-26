@@ -510,12 +510,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
-        # TODO: logging or something to indicate this is running statelessly rather than statefully.
-        # TODO: warn if server and dispatch both None but don't error
         if _LOGGER.isEnabledFor(logging.INFO):
             _LOGGER.info(
-                "%sClient initialised with the following components: %s",
-                " event-managed" if event_managed else "",
+                "%s initialised with the following components: %s",
+                "Event-managed client" if event_managed else "Client",
                 ", ".join(
                     name
                     for name, value in [
@@ -535,7 +533,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 "automatic command dispatch will be unavailable."
             )
 
-        # TODO: separate slash and gateway checks?
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
@@ -584,7 +581,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         command_ids = command_ids or {}
         if isinstance(declare_global_commands, collections.Sequence):
             if command_ids and len(declare_global_commands) > 1:
-                raise ValueError("Cannot declare global guilds in multiple-guilds and pass command IDs")
+                raise ValueError(
+                    "Cannot provide specific command_ids while automatically "
+                    "declaring commands marked as 'global' in multiple-guilds on startup"
+                )
 
             for guild in declare_global_commands:
                 _LOGGER.info("Registering startup command declarer for %s guild", guild)
