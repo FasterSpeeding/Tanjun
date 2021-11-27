@@ -1218,9 +1218,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         r"""Add a string option to the slash command.
 
         .. note::
-            As a shorthand, `choices` also supports passing strings in place of
-            tuples each string will be used as both the choice's name and value
-            (with the name being capitalised).
+            As a shorthand, `choices` also supports passing a list of strings
+            rather than a dict of names to values (each string will used as
+            both the choice's name and value with the names being capitalised).
 
         Parameters
         ----------
