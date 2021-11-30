@@ -87,9 +87,6 @@
                         <li>
                                 <a class="variable" href="#Option.names">names</a>
                         </li>
-                        <li>
-                                <a class="variable" href="#Option.is_multi">is_multi</a>
-                        </li>
                 </ul>
 
             </li>
@@ -100,6 +97,9 @@
                                 <a class="function" href="#Parameter.__init__">Parameter</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Parameter.converters">converters</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Parameter.default">default</a>
                         </li>
                         <li>
@@ -107,9 +107,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Parameter.is_multi">is_multi</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Parameter.converters">converters</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Parameter.key">key</a>
@@ -573,11 +570,14 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an argument to a parsable command through a decorator call.</span>
 
-<span class="sd">    .. note::</span>
-<span class="sd">        Order matters for positional arguments and since decorator execution</span>
-<span class="sd">        starts at the decorator closest to the command and goes upwards this</span>
-<span class="sd">        will decide where a positional argument is located in a command&#39;s</span>
-<span class="sd">        signature.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Order matters for positional arguments and since decorator execution</span>
+<span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
+<span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
+<span class="sd">      signature.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -620,7 +620,8 @@
 
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">ParseableProtoT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseableProtoT</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add a parameter to a command client without a parser.&quot;</span><span class="p">)</span>
+            <span class="n">with_parser</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span>
 
         <span class="n">argument</span> <span class="o">=</span> <span class="n">Argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
         <span class="n">command</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
@@ -648,6 +649,8 @@
 <span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
 <span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
 <span class="sd">      signature.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -708,6 +711,8 @@
 <span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
 <span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
 <span class="sd">      signature.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -761,6 +766,10 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an option to a parsable command through a decorator call.</span>
 
+<span class="sd">    .. note::</span>
+<span class="sd">        If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">        this decorator call then this will set `ShlexParser` as the parser.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    key : str</span>
@@ -812,7 +821,8 @@
 
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">ParseableProtoT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseableProtoT</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add an option to a command client without a parser.&quot;</span><span class="p">)</span>
+            <span class="n">with_parser</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span>
 
         <span class="n">option</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
         <span class="n">command</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
@@ -832,11 +842,14 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an multi-option to a command&#39;s parser through a decorator call.</span>
 
-<span class="sd">    .. note::</span>
-<span class="sd">        A multi option will consume all the values provided for an option and</span>
-<span class="sd">        pass them through to the converters as an array of strings while also</span>
-<span class="sd">        requiring that at least one value is provided for the option unless</span>
-<span class="sd">        a default is set.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * A multi option will consume all the values provided for an option and</span>
+<span class="sd">      pass them through to the converters as an array of strings while also</span>
+<span class="sd">      requiring that at least one value is provided for the option unless</span>
+<span class="sd">      a default is set.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -887,7 +900,7 @@
 
 
 <span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -902,9 +915,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
@@ -923,6 +936,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -998,7 +1023,7 @@
 
 
 <span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1227,7 +1252,36 @@
 
 
 <span class="k">def</span> <span class="nf">with_parser</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">ParseableProtoT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseableProtoT</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Add a shlex parser command parser to a supported command.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Add a shlex parser command parser to a supported command.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @tanjun.with_argument(&quot;arg&quot;, converters=int)</span>
+<span class="sd">    @tanjun.with_parser</span>
+<span class="sd">    @tanjun.as_message_command(&quot;hi&quot;)</span>
+<span class="sd">    async def hi(ctx: tanjun.MessageContext, arg: int) -&gt; None:</span>
+<span class="sd">        ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    command : ParseableProtoT</span>
+<span class="sd">        The parseable command to set the parser on.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ParseableProtoT</span>
+<span class="sd">        The command with the parser set.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the command already has a parser set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Command already has a parser set&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">set_parser</span><span class="p">(</span><span class="n">ShlexParser</span><span class="p">())</span>
 </pre></div>
 
@@ -1539,10 +1593,10 @@
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt><a href="#Parameter">Parameter</a></dt>
-                                <dd id="Argument.default" class="variable"><a href="#Parameter.default">default</a></dd>
+                                <dd id="Argument.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
+                <dd id="Argument.default" class="variable"><a href="#Parameter.default">default</a></dd>
                 <dd id="Argument.is_greedy" class="variable"><a href="#Parameter.is_greedy">is_greedy</a></dd>
                 <dd id="Argument.is_multi" class="variable"><a href="#Parameter.is_multi">is_multi</a></dd>
-                <dd id="Argument.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
                 <dd id="Argument.key" class="variable"><a href="#Parameter.key">key</a></dd>
                 <dd id="Argument.needs_injector" class="variable"><a href="#Parameter.needs_injector">needs_injector</a></dd>
                 <dd id="Argument.bind_client" class="function"><a href="#Parameter.bind_client">bind_client</a></dd>
@@ -1579,7 +1633,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1672,22 +1726,14 @@
     
 
                             </div>
-                            <div id="Option.is_multi" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Option.is_multi">#&nbsp;&nbsp</a>
-
-        <span class="name">is_multi</span>
-    </div>
-
-    
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt><a href="#Parameter">Parameter</a></dt>
-                                <dd id="Option.default" class="variable"><a href="#Parameter.default">default</a></dd>
+                                <dd id="Option.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
+                <dd id="Option.default" class="variable"><a href="#Parameter.default">default</a></dd>
                 <dd id="Option.is_greedy" class="variable"><a href="#Parameter.is_greedy">is_greedy</a></dd>
-                <dd id="Option.converters" class="variable"><a href="#Parameter.converters">converters</a></dd>
+                <dd id="Option.is_multi" class="variable"><a href="#Parameter.is_multi">is_multi</a></dd>
                 <dd id="Option.key" class="variable"><a href="#Parameter.key">key</a></dd>
                 <dd id="Option.needs_injector" class="variable"><a href="#Parameter.needs_injector">needs_injector</a></dd>
                 <dd id="Option.bind_client" class="function"><a href="#Parameter.bind_client">bind_client</a></dd>
@@ -1711,7 +1757,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1726,9 +1772,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
@@ -1747,6 +1793,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1836,9 +1894,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">):</span>
@@ -1857,10 +1915,19 @@
     
 
                             </div>
+                            <div id="Parameter.converters" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Parameter.converters">#&nbsp;&nbsp</a>
+
+        <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
+    </div>
+
+    
+
+                            </div>
                             <div id="Parameter.default" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.default">#&nbsp;&nbsp</a>
 
-        <span class="name">default</span>
+        <span class="name">default</span><span class="annotation">: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
     </div>
 
     
@@ -1869,7 +1936,7 @@
                             <div id="Parameter.is_greedy" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.is_greedy">#&nbsp;&nbsp</a>
 
-        <span class="name">is_greedy</span>
+        <span class="name">is_greedy</span><span class="annotation">: bool</span>
     </div>
 
     
@@ -1878,16 +1945,7 @@
                             <div id="Parameter.is_multi" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.is_multi">#&nbsp;&nbsp</a>
 
-        <span class="name">is_multi</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="Parameter.converters" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Parameter.converters">#&nbsp;&nbsp</a>
-
-        <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
+        <span class="name">is_multi</span><span class="annotation">: bool</span>
     </div>
 
     
@@ -2913,11 +2971,14 @@ Defaults to <code>False</code>.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an argument to a parsable command through a decorator call.</span>
 
-<span class="sd">    .. note::</span>
-<span class="sd">        Order matters for positional arguments and since decorator execution</span>
-<span class="sd">        starts at the decorator closest to the command and goes upwards this</span>
-<span class="sd">        will decide where a positional argument is located in a command&#39;s</span>
-<span class="sd">        signature.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Order matters for positional arguments and since decorator execution</span>
+<span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
+<span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
+<span class="sd">      signature.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2960,7 +3021,8 @@ Defaults to <code>False</code>.</li>
 
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">ParseableProtoT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseableProtoT</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add a parameter to a command client without a parser.&quot;</span><span class="p">)</span>
+            <span class="n">with_parser</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span>
 
         <span class="n">argument</span> <span class="o">=</span> <span class="n">Argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
         <span class="n">command</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
@@ -2973,11 +3035,16 @@ Defaults to <code>False</code>.</li>
 
             <div class="docstring"><p>Add an argument to a parsable command through a decorator call.</p>
 
-<p><em>Note:</em>
-Order matters for positional arguments and since decorator execution
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>Order matters for positional arguments and since decorator execution
 starts at the decorator closest to the command and goes upwards this
 will decide where a positional argument is located in a command's
-signature.</p>
+signature.</li>
+<li>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3057,6 +3124,8 @@ Whether this argument can be passed multiple times.</li>
 <span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
 <span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
 <span class="sd">      signature.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -3112,6 +3181,8 @@ default is set.</li>
 starts at the decorator closest to the command and goes upwards this
 will decide where a positional argument is located in a command's
 signature.</li>
+<li>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</li>
 </ul>
 
 <h6 id="parameters">Parameters</h6>
@@ -3193,6 +3264,8 @@ The default value of this argument, if left as
 <span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
 <span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
 <span class="sd">      signature.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -3249,6 +3322,8 @@ sequence.</li>
 starts at the decorator closest to the command and goes upwards this
 will decide where a positional argument is located in a command's
 signature.</li>
+<li>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</li>
 </ul>
 
 <h6 id="parameters">Parameters</h6>
@@ -3325,6 +3400,10 @@ The default value of this argument, if left as
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an option to a parsable command through a decorator call.</span>
 
+<span class="sd">    .. note::</span>
+<span class="sd">        If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">        this decorator call then this will set `ShlexParser` as the parser.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    key : str</span>
@@ -3376,7 +3455,8 @@ The default value of this argument, if left as
 
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">ParseableProtoT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseableProtoT</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add an option to a command client without a parser.&quot;</span><span class="p">)</span>
+            <span class="n">with_parser</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span>
 
         <span class="n">option</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
         <span class="n">command</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
@@ -3388,6 +3468,10 @@ The default value of this argument, if left as
         </details>
 
             <div class="docstring"><p>Add an option to a parsable command through a decorator call.</p>
+
+<p><em>Note:</em>
+If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3473,11 +3557,14 @@ Defaults to <code>False</code>.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an multi-option to a command&#39;s parser through a decorator call.</span>
 
-<span class="sd">    .. note::</span>
-<span class="sd">        A multi option will consume all the values provided for an option and</span>
-<span class="sd">        pass them through to the converters as an array of strings while also</span>
-<span class="sd">        requiring that at least one value is provided for the option unless</span>
-<span class="sd">        a default is set.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * A multi option will consume all the values provided for an option and</span>
+<span class="sd">      pass them through to the converters as an array of strings while also</span>
+<span class="sd">      requiring that at least one value is provided for the option unless</span>
+<span class="sd">      a default is set.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -3531,11 +3618,16 @@ Defaults to <code>False</code>.</li>
 
             <div class="docstring"><p>Add an multi-option to a command's parser through a decorator call.</p>
 
-<p><em>Note:</em>
-A multi option will consume all the values provided for an option and
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>A multi option will consume all the values provided for an option and
 pass them through to the converters as an array of strings while also
 requiring that at least one value is provided for the option unless
-a default is set.</p>
+a default is set.</li>
+<li>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3600,13 +3692,70 @@ provided without a value.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_parser</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">ParseableProtoT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParseableProtoT</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Add a shlex parser command parser to a supported command.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Add a shlex parser command parser to a supported command.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @tanjun.with_argument(&quot;arg&quot;, converters=int)</span>
+<span class="sd">    @tanjun.with_parser</span>
+<span class="sd">    @tanjun.as_message_command(&quot;hi&quot;)</span>
+<span class="sd">    async def hi(ctx: tanjun.MessageContext, arg: int) -&gt; None:</span>
+<span class="sd">        ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    command : ParseableProtoT</span>
+<span class="sd">        The parseable command to set the parser on.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ParseableProtoT</span>
+<span class="sd">        The command with the parser set.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the command already has a parser set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">parser</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Command already has a parser set&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">set_parser</span><span class="p">(</span><span class="n">ShlexParser</span><span class="p">())</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Add a shlex parser command parser to a supported command.</p>
+
+<h6 id="example">Example</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;arg&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;hi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">hi</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>command</strong> (ParseableProtoT):
+The parseable command to set the parser on.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>ParseableProtoT</strong>: The command with the parser set.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the command already has a parser set.</li>
+</ul>
 </div>
 
 

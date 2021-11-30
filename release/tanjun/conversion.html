@@ -198,17 +198,16 @@
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">typing</span>
-<span class="kn">import</span> <span class="nn">urllib.parse</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span> <span class="k">as</span> <span class="nn">urlparse</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -216,6 +215,7 @@
 
 <span class="n">ArgumentT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 <span class="n">_ValueT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ValueT&quot;</span><span class="p">)</span>
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.conversion&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">BaseConverter</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -311,24 +311,22 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_cache</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> will always fail with a stateless client.&quot;</span><span class="p">,</span>
-                    <span class="n">category</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">StateWarning</span><span class="p">,</span>
                 <span class="p">)</span>
 
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_components</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> may not perform optimally in a stateless client.&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
 
         <span class="c1"># elif missing_components := (self.cache_components &amp; ~client.cache.components):</span>
-        <span class="c1">#     warnings.warn(</span>
+        <span class="c1">#     _LOGGER.warning(</span>
 
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">shards</span> <span class="ow">and</span> <span class="p">(</span><span class="n">missing_intents</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">client</span><span class="o">.</span><span class="n">shards</span><span class="o">.</span><span class="n">intents</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> may not perform as expected &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;without the following intents: </span><span class="si">{</span><span class="n">missing_intents</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">StateWarning</span><span class="p">,</span>
             <span class="p">)</span>
 
 
@@ -693,12 +691,12 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Voice state couldn&#39;t be found for current guild&quot;</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">_IDMatcher</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">_IDMatcherSig</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
-<span class="k">def</span> <span class="nf">_make_snowflake_parser</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDMatcher</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_make_snowflake_parser</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDMatcherSig</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
 
@@ -750,14 +748,14 @@
     <span class="k">return</span> <span class="n">parse</span>
 
 
-<span class="n">_IDSearcher</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span>
+<span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span>
 
 
 <span class="k">def</span> <span class="nf">_range_check</span><span class="p">(</span><span class="n">snowflake</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">snowflake</span> <span class="o">&lt;=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_make_snowflake_searcher</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDSearcher</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_make_snowflake_searcher</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDSearcherSig</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
 
@@ -800,7 +798,7 @@
 
 
 <span class="n">_SNOWFLAKE_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;[@&amp;?!#a]{0,3}(?::\w+:)?(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_snowflake</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
+<span class="n">parse_snowflake</span><span class="p">:</span> <span class="n">_IDMatcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -824,7 +822,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_snowflakes</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
+<span class="n">search_snowflakes</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -839,7 +837,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_CHANNEL_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;#(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_channel_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_channel_id</span><span class="p">:</span> <span class="n">_IDMatcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a channel ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -863,7 +861,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_channel_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_channel_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the channel IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -878,7 +876,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_EMOJI_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;a?:\w+:(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_emoji_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_emoji_id</span><span class="p">:</span> <span class="n">_IDMatcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse an Emoji ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -902,7 +900,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_emoji_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_emoji_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the emoji IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -917,7 +915,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_ROLE_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@&amp;(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_role_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_role_id</span><span class="p">:</span> <span class="n">_IDMatcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a role ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -941,7 +939,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_role_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_role_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the role IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -956,7 +954,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_USER_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@!?(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_user_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_user_id</span><span class="p">:</span> <span class="n">_IDMatcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a user ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -980,7 +978,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_user_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_user_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the user IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -997,7 +995,7 @@
 
 <span class="k">def</span> <span class="nf">_build_url_parser</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">]:</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Convert an argument to a `urlib.parse` type.</span>
+        <span class="sd">&quot;&quot;&quot;Convert an argument to a `urllib.parse` type.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1022,7 +1020,7 @@
     <span class="k">return</span> <span class="n">parse</span>
 
 
-<span class="n">defragment_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urldefrag</span><span class="p">)</span>
+<span class="n">defragment_url</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">DefragResult</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urlparse</span><span class="o">.</span><span class="n">urldefrag</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Convert an argument to a defragmented URL.</span>
 
 <span class="sd">Parameters</span>
@@ -1032,7 +1030,7 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">urlib.parse.DefragResult</span>
+<span class="sd">urllib.parse.DefragResult</span>
 <span class="sd">    The parsed URL.</span>
 
 <span class="sd">Raises</span>
@@ -1041,7 +1039,7 @@
 <span class="sd">    If the argument couldn&#39;t be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">parse_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">)</span>
+<span class="n">parse_url</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">ParseResult</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urlparse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Convert an argument to a parsed URL.</span>
 
 <span class="sd">Parameters</span>
@@ -1051,7 +1049,7 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">urlib.parse.ParseResult</span>
+<span class="sd">urllib.parse.ParseResult</span>
 <span class="sd">    The parsed URL.</span>
 
 <span class="sd">Raises</span>
@@ -1061,7 +1059,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="n">split_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">)</span>
+<span class="n">split_url</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">urlparse</span><span class="o">.</span><span class="n">SplitResult</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urlparse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Convert an argument to a split URL.</span>
 
 <span class="sd">Parameters</span>
@@ -1071,7 +1069,7 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">urlib.parse.SplitResult</span>
+<span class="sd">urllib.parse.SplitResult</span>
 <span class="sd">    The split URL.</span>
 
 <span class="sd">Raises</span>
@@ -1206,9 +1204,9 @@
     <span class="nb">bytearray</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
     <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span> <span class="n">to_datetime</span><span class="p">,</span>
     <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span> <span class="n">parse_snowflake</span><span class="p">,</span>
-    <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">DefragResult</span><span class="p">:</span> <span class="n">defragment_url</span><span class="p">,</span>
-    <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">ParseResult</span><span class="p">:</span> <span class="n">parse_url</span><span class="p">,</span>
-    <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">SplitResult</span><span class="p">:</span> <span class="n">split_url</span><span class="p">,</span>
+    <span class="n">urlparse</span><span class="o">.</span><span class="n">DefragResult</span><span class="p">:</span> <span class="n">defragment_url</span><span class="p">,</span>
+    <span class="n">urlparse</span><span class="o">.</span><span class="n">ParseResult</span><span class="p">:</span> <span class="n">parse_url</span><span class="p">,</span>
+    <span class="n">urlparse</span><span class="o">.</span><span class="n">SplitResult</span><span class="p">:</span> <span class="n">split_url</span><span class="p">,</span>
 <span class="p">}</span>
 
 

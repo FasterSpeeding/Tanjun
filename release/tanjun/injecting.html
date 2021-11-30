@@ -743,7 +743,7 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
-<span class="sd">    def make_callback(client: tanjun.Client) -&gt; typing.Callable[[], int]:</span>
+<span class="sd">    def make_callback(client: tanjun.Client) -&gt; collections.abc.Callable[[], int]:</span>
 <span class="sd">        @tanjun.as_self_injected(client)</span>
 <span class="sd">        async def get_int_value(</span>
 <span class="sd">            redis: redis.Client = tanjun.inject(type=redis.Client)</span>
@@ -1472,7 +1472,7 @@ by this context.</li>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
-<span class="sd">    def make_callback(client: tanjun.Client) -&gt; typing.Callable[[], int]:</span>
+<span class="sd">    def make_callback(client: tanjun.Client) -&gt; collections.abc.Callable[[], int]:</span>
 <span class="sd">        @tanjun.as_self_injected(client)</span>
 <span class="sd">        async def get_int_value(</span>
 <span class="sd">            redis: redis.Client = tanjun.inject(type=redis.Client)</span>
@@ -1504,7 +1504,7 @@ by this context.</li>
 
 <h6 id="examples">Examples</h6>
 
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">make_callback</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]:</span>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">make_callback</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]:</span>
     <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_self_injected</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get_int_value</span><span class="p">(</span>
         <span class="n">redis</span><span class="p">:</span> <span class="n">redis</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">redis</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
