@@ -2255,7 +2255,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
 
         Parameters
         ----------
-        parent : typing.Optional[MessageCommandGroup]
+        parent : typing.Optional[MessageCommandGroup[typing.Any]]
             The parent of this command.
 
         Returns
@@ -2270,7 +2270,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
 
         Other Parameters
         ----------------
-        parent : typing.Optional[MessageCommandGroup]
+        parent : typing.Optional[MessageCommandGroup[tping.Any]]
             The parent of the copy.
 
         Returns
@@ -2499,7 +2499,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : MessageCommand
+        command : MessageCommand[typing.Any]
             The command to add.
 
         Returns
@@ -2514,7 +2514,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : MessageCommand
+        command : MessageCommand[typing.Any]
             The command to remove.
 
         Raises
@@ -2644,7 +2644,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.abc.Iterator[tuple[str, MessageCommand]]
+        collections.abc.Iterator[tuple[str, MessageCommand[typing.Any]]]
             Iterator of tuples of command name matches to the relevant message
             command objects.
         """

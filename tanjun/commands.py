@@ -86,6 +86,12 @@ if typing.TYPE_CHECKING:
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
 
 
+_CallbackishT = typing.Union[
+    abc.CommandCallbackSigT,
+    abc.MessageCommand[abc.CommandCallbackSigT],
+    abc.SlashCommand[abc.CommandCallbackSigT],
+]
+
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
@@ -286,16 +292,7 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-) -> collections.Callable[
-    [
-        typing.Union[
-            abc.CommandCallbackSigT,
-            abc.MessageCommand[abc.CommandCallbackSigT],
-            abc.SlashCommand[abc.CommandCallbackSigT],
-        ]
-    ],
-    SlashCommand[abc.CommandCallbackSigT],
-]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], SlashCommand[abc.CommandCallbackSigT]]:
     r"""Build a `SlashCommand` by decorating a function.
 
     .. note::
@@ -352,8 +349,12 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]
-        The decorator callback used to build the command to a `SlashCommand`.
+    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], SlashCommand[CommandCallbackSigT]]
+        The decorator callback used to make a `SlashCommand`.
+
+        This can either wrap a raw command callback or another callable command instance
+        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
+        loading the other command into a component when using `tanjun.Component.load_from_scope`.
 
     Raises
     ------
@@ -364,14 +365,7 @@ def as_slash_command(
         * If the description is over 100 characters long.
     """
 
-    def decorator(
-        callback: typing.Union[
-            abc.CommandCallbackSigT,
-            abc.MessageCommand[abc.CommandCallbackSigT],
-            abc.SlashCommand[abc.CommandCallbackSigT],
-        ],
-        /,
-    ) -> SlashCommand[abc.CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
         if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
             return SlashCommand(
                 callback.callback,
@@ -1961,16 +1955,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
 def as_message_command(
     name: str, /, *names: str
-) -> collections.Callable[
-    [
-        typing.Union[
-            abc.CommandCallbackSigT,
-            abc.MessageCommand[abc.CommandCallbackSigT],
-            abc.SlashCommand[abc.CommandCallbackSigT],
-        ]
-    ],
-    MessageCommand[abc.CommandCallbackSigT],
-]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], MessageCommand[abc.CommandCallbackSigT]]:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -1985,16 +1970,16 @@ def as_message_command(
 
     Returns
     -------
-    collections.abc.Callable[[abc.CommandCallbackSigT], MessageCommand[abc.CommandCallbackSigT]]
-        Decorator callback used to build a MessageCommand` from the decorated callback.
+    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], MessageCommand[CommandCallbackSigT]]
+        The decorator callback used to make a `MessageCommand`.
+
+        This can either wrap a raw command callback or another callable command instance
+        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
+        loading the other command into a component when using `tanjun.Component.load_from_scope`.
     """
 
     def decorator(
-        callback: typing.Union[
-            abc.CommandCallbackSigT,
-            abc.MessageCommand[abc.CommandCallbackSigT],
-            abc.SlashCommand[abc.CommandCallbackSigT],
-        ],
+        callback: _CallbackishT[abc.CommandCallbackSigT],
         /,
     ) -> MessageCommand[abc.CommandCallbackSigT]:
         if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
@@ -2007,16 +1992,7 @@ def as_message_command(
 
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False
-) -> collections.Callable[
-    [
-        typing.Union[
-            abc.CommandCallbackSigT,
-            abc.MessageCommand[abc.CommandCallbackSigT],
-            abc.SlashCommand[abc.CommandCallbackSigT],
-        ]
-    ],
-    MessageCommandGroup[abc.CommandCallbackSigT],
-]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], MessageCommandGroup[abc.CommandCallbackSigT]]:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -2036,18 +2012,15 @@ def as_message_command_group(
 
     Returns
     -------
-    collections.abc.Callable[[abc.CommandCallbackSigT], MessageCommandGroup[abc.CommandCallbackSigT]]
-        Decorator callback used to build a `MessageCommandGroup` from the decorated callback.
+    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], MessageCommand[CommandCallbackSigT]]
+        The decorator callback used to make a `MessageCommandGroup`.
+
+        This can either wrap a raw command callback or another callable command instance
+        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
+        loading the other command into a component when using `tanjun.Component.load_from_scope`.
     """
 
-    def decorator(
-        callback: typing.Union[
-            abc.CommandCallbackSigT,
-            abc.MessageCommand[abc.CommandCallbackSigT],
-            abc.SlashCommand[abc.CommandCallbackSigT],
-        ],
-        /,
-    ) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
         if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
             return MessageCommandGroup(callback.callback, name, *names, strict=strict, _wrapped_command=callback)
 
