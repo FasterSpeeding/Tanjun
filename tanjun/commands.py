@@ -1090,7 +1090,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         await ctx.mark_not_found()
 
 
-class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[abc.CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     __slots__ = ("_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
 
     def __init__(
@@ -2056,7 +2056,7 @@ def as_message_command_group(
     return decorator
 
 
-class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typing.Generic[abc.CommandCallbackSigT]):
+class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.CommandCallbackSigT]):
     __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
     def __init__(
@@ -2203,7 +2203,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
             self._wrapped_command.load_into_component(component)
 
 
-class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup):
+class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup[abc.CommandCallbackSigT]):
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
     def __init__(

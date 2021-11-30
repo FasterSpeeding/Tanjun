@@ -1801,6 +1801,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         exported = getattr(module, "__all__", None)
         if exported is not None and isinstance(exported, collections.Iterable):
             _LOGGER.debug("Scanning %s module based on its declared __all__)", module_repr)
+            exported = typing.cast("collections.Iterable[typing.Any]", exported)
             return (getattr(module, name, None) for name in exported if isinstance(name, str))
 
         _LOGGER.debug("Scanning all public members on %s", module_repr)
