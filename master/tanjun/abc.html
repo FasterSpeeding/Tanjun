@@ -46,6 +46,15 @@
                     <a class="variable" href="#BaseSlashCommandT">BaseSlashCommandT</a>
             </li>
             <li>
+                    <a class="class" href="#CommandCallbackSig">CommandCallbackSig</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="variable" href="#CommandCallbackSigT">CommandCallbackSigT</a>
+            </li>
+            <li>
                     <a class="class" href="#CheckSig">CheckSig</a>
                             <ul class="memberlist">
                 </ul>
@@ -796,6 +805,8 @@
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;ClientLoader&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BaseSlashCommandT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CommandCallbackSig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CommandCallbackSigT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSigT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Context&quot;</span><span class="p">,</span>
@@ -854,7 +865,7 @@
 <span class="n">MetaEventSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
 <span class="n">MetaEventSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;MetaEventSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;MetaEventSig&quot;</span><span class="p">)</span>
 <span class="n">BaseSlashCommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;BaseSlashCommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;BaseSlashCommand&quot;</span><span class="p">)</span>
-<span class="n">MessageCommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;MessageCommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;MessageCommand&quot;</span><span class="p">)</span>
+<span class="n">MessageCommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;MessageCommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;MessageCommand[typing.Any]&quot;</span><span class="p">)</span>
 
 
 <span class="n">CommandCallbackSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
@@ -869,6 +880,8 @@
 <span class="sd">    This will have to be asynchronous.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="n">CommandCallbackSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandCallbackSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">CommandCallbackSig</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Generic equivalent of `CommandCallbackSig`.&quot;&quot;&quot;</span>
 
 <span class="n">CheckSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span>
 <span class="sd">&quot;&quot;&quot;Type hint of a general context check used with Tanjun `ExecutableCommand` classes.</span>
@@ -1663,7 +1676,7 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Command that was invoked.</span>
 
 <span class="sd">        .. note::</span>
@@ -1702,7 +1715,7 @@
         <span class="sd">&quot;&quot;&quot;Command name that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2904,14 +2917,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A command that can be executed in a slash context.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSigT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Callback which is called during execution.&quot;&quot;&quot;</span>
 
 
@@ -2981,14 +2994,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a message command.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSigT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Callback which is called during execution.</span>
 
 <span class="sd">        .. note::</span>
@@ -3003,16 +3016,16 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Parent group of this command if it&#39;s onwned by a group.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Parent group of this command if applicable.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the parent of this command.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        parent : typing.Optional[MessageCommandGroup]</span>
+<span class="sd">        parent : typing.Optional[MessageCommandGroup[typing.Any]]</span>
 <span class="sd">            The parent of this command.</span>
 
 <span class="sd">        Returns</span>
@@ -3022,12 +3035,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a copy of this command.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        parent : typing.Optional[MessageCommandGroup]</span>
+<span class="sd">        parent : typing.Optional[MessageCommandGroup[tping.Any]]</span>
 <span class="sd">            The parent of the copy.</span>
 
 <span class="sd">        Returns</span>
@@ -3047,14 +3060,14 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
-<span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a message command group.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Collection of the commands in this group.</span>
 
 <span class="sd">        .. note::</span>
@@ -3062,7 +3075,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a command to this group.</span>
 
 <span class="sd">        Parameters</span>
@@ -3077,7 +3090,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a command from this group.</span>
 
 <span class="sd">        Parameters</span>
@@ -3165,7 +3178,7 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Collection of the message commands in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -3251,12 +3264,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a message command to this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : MessageCommand</span>
+<span class="sd">        command : MessageCommand[typing.Any]</span>
 <span class="sd">            The command to add.</span>
 
 <span class="sd">        Returns</span>
@@ -3266,12 +3279,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a message command from this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : MessageCommand</span>
+<span class="sd">        command : MessageCommand[typing.Any]</span>
 <span class="sd">            The command to remove.</span>
 
 <span class="sd">        Raises</span>
@@ -3383,7 +3396,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered message commands.</span>
 
 <span class="sd">        Notes</span>
@@ -3401,7 +3414,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand[typing.Any]]]</span>
 <span class="sd">            Iterator of tuples of command name matches to the relevant message</span>
 <span class="sd">            command objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -4143,7 +4156,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Iterate over all the message commands registered to this client.</span>
 
 <span class="sd">        Returns</span>
@@ -4168,7 +4181,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;Check whether a message command name is present in the current client.</span>
 
 <span class="sd">        .. note::</span>
@@ -4535,6 +4548,30 @@ The client to unload commands and listeners from.</li>
     </div>
 
     
+
+                </section>
+                <section id="CommandCallbackSig">
+                                <div class="attr class">
+        <a class="headerlink" href="#CommandCallbackSig">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">CommandCallbackSig</span>:
+    </div>
+
+        
+    
+
+                </section>
+                <section id="CommandCallbackSigT">
+                                <div class="attr variable"><a class="headerlink" href="#CommandCallbackSigT">#&nbsp;&nbsp</a>
+
+        <span class="name">CommandCallbackSigT</span><span class="default_value"> = ~CommandCallbackSigT</span>
+    </div>
+
+            <div class="docstring"><p>Generic equivalent of <code><a href="#CommandCallbackSig">CommandCallbackSig</a></code>.</p>
+</div>
+
 
                 </section>
                 <section id="CheckSig">
@@ -8827,19 +8864,19 @@ The check to remove.</li>
 
         
         <span class="def">class</span>
-        <span class="name">MessageCommand</span><wbr>(<span class="base"><a href="#ExecutableCommand">tanjun.abc.ExecutableCommand[tanjun.abc.MessageContext]</a></span>, <span class="base">abc.ABC</span>):
+        <span class="name">MessageCommand</span><wbr>(<span class="base"><a href="#ExecutableCommand">tanjun.abc.ExecutableCommand[tanjun.abc.MessageContext]</a></span>, <span class="base">abc.ABC</span>, <span class="base">typing.Generic[~CommandCallbackSigT]</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a message command.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSigT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Callback which is called during execution.</span>
 
 <span class="sd">        .. note::</span>
@@ -8854,16 +8891,16 @@ The check to remove.</li>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Parent group of this command if it&#39;s onwned by a group.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Parent group of this command if applicable.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the parent of this command.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        parent : typing.Optional[MessageCommandGroup]</span>
+<span class="sd">        parent : typing.Optional[MessageCommandGroup[typing.Any]]</span>
 <span class="sd">            The parent of this command.</span>
 
 <span class="sd">        Returns</span>
@@ -8873,12 +8910,12 @@ The check to remove.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a copy of this command.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        parent : typing.Optional[MessageCommandGroup]</span>
+<span class="sd">        parent : typing.Optional[MessageCommandGroup[tping.Any]]</span>
 <span class="sd">            The parent of the copy.</span>
 
 <span class="sd">        Returns</span>
@@ -8907,7 +8944,7 @@ The check to remove.</li>
                             <div id="MessageCommand.callback" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MessageCommand.callback">#&nbsp;&nbsp</a>
 
-        <span class="name">callback</span><span class="annotation">: collections.abc.Callable[..., collections.abc.Awaitable[None]]</span>
+        <span class="name">callback</span><span class="annotation">: ~CommandCallbackSigT</span>
     </div>
 
             <div class="docstring"><p>Callback which is called during execution.</p>
@@ -8933,10 +8970,10 @@ matches the message.</p>
                             <div id="MessageCommand.parent" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MessageCommand.parent">#&nbsp;&nbsp</a>
 
-        <span class="name">parent</span><span class="annotation">: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>]</span>
+        <span class="name">parent</span><span class="annotation">: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>[Any]]</span>
     </div>
 
-            <div class="docstring"><p>Parent group of this command if it's onwned by a group.</p>
+            <div class="docstring"><p>Parent group of this command if applicable.</p>
 </div>
 
 
@@ -8947,18 +8984,22 @@ matches the message.</p>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">set_parent</span><span class="signature">(self: ~_T, _: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>], /) -&gt; ~_T</span>:
+            <span class="name">set_parent</span><span class="signature">(
+    self: ~_T,
+    _: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>[Any]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the parent of this command.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        parent : typing.Optional[MessageCommandGroup]</span>
+<span class="sd">        parent : typing.Optional[MessageCommandGroup[typing.Any]]</span>
 <span class="sd">            The parent of this command.</span>
 
 <span class="sd">        Returns</span>
@@ -8975,7 +9016,7 @@ matches the message.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>parent</strong> (typing.Optional[MessageCommandGroup]):
+<li><strong>parent</strong> (typing.Optional[MessageCommandGroup[typing.Any]]):
 The parent of this command.</li>
 </ul>
 
@@ -8997,19 +9038,19 @@ The parent of this command.</li>
             <span class="name">copy</span><span class="signature">(
     self: ~_T,
     *,
-    parent: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
+    parent: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>[Any]] = None
 ) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a copy of this command.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        parent : typing.Optional[MessageCommandGroup]</span>
+<span class="sd">        parent : typing.Optional[MessageCommandGroup[tping.Any]]</span>
 <span class="sd">            The parent of the copy.</span>
 
 <span class="sd">        Returns</span>
@@ -9026,7 +9067,7 @@ The parent of this command.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>parent</strong> (typing.Optional[MessageCommandGroup]):
+<li><strong>parent</strong> (typing.Optional[MessageCommandGroup[tping.Any]]):
 The parent of the copy.</li>
 </ul>
 
@@ -9122,19 +9163,19 @@ The parent of the copy.</li>
 
         
         <span class="def">class</span>
-        <span class="name">MessageCommandGroup</span><wbr>(<span class="base"><a href="#ExecutableCommand">tanjun.abc.ExecutableCommand[tanjun.abc.MessageContext]</a></span>, <span class="base">abc.ABC</span>):
+        <span class="name">MessageCommandGroup</span><wbr>(<span class="base"><a href="#MessageCommand">tanjun.abc.MessageCommand[~CommandCallbackSigT]</a></span>, <span class="base">abc.ABC</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a message command group.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Collection of the commands in this group.</span>
 
 <span class="sd">        .. note::</span>
@@ -9142,7 +9183,7 @@ The parent of the copy.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a command to this group.</span>
 
 <span class="sd">        Parameters</span>
@@ -9157,7 +9198,7 @@ The parent of the copy.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a command from this group.</span>
 
 <span class="sd">        Parameters</span>
@@ -9201,7 +9242,7 @@ The parent of the copy.</li>
                             <div id="MessageCommandGroup.commands" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MessageCommandGroup.commands">#&nbsp;&nbsp</a>
 
-        <span class="name">commands</span><span class="annotation">: collections.abc.Collection[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
+        <span class="name">commands</span><span class="annotation">: collections.abc.Collection[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any]]</span>
     </div>
 
             <div class="docstring"><p>Collection of the commands in this group.</p>
@@ -9218,13 +9259,13 @@ This may include command groups.</p>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; ~_T</span>:
+            <span class="name">add_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any], /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a command to this group.</span>
 
 <span class="sd">        Parameters</span>
@@ -9265,13 +9306,13 @@ The command to add.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; ~_T</span>:
+            <span class="name">remove_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any], /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a command from this group.</span>
 
 <span class="sd">        Parameters</span>
@@ -9408,7 +9449,7 @@ The command to add.</li>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Command that was invoked.</span>
 
 <span class="sd">        .. note::</span>
@@ -9447,7 +9488,7 @@ The command to add.</li>
         <span class="sd">&quot;&quot;&quot;Command name that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -9631,7 +9672,7 @@ The command to add.</li>
                             <div id="MessageContext.command" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MessageContext.command">#&nbsp;&nbsp</a>
 
-        <span class="name">command</span><span class="annotation">: Optional[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
+        <span class="name">command</span><span class="annotation">: Optional[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>[Any]]</span>
     </div>
 
             <div class="docstring"><p>Command that was invoked.</p>
@@ -9708,13 +9749,13 @@ This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</co
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">set_command</span><span class="signature">(self: ~_T, _: Optional[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>], /) -&gt; ~_T</span>:
+            <span class="name">set_command</span><span class="signature">(self: ~_T, _: Optional[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>[Any]], /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </pre></div>
 
@@ -10526,19 +10567,19 @@ Object of the global command this tracks.</li>
 
         
         <span class="def">class</span>
-        <span class="name">SlashCommand</span><wbr>(<span class="base"><a href="#ExecutableCommand">tanjun.abc.ExecutableCommand[tanjun.abc.SlashContext]</a></span>, <span class="base">abc.ABC</span>):
+        <span class="name">SlashCommand</span><wbr>(<span class="base"><a href="#BaseSlashCommand">BaseSlashCommand</a></span>, <span class="base">abc.ABC</span>, <span class="base">typing.Generic[~CommandCallbackSigT]</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A command that can be executed in a slash context.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSigT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Callback which is called during execution.&quot;&quot;&quot;</span>
 </pre></div>
 
@@ -10551,7 +10592,7 @@ Object of the global command this tracks.</li>
                             <div id="SlashCommand.callback" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#SlashCommand.callback">#&nbsp;&nbsp</a>
 
-        <span class="name">callback</span><span class="annotation">: collections.abc.Callable[..., collections.abc.Awaitable[None]]</span>
+        <span class="name">callback</span><span class="annotation">: ~CommandCallbackSigT</span>
     </div>
 
             <div class="docstring"><p>Callback which is called during execution.</p>
@@ -12648,7 +12689,7 @@ user.</p>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Collection of the message commands in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -12734,12 +12775,12 @@ user.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a message command to this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : MessageCommand</span>
+<span class="sd">        command : MessageCommand[typing.Any]</span>
 <span class="sd">            The command to add.</span>
 
 <span class="sd">        Returns</span>
@@ -12749,12 +12790,12 @@ user.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a message command from this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : MessageCommand</span>
+<span class="sd">        command : MessageCommand[typing.Any]</span>
 <span class="sd">            The command to remove.</span>
 
 <span class="sd">        Raises</span>
@@ -12866,7 +12907,7 @@ user.</p>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered message commands.</span>
 
 <span class="sd">        Notes</span>
@@ -12884,7 +12925,7 @@ user.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand[typing.Any]]]</span>
 <span class="sd">            Iterator of tuples of command name matches to the relevant message</span>
 <span class="sd">            command objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -13083,7 +13124,7 @@ This will be preserved between copies of a component.</p>
                             <div id="Component.message_commands" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Component.message_commands">#&nbsp;&nbsp</a>
 
-        <span class="name">message_commands</span><span class="annotation">: collections.abc.Collection[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
+        <span class="name">message_commands</span><span class="annotation">: collections.abc.Collection[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any]]</span>
     </div>
 
             <div class="docstring"><p>Collection of the message commands in this component.</p>
@@ -13295,18 +13336,18 @@ Whether to copy the command before adding it.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_message_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; ~_T</span>:
+            <span class="name">add_message_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any], /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a message command to this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : MessageCommand</span>
+<span class="sd">        command : MessageCommand[typing.Any]</span>
 <span class="sd">            The command to add.</span>
 
 <span class="sd">        Returns</span>
@@ -13323,7 +13364,7 @@ Whether to copy the command before adding it.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (MessageCommand):
+<li><strong>command</strong> (MessageCommand[typing.Any]):
 The command to add.</li>
 </ul>
 
@@ -13342,18 +13383,18 @@ The command to add.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_message_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; ~_T</span>:
+            <span class="name">remove_message_command</span><span class="signature">(self: ~_T, command: <a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any], /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a message command from this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : MessageCommand</span>
+<span class="sd">        command : MessageCommand[typing.Any]</span>
 <span class="sd">            The command to remove.</span>
 
 <span class="sd">        Raises</span>
@@ -13375,7 +13416,7 @@ The command to add.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (MessageCommand):
+<li><strong>command</strong> (MessageCommand[typing.Any]):
 The command to remove.</li>
 </ul>
 
@@ -13688,13 +13729,13 @@ The event to listen for.</li>
     self,
     name: str,
     /
-) -&gt; collections.abc.Iterator[tuple[str, <a href="#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
+) -&gt; collections.abc.Iterator[tuple[str, <a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered message commands.</span>
 
 <span class="sd">        Notes</span>
@@ -13712,7 +13753,7 @@ The event to listen for.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand[typing.Any]]]</span>
 <span class="sd">            Iterator of tuples of command name matches to the relevant message</span>
 <span class="sd">            command objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -13742,7 +13783,7 @@ The name to check for command matches.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Iterator[tuple[str, MessageCommand]]</strong>: Iterator of tuples of command name matches to the relevant message
+<li><strong>collections.abc.Iterator[tuple[str, MessageCommand[typing.Any]]]</strong>: Iterator of tuples of command name matches to the relevant message
 command objects.</li>
 </ul>
 </div>
@@ -14636,7 +14677,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Iterate over all the message commands registered to this client.</span>
 
 <span class="sd">        Returns</span>
@@ -14661,7 +14702,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;Check whether a message command name is present in the current client.</span>
 
 <span class="sd">        .. note::</span>
@@ -16268,13 +16309,15 @@ regardless of client implementation detail.</p>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">iter_message_commands</span><span class="signature">(self) -&gt; collections.abc.Iterator[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>]</span>:
+            <span class="name">iter_message_commands</span><span class="signature">(
+    self
+) -&gt; collections.abc.Iterator[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Iterate over all the message commands registered to this client.</span>
 
 <span class="sd">        Returns</span>
@@ -16358,13 +16401,13 @@ Whether to only iterate over global slash commands.</li>
     self,
     name: str,
     /
-) -&gt; collections.abc.Iterator[tuple[str, <a href="#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
+) -&gt; collections.abc.Iterator[tuple[str, <a href="#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;Check whether a message command name is present in the current client.</span>
 
 <span class="sd">        .. note::</span>

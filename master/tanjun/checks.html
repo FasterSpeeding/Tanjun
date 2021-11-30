@@ -400,7 +400,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">member</span><span class="p">:</span>
             <span class="c1"># If there&#39;s no member when this is within a guild then it&#39;s likely</span>
             <span class="c1"># something like a webhook or guild visitor with no real permissions</span>
-            <span class="c1"># outside of some basic set of send messages</span>
+            <span class="c1"># outside of some basic set of send messages.</span>
             <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
                 <span class="n">permissions</span> <span class="o">=</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">fetch_everyone_permissions</span><span class="p">(</span>
                     <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">channel_id</span>
@@ -450,7 +450,7 @@
 
             <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
                 <span class="c1"># If we&#39;re not in the Guild then we have to assume the application</span>
-                <span class="c1"># if still in there and that we likely won&#39;t be able to do anything.</span>
+                <span class="c1"># is still in there and that we likely won&#39;t be able to do anything.</span>
                 <span class="c1"># TODO: re-visit this later.</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
@@ -1547,7 +1547,7 @@ while decorating a function.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">member</span><span class="p">:</span>
             <span class="c1"># If there&#39;s no member when this is within a guild then it&#39;s likely</span>
             <span class="c1"># something like a webhook or guild visitor with no real permissions</span>
-            <span class="c1"># outside of some basic set of send messages</span>
+            <span class="c1"># outside of some basic set of send messages.</span>
             <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
                 <span class="n">permissions</span> <span class="o">=</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">fetch_everyone_permissions</span><span class="p">(</span>
                     <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">channel_id</span>
@@ -1645,7 +1645,7 @@ while decorating a function.</p>
 
             <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
                 <span class="c1"># If we&#39;re not in the Guild then we have to assume the application</span>
-                <span class="c1"># if still in there and that we likely won&#39;t be able to do anything.</span>
+                <span class="c1"># is still in there and that we likely won&#39;t be able to do anything.</span>
                 <span class="c1"># TODO: re-visit this later.</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
