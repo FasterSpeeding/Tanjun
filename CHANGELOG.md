@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `any_checks`/`with_any_checks` and `all_checks`/`with_all_checks` functions for more garnular check
   flow control. `any_checks` passes if any of the provided checks pass and `all_checks` passes if all
   the provided checks pass while both ensure the checks are run sequentially rather than concurrently.
+- `as_slash_command`, `as_message_command` and `as_message_command_group` now support decorating Command
+  instances.
 
 ### Changed
 - `cached_inject` and `cache_callback` now both accept `float` and `int` seconds for `expire_after`.
@@ -22,8 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
 - Updated application command name and option name checking to allow for all unicode \w characters
   rather than just ASCII.
-- `as_slash_command`, `as_message_command` and `as_message_command_group` now support decorating Command
-  instances.
 - `@with_parser` now errors if a parser is already set.
 - `with_option` and `with_argument` command parser decorators now implicitly set shlex parser if not set.
 
