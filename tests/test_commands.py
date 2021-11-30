@@ -209,6 +209,28 @@ def test_as_slash_command():
     assert command.is_global is False
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
+    assert command._wrapped_command is None
+
+
+@pytest.mark.parametrize(
+    "other_command",
+    [
+        tanjun.SlashCommand(mock.Mock(), "e", "a"),
+        tanjun.MessageCommand(mock.Mock(), "b"),
+        tanjun.MessageCommandGroup(mock.Mock(), "b"),
+    ],
+)
+def test_as_slash_command_when_wrapping_command(
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+    ]
+):
+
+    command = tanjun.as_slash_command("a_very", "cool name")(other_command)
+
+    assert command.callback is other_command.callback
+    assert command._wrapped_command is other_command
+    assert isinstance(command, tanjun.SlashCommand)
 
 
 def test_as_slash_command_with_defaults():
@@ -900,6 +922,38 @@ class TestSlashCommand:
         command = tanjun.SlashCommand(mock_callback, "yee", "nsoosos")
 
         assert command.callback is mock_callback
+
+    def test_load_into_component(self, command: tanjun.SlashCommand[typing.Any]):
+        mock_component = mock.Mock()
+
+        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+            command.load_into_component(mock_component)
+
+            load_into_component.assert_called_once_with(mock_component)
+
+    def test_load_into_component_when_wrapped_command_set(self, command: tanjun.SlashCommand[typing.Any]):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock()
+        command._wrapped_command = mock_other_command
+
+        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+            command.load_into_component(mock_component)
+
+            load_into_component.assert_called_once_with(mock_component)
+
+        mock_other_command.load_into_component.assert_not_called()
+
+    def test_load_into_component_when_wrapped_command_is_loadable(self, command: tanjun.SlashCommand[typing.Any]):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock(tanjun.AbstractComponentLoader)
+        command._wrapped_command = mock_other_command
+
+        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+            command.load_into_component(mock_component)
+
+            load_into_component.assert_called_once_with(mock_component)
+
+        mock_other_command.load_into_component.assert_called_once_with(mock_component)
 
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -1842,6 +1896,25 @@ def test_as_message_command():
 
     assert command.names == ["a", "b"]
     assert command.callback is mock_callback
+    assert command._wrapped_command is None
+
+
+@pytest.mark.parametrize(
+    "other_command",
+    [
+        tanjun.SlashCommand(mock.Mock(), "e", "a"),
+        tanjun.MessageCommand(mock.Mock(), "b"),
+        tanjun.MessageCommandGroup(mock.Mock(), "b"),
+    ],
+)
+def test_as_message_command_when_wrapping_command(
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+    ]
+):
+    command = tanjun.as_message_command("a", "b")(other_command)
+
+    assert command._wrapped_command is other_command
 
 
 def test_as_message_command_group():
@@ -1851,6 +1924,25 @@ def test_as_message_command_group():
     assert command.names == ["c", "b"]
     assert command.is_strict is True
     assert command.callback is mock_callback
+    assert command._wrapped_command is None
+
+
+@pytest.mark.parametrize(
+    "other_command",
+    [
+        tanjun.SlashCommand(mock.Mock(), "e", "a"),
+        tanjun.MessageCommand(mock.Mock(), "b"),
+        tanjun.MessageCommandGroup(mock.Mock(), "b"),
+    ],
+)
+def test_as_message_command_group_when_wrapping_command(
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+    ]
+):
+    command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
+
+    assert command._wrapped_command is other_command
 
 
 class TestMessageCommand:
@@ -1962,6 +2054,28 @@ class TestMessageCommand:
         command.load_into_component(mock_component)
 
         mock_component.add_message_command.assert_called_once_with(command)
+
+    def test_load_into_component_when_wrapped_command_set(self):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock()
+        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command._wrapped_command = mock_other_command
+
+        command.load_into_component(mock_component)
+
+        mock_component.add_message_command.assert_called_once_with(command)
+        mock_other_command.load_into_component.assert_not_called()
+
+    def test_load_into_component_when_wrapped_command_is_loadable(self):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock(tanjun.AbstractComponentLoader)
+        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command._wrapped_command = mock_other_command
+
+        command.load_into_component(mock_component)
+
+        mock_component.add_message_command.assert_called_once_with(command)
+        mock_other_command.load_into_component.assert_called_once_with(mock_component)
 
 
 class TestMessageCommandGroup:

@@ -81,7 +81,7 @@ if typing.TYPE_CHECKING:
             content: str,
             message: hikari.Message,
             *,
-            command: typing.Optional[tanjun_abc.MessageCommand] = None,
+            command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
             component: typing.Optional[tanjun_abc.Component] = None,
             triggering_name: str = "",
             triggering_prefix: str = "",
@@ -1573,7 +1573,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         yield from self.iter_message_commands()
         yield from slash_commands
 
-    def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand]:
+    def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(component.message_commands for component in self.components)
 
@@ -1584,7 +1584,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return itertools.chain.from_iterable(component.slash_commands for component in self.components)
 
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
+    def check_message_name(
+        self, name: str, /
+    ) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(
             component.check_message_name(name) for component in self._components.values()
@@ -1799,6 +1801,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         exported = getattr(module, "__all__", None)
         if exported is not None and isinstance(exported, collections.Iterable):
             _LOGGER.debug("Scanning %s module based on its declared __all__)", module_repr)
+            exported = typing.cast("collections.Iterable[typing.Any]", exported)
             return (getattr(module, name, None) for name in exported if isinstance(name, str))
 
         _LOGGER.debug("Scanning all public members on %s", module_repr)

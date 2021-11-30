@@ -46,9 +46,9 @@ import pytest
 
 import tanjun
 
-mock_global_loader_1 = mock.Mock(tanjun.ComponentLoader)
-mock_global_loader_2 = mock.Mock(tanjun.ComponentLoader)
-mock_global_loader_3 = mock.Mock(tanjun.ComponentLoader)
+mock_global_loader_1 = mock.Mock(tanjun.AbstractComponentLoader)
+mock_global_loader_2 = mock.Mock(tanjun.AbstractComponentLoader)
+mock_global_loader_3 = mock.Mock(tanjun.AbstractComponentLoader)
 
 
 class TestComponent:
@@ -84,11 +84,11 @@ class TestComponent:
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
         baz = 1  # type: ignore  # noqa: F841
-        mock_loader_1 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_1 = mock.Mock(tanjun.AbstractComponentLoader)
         foo = None  # type: ignore  # noqa: F841
         bar = object()  # type: ignore  # noqa: F841
-        mock_loader_2 = mock.Mock(tanjun.ComponentLoader)
-        mock_loader_3 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_2 = mock.Mock(tanjun.AbstractComponentLoader)
+        mock_loader_3 = mock.Mock(tanjun.AbstractComponentLoader)
 
         component = tanjun.Component()
 
@@ -105,11 +105,11 @@ class TestComponent:
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
         baz = 1  # type: ignore  # noqa: F841
-        mock_loader_1 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_1 = mock.Mock(tanjun.AbstractComponentLoader)
         foo = None  # type: ignore  # noqa: F841
-        mock_loader_2 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_2 = mock.Mock(tanjun.AbstractComponentLoader)
         mock_owned_slash_command = mock.Mock(tanjun.abc.SlashCommand)  # type: ignore  # noqa: F841
-        mock_loader_3 = mock.Mock(tanjun.ComponentLoader)
+        mock_loader_3 = mock.Mock(tanjun.AbstractComponentLoader)
         bar = object()  # type: ignore  # noqa: F841
 
         component = tanjun.Component()
@@ -128,10 +128,10 @@ class TestComponent:
         mock_global_loader_3.reset_mock()
 
     def test_load_from_scope_with_explicitly_passed_scope(self):
-        mock_un_used_loader = mock.Mock(tanjun.ComponentLoader)
-        mock_loader_1 = mock.Mock(tanjun.ComponentLoader)
-        mock_loader_2 = mock.Mock(tanjun.ComponentLoader)
-        mock_loader_3 = mock.Mock(tanjun.ComponentLoader)
+        mock_un_used_loader = mock.Mock(tanjun.AbstractComponentLoader)
+        mock_loader_1 = mock.Mock(tanjun.AbstractComponentLoader)
+        mock_loader_2 = mock.Mock(tanjun.AbstractComponentLoader)
+        mock_loader_3 = mock.Mock(tanjun.AbstractComponentLoader)
         scope = {
             "foo": "bar",
             "a_command": mock_loader_1,
