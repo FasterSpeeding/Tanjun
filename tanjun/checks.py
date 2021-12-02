@@ -716,7 +716,7 @@ def with_all_checks(
     /,
     *checks: tanjun_abc.CheckSig,
 ) -> collections.Callable[[CommandT], CommandT]:
-    """Add a check which will pass if any of the provided checks pass through a decorator call.
+    """Add a check which will pass if all the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
     rather than concurrently.
@@ -825,7 +825,7 @@ def with_any_checks(
     error_message: typing.Optional[str],
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
-    """Add a check which'll pass if all the provided checks pass through a decorator call.
+    """Add a check which'll pass if any of the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
     rather than concurrently.
