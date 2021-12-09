@@ -2039,7 +2039,7 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">limit</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a concurrency limit bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a concurrency limit</span>
@@ -2363,13 +2363,14 @@ The context to acquire this resource lock with.</li>
             <span class="def">def</span>
             <span class="name">disable_bucket</span><span class="signature">(
     self: ~_InMemoryConcurrencyLimiterT,
-    bucket_id: str
+    bucket_id: str,
+    /
 ) -&gt; ~_InMemoryConcurrencyLimiterT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a concurrency limit bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a concurrency limit</span>
@@ -2634,7 +2635,7 @@ if limit is less 0 or negative.</li>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a cooldown bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a cooldown and also</span>
@@ -2992,13 +2993,14 @@ If called in a thread with no running event loop.</li>
             <span class="def">def</span>
             <span class="name">disable_bucket</span><span class="signature">(
     self: ~_InMemoryCooldownManagerT,
-    bucket_id: str
+    bucket_id: str,
+    /
 ) -&gt; ~_InMemoryCooldownManagerT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a cooldown bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a cooldown and also</span>
