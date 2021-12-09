@@ -539,7 +539,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
-    def disable_bucket(self: _InMemoryCooldownManagerT, bucket_id: str) -> _InMemoryCooldownManagerT:
+    def disable_bucket(self: _InMemoryCooldownManagerT, bucket_id: str, /) -> _InMemoryCooldownManagerT:
         """Disable a cooldown bucket.
 
         This will stop the bucket from ever hitting a cooldown and also
@@ -870,7 +870,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release()
 
-    def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str) -> _InMemoryConcurrencyLimiterT:
+    def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str, /) -> _InMemoryConcurrencyLimiterT:
         """Disable a concurrency limit bucket.
 
         This will stop the bucket from ever hitting a concurrency limit
