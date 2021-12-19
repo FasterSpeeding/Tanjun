@@ -158,11 +158,11 @@ class AbstractParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
+    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> dict[str, typing.Any]:
         raise NotImplementedError
 
 
-class ShlexTokenizer:
+class _ShlexTokenizer:
     __slots__ = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
 
     def __init__(self, content: str, /) -> None:
@@ -255,27 +255,27 @@ async def _covert_option_or_empty(
     raise errors.NotEnoughArgumentsError(f"Option '{option.key} cannot be empty.", option.key)
 
 
-class SemanticShlex(ShlexTokenizer):
-    __slots__ = ("__ctx",)
+class _SemanticShlex(_ShlexTokenizer):
+    __slots__ = ("__arguments", "__ctx", "__options")
 
-    def __init__(self, ctx: tanjun_abc.MessageContext, /) -> None:
+    def __init__(self, ctx: tanjun_abc.MessageContext, arguments: collections.Sequence[Argument] , options: collections.Sequence[Option], /) -> None:
         super().__init__(ctx.content)
+        self.__arguments = arguments
         self.__ctx = ctx
+        self.__options = options
 
-    async def get_arguments(self, arguments: collections.Sequence[Argument], /) -> list[typing.Any]:
-        results: list[typing.Any] = []
-        for argument in arguments:
-            results.append(await self.__process_argument(argument))
+    async def parse(self) -> dict[str, typing.Any]:
+        raw_options = self.collect_raw_options()
+        results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), self.__options))
+        values = dict(zip((option.key for option in self.__options), await results))
+
+        for argument in self.__arguments:
+            values[argument.key] = await self.__process_argument(argument)
 
             if argument.is_greedy or argument.is_multi:
                 break  # Multi and Greedy parameters should always be the last parameter.
 
-        return results
-
-    async def get_options(self, options: collections.Sequence[Option], /) -> dict[str, typing.Any]:
-        raw_options = self.collect_raw_options()
-        results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), options))
-        return dict(zip((option.key for option in options), await results))
+        return values
 
     async def __process_argument(self, argument: Parameter) -> typing.Any:
         if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
@@ -998,12 +998,9 @@ class ShlexParser(AbstractParser):
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
 
-    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
+    def parse(self, ctx: tanjun_abc.MessageContext, /) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
         # <<inherited docstring from AbstractParser>>.
-        parser = SemanticShlex(ctx)
-        arguments = await parser.get_arguments(self._arguments)
-        options = await parser.get_options(self._options)
-        return arguments, options
+        return _SemanticShlex(ctx, self._arguments, self._options).parse()
 
 
 def with_parser(command: ParseableProtoT, /) -> ParseableProtoT:

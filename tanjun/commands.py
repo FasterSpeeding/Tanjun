@@ -97,7 +97,6 @@ ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-_EMPTY_LIST: typing.Final[list[typing.Any]] = []
 
 
 class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractComponentLoader):
@@ -2141,13 +2140,12 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._parser is not None:
-                args, kwargs = await self._parser.parse(ctx)
+                kwargs = await self._parser.parse(ctx)
 
             else:
-                args = _EMPTY_LIST
                 kwargs = _EMPTY_DICT
 
-            await self._callback.resolve_with_command_context(ctx, ctx, *args, **kwargs)
+            await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
