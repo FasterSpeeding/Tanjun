@@ -276,7 +276,7 @@ class _Cooldown:
 
         return self
 
-    def must_wait_until(self) -> typing.Optional[float]:
+    def must_wait_for(self) -> typing.Optional[float]:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
         if self.limit == -1:
             return
@@ -502,10 +502,15 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ) -> typing.Optional[float]:
         # <<inherited docstring from AbstractCooldownManager>>.
         if increment:
-            return (await self._get_or_default(bucket_id).into_inner(ctx)).increment().must_wait_until()
+            bucket = await self._get_or_default(bucket_id).into_inner(ctx)
+            if cooldown := bucket.must_wait_for():
+                return cooldown
+
+            bucket.increment()
+            return None
 
         if (bucket := self._buckets.get(bucket_id)) and (cooldown := await bucket.try_into_inner(ctx)):
-            return cooldown.must_wait_until()
+            return cooldown.must_wait_for()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.

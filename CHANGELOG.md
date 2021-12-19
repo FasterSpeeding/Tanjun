@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `@with_parser` now errors if a parser is already set.
 - `with_option` and `with_argument` command parser decorators now implicitly set shlex parser if not set.
 
+### Fixed
+- The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
+  The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
+  the real-world limit `limit-1`.
+
 ### Removed
 - `TanjunWarning` and `StateWarning`.
 

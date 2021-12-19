@@ -259,32 +259,32 @@ class Test_Cooldown:
         assert cooldown.counter == 123
         assert cooldown.resets_at == 54345543
 
-    def test_must_wait_until(self):
+    def test_must_wait_for(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 422.0]):
             cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=10.5, limit=3)
             cooldown.counter = 3
 
-            assert cooldown.must_wait_until() == 7.5
+            assert cooldown.must_wait_for() == 7.5
 
-    def test_must_wait_until_when_resource_limit_not_hit(self):
+    def test_must_wait_for_when_resource_limit_not_hit(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=2.0, limit=3)
         cooldown.counter = 2
 
-        assert cooldown.must_wait_until() is None
+        assert cooldown.must_wait_for() is None
 
-    def test_must_wait_until_when_reset_after_reached(self):
+    def test_must_wait_for_when_reset_after_reached(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 425.5]):
             cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=5.0, limit=3)
             cooldown.counter = 3
 
-            assert cooldown.must_wait_until() is None
+            assert cooldown.must_wait_for() is None
 
-    def test_must_wait_until_when_limit_is_negative_1(self):
+    def test_must_wait_for_when_limit_is_negative_1(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=64, limit=-1)
         cooldown.counter = 55
 
         with mock.patch.object(time, "monotonic") as monotonic:
-            assert cooldown.must_wait_until() is None
+            assert cooldown.must_wait_for() is None
 
             monotonic.assert_not_called()
 
@@ -681,13 +681,14 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(try_into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.try_into_inner.return_value
         manager._buckets["ok"] = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=False)
 
-        assert result is mock_bucket.try_into_inner.return_value.must_wait_until.return_value
+        assert result is mock_bucket.try_into_inner.return_value.must_wait_for.return_value
         mock_bucket.try_into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.try_into_inner.return_value.must_wait_until.assert_called_once_with()
+        mock_inner.must_wait_for.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_try_into_inner_returns_none(self):
@@ -706,14 +707,33 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.increment.return_value = mock_bucket.into_inner.return_value
+        mock_inner.must_wait_for.return_value = None
         manager._buckets["ok"] = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
-        assert result is mock_bucket.into_inner.return_value.increment.return_value.must_wait_until.return_value
+        assert result is None
         mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.into_inner.return_value.increment.assert_called_once_with()
-        mock_bucket.into_inner.return_value.increment.return_value.must_wait_until.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
+        mock_inner.must_wait_for.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_when_increment_and_must_wait_for_returns_time(self):
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        mock_context = mock.Mock()
+        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.increment.return_value = mock_inner
+        manager._buckets["ok"] = mock_bucket
+
+        result = await manager.check_cooldown("ok", mock_context, increment=True)
+
+        assert result is mock_inner.must_wait_for.return_value
+        mock_bucket.into_inner.assert_awaited_once_with(mock_context)
+        mock_inner.increment.assert_not_called()
+        mock_inner.must_wait_for.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket(self):
@@ -721,32 +741,56 @@ class TestInMemoryCooldownManager:
         mock_context = mock.Mock()
         mock_bucket = mock.Mock()
         mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
+        mock_inner.increment.return_value = mock_inner
+        mock_inner.must_wait_for.return_value = None
+
         manager._default_bucket_template = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
-        assert (
-            result
-            is mock_bucket.copy.return_value.into_inner.return_value.increment.return_value.must_wait_until.return_value
-        )
+        assert result is None
         assert manager._buckets["ok"] is mock_bucket.copy.return_value
         mock_bucket.copy.assert_called_once_with()
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.copy.return_value.into_inner.return_value.increment.assert_called_once_with()
-        mock_bucket.copy.return_value.into_inner.return_value.increment.return_value.must_wait_until.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
+        mock_inner.must_wait_for.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket_when_wait_for_returns_time(
+        self,
+    ):
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        mock_context = mock.Mock()
+        mock_bucket = mock.Mock()
+        mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
+        mock_inner.increment.return_value = mock_inner
+
+        manager._default_bucket_template = mock_bucket
+
+        result = await manager.check_cooldown("ok", mock_context, increment=True)
+
+        assert result is mock_inner.must_wait_for.return_value
+        assert manager._buckets["ok"] is mock_bucket.copy.return_value
+        mock_bucket.copy.assert_called_once_with()
+        mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
+        mock_inner.increment.assert_not_called()
+        mock_inner.must_wait_for.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
         manager._buckets["catgirl neko"] = mock_bucket
 
         result = await manager.increment_cooldown("catgirl neko", mock_context)
 
         assert result is None
         mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.into_inner.return_value.increment.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown_falls_back_to_default(self):
@@ -754,6 +798,7 @@ class TestInMemoryCooldownManager:
         mock_context = mock.Mock()
         mock_bucket = mock.Mock()
         mock_bucket.copy.return_value.into_inner = mock.AsyncMock(return_value=mock.Mock())
+        mock_inner = mock_bucket.copy.return_value.into_inner.return_value
         manager._default_bucket_template = mock_bucket
 
         result = await manager.increment_cooldown("69", mock_context)
@@ -762,7 +807,7 @@ class TestInMemoryCooldownManager:
         assert manager._buckets["69"] is mock_bucket.copy.return_value
         mock_bucket.copy.assert_called_once_with()
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.copy.return_value.into_inner.return_value.increment.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
 
     def test_close(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1445,7 +1490,8 @@ class TestInMemoryConcurrencyLimiter:
     @pytest.mark.asyncio()
     async def test_try_acquire(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_bucket.into_inner.return_value.acquire.return_value = True
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.acquire.return_value = True
         mock_context = mock.Mock()
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["aye"] = mock_bucket
@@ -1454,13 +1500,14 @@ class TestInMemoryConcurrencyLimiter:
 
         assert result is True
         mock_bucket.into_inner.assert_called_once_with(mock_context)
-        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert manager._acquiring_ctxs[("aye", mock_context)] is mock_bucket.into_inner.return_value
+        mock_inner.acquire.assert_called_once_with()
+        assert manager._acquiring_ctxs[("aye", mock_context)] is mock_inner
 
     @pytest.mark.asyncio()
     async def test_try_acquire_when_failed_to_acquire(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_bucket.into_inner.return_value.acquire.return_value = False
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.acquire.return_value = False
         mock_context = mock.Mock()
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["nya"] = mock_bucket
@@ -1469,7 +1516,7 @@ class TestInMemoryConcurrencyLimiter:
 
         assert result is False
         mock_bucket.into_inner.assert_called_once_with(mock_context)
-        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
+        mock_inner.acquire.assert_called_once_with()
         assert ("nya", mock_context) not in manager._acquiring_ctxs
 
     @pytest.mark.asyncio()
@@ -1491,7 +1538,8 @@ class TestInMemoryConcurrencyLimiter:
     @pytest.mark.asyncio()
     async def test_try_acquire_falls_back_to_default_bucket(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_bucket.into_inner.return_value.acquire.return_value = True
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.acquire.return_value = True
         mock_bucket_template = mock.Mock()
         mock_bucket_template.copy.return_value = mock_bucket
         mock_context = mock.Mock()
@@ -1503,8 +1551,8 @@ class TestInMemoryConcurrencyLimiter:
         assert result is True
         mock_bucket_template.copy.assert_called_once_with()
         mock_bucket.into_inner.assert_called_once_with(mock_context)
-        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_bucket.into_inner.return_value
+        mock_inner.acquire.assert_called_once_with()
+        assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_inner
         assert manager._buckets["yeet"] is mock_bucket
 
     @pytest.mark.asyncio()
