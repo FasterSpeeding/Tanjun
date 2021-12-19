@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
+  The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
+  the real-world limit `limit-1`.
 
 ## [2.2.1a1] - 2021-11-30
 ### Added
@@ -26,11 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than just ASCII.
 - `@with_parser` now errors if a parser is already set.
 - `with_option` and `with_argument` command parser decorators now implicitly set shlex parser if not set.
-
-### Fixed
-- The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
-  The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
-  the real-world limit `limit-1`.
 
 ### Removed
 - `TanjunWarning` and `StateWarning`.
