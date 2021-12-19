@@ -2598,10 +2598,15 @@ if limit is less 0 or negative.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">cooldown</span>
+
+            <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
@@ -2837,10 +2842,15 @@ The client to add this cooldown manager to.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">cooldown</span>
+
+            <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 </pre></div>
 
         </details>
