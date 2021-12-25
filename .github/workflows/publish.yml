@@ -72,6 +72,7 @@ jobs:
           FOLDER: ./docs_branch
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: "Release docs: ${{ github.event.release.tag_name }} (${{ steps.doc_info.outputs.GIT_HASH }})"
+          SKIP_EMPTY_COMMITS: true
 
   publish:
     needs: verify-version
