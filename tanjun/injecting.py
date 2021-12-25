@@ -54,6 +54,8 @@ import abc
 import collections.abc as collections
 import copy
 import inspect
+import sys
+import types
 import typing
 
 from . import abc as tanjun_abc
@@ -521,6 +523,15 @@ def as_self_injecting(
     return decorator
 
 
+if sys.version_info >= (3, 10):
+    _UnionTypes = {typing.Union, types.UnionType}
+    _NoneType = types.NoneType
+
+else:
+    _UnionTypes = {typing.Union}
+    _NoneType = type(None)
+
+
 class TypeDescriptor(typing.Generic[_T]):
     """Descriptor of an injected type.
 
@@ -533,10 +544,23 @@ class TypeDescriptor(typing.Generic[_T]):
         The type to resolve.
     """
 
-    __slots__ = ("_type",)
+    __slots__ = ("_default", "_type", "_union")
 
     def __init__(self, type_: _TypeT[_T], /) -> None:
+        self._default: UndefinedOr[_T] = UNDEFINED
         self._type = type_
+        self._union: typing.Optional[list[type[_T]]] = None
+
+        if typing.get_origin(type_) not in _UnionTypes:
+            return
+
+        sub_types = list(typing.get_args(type_))
+        length = len(sub_types)
+        sub_types.remove(_NoneType)
+        if length != len(sub_types):
+            self._default = typing.cast(_T, None)
+
+        self._union = sub_types
 
     @property
     def type(self) -> _TypeT[_T]:
@@ -566,7 +590,20 @@ class TypeDescriptor(typing.Generic[_T]):
         if isinstance(ctx, AbstractInjectionContext):
             return self.resolve(ctx)
 
+        if self._default is not UNDEFINED:
+            assert not isinstance(self._default, Undefined)
+            return self._default
+
         raise RuntimeError("Type injector cannot be resolved without anm injection client")
+
+    def _try_get_type(self, ctx: AbstractInjectionContext, type_: type[_T], /) -> UndefinedOr[_T]:
+        if (result := ctx.injection_client.get_type_dependency(self._type)) is not UNDEFINED:
+            return result
+
+        if (result := ctx.get_type_special_case(self._type)) is not UNDEFINED:
+            return result
+
+        return UNDEFINED
 
     def resolve(self, ctx: AbstractInjectionContext, /) -> _T:
         """Resolve the type with the given dependency injection context.
@@ -586,13 +623,19 @@ class TypeDescriptor(typing.Generic[_T]):
         tanjun.errors.MissingDependencyError
             If the client does not have an implementation of the type.
         """
-        if (result := ctx.injection_client.get_type_dependency(self._type)) is not UNDEFINED:
+        if self._union:
+            for cls in self._union:
+                if (result := self._try_get_type(ctx, cls)) is not UNDEFINED:
+                    assert not isinstance(result, Undefined)
+                    return result
+
+        elif (result := self._try_get_type(ctx, self._type)) is not UNDEFINED:
             assert not isinstance(result, Undefined)
             return result
 
-        if (result := ctx.get_type_special_case(self._type)) is not UNDEFINED:
-            assert not isinstance(result, Undefined)
-            return result
+        if self._default is not UNDEFINED:
+            assert not isinstance(self._default, Undefined)
+            return self._default
 
         raise errors.MissingDependencyError(f"Couldn't resolve injected type {self._type} to actual value") from None
 
