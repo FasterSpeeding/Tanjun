@@ -258,7 +258,13 @@ async def _covert_option_or_empty(
 class _SemanticShlex(_ShlexTokenizer):
     __slots__ = ("__arguments", "__ctx", "__options")
 
-    def __init__(self, ctx: tanjun_abc.MessageContext, arguments: collections.Sequence[Argument] , options: collections.Sequence[Option], /) -> None:
+    def __init__(
+        self,
+        ctx: tanjun_abc.MessageContext,
+        arguments: collections.Sequence[Argument],
+        options: collections.Sequence[Option],
+        /,
+    ) -> None:
         super().__init__(ctx.content)
         self.__arguments = arguments
         self.__ctx = ctx
@@ -998,7 +1004,9 @@ class ShlexParser(AbstractParser):
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
 
-    def parse(self, ctx: tanjun_abc.MessageContext, /) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
+    def parse(
+        self, ctx: tanjun_abc.MessageContext, /
+    ) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
         # <<inherited docstring from AbstractParser>>.
         return _SemanticShlex(ctx, self._arguments, self._options).parse()
 
