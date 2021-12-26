@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Type based dependency injection now has ergonomic Union support.
+  This means that for `inject(type=Union[A, B, C])`/`inject(type=A | B | C)` the dependency injector will
+  try to find registered type injectors for `A`, `B` then `C` after trying to find a dependency injector
+  for the literal Union.
+- Type based dependency injection now has support for defaults through unions with `None` and `Optional`.
+  This means that, for `inject(type=Union[A, B, None])`/`inject(type=A | B | None)` and
+  `inject(type=Optional[A])`, if no registered implementations are found for the relevant types then `None`
+  will be injected for the relevant argument.
+
 ### Fixed
 - The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
   The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
