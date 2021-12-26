@@ -600,7 +600,9 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
 
         else:
             try:
-                result = hikari.Snowflake(operator.index(value))
+                # Technically passing a float here is invalid (typing wise)
+                # but we handle that by catching TypeError
+                result = hikari.Snowflake(operator.index(typing.cast(int, value)))
 
             except (TypeError, ValueError):
                 pass
@@ -651,7 +653,9 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
         else:
             try:
-                result = hikari.Snowflake(operator.index(value))
+                # Technically passing a float here is invalid (typing wise)
+                # but we handle that by catching TypeError
+                result = hikari.Snowflake(operator.index(typing.cast(int, value)))
 
             except (TypeError, ValueError):
                 pass

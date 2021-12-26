@@ -555,9 +555,11 @@ class TypeDescriptor(typing.Generic[_T]):
             return
 
         sub_types = list(typing.get_args(type_))
-        length = len(sub_types)
-        sub_types.remove(_NoneType)
-        if length != len(sub_types):
+        try:
+            sub_types.remove(_NoneType)
+        except ValueError:
+            pass
+        else:
             self._default = typing.cast(_T, None)
 
         self._union = sub_types
@@ -597,10 +599,10 @@ class TypeDescriptor(typing.Generic[_T]):
         raise RuntimeError("Type injector cannot be resolved without anm injection client")
 
     def _try_get_type(self, ctx: AbstractInjectionContext, type_: type[_T], /) -> UndefinedOr[_T]:
-        if (result := ctx.injection_client.get_type_dependency(self._type)) is not UNDEFINED:
+        if (result := ctx.injection_client.get_type_dependency(type_)) is not UNDEFINED:
             return result
 
-        if (result := ctx.get_type_special_case(self._type)) is not UNDEFINED:
+        if (result := ctx.get_type_special_case(type_)) is not UNDEFINED:
             return result
 
         return UNDEFINED
