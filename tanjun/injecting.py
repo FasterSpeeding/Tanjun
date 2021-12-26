@@ -700,9 +700,14 @@ class Injected(typing.Generic[_T]):
     type : typing.Optional[type[_T]]
         The type of the dependency to resolve.
 
-        Unlike `callback`, `type` is resolved using the injection client and
-        therefore requires that dependency injection is implemented on a context
-        level.
+        If a union (e.g. `typing.Union[A, B, C]`, `A | B | C`,
+        `typing.Optional[A]`) is passed for `type`  then each type in the union
+        will be tried separately allowing for resolving `A | B` to the value
+        set by `set_type_dependency(B, ...)`.
+
+        If a union has `None` as one of its types (including `Optional[T]`)
+        then `None` will be passed for the parameter if none of the types could
+        be resolved using the linked client.
 
     Raises
     ------
@@ -764,9 +769,14 @@ def inject(
     type : typing.Optional[type[_T]]
         The type of the dependency to resolve.
 
-        Unlike `callback`, `type` is resolved using the injection client and
-        therefore requires that dependency injection is implemented on a context
-        level.
+        If a union (e.g. `typing.Union[A, B, C]`, `A | B | C`,
+        `typing.Optional[A]`) is passed for `type`  then each type in the union
+        will be tried separately allowing for resolving `A | B` to the value
+        set by `set_type_dependency(B, ...)`.
+
+        If a union has `None` as one of its types (including `Optional[T]`)
+        then `None` will be passed for the parameter if none of the types could
+        be resolved using the linked client.
 
     Raises
     ------
