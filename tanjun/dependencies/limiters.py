@@ -669,12 +669,17 @@ class CooldownPreExecution:
         self,
         ctx: tanjun_abc.Context,
         cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
-        # TODO: default to None for the owner check as this should only require
-        # the owner check dependency if owner_exempt is True.
-        owner_check: owners.AbstractOwners = injecting.inject(type=owners.AbstractOwners),
+        owner_check: typing.Optional[owners.AbstractOwners] = injecting.inject(
+            type=typing.Optional[owners.AbstractOwners]
+        ),
     ) -> None:
-        if self._owners_exempt and await owner_check.check_ownership(ctx.client, ctx.author):
-            return
+        if self._owners_exempt:
+            if not owner_check:
+                _LOGGER.info("No `AbstractOwners` dependency found, disabling owner exemption for cooldown check")
+                self._owners_exempt = False
+
+            elif await owner_check.check_ownership(ctx.client, ctx.author):
+                return
 
         if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
             raise errors.CommandError(self._error_message.format(cooldown=wait_for))

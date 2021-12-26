@@ -1060,6 +1060,18 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     @pytest.mark.asyncio()
+    async def test_call_when_owners_exempt_but_owner_check_is_none(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True)
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = None
+
+        await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=None)
+
+        mock_cooldown_manager.check_cooldown.assert_called_once_with("yuri catgirls", mock_context, increment=True)
+        assert pre_execution._owners_exempt is False
+
+    @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_and_not_owner(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls", owners_exempt=True)
         mock_context = mock.Mock()

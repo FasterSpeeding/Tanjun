@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Message command parser arguments are now passed by keyword instead of positionally.
+- Cooldown checks can now run without a present AbstractOwners implementation.
 
 ### Fixed
 - The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
