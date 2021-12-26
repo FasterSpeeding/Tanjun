@@ -874,7 +874,7 @@
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Add a check which will pass if any of the provided checks pass through a decorator call.</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which will pass if all the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
 <span class="sd">    rather than concurrently.</span>
@@ -983,7 +983,7 @@
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if all the provided checks pass through a decorator call.</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if any of the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
 <span class="sd">    rather than concurrently.</span>
@@ -1710,7 +1710,7 @@ while decorating a function.</p>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Add a check which will pass if any of the provided checks pass through a decorator call.</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which will pass if all the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
 <span class="sd">    rather than concurrently.</span>
@@ -1732,7 +1732,7 @@ while decorating a function.</p>
 
         </details>
 
-            <div class="docstring"><p>Add a check which will pass if any of the provided checks pass through a decorator call.</p>
+            <div class="docstring"><p>Add a check which will pass if all the provided checks pass through a decorator call.</p>
 
 <p>This ensures that the callbacks are run in the order they were supplied in
 rather than concurrently.</p>
@@ -1780,7 +1780,7 @@ Additional check callbacks to combine.</li>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if all the provided checks pass through a decorator call.</span>
+    <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if any of the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
 <span class="sd">    rather than concurrently.</span>
@@ -1820,7 +1820,7 @@ Additional check callbacks to combine.</li>
 
         </details>
 
-            <div class="docstring"><p>Add a check which'll pass if all the provided checks pass through a decorator call.</p>
+            <div class="docstring"><p>Add a check which'll pass if any of the provided checks pass through a decorator call.</p>
 
 <p>This ensures that the callbacks are run in the order they were supplied in
 rather than concurrently.</p>

@@ -1843,12 +1843,17 @@ The concurrency limit bucket's ID.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
         <span class="n">cooldowns</span><span class="p">:</span> <span class="n">AbstractCooldownManager</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractCooldownManager</span><span class="p">),</span>
-        <span class="c1"># TODO: default to None for the owner check as this should only require</span>
-        <span class="c1"># the owner check dependency if owner_exempt is True.</span>
-        <span class="n">owner_check</span><span class="p">:</span> <span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">),</span>
+        <span class="n">owner_check</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span>
+        <span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">owner_check</span><span class="o">.</span><span class="n">check_ownership</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">):</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">owner_check</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No `AbstractOwners` dependency found, disabling owner exemption for cooldown check&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">elif</span> <span class="k">await</span> <span class="n">owner_check</span><span class="o">.</span><span class="n">check_ownership</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">):</span>
+                <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">wait_for</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">cooldowns</span><span class="o">.</span><span class="n">check_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cooldown</span><span class="o">=</span><span class="n">wait_for</span><span class="p">))</span>
@@ -2039,7 +2044,7 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="k">if</span> <span class="n">limit</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acquiring_ctxs</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
             <span class="n">limit</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a concurrency limit bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a concurrency limit</span>
@@ -2363,13 +2368,14 @@ The context to acquire this resource lock with.</li>
             <span class="def">def</span>
             <span class="name">disable_bucket</span><span class="signature">(
     self: ~_InMemoryConcurrencyLimiterT,
-    bucket_id: str
+    bucket_id: str,
+    /
 ) -&gt; ~_InMemoryConcurrencyLimiterT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryConcurrencyLimiterT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a concurrency limit bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a concurrency limit</span>
@@ -2597,10 +2603,15 @@ if limit is less 0 or negative.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">cooldown</span>
+
+            <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
@@ -2634,7 +2645,7 @@ if limit is less 0 or negative.</li>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_gc_task</span> <span class="o">=</span> <span class="p">(</span><span class="n">_loop</span> <span class="ow">or</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">())</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gc</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a cooldown bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a cooldown and also</span>
@@ -2836,10 +2847,15 @@ The client to add this cooldown manager to.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">cooldown</span>
+
+            <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_until</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -2992,13 +3008,14 @@ If called in a thread with no running event loop.</li>
             <span class="def">def</span>
             <span class="name">disable_bucket</span><span class="signature">(
     self: ~_InMemoryCooldownManagerT,
-    bucket_id: str
+    bucket_id: str,
+    /
 ) -&gt; ~_InMemoryCooldownManagerT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">disable_bucket</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InMemoryCooldownManagerT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Disable a cooldown bucket.</span>
 
 <span class="sd">        This will stop the bucket from ever hitting a cooldown and also</span>
