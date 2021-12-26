@@ -934,7 +934,7 @@ class _EmptyInjectorClient(InjectorClient):
     def get_type_dependency(self, _: type[typing.Any], /) -> Undefined:
         return UNDEFINED
 
-    def remove_type_dependency(self, type_: type[typing.Any], /) -> typing.NoReturn:
+    def remove_type_dependency(self: _InjectorClientT, type_: type[typing.Any], /) -> _InjectorClientT:
         raise KeyError(type_)
 
     def set_callback_override(self: _InjectorClientT, _: CallbackSig[_T], __: CallbackSig[_T], /) -> _InjectorClientT:
@@ -943,7 +943,7 @@ class _EmptyInjectorClient(InjectorClient):
     def get_callback_override(self, _: CallbackSig[_T], /) -> None:
         return
 
-    def remove_callback_override(self, callback: CallbackSig[_T], /) -> typing.NoReturn:
+    def remove_callback_override(self: _InjectorClientT, callback: CallbackSig[_T], /) -> _InjectorClientT:
         raise KeyError(callback)
 
 
