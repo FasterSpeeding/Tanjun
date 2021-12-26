@@ -155,4 +155,4 @@ async def defer_command(ctx: tanjun.abc.SlashContext) -> None:
 #
 # Alternatively @tanjun.as_loader and @tanjun.as_unloader can be used
 # for more fine-grained control.
-slash_loader = component.make_loader()
+load_slash = component.make_loader()

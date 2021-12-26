@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `inject(type=Optional[A])`, if no registered implementations are found for the relevant types then `None`
   will be injected for the relevant argument.
 
+### Changed
+- Message command parser arguments are now passed by keyword instead of positionally.
+
 ### Fixed
 - The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
   The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
