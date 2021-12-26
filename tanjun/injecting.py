@@ -664,15 +664,18 @@ class TypeDescriptor(AbstractDescriptor[_T]):
 
     async def resolve(self, ctx: AbstractInjectionContext, /) -> _T:
         # <<inherited docstring from AbstractDescriptor>>.
+        if (result := self._try_get_type(ctx, self._type)) is not UNDEFINED:
+            assert not isinstance(result, Undefined)
+            return result
+
+        # We still want to allow for the possibility of a Union being
+        # explicitly implemented so we check types within a union
+        # after the literal type.
         if self._union:
             for cls in self._union:
                 if (result := self._try_get_type(ctx, cls)) is not UNDEFINED:
                     assert not isinstance(result, Undefined)
                     return result
-
-        elif (result := self._try_get_type(ctx, self._type)) is not UNDEFINED:
-            assert not isinstance(result, Undefined)
-            return result
 
         if self._default is not UNDEFINED:
             assert not isinstance(self._default, Undefined)
@@ -700,10 +703,10 @@ class Injected(typing.Generic[_T]):
     type : typing.Optional[type[_T]]
         The type of the dependency to resolve.
 
-        If a union (e.g. `typing.Union[A, B, C]`, `A | B | C`,
-        `typing.Optional[A]`) is passed for `type`  then each type in the union
-        will be tried separately allowing for resolving `A | B` to the value
-        set by `set_type_dependency(B, ...)`.
+        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
+        is passed for `type` then each type in the union will be tried
+        separately after the litarl union type is tried, allowing for resolving
+        `A | B` to the value set by `set_type_dependency(B, ...)`.
 
         If a union has `None` as one of its types (including `Optional[T]`)
         then `None` will be passed for the parameter if none of the types could
@@ -769,10 +772,10 @@ def inject(
     type : typing.Optional[type[_T]]
         The type of the dependency to resolve.
 
-        If a union (e.g. `typing.Union[A, B, C]`, `A | B | C`,
-        `typing.Optional[A]`) is passed for `type`  then each type in the union
-        will be tried separately allowing for resolving `A | B` to the value
-        set by `set_type_dependency(B, ...)`.
+        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
+        is passed for `type` then each type in the union will be tried
+        separately after the litarl union type is tried, allowing for resolving
+        `A | B` to the value set by `set_type_dependency(B, ...)`.
 
         If a union has `None` as one of its types (including `Optional[T]`)
         then `None` will be passed for the parameter if none of the types could

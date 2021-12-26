@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Type based dependency injection now has ergonomic Union support.
   This means that for `inject(type=Union[A, B, C])`/`inject(type=A | B | C)` the dependency injector will
-  first try to find registered type injectors for `A`, `B` and `C` before trying to find a dependency injector
+  try to find registered type injectors for `A`, `B` then `C` after trying to find a dependency injector
   for the literal Union.
 - Type based dependency injection now has support for defaults through unions with `None` and `Optional`.
   This means that, for `inject(type=Union[A, B, None])`/`inject(type=A | B | None)` and
