@@ -214,7 +214,7 @@ async def _try_get_role(
 ) -> typing.Optional[hikari.Role]:
     try:
         return await cache.get(role_id)
-    except async_cache.EntryDoesNotExist:
+    except async_cache.EntryNotFound:
         pass
 
 
@@ -235,7 +235,7 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if channel_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.GuildChannel]):
             try:
                 return (await channel_cache.get(ctx.channel_id)).parent_id or ctx.guild_id
-            except async_cache.EntryNotKnown:
+            except async_cache.CacheMissError:
                 pass
 
         channel = await ctx.fetch_channel()
@@ -271,7 +271,7 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
                 roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
                 try_rest = False
 
-            except async_cache.EntryNotKnown:
+            except async_cache.CacheMissError:
                 pass
 
         if try_rest:

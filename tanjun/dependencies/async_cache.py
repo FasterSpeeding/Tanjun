@@ -41,11 +41,10 @@ __all__: list[str] = [
     "AsyncCache",
     "AbstractCacheIterator",
     "ChannelBoundCache",
+    "CacheMissError",
+    "EntryNotFound",
     "GuildBoundCache",
     "SingleStoreCache",
-    "EntryDoesNotExist",
-    "EntryNotFound",
-    "EntryNotKnown",
     "SfCache",
     "SfChannelBound",
     "SfGuildBound",
@@ -62,39 +61,21 @@ _KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 
 
-class EntryNotFound(errors.TanjunError):
-    """Raised when an entry is not found in the cache.
+class CacheMissError(errors.TanjunError):
+    """Raised when an entry isn't found in the cache.
 
     .. note::
-        Both `EntryDoesNotExist` and `EntryNotKnown` inherit from `EntryNotFound`
-        so if you don't care about the semantic difference you can just catch
-        `EntryNotFound`.
+        `EntryNotFound` inherits from this error and will only be raised
+        if the cache knows that the entry doesn't exist.
     """
 
 
-class EntryNotKnown(EntryNotFound):
-    """Raised when an entry is not known to the cache.
-
-    .. note::
-        This indicates that the cache doesn't know whether the entry exists.
-
-    .. note::
-        Both `EntryDoesNotExist` and `EntryNotKnown` inherit from `EntryNotFound`
-        so if you don't care about the semantic difference you can just catch
-        `EntryNotFound`.
-    """
-
-
-class EntryDoesNotExist(EntryNotFound):
+class EntryNotFound(CacheMissError):
     """Raised when an entry does not exist.
 
     .. note::
-        This indicates that the cache is sure that the entry doesn't exist.
-
-    .. note::
-        Both `EntryDoesNotExist` and `EntryNotKnown` inherit from `EntryNotFound`
-        so if you don't care about the semantic difference you can just catch
-        `EntryNotFound`.
+        This is a specialisation of `CacheMissError` which indicates
+        that the cache is sure that the entry doesn't exist.
     """
 
 
@@ -142,18 +123,15 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
 
         Raises
         ------
-        EntryNotKnown
-            If the ID wasn't found.
+        CacheMissError
+            If the entry wasn't found.
+        EntryNotFound
+            If the entry wasn't found and the the entry definietly doesn't exist.
 
             .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
-        EntryDoesNotExist
-            If the ID wasn't found and the the entry definietly doesn't exist.
-
-            .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
+                This is a specialisation of `CacheMissError` and thus may be
+                caught as `CacheMissError` and otherwise would need to be
+                before `CacheMissError` in a try, multiple catch statement.
         """
 
 
@@ -183,18 +161,15 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         Raises
         ------
-        EntryNotKnown
-            If the ID wasn't found.
+        CacheMissError
+            If the entry wasn't found.
+        EntryNotFound
+            If the entry wasn't found and the the entry definietly doesn't exist.
 
             .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
-        EntryDoesNotExist
-            If the ID wasn't found and the the entry definietly doesn't exist.
-
-            .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
+                This is a specialisation of `CacheMissError` and thus may be
+                caught as `CacheMissError` and otherwise would need to be
+                before `CacheMissError` in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
@@ -239,18 +214,15 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         Raises
         ------
-        EntryNotKnown
-            If the ID wasn't found.
+        CacheMissError
+            If the entry wasn't found.
+        EntryNotFound
+            If the entry wasn't found and the the entry definietly doesn't exist.
 
             .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
-        EntryDoesNotExist
-            If the ID wasn't found and the the entry definietly doesn't exist.
-
-            .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
+                This is a specialisation of `CacheMissError` and thus may be
+                caught as `CacheMissError` and otherwise would need to be
+                before `CacheMissError` in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
@@ -310,18 +282,15 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         Raises
         ------
-        EntryNotKnown
-            If the ID wasn't found.
+        CacheMissError
+            If the entry wasn't found.
+        EntryNotFound
+            If the entry wasn't found and the the entry definietly doesn't exist.
 
             .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
-        EntryDoesNotExist
-            If the ID wasn't found and the the entry definietly doesn't exist.
-
-            .. note::
-                If you don't care about the semantic difference between these two
-                errors then you can just catch `EntryNotFound`.
+                This is a specialisation of `CacheMissError` and thus may be
+                caught as `CacheMissError` and otherwise would need to be
+                before `CacheMissError` in a try, multiple catch statement.
         """
 
     @abc.abstractmethod

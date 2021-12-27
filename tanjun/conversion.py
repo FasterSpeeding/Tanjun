@@ -231,10 +231,10 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
             try:
                 return await channel_cache.get(channel_id)
 
-            except dependencies.EntryDoesNotExist:
+            except dependencies.EntryNotFound:
                 raise ValueError("Couldn't find channel") from None
 
-            except dependencies.EntryNotFound:
+            except dependencies.CacheMissError:
                 pass
 
         try:
@@ -280,10 +280,10 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
             try:
                 return await emoji_cache.get(emoji_id)
 
-            except dependencies.EntryDoesNotExist:
+            except dependencies.EntryNotFound:
                 raise ValueError("Couldn't find emoji") from None
 
-            except dependencies.EntryNotKnown:
+            except dependencies.CacheMissError:
                 pass
 
         if ctx.guild_id:
@@ -332,10 +332,10 @@ class GuildConverter(BaseConverter[hikari.Guild]):
             try:
                 await guild_cache.get(guild_id)
 
-            except dependencies.EntryDoesNotExist:
+            except dependencies.EntryNotFound:
                 raise ValueError("Couldn't find guild") from None
 
-            except dependencies.EntryNotKnown:
+            except dependencies.CacheMissError:
                 pass
 
         try:
@@ -385,10 +385,10 @@ class InviteConverter(BaseConverter[hikari.Invite]):
             try:
                 return await invite_cache.get(argument)
 
-            except dependencies.EntryDoesNotExist:
+            except dependencies.EntryNotFound:
                 raise ValueError("Couldn't find invite") from None
 
-            except dependencies.EntryNotKnown:
+            except dependencies.CacheMissError:
                 pass
 
         try:
@@ -437,7 +437,8 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
         if invite_cache:
             try:
                 return await invite_cache.get(argument)
-            except dependencies.EntryNotFound:
+
+            except dependencies.CacheMissError:
                 pass
 
         raise ValueError("Couldn't find invite")
@@ -497,10 +498,10 @@ class MemberConverter(BaseConverter[hikari.Member]):
                 try:
                     return await member_cache.get_from_guild(ctx.guild_id, user_id)
 
-                except dependencies.EntryDoesNotExist:
+                except dependencies.EntryNotFound:
                     raise ValueError("Couldn't find member in this guild") from None
 
-                except dependencies.EntryNotKnown:
+                except dependencies.CacheMissError:
                     pass
 
             try:
@@ -554,7 +555,7 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
             try:
                 await presence_cache.get_from_guild(ctx.guild_id, user_id)
 
-            except dependencies.EntryNotFound:
+            except dependencies.CacheMissError:
                 pass
 
         raise ValueError("Couldn't find presence in current guild")
@@ -596,10 +597,10 @@ class RoleConverter(BaseConverter[hikari.Role]):
             try:
                 return await role_cache.get(role_id)
 
-            except dependencies.EntryDoesNotExist:
+            except dependencies.EntryNotFound:
                 raise ValueError("Couldn't find role") from None
 
-            except dependencies.EntryNotKnown:
+            except dependencies.CacheMissError:
                 pass
 
         if ctx.guild_id:
@@ -647,7 +648,7 @@ class UserConverter(BaseConverter[hikari.User]):
             try:
                 return await user_cache.get(user_id)
 
-            except dependencies.EntryNotFound:
+            except dependencies.CacheMissError:
                 pass
 
         try:
@@ -703,7 +704,7 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
             try:
                 return await voice_state_cache.get_from_guild(ctx.guild_id, user_id)
 
-            except dependencies.EntryNotFound:
+            except dependencies.CacheMissError:
                 pass
 
         raise ValueError("Voice state couldn't be found for current guild")

@@ -77,7 +77,7 @@ async def fetch_my_user(
     if me_cache:
         try:
             return await me_cache.get()
-        except async_cache.EntryNotFound:
+        except async_cache.CacheMissError:
             pass
 
     if client.rest.token_type is not hikari.TokenType.BOT:
