@@ -201,12 +201,7 @@ _T = typing.TypeVar("_T")
 def _get_injected_type(ctx: tanjun_abc.Context, type_: type[_T]) -> typing.Optional[_T]:
     # TODO: Upgrade injector stuff to the standard interface to make all Contexts injectable.
     assert isinstance(ctx, injecting.AbstractInjectionContext)
-    result = ctx.get_type_special_case(type_) or ctx.injection_client.get_type_dependency(type_)
-    if result is not injecting.UNDEFINED:
-        assert not isinstance(result, injecting.Undefined)
-        return result
-
-    return None
+    return ctx.get_type_special_case(type_) or ctx.injection_client.get_type_dependency(type_) or None
 
 
 async def _try_get_role(

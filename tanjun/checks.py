@@ -159,10 +159,29 @@ class OwnerCheck(_Check):
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
 
-async def _get_is_nsfw(ctx: tanjun_abc.Context, /, *, dm_default: bool) -> bool:
+_ChannelCache = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
+
+
+async def _get_is_nsfw(
+    ctx: tanjun_abc.Context,
+    /,
+    *,
+    dm_default: bool,
+    channel_cache: _ChannelCache,
+) -> bool:
     channel: typing.Optional[hikari.PartialChannel] = None
     if ctx.cache and (channel := ctx.cache.get_guild_channel(ctx.channel_id)):
         return channel.is_nsfw or False
+
+    if channel_cache:
+        try:
+            return (await channel_cache.get(ctx.channel_id)).is_nsfw or False
+
+        except dependencies.EntryNotFound:
+            return dm_default
+
+        except dependencies.CacheMissError:
+            pass
 
     channel = await ctx.rest.fetch_channel(ctx.channel_id)
     return channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else dm_default
@@ -178,8 +197,10 @@ class NsfwCheck(_Check):
     ) -> None:
         super().__init__(error_message, halt_execution)
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True))
+    async def __call__(
+        self, ctx: tanjun_abc.Context, /, channel_cache: _ChannelCache = injecting.inject(type=_ChannelCache)
+    ) -> bool:
+        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
 
 class SfwCheck(_Check):
@@ -192,8 +213,10 @@ class SfwCheck(_Check):
     ) -> None:
         super().__init__(error_message, halt_execution)
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False))
+    async def __call__(
+        self, ctx: tanjun_abc.Context, /, channel_cache: _ChannelCache = injecting.inject(type=_ChannelCache)
+    ) -> bool:
+        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
 
 class DmCheck(_Check):

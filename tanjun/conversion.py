@@ -74,8 +74,8 @@ from collections import abc as collections
 import hikari
 
 from . import abc as tanjun_abc
-from . import dependencies
 from . import injecting
+from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
     from . import parsing
@@ -195,7 +195,7 @@ class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
         return await self.resolve_with_command_context(ctx, value)
 
 
-_ChannelCacheT = typing.Optional[dependencies.SfCache[hikari.PartialChannel]]
+_ChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]]
 
 
 # TODO: GuildChannelConverter
@@ -231,10 +231,10 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
             try:
                 return await channel_cache.get(channel_id)
 
-            except dependencies.EntryNotFound:
+            except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find channel") from None
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         try:
@@ -244,7 +244,7 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
             raise ValueError("Couldn't find channel") from None
 
 
-_EmojiCache = typing.Optional[dependencies.SfCache[hikari.KnownCustomEmoji]]
+_EmojiCache = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
@@ -280,10 +280,10 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
             try:
                 return await emoji_cache.get(emoji_id)
 
-            except dependencies.EntryNotFound:
+            except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find emoji") from None
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         if ctx.guild_id:
@@ -296,7 +296,7 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         raise ValueError("Couldn't find emoji")
 
 
-_GuildCacheT = typing.Optional[dependencies.SfCache[hikari.Guild]]
+_GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
 
 
 class GuildConverter(BaseConverter[hikari.Guild]):
@@ -332,10 +332,10 @@ class GuildConverter(BaseConverter[hikari.Guild]):
             try:
                 await guild_cache.get(guild_id)
 
-            except dependencies.EntryNotFound:
+            except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find guild") from None
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         try:
@@ -347,7 +347,7 @@ class GuildConverter(BaseConverter[hikari.Guild]):
         raise ValueError("Couldn't find guild")
 
 
-_InviteCacheT = typing.Optional[dependencies.AsyncCache[str, hikari.InviteWithMetadata]]
+_InviteCacheT = typing.Optional[async_cache.AsyncCache[str, hikari.InviteWithMetadata]]
 
 
 class InviteConverter(BaseConverter[hikari.Invite]):
@@ -385,10 +385,10 @@ class InviteConverter(BaseConverter[hikari.Invite]):
             try:
                 return await invite_cache.get(argument)
 
-            except dependencies.EntryNotFound:
+            except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find invite") from None
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         try:
@@ -438,13 +438,13 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
             try:
                 return await invite_cache.get(argument)
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         raise ValueError("Couldn't find invite")
 
 
-_MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
+_MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
@@ -498,10 +498,10 @@ class MemberConverter(BaseConverter[hikari.Member]):
                 try:
                     return await member_cache.get_from_guild(ctx.guild_id, user_id)
 
-                except dependencies.EntryNotFound:
+                except async_cache.EntryNotFound:
                     raise ValueError("Couldn't find member in this guild") from None
 
-                except dependencies.CacheMissError:
+                except async_cache.CacheMissError:
                     pass
 
             try:
@@ -513,7 +513,7 @@ class MemberConverter(BaseConverter[hikari.Member]):
         raise ValueError("Couldn't find member in this guild")
 
 
-_PresenceCacheT = typing.Optional[dependencies.SfGuildBound[hikari.MemberPresence]]
+_PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence]]
 
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
@@ -555,13 +555,13 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
             try:
                 await presence_cache.get_from_guild(ctx.guild_id, user_id)
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         raise ValueError("Couldn't find presence in current guild")
 
 
-_RoleCacheT = typing.Optional[dependencies.SfCache[hikari.Role]]
+_RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 
 
 class RoleConverter(BaseConverter[hikari.Role]):
@@ -597,10 +597,10 @@ class RoleConverter(BaseConverter[hikari.Role]):
             try:
                 return await role_cache.get(role_id)
 
-            except dependencies.EntryNotFound:
+            except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find role") from None
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         if ctx.guild_id:
@@ -611,7 +611,7 @@ class RoleConverter(BaseConverter[hikari.Role]):
         raise ValueError("Couldn't find role")
 
 
-_UserCacheT = typing.Optional[dependencies.SfCache[hikari.User]]
+_UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
 
 
 class UserConverter(BaseConverter[hikari.User]):
@@ -648,7 +648,7 @@ class UserConverter(BaseConverter[hikari.User]):
             try:
                 return await user_cache.get(user_id)
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         try:
@@ -660,7 +660,7 @@ class UserConverter(BaseConverter[hikari.User]):
         raise ValueError("Couldn't find user")
 
 
-_VoiceStateCacheT = typing.Optional[dependencies.SfGuildBound[hikari.VoiceState]]
+_VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
 
 
 class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
@@ -704,7 +704,7 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
             try:
                 return await voice_state_cache.get_from_guild(ctx.guild_id, user_id)
 
-            except dependencies.CacheMissError:
+            except async_cache.CacheMissError:
                 pass
 
         raise ValueError("Voice state couldn't be found for current guild")
