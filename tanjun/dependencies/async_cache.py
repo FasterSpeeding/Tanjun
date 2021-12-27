@@ -38,13 +38,17 @@ extensions if implemented.
 from __future__ import annotations
 
 __all__: list[str] = [
-    "AbstractCache",
-    "AbstractChannelBound",
-    "AbstractGuildBound",
+    "AsyncCache",
     "AbstractCacheIterator",
+    "ChannelBoundCache",
+    "GuildBoundCache",
+    "SingleStoreCache",
     "EntryDoesNotExist",
     "EntryNotFound",
     "EntryNotKnown",
+    "SfCache",
+    "SfChannelBound",
+    "SfGuildBound",
 ]
 
 import abc
@@ -54,7 +58,8 @@ import hikari
 
 from .. import errors
 
-_T = typing.TypeVar("_T")
+_KeyT = typing.TypeVar("_KeyT")
+_ValueT = typing.TypeVar("_ValueT")
 
 
 class EntryNotFound(errors.TanjunError):
@@ -93,7 +98,7 @@ class EntryDoesNotExist(EntryNotFound):
     """
 
 
-class AbstractCacheIterator(hikari.LazyIterator[_T]):
+class AbstractCacheIterator(hikari.LazyIterator[_ValueT]):
     """Abstract interface of a cache resource asynchronous iterator.
 
     For more information on how this is used, see the documentation for
@@ -117,28 +122,63 @@ class AbstractCacheIterator(hikari.LazyIterator[_T]):
         """
 
 
-class AbstractCache(abc.ABC, typing.Generic[_T]):
-    """Abstract interface of a cache which stores globally identifiable resources.
+class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
+    """Abstract interface of a cache which stores one resource.
 
     .. note::
-        This will never be implemented for resources such as `hikari.Member`
-        and `hikari.Presence` which aren'are only unique per-parent resource.
+        This is mostly just for the `hikari.OwnUser` cache store.
     """
 
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get(self, id_: hikari.Snowflakeish, /) -> _T:
+    async def get(self) -> _ValueT:
+        """Get the entry.
+
+        Returns
+        -------
+        _ValueT
+            The found entry.
+
+        Raises
+        ------
+        EntryNotKnown
+            If the ID wasn't found.
+
+            .. note::
+                If you don't care about the semantic difference between these two
+                errors then you can just catch `EntryNotFound`.
+        EntryDoesNotExist
+            If the ID wasn't found and the the entry definietly doesn't exist.
+
+            .. note::
+                If you don't care about the semantic difference between these two
+                errors then you can just catch `EntryNotFound`.
+        """
+
+
+class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
+    """Abstract interface of a cache which stores globally identifiable resources.
+
+    .. note::
+        This will never be implemented for resources such as `hikari.Member`
+        and `hikari.MemberPresence` which aren'are only unique per-parent resource.
+    """
+
+    __slots__ = ()
+
+    @abc.abstractmethod
+    async def get(self, key: _KeyT, /) -> _ValueT:
         """Get an entry from this cache by ID.
 
         Parameters
         ----------
-        id : hikari.Snowflakeish
-            ID of the entry to get.
+        key : _KeyT
+            ID of the entry to get; this will often be a snowflake.
 
         Returns
         -------
-        _T
+        _ValueT
             The found entry.
 
         Raises
@@ -158,12 +198,12 @@ class AbstractCache(abc.ABC, typing.Generic[_T]):
         """
 
     @abc.abstractmethod
-    async def iter(self) -> AbstractCacheIterator[_T]:
+    async def iter_all(self) -> AbstractCacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
         Returns
         -------
-        AbstractCacheIterator[_T]
+        AbstractCacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
 
             .. note::
@@ -172,13 +212,17 @@ class AbstractCache(abc.ABC, typing.Generic[_T]):
         """
 
 
-class AbstractChannelBound(abc.ABC, typing.Generic[_T]):
+SfCache = AsyncCache[hikari.Snowflakeish, _ValueT]
+"""Alias of `AsyncCache` where the key is a snowflake."""
+
+
+class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     """Abstract interface of a cache which stores channel-bound resources."""
 
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get_from_channel(self, channel_id: hikari.Snowflakeish, id_: hikari.Snowflakeish, /) -> _T:
+    async def get_from_channel(self, channel_id: hikari.Snowflakeish, key: _KeyT, /) -> _ValueT:
         """Get an entry from this cache for a specific channel by ID.
 
         Parameters
@@ -190,7 +234,7 @@ class AbstractChannelBound(abc.ABC, typing.Generic[_T]):
 
         Returns
         -------
-        _T
+        _ValueT
             The found entry.
 
         Raises
@@ -210,7 +254,7 @@ class AbstractChannelBound(abc.ABC, typing.Generic[_T]):
         """
 
     @abc.abstractmethod
-    async def iter_for_channel(self, channel_id: hikari.Snowflakeish, /) -> AbstractCacheIterator[_T]:
+    async def iter_for_channel(self, channel_id: hikari.Snowflakeish, /) -> AbstractCacheIterator[_ValueT]:
         """Asynchronously iterate over the entries entries cached for a channel.
 
         Parameters
@@ -220,17 +264,17 @@ class AbstractChannelBound(abc.ABC, typing.Generic[_T]):
 
         Returns
         -------
-        AbstractCacheIterator[_T]
+        AbstractCacheIterator[_ValueT]
             An asynchronous iterator of the entries cached for the specified channel.
         """
 
     @abc.abstractmethod
-    async def iter(self) -> AbstractCacheIterator[_T]:
+    async def iter_all(self) -> AbstractCacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
         Returns
         -------
-        AbstractCacheIterator[_T]
+        AbstractCacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
 
             .. note::
@@ -239,13 +283,17 @@ class AbstractChannelBound(abc.ABC, typing.Generic[_T]):
         """
 
 
-class AbstractGuildBound(abc.ABC, typing.Generic[_T]):
+SfChannelBound = ChannelBoundCache[hikari.Snowflakeish, _ValueT]
+"""Alias of `ChannelBoundCache` where the key is a snowflake."""
+
+
+class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     """Abstract interface of a cache which stores guild-bound resources."""
 
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get_from_guild(self, guild_id: hikari.Snowflakeish, id_: hikari.Snowflakeish, /) -> _T:
+    async def get_from_guild(self, guild_id: hikari.Snowflakeish, id_: hikari.Snowflakeish, /) -> _ValueT:
         """Get an entry from this cache for a specific guild by ID.
 
         Parameters
@@ -257,7 +305,7 @@ class AbstractGuildBound(abc.ABC, typing.Generic[_T]):
 
         Returns
         -------
-        _T
+        _ValueT
             The found entry.
 
         Raises
@@ -277,7 +325,7 @@ class AbstractGuildBound(abc.ABC, typing.Generic[_T]):
         """
 
     @abc.abstractmethod
-    async def iter_for_guild(self, guild_id: hikari.Snowflakeish, /) -> AbstractCacheIterator[_T]:
+    async def iter_for_guild(self, guild_id: hikari.Snowflakeish, /) -> AbstractCacheIterator[_ValueT]:
         """Asynchronously iterate over the entries entries cached for a guild.
 
         Parameters
@@ -287,7 +335,7 @@ class AbstractGuildBound(abc.ABC, typing.Generic[_T]):
 
         Returns
         -------
-        AbstractCacheIterator[_T]
+        AbstractCacheIterator[_ValueT]
             An asynchronous iterator of the entries cached for the specified guild.
 
             .. note::
@@ -296,15 +344,19 @@ class AbstractGuildBound(abc.ABC, typing.Generic[_T]):
         """
 
     @abc.abstractmethod
-    async def iter(self) -> AbstractCacheIterator[_T]:
+    async def iter_all(self) -> AbstractCacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
         Returns
         -------
-        AbstractCacheIterator[_T]
+        AbstractCacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
 
             .. note::
                 For more information on how this is used, see the documentation for
                 `hikari.LazyIterator`.
         """
+
+
+SfGuildBound = GuildBoundCache[hikari.Snowflakeish, _ValueT]
+"""Alias of `GuildBoundCache` where the key is a snowflake."""

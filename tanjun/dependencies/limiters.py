@@ -60,6 +60,7 @@ from .. import abc as tanjun_abc
 from .. import errors
 from .. import hooks
 from .. import injecting
+from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
@@ -194,6 +195,29 @@ class BucketResource(int, enum.Enum):
     """A global resource bucket."""
 
 
+_T = typing.TypeVar("_T")
+
+
+def _get_injected_type(ctx: tanjun_abc.Context, type_: type[_T]) -> typing.Optional[_T]:
+    # TODO: Upgrade injector stuff to the standard interface to make all Contexts injectable.
+    assert isinstance(ctx, injecting.AbstractInjectionContext)
+    result = ctx.get_type_special_case(type_) or ctx.injection_client.get_type_dependency(type_)
+    if result is not injecting.UNDEFINED:
+        assert not isinstance(result, injecting.Undefined)
+        return result
+
+    return None
+
+
+async def _try_get_role(
+    cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake
+) -> typing.Optional[hikari.Role]:
+    try:
+        return await cache.get(role_id)
+    except async_cache.EntryDoesNotExist:
+        pass
+
+
 async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> hikari.Snowflake:
     if type_ is BucketResource.USER:
         return ctx.author.id
@@ -207,6 +231,12 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
 
         if channel := ctx.get_channel():
             return channel.parent_id or ctx.guild_id
+
+        if channel_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.GuildChannel]):
+            try:
+                return (await channel_cache.get(ctx.channel_id)).parent_id or ctx.guild_id
+            except async_cache.EntryNotKnown:
+                pass
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.TextableGuildChannel)
@@ -234,7 +264,19 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if not ctx.member or len(ctx.member.role_ids) <= 1:  # If they only have 1 role ID then this is @everyone.
             return ctx.guild_id
 
-        roles = ctx.member.get_roles() or await ctx.member.fetch_roles()
+        roles = ctx.member.get_roles()
+        try_rest = bool(roles)
+        if not roles and (role_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.Role])):
+            try:
+                roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
+                try_rest = False
+
+            except async_cache.EntryNotKnown:
+                pass
+
+        if try_rest:
+            roles = await ctx.member.fetch_roles()
+
         return next(iter(sorted(roles, key=lambda r: r.position, reverse=True))).id
 
     if type_ is BucketResource.GUILD:

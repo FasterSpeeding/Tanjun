@@ -74,6 +74,7 @@ from collections import abc as collections
 import hikari
 
 from . import abc as tanjun_abc
+from . import dependencies
 from . import injecting
 
 if typing.TYPE_CHECKING:
@@ -97,11 +98,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     """
 
     __slots__ = ()
-
-    async def __call__(
-        self, argument: ArgumentT, ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context)
-    ) -> _ValueT:
-        return await self.convert(ctx, argument)
 
     @property
     @abc.abstractmethod
@@ -140,26 +136,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         If this is `True` then this converter will not function properly
         in an environment `BaseConverter.intents` or `BaseConverter.cache_components`
         isn't satisfied and will never fallback to REST requests.
-        """
-
-    @abc.abstractmethod
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> _ValueT:
-        """Convert an argument.
-
-        Parameters
-        ----------
-        ArgumentT
-            The argument to convert.
-
-        Returns
-        -------
-        _ValueT
-            The resultant value.
-
-        Raises
-        ------
-        ValueError
-            If the argument couldn't be converted.
         """
 
     def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
@@ -219,6 +195,10 @@ class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
         return await self.resolve_with_command_context(ctx, value)
 
 
+_ChannelCacheT = typing.Optional[dependencies.SfCache[hikari.PartialChannel]]
+
+
+# TODO: GuildChannelConverter
 class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     """Standard converter for channels mentions/IDs."""
 
@@ -236,16 +216,35 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.PartialChannel:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        channel_cache: _ChannelCacheT = injecting.inject(type=_ChannelCacheT),
+    ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
         if ctx.cache and (channel := ctx.cache.get_guild_channel(channel_id)):
             return channel
+
+        if channel_cache:
+            try:
+                return await channel_cache.get(channel_id)
+
+            except dependencies.EntryDoesNotExist:
+                raise ValueError("Couldn't find channel") from None
+
+            except dependencies.EntryNotFound:
+                pass
 
         try:
             return await ctx.rest.fetch_channel(channel_id)
 
         except hikari.NotFoundError:
             raise ValueError("Couldn't find channel") from None
+
+
+_EmojiCache = typing.Optional[dependencies.SfCache[hikari.KnownCustomEmoji]]
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
@@ -265,11 +264,27 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.KnownCustomEmoji:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        emoji_cache: _EmojiCache = injecting.inject(type=_EmojiCache),
+    ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
         if ctx.cache and (emoji := ctx.cache.get_emoji(emoji_id)):
             return emoji
+
+        if emoji_cache:
+            try:
+                return await emoji_cache.get(emoji_id)
+
+            except dependencies.EntryDoesNotExist:
+                raise ValueError("Couldn't find emoji") from None
+
+            except dependencies.EntryNotKnown:
+                pass
 
         if ctx.guild_id:
             try:
@@ -279,6 +294,9 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
                 pass
 
         raise ValueError("Couldn't find emoji")
+
+
+_GuildCacheT = typing.Optional[dependencies.SfCache[hikari.Guild]]
 
 
 class GuildConverter(BaseConverter[hikari.Guild]):
@@ -298,11 +316,27 @@ class GuildConverter(BaseConverter[hikari.Guild]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Guild:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        guild_cache: _GuildCacheT = injecting.inject(type=_GuildCacheT),
+    ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
         if ctx.cache:
             if guild := ctx.cache.get_guild(guild_id):
                 return guild
+
+        if guild_cache:
+            try:
+                await guild_cache.get(guild_id)
+
+            except dependencies.EntryDoesNotExist:
+                raise ValueError("Couldn't find guild") from None
+
+            except dependencies.EntryNotKnown:
+                pass
 
         try:
             return await ctx.rest.fetch_guild(guild_id)
@@ -311,6 +345,9 @@ class GuildConverter(BaseConverter[hikari.Guild]):
             pass
 
         raise ValueError("Couldn't find guild")
+
+
+_InviteCacheT = typing.Optional[dependencies.AsyncCache[str, hikari.InviteWithMetadata]]
 
 
 class InviteConverter(BaseConverter[hikari.Invite]):
@@ -330,13 +367,29 @@ class InviteConverter(BaseConverter[hikari.Invite]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Invite:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        invite_cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
+    ) -> hikari.Invite:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
 
         if ctx.cache:
             if invite := ctx.cache.get_invite(argument):
                 return invite
+
+        if invite_cache:
+            try:
+                return await invite_cache.get(argument)
+
+            except dependencies.EntryDoesNotExist:
+                raise ValueError("Couldn't find invite") from None
+
+            except dependencies.EntryNotKnown:
+                pass
 
         try:
             return await ctx.rest.fetch_invite(argument)
@@ -367,7 +420,13 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     def requires_cache(self) -> bool:
         return True
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.InviteWithMetadata:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        invite_cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
+    ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
 
@@ -375,7 +434,16 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
             if invite := ctx.cache.get_invite(argument):
                 return invite
 
+        if invite_cache:
+            try:
+                return await invite_cache.get(argument)
+            except dependencies.EntryNotFound:
+                pass
+
         raise ValueError("Couldn't find invite")
+
+
+_MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
@@ -399,12 +467,18 @@ class MemberConverter(BaseConverter[hikari.Member]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Member:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        member_cache: _MemberCacheT = injecting.inject(type=_MemberCacheT),
+    ) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
         try:
-            member_id = parse_user_id(argument, message="No valid user mention or ID found")
+            user_id = parse_user_id(argument, message="No valid user mention or ID found")
 
         except ValueError:
             if isinstance(argument, str):
@@ -416,16 +490,29 @@ class MemberConverter(BaseConverter[hikari.Member]):
 
         else:
             if ctx.cache:
-                if member := ctx.cache.get_member(ctx.guild_id, member_id):
+                if member := ctx.cache.get_member(ctx.guild_id, user_id):
                     return member
 
+            if member_cache:
+                try:
+                    return await member_cache.get_from_guild(ctx.guild_id, user_id)
+
+                except dependencies.EntryDoesNotExist:
+                    raise ValueError("Couldn't find member in this guild") from None
+
+                except dependencies.EntryNotKnown:
+                    pass
+
             try:
-                return await ctx.rest.fetch_member(ctx.guild_id, member_id)
+                return await ctx.rest.fetch_member(ctx.guild_id, user_id)
 
             except hikari.NotFoundError:
                 pass
 
         raise ValueError("Couldn't find member in this guild")
+
+
+_PresenceCacheT = typing.Optional[dependencies.SfGuildBound[hikari.MemberPresence]]
 
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
@@ -448,16 +535,32 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     def requires_cache(self) -> bool:
         return True
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.MemberPresence:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        presence_cache: _PresenceCacheT = injecting.inject(type=_PresenceCacheT),
+    ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
+        user_id = parse_user_id(argument, message="No valid member mention or ID  found")
         if ctx.cache:
-            user_id = parse_user_id(argument, message="No valid member mention or ID  found")
             if user := ctx.cache.get_presence(ctx.guild_id, user_id):
                 return user
 
+        if presence_cache:
+            try:
+                await presence_cache.get_from_guild(ctx.guild_id, user_id)
+
+            except dependencies.EntryNotFound:
+                pass
+
         raise ValueError("Couldn't find presence in current guild")
+
+
+_RoleCacheT = typing.Optional[dependencies.SfCache[hikari.Role]]
 
 
 class RoleConverter(BaseConverter[hikari.Role]):
@@ -477,11 +580,27 @@ class RoleConverter(BaseConverter[hikari.Role]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Role:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        role_cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
+    ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID  found")
         if ctx.cache:
             if role := ctx.cache.get_role(role_id):
                 return role
+
+        if role_cache:
+            try:
+                return await role_cache.get(role_id)
+
+            except dependencies.EntryDoesNotExist:
+                raise ValueError("Couldn't find role") from None
+
+            except dependencies.EntryNotKnown:
+                pass
 
         if ctx.guild_id:
             for role in await ctx.rest.fetch_roles(ctx.guild_id):
@@ -489,6 +608,9 @@ class RoleConverter(BaseConverter[hikari.Role]):
                     return role
 
         raise ValueError("Couldn't find role")
+
+
+_UserCacheT = typing.Optional[dependencies.SfCache[hikari.User]]
 
 
 class UserConverter(BaseConverter[hikari.User]):
@@ -508,12 +630,25 @@ class UserConverter(BaseConverter[hikari.User]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.User:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        user_cache: _UserCacheT = injecting.inject(type=_UserCacheT),
+    ) -> hikari.User:
         # TODO: search by name if this is a guild context
         user_id = parse_user_id(argument, message="No valid user mention or ID  found")
         if ctx.cache:
             if user := ctx.cache.get_user(user_id):
                 return user
+
+        if user_cache:
+            try:
+                return await user_cache.get(user_id)
+
+            except dependencies.EntryNotFound:
+                pass
 
         try:
             return await ctx.rest.fetch_user(user_id)
@@ -522,6 +657,9 @@ class UserConverter(BaseConverter[hikari.User]):
             pass
 
         raise ValueError("Couldn't find user")
+
+
+_VoiceStateCacheT = typing.Optional[dependencies.SfGuildBound[hikari.VoiceState]]
 
 
 class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
@@ -545,14 +683,28 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     def requires_cache(self) -> bool:
         return True
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.VoiceState:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        voice_state_cache: _VoiceStateCacheT = injecting.inject(type=_VoiceStateCacheT),
+    ) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
+        user_id = parse_user_id(argument, message="No valid user mention or ID found")
+
         if ctx.cache:
-            user_id = parse_user_id(argument, message="No valid user mention or ID  found")
             if user := ctx.cache.get_voice_state(ctx.guild_id, user_id):
                 return user
+
+        if voice_state_cache:
+            try:
+                return await voice_state_cache.get_from_guild(ctx.guild_id, user_id)
+
+            except dependencies.EntryNotFound:
+                pass
 
         raise ValueError("Voice state couldn't be found for current guild")
 

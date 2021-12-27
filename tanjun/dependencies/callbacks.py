@@ -34,14 +34,20 @@ from __future__ import annotations
 
 __all__: list[str] = ["fetch_my_user"]
 
+import typing
+
 import hikari
 
 from .. import abc
 from .. import injecting
+from . import async_cache
+
+_OwnUserCache = typing.Optional[async_cache.SingleStoreCache[hikari.OwnUser]]
 
 
 async def fetch_my_user(
     client: abc.Client = injecting.inject(type=abc.Client),
+    me_cache: _OwnUserCache = injecting.inject(type=_OwnUserCache),
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.
 
@@ -67,6 +73,12 @@ async def fetch_my_user(
     """
     if client.cache and (user := client.cache.get_me()):
         return user
+
+    if me_cache:
+        try:
+            return await me_cache.get()
+        except async_cache.EntryNotFound:
+            pass
 
     if client.rest.token_type is not hikari.TokenType.BOT:
         raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
