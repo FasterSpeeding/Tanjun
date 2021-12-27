@@ -35,15 +35,27 @@ from __future__ import annotations
 __all__: list[str] = [
     # __init__.py
     "set_standard_dependencies",
+    # async_cache.py
+    "async_cache",
+    "AbstractCache",
+    "AbstractChannelBound",
+    "AbstractGuildBound",
+    "AbstractCacheIterator",
+    "EntryDoesNotExist",
+    "EntryNotFound",
+    "EntryNotKnown",
     # callbacks.py
+    "callbacks",
     "fetch_my_user",
     # data.py
+    "data",
     "cache_callback",
     "cached_inject",
     "LazyConstant",
     "inject_lc",
     "make_lc_resolver",
     # limiters.py
+    "limiters",
     "AbstractConcurrencyLimiter",
     "AbstractCooldownManager",
     "BucketResource",
@@ -55,6 +67,7 @@ __all__: list[str] = [
     "with_concurrency_limit",
     "with_cooldown",
     # owners.py
+    "owners",
     "AbstractOwners",
     "Owners",
 ]
@@ -62,6 +75,7 @@ __all__: list[str] = [
 import hikari
 
 from .. import injecting
+from .async_cache import *
 from .callbacks import *
 from .data import *
 from .limiters import *
