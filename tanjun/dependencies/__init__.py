@@ -38,8 +38,8 @@ __all__: list[str] = [
     # async_cache.py
     "async_cache",
     "AsyncCache",
-    "AbstractCacheIterator",
     "ChannelBoundCache",
+    "CacheIterator",
     "CacheMissError",
     "EntryNotFound",
     "GuildBoundCache",

@@ -39,8 +39,8 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "AsyncCache",
-    "AbstractCacheIterator",
     "ChannelBoundCache",
+    "CacheIterator",
     "CacheMissError",
     "EntryNotFound",
     "GuildBoundCache",
@@ -79,7 +79,7 @@ class EntryNotFound(CacheMissError):
     """
 
 
-class AbstractCacheIterator(hikari.LazyIterator[_ValueT]):
+class CacheIterator(hikari.LazyIterator[_ValueT]):
     """Abstract interface of a cache resource asynchronous iterator.
 
     For more information on how this is used, see the documentation for
@@ -93,7 +93,7 @@ class AbstractCacheIterator(hikari.LazyIterator[_ValueT]):
         """Get the length of the target resource.
 
         .. note::
-            Unlike `AbstractCacheIterator.count`, this method will not deplete
+            Unlike `CacheIterator.count`, this method will not deplete
             the iterator.
 
         Returns
@@ -152,7 +152,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         Parameters
         ----------
         key : _KeyT
-            ID of the entry to get; this will often be a snowflake.
+            Unique key of the entry to get; this will often be a snowflake.
 
         Returns
         -------
@@ -173,12 +173,12 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         """
 
     @abc.abstractmethod
-    def iter_all(self) -> AbstractCacheIterator[_ValueT]:
+    def iter_all(self) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
         Returns
         -------
-        AbstractCacheIterator[_ValueT]
+        CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
 
             .. note::
@@ -205,7 +205,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         channel_id : hikari.Snowflakeish
             ID of the channel to get an entry for.
         id : hikari.Snowflakeish
-            ID of the entry to get.
+            Unique key of the entry to get; this will usually be a snowflake.
 
         Returns
         -------
@@ -226,7 +226,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         """
 
     @abc.abstractmethod
-    def iter_for_channel(self, channel_id: hikari.Snowflakeish, /) -> AbstractCacheIterator[_ValueT]:
+    def iter_for_channel(self, channel_id: hikari.Snowflakeish, /) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the entries entries cached for a channel.
 
         Parameters
@@ -236,17 +236,17 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         Returns
         -------
-        AbstractCacheIterator[_ValueT]
+        CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached for the specified channel.
         """
 
     @abc.abstractmethod
-    def iter_all(self) -> AbstractCacheIterator[_ValueT]:
+    def iter_all(self) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
         Returns
         -------
-        AbstractCacheIterator[_ValueT]
+        CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
 
             .. note::
@@ -265,15 +265,15 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get_from_guild(self, guild_id: hikari.Snowflakeish, id_: hikari.Snowflakeish, /) -> _ValueT:
+    async def get_from_guild(self, guild_id: hikari.Snowflakeish, key: _KeyT, /) -> _ValueT:
         """Get an entry from this cache for a specific guild by ID.
 
         Parameters
         ----------
         guild_id : hikari.Snowflakeish
             ID of the guild to get an entry for.
-        id : hikari.Snowflakeish
-            ID of the entry to get.
+        key : _KeyT
+            Unique key of the entry to get; this will usually be a snowflake.
 
         Returns
         -------
@@ -294,7 +294,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         """
 
     @abc.abstractmethod
-    def iter_for_guild(self, guild_id: hikari.Snowflakeish, /) -> AbstractCacheIterator[_ValueT]:
+    def iter_for_guild(self, guild_id: hikari.Snowflakeish, /) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the entries entries cached for a guild.
 
         Parameters
@@ -304,7 +304,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         Returns
         -------
-        AbstractCacheIterator[_ValueT]
+        CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached for the specified guild.
 
             .. note::
@@ -313,12 +313,12 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         """
 
     @abc.abstractmethod
-    def iter_all(self) -> AbstractCacheIterator[_ValueT]:
+    def iter_all(self) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
         Returns
         -------
-        AbstractCacheIterator[_ValueT]
+        CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
 
             .. note::
