@@ -221,15 +221,15 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        channel_cache: _ChannelCacheT = injecting.inject(type=_ChannelCacheT),
+        cache: _ChannelCacheT = injecting.inject(type=_ChannelCacheT),
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
         if ctx.cache and (channel := ctx.cache.get_guild_channel(channel_id)):
             return channel
 
-        if channel_cache:
+        if cache:
             try:
-                return await channel_cache.get(channel_id)
+                return await cache.get(channel_id)
 
             except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find channel") from None
@@ -269,16 +269,16 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        emoji_cache: _EmojiCache = injecting.inject(type=_EmojiCache),
+        cache: _EmojiCache = injecting.inject(type=_EmojiCache),
     ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
         if ctx.cache and (emoji := ctx.cache.get_emoji(emoji_id)):
             return emoji
 
-        if emoji_cache:
+        if cache:
             try:
-                return await emoji_cache.get(emoji_id)
+                return await cache.get(emoji_id)
 
             except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find emoji") from None
@@ -321,16 +321,15 @@ class GuildConverter(BaseConverter[hikari.Guild]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        guild_cache: _GuildCacheT = injecting.inject(type=_GuildCacheT),
+        cache: _GuildCacheT = injecting.inject(type=_GuildCacheT),
     ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
-        if ctx.cache:
-            if guild := ctx.cache.get_guild(guild_id):
-                return guild
+        if ctx.cache and (guild := ctx.cache.get_guild(guild_id)):
+            return guild
 
-        if guild_cache:
+        if cache:
             try:
-                await guild_cache.get(guild_id)
+                await cache.get(guild_id)
 
             except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find guild") from None
@@ -372,18 +371,17 @@ class InviteConverter(BaseConverter[hikari.Invite]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        invite_cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
+        cache: _InviteCacheT = injecting.inject(type=_InviteCacheT),
     ) -> hikari.Invite:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
 
-        if ctx.cache:
-            if invite := ctx.cache.get_invite(argument):
-                return invite
+        if ctx.cache and (invite := ctx.cache.get_invite(argument)):
+            return invite
 
-        if invite_cache:
+        if cache:
             try:
-                return await invite_cache.get(argument)
+                return await cache.get(argument)
 
             except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find invite") from None
@@ -425,21 +423,16 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        invite_cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
+        cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
     ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
 
-        if ctx.cache:
-            if invite := ctx.cache.get_invite(argument):
-                return invite
+        if ctx.cache and (invite := ctx.cache.get_invite(argument)):
+            return invite
 
-        if invite_cache:
-            try:
-                return await invite_cache.get(argument)
-
-            except async_cache.CacheMissError:
-                pass
+        if cache and (invite := await cache.get(argument)):
+            return invite
 
         raise ValueError("Couldn't find invite")
 
@@ -473,7 +466,7 @@ class MemberConverter(BaseConverter[hikari.Member]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        member_cache: _MemberCacheT = injecting.inject(type=_MemberCacheT),
+        cache: _MemberCacheT = injecting.inject(type=_MemberCacheT),
     ) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
@@ -490,13 +483,12 @@ class MemberConverter(BaseConverter[hikari.Member]):
                     pass
 
         else:
-            if ctx.cache:
-                if member := ctx.cache.get_member(ctx.guild_id, user_id):
-                    return member
+            if ctx.cache and (member := ctx.cache.get_member(ctx.guild_id, user_id)):
+                return member
 
-            if member_cache:
+            if cache:
                 try:
-                    return await member_cache.get_from_guild(ctx.guild_id, user_id)
+                    return await cache.get_from_guild(ctx.guild_id, user_id)
 
                 except async_cache.EntryNotFound:
                     raise ValueError("Couldn't find member in this guild") from None
@@ -541,22 +533,17 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        presence_cache: _PresenceCacheT = injecting.inject(type=_PresenceCacheT),
+        cache: _PresenceCacheT = injecting.inject(type=_PresenceCacheT),
     ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
         user_id = parse_user_id(argument, message="No valid member mention or ID  found")
-        if ctx.cache:
-            if user := ctx.cache.get_presence(ctx.guild_id, user_id):
-                return user
+        if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
+            return presence
 
-        if presence_cache:
-            try:
-                await presence_cache.get_from_guild(ctx.guild_id, user_id)
-
-            except async_cache.CacheMissError:
-                pass
+        if cache and (presence := await cache.get_from_guild(ctx.guild_id, user_id)):
+            return presence
 
         raise ValueError("Couldn't find presence in current guild")
 
@@ -586,16 +573,15 @@ class RoleConverter(BaseConverter[hikari.Role]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        role_cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
+        cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
     ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID  found")
-        if ctx.cache:
-            if role := ctx.cache.get_role(role_id):
-                return role
+        if ctx.cache and (role := ctx.cache.get_role(role_id)):
+            return role
 
-        if role_cache:
+        if cache:
             try:
-                return await role_cache.get(role_id)
+                return await cache.get(role_id)
 
             except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find role") from None
@@ -636,17 +622,19 @@ class UserConverter(BaseConverter[hikari.User]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        user_cache: _UserCacheT = injecting.inject(type=_UserCacheT),
+        cache: _UserCacheT = injecting.inject(type=_UserCacheT),
     ) -> hikari.User:
         # TODO: search by name if this is a guild context
         user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-        if ctx.cache:
-            if user := ctx.cache.get_user(user_id):
-                return user
+        if ctx.cache and (user := ctx.cache.get_user(user_id)):
+            return user
 
-        if user_cache:
+        if cache:
             try:
-                return await user_cache.get(user_id)
+                return await cache.get(user_id)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find user") from None
 
             except async_cache.CacheMissError:
                 pass
@@ -689,23 +677,18 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        voice_state_cache: _VoiceStateCacheT = injecting.inject(type=_VoiceStateCacheT),
+        cache: _VoiceStateCacheT = injecting.inject(type=_VoiceStateCacheT),
     ) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
         user_id = parse_user_id(argument, message="No valid user mention or ID found")
 
-        if ctx.cache:
-            if user := ctx.cache.get_voice_state(ctx.guild_id, user_id):
-                return user
+        if ctx.cache and (state := ctx.cache.get_voice_state(ctx.guild_id, user_id)):
+            return state
 
-        if voice_state_cache:
-            try:
-                return await voice_state_cache.get_from_guild(ctx.guild_id, user_id)
-
-            except async_cache.CacheMissError:
-                pass
+        if cache and (state := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
+            return state
 
         raise ValueError("Voice state couldn't be found for current guild")
 

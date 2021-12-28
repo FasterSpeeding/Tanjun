@@ -57,6 +57,7 @@ import hikari
 
 from .. import errors
 
+_DefaultT = typing.TypeVar("_DefaultT")
 _KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 
@@ -113,7 +114,7 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get(self) -> _ValueT:
+    async def get(self, *, default: _DefaultT = ...) -> typing.Union[_ValueT, _DefaultT]:
         """Get the entry.
 
         Returns
@@ -146,7 +147,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get(self, key: _KeyT, /) -> _ValueT:
+    async def get(self, key: _KeyT, /, *, default: _DefaultT = ...) -> typing.Union[_ValueT, _DefaultT]:
         """Get an entry from this cache by ID.
 
         Parameters
@@ -197,7 +198,9 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get_from_channel(self, channel_id: hikari.Snowflakeish, key: _KeyT, /) -> _ValueT:
+    async def get_from_channel(
+        self, channel_id: hikari.Snowflakeish, key: _KeyT, /, *, default: _DefaultT = ...
+    ) -> typing.Union[_ValueT, _DefaultT]:
         """Get an entry from this cache for a specific channel by ID.
 
         Parameters
@@ -265,7 +268,9 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get_from_guild(self, guild_id: hikari.Snowflakeish, key: _KeyT, /) -> _ValueT:
+    async def get_from_guild(
+        self, guild_id: hikari.Snowflakeish, key: _KeyT, /, *, default: _DefaultT = ...
+    ) -> typing.Union[_ValueT, _DefaultT]:
         """Get an entry from this cache for a specific guild by ID.
 
         Parameters
