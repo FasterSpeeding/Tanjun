@@ -227,11 +227,9 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if channel := ctx.get_channel():
             return channel.parent_id or ctx.guild_id
 
-        if channel_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.GuildChannel]):
-            try:
-                return (await channel_cache.get(ctx.channel_id)).parent_id or ctx.guild_id
-            except async_cache.CacheMissError:
-                pass
+        channel_cache = _get_injected_type(ctx, async_cache.SfCache[hikari.GuildChannel])
+        if channel_cache and (channel := await channel_cache.get(ctx.channel_id, default=None)):
+            return channel.parent_id or ctx.guild_id
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.TextableGuildChannel)

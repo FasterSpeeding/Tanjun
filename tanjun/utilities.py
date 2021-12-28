@@ -296,6 +296,9 @@ async def fetch_permissions(
             guild = await guild_cache.get(member.guild_id)
 
         except async_cache.EntryNotFound:
+            raise
+
+        except async_cache.CacheMissError:
             pass
 
     if not guild:
@@ -413,6 +416,9 @@ async def fetch_everyone_permissions(
     if not role and (role_cache := client.get_type_dependency(_RoleCacheT)):
         try:
             role = await role_cache.get(guild_id)
+
+        except async_cache.EntryNotFound:
+            raise
 
         except async_cache.CacheMissError:
             pass

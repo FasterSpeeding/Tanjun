@@ -74,11 +74,8 @@ async def fetch_my_user(
     if client.cache and (user := client.cache.get_me()):
         return user
 
-    if me_cache:
-        try:
-            return await me_cache.get()
-        except async_cache.CacheMissError:
-            pass
+    if me_cache and (user := await me_cache.get(default=None)):
+        return user
 
     if client.rest.token_type is not hikari.TokenType.BOT:
         raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
