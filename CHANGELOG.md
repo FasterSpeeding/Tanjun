@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.2.2a1]
+## [2.2.2a1] - 2021-12-26
 ### Added
 - Type based dependency injection now has ergonomic Union support.
   This means that for `inject(type=Union[A, B, C])`/`inject(type=A | B | C)` the dependency injector will
