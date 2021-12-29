@@ -61,8 +61,8 @@ from collections import abc as collections
 
 from . import abc as tanjun_abc
 from . import conversion
-from . import injecting
 from . import errors
+from . import injecting
 
 if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")

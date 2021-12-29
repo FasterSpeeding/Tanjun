@@ -201,7 +201,7 @@ _T = typing.TypeVar("_T")
 def _get_injected_type(ctx: tanjun_abc.Context, type_: type[_T]) -> typing.Optional[_T]:
     # TODO: Upgrade injector stuff to the standard interface to make all Contexts injectable.
     assert isinstance(ctx, injecting.AbstractInjectionContext)
-    return ctx.get_type_special_case(type_) or ctx.injection_client.get_type_dependency(type_) or None
+    return ctx.injection_client.get_type_dependency(type_) or ctx.get_type_special_case(type_) or None
 
 
 async def _try_get_role(
@@ -258,8 +258,8 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
             return ctx.guild_id
 
         roles = ctx.member.get_roles()
-        try_rest = bool(roles)
-        if not roles and (role_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.Role])):
+        try_rest = not roles
+        if try_rest and (role_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.Role])):
             try:
                 roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
                 try_rest = False

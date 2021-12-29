@@ -166,15 +166,15 @@ class Owners(AbstractOwners):
         if user.id in self._owner_ids:
             return True
 
+        if not self._fallback_to_application:
+            return False
+
         # TODO: upgrade the injector stuff to the standard interface
         assert isinstance(client, injecting.InjectorClient)
 
         application_cache = client.get_type_dependency(_ApplicationCacheT)
         if application_cache and (application := await application_cache.get(default=None)):
             return user.id in application.team.members if application.team else user.id == application.owner.id
-
-        if not self._fallback_to_application:
-            return False
 
         if client.rest.token_type is not hikari.TokenType.BOT:
             _LOGGER.warning(
