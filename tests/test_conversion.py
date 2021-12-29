@@ -107,42 +107,6 @@ class TestBaseConverter:
         assert obj.requires_cache is expected
 
 
-class TestInjectableConverter:
-    @pytest.mark.asyncio()
-    async def test___call___when_converter(self):
-        convert_ = mock.AsyncMock()
-
-        class StubConverter(tanjun.conversion.BaseConverter[typing.Any]):
-            cache_components = mock.Mock()
-            intents = mock.Mock()
-            requires_cache = mock.Mock()
-            convert = convert_
-
-        mock_ctx = mock.Mock()
-        callback = StubConverter()
-        converter = tanjun.conversion.InjectableConverter(callback)
-
-        result = await converter(mock_ctx, "123")
-
-        assert result is convert_.return_value
-        convert_.assert_awaited_once_with(mock_ctx, "123")
-
-    @pytest.mark.asyncio()
-    async def test___call__(self):
-        mock_resolve_with_command_context = mock.AsyncMock()
-        mock_ctx = mock.Mock()
-
-        class StubConverter(tanjun.conversion.InjectableConverter[typing.Any]):
-            resolve_with_command_context = mock_resolve_with_command_context
-
-        converter = StubConverter(mock.Mock())
-
-        result = await converter(mock_ctx, "123")
-
-        assert result is mock_resolve_with_command_context.return_value
-        mock_resolve_with_command_context.assert_awaited_once_with(mock_ctx, "123")
-
-
 class TestChannelConverter:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):

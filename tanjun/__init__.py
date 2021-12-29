@@ -52,7 +52,6 @@ client.add_component(component)
 # Declare a message command with some basic parser logic.
 @component.with_command
 @tanjun.with_greedy_argument("name", default="World")
-@tanjun.with_parser
 @tanjun.as_message_command("test")
 async def test_command(ctx: tanjun.abc.Context, name: str) -> None:
     await ctx.respond(f"Hello, {name}!")

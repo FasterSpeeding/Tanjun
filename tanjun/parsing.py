@@ -61,6 +61,7 @@ from collections import abc as collections
 
 from . import abc as tanjun_abc
 from . import conversion
+from . import injecting
 from . import errors
 
 if typing.TYPE_CHECKING:
@@ -675,7 +676,7 @@ class Parameter:
     ) -> None:
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
-        self._converters: list[conversion.InjectableConverter[typing.Any]] = []
+        self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
         self._default = default
         self._is_greedy = greedy
         self._is_multi = multi
@@ -724,12 +725,14 @@ class Parameter:
             if self._client:
                 converter.check_client(self._client, f"{self._key} parameter")
 
-        if not isinstance(converter, conversion.InjectableConverter):
+        if not isinstance(converter, injecting.CallbackDescriptor):
             # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
             converter = conversion.override_type(converter)
-            converter = conversion.InjectableConverter(converter)
+            converter_ = injecting.CallbackDescriptor(converter)
+            self._converters.append(converter_)
 
-        self._converters.append(converter)
+        else:
+            self._converters.append(converter)
 
     def bind_client(self, client: tanjun_abc.Client, /) -> None:
         self._client = client
@@ -747,7 +750,7 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                return await converter(ctx, value)
+                return await converter.resolve_with_command_context(ctx, value)
 
             except ValueError as exc:
                 sources.append(exc)
