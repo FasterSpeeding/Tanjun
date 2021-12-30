@@ -101,6 +101,17 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @property
     @abc.abstractmethod
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        """Collection of the asynchronous caches that this converter relies on.
+
+        This will only be necessary if the suggested intents or cache_components
+        aren't enabled for a converter which requires cache.
+        """
+
+    @property
+    @abc.abstractmethod
     def cache_components(self) -> hikari.CacheComponents:
         """Cache component(s) the converter takes advantage of.
 
@@ -151,7 +162,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         parent_name : str
             The name of the converter's parent, used for warning messages.
         """
-        if not client.cache:
+        # TODO: upgrade this stuff to the standard interface
+        assert isinstance(client, injecting.InjectorClient)
+        if not client.cache or any(client.get_type_dependency(cls) is injecting.UNDEFINED for cls in self.async_caches):
             if self.requires_cache:
                 _LOGGER.warning(
                     f"Converter {self!r} registered with {parent_name} will always fail with a stateless client.",
@@ -180,6 +193,12 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     """Standard converter for channels mentions/IDs."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_ChannelCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -221,13 +240,19 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
             raise ValueError("Couldn't find channel") from None
 
 
-_EmojiCache = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
+_EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     """Standard converter for custom emojis."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_EmojiCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -246,7 +271,7 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _EmojiCache = injecting.inject(type=_EmojiCache),
+        cache: _EmojiCacheT = injecting.inject(type=_EmojiCacheT),
     ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
@@ -280,6 +305,12 @@ class GuildConverter(BaseConverter[hikari.Guild]):
     """Stanard converter for guilds."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_GuildCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -330,6 +361,12 @@ class InviteConverter(BaseConverter[hikari.Invite]):
     """Standard converter for invites."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_InviteCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -384,6 +421,12 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     __slots__ = ()
 
     @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_InviteCacheT,)
+
+    @property
     def cache_components(self) -> hikari.CacheComponents:
         return hikari.CacheComponents.INVITES
 
@@ -425,6 +468,12 @@ class MemberConverter(BaseConverter[hikari.Member]):
     """
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_MemberCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -494,6 +543,12 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     __slots__ = ()
 
     @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_PresenceCacheT,)
+
+    @property
     def cache_components(self) -> hikari.CacheComponents:
         return hikari.CacheComponents.PRESENCES
 
@@ -532,6 +587,12 @@ class RoleConverter(BaseConverter[hikari.Role]):
     """Standard converter for guild roles."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_RoleCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -581,6 +642,12 @@ class UserConverter(BaseConverter[hikari.User]):
     """Standard converter for users."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_UserCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -636,6 +703,12 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     """
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_VoiceStateCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
