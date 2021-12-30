@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Tanjun (based on Hikari types) in places which are currently making cache/GET calls and can be used to
   better integrate 3rd-party caches with Tanjun.
   A Redis based integration of this may be found in [hikari-sake](https://github.com/FasterSpeeding/Sake)
-  >=v1.0.1a1 which is exposed by `RedisResource.add_to_tanjun`.
+  \>=v1.0.1a1 which is exposed by `RedisResource.add_to_tanjun`.
 
 ### Removed
 - `BaseConverter.convert` in-favour of having each standard converter directly implement `__call__`.
