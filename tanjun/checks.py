@@ -169,6 +169,9 @@ async def _get_is_nsfw(
     dm_default: bool,
     channel_cache: _ChannelCache,
 ) -> bool:
+    if ctx.guild_id is None:
+        return dm_default
+
     channel: typing.Optional[hikari.PartialChannel] = None
     if ctx.cache and (channel := ctx.cache.get_guild_channel(ctx.channel_id)):
         return channel.is_nsfw or False
@@ -176,9 +179,6 @@ async def _get_is_nsfw(
     if channel_cache:
         try:
             return (await channel_cache.get(ctx.channel_id)).is_nsfw or False
-
-        except dependencies.EntryNotFound:
-            return dm_default
 
         except dependencies.CacheMissError:
             pass
@@ -192,6 +192,7 @@ class NsfwCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
@@ -208,6 +209,7 @@ class SfwCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
@@ -224,6 +226,7 @@ class DmCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
@@ -238,6 +241,7 @@ class GuildCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:

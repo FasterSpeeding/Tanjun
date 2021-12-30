@@ -514,7 +514,7 @@ class Test_TrackedOption:
         assert option.is_only_member is True
         assert option.default == "default"
 
-    def test_needs_converter_property_when_all_false(self):
+    def test_needs_injector_property_when_all_false(self):
         option = tanjun.commands._TrackedOption(
             name="no",
             option_type=hikari.OptionType.INTEGER,
@@ -527,12 +527,12 @@ class Test_TrackedOption:
 
         assert option.needs_injector is False
 
-    def test_needs_converter_property_when_no_converters(self):
+    def test_needs_injector_property_when_no_converters(self):
         option = tanjun.commands._TrackedOption(name="no", option_type=hikari.OptionType.FLOAT)
 
         assert option.needs_injector is False
 
-    def test_needs_converter_property_when_true(self):
+    def test_needs_injector_property_when_true(self):
         option = tanjun.commands._TrackedOption(
             name="no",
             option_type=hikari.OptionType.FLOAT,
@@ -554,9 +554,13 @@ class Test_TrackedOption:
 
     @pytest.mark.asyncio()
     async def test_convert_when_all_fail(self):
-        mock_converter_1 = mock.AsyncMock(side_effect=ValueError())
-        mock_converter_2 = mock.AsyncMock(side_effect=ValueError())
-        mock_context = mock.Mock()
+        exc_1 = ValueError()
+        exc_2 = ValueError()
+        mock_converter_1 = mock.AsyncMock()
+        mock_converter_1.resolve_with_command_context.side_effect = exc_1
+        mock_converter_2 = mock.AsyncMock()
+        mock_converter_2.resolve_with_command_context.side_effect = exc_2
+        mock_context = mock.Mock(tanjun.context.BaseContext)
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
             name="no", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
@@ -567,16 +571,17 @@ class Test_TrackedOption:
 
         assert exc_info.value.parameter == "no"
         assert exc_info.value.message == "Couldn't convert FLOAT 'no'"
-        assert exc_info.value.errors == (mock_converter_1.side_effect, mock_converter_2.side_effect)
-        mock_converter_1.assert_awaited_once_with(mock_context, mock_value)
-        mock_converter_2.assert_awaited_once_with(mock_context, mock_value)
+        assert exc_info.value.errors == (exc_1, exc_2)
+        mock_converter_1.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
+        mock_converter_2.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
 
     @pytest.mark.asyncio()
     async def test_convert(self):
-        mock_converter_1 = mock.AsyncMock(side_effect=ValueError())
+        mock_converter_1 = mock.AsyncMock()
+        mock_converter_1.resolve_with_command_context.side_effect = ValueError()
         mock_converter_2 = mock.AsyncMock()
         mock_converter_3 = mock.AsyncMock()
-        mock_context = mock.Mock()
+        mock_context = mock.Mock(tanjun.context.BaseContext)
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
             name="no",
@@ -586,10 +591,10 @@ class Test_TrackedOption:
 
         result = await option.convert(mock_context, mock_value)
 
-        assert result is mock_converter_2.return_value
-        mock_converter_1.assert_awaited_once_with(mock_context, mock_value)
-        mock_converter_2.assert_awaited_once_with(mock_context, mock_value)
-        mock_converter_3.assert_not_called()
+        assert result is mock_converter_2.resolve_with_command_context.return_value
+        mock_converter_1.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
+        mock_converter_2.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
+        mock_converter_3.resolve_with_command_context.assert_not_called()
 
 
 @pytest.mark.skip(reason="TODO")
@@ -976,7 +981,8 @@ class TestSlashCommand:
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default == "ayya"
-        assert tracked.converters == [mock_converter]
+        assert len(tracked.converters) == 1
+        assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1124,7 +1130,8 @@ class TestSlashCommand:
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
         assert tracked.default == "nya"
-        assert tracked.converters == [mock_converter]
+        assert len(tracked.converters) == 1
+        assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1246,7 +1253,8 @@ class TestSlashCommand:
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.FLOAT
         assert tracked.default == "eaf"
-        assert tracked.converters == [mock_converter]
+        assert len(tracked.converters) == 1
+        assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 

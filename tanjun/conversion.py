@@ -519,7 +519,7 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
         if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
             return presence
 
-        if cache and (presence := await cache.get_from_guild(ctx.guild_id, user_id)):
+        if cache and (presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
             return presence
 
         raise ValueError("Couldn't find presence in current guild")
