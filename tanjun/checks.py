@@ -159,7 +159,7 @@ class OwnerCheck(_Check):
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
 
-_ChannelCache = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
+_ChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
 
 
 async def _get_is_nsfw(
@@ -167,7 +167,7 @@ async def _get_is_nsfw(
     /,
     *,
     dm_default: bool,
-    channel_cache: _ChannelCache,
+    channel_cache: _ChannelCacheT,
 ) -> bool:
     if ctx.guild_id is None:
         return dm_default
@@ -199,7 +199,7 @@ class NsfwCheck(_Check):
         super().__init__(error_message, halt_execution)
 
     async def __call__(
-        self, ctx: tanjun_abc.Context, /, channel_cache: _ChannelCache = injecting.inject(type=_ChannelCache)
+        self, ctx: tanjun_abc.Context, /, channel_cache: _ChannelCacheT = injecting.inject(type=_ChannelCacheT)
     ) -> bool:
         return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
@@ -216,7 +216,7 @@ class SfwCheck(_Check):
         super().__init__(error_message, halt_execution)
 
     async def __call__(
-        self, ctx: tanjun_abc.Context, /, channel_cache: _ChannelCache = injecting.inject(type=_ChannelCache)
+        self, ctx: tanjun_abc.Context, /, channel_cache: _ChannelCacheT = injecting.inject(type=_ChannelCacheT)
     ) -> bool:
         return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
