@@ -34,6 +34,30 @@
 This allows you to share data between instances using something like a redis cache
 (for example) and will be used by standard Tanjun components as well as
 extensions if implemented.
+
+.. note::
+    While there aren't any standard implementations for these interfaces, a
+    Redis implementation of this for the types found in Hikari's gateway cache
+    can be found in [hikari-sake](https://github.com/FasterSpeeding/Sake)
+    \\>=v1.0.1a1 (exposed by `RedisResource.add_to_tanjun`).
+
+Tanjun will use the following type dependencies for these interfaces if they are
+registered with the client:
+
+* `AsyncCache[str, hikari.InviteWithMetadata]`
+* `SfCache[hikari.PartialChannel]`
+* `SfCache[hikari.GuildChannel]`
+* `SfCache[hikari.KnownCustomEmoji]`
+* `SfCache[hikari.Guild]`
+* `SfCache[hikari.Role]`
+* `SfCache[hikari.User]`
+* `SfGuildBound[hikari.Member]`
+* `SfGuildBound[hikari.MemberPresence]`
+* `SfGuildBound[hikari.VoiceState]`
+* `SfGuildBound[hikari.Role]`
+* `SingleStoreCache[hikari.OwnUser]`
+* `SingleStoreCache[hikari.Application]`
+* `SingleStoreCache[hikari.AuthorizationApplication]`
 """
 from __future__ import annotations
 
