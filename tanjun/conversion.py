@@ -306,7 +306,7 @@ class GuildConverter(BaseConverter[hikari.Guild]):
 
         if cache:
             try:
-                await cache.get(guild_id)
+                return await cache.get(guild_id)
 
             except async_cache.EntryNotFound:
                 raise ValueError("Couldn't find guild") from None

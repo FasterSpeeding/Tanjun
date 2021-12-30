@@ -214,184 +214,304 @@ class TestEmojiConverter:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
 
-        result = await tanjun.to_emoji("6655", mock_context)
+        result = await tanjun.to_emoji("6655", mock_context, cache=mock_cache)
 
         assert result is mock_context.cache.get_emoji.return_value
         mock_context.cache.get_emoji.assert_called_once_with(6655)
         mock_context.rest.fetch_emoji.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_cached(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_emoji.return_value = None
+        mock_cache = mock.AsyncMock()
+
+        result = await tanjun.to_emoji("6655", mock_context, cache=mock_cache)
+
+        assert result is mock_cache.get.return_value
+        mock_context.cache.get_emoji.assert_called_once_with(6655)
+        mock_context.rest.fetch_emoji.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(6655)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_guild_bound(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_emoji.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
-        result = await tanjun.to_emoji("<:name:54123>", mock_context)
+        result = await tanjun.to_emoji("<:name:54123>", mock_context, cache=mock_cache)
 
         assert result is mock_context.rest.fetch_emoji.return_value
         mock_context.cache.get_emoji.assert_called_once_with(54123)
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 54123)
+        mock_cache.get.assert_awaited_once_with(54123)
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
 
-        result = await tanjun.to_emoji("<a:name:7623421>", mock_context)
+        result = await tanjun.to_emoji("<a:name:7623421>", mock_context, cache=None)
 
         assert result is mock_context.rest.fetch_emoji.return_value
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 7623421)
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_found(self):
+    async def test___call___when_rest_async_cache_not_found(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_emoji.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+
+        with pytest.raises(ValueError, match="Couldn't find emoji"):
+            await tanjun.to_emoji(123321, mock_context, cache=mock_cache)
+
+        mock_context.cache.get_emoji.assert_called_once_with(123321)
+        mock_context.rest.fetch_emoji.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(123321)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_rest_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_emoji.return_value = None
         mock_context.rest.fetch_emoji.side_effect = hikari.NotFoundError(url="grey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
         with pytest.raises(ValueError, match="Couldn't find emoji"):
-            await tanjun.to_emoji(123321, mock_context)
+            await tanjun.to_emoji(123321, mock_context, cache=mock_cache)
 
         mock_context.cache.get_emoji.assert_called_once_with(123321)
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 123321)
+        mock_cache.get.assert_awaited_once_with(123321)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_not_guild_bound(self):
         mock_context = mock.Mock(guild_id=None)
         mock_context.cache.get_emoji.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
         with pytest.raises(ValueError, match="Couldn't find emoji"):
-            await tanjun.to_emoji(123321, mock_context)
+            await tanjun.to_emoji(123321, mock_context, cache=mock_cache)
 
         mock_context.cache.get_emoji.assert_called_once_with(123321)
         mock_context.rest.fetch_emoji.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(123321)
 
 
 class TestGuildConverter:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
 
-        result = await tanjun.to_guild("1234", mock_context)
+        result = await tanjun.to_guild("1234", mock_context, cache=mock_cache)
 
         assert result is mock_context.cache.get_guild.return_value
         mock_context.cache.get_guild.assert_called_once_with(1234)
         mock_context.rest.fetch_guild.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_cached(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_guild.return_value = None
+        mock_cache = mock.AsyncMock()
+
+        result = await tanjun.to_guild("1234", mock_context, cache=mock_cache)
+
+        assert result is mock_cache.get.return_value
+        mock_context.cache.get_guild.assert_called_once_with(1234)
+        mock_context.rest.fetch_guild.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(1234)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
-        result = await tanjun.to_guild(54234, mock_context)
+        result = await tanjun.to_guild(54234, mock_context, cache=mock_cache)
 
         assert result is mock_context.rest.fetch_guild.return_value
         mock_context.cache.get_guild.assert_called_once_with(54234)
         mock_context.rest.fetch_guild.assert_awaited_once_with(54234)
+        mock_cache.get.assert_awaited_once_with(54234)
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
 
-        result = await tanjun.to_guild(2222, mock_context)
+        result = await tanjun.to_guild(2222, mock_context, cache=None)
 
         assert result is mock_context.rest.fetch_guild.return_value
         mock_context.rest.fetch_guild.assert_awaited_once_with(2222)
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_found(self):
+    async def test___call___when_async_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild.return_value = None
         mock_context.rest.fetch_guild.side_effect = hikari.NotFoundError(url="grey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
         with pytest.raises(ValueError, match="Couldn't find guild"):
-            await tanjun.to_guild(54234, mock_context)
+            await tanjun.to_guild(54234, mock_context, cache=mock_cache)
 
         mock_context.cache.get_guild.assert_called_once_with(54234)
         mock_context.rest.fetch_guild.assert_awaited_once_with(54234)
+        mock_cache.get.assert_awaited_once_with(54234)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_rest_not_found(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild.return_value = None
+        mock_context.rest.fetch_guild.side_effect = hikari.NotFoundError(url="grey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+
+        with pytest.raises(ValueError, match="Couldn't find guild"):
+            await tanjun.to_guild(54234, mock_context, cache=mock_cache)
+
+        mock_context.cache.get_guild.assert_called_once_with(54234)
+        mock_context.rest.fetch_guild.assert_awaited_once_with(54234)
+        mock_cache.get.assert_awaited_once_with(54234)
 
 
 class TestInviteConverter:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
 
-        result = await tanjun.to_invite("asdbasd", mock_context)
+        result = await tanjun.to_invite("asdbasd", mock_context, cache=mock_cache)
 
         assert result is mock_context.cache.get_invite.return_value
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
         mock_context.rest.fetch_invite.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test___call___when_not_str(self):
+        mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
+
         with pytest.raises(ValueError, match="`123` is not a valid invite code"):
-            await tanjun.to_invite(123, mock.Mock())
+            await tanjun.to_invite(123, mock_context, cache=mock_cache)
+
+        mock_context.cache.get_invite.assert_not_called()
+        mock_context.rest.fetch_invite.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_invite.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
-        result = await tanjun.to_invite("fffff", mock_context)
+        result = await tanjun.to_invite("fffff", mock_context, cache=mock_cache)
 
         assert result is mock_context.rest.fetch_invite.return_value
         mock_context.cache.get_invite.assert_called_once_with("fffff")
         mock_context.rest.fetch_invite.assert_awaited_once_with("fffff")
+        mock_cache.get.assert_awaited_once_with("fffff")
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
 
-        result = await tanjun.to_invite("123321", mock_context)
+        result = await tanjun.to_invite("123321", mock_context, cache=None)
 
         assert result is mock_context.rest.fetch_invite.return_value
         mock_context.rest.fetch_invite.assert_awaited_once_with("123321")
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_found(self):
+    async def test___call___when_async_cache_not_found(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_invite.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+
+        with pytest.raises(ValueError, match="Couldn't find invite"):
+            await tanjun.to_invite("sasdasd", mock_context, cache=mock_cache)
+
+        mock_context.cache.get_invite.assert_called_once_with("sasdasd")
+        mock_context.rest.fetch_invite.assert_not_called()
+        mock_cache.get.assert_awaited_once_with("sasdasd")
+
+    @pytest.mark.asyncio()
+    async def test___call___when_rest_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_invite.return_value = None
         mock_context.rest.fetch_invite.side_effect = hikari.NotFoundError(url="grey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
         with pytest.raises(ValueError, match="Couldn't find invite"):
-            await tanjun.to_invite("sasdasd", mock_context)
+            await tanjun.to_invite("sasdasd", mock_context, cache=mock_cache)
 
         mock_context.cache.get_invite.assert_called_once_with("sasdasd")
         mock_context.rest.fetch_invite.assert_awaited_once_with("sasdasd")
+        mock_cache.get.assert_awaited_once_with("sasdasd")
 
 
 class TestInviteWithMetadataConverter:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
 
-        result = await tanjun.to_invite_with_metadata("asdbasd", mock_context)
+        result = await tanjun.to_invite_with_metadata("asdbasd", mock_context, cache=mock_cache)
 
         assert result is mock_context.cache.get_invite.return_value
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_hit(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_invite.return_value = None
+        mock_cache = mock.AsyncMock()
+
+        result = await tanjun.to_invite_with_metadata("asdbasd", mock_context, cache=mock_cache)
+
+        assert result is mock_cache.get.return_value
+        mock_context.cache.get_invite.assert_called_once_with("asdbasd")
+        mock_cache.get.assert_awaited_once_with("asdbasd")
 
     @pytest.mark.asyncio()
     async def test___call___when_not_str(self):
         with pytest.raises(ValueError, match="`432123` is not a valid invite code"):
-            await tanjun.to_invite_with_metadata(432123, mock.Mock())
+            await tanjun.to_invite_with_metadata(432123, mock.Mock(), cache=None)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_invite.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value = None
 
         with pytest.raises(ValueError, match="Couldn't find invite"):
-            await tanjun.to_invite_with_metadata("dsds", mock_context)
+            await tanjun.to_invite_with_metadata("dsds", mock_context, cache=mock_cache)
 
         mock_context.cache.get_invite.assert_called_once_with("dsds")
+        mock_cache.get.assert_called_once_with("dsds")
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(cache=None)
 
         with pytest.raises(ValueError, match="Couldn't find invite"):
-            await tanjun.to_invite_with_metadata("asdbasd", mock_context)
+            await tanjun.to_invite_with_metadata("asdbasd", mock_context, cache=None)
 
 
 class TestMemberConverter:
@@ -603,30 +723,48 @@ class TestUserConverter:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
 
-        result = await tanjun.to_user("123", mock_context)
+        result = await tanjun.to_user("123", mock_context, cache=mock_cache)
 
         assert result is mock_context.cache.get_user.return_value
         mock_context.cache.get_user.assert_called_once_with(123)
         mock_context.rest.fetch_user.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_cached(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_user.return_value = None
+        mock_cache = mock.AsyncMock()
+
+        result = await tanjun.to_user("123", mock_context, cache=mock_cache)
+
+        assert result is mock_cache.get.return_value
+        mock_context.cache.get_user.assert_called_once_with(123)
+        mock_context.rest.fetch_user.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(123)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_user.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
-        result = await tanjun.to_user("55", mock_context)
+        result = await tanjun.to_user("55", mock_context, cache=mock_cache)
 
         assert result is mock_context.rest.fetch_user.return_value
         mock_context.cache.get_user.assert_called_once_with(55)
         mock_context.rest.fetch_user.assert_awaited_once_with(55)
+        mock_cache.get.assert_awaited_once_with(55)
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
 
-        result = await tanjun.to_user("12343", mock_context)
+        result = await tanjun.to_user("12343", mock_context, cache=None)
 
         assert result is mock_context.rest.fetch_user.return_value
         mock_context.rest.fetch_user.assert_awaited_once_with(12343)
@@ -636,12 +774,29 @@ class TestUserConverter:
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_user.return_value = None
         mock_context.rest.fetch_user.side_effect = hikari.NotFoundError(url="grey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
         with pytest.raises(ValueError, match="Couldn't find user"):
-            await tanjun.to_user("55", mock_context)
+            await tanjun.to_user("55", mock_context, cache=mock_cache)
 
         mock_context.cache.get_user.assert_called_once_with(55)
         mock_context.rest.fetch_user.assert_awaited_once_with(55)
+        mock_cache.get.assert_awaited_once_with(55)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_found_in_async_cache(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_user.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+
+        with pytest.raises(ValueError, match="Couldn't find user"):
+            await tanjun.to_user("55", mock_context, cache=mock_cache)
+
+        mock_context.cache.get_user.assert_called_once_with(55)
+        mock_context.rest.fetch_user.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(55)
 
 
 class TestVoiceStateConverter:
