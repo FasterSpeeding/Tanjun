@@ -20,9 +20,6 @@ component = tanjun.Component()
 @component.with_command
 @tanjun.as_message_command("ping")
 async def ping(ctx: tanjun.abc.Context, /) -> None:
-    # As a note, for brevity any hidden Discord REST error handling logic hasn't been included here.
-    # For more information on how Discord REST errors may be handled see
-    # https://fasterspeeding.github.io/Yuyo/backoff.html
     start_time = time.perf_counter()
     await ctx.respond(content="Nyaa master!!!")
     time_taken = (time.perf_counter() - start_time) * 1_000
