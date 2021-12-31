@@ -209,6 +209,7 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
+<span class="kn">from</span> <span class="nn">.dependencies</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">parsing</span>
@@ -232,10 +233,16 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">argument</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the asynchronous caches that this converter relies on.</span>
+
+<span class="sd">        This will only be necessary if the suggested intents or cache_components</span>
+<span class="sd">        aren&#39;t enabled for a converter which requires cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -276,26 +283,6 @@
 <span class="sd">        isn&#39;t satisfied and will never fallback to REST requests.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Convert an argument.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ArgumentT</span>
-<span class="sd">            The argument to convert.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The resultant value.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the argument couldn&#39;t be converted.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">parent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Check that this converter will work with the given client.</span>
 
@@ -309,7 +296,9 @@
 <span class="sd">        parent_name : str</span>
 <span class="sd">            The name of the converter&#39;s parent, used for warning messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+        <span class="c1"># TODO: upgrade this stuff to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="ow">is</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">async_caches</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_cache</span><span class="p">:</span>
                 <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> will always fail with a stateless client.&quot;</span><span class="p">,</span>
@@ -330,33 +319,35 @@
             <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">InjectableConverter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;A specialised injectable callback which accounts for special casing `BaseConverter`.</span>
+<span class="n">_DmCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">DMChannel</span><span class="p">]]</span>
+<span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    converter : typing.Union[tanjun.injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]]</span>
-<span class="sd">        The converter callback to use.</span>
+
+<span class="c1"># TODO: GuildChannelConverter</span>
+<span class="k">class</span> <span class="nc">ChannelConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for channels mentions/IDs.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    include_dms : bool</span>
+<span class="sd">        Whether to include DM channels in the results.</span>
+
+<span class="sd">        May lead to a lot of extra fallbacks to REST requests if</span>
+<span class="sd">        the client doesn&#39;t have a registered async cache for DMs.</span>
+
+<span class="sd">        Defaults to `True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_is_base_converter&quot;</span><span class="p">,)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_include_dms&quot;</span><span class="p">,)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">BaseConverter</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_base_converter</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">BaseConverter</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_dms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_include_dms</span> <span class="o">=</span> <span class="n">include_dms</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_base_converter</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">BaseConverter</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_ValueT</span><span class="p">,</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ctx</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">ChannelConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Standard converter for channels mentions/IDs.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_GuildChannelCacheT</span><span class="p">,</span> <span class="n">_DmCacheT</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -370,22 +361,67 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
+        <span class="n">dm_cache</span><span class="p">:</span> <span class="n">_DmCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_DmCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
         <span class="n">channel_id</span> <span class="o">=</span> <span class="n">parse_channel_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid channel mention or ID  found&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">channel</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">channel</span>
 
+        <span class="n">no_guild_channel</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_dms</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find channel&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+                <span class="n">no_guild_channel</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">dm_cache</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_dms</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">dm_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">no_guild_channel</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find channel&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_dms</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">channel</span>
 
         <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find channel&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find channel&quot;</span><span class="p">)</span>
+
+
+<span class="n">_EmojiCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">]]</span>
 
 
 <span class="k">class</span> <span class="nc">EmojiConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard converter for custom emojis.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_EmojiCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -399,11 +435,27 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_EmojiCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_EmojiCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">:</span>
         <span class="n">emoji_id</span> <span class="o">=</span> <span class="n">parse_emoji_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid emoji or emoji ID found&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">emoji</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_emoji</span><span class="p">(</span><span class="n">emoji_id</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">emoji</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">emoji_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find emoji&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -415,10 +467,19 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find emoji&quot;</span><span class="p">)</span>
 
 
+<span class="n">_GuildCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]]</span>
+
+
 <span class="k">class</span> <span class="nc">GuildConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Stanard converter for guilds.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_GuildCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -432,11 +493,26 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_GuildCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">:</span>
         <span class="n">guild_id</span> <span class="o">=</span> <span class="n">parse_snowflake</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid guild ID found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">guild</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild</span><span class="p">(</span><span class="n">guild_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">guild</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">guild</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild</span><span class="p">(</span><span class="n">guild_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">guild</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guild_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find guild&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_guild</span><span class="p">(</span><span class="n">guild_id</span><span class="p">)</span>
@@ -447,10 +523,19 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find guild&quot;</span><span class="p">)</span>
 
 
+<span class="n">_InviteCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">AsyncCache</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">]]</span>
+
+
 <span class="k">class</span> <span class="nc">InviteConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard converter for invites.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_InviteCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -464,13 +549,28 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_InviteCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_InviteCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">argument</span><span class="si">}</span><span class="s2">` is not a valid invite code&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">invite</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">invite</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find invite&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
@@ -490,6 +590,12 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_InviteCacheT</span><span class="p">,)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">INVITES</span>
 
@@ -501,15 +607,26 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InviteCacheT</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_InviteCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">argument</span><span class="si">}</span><span class="s2">` is not a valid invite code&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">invite</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">invite</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">invite</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">argument</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">invite</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find invite&quot;</span><span class="p">)</span>
+
+
+<span class="n">_MemberCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfGuildBound</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]]</span>
 
 
 <span class="k">class</span> <span class="nc">MemberConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]):</span>
@@ -520,6 +637,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_MemberCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -533,12 +656,18 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_MemberCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_MemberCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a member from a DM channel&quot;</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">member_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID found&quot;</span><span class="p">)</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID found&quot;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -549,17 +678,29 @@
                     <span class="k">pass</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">member</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_member</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">member_id</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">member</span>
+            <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_member</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">member</span>
+
+            <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get_from_guild</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find member in this guild&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+                <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                    <span class="k">pass</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_member</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">member_id</span><span class="p">)</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_member</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
 
             <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find member in this guild&quot;</span><span class="p">)</span>
+
+
+<span class="n">_PresenceCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfGuildBound</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">]]</span>
 
 
 <span class="k">class</span> <span class="nc">PresenceConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">]):</span>
@@ -569,6 +710,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_PresenceCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -582,22 +729,39 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_PresenceCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_PresenceCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a presence from a DM channel&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid member mention or ID  found&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_presence</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">user</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid member mention or ID  found&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">presence</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_presence</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">presence</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">presence</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get_from_guild</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">presence</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find presence in current guild&quot;</span><span class="p">)</span>
+
+
+<span class="n">_RoleCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">]]</span>
 
 
 <span class="k">class</span> <span class="nc">RoleConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard converter for guild roles.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_RoleCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -611,11 +775,26 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_RoleCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_RoleCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">:</span>
         <span class="n">role_id</span> <span class="o">=</span> <span class="n">parse_role_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid role mention or ID  found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">role</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">role_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">role</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">role</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">role_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">role</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">role_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find role&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_roles</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">):</span>
@@ -625,10 +804,19 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find role&quot;</span><span class="p">)</span>
 
 
+<span class="n">_UserCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]]</span>
+
+
 <span class="k">class</span> <span class="nc">UserConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard converter for users.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_UserCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -642,12 +830,27 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_UserCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_UserCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
         <span class="c1"># TODO: search by name if this is a guild context</span>
         <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID  found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">user</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">user</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find user&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
@@ -658,6 +861,9 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find user&quot;</span><span class="p">)</span>
 
 
+<span class="n">_VoiceStateCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfGuildBound</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]]</span>
+
+
 <span class="k">class</span> <span class="nc">VoiceStateConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard converter for voice states.</span>
 
@@ -666,6 +872,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_VoiceStateCacheT</span><span class="p">,)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
@@ -679,14 +891,23 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_VoiceStateCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_VoiceStateCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a voice state from a DM channel&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID  found&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_voice_state</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">user</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID found&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">state</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_voice_state</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">state</span>
+
+        <span class="k">if</span> <span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">state</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get_from_guild</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">state</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Voice state couldn&#39;t be found for current guild&quot;</span><span class="p">)</span>
 

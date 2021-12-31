@@ -563,7 +563,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.Client], None]]</span>
 <span class="sd">        The decorated load callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
@@ -2028,9 +2028,14 @@
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span><span class="p">:</span>
+            <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
-                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">and</span> <span class="p">(</span><span class="n">user_cache</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">])):</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">user_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
                 <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
@@ -2067,14 +2072,21 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
+        <span class="n">application_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span>
+            <span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">AuthorizationApplication</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">token_type</span> <span class="o">==</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_application</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_authorization</span><span class="p">())</span><span class="o">.</span><span class="n">application</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">application</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
 
     <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the general command execution hooks for this client.</span>
@@ -2453,7 +2465,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.Client], None]]</span>
 <span class="sd">        The decorated load callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
@@ -2485,7 +2497,7 @@ to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]</strong>: The decorated load callback.</li>
+<li><strong>collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</strong>: The decorated load callback.</li>
 </ul>
 </div>
 
@@ -3895,9 +3907,14 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span><span class="p">:</span>
+            <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
-                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">and</span> <span class="p">(</span><span class="n">user_cache</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">])):</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">user_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
                 <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
@@ -3934,14 +3951,21 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
+        <span class="n">application_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span>
+            <span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">AuthorizationApplication</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">token_type</span> <span class="o">==</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_application</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_authorization</span><span class="p">())</span><span class="o">.</span><span class="n">application</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">application</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
 
     <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the general command execution hooks for this client.</span>
@@ -7375,9 +7399,14 @@ Name to check against.</li>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span><span class="p">:</span>
+            <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
-                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">and</span> <span class="p">(</span><span class="n">user_cache</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">])):</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">user_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
                 <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
@@ -7442,14 +7471,21 @@ to Discord if it cannot get the current user from the cache.</p>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
+        <span class="n">application_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span>
+            <span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">dependencies</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">AuthorizationApplication</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">token_type</span> <span class="o">==</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_application</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_authorization</span><span class="p">())</span><span class="o">.</span><span class="n">application</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">application</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">application</span><span class="o">.</span><span class="n">id</span>
 </pre></div>
 
         </details>

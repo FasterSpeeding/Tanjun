@@ -61,7 +61,7 @@
                                 <a class="function" href="#AbstractInjectionContext.get_cached_result">get_cached_result</a>
                         </li>
                         <li>
-                                <a class="function" href="#AbstractInjectionContext.get_type_special_case">get_type_special_case</a>
+                                <a class="function" href="#AbstractInjectionContext.get_type_dependency">get_type_dependency</a>
                         </li>
                 </ul>
 
@@ -85,7 +85,7 @@
                                 <a class="function" href="#BasicInjectionContext.get_cached_result">get_cached_result</a>
                         </li>
                         <li>
-                                <a class="function" href="#BasicInjectionContext.get_type_special_case">get_type_special_case</a>
+                                <a class="function" href="#BasicInjectionContext.get_type_dependency">get_type_dependency</a>
                         </li>
                 </ul>
 
@@ -392,22 +392,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a special-case value for a type.</span>
+    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the implementation for an injected type.</span>
 
-<span class="sd">        .. note:</span>
-<span class="sd">            Client set types should override this.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike `InjectionClient.get_type_dependency`, this method may also</span>
+<span class="sd">            return context specific implementations of a type if the type isn&#39;t</span>
+<span class="sd">            registered with the client.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        type_ : type[_T]</span>
-<span class="sd">            The type to get a special-case value for.</span>
+<span class="sd">        type_: type[_T]</span>
+<span class="sd">            The associated type.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        UndefinedOr[_T]</span>
-<span class="sd">            The special-case value, or `UNDEFINED` if the type is not supported</span>
-<span class="sd">            by this context.</span>
+<span class="sd">            The resolved type if found, else `Undefined`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
@@ -447,12 +448,12 @@
         <span class="c1"># &lt;&lt;inherited docstring from AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span> <span class="k">else</span> <span class="n">UNDEFINED</span>
 
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="n">UNDEFINED</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BasicInjectionContextT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BasicInjectionContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -898,18 +899,9 @@
 
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Type descriptor cannot be resolved without an injection client&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_try_get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">injection_client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-        <span class="k">return</span> <span class="n">UNDEFINED</span>
-
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractDescriptor&gt;&gt;.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
@@ -918,7 +910,7 @@
         <span class="c1"># after the literal type.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span>
             <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
                     <span class="k">return</span> <span class="n">result</span>
 
@@ -1075,7 +1067,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback associated with an injected type.</span>
+        <span class="sd">&quot;&quot;&quot;Get the implementation for an injected type.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1214,7 +1206,7 @@
     <span class="k">def</span> <span class="nf">get_cached_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Undefined</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span> <span class="k">else</span> <span class="n">UNDEFINED</span>
 
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Undefined</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Undefined</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">UNDEFINED</span>
 </pre></div>
 
@@ -1550,22 +1542,23 @@ type dependency this descriptor needs.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a special-case value for a type.</span>
+    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the implementation for an injected type.</span>
 
-<span class="sd">        .. note:</span>
-<span class="sd">            Client set types should override this.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike `InjectionClient.get_type_dependency`, this method may also</span>
+<span class="sd">            return context specific implementations of a type if the type isn&#39;t</span>
+<span class="sd">            registered with the client.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        type_ : type[_T]</span>
-<span class="sd">            The type to get a special-case value for.</span>
+<span class="sd">        type_: type[_T]</span>
+<span class="sd">            The associated type.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        UndefinedOr[_T]</span>
-<span class="sd">            The special-case value, or `UNDEFINED` if the type is not supported</span>
-<span class="sd">            by this context.</span>
+<span class="sd">            The resolved type if found, else `Undefined`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -1684,56 +1677,58 @@ has not been cached within this context.</li>
 
 
                             </div>
-                            <div id="AbstractInjectionContext.get_type_special_case" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#AbstractInjectionContext.get_type_special_case">#&nbsp;&nbsp</a>
+                            <div id="AbstractInjectionContext.get_type_dependency" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractInjectionContext.get_type_dependency">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_dependency</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a special-case value for a type.</span>
+    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the implementation for an injected type.</span>
 
-<span class="sd">        .. note:</span>
-<span class="sd">            Client set types should override this.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike `InjectionClient.get_type_dependency`, this method may also</span>
+<span class="sd">            return context specific implementations of a type if the type isn&#39;t</span>
+<span class="sd">            registered with the client.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        type_ : type[_T]</span>
-<span class="sd">            The type to get a special-case value for.</span>
+<span class="sd">        type_: type[_T]</span>
+<span class="sd">            The associated type.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        UndefinedOr[_T]</span>
-<span class="sd">            The special-case value, or `UNDEFINED` if the type is not supported</span>
-<span class="sd">            by this context.</span>
+<span class="sd">            The resolved type if found, else `Undefined`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Get a special-case value for a type.</p>
+            <div class="docstring"><p>Get the implementation for an injected type.</p>
 
-<p>.. note:
-    Client set types should override this.</p>
+<p><em>Note:</em>
+Unlike <code>InjectionClient.get_type_dependency</code>, this method may also
+return context specific implementations of a type if the type isn't
+registered with the client.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>type_</strong> (type[_T]):
-The type to get a special-case value for.</li>
+The associated type.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>UndefinedOr[_T]</strong>: The special-case value, or <code><a href="#UNDEFINED">UNDEFINED</a></code> if the type is not supported
-by this context.</li>
+<li><strong>UndefinedOr[_T]</strong>: The resolved type if found, else <code><a href="#Undefined">Undefined</a></code>.</li>
 </ul>
 </div>
 
@@ -1866,12 +1861,12 @@ The injection client to use to resolve dependencies.</li>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span> <span class="k">else</span> <span class="n">UNDEFINED</span>
 
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="n">UNDEFINED</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BasicInjectionContextT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BasicInjectionContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -2009,43 +2004,44 @@ has not been cached within this context.</li>
 
 
                             </div>
-                            <div id="BasicInjectionContext.get_type_special_case" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#BasicInjectionContext.get_type_special_case">#&nbsp;&nbsp</a>
+                            <div id="BasicInjectionContext.get_type_dependency" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#BasicInjectionContext.get_type_dependency">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_dependency</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="n">UNDEFINED</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Get a special-case value for a type.</p>
+            <div class="docstring"><p>Get the implementation for an injected type.</p>
 
-<p>.. note:
-    Client set types should override this.</p>
+<p><em>Note:</em>
+Unlike <code>InjectionClient.get_type_dependency</code>, this method may also
+return context specific implementations of a type if the type isn't
+registered with the client.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>type_</strong> (type[_T]):
-The type to get a special-case value for.</li>
+The associated type.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>UndefinedOr[_T]</strong>: The special-case value, or <code><a href="#UNDEFINED">UNDEFINED</a></code> if the type is not supported
-by this context.</li>
+<li><strong>UndefinedOr[_T]</strong>: The resolved type if found, else <code><a href="#Undefined">Undefined</a></code>.</li>
 </ul>
 </div>
 
@@ -3113,7 +3109,7 @@ be resolved using the linked client.</p></li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback associated with an injected type.</span>
+        <span class="sd">&quot;&quot;&quot;Get the implementation for an injected type.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3308,7 +3304,7 @@ The type of the dependency to resolve.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback associated with an injected type.</span>
+        <span class="sd">&quot;&quot;&quot;Get the implementation for an injected type.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3325,7 +3321,7 @@ The type of the dependency to resolve.</li>
 
         </details>
 
-            <div class="docstring"><p>Get the callback associated with an injected type.</p>
+            <div class="docstring"><p>Get the implementation for an injected type.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3791,18 +3787,9 @@ positionally.</li>
 
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Type descriptor cannot be resolved without an injection client&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_try_get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">injection_client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-        <span class="k">return</span> <span class="n">UNDEFINED</span>
-
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractDescriptor&gt;&gt;.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
@@ -3811,7 +3798,7 @@ positionally.</li>
         <span class="c1"># after the literal type.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span>
             <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
                     <span class="k">return</span> <span class="n">result</span>
 
@@ -3998,7 +3985,7 @@ type dependency this descriptor needs.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractDescriptor&gt;&gt;.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
@@ -4007,7 +3994,7 @@ type dependency this descriptor needs.</li>
         <span class="c1"># after the literal type.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span>
             <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_get_type</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
                     <span class="k">return</span> <span class="n">result</span>
 
