@@ -165,6 +165,19 @@ class TestNsfwCheck:
         mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
+    async def test_when_async_cache_raises_not_found(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        with pytest.raises(tanjun.dependencies.EntryNotFound):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
     async def test_when_not_cache_bound_and_async_cache_hit(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()

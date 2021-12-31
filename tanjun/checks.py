@@ -180,11 +180,15 @@ async def _get_is_nsfw(
         try:
             return (await channel_cache.get(ctx.channel_id)).is_nsfw or False
 
+        except dependencies.EntryNotFound:
+            raise
+
         except dependencies.CacheMissError:
             pass
 
     channel = await ctx.rest.fetch_channel(ctx.channel_id)
-    return channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else dm_default
+    assert isinstance(channel, hikari.GuildChannel)
+    return channel.is_nsfw or False
 
 
 class NsfwCheck(_Check):
