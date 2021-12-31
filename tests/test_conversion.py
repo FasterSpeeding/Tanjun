@@ -158,7 +158,7 @@ class TestChannelConverter:
         mock_cache.get.assert_awaited_once_with(12222)
         mock_dm_cache.get.assert_not_called()
 
-    @pytest.mark.parametrize("side_effect", (tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound))
+    @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_async_dm_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
@@ -206,7 +206,7 @@ class TestChannelConverter:
         mock_cache.get.assert_awaited_once_with(222)
         mock_dm_cache.get.assert_not_called()
 
-    @pytest.mark.parametrize("side_effect", (tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound))
+    @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
     @pytest.mark.asyncio()
     async def test___call___when_cacheless_and_async_dm_cache_hit(selff, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
