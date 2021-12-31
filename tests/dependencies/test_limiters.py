@@ -74,8 +74,7 @@ async def test__get_ctx_target_when_parent_channel_and_cache_result(channel: moc
     assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_not_called()
-    mock_context.get_type_special_case.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -88,8 +87,7 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_chan
     mock_cache.get.return_value = channel
     mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.get_channel.return_value = None
-    mock_context.injection_client.get_type_dependency.return_value = mock_cache
-    mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
+    mock_context.get_type_dependency.return_value = mock_cache
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
@@ -97,36 +95,7 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_chan
     mock_context.get_channel.assert_called_once_with()
     mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
     mock_context.fetch_channel.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.GuildChannel]
-    )
-    mock_context.get_type_special_case.assert_not_called()
-
-
-@pytest.mark.parametrize(
-    ("channel", "result"),
-    [(mock.Mock(parent_id=None, id=123), 123), (mock.Mock(parent_id=54123123, id=123321), 123321)],
-)
-@pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_and_special_cased_async_cache_returns_channel(
-    channel: mock.Mock, result: int
-):
-    mock_cache = mock.AsyncMock()
-    mock_cache.get.return_value = channel
-    mock_context = mock.Mock(tanjun.context.BaseContext)
-    mock_context.get_channel.return_value = None
-    mock_context.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-    mock_context.get_type_special_case.return_value = mock_cache
-
-    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
-
-    assert result == result
-    mock_context.get_channel.assert_called_once_with()
-    mock_context.fetch_channel.assert_not_called()
-    mock_context.get_type_special_case.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.GuildChannel]
-    )
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
 
 
 @pytest.mark.parametrize(
@@ -141,53 +110,18 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_none
     channel: mock.Mock, result: int
 ):
     mock_context = mock.Mock(tanjun.context.BaseContext)
-    mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
     mock_cache = mock.AsyncMock()
     mock_cache.get.return_value = None
-    mock_context.injection_client.get_type_dependency.return_value = mock_cache
+    mock_context.get_type_dependency.return_value = mock_cache
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
-    mock_context.get_type_special_case.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.GuildChannel]
-    )
-    mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
-
-
-@pytest.mark.parametrize(
-    ("channel", "result"),
-    [
-        (mock.Mock(hikari.TextableGuildChannel, parent_id=None, id=123), 123),
-        (mock.Mock(hikari.TextableGuildChannel, parent_id=54123123, id=123321), 123321),
-    ],
-)
-@pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_when_special_cased_async_cache_returns_none_falls_back_to_rest(
-    channel: mock.Mock, result: int
-):
-    mock_context = mock.Mock(tanjun.context.BaseContext)
-    mock_context.get_channel.return_value = None
-    mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
-    mock_cache = mock.AsyncMock()
-    mock_cache.get.return_value = None
-    mock_context.get_type_special_case.return_value = mock_cache
-    mock_context.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-
-    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
-
-    assert result == result
-    mock_context.get_channel.assert_called_once_with()
-    mock_context.fetch_channel.assert_awaited_once()
-    mock_context.get_type_special_case.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.GuildChannel]
-    )
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
     mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
 
 
@@ -205,18 +139,14 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_cache_falls_back
     mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
-    mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-    mock_context.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
     assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
-    mock_context.get_type_special_case.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.GuildChannel]
-    )
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
 
 
 @pytest.mark.asyncio()
@@ -237,7 +167,7 @@ async def test__get_ctx_target_when_top_role():
         mock.Mock(id=4354, position=0),
         mock.Mock(id=4123, position=11),
     ]
-    mock_context = mock.Mock()
+    mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=mock_roles)
     mock_context.member.fetch_roles = mock.AsyncMock()
@@ -246,8 +176,7 @@ async def test__get_ctx_target_when_top_role():
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_not_called()
-    mock_context.get_type_special_case.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
 
 
 @pytest.mark.asyncio()
@@ -262,39 +191,13 @@ async def test__get_ctx_target_when_top_role_and_async_cache():
         tanjun.dependencies.EntryNotFound,
         mock.Mock(position=23),
     ]
-    mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-    mock_context.injection_client.get_type_dependency.return_value = mock_cache
+    mock_context.get_type_dependency.return_value = mock_cache
 
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 994949
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_not_called()
-    mock_context.get_type_special_case.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
-    mock_cache.get.assert_has_awaits([mock.call(674345), mock.call(123876), mock.call(7643), mock.call(9999999)])
-
-
-@pytest.mark.asyncio()
-async def test__get_ctx_target_when_top_role_and_special_cased_async_cache():
-    mock_context = mock.Mock(tanjun.context.BaseContext)
-    mock_context.member.role_ids = [674345, 123876, 7643, 9999999]
-    mock_context.member.get_roles = mock.Mock(return_value=[])
-    mock_cache = mock.AsyncMock()
-    mock_cache.get.side_effect = [
-        mock.Mock(position=42),
-        mock.Mock(id=994949, position=7634),
-        tanjun.dependencies.EntryNotFound,
-        mock.Mock(position=23),
-    ]
-    mock_context.get_type_special_case.return_value = mock_cache
-    mock_context.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-
-    assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 994949
-
-    mock_context.member.get_roles.assert_called_once_with()
-    mock_context.member.fetch_roles.assert_not_called()
-    mock_context.get_type_special_case.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
     mock_cache.get.assert_has_awaits([mock.call(674345), mock.call(123876), mock.call(7643), mock.call(9999999)])
 
 
@@ -313,15 +216,13 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest_when_async_cache
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
     mock_cache = mock.AsyncMock()
     mock_cache.get.side_effect = [mock.Mock(), tanjun.dependencies.CacheMissError]
-    mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-    mock_context.injection_client.get_type_dependency.return_value = mock_cache
+    mock_context.get_type_dependency.return_value = mock_cache
 
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_awaited_once_with()
-    mock_context.get_type_special_case.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
     mock_cache.get.assert_has_awaits([mock.call(123), mock.call(312)])
 
 
@@ -338,15 +239,13 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
-    mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-    mock_context.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_awaited_once_with()
-    mock_context.get_type_special_case.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
-    mock_context.injection_client.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
 
 
 @pytest.mark.asyncio()
@@ -365,8 +264,7 @@ async def test__get_ctx_target_when_top_role_when_no_member_in_guild():
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result == 654124
-    mock_context.get_type_special_case.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
 
 
 @pytest.mark.parametrize("role_ids", [[123321], []])
@@ -378,8 +276,7 @@ async def test__get_ctx_target_when_top_role_when_no_roles_or_only_1_role(role_i
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result == 123312
-    mock_context.get_type_special_case.assert_not_called()
-    mock_context.injection_client.get_type_dependency.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
 
 
 @pytest.mark.asyncio()

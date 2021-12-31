@@ -195,15 +195,6 @@ class BucketResource(int, enum.Enum):
     """A global resource bucket."""
 
 
-_T = typing.TypeVar("_T")
-
-
-def _get_injected_type(ctx: tanjun_abc.Context, type_: type[_T]) -> typing.Optional[_T]:
-    # TODO: Upgrade injector stuff to the standard interface to make all Contexts injectable.
-    assert isinstance(ctx, injecting.AbstractInjectionContext)
-    return ctx.injection_client.get_type_dependency(type_) or ctx.get_type_special_case(type_) or None
-
-
 async def _try_get_role(
     cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake
 ) -> typing.Optional[hikari.Role]:
@@ -227,7 +218,9 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if channel := ctx.get_channel():
             return channel.parent_id or ctx.guild_id
 
-        channel_cache = _get_injected_type(ctx, async_cache.SfCache[hikari.GuildChannel])
+        # TODO: upgrade this to the standard interface
+        assert isinstance(ctx, injecting.AbstractInjectionContext)
+        channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildChannel])
         if channel_cache and (channel := await channel_cache.get(ctx.channel_id, default=None)):
             return channel.parent_id or ctx.guild_id
 
@@ -259,7 +252,9 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
 
         roles = ctx.member.get_roles()
         try_rest = not roles
-        if try_rest and (role_cache := _get_injected_type(ctx, async_cache.SfCache[hikari.Role])):
+        # TODO: upgrade this to the standard interface
+        assert isinstance(ctx, injecting.AbstractInjectionContext)
+        if try_rest and (role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role])):
             try:
                 roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
                 try_rest = False

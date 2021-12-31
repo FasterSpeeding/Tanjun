@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `BaseConverter.convert` in-favour of having each standard converter directly implement `__call__`.
 - `tanjun.conversion.InjectableConverter`.
+- `InjectionContext.get_type_special_case` in favour of a `get_type_dependency` method which tries the
+  context's client before returning the special case if registered.
 
 ## [2.2.2a1] - 2021-12-26
 ### Added

@@ -219,7 +219,7 @@ def as_loader(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.Client], None]]
+    collections.abc.Callable[[tanjun.abc.Client], None]]
         The decorated load callback.
     """
     return _LoaderDescriptor(callback, standard_impl)

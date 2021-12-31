@@ -147,22 +147,23 @@ class AbstractInjectionContext(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
-        """Get a special-case value for a type.
+    def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[_T]:
+        """Get the implementation with an injected type.
 
-        .. note:
-            Client set types should override this.
+        .. note::
+            Unlike `InjectionClient.get_type_dependency`, this method may also
+            return context specific implementations of a type if the type isn't
+            registered with the client.
 
         Parameters
         ----------
-        type_ : type[_T]
-            The type to get a special-case value for.
+        type_: type[_T]
+            The associated type.
 
         Returns
         -------
         UndefinedOr[_T]
-            The special-case value, or `UNDEFINED` if the type is not supported
-            by this context.
+            The resolved type if found, else `Undefined`.
         """
 
 
@@ -202,12 +203,12 @@ class BasicInjectionContext(AbstractInjectionContext):
         # <<inherited docstring from AbstractInjectionContext>>.
         return self._result_cache.get(callback, UNDEFINED) if self._result_cache else UNDEFINED
 
-    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
+    def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[_T]:
         # <<inherited docstring from AbstractInjectionContext>>.
         if (value := self._special_case_types.get(type_, UNDEFINED)) is not UNDEFINED:
             return value
 
-        return UNDEFINED
+        return self._injection_client.get_type_dependency(type_)
 
     def _set_type_special_case(self: _BasicInjectionContextT, type_: type[_T], value: _T, /) -> _BasicInjectionContextT:
         self._special_case_types[type_] = value
@@ -653,18 +654,9 @@ class TypeDescriptor(AbstractDescriptor[_T]):
 
         raise RuntimeError("Type descriptor cannot be resolved without an injection client")
 
-    def _try_get_type(self, ctx: AbstractInjectionContext, type_: type[_T], /) -> UndefinedOr[_T]:
-        if (result := ctx.injection_client.get_type_dependency(type_)) is not UNDEFINED:
-            return result
-
-        if (result := ctx.get_type_special_case(type_)) is not UNDEFINED:
-            return result
-
-        return UNDEFINED
-
     async def resolve(self, ctx: AbstractInjectionContext, /) -> _T:
         # <<inherited docstring from AbstractDescriptor>>.
-        if (result := self._try_get_type(ctx, self._type)) is not UNDEFINED:
+        if (result := ctx.get_type_dependency(self._type)) is not UNDEFINED:
             assert not isinstance(result, Undefined)
             return result
 
@@ -673,7 +665,7 @@ class TypeDescriptor(AbstractDescriptor[_T]):
         # after the literal type.
         if self._union:
             for cls in self._union:
-                if (result := self._try_get_type(ctx, cls)) is not UNDEFINED:
+                if (result := ctx.get_type_dependency(cls)) is not UNDEFINED:
                     assert not isinstance(result, Undefined)
                     return result
 
@@ -830,7 +822,7 @@ class InjectorClient:
         return self
 
     def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[_T]:
-        """Get the callback associated with an injected type.
+        """Get the implementation with an injected type.
 
         Parameters
         ----------
@@ -969,5 +961,5 @@ class _EmptyContext(AbstractInjectionContext):
     def get_cached_result(self, callback: CallbackSig[typing.Any], /) -> Undefined:
         return self._result_cache.get(callback, UNDEFINED) if self._result_cache else UNDEFINED
 
-    def get_type_special_case(self, _: type[typing.Any], /) -> Undefined:
+    def get_type_dependency(self, _: type[typing.Any], /) -> Undefined:
         return UNDEFINED
