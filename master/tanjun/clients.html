@@ -1072,6 +1072,7 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2938,6 +2939,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -4729,6 +4731,7 @@ after a rename.</p>
     cls,
     bot: hikari.traits.RESTBotAware,
     /,
+    *,
     declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
     set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
     command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None
@@ -4742,6 +4745,7 @@ after a rename.</p>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
