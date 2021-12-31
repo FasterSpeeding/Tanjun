@@ -112,20 +112,22 @@ class TestChannelConverter:
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
+        mock_dm_cache = mock.AsyncMock()
 
-        result = await tanjun.to_channel("123321", mock_context, cache=mock_cache)
+        result = await tanjun.to_channel("123321", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
 
         assert result is mock_context.cache.get_guild_channel.return_value
         mock_context.cache.get_guild_channel.assert_called_once_with(123321)
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
+        mock_dm_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_no_async_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
 
-        result = await tanjun.to_channel("<#12222>", mock_context, cache=None)
+        result = await tanjun.to_channel("<#12222>", mock_context, cache=None, dm_cache=None)
 
         assert result is mock_context.rest.fetch_channel.return_value
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
@@ -136,63 +138,195 @@ class TestChannelConverter:
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
 
-        result = await tanjun.to_channel(222, mock_context, cache=None)
+        result = await tanjun.to_channel(222, mock_context, cache=None, dm_cache=None)
 
         assert result is mock_context.rest.fetch_channel.return_value
         mock_context.rest.fetch_channel.assert_awaited_once_with(222)
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_cached_and_async_cache_hit(self):
+    async def test___call___when_not_cached_and_async_channel_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_cache = mock.AsyncMock()
+        mock_dm_cache = mock.AsyncMock()
 
-        result = await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache)
+        result = await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
 
         assert result is mock_cache.get.return_value
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_not_called()
 
+    @pytest.mark.parametrize("side_effect", (tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound))
     @pytest.mark.asyncio()
-    async def test___call___when_cacheless_and_async_cache_hit(self):
+    async def test___call___when_not_cached_and_async_dm_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache = None
+        mock_context.cache.get_guild_channel.return_value = None
         mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = side_effect
+        mock_dm_cache = mock.AsyncMock()
 
-        result = await tanjun.to_channel(222, mock_context, cache=mock_cache)
+        result = await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
 
-        assert result is mock_cache.get.return_value
+        assert result is mock_dm_cache.get.return_value
+        mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_awaited_once_with(222)
+        mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_awaited_once_with(12222)
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_cached_and_async_cache_raises_not_found(self):
+    async def test___call___when_not_cached_async_cache_raises_not_found_and_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+        mock_dm_cache = mock.AsyncMock()
+        converter = tanjun.conversion.ChannelConverter(include_dms=False)
 
         with pytest.raises(ValueError, match="Couldn't find channel"):
-            await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache)
+            await converter("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_cached_and_async_cache_raises_cache_miss_error(self):
+    async def test___call___when_cacheless_and_async_channel_cache_hit(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache = None
+        mock_cache = mock.AsyncMock()
+        mock_dm_cache = mock.AsyncMock()
+
+        result = await tanjun.to_channel(222, mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        assert result is mock_cache.get.return_value
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(222)
+        mock_dm_cache.get.assert_not_called()
+
+    @pytest.mark.parametrize("side_effect", (tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound))
+    @pytest.mark.asyncio()
+    async def test___call___when_cacheless_and_async_dm_cache_hit(selff, side_effect: type[Exception]):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = side_effect
+        mock_dm_cache = mock.AsyncMock()
+
+        result = await tanjun.to_channel(222, mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        assert result is mock_dm_cache.get.return_value
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(222)
+        mock_dm_cache.get.assert_awaited_once_with(222)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_cached_and_async_channel_caches_raise_not_found_and_not_including_dms(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+        mock_dm_cache = mock.AsyncMock()
+        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+
+        with pytest.raises(ValueError, match="Couldn't find channel"):
+            await converter("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(12222)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_cached_and_both_async_caches_raise_not_found(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+        mock_dm_cache = mock.AsyncMock()
+        mock_dm_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+
+        with pytest.raises(ValueError, match="Couldn't find channel"):
+            await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(12222)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_awaited_once_with(12222)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_cached_and_async_caches_both_raise_cache_miss_error(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_dm_cache = mock.AsyncMock()
+        mock_dm_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
-        result = await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache)
+        result = await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
 
         assert result is mock_context.rest.fetch_channel.return_value
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
         mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_awaited_once_with(12222)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_including_dms(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel)
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_dm_cache = mock.AsyncMock()
+        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+
+        result = await converter("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        assert result is mock_context.rest.fetch_channel.return_value
+        mock_context.cache.get_guild_channel.assert_called_once_with(12222)
+        mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
+        mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_including_dms_and_rest_returns_dm_channel(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel)
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_dm_cache = mock.AsyncMock()
+        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+
+        with pytest.raises(ValueError, match="Couldn't find channel"):
+            await converter("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(12222)
+        mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
+        mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_found_and_not_including_dms(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_context.rest.fetch_channel.side_effect = hikari.NotFoundError(url="gey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_dm_cache = mock.AsyncMock()
+        mock_dm_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+
+        with pytest.raises(ValueError, match="Couldn't find channel"):
+            await converter("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(12222)
+        mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
+        mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test___call___when_not_found(self):
@@ -201,13 +335,16 @@ class TestChannelConverter:
         mock_context.rest.fetch_channel.side_effect = hikari.NotFoundError(url="gey", headers={}, raw_body="")
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_dm_cache = mock.AsyncMock()
+        mock_dm_cache.get.side_effect = tanjun.dependencies.CacheMissError
 
         with pytest.raises(ValueError, match="Couldn't find channel"):
-            await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache)
+            await tanjun.to_channel("<#12222>", mock_context, cache=mock_cache, dm_cache=mock_dm_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
         mock_cache.get.assert_awaited_once_with(12222)
+        mock_dm_cache.get.assert_awaited_once_with(12222)
 
 
 class TestEmojiConverter:

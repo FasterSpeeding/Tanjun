@@ -185,20 +185,35 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             )
 
 
-_ChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]]
+_DmCacheT = typing.Optional[async_cache.SfCache[hikari.DMChannel]]
+_GuildChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]]
 
 
 # TODO: GuildChannelConverter
 class ChannelConverter(BaseConverter[hikari.PartialChannel]):
-    """Standard converter for channels mentions/IDs."""
+    """Standard converter for channels mentions/IDs.
 
-    __slots__ = ()
+    Other Parameters
+    ----------------
+    include_dms : bool
+        Whether to include DM channels in the results.
+
+        May lead to a lot of extra fallbacks to REST requests if
+        the client doesn't have a registered async cache for DMs.
+
+        Defaults to `True`.
+    """
+
+    __slots__ = ("_include_dms",)
+
+    def __init__(self, *, include_dms: bool = True) -> None:
+        self._include_dms = include_dms
 
     @property
     def async_caches(
         self,
     ) -> collections.Sequence[typing.Any]:
-        return (_ChannelCacheT,)
+        return (_GuildChannelCacheT, _DmCacheT)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -217,27 +232,47 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
         argument: ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _ChannelCacheT = injecting.inject(type=_ChannelCacheT),
+        cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
+        dm_cache: _DmCacheT = injecting.inject(type=_DmCacheT),
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
         if ctx.cache and (channel := ctx.cache.get_guild_channel(channel_id)):
             return channel
 
+        no_guild_channel = False
         if cache:
             try:
                 return await cache.get(channel_id)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find channel") from None
+                if not self._include_dms:
+                    raise ValueError("Couldn't find channel") from None
+
+                no_guild_channel = True
+
+            except async_cache.CacheMissError:
+                pass
+
+        if dm_cache and self._include_dms:
+            try:
+                return await dm_cache.get(channel_id)
+
+            except async_cache.EntryNotFound:
+                if no_guild_channel:
+                    raise ValueError("Couldn't find channel") from None
 
             except async_cache.CacheMissError:
                 pass
 
         try:
-            return await ctx.rest.fetch_channel(channel_id)
+            channel = await ctx.rest.fetch_channel(channel_id)
+            if self._include_dms or isinstance(channel, hikari.GuildChannel):
+                return channel
 
         except hikari.NotFoundError:
-            raise ValueError("Couldn't find channel") from None
+            pass
+
+        raise ValueError("Couldn't find channel")
 
 
 _EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]

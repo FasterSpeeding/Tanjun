@@ -45,7 +45,6 @@ Tanjun will use the following type dependencies for these interfaces if they are
 registered with the client:
 
 * `AsyncCache[str, hikari.InviteWithMetadata]`
-* `SfCache[hikari.PartialChannel]` (This should bridge the DM and Guild channel threads).
 * `SfCache[hikari.GuildChannel]`
 * `SfCache[hikari.KnownCustomEmoji]`
 * `SfCache[hikari.Guild]`
