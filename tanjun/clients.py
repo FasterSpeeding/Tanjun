@@ -728,6 +728,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cls,
         bot: hikari_traits.RESTBotAware,
         /,
+        *,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
