@@ -148,7 +148,7 @@ class AbstractInjectionContext(abc.ABC):
 
     @abc.abstractmethod
     def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[_T]:
-        """Get the implementation with an injected type.
+        """Get the implementation for an injected type.
 
         .. note::
             Unlike `InjectionClient.get_type_dependency`, this method may also
@@ -822,7 +822,7 @@ class InjectorClient:
         return self
 
     def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[_T]:
-        """Get the implementation with an injected type.
+        """Get the implementation for an injected type.
 
         Parameters
         ----------
