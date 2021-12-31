@@ -98,20 +98,23 @@ class TestBasicInjectionContext:
 
         assert ctx.get_cached_result(mock.Mock()) is tanjun.injecting.UNDEFINED
 
-    def test_get_type_special_case(self):
+    def test_get_type_dependency_when_special_cased(self):
         ctx = tanjun.injecting.BasicInjectionContext(mock.Mock())
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         mock_value = mock.Mock()
         ctx._set_type_special_case(mock_type, mock_value)
 
-        assert ctx.get_type_special_case(mock_type) is mock_value
+        assert ctx.get_type_dependency(mock_type) is mock_value
 
-    def test_get_type_special_case_when_not_set(self):
+    def test_get_type_dependency(self):
         mock_client = mock.Mock()
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         ctx = tanjun.injecting.BasicInjectionContext(mock_client)
 
-        assert ctx.get_type_special_case(mock_type) is tanjun.injecting.UNDEFINED
+        result = ctx.get_type_dependency(mock_type)
+
+        assert result is mock_client.get_type_dependency.return_value
+        mock_client.get_type_dependency.assert_called_once_with(mock_type)
 
 
 # TODO: integration tests since we don't cover __init__'s normal behaviour since its kinda hard to
@@ -155,7 +158,7 @@ class TestCallbackDescriptor:
         assert tanjun.injecting.CallbackDescriptor(mock_callback).callback is mock_callback
 
     def test_needs_injector_property_when_no_defaulting_type_injector(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
 
         def sub_callback(baz: typing.Any = tanjun.inject(type=mock_type)) -> None:
             ...
@@ -305,12 +308,10 @@ class TestCallbackDescriptor:
         result_collector = mock.AsyncMock()
         async_sub_dependency = mock.AsyncMock()
         sub_dependency = mock.Mock()
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         mock_context = mock.Mock()
         mock_context.injection_client.get_callback_override.return_value = None
         mock_context.get_cached_result.return_value = tanjun.injecting.UNDEFINED
-        mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-        mock_context.injection_client.get_type_dependency.return_value
 
         def sync_sub_callback() -> typing.Any:
             return sub_dependency()
@@ -339,10 +340,10 @@ class TestCallbackDescriptor:
             123,
             b=333,
             c=222,
-            ty=mock_context.injection_client.get_type_dependency.return_value,
+            ty=mock_context.get_type_dependency.return_value,
             sub_async=async_sub_dependency.return_value,
         )
-        mock_context.injection_client.get_type_dependency.assert_called_once_with(mock_type)
+        mock_context.get_type_dependency.assert_called_once_with(mock_type)
         async_sub_dependency.assert_awaited_once_with(sub=sub_dependency.return_value)
         sub_dependency.assert_called_once_with()
         mock_context.get_cached_result.assert_has_calls(
@@ -427,7 +428,7 @@ def test_as_self_injecting():
 
 class TestTypeDescriptor:
     def test_needs_injector_property(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
 
         assert tanjun.injecting.TypeDescriptor(mock_type).needs_injector is True
 
@@ -459,13 +460,13 @@ class TestTypeDescriptor:
             assert tanjun.injecting.TypeDescriptor(StubType | None).needs_injector is False
 
     def test_type_property(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
 
         assert tanjun.injecting.TypeDescriptor(mock_type).type is mock_type
 
     @pytest.mark.asyncio()
     async def test_resolve_with_command_context_when_injection_context(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         resolve = mock.AsyncMock()
         resolve_without_injector = mock.AsyncMock()
         descriptor = stub_class(
@@ -483,7 +484,7 @@ class TestTypeDescriptor:
 
     @pytest.mark.asyncio()
     async def test_resolve_with_command_context_when_not_injection_context(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         resolve = mock.AsyncMock()
         resolve_without_injector = mock.AsyncMock()
         descriptor = stub_class(
@@ -501,7 +502,7 @@ class TestTypeDescriptor:
 
     @pytest.mark.asyncio()
     async def test_resolve_without_injector_when_not_injection_context(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         resolve = mock.AsyncMock()
         descriptor = stub_class(tanjun.injecting.TypeDescriptor[typing.Any], resolve=resolve)(mock_type)
 
@@ -570,11 +571,11 @@ class TestTypeDescriptor:
     @pytest.mark.asyncio()
     async def test_resolve(self):
         ctx = mock.Mock()
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
 
         result = await tanjun.injecting.TypeDescriptor(mock_type).resolve(ctx)
 
-        assert result is ctx.injection_client.get_type_dependency.return_value
+        assert result is ctx.get_type_dependency.return_value
 
     @pytest.mark.asyncio()
     async def test_resolve_when_typing_union_but_impl_found_before_trying_union_args(self):
@@ -585,55 +586,22 @@ class TestTypeDescriptor:
             ...
 
         ctx = mock.Mock()
-        ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
 
         result = await tanjun.injecting.TypeDescriptor(typing.Union[StubType1, StubType2]).resolve(ctx)
 
-        assert result is ctx.injection_client.get_type_dependency.return_value
-        ctx.injection_client.get_type_dependency.assert_called_once_with(typing.Union[StubType1, StubType2])
-        ctx.get_type_special_case.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_resolve_when_typing_union_but_special_case_found_before_trying_union_args(self):
-        class StubType1:
-            ...
-
-        class StubType2:
-            ...
-
-        ctx = mock.Mock()
-        ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-
-        result = await tanjun.injecting.TypeDescriptor(typing.Union[StubType1, StubType2]).resolve(ctx)
-
-        assert result is ctx.get_type_special_case.return_value
-        ctx.injection_client.get_type_dependency.assert_called_once_with(typing.Union[StubType1, StubType2])
-        ctx.get_type_special_case.assert_called_once_with(typing.Union[StubType1, StubType2])
-
-    @pytest.mark.asyncio()
-    async def test_resolve_when_special_case_found(self):
-        ctx = mock.Mock()
-        ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
-
-        result = await tanjun.injecting.TypeDescriptor(mock_type).resolve(ctx)
-
-        assert result is ctx.get_type_special_case.return_value
-        ctx.injection_client.get_type_dependency.assert_called_once_with(mock_type)
-        ctx.get_type_special_case.assert_called_once_with(mock_type)
+        assert result is ctx.get_type_dependency.return_value
+        ctx.get_type_dependency.assert_called_once_with(typing.Union[StubType1, StubType2])
 
     @pytest.mark.asyncio()
     async def test_resolve_when_not_found(self):
         ctx = mock.Mock()
-        ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-        ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        ctx.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_type: typing.Any = mock.Mock()
 
         with pytest.raises(tanjun.MissingDependencyError):
             await tanjun.injecting.TypeDescriptor(mock_type).resolve(ctx)
 
-        ctx.injection_client.get_type_dependency.assert_called_once_with(mock_type)
-        ctx.get_type_special_case.assert_called_once_with(mock_type)
+        ctx.get_type_dependency.assert_called_once_with(mock_type)
 
     # These tests cover syntax which was introduced in 3.10
     if sys.version_info >= (3, 10):
@@ -651,50 +619,16 @@ class TestTypeDescriptor:
 
             ctx = mock.Mock()
             mock_result = mock.Mock()
-            ctx.injection_client.get_type_dependency.side_effect = [
+            ctx.get_type_dependency.side_effect = [
                 tanjun.injecting.UNDEFINED,
                 tanjun.injecting.UNDEFINED,
                 mock_result,
             ]
-            ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
 
             result = await tanjun.injecting.TypeDescriptor(StubType1 | StubType2 | StubType3).resolve(ctx)
 
             assert result is mock_result
-            ctx.injection_client.get_type_dependency.assert_has_calls(
-                [mock.call(StubType1 | StubType2 | StubType3), mock.call(StubType1), mock.call(StubType2)]
-            )
-            ctx.get_type_special_case.assert_has_calls(
-                [mock.call(StubType1 | StubType2 | StubType3), mock.call(StubType1)]
-            )
-
-        @pytest.mark.asyncio()
-        async def test_resolve_when_types_union_and_special_case_found(self):
-            class StubType1:
-                ...
-
-            class StubType2:
-                ...
-
-            class StubType3:
-                ...
-
-            mock_result = mock.Mock()
-            ctx = mock.Mock()
-            ctx.get_type_special_case.side_effect = [
-                tanjun.injecting.UNDEFINED,
-                tanjun.injecting.UNDEFINED,
-                mock_result,
-            ]
-            ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-
-            result = await tanjun.injecting.TypeDescriptor(StubType1 | StubType2 | StubType3).resolve(ctx)
-
-            assert result is mock_result
-            ctx.injection_client.get_type_dependency.assert_has_calls(
-                [mock.call(StubType1 | StubType2 | StubType3), mock.call(StubType1), mock.call(StubType2)]
-            )
-            ctx.get_type_special_case.assert_has_calls(
+            ctx.get_type_dependency.assert_has_calls(
                 [mock.call(StubType1 | StubType2 | StubType3), mock.call(StubType1), mock.call(StubType2)]
             )
 
@@ -707,30 +641,11 @@ class TestTypeDescriptor:
                 ...
 
             ctx = mock.Mock()
-            ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
 
             result = await tanjun.injecting.TypeDescriptor(StubType1 | StubType2).resolve(ctx)
 
-            assert result is ctx.injection_client.get_type_dependency.return_value
-            ctx.injection_client.get_type_dependency.assert_called_once_with(StubType1 | StubType2)
-            ctx.get_type_special_case.assert_not_called()
-
-        @pytest.mark.asyncio()
-        async def test_resolve_when_types_union_but_special_case_found_before_trying_union_args(self):
-            class StubType1:
-                ...
-
-            class StubType2:
-                ...
-
-            ctx = mock.Mock()
-            ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-
-            result = await tanjun.injecting.TypeDescriptor(StubType1 | StubType2).resolve(ctx)
-
-            assert result is ctx.get_type_special_case.return_value
-            ctx.injection_client.get_type_dependency.assert_called_once_with(StubType1 | StubType2)
-            ctx.get_type_special_case.assert_called_once_with(StubType1 | StubType2)
+            assert result is ctx.get_type_dependency.return_value
+            ctx.get_type_dependency.assert_called_once_with(StubType1 | StubType2)
 
         @pytest.mark.asyncio()
         async def test_resolve_when_types_union_and_not_found(self):
@@ -744,18 +659,12 @@ class TestTypeDescriptor:
                 ...
 
             ctx = mock.Mock()
-            ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-            ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+            ctx.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
             with pytest.raises(tanjun.MissingDependencyError):
                 await tanjun.injecting.TypeDescriptor(StubType1 | StubType2 | StubType3).resolve(ctx)
 
-            ctx.injection_client.get_type_dependency.assert_has_calls(
-                [mock.call(StubType1), mock.call(StubType2), mock.call(StubType3)]
-            )
-            ctx.get_type_special_case.assert_has_calls(
-                [mock.call(StubType1), mock.call(StubType2), mock.call(StubType3)]
-            )
+            ctx.get_type_dependency.assert_has_calls([mock.call(StubType1), mock.call(StubType2), mock.call(StubType3)])
 
         @pytest.mark.asyncio()
         async def test_resolve_when_types_optional_and_not_found(self):
@@ -763,14 +672,12 @@ class TestTypeDescriptor:
                 ...
 
             ctx = mock.Mock()
-            ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-            ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+            ctx.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
             result = await tanjun.injecting.TypeDescriptor(StubType | None).resolve(ctx)
 
             assert result is None
-            ctx.injection_client.get_type_dependency.assert_has_calls([mock.call(StubType | None), mock.call(StubType)])
-            ctx.get_type_special_case.assert_has_calls([mock.call(StubType | None), mock.call(StubType)])
+            ctx.get_type_dependency.assert_has_calls([mock.call(StubType | None), mock.call(StubType)])
 
     @pytest.mark.asyncio()
     async def test_resolve_when_typing_union(self):
@@ -785,46 +692,16 @@ class TestTypeDescriptor:
 
         ctx = mock.Mock()
         mock_result = mock.Mock()
-        ctx.injection_client.get_type_dependency.side_effect = [
+        ctx.get_type_dependency.side_effect = [
             tanjun.injecting.UNDEFINED,
             tanjun.injecting.UNDEFINED,
             mock_result,
         ]
-        ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
 
         result = await tanjun.injecting.TypeDescriptor(typing.Union[StubType1, StubType2, StubType3]).resolve(ctx)
 
         assert result is mock_result
-        ctx.injection_client.get_type_dependency.assert_has_calls(
-            [mock.call(typing.Union[StubType1, StubType2, StubType3]), mock.call(StubType1), mock.call(StubType2)]
-        )
-        ctx.get_type_special_case.assert_has_calls(
-            [mock.call(typing.Union[StubType1, StubType2, StubType3]), mock.call(StubType1)]
-        )
-
-    @pytest.mark.asyncio()
-    async def test_resolve_when_typing_union_and_special_case_found(self):
-        class StubType1:
-            ...
-
-        class StubType2:
-            ...
-
-        class StubType3:
-            ...
-
-        mock_result = mock.Mock()
-        ctx = mock.Mock()
-        ctx.get_type_special_case.side_effect = [tanjun.injecting.UNDEFINED, tanjun.injecting.UNDEFINED, mock_result]
-        ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-
-        result = await tanjun.injecting.TypeDescriptor(typing.Union[StubType1, StubType2, StubType3]).resolve(ctx)
-
-        assert result is mock_result
-        ctx.injection_client.get_type_dependency.assert_has_calls(
-            [mock.call(typing.Union[StubType1, StubType2, StubType3]), mock.call(StubType1), mock.call(StubType2)]
-        )
-        ctx.get_type_special_case.assert_has_calls(
+        ctx.get_type_dependency.assert_has_calls(
             [mock.call(typing.Union[StubType1, StubType2, StubType3]), mock.call(StubType1), mock.call(StubType2)]
         )
 
@@ -840,16 +717,12 @@ class TestTypeDescriptor:
             ...
 
         ctx = mock.Mock()
-        ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-        ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        ctx.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
         with pytest.raises(tanjun.MissingDependencyError):
             await tanjun.injecting.TypeDescriptor(typing.Union[StubType1, StubType2, StubType3]).resolve(ctx)
 
-        ctx.injection_client.get_type_dependency.assert_has_calls(
-            [mock.call(StubType1), mock.call(StubType2), mock.call(StubType3)]
-        )
-        ctx.get_type_special_case.assert_has_calls([mock.call(StubType1), mock.call(StubType2), mock.call(StubType3)])
+        ctx.get_type_dependency.assert_has_calls([mock.call(StubType1), mock.call(StubType2), mock.call(StubType3)])
 
     @pytest.mark.asyncio()
     async def test_resolve_when_typing_optional_and_not_found(self):
@@ -857,16 +730,12 @@ class TestTypeDescriptor:
             ...
 
         ctx = mock.Mock()
-        ctx.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
-        ctx.injection_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        ctx.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
         result = await tanjun.injecting.TypeDescriptor(typing.Optional[StubType]).resolve(ctx)
 
         assert result is None
-        ctx.injection_client.get_type_dependency.assert_has_calls(
-            [mock.call(typing.Optional[StubType]), mock.call(StubType)]
-        )
-        ctx.get_type_special_case.assert_has_calls([mock.call(typing.Optional[StubType]), mock.call(StubType)])
+        ctx.get_type_dependency.assert_has_calls([mock.call(typing.Optional[StubType]), mock.call(StubType)])
 
 
 class TestInjected:
@@ -880,7 +749,7 @@ class TestInjected:
 
 
 def test_inject_with_callback():
-    mock_type = typing.cast("type[typing.Any]", mock.Mock())
+    mock_type: typing.Any = mock.Mock()
 
     result = tanjun.injecting.inject(type=mock_type)
 
@@ -899,7 +768,7 @@ def test_inject_with_type():
 
 def test_injected():
     mock_callback = mock.Mock()
-    mock_type = typing.cast("type[typing.Any]", mock.Mock())
+    mock_type: typing.Any = mock.Mock()
 
     with mock.patch.object(tanjun.injecting, "Injected") as injected:
         result = tanjun.inject(callback=mock_callback, type=mock_type)  # type: ignore
@@ -911,7 +780,7 @@ def test_injected():
 class TestInjectorClient:
     def test_get_type_dependency(self):
         mock_value = mock.Mock()
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         client = tanjun.injecting.InjectorClient().set_type_dependency(mock_type, mock_value)
 
         result = client.get_type_dependency(mock_type)
@@ -922,7 +791,7 @@ class TestInjectorClient:
         assert tanjun.injecting.InjectorClient().get_type_dependency(object) is tanjun.UNDEFINED
 
     def test_remove_type_dependency(self):
-        mock_type = typing.cast("type[typing.Any]", mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         client = tanjun.injecting.InjectorClient().set_type_dependency(mock_type, mock.Mock())
 
         result = client.remove_type_dependency(mock_type)
@@ -955,14 +824,14 @@ class TestInjectorClient:
 
 class Test_EmptyInjectorClient:
     def set_type_dependency(self):
-        mock_type = typing.cast(type[typing.Any], mock.Mock())
+        mock_type: typing.Any = mock.Mock()
 
         result = tanjun.injecting._EMPTY_CLIENT.set_type_dependency(mock_type, mock.Mock())
 
         assert result is tanjun.injecting._EMPTY_CLIENT
 
     def get_type_dependency(self):
-        mock_type = typing.cast(type[typing.Any], mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         tanjun.injecting._EMPTY_CLIENT.set_type_dependency(mock_type, mock.Mock())
 
         result = tanjun.injecting._EMPTY_CLIENT.get_type_dependency(mock_type)
@@ -970,7 +839,7 @@ class Test_EmptyInjectorClient:
         assert result is tanjun.injecting.UNDEFINED
 
     def remove_type_dependency(self):
-        mock_type = typing.cast(type[typing.Any], mock.Mock())
+        mock_type: typing.Any = mock.Mock()
         tanjun.injecting._EMPTY_CLIENT.set_type_dependency(mock_type, mock.Mock())
 
         with pytest.raises(KeyError) as exc_info:
@@ -1025,8 +894,8 @@ class test_EmptyContext:
 
         assert ctx.get_cached_result(mock.Mock()) is tanjun.injecting.UNDEFINED
 
-    def get_type_special_case(self):
+    def get_get_type_dependency(self):
         ctx = tanjun.injecting._EmptyContext()
-        mock_type = typing.cast(type[typing.Any], mock.Mock())
+        mock_type: typing.Any = mock.Mock()
 
-        assert ctx.get_type_special_case(mock_type) is tanjun.injecting.UNDEFINED
+        assert ctx.get_type_dependency(mock_type) is tanjun.injecting.UNDEFINED

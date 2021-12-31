@@ -219,7 +219,7 @@ def as_loader(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.Client], None]]
+    collections.abc.Callable[[tanjun.abc.Client], None]]
         The decorated load callback.
     """
     return _LoaderDescriptor(callback, standard_impl)
@@ -1684,9 +1684,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         await self.dispatch_client_callback(ClientCallbackNames.STARTING)
 
         if self._grab_mention_prefix:
+            user: typing.Optional[hikari.OwnUser] = None
             if self._cache:
-                user = self._cache.get_me() or await self._rest.fetch_my_user()
-            else:
+                user = self._cache.get_me()
+
+            if not user and (user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser])):
+                user = await user_cache.get(default=None)
+
+            if not user:
                 user = await self._rest.fetch_my_user()
 
             for prefix in f"<@{user.id}>", f"<@!{user.id}>":
@@ -1723,14 +1728,21 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if self._cached_application_id:
             return self._cached_application_id
 
+        application_cache = self.get_type_dependency(
+            dependencies.SingleStoreCache[hikari.Application]
+        ) or self.get_type_dependency(dependencies.SingleStoreCache[hikari.AuthorizationApplication])
+        if application_cache and (application := await application_cache.get(default=None)):
+            self._cached_application_id = application.id
+            return application.id
+
         if self._rest.token_type == hikari.TokenType.BOT:
             application = await self._rest.fetch_application()
 
         else:
             application = (await self._rest.fetch_authorization()).application
 
-        self._cached_application_id = hikari.Snowflake(application)
-        return self._cached_application_id
+        self._cached_application_id = application.id
+        return application.id
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ClientT:
         """Set the general command execution hooks for this client.

@@ -44,12 +44,41 @@ import tanjun
 @pytest.mark.asyncio()
 async def test_fetch_my_user_when_cached():
     mock_client = mock.Mock()
+    mock_cache = mock.AsyncMock()
 
-    result = await tanjun.dependencies.fetch_my_user(mock_client)
+    result = await tanjun.dependencies.fetch_my_user(mock_client, me_cache=mock_cache)
 
     assert result is mock_client.cache.get_me.return_value
     mock_client.cache.get_me.assert_called_once_with()
     mock_client.rest.fetch_my_user.assert_not_called()
+    mock_cache.get.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_fetch_my_user_when_not_cached_but_async_cache_returns():
+    mock_client = mock.Mock()
+    mock_client.cache.get_me.return_value = None
+    mock_cache = mock.AsyncMock()
+
+    result = await tanjun.dependencies.fetch_my_user(mock_client, me_cache=mock_cache)
+
+    assert result is mock_cache.get.return_value
+    mock_client.cache.get_me.assert_called_once_with()
+    mock_client.rest.fetch_my_user.assert_not_called()
+    mock_cache.get.assert_awaited_once_with(default=None)
+
+
+@pytest.mark.asyncio()
+async def test_fetch_my_user_when_no_cache_but_async_cache_returns():
+    mock_client = mock.Mock()
+    mock_client.cache = None
+    mock_cache = mock.AsyncMock()
+
+    result = await tanjun.dependencies.fetch_my_user(mock_client, me_cache=mock_cache)
+
+    assert result is mock_cache.get.return_value
+    mock_client.rest.fetch_my_user.assert_not_called()
+    mock_cache.get.assert_awaited_once_with(default=None)
 
 
 @pytest.mark.asyncio()
@@ -61,20 +90,36 @@ async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
     with pytest.raises(
         RuntimeError, match="Cannot fetch current user with a REST client that's bound to a client credentials token"
     ):
-        await tanjun.dependencies.fetch_my_user(mock_client)
+        await tanjun.dependencies.fetch_my_user(mock_client, me_cache=None)
 
     mock_client.cache.get_me.assert_called_once_with()
     mock_client.rest.fetch_my_user.assert_not_called()
 
 
 @pytest.mark.asyncio()
-async def test_fetch_my_user_when_not_cache_bound_falls_back_to_rest():
+async def test_fetch_my_user_when_not_cache_bound_and_async_cache_returns_none_falls_back_to_rest():
+    mock_client = mock.Mock()
+    mock_client.rest.token_type = hikari.TokenType.BOT
+    mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())
+    mock_cache = mock.AsyncMock()
+    mock_cache.get.return_value = None
+    mock_client.cache = None
+
+    result = await tanjun.dependencies.fetch_my_user(mock_client, me_cache=mock_cache)
+
+    assert result is mock_client.rest.fetch_my_user.return_value
+    mock_client.rest.fetch_my_user.assert_called_once_with()
+    mock_cache.get.assert_awaited_once_with(default=None)
+
+
+@pytest.mark.asyncio()
+async def test_fetch_my_user_when_not_cache_bound_and_not_async_cache_falls_back_to_rest():
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BOT
     mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())
     mock_client.cache = None
 
-    result = await tanjun.dependencies.fetch_my_user(mock_client)
+    result = await tanjun.dependencies.fetch_my_user(mock_client, me_cache=None)
 
     assert result is mock_client.rest.fetch_my_user.return_value
     mock_client.rest.fetch_my_user.assert_called_once_with()

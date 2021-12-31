@@ -67,14 +67,24 @@ def mock_client() -> tanjun.abc.Client:
 
 
 @pytest.fixture()
+def mock_injector_client() -> tanjun.injecting.InjectorClient:
+    return mock.MagicMock(tanjun.injecting.InjectorClient)
+
+
+@pytest.fixture()
 def mock_component() -> tanjun.abc.Component:
     return mock.MagicMock(tanjun.abc.Component)
 
 
 class TestBaseContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock, mock_component: tanjun.abc.Component) -> tanjun.context.BaseContext:
-        return stub_class(tanjun.context.BaseContext)(mock_client, mock.Mock(), component=mock_component)
+    def context(
+        self,
+        mock_client: mock.Mock,
+        mock_component: tanjun.abc.Component,
+        mock_injector_client: tanjun.injecting.InjectorClient,
+    ) -> tanjun.context.BaseContext:
+        return stub_class(tanjun.context.BaseContext)(mock_client, mock_injector_client, component=mock_component)
 
     def test_cache_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):
         assert context.cache is mock_client.cache
@@ -110,25 +120,29 @@ class TestBaseContext:
         assert context.set_component(component) is context
 
         assert context.component is component
-        assert context.get_type_special_case(tanjun.abc.Component) is component
-        assert context.get_type_special_case(type(component)) is component
+        assert context.get_type_dependency(tanjun.abc.Component) is component
+        assert context.get_type_dependency(type(component)) is component
 
-    def test_set_component_when_none_and_previously_set(self, context: tanjun.context.BaseContext):
+    def test_set_component_when_none_and_previously_set(
+        self, context: tanjun.context.BaseContext, mock_injector_client: mock.Mock
+    ):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         mock_component = mock.Mock()
         context.set_component(mock_component)
         context.set_component(None)
 
         assert context.component is None
-        assert context.get_type_special_case(tanjun.abc.Component) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(type(mock_component)) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.Component) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(type(mock_component)) is tanjun.injecting.UNDEFINED
 
-    def test_set_component_when_none(self, context: tanjun.context.BaseContext):
+    def test_set_component_when_none(self, context: tanjun.context.BaseContext, mock_injector_client: mock.Mock):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         context.set_component(None)
         context.set_component(None)
 
         assert context.component is None
-        assert context.get_type_special_case(tanjun.abc.Component) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(type(tanjun.abc.Component)) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.Component) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.Component) is tanjun.injecting.UNDEFINED
 
     def test_set_component_when_final(self, context: tanjun.context.BaseContext):
         component = mock.Mock()
@@ -205,10 +219,10 @@ class TestBaseContext:
 
 class TestMessageContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock) -> tanjun.MessageContext:
+    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.MessageContext:
         return tanjun.MessageContext(
             mock_client,
-            mock.Mock(),
+            mock_injector_client,
             "hi there",
             mock.AsyncMock(),
             command=mock.Mock(),
@@ -291,27 +305,31 @@ class TestMessageContext:
         assert context.set_command(mock_command) is context
 
         assert context.command is mock_command
-        assert context.get_type_special_case(tanjun.abc.ExecutableCommand) is mock_command
-        assert context.get_type_special_case(tanjun.abc.MessageCommand) is mock_command
-        assert context.get_type_special_case(type(mock_command)) is mock_command
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
+        assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
+        assert context.get_type_dependency(type(mock_command)) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.MessageContext):
+    def test_set_command_when_none(self, context: tanjun.MessageContext, mock_injector_client: mock.Mock):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         context.set_command(None)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_special_case(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
 
-    def test_set_command_when_none_and_previously_set(self, context: tanjun.MessageContext):
+    def test_set_command_when_none_and_previously_set(
+        self, context: tanjun.MessageContext, mock_injector_client: mock.Mock
+    ):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_special_case(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(type(mock_command)) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.MessageContext):
         context.finalise()
@@ -1032,10 +1050,10 @@ class TestSlashOption:
 
 class TestSlashContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock) -> tanjun.SlashContext:
+    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.SlashContext:
         return tanjun.SlashContext(
             mock_client,
-            mock.Mock(),
+            mock_injector_client,
             mock.AsyncMock(options=None),
             command=mock.Mock(),
             component=mock.Mock(),
@@ -1333,30 +1351,34 @@ class TestSlashContext:
         assert context.set_command(mock_command) is context
 
         assert context.command is mock_command
-        assert context.get_type_special_case(tanjun.abc.ExecutableCommand) is mock_command
-        assert context.get_type_special_case(tanjun.abc.BaseSlashCommand) is mock_command
-        assert context.get_type_special_case(tanjun.abc.SlashCommand) is mock_command
-        assert context.get_type_special_case(type(mock_command)) is mock_command
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is mock_command
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is mock_command
+        assert context.get_type_dependency(type(mock_command)) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.MessageContext):
+    def test_set_command_when_none(self, context: tanjun.SlashContext, mock_injector_client: mock.Mock):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         context.set_command(None)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_special_case(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
 
-    def test_set_command_when_none_and_previously_set(self, context: tanjun.MessageContext):
+    def test_set_command_when_none_and_previously_set(
+        self, context: tanjun.SlashContext, mock_injector_client: mock.Mock
+    ):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_special_case(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_special_case(type(mock_command)) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.SlashContext):
         context.finalise()

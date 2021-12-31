@@ -159,13 +159,36 @@ class OwnerCheck(_Check):
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
 
-async def _get_is_nsfw(ctx: tanjun_abc.Context, /, *, dm_default: bool) -> bool:
+_GuildChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
+
+
+async def _get_is_nsfw(
+    ctx: tanjun_abc.Context,
+    /,
+    *,
+    dm_default: bool,
+    channel_cache: _GuildChannelCacheT,
+) -> bool:
+    if ctx.guild_id is None:
+        return dm_default
+
     channel: typing.Optional[hikari.PartialChannel] = None
     if ctx.cache and (channel := ctx.cache.get_guild_channel(ctx.channel_id)):
         return channel.is_nsfw or False
 
+    if channel_cache:
+        try:
+            return (await channel_cache.get(ctx.channel_id)).is_nsfw or False
+
+        except dependencies.EntryNotFound:
+            raise
+
+        except dependencies.CacheMissError:
+            pass
+
     channel = await ctx.rest.fetch_channel(ctx.channel_id)
-    return channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else dm_default
+    assert isinstance(channel, hikari.GuildChannel)
+    return channel.is_nsfw or False
 
 
 class NsfwCheck(_Check):
@@ -173,13 +196,19 @@ class NsfwCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
         super().__init__(error_message, halt_execution)
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True))
+    async def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        /,
+        channel_cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
+    ) -> bool:
+        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
 
 class SfwCheck(_Check):
@@ -187,13 +216,19 @@ class SfwCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
         super().__init__(error_message, halt_execution)
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False))
+    async def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        /,
+        channel_cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
+    ) -> bool:
+        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
 
 class DmCheck(_Check):
@@ -201,6 +236,7 @@ class DmCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
@@ -215,6 +251,7 @@ class GuildCheck(_Check):
 
     def __init__(
         self,
+        *,
         error_message: typing.Optional[str] = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:

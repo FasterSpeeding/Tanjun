@@ -698,11 +698,11 @@ def with_mentionable_slash_option(
     return lambda c: c.add_mentionable_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
-def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
-    if isinstance(converter, conversion.InjectableConverter):
-        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)
+def _convert_to_injectable(converter: ConverterSig) -> injecting.CallbackDescriptor[typing.Any]:
+    if isinstance(converter, injecting.CallbackDescriptor):
+        return typing.cast("injecting.CallbackDescriptor[typing.Any]", converter)
 
-    return conversion.InjectableConverter(conversion.override_type(converter))
+    return injecting.CallbackDescriptor(conversion.override_type(converter))
 
 
 class _TrackedOption:
@@ -714,7 +714,7 @@ class _TrackedOption:
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
         always_float: bool = False,
-        converters: typing.Optional[list[conversion.InjectableConverter[typing.Any]]] = None,
+        converters: typing.Optional[list[injecting.CallbackDescriptor[typing.Any]]] = None,
         only_member: bool = False,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
@@ -741,7 +741,7 @@ class _TrackedOption:
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await converter(ctx, value)
+                return await converter.resolve_with_command_context(ctx, value)
 
             except ValueError as exc:
                 exceptions.append(exc)
@@ -1183,13 +1183,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
-            converters = list(map(_convert_to_injectable, converters))
+            converters_ = list(map(_convert_to_injectable, converters))
 
         else:
-            converters = [_convert_to_injectable(converters)]
+            converters_ = [_convert_to_injectable(converters)]
 
         if self._client:
-            for converter in converters:
+            for converter in converters_:
                 if isinstance(converter.callback, conversion.BaseConverter):
                     converter.callback.check_client(self._client, f"{self._name}'s slash option '{name}'")
 
@@ -1227,7 +1227,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 name=name,
                 option_type=type_,
                 always_float=always_float,
-                converters=converters,
+                converters=converters_,
                 default=default,
                 only_member=only_member,
             )

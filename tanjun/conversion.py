@@ -75,6 +75,7 @@ import hikari
 
 from . import abc as tanjun_abc
 from . import injecting
+from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
     from . import parsing
@@ -98,10 +99,16 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     __slots__ = ()
 
-    async def __call__(
-        self, argument: ArgumentT, ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context)
-    ) -> _ValueT:
-        return await self.convert(ctx, argument)
+    @property
+    @abc.abstractmethod
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        """Collection of the asynchronous caches that this converter relies on.
+
+        This will only be necessary if the suggested intents or cache_components
+        aren't enabled for a converter which requires cache.
+        """
 
     @property
     @abc.abstractmethod
@@ -142,26 +149,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         isn't satisfied and will never fallback to REST requests.
         """
 
-    @abc.abstractmethod
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> _ValueT:
-        """Convert an argument.
-
-        Parameters
-        ----------
-        ArgumentT
-            The argument to convert.
-
-        Returns
-        -------
-        _ValueT
-            The resultant value.
-
-        Raises
-        ------
-        ValueError
-            If the argument couldn't be converted.
-        """
-
     def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
         """Check that this converter will work with the given client.
 
@@ -175,7 +162,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         parent_name : str
             The name of the converter's parent, used for warning messages.
         """
-        if not client.cache:
+        # TODO: upgrade this stuff to the standard interface
+        assert isinstance(client, injecting.InjectorClient)
+        if not client.cache or any(client.get_type_dependency(cls) is injecting.UNDEFINED for cls in self.async_caches):
             if self.requires_cache:
                 _LOGGER.warning(
                     f"Converter {self!r} registered with {parent_name} will always fail with a stateless client.",
@@ -196,33 +185,35 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             )
 
 
-class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
-    """A specialised injectable callback which accounts for special casing `BaseConverter`.
+_DmCacheT = typing.Optional[async_cache.SfCache[hikari.DMChannel]]
+_GuildChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]]
 
-    Parameters
-    ----------
-    converter : typing.Union[tanjun.injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]]
-        The converter callback to use.
+
+# TODO: GuildChannelConverter
+class ChannelConverter(BaseConverter[hikari.PartialChannel]):
+    """Standard converter for channels mentions/IDs.
+
+    Other Parameters
+    ----------------
+    include_dms : bool
+        Whether to include DM channels in the results.
+
+        May lead to a lot of extra fallbacks to REST requests if
+        the client doesn't have a registered async cache for DMs.
+
+        Defaults to `True`.
     """
 
-    __slots__ = ("_is_base_converter",)
+    __slots__ = ("_include_dms",)
 
-    def __init__(self, callback: typing.Union[injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]], /) -> None:
-        super().__init__(callback)
-        self._is_base_converter = isinstance(callback, BaseConverter)
+    def __init__(self, *, include_dms: bool = True) -> None:
+        self._include_dms = include_dms
 
-    async def __call__(self, ctx: tanjun_abc.Context, value: ArgumentT, /) -> _ValueT:
-        if self._is_base_converter:
-            assert isinstance(self.callback, BaseConverter)
-            return typing.cast(_ValueT, await self.callback(value, ctx))
-
-        return await self.resolve_with_command_context(ctx, value)
-
-
-class ChannelConverter(BaseConverter[hikari.PartialChannel]):
-    """Standard converter for channels mentions/IDs."""
-
-    __slots__ = ()
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_GuildChannelCacheT, _DmCacheT)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -236,22 +227,67 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.PartialChannel:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
+        dm_cache: _DmCacheT = injecting.inject(type=_DmCacheT),
+    ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
         if ctx.cache and (channel := ctx.cache.get_guild_channel(channel_id)):
             return channel
 
+        no_guild_channel = False
+        if cache:
+            try:
+                return await cache.get(channel_id)
+
+            except async_cache.EntryNotFound:
+                if not self._include_dms:
+                    raise ValueError("Couldn't find channel") from None
+
+                no_guild_channel = True
+
+            except async_cache.CacheMissError:
+                pass
+
+        if dm_cache and self._include_dms:
+            try:
+                return await dm_cache.get(channel_id)
+
+            except async_cache.EntryNotFound:
+                if no_guild_channel:
+                    raise ValueError("Couldn't find channel") from None
+
+            except async_cache.CacheMissError:
+                pass
+
         try:
-            return await ctx.rest.fetch_channel(channel_id)
+            channel = await ctx.rest.fetch_channel(channel_id)
+            if self._include_dms or isinstance(channel, hikari.GuildChannel):
+                return channel
 
         except hikari.NotFoundError:
-            raise ValueError("Couldn't find channel") from None
+            pass
+
+        raise ValueError("Couldn't find channel")
+
+
+_EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     """Standard converter for custom emojis."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_EmojiCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -265,11 +301,27 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.KnownCustomEmoji:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _EmojiCacheT = injecting.inject(type=_EmojiCacheT),
+    ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
         if ctx.cache and (emoji := ctx.cache.get_emoji(emoji_id)):
             return emoji
+
+        if cache:
+            try:
+                return await cache.get(emoji_id)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find emoji") from None
+
+            except async_cache.CacheMissError:
+                pass
 
         if ctx.guild_id:
             try:
@@ -281,10 +333,19 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         raise ValueError("Couldn't find emoji")
 
 
+_GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
+
+
 class GuildConverter(BaseConverter[hikari.Guild]):
     """Stanard converter for guilds."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_GuildCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -298,11 +359,26 @@ class GuildConverter(BaseConverter[hikari.Guild]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Guild:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _GuildCacheT = injecting.inject(type=_GuildCacheT),
+    ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
-        if ctx.cache:
-            if guild := ctx.cache.get_guild(guild_id):
-                return guild
+        if ctx.cache and (guild := ctx.cache.get_guild(guild_id)):
+            return guild
+
+        if cache:
+            try:
+                return await cache.get(guild_id)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find guild") from None
+
+            except async_cache.CacheMissError:
+                pass
 
         try:
             return await ctx.rest.fetch_guild(guild_id)
@@ -313,10 +389,19 @@ class GuildConverter(BaseConverter[hikari.Guild]):
         raise ValueError("Couldn't find guild")
 
 
+_InviteCacheT = typing.Optional[async_cache.AsyncCache[str, hikari.InviteWithMetadata]]
+
+
 class InviteConverter(BaseConverter[hikari.Invite]):
     """Standard converter for invites."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_InviteCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -330,13 +415,28 @@ class InviteConverter(BaseConverter[hikari.Invite]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Invite:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _InviteCacheT = injecting.inject(type=_InviteCacheT),
+    ) -> hikari.Invite:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
 
-        if ctx.cache:
-            if invite := ctx.cache.get_invite(argument):
-                return invite
+        if ctx.cache and (invite := ctx.cache.get_invite(argument)):
+            return invite
+
+        if cache:
+            try:
+                return await cache.get(argument)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find invite") from None
+
+            except async_cache.CacheMissError:
+                pass
 
         try:
             return await ctx.rest.fetch_invite(argument)
@@ -356,6 +456,12 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     __slots__ = ()
 
     @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_InviteCacheT,)
+
+    @property
     def cache_components(self) -> hikari.CacheComponents:
         return hikari.CacheComponents.INVITES
 
@@ -367,15 +473,26 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     def requires_cache(self) -> bool:
         return True
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.InviteWithMetadata:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
+    ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
 
-        if ctx.cache:
-            if invite := ctx.cache.get_invite(argument):
-                return invite
+        if ctx.cache and (invite := ctx.cache.get_invite(argument)):
+            return invite
+
+        if cache and (invite := await cache.get(argument)):
+            return invite
 
         raise ValueError("Couldn't find invite")
+
+
+_MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
@@ -386,6 +503,12 @@ class MemberConverter(BaseConverter[hikari.Member]):
     """
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_MemberCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -399,12 +522,18 @@ class MemberConverter(BaseConverter[hikari.Member]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Member:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _MemberCacheT = injecting.inject(type=_MemberCacheT),
+    ) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
         try:
-            member_id = parse_user_id(argument, message="No valid user mention or ID found")
+            user_id = parse_user_id(argument, message="No valid user mention or ID found")
 
         except ValueError:
             if isinstance(argument, str):
@@ -415,17 +544,29 @@ class MemberConverter(BaseConverter[hikari.Member]):
                     pass
 
         else:
-            if ctx.cache:
-                if member := ctx.cache.get_member(ctx.guild_id, member_id):
-                    return member
+            if ctx.cache and (member := ctx.cache.get_member(ctx.guild_id, user_id)):
+                return member
+
+            if cache:
+                try:
+                    return await cache.get_from_guild(ctx.guild_id, user_id)
+
+                except async_cache.EntryNotFound:
+                    raise ValueError("Couldn't find member in this guild") from None
+
+                except async_cache.CacheMissError:
+                    pass
 
             try:
-                return await ctx.rest.fetch_member(ctx.guild_id, member_id)
+                return await ctx.rest.fetch_member(ctx.guild_id, user_id)
 
             except hikari.NotFoundError:
                 pass
 
         raise ValueError("Couldn't find member in this guild")
+
+
+_PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence]]
 
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
@@ -435,6 +576,12 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     """
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_PresenceCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -448,22 +595,39 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     def requires_cache(self) -> bool:
         return True
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.MemberPresence:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _PresenceCacheT = injecting.inject(type=_PresenceCacheT),
+    ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
-        if ctx.cache:
-            user_id = parse_user_id(argument, message="No valid member mention or ID  found")
-            if user := ctx.cache.get_presence(ctx.guild_id, user_id):
-                return user
+        user_id = parse_user_id(argument, message="No valid member mention or ID  found")
+        if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
+            return presence
+
+        if cache and (presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
+            return presence
 
         raise ValueError("Couldn't find presence in current guild")
+
+
+_RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 
 
 class RoleConverter(BaseConverter[hikari.Role]):
     """Standard converter for guild roles."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_RoleCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -477,11 +641,26 @@ class RoleConverter(BaseConverter[hikari.Role]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Role:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
+    ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID  found")
-        if ctx.cache:
-            if role := ctx.cache.get_role(role_id):
-                return role
+        if ctx.cache and (role := ctx.cache.get_role(role_id)):
+            return role
+
+        if cache:
+            try:
+                return await cache.get(role_id)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find role") from None
+
+            except async_cache.CacheMissError:
+                pass
 
         if ctx.guild_id:
             for role in await ctx.rest.fetch_roles(ctx.guild_id):
@@ -491,10 +670,19 @@ class RoleConverter(BaseConverter[hikari.Role]):
         raise ValueError("Couldn't find role")
 
 
+_UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
+
+
 class UserConverter(BaseConverter[hikari.User]):
     """Standard converter for users."""
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_UserCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -508,12 +696,27 @@ class UserConverter(BaseConverter[hikari.User]):
     def requires_cache(self) -> bool:
         return False
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.User:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _UserCacheT = injecting.inject(type=_UserCacheT),
+    ) -> hikari.User:
         # TODO: search by name if this is a guild context
         user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-        if ctx.cache:
-            if user := ctx.cache.get_user(user_id):
-                return user
+        if ctx.cache and (user := ctx.cache.get_user(user_id)):
+            return user
+
+        if cache:
+            try:
+                return await cache.get(user_id)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find user") from None
+
+            except async_cache.CacheMissError:
+                pass
 
         try:
             return await ctx.rest.fetch_user(user_id)
@@ -524,6 +727,9 @@ class UserConverter(BaseConverter[hikari.User]):
         raise ValueError("Couldn't find user")
 
 
+_VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
+
+
 class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     """Standard converter for voice states.
 
@@ -532,6 +738,12 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     """
 
     __slots__ = ()
+
+    @property
+    def async_caches(
+        self,
+    ) -> collections.Sequence[typing.Any]:
+        return (_VoiceStateCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
@@ -545,14 +757,23 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     def requires_cache(self) -> bool:
         return True
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.VoiceState:
+    async def __call__(
+        self,
+        argument: ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _VoiceStateCacheT = injecting.inject(type=_VoiceStateCacheT),
+    ) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
-        if ctx.cache:
-            user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-            if user := ctx.cache.get_voice_state(ctx.guild_id, user_id):
-                return user
+        user_id = parse_user_id(argument, message="No valid user mention or ID found")
+
+        if ctx.cache and (state := ctx.cache.get_voice_state(ctx.guild_id, user_id)):
+            return state
+
+        if cache and (state := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
+            return state
 
         raise ValueError("Voice state couldn't be found for current guild")
 

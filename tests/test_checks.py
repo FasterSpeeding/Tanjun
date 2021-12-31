@@ -138,16 +138,72 @@ class TestOwnerCheck:
 
 class TestNsfwCheck:
     @pytest.mark.asyncio()
+    async def test_when_is_dm(self):
+        mock_context = mock.Mock(guild_id=None)
+        mock_cache = mock.AsyncMock()
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.cache.get_guild_channel.assert_not_called()
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
     async def test(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
         assert result is True
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_when_async_cache_raises_not_found(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        with pytest.raises(tanjun.dependencies.EntryNotFound):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
+    async def test_when_not_cache_bound_and_async_cache_hit(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = True
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
+    async def test_when_not_found_in_cache_and_async_cache_hit(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = None
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is False
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
     async def test_when_not_cache_bound(self):
@@ -155,34 +211,26 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
         assert result is True
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
-    async def test_when_rest_returns_dm(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel)
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
-
-        result = await check(mock_context)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-
-    @pytest.mark.asyncio()
-    async def test_when_not_cache_bound_when_not_found_in_cache(self):
+    async def test_when_not_found_in_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
         assert result is True
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
     async def test_when_false(self):
@@ -190,7 +238,7 @@ class TestNsfwCheck:
         mock_context.cache.get_guild_channel.return_value.is_nsfw = None
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
         assert result is False
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
@@ -200,112 +248,159 @@ class TestNsfwCheck:
     async def test_when_false_and_error_message(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.NsfwCheck(error_message="meow me", halt_execution=False)
 
         with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_when_false_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=False)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
 
 class TestSfwCheck:
     @pytest.mark.asyncio()
+    async def test_when_is_dm(self):
+        mock_context = mock.Mock(guild_id=None)
+        mock_cache = mock.AsyncMock()
+        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.cache.get_guild_channel.assert_not_called()
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
     async def test(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
         assert result is True
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_when_not_cache_bound_and_async_cache_hit(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = False
+        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
+    async def test_when_not_found_in_cache_and_async_cache_hit(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = None
+        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
     async def test_when_not_cache_bound(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=False)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
-        assert result is True
+        assert result is False
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
-    async def test_when_rest_returns_dm(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel, is_nsfw=False)
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
-
-        result = await check(mock_context)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-
-    @pytest.mark.asyncio()
-    async def test_when_not_cache_bound_when_not_found_in_cache(self):
+    async def test_when_not_found_in_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=None)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
-        assert result is True
+        assert result is False
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
-    async def test_when_false(self):
+    async def test_when_is_nsfw(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
         assert result is False
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_when_false_and_error_message(self):
+    async def test_when_is_nsfw_and_error_message(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.SfwCheck(error_message="meow me", halt_execution=False)
 
         with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_when_false_and_halt_execution(self):
+    async def test_when_is_nsfw_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
 
 class TestDmCheck:
