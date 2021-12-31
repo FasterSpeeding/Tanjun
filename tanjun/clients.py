@@ -1687,7 +1687,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if self._cache:
                 user = self._cache.get_me()
 
-            if user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser]):
+            if not user and (user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser])):
                 user = await user_cache.get(default=None)
 
             if not user:
