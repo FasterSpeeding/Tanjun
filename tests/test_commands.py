@@ -209,6 +209,28 @@ def test_as_slash_command():
     assert command.is_global is False
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
+    assert command._wrapped_command is None
+
+
+@pytest.mark.parametrize(
+    "other_command",
+    [
+        tanjun.SlashCommand(mock.Mock(), "e", "a"),
+        tanjun.MessageCommand(mock.Mock(), "b"),
+        tanjun.MessageCommandGroup(mock.Mock(), "b"),
+    ],
+)
+def test_as_slash_command_when_wrapping_command(
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+    ]
+):
+
+    command = tanjun.as_slash_command("a_very", "cool name")(other_command)
+
+    assert command.callback is other_command.callback
+    assert command._wrapped_command is other_command
+    assert isinstance(command, tanjun.SlashCommand)
 
 
 def test_as_slash_command_with_defaults():
@@ -492,7 +514,7 @@ class Test_TrackedOption:
         assert option.is_only_member is True
         assert option.default == "default"
 
-    def test_needs_converter_property_when_all_false(self):
+    def test_needs_injector_property_when_all_false(self):
         option = tanjun.commands._TrackedOption(
             name="no",
             option_type=hikari.OptionType.INTEGER,
@@ -505,12 +527,12 @@ class Test_TrackedOption:
 
         assert option.needs_injector is False
 
-    def test_needs_converter_property_when_no_converters(self):
+    def test_needs_injector_property_when_no_converters(self):
         option = tanjun.commands._TrackedOption(name="no", option_type=hikari.OptionType.FLOAT)
 
         assert option.needs_injector is False
 
-    def test_needs_converter_property_when_true(self):
+    def test_needs_injector_property_when_true(self):
         option = tanjun.commands._TrackedOption(
             name="no",
             option_type=hikari.OptionType.FLOAT,
@@ -532,9 +554,13 @@ class Test_TrackedOption:
 
     @pytest.mark.asyncio()
     async def test_convert_when_all_fail(self):
-        mock_converter_1 = mock.AsyncMock(side_effect=ValueError())
-        mock_converter_2 = mock.AsyncMock(side_effect=ValueError())
-        mock_context = mock.Mock()
+        exc_1 = ValueError()
+        exc_2 = ValueError()
+        mock_converter_1 = mock.AsyncMock()
+        mock_converter_1.resolve_with_command_context.side_effect = exc_1
+        mock_converter_2 = mock.AsyncMock()
+        mock_converter_2.resolve_with_command_context.side_effect = exc_2
+        mock_context = mock.Mock(tanjun.context.BaseContext)
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
             name="no", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
@@ -545,16 +571,17 @@ class Test_TrackedOption:
 
         assert exc_info.value.parameter == "no"
         assert exc_info.value.message == "Couldn't convert FLOAT 'no'"
-        assert exc_info.value.errors == (mock_converter_1.side_effect, mock_converter_2.side_effect)
-        mock_converter_1.assert_awaited_once_with(mock_context, mock_value)
-        mock_converter_2.assert_awaited_once_with(mock_context, mock_value)
+        assert exc_info.value.errors == (exc_1, exc_2)
+        mock_converter_1.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
+        mock_converter_2.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
 
     @pytest.mark.asyncio()
     async def test_convert(self):
-        mock_converter_1 = mock.AsyncMock(side_effect=ValueError())
+        mock_converter_1 = mock.AsyncMock()
+        mock_converter_1.resolve_with_command_context.side_effect = ValueError()
         mock_converter_2 = mock.AsyncMock()
         mock_converter_3 = mock.AsyncMock()
-        mock_context = mock.Mock()
+        mock_context = mock.Mock(tanjun.context.BaseContext)
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
             name="no",
@@ -564,10 +591,10 @@ class Test_TrackedOption:
 
         result = await option.convert(mock_context, mock_value)
 
-        assert result is mock_converter_2.return_value
-        mock_converter_1.assert_awaited_once_with(mock_context, mock_value)
-        mock_converter_2.assert_awaited_once_with(mock_context, mock_value)
-        mock_converter_3.assert_not_called()
+        assert result is mock_converter_2.resolve_with_command_context.return_value
+        mock_converter_1.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
+        mock_converter_2.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_value)
+        mock_converter_3.resolve_with_command_context.assert_not_called()
 
 
 @pytest.mark.skip(reason="TODO")
@@ -575,7 +602,7 @@ class Test_CommandBuilder:
     ...
 
 
-_INVALID_NAMES = ["a" * 33, "", "'#'#42123", "Dicksy", "MORGAN", "StAnLey"]
+_INVALID_NAMES = ["a" * 33, "", "'#'#42123"]
 
 
 class TestBaseSlashCommand:
@@ -583,10 +610,13 @@ class TestBaseSlashCommand:
     def test__init__with_invalid_name(self, name: str):
         with pytest.raises(
             ValueError,
-            match=f"Invalid command name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             stub_class(tanjun.BaseSlashCommand)(name, "desccc")
+
+    def test__init__when_name_isnt_lowercase(self):
+        with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
+            stub_class(tanjun.BaseSlashCommand)("VooDOo", "desccc")
 
     def test__init__when_description_too_long(self):
         with pytest.raises(
@@ -898,6 +928,38 @@ class TestSlashCommand:
 
         assert command.callback is mock_callback
 
+    def test_load_into_component(self, command: tanjun.SlashCommand[typing.Any]):
+        mock_component = mock.Mock()
+
+        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+            command.load_into_component(mock_component)
+
+            load_into_component.assert_called_once_with(mock_component)
+
+    def test_load_into_component_when_wrapped_command_set(self, command: tanjun.SlashCommand[typing.Any]):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock()
+        command._wrapped_command = mock_other_command
+
+        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+            command.load_into_component(mock_component)
+
+            load_into_component.assert_called_once_with(mock_component)
+
+        mock_other_command.load_into_component.assert_not_called()
+
+    def test_load_into_component_when_wrapped_command_is_loadable(self, command: tanjun.SlashCommand[typing.Any]):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock(tanjun.AbstractComponentLoader)
+        command._wrapped_command = mock_other_command
+
+        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+            command.load_into_component(mock_component)
+
+            load_into_component.assert_called_once_with(mock_component)
+
+        mock_other_command.load_into_component.assert_called_once_with(mock_component)
+
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_str_option(
@@ -919,7 +981,8 @@ class TestSlashCommand:
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default == "ayya"
-        assert tracked.converters == [mock_converter]
+        assert len(tracked.converters) == 1
+        assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1011,10 +1074,18 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_str_option(name, "aye")
+
+    def test_test_add_str_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Invalid name provided, 'BeBooBp' must be lowercase",
+        ):
+            command.add_str_option("BeBooBp", "aye")
 
     def test_test_add_str_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1059,7 +1130,8 @@ class TestSlashCommand:
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
         assert tracked.default == "nya"
-        assert tracked.converters == [mock_converter]
+        assert len(tracked.converters) == 1
+        assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1119,10 +1191,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_int_option(name, "aye")
+
+    def test_test_add_int_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'YAWN' must be lowercase"):
+            command.add_int_option("YAWN", "aye")
 
     def test_test_add_int_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1176,7 +1253,8 @@ class TestSlashCommand:
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.FLOAT
         assert tracked.default == "eaf"
-        assert tracked.converters == [mock_converter]
+        assert len(tracked.converters) == 1
+        assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1239,10 +1317,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_float_option(name, "aye")
+
+    def test_test_add_float_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'Bloop' must be lowercase"):
+            command.add_float_option("Bloop", "aye")
 
     def test_test_add_float_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1323,10 +1406,18 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_bool_option(name, "aye")
+
+    def test_test_add_bool_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Invalid name provided, 'SNOOO' must be lowercase",
+        ):
+            command.add_bool_option("SNOOO", "aye")
 
     def test_test_add_bool_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1401,10 +1492,18 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_user_option(name, "aye")
+
+    def test_test_add_user_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Invalid name provided, 'WWWWWWWWWWW' must be lowercase",
+        ):
+            command.add_user_option("WWWWWWWWWWW", "aye")
 
     def test_test_add_user_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1470,10 +1569,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_member_option(name, "aye")
+
+    def test_test_add_member_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'YEET' must be lowercase"):
+            command.add_member_option("YEET", "aye")
 
     def test_test_add_member_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1580,10 +1684,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_channel_option(name, "aye")
+
+    def test_test_add_channel_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'MeOw' must be lowercase"):
+            command.add_channel_option("MeOw", "aye")
 
     def test_test_add_channel_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1658,10 +1767,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_role_option(name, "aye")
+
+    def test_test_add_role_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'MeeP' must be lowercase"):
+            command.add_role_option("MeeP", "aye")
 
     def test_test_add_role_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1684,10 +1798,10 @@ class TestSlashCommand:
             command.add_role_option("namae", "aye")
 
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_mentionable_option("owo", "iwi", default="ywy")
+        command.add_mentionable_option("単純", "iwi", default="ywy")
 
         option = command.build().options[0]
-        assert option.name == "owo"
+        assert option.name == "単純"
         assert option.description == "iwi"
         assert option.is_required is False
         assert option.options is None
@@ -1736,10 +1850,15 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
-            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
             command.add_mentionable_option(name, "aye")
+
+    def test_test_add_mentionable_option_when_name_isnt_lowercase(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Invalid name provided, 'Sharlette' must be lowercase"):
+            command.add_mentionable_option("Sharlette", "aye")
 
     def test_test_add_mentionable_option_when_description_too_long(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
@@ -1785,6 +1904,25 @@ def test_as_message_command():
 
     assert command.names == ["a", "b"]
     assert command.callback is mock_callback
+    assert command._wrapped_command is None
+
+
+@pytest.mark.parametrize(
+    "other_command",
+    [
+        tanjun.SlashCommand(mock.Mock(), "e", "a"),
+        tanjun.MessageCommand(mock.Mock(), "b"),
+        tanjun.MessageCommandGroup(mock.Mock(), "b"),
+    ],
+)
+def test_as_message_command_when_wrapping_command(
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+    ]
+):
+    command = tanjun.as_message_command("a", "b")(other_command)
+
+    assert command._wrapped_command is other_command
 
 
 def test_as_message_command_group():
@@ -1794,6 +1932,25 @@ def test_as_message_command_group():
     assert command.names == ["c", "b"]
     assert command.is_strict is True
     assert command.callback is mock_callback
+    assert command._wrapped_command is None
+
+
+@pytest.mark.parametrize(
+    "other_command",
+    [
+        tanjun.SlashCommand(mock.Mock(), "e", "a"),
+        tanjun.MessageCommand(mock.Mock(), "b"),
+        tanjun.MessageCommandGroup(mock.Mock(), "b"),
+    ],
+)
+def test_as_message_command_group_when_wrapping_command(
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+    ]
+):
+    command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
+
+    assert command._wrapped_command is other_command
 
 
 class TestMessageCommand:
@@ -1905,6 +2062,28 @@ class TestMessageCommand:
         command.load_into_component(mock_component)
 
         mock_component.add_message_command.assert_called_once_with(command)
+
+    def test_load_into_component_when_wrapped_command_set(self):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock()
+        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command._wrapped_command = mock_other_command
+
+        command.load_into_component(mock_component)
+
+        mock_component.add_message_command.assert_called_once_with(command)
+        mock_other_command.load_into_component.assert_not_called()
+
+    def test_load_into_component_when_wrapped_command_is_loadable(self):
+        mock_component = mock.Mock()
+        mock_other_command = mock.Mock(tanjun.AbstractComponentLoader)
+        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command._wrapped_command = mock_other_command
+
+        command.load_into_component(mock_component)
+
+        mock_component.add_message_command.assert_called_once_with(command)
+        mock_other_command.load_into_component.assert_called_once_with(mock_component)
 
 
 class TestMessageCommandGroup:

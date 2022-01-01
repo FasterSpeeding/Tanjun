@@ -158,8 +158,7 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
                 type(component), component
             )
 
-        elif (component_case := self.get_type_special_case(tanjun_abc.Component)) is not injecting.UNDEFINED:
-            assert not isinstance(component_case, injecting.Undefined)
+        elif component_case := self._special_case_types.get(tanjun_abc.Component):
             self._remove_type_special_case(tanjun_abc.Component)
             self._remove_type_special_case(type(component_case))
 
@@ -217,7 +216,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         content: str,
         message: hikari.Message,
         *,
-        command: typing.Optional[tanjun_abc.MessageCommand] = None,
+        command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
         triggering_name: str = "",
         triggering_prefix: str = "",
@@ -250,7 +249,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         return self._message.channel_id
 
     @property
-    def command(self) -> typing.Optional[tanjun_abc.MessageCommand]:
+    def command(self) -> typing.Optional[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._command
 
@@ -313,7 +312,9 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
 
         return self._client.shards.shards[shard_id]
 
-    def set_command(self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand], /) -> _MessageContextT:
+    def set_command(
+        self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]], /
+    ) -> _MessageContextT:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._command = command
@@ -324,8 +325,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
                 ._set_type_special_case(type(command), command)
             )
 
-        elif (command_case := self.get_type_special_case(tanjun_abc.ExecutableCommand)) is not injecting.UNDEFINED:
-            assert not isinstance(command_case, injecting.Undefined)
+        elif command_case := self._special_case_types.get(tanjun_abc.ExecutableCommand):
             self._remove_type_special_case(tanjun_abc.ExecutableCommand)
             self._remove_type_special_case(tanjun_abc.MessageCommand)  # TODO: command group?
             self._remove_type_special_case(type(command_case))
@@ -887,8 +887,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 ._set_type_special_case(tanjun_abc.SlashCommand, command)
                 ._set_type_special_case(type(command), command)
             )
-        elif (command_case := self.get_type_special_case(tanjun_abc.ExecutableCommand)) is not injecting.UNDEFINED:
-            assert not isinstance(command_case, injecting.Undefined)
+        elif command_case := self._special_case_types.get(tanjun_abc.ExecutableCommand):
             self._remove_type_special_case(tanjun_abc.ExecutableCommand)
             self._remove_type_special_case(tanjun_abc.BaseSlashCommand)
             self._remove_type_special_case(tanjun_abc.SlashCommand)  # TODO: command group?

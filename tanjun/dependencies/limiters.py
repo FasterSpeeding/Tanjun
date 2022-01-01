@@ -60,6 +60,7 @@ from .. import abc as tanjun_abc
 from .. import errors
 from .. import hooks
 from .. import injecting
+from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
@@ -194,6 +195,15 @@ class BucketResource(int, enum.Enum):
     """A global resource bucket."""
 
 
+async def _try_get_role(
+    cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake
+) -> typing.Optional[hikari.Role]:
+    try:
+        return await cache.get(role_id)
+    except async_cache.EntryNotFound:
+        pass
+
+
 async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> hikari.Snowflake:
     if type_ is BucketResource.USER:
         return ctx.author.id
@@ -207,6 +217,12 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
 
         if cached_channel := ctx.get_channel():
             return cached_channel.parent_id or ctx.guild_id
+
+        # TODO: upgrade this to the standard interface
+        assert isinstance(ctx, injecting.AbstractInjectionContext)
+        channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildChannel])
+        if channel_cache and (channel := await channel_cache.get(ctx.channel_id, default=None)):
+            return channel.parent_id or ctx.guild_id
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.TextableGuildChannel)
@@ -234,7 +250,21 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if not ctx.member or len(ctx.member.role_ids) <= 1:  # If they only have 1 role ID then this is @everyone.
             return ctx.guild_id
 
-        roles = ctx.member.get_roles() or await ctx.member.fetch_roles()
+        roles = ctx.member.get_roles()
+        try_rest = not roles
+        # TODO: upgrade this to the standard interface
+        assert isinstance(ctx, injecting.AbstractInjectionContext)
+        if try_rest and (role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role])):
+            try:
+                roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
+                try_rest = False
+
+            except async_cache.CacheMissError:
+                pass
+
+        if try_rest:
+            roles = await ctx.member.fetch_roles()
+
         return next(iter(sorted(roles, key=lambda r: r.position, reverse=True))).id
 
     if type_ is BucketResource.GUILD:
@@ -276,7 +306,7 @@ class _Cooldown:
 
         return self
 
-    def must_wait_until(self) -> typing.Optional[float]:
+    def must_wait_for(self) -> typing.Optional[float]:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
         if self.limit == -1:
             return None
@@ -502,10 +532,15 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ) -> typing.Optional[float]:
         # <<inherited docstring from AbstractCooldownManager>>.
         if increment:
-            return (await self._get_or_default(bucket_id).into_inner(ctx)).increment().must_wait_until()
+            bucket = await self._get_or_default(bucket_id).into_inner(ctx)
+            if cooldown := bucket.must_wait_for():
+                return cooldown
+
+            bucket.increment()
+            return None
 
         if (bucket := self._buckets.get(bucket_id)) and (cooldown := await bucket.try_into_inner(ctx)):
-            return cooldown.must_wait_until()
+            return cooldown.must_wait_for()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
@@ -539,7 +574,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
-    def disable_bucket(self: _InMemoryCooldownManagerT, bucket_id: str) -> _InMemoryCooldownManagerT:
+    def disable_bucket(self: _InMemoryCooldownManagerT, bucket_id: str, /) -> _InMemoryCooldownManagerT:
         """Disable a cooldown bucket.
 
         This will stop the bucket from ever hitting a cooldown and also
@@ -664,12 +699,17 @@ class CooldownPreExecution:
         self,
         ctx: tanjun_abc.Context,
         cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
-        # TODO: default to None for the owner check as this should only require
-        # the owner check dependency if owner_exempt is True.
-        owner_check: owners.AbstractOwners = injecting.inject(type=owners.AbstractOwners),
+        owner_check: typing.Optional[owners.AbstractOwners] = injecting.inject(
+            type=typing.Optional[owners.AbstractOwners]
+        ),
     ) -> None:
-        if self._owners_exempt and await owner_check.check_ownership(ctx.client, ctx.author):
-            return
+        if self._owners_exempt:
+            if not owner_check:
+                _LOGGER.info("No `AbstractOwners` dependency found, disabling owner exemption for cooldown check")
+                self._owners_exempt = False
+
+            elif await owner_check.check_ownership(ctx.client, ctx.author):
+                return
 
         if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
             raise errors.CommandError(self._error_message.format(cooldown=wait_for))
@@ -870,7 +910,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release()
 
-    def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str) -> _InMemoryConcurrencyLimiterT:
+    def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str, /) -> _InMemoryConcurrencyLimiterT:
         """Disable a concurrency limit bucket.
 
         This will stop the bucket from ever hitting a concurrency limit

@@ -138,16 +138,72 @@ class TestOwnerCheck:
 
 class TestNsfwCheck:
     @pytest.mark.asyncio()
+    async def test_when_is_dm(self):
+        mock_context = mock.Mock(guild_id=None)
+        mock_cache = mock.AsyncMock()
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.cache.get_guild_channel.assert_not_called()
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
     async def test(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
         assert result is True
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_when_async_cache_raises_not_found(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        with pytest.raises(tanjun.dependencies.EntryNotFound):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
+    async def test_when_not_cache_bound_and_async_cache_hit(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = True
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
+    async def test_when_not_found_in_cache_and_async_cache_hit(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = None
+        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is False
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
     async def test_when_not_cache_bound(self):
@@ -155,34 +211,26 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
         assert result is True
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
-    async def test_when_rest_returns_dm(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel)
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
-
-        result = await check(mock_context)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-
-    @pytest.mark.asyncio()
-    async def test_when_not_cache_bound_when_not_found_in_cache(self):
+    async def test_when_not_found_in_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
         assert result is True
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
     async def test_when_false(self):
@@ -190,7 +238,7 @@ class TestNsfwCheck:
         mock_context.cache.get_guild_channel.return_value.is_nsfw = None
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
         assert result is False
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
@@ -200,112 +248,159 @@ class TestNsfwCheck:
     async def test_when_false_and_error_message(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.NsfwCheck(error_message="meow me", halt_execution=False)
 
         with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_when_false_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=False)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
 
 class TestSfwCheck:
     @pytest.mark.asyncio()
+    async def test_when_is_dm(self):
+        mock_context = mock.Mock(guild_id=None)
+        mock_cache = mock.AsyncMock()
+        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.cache.get_guild_channel.assert_not_called()
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
     async def test(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
         assert result is True
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_when_not_cache_bound_and_async_cache_hit(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = False
+        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
+
+    @pytest.mark.asyncio()
+    async def test_when_not_found_in_cache_and_async_cache_hit(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_guild_channel.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value.is_nsfw = None
+        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+
+        result = await check(mock_context, channel_cache=mock_cache)
+
+        assert result is True
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
     async def test_when_not_cache_bound(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=False)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
-        assert result is True
+        assert result is False
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
-    async def test_when_rest_returns_dm(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel, is_nsfw=False)
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
-
-        result = await check(mock_context)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-
-    @pytest.mark.asyncio()
-    async def test_when_not_cache_bound_when_not_found_in_cache(self):
+    async def test_when_not_found_in_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=None)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=mock_cache)
 
-        assert result is True
+        assert result is False
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
     @pytest.mark.asyncio()
-    async def test_when_false(self):
+    async def test_when_is_nsfw(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
 
-        result = await check(mock_context)
+        result = await check(mock_context, channel_cache=None)
 
         assert result is False
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_when_false_and_error_message(self):
+    async def test_when_is_nsfw_and_error_message(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.SfwCheck(error_message="meow me", halt_execution=False)
 
         with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_when_false_and_halt_execution(self):
+    async def test_when_is_nsfw_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
         check = tanjun.checks.SfwCheck(error_message=None, halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
-            await check(mock_context)
+            await check(mock_context, channel_cache=mock_cache)
 
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
+        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
 
 class TestDmCheck:
@@ -470,3 +565,335 @@ def test_with_check(command: mock.Mock):
 
     assert result is command
     command.add_check.assert_called_once_with(mock_check)
+
+
+@pytest.mark.asyncio()
+async def test_all_checks():
+    mock_check_1 = mock.AsyncMock(return_value=True)
+    mock_check_2 = mock.AsyncMock(return_value=True)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_all_checks_when_check_raises():
+    class MockError(Exception):
+        ...
+
+    mock_check_1 = mock.AsyncMock(return_value=True)
+    mock_check_2 = mock.AsyncMock(side_effect=MockError)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+
+    with pytest.raises(MockError):
+        await check(mock_context)
+
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_all_checks_when_first_fails():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(return_value=True)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+
+    result = await check(mock_context)
+
+    assert result is False
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_not_called()
+    mock_check_3.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_all_checks_when_last_fails():
+    mock_check_1 = mock.AsyncMock(return_value=True)
+    mock_check_2 = mock.AsyncMock(return_value=True)
+    mock_check_3 = mock.AsyncMock(return_value=False)
+    mock_context = mock.Mock()
+    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+
+    result = await check(mock_context)
+
+    assert result is False
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_all_checks_when_any_check_fails():
+    mock_check_1 = mock.AsyncMock(return_value=True)
+    mock_check_2 = mock.AsyncMock(return_value=False)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_check_4 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3, mock_check_4)
+
+    result = await check(mock_context)
+
+    assert result is False
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_not_called()
+    mock_check_4.assert_not_called()
+
+
+def test_with_all_checks():
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_command = mock.Mock()
+
+    with mock.patch.object(tanjun.checks, "all_checks") as all_checks:
+        result = tanjun.with_all_checks(mock_check_1, mock_check_2, mock_check_3)(mock_command)
+
+    assert result is mock_command.add_check.return_value
+    mock_command.add_check.assert_called_once_with(all_checks.return_value)
+    all_checks.assert_called_once_with(mock_check_1, mock_check_2, mock_check_3)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_first_check_passes():
+    mock_check_1 = mock.AsyncMock(return_value=True)
+    mock_check_2 = mock.AsyncMock()
+    mock_check_3 = mock.AsyncMock()
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_not_called()
+    mock_check_3.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_last_check_passes():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_check_passes():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
+    mock_check_3 = mock.AsyncMock(return_value=False)
+    mock_check_4 = mock.AsyncMock(return_value=True)
+    mock_check_5 = mock.AsyncMock(return_value=False)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, mock_check_4, mock_check_5, error_message="hi")
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+    mock_check_4.assert_awaited_once_with(mock_context)
+    mock_check_5.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
+    mock_check_3 = mock.AsyncMock(return_value=False)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+
+    result = await check(mock_context)
+
+    assert result is False
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_halt_execution():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(return_value=False)
+    mock_check_3 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, halt_execution=True)
+
+    with pytest.raises(tanjun.HaltExecution):
+        await check(mock_context)
+
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message():
+    mock_check_1 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
+    mock_check_2 = mock.AsyncMock(return_value=False)
+    mock_check_3 = mock.AsyncMock(return_value=False)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="aye")
+
+    with pytest.raises(tanjun.CommandError, match="aye"):
+        await check(mock_context)
+
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_generic_unsuppressed_error_raised():
+    class MockError(Exception):
+        ...
+
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=MockError)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+
+    with pytest.raises(MockError):
+        await check(mock_context)
+
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_generic_error_suppressed():
+    class MockError(Exception):
+        ...
+
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=MockError)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=(MockError,))
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_halt_execution_not_suppressed():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.HaltExecution)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=())
+
+    with pytest.raises(tanjun.HaltExecution):
+        await check(mock_context)
+
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_halt_execution_suppressed():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.HaltExecution)
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_command_error_not_suppressed():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.CommandError("bye"))
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=())
+
+    with pytest.raises(tanjun.CommandError, match="bye"):
+        await check(mock_context)
+
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_command_error_suppressed():
+    mock_check_1 = mock.AsyncMock(return_value=False)
+    mock_check_2 = mock.AsyncMock(side_effect=tanjun.CommandError("bye"))
+    mock_check_3 = mock.AsyncMock(return_value=True)
+    mock_context = mock.Mock()
+    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+
+    result = await check(mock_context)
+
+    assert result is True
+    mock_check_1.assert_awaited_once_with(mock_context)
+    mock_check_2.assert_awaited_once_with(mock_context)
+    mock_check_3.assert_awaited_once_with(mock_context)
+
+
+def test_with_any_checks():
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_command = mock.Mock()
+
+    class MockError(Exception):
+        ...
+
+    with mock.patch.object(tanjun.checks, "any_checks") as any_checks:
+        result = tanjun.checks.with_any_checks(
+            mock_check_1,
+            mock_check_2,
+            mock_check_3,
+            suppress=(MockError,),
+            error_message="yay catgirls",
+            halt_execution=True,
+        )(mock_command)
+
+    assert result is mock_command.add_check.return_value
+    mock_command.add_check.assert_called_once_with(any_checks.return_value)
+    any_checks.assert_called_once_with(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message="yay catgirls",
+        suppress=(MockError,),
+        halt_execution=True,
+    )

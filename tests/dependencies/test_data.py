@@ -115,7 +115,7 @@ def test_inject_lc():
     stack = contextlib.ExitStack()
     inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
     make_lc_resolver = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "make_lc_resolver"))
-    mock_type: type[typing.Any] = mock.Mock()
+    mock_type: typing.Any = mock.Mock()
 
     with stack:
         result = tanjun.inject_lc(mock_type)

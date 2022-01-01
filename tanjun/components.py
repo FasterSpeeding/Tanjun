@@ -35,7 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "CommandT",
     "Component",
-    "ComponentLoader",
+    "AbstractComponentLoader",
     "OnCallbackSig",
     "OnCallbackSigT",
     "WithCommandReturnSig",
@@ -81,7 +81,7 @@ OnCallbackSigT = typing.TypeVar("OnCallbackSigT", bound=OnCallbackSig)
 """Generic version of `OnCallbackSig`."""
 
 
-class ComponentLoader(abc.ABC):
+class AbstractComponentLoader(abc.ABC):
     """Abstract interface used for loading utility into a standard `Component`."""
 
     __slots__ = ()
@@ -214,11 +214,11 @@ class Component(tanjun_abc.Component):
         self._is_strict = strict
         self._listeners: dict[type[base_events.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
-        self._message_commands: list[tanjun_abc.MessageCommand] = []
+        self._message_commands: list[tanjun_abc.MessageCommand[typing.Any]] = []
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or base64.b64encode(random.randbytes(32)).decode()
-        self._names_to_commands: dict[str, tanjun_abc.MessageCommand] = {}
+        self._names_to_commands: dict[str, tanjun_abc.MessageCommand[typing.Any]] = {}
         self._on_close: list[injecting.CallbackDescriptor[None]] = []
         self._on_open: list[injecting.CallbackDescriptor[None]] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
@@ -268,7 +268,7 @@ class Component(tanjun_abc.Component):
         return self._slash_hooks
 
     @property
-    def message_commands(self) -> collections.Collection[tanjun_abc.MessageCommand]:
+    def message_commands(self) -> collections.Collection[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._message_commands.copy()
 
@@ -333,7 +333,7 @@ class Component(tanjun_abc.Component):
         -----
         * This will ignore commands which are owned by command groups.
         * This will detect entries from the calling scope which implement
-          `ComponentLoader` unless `scope` is passed but this isn't possible
+          `AbstractComponentLoader` unless `scope` is passed but this isn't possible
           in a stack-less python implementation; in stack-less environments the
           scope will have to be explicitly passed as `scope`.
 
@@ -347,7 +347,7 @@ class Component(tanjun_abc.Component):
             and will only ever be needed when the local scope is different
             from the global scope.
         scope : typing.Optional[collections.Mapping[str, typing.Any]]
-            The scope to detect entries which implement `ComponentLoader`
+            The scope to detect entries which implement `AbstractComponentLoader`
             from.
 
             This overrides the default usage of stackframe introspection.
@@ -387,7 +387,7 @@ class Component(tanjun_abc.Component):
             "global and local" if include_globals else "local",
         )
         for value in values_iter:
-            if isinstance(value, ComponentLoader):
+            if isinstance(value, AbstractComponentLoader):
                 value.load_into_component(self)
 
         return self
@@ -603,7 +603,7 @@ class Component(tanjun_abc.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_slash_command, command, copy=copy)
 
-    def add_message_command(self: _ComponentT, command: tanjun_abc.MessageCommand, /) -> _ComponentT:
+    def add_message_command(self: _ComponentT, command: tanjun_abc.MessageCommand[typing.Any], /) -> _ComponentT:
         """Add a message command to the component.
 
         Parameters
@@ -645,7 +645,7 @@ class Component(tanjun_abc.Component):
         command.bind_component(self)
         return self
 
-    def remove_message_command(self: _ComponentT, command: tanjun_abc.MessageCommand, /) -> _ComponentT:
+    def remove_message_command(self: _ComponentT, command: tanjun_abc.MessageCommand[typing.Any], /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         self._message_commands.remove(command)
 
@@ -860,7 +860,7 @@ class Component(tanjun_abc.Component):
 
     async def _check_message_context(
         self, ctx: tanjun_abc.MessageContext, /
-    ) -> collections.AsyncIterator[tuple[str, tanjun_abc.MessageCommand]]:
+    ) -> collections.AsyncIterator[tuple[str, tanjun_abc.MessageCommand[typing.Any]]]:
         ctx.set_component(self)
 
         if self._is_strict:
@@ -887,7 +887,9 @@ class Component(tanjun_abc.Component):
 
         ctx.set_component(None)
 
-    def check_message_name(self, content: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
+    def check_message_name(
+        self, content: str, /
+    ) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         if self._is_strict:
             name = content.split(" ", 1)[0]
@@ -993,7 +995,7 @@ class Component(tanjun_abc.Component):
 
     def _load_from_properties(self) -> None:
         for _, member in inspect.getmembers(self):
-            if isinstance(member, ComponentLoader):
+            if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
     async def close(self) -> None:

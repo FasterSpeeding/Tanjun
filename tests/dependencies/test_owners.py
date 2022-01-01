@@ -54,38 +54,144 @@ class TestOwners:
     @pytest.mark.asyncio()
     async def test_check_ownership_when_user_in_owner_ids(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
         result = await check.check_ownership(mock_client, mock.Mock(id=7634))
 
         assert result is True
         mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_falling_back_to_application(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634], fallback_to_application=False)
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
         result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
 
         assert result is False
         mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_check_ownership_when_async_cache_and_application_owner(self):
+        check = tanjun.dependencies.Owners(owners=[432, 1221])
+        application = mock.Mock(owner=mock.Mock(id=4442322), team=None)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value = application
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = mock_cache
+
+        result = await check.check_ownership(mock_client, mock.Mock(id=4442322))
+
+        assert result is True
+        mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
+        mock_cache.get.assert_awaited_once_with(default=None)
+
+    @pytest.mark.asyncio()
+    async def test_check_ownership_when_async_cache_but_not_application_owner(self):
+        check = tanjun.dependencies.Owners(owners=[234321123, 5432123])
+        application = mock.Mock(owner=mock.Mock(id=12345322), team=None)
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value = application
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = mock_cache
+
+        result = await check.check_ownership(mock_client, mock.Mock(id=234123321))
+
+        assert result is False
+        mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
+        mock_cache.get.assert_awaited_once_with(default=None)
+
+    @pytest.mark.asyncio()
+    async def test_check_ownership_when_when_async_cache_and_application_team_member(self):
+        check = tanjun.dependencies.Owners(owners=[6543456, 345234])
+        application = mock.Mock(
+            owner=mock.Mock(id=65456234), team=mock.Mock(members={8656: mock.Mock(), 55555544444: mock.Mock()})
+        )
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value = application
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = mock_cache
+
+        result = await check.check_ownership(mock_client, mock.Mock(id=55555544444))
+
+        assert result is True
+        mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
+        mock_cache.get.assert_awaited_once_with(default=None)
+
+    @pytest.mark.asyncio()
+    async def test_check_ownership_when_async_cache_but_not_team_member(self):
+        check = tanjun.dependencies.Owners(owners=[87456234123, 12365234])
+
+        application = mock.Mock(
+            owner=mock.Mock(id=322332232), team=mock.Mock(members={43123: mock.Mock(), 321145: mock.Mock()})
+        )
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value = application
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = mock_cache
+
+        result = await check.check_ownership(mock_client, mock.Mock(id=322332232))
+
+        assert result is False
+        mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
+        mock_cache.get.assert_awaited_once_with(default=None)
+
+    @pytest.mark.asyncio()
+    async def test_check_ownership_when_async_cache_returns_none_application_owner(self):
+        check = tanjun.dependencies.Owners(owners=[123, 7634])
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.return_value = None
+        application = mock.Mock(owner=mock.Mock(id=654234), team=None)
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = mock_cache
+        mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
+        mock_client.rest.token_type = hikari.TokenType.BOT
+
+        result = await check.check_ownership(mock_client, mock.Mock(id=654234))
+
+        assert result is True
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
+        mock_cache.get.assert_awaited_once_with(default=None)
+        mock_client.rest.fetch_application.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_token_type_is_not_bot(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         mock_client.rest.token_type = hikari.TokenType.BEARER
 
         result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
 
         assert result is False
         mock_client.rest.fetch_application.assert_not_called()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_application_owner(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
         mock_client.rest.token_type = hikari.TokenType.BOT
@@ -94,11 +200,15 @@ class TestOwners:
 
         assert result is True
         mock_client.rest.fetch_application.assert_awaited_once_with()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_application_owner(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
         mock_client.rest.token_type = hikari.TokenType.BOT
@@ -107,11 +217,15 @@ class TestOwners:
 
         assert result is False
         mock_client.rest.fetch_application.assert_awaited_once_with()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_application_team_member(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
         )
@@ -122,11 +236,15 @@ class TestOwners:
 
         assert result is True
         mock_client.rest.fetch_application.assert_awaited_once_with()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
 
     @pytest.mark.asyncio()
     async def test_check_ownership_when_not_team_member(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
         )
@@ -137,11 +255,15 @@ class TestOwners:
 
         assert result is False
         mock_client.rest.fetch_application.assert_awaited_once_with()
+        mock_client.get_type_dependency.assert_called_once_with(
+            tanjun.dependencies.SingleStoreCache[hikari.Application]
+        )
 
     @pytest.mark.asyncio()
     async def test_check_ownership_application_caching_behaviour(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
         )
@@ -159,7 +281,8 @@ class TestOwners:
         self, expire_after: typing.Union[float, int, datetime.timedelta]
     ):
         check = tanjun.dependencies.Owners(expire_after=expire_after)
-        mock_client = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         application_1 = mock.Mock(team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()}))
         application_2 = mock.Mock(team=mock.Mock(members={64123: mock.Mock()}))
         mock_client.rest.fetch_application = mock.AsyncMock(side_effect=[application_1, application_2])

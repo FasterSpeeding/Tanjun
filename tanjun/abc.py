@@ -35,6 +35,8 @@ from __future__ import annotations
 __all__: list[str] = [
     "ClientLoader",
     "BaseSlashCommandT",
+    "CommandCallbackSig",
+    "CommandCallbackSigT",
     "CheckSig",
     "CheckSigT",
     "Context",
@@ -93,7 +95,7 @@ ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravaria
 MetaEventSig = collections.Callable[..., MaybeAwaitableT[None]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
 BaseSlashCommandT = typing.TypeVar("BaseSlashCommandT", bound="BaseSlashCommand")
-MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand")
+MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand[typing.Any]")
 
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
@@ -108,6 +110,8 @@ command if applicable.
     This will have to be asynchronous.
 """
 
+CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=CommandCallbackSig)
+"""Generic equivalent of `CommandCallbackSig`."""
 
 CheckSig = collections.Callable[..., MaybeAwaitableT[bool]]
 """Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
@@ -902,7 +906,7 @@ class MessageContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[MessageCommand]:
+    def command(self) -> typing.Optional[MessageCommand[typing.Any]]:
         """Command that was invoked.
 
         .. note::
@@ -941,7 +945,7 @@ class MessageContext(Context, abc.ABC):
         """Command name that triggered the context."""
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[MessageCommand], /) -> _T:
+    def set_command(self: _T, _: typing.Optional[MessageCommand[typing.Any]], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -2143,14 +2147,14 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """
 
 
-class SlashCommand(BaseSlashCommand, abc.ABC):
+class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT]):
     """A command that can be executed in a slash context."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSig:
+    def callback(self) -> CommandCallbackSigT:
         """Callback which is called during execution."""
 
 
@@ -2220,14 +2224,14 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         """
 
 
-class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
+class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[CommandCallbackSigT]):
     """Standard interface of a message command."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSig:
+    def callback(self) -> CommandCallbackSigT:
         """Callback which is called during execution.
 
         .. note::
@@ -2242,16 +2246,16 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def parent(self) -> typing.Optional[MessageCommandGroup]:
-        """Parent group of this command if it's onwned by a group."""
+    def parent(self) -> typing.Optional[MessageCommandGroup[typing.Any]]:
+        """Parent group of this command if applicable."""
 
     @abc.abstractmethod
-    def set_parent(self: _T, _: typing.Optional[MessageCommandGroup], /) -> _T:
+    def set_parent(self: _T, _: typing.Optional[MessageCommandGroup[typing.Any]], /) -> _T:
         """Set the parent of this command.
 
         Parameters
         ----------
-        parent : typing.Optional[MessageCommandGroup]
+        parent : typing.Optional[MessageCommandGroup[typing.Any]]
             The parent of this command.
 
         Returns
@@ -2261,12 +2265,12 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
         """
 
     @abc.abstractmethod
-    def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup] = None) -> _T:
+    def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup[typing.Any]] = None) -> _T:
         """Create a copy of this command.
 
         Other Parameters
         ----------------
-        parent : typing.Optional[MessageCommandGroup]
+        parent : typing.Optional[MessageCommandGroup[tping.Any]]
             The parent of the copy.
 
         Returns
@@ -2286,14 +2290,14 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
         raise NotImplementedError
 
 
-class MessageCommandGroup(MessageCommand, abc.ABC):
+class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.ABC):
     """Standard interface of a message command group."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def commands(self) -> collections.Collection[MessageCommand]:
+    def commands(self) -> collections.Collection[MessageCommand[typing.Any]]:
         """Collection of the commands in this group.
 
         .. note::
@@ -2301,7 +2305,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_command(self: _T, command: MessageCommand, /) -> _T:
+    def add_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
         """Add a command to this group.
 
         Parameters
@@ -2316,7 +2320,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_command(self: _T, command: MessageCommand, /) -> _T:
+    def remove_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
         """Remove a command from this group.
 
         Parameters
@@ -2404,7 +2408,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def message_commands(self) -> collections.Collection[MessageCommand]:
+    def message_commands(self) -> collections.Collection[MessageCommand[typing.Any]]:
         """Collection of the message commands in this component."""
 
     @property
@@ -2492,12 +2496,12 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_message_command(self: _T, command: MessageCommand, /) -> _T:
+    def add_message_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
         """Add a message command to this component.
 
         Parameters
         ----------
-        command : MessageCommand
+        command : MessageCommand[typing.Any]
             The command to add.
 
         Returns
@@ -2507,12 +2511,12 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_message_command(self: _T, command: MessageCommand, /) -> _T:
+    def remove_message_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
         """Remove a message command from this component.
 
         Parameters
         ----------
-        command : MessageCommand
+        command : MessageCommand[typing.Any]
             The command to remove.
 
         Raises
@@ -2626,7 +2630,7 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a name matches any of this component's registered message commands.
 
         Notes
@@ -2644,7 +2648,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.abc.Iterator[tuple[str, MessageCommand]]
+        collections.abc.Iterator[tuple[str, MessageCommand[typing.Any]]]
             Iterator of tuples of command name matches to the relevant message
             command objects.
         """
@@ -3386,7 +3390,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def iter_message_commands(self) -> collections.Iterator[MessageCommand]:
+    def iter_message_commands(self) -> collections.Iterator[MessageCommand[typing.Any]]:
         """Iterate over all the message commands registered to this client.
 
         Returns
@@ -3411,7 +3415,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a message command name is present in the current client.
 
         .. note::

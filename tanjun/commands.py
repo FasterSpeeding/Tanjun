@@ -34,7 +34,6 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "AnyMessageCommandT",
-    "CommandCallbackSigT",
     "ConverterSig",
     "as_message_command",
     "as_message_command_group",
@@ -87,16 +86,20 @@ if typing.TYPE_CHECKING:
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
 
 
-AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand)
-CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=abc.CommandCallbackSig)
+_CallbackishT = typing.Union[
+    abc.CommandCallbackSigT,
+    abc.MessageCommand[abc.CommandCallbackSigT],
+    abc.SlashCommand[abc.CommandCallbackSigT],
+]
+
+AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-_EMPTY_LIST: typing.Final[list[typing.Any]] = []
 
 
-class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLoader):
+class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractComponentLoader):
     """Base class for the standard ExecutableCommand implementations."""
 
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
@@ -181,7 +184,15 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLo
         return self
 
 
-_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
+_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
+
+
+def _validate_name(name: str) -> None:
+    if not _SCOMMAND_NAME_REG.fullmatch(name):
+        raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
+
+    if name.lower() != name:
+        raise ValueError(f"Invalid name provided, {name!r} must be lowercase")
 
 
 def slash_command_group(
@@ -193,7 +204,7 @@ def slash_command_group(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> SlashCommandGroup:
-    """Create a slash command group.
+    r"""Create a slash command group.
 
     Examples
     --------
@@ -228,6 +239,8 @@ def slash_command_group(
     ----------
     name : str
         The name of the command group.
+
+        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
     description : str
         The description of the command group.
 
@@ -255,7 +268,8 @@ def slash_command_group(
     ------
     ValueError
         Raises a value error for any of the following reasons:
-        * If the command name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name has uppercase characters.
         * If the description is over 100 characters long.
     """
     return SlashCommandGroup(
@@ -277,7 +291,7 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], SlashCommand[abc.CommandCallbackSigT]]:
     r"""Build a `SlashCommand` by decorating a function.
 
     .. note::
@@ -303,7 +317,9 @@ def as_slash_command(
     Parameters
     ----------
     name : str
-        The command's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        The command's name.
+
+        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
     description : str
         The command's description.
         This should be inclusively between 1-100 characters in length.
@@ -332,25 +348,46 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]
-        The decorator callback used to build the command to a `SlashCommand`.
+    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], SlashCommand[CommandCallbackSigT]]
+        The decorator callback used to make a `SlashCommand`.
+
+        This can either wrap a raw command callback or another callable command instance
+        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
+        loading the other command into a component when using `tanjun.Component.load_from_scope`.
 
     Raises
     ------
     ValueError
         Raises a value error for any of the following reasons:
-        * If the command name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name has uppercase characters.
         * If the description is over 100 characters long.
     """
-    return lambda c: SlashCommand(
-        c,
-        name,
-        description,
-        default_permission=default_permission,
-        default_to_ephemeral=default_to_ephemeral,
-        is_global=is_global,
-        sort_options=sort_options,
-    )
+
+    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
+        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+            return SlashCommand(
+                callback.callback,
+                name,
+                description,
+                default_permission=default_permission,
+                default_to_ephemeral=default_to_ephemeral,
+                is_global=is_global,
+                sort_options=sort_options,
+                _wrapped_command=callback,
+            )
+
+        return SlashCommand(
+            callback,
+            name,
+            description,
+            default_permission=default_permission,
+            default_to_ephemeral=default_to_ephemeral,
+            is_global=is_global,
+            sort_options=sort_options,
+        )
+
+    return decorator
 
 
 _UNDEFINED_DEFAULT = object()
@@ -661,11 +698,11 @@ def with_mentionable_slash_option(
     return lambda c: c.add_mentionable_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
-def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
-    if isinstance(converter, conversion.InjectableConverter):
-        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)
+def _convert_to_injectable(converter: ConverterSig) -> injecting.CallbackDescriptor[typing.Any]:
+    if isinstance(converter, injecting.CallbackDescriptor):
+        return typing.cast("injecting.CallbackDescriptor[typing.Any]", converter)
 
-    return conversion.InjectableConverter(conversion.override_type(converter))
+    return injecting.CallbackDescriptor(conversion.override_type(converter))
 
 
 class _TrackedOption:
@@ -677,7 +714,7 @@ class _TrackedOption:
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
         always_float: bool = False,
-        converters: typing.Optional[list[conversion.InjectableConverter[typing.Any]]] = None,
+        converters: typing.Optional[list[injecting.CallbackDescriptor[typing.Any]]] = None,
         only_member: bool = False,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
@@ -704,7 +741,7 @@ class _TrackedOption:
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await converter(ctx, value)
+                return await converter.resolve_with_command_context(ctx, value)
 
             except ValueError as exc:
                 exceptions.append(exc)
@@ -778,11 +815,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         _stack: int = 0,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
-        if not _SCOMMAND_NAME_REG.fullmatch(name):
-            raise ValueError(
-                f"Invalid command name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
-            )
-
+        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
@@ -1050,12 +1083,12 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         await ctx.mark_not_found()
 
 
-class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
-    __slots__ = ("_builder", "_callback", "_client", "_tracked_options")
+class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
+    __slots__ = ("_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
+        callback: abc.CommandCallbackSigT,
         name: str,
         description: str,
         /,
@@ -1067,6 +1100,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         sort_options: bool = True,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         super().__init__(
             name,
@@ -1082,9 +1116,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}
+        self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: CommandCallbackSigT
+        __call__: abc.CommandCallbackSigT
 
     else:
 
@@ -1092,9 +1127,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             await self._callback.callback(*args, **kwargs)
 
     @property
-    def callback(self) -> CommandCallbackSigT:
+    def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
-        return typing.cast(CommandCallbackSigT, self._callback.callback)
+        return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
 
     @property
     def needs_injector(self) -> bool:
@@ -1116,6 +1151,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._builder.sort().copy()
 
+    def load_into_component(self, component: abc.Component, /) -> None:
+        super().load_into_component(component)
+        if self._wrapped_command and isinstance(self._wrapped_command, components.AbstractComponentLoader):
+            self._wrapped_command.load_into_component(component)
+
     def _add_option(
         self: _SlashCommandT,
         name: str,
@@ -1134,11 +1174,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        if not _SCOMMAND_NAME_REG.fullmatch(name):
-            raise ValueError(
-                f"Invalid command option name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
-            )
-
+        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The option description cannot be over 100 characters in length")
 
@@ -1209,17 +1245,19 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        """Add a string option to the slash command.
+        r"""Add a string option to the slash command.
 
         .. note::
-            As a shorthand, `choices` also supports passing strings in place of
-            tuples each string will be used as both the choice's name and value
-            (with the name being capitalised).
+            As a shorthand, `choices` also supports passing a list of strings
+            rather than a dict of names to values (each string will used as
+            both the choice's name and value with the names being capitalised).
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1261,7 +1299,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1313,12 +1352,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        """Add an integer option to the slash command.
+        r"""Add an integer option to the slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1359,7 +1400,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1388,12 +1430,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        """Add a float option to a slash command.
+        r"""Add a float option to a slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1441,7 +1485,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1467,12 +1512,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a boolean option to a slash command.
+        r"""Add a boolean option to a slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1499,7 +1546,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1516,7 +1564,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a user option to a slash command.
+        r"""Add a user option to a slash command.
 
         .. note::
             This may result in `hikari.InteractionMember` or
@@ -1526,7 +1574,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1553,7 +1603,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
@@ -1568,7 +1619,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         *,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> _SlashCommandT:
-        """Add a member option to a slash command.
+        r"""Add a member option to a slash command.
 
         .. note::
             This will always result in `hikari.InteractionMember`.
@@ -1582,7 +1633,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1602,7 +1655,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1618,7 +1672,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         types: typing.Optional[collections.Collection[type[hikari.PartialChannel]]] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a channel option to a slash command.
+        r"""Add a channel option to a slash command.
 
         .. note::
             This will always result in `hikari.InteractionChannel`.
@@ -1626,7 +1680,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1657,7 +1713,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If an invalid type is passed in `types`.
@@ -1692,12 +1749,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a role option to a slash command.
+        r"""Add a role option to a slash command.
 
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1724,7 +1783,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1739,7 +1799,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        """Add a mentionable option to a slash command.
+        r"""Add a mentionable option to a slash command.
 
         .. note::
             This may target roles, guild members or users and results in
@@ -1748,7 +1808,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Parameters
         ----------
         name : str
-            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
@@ -1775,7 +1837,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         ------
         ValueError
             Raises a value error for any of the following reasons:
-            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
         """
@@ -1887,7 +1950,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
 def as_message_command(
     name: str, /, *names: str
-) -> collections.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], MessageCommand[abc.CommandCallbackSigT]]:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -1902,15 +1965,29 @@ def as_message_command(
 
     Returns
     -------
-    collections.abc.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]
-        Decorator callback used to build a MessageCommand` from the decorated callback.
+    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], MessageCommand[CommandCallbackSigT]]
+        The decorator callback used to make a `MessageCommand`.
+
+        This can either wrap a raw command callback or another callable command instance
+        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
+        loading the other command into a component when using `tanjun.Component.load_from_scope`.
     """
-    return lambda callback: MessageCommand(callback, name, *names)
+
+    def decorator(
+        callback: _CallbackishT[abc.CommandCallbackSigT],
+        /,
+    ) -> MessageCommand[abc.CommandCallbackSigT]:
+        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+            return MessageCommand(callback.callback, name, *names, _wrapped_command=callback)
+
+        return MessageCommand(callback, name, *names)
+
+    return decorator
 
 
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False
-) -> collections.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], MessageCommandGroup[abc.CommandCallbackSigT]]:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -1930,18 +2007,29 @@ def as_message_command_group(
 
     Returns
     -------
-    collections.abc.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]
-        Decorator callback used to build a `MessageCommandGroup` from the decorated callback.
+    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], MessageCommand[CommandCallbackSigT]]
+        The decorator callback used to make a `MessageCommandGroup`.
+
+        This can either wrap a raw command callback or another callable command instance
+        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
+        loading the other command into a component when using `tanjun.Component.load_from_scope`.
     """
-    return lambda callback: MessageCommandGroup(callback, name, *names, strict=strict)
+
+    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+            return MessageCommandGroup(callback.callback, name, *names, strict=strict, _wrapped_command=callback)
+
+        return MessageCommandGroup(callback, name, *names, strict=strict)
+
+    return decorator
 
 
-class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typing.Generic[CommandCallbackSigT]):
-    __slots__ = ("_callback", "_names", "_parent", "_parser")
+class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.CommandCallbackSigT]):
+    __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
+        callback: abc.CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -1949,20 +2037,22 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         hooks: typing.Optional[abc.MessageHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[parsing.AbstractParser] = None,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._names = list(dict.fromkeys((name, *names)))
-        self._parent: typing.Optional[abc.MessageCommandGroup] = None
+        self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
         self._parser = parser
+        self._wrapped_command = _wrapped_command
 
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
 
     @property
-    def callback(self) -> CommandCallbackSigT:
+    def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return typing.cast(CommandCallbackSigT, self._callback.callback)
+        return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
@@ -1974,7 +2064,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         return self._callback.needs_injector
 
     @property
-    def parent(self) -> typing.Optional[abc.MessageCommandGroup]:
+    def parent(self) -> typing.Optional[abc.MessageCommandGroup[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._parent
 
@@ -1999,7 +2089,10 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         return self
 
     def copy(
-        self: _MessageCommandT, *, parent: typing.Optional[abc.MessageCommandGroup] = None, _new: bool = True
+        self: _MessageCommandT,
+        *,
+        parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None,
+        _new: bool = True,
     ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
@@ -2011,7 +2104,9 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
         return super().copy(_new=_new)
 
-    def set_parent(self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup], /) -> _MessageCommandT:
+    def set_parent(
+        self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup[typing.Any]], /
+    ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         self._parent = parent
         return self
@@ -2041,13 +2136,12 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._parser is not None:
-                args, kwargs = await self._parser.parse(ctx)
+                kwargs = await self._parser.parse(ctx)
 
             else:
-                args = _EMPTY_LIST
                 kwargs = _EMPTY_DICT
 
-            await self._callback.resolve_with_command_context(ctx, ctx, *args, **kwargs)
+            await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
@@ -2072,13 +2166,16 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         if not self._parent:
             component.add_message_command(self)
 
+        if self._wrapped_command and isinstance(self._wrapped_command, components.AbstractComponentLoader):
+            self._wrapped_command.load_into_component(component)
 
-class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageCommandGroup):
+
+class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup[abc.CommandCallbackSigT]):
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
+        callback: abc.CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -2087,17 +2184,27 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         strict: bool = False,
         parser: typing.Optional[parsing.AbstractParser] = None,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
-        super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
-        self._commands: list[abc.MessageCommand] = []
+        super().__init__(
+            callback,
+            name,
+            *names,
+            checks=checks,
+            hooks=hooks,
+            metadata=metadata,
+            parser=parser,
+            _wrapped_command=_wrapped_command,
+        )
+        self._commands: list[abc.MessageCommand[typing.Any]] = []
         self._is_strict = strict
-        self._names_to_commands: dict[str, abc.MessageCommand] = {}
+        self._names_to_commands: dict[str, abc.MessageCommand[typing.Any]] = {}
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
-    def commands(self) -> collections.Collection[abc.MessageCommand]:
+    def commands(self) -> collections.Collection[abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         return self._commands.copy()
 
@@ -2106,7 +2213,10 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         return self._is_strict
 
     def copy(
-        self: _MessageCommandGroupT, *, parent: typing.Optional[abc.MessageCommandGroup] = None, _new: bool = True
+        self: _MessageCommandGroupT,
+        *,
+        parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None,
+        _new: bool = True,
     ) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
@@ -2117,7 +2227,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         return super().copy(parent=parent, _new=_new)
 
-    def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
+    def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand[typing.Any], /) -> _MessageCommandGroupT:
         """Add a command to this group.
 
         Parameters
@@ -2155,7 +2265,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         self._commands.append(command)
         return self
 
-    def remove_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
+    def remove_command(
+        self: _MessageCommandGroupT, command: abc.MessageCommand[typing.Any], /
+    ) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         self._commands.remove(command)
         if self._is_strict:
@@ -2186,7 +2298,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         return self
 
-    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand]]:
+    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand[typing.Any]]]:
         if self._is_strict:
             name = content.split(" ")[0]
             if command := self._names_to_commands.get(name):

@@ -62,6 +62,7 @@ from collections import abc as collections
 from . import abc as tanjun_abc
 from . import conversion
 from . import errors
+from . import injecting
 
 if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
@@ -158,11 +159,11 @@ class AbstractParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
+    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> dict[str, typing.Any]:
         raise NotImplementedError
 
 
-class ShlexTokenizer:
+class _ShlexTokenizer:
     __slots__ = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
 
     def __init__(self, content: str, /) -> None:
@@ -255,27 +256,33 @@ async def _covert_option_or_empty(
     raise errors.NotEnoughArgumentsError(f"Option '{option.key} cannot be empty.", option.key)
 
 
-class SemanticShlex(ShlexTokenizer):
-    __slots__ = ("__ctx",)
+class _SemanticShlex(_ShlexTokenizer):
+    __slots__ = ("__arguments", "__ctx", "__options")
 
-    def __init__(self, ctx: tanjun_abc.MessageContext, /) -> None:
+    def __init__(
+        self,
+        ctx: tanjun_abc.MessageContext,
+        arguments: collections.Sequence[Argument],
+        options: collections.Sequence[Option],
+        /,
+    ) -> None:
         super().__init__(ctx.content)
+        self.__arguments = arguments
         self.__ctx = ctx
+        self.__options = options
 
-    async def get_arguments(self, arguments: collections.Sequence[Argument], /) -> list[typing.Any]:
-        results: list[typing.Any] = []
-        for argument in arguments:
-            results.append(await self.__process_argument(argument))
+    async def parse(self) -> dict[str, typing.Any]:
+        raw_options = self.collect_raw_options()
+        results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), self.__options))
+        values = dict(zip((option.key for option in self.__options), await results))
+
+        for argument in self.__arguments:
+            values[argument.key] = await self.__process_argument(argument)
 
             if argument.is_greedy or argument.is_multi:
                 break  # Multi and Greedy parameters should always be the last parameter.
 
-        return results
-
-    async def get_options(self, options: collections.Sequence[Option], /) -> dict[str, typing.Any]:
-        raw_options = self.collect_raw_options()
-        results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), options))
-        return dict(zip((option.key for option in options), await results))
+        return values
 
     async def __process_argument(self, argument: Parameter) -> typing.Any:
         if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
@@ -325,11 +332,14 @@ def with_argument(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an argument to a parsable command through a decorator call.
 
-    .. note::
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+    Notes
+    -----
+    * Order matters for positional arguments and since decorator execution
+      starts at the decorator closest to the command and goes upwards this
+      will decide where a positional argument is located in a command's
+      signature.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -372,7 +382,8 @@ def with_argument(
 
     def decorator(command: ParseableProtoT, /) -> ParseableProtoT:
         if command.parser is None:
-            raise ValueError("Cannot add a parameter to a command client without a parser.")
+            with_parser(command)
+            assert command.parser
 
         argument = Argument(key, converters=converters, default=default, greedy=greedy, multi=multi)
         command.parser.add_parameter(argument)
@@ -400,6 +411,8 @@ def with_greedy_argument(
       starts at the decorator closest to the command and goes upwards this
       will decide where a positional argument is located in a command's
       signature.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -460,6 +473,8 @@ def with_multi_argument(
       starts at the decorator closest to the command and goes upwards this
       will decide where a positional argument is located in a command's
       signature.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -513,6 +528,10 @@ def with_option(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an option to a parsable command through a decorator call.
 
+    .. note::
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set `ShlexParser` as the parser.
+
     Parameters
     ----------
     key : str
@@ -564,7 +583,8 @@ def with_option(
 
     def decorator(command: ParseableProtoT) -> ParseableProtoT:
         if command.parser is None:
-            raise ValueError("Cannot add an option to a command client without a parser.")
+            with_parser(command)
+            assert command.parser
 
         option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
         command.parser.add_parameter(option)
@@ -584,11 +604,14 @@ def with_multi_option(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an multi-option to a command's parser through a decorator call.
 
-    .. note::
-        A multi option will consume all the values provided for an option and
-        pass them through to the converters as an array of strings while also
-        requiring that at least one value is provided for the option unless
-        a default is set.
+    Notes
+    -----
+    * A multi option will consume all the values provided for an option and
+      pass them through to the converters as an array of strings while also
+      requiring that at least one value is provided for the option unless
+      a default is set.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -653,7 +676,7 @@ class Parameter:
     ) -> None:
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
-        self._converters: list[conversion.InjectableConverter[typing.Any]] = []
+        self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
         self._default = default
         self._is_greedy = greedy
         self._is_multi = multi
@@ -702,12 +725,14 @@ class Parameter:
             if self._client:
                 converter.check_client(self._client, f"{self._key} parameter")
 
-        if not isinstance(converter, conversion.InjectableConverter):
+        if not isinstance(converter, injecting.CallbackDescriptor):
             # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
             converter = conversion.override_type(converter)
-            converter = conversion.InjectableConverter(converter)
+            converter_ = injecting.CallbackDescriptor(converter)
+            self._converters.append(converter_)
 
-        self._converters.append(converter)
+        else:
+            self._converters.append(converter)
 
     def bind_client(self, client: tanjun_abc.Client, /) -> None:
         self._client = client
@@ -725,7 +750,7 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                return await converter(ctx, value)
+                return await converter.resolve_with_command_context(ctx, value)
 
             except ValueError as exc:
                 sources.append(exc)
@@ -986,14 +1011,42 @@ class ShlexParser(AbstractParser):
 
         return self
 
-    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
+    def parse(
+        self, ctx: tanjun_abc.MessageContext, /
+    ) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
         # <<inherited docstring from AbstractParser>>.
-        parser = SemanticShlex(ctx)
-        arguments = await parser.get_arguments(self._arguments)
-        options = await parser.get_options(self._options)
-        return arguments, options
+        return _SemanticShlex(ctx, self._arguments, self._options).parse()
 
 
 def with_parser(command: ParseableProtoT, /) -> ParseableProtoT:
-    """Add a shlex parser command parser to a supported command."""
+    """Add a shlex parser command parser to a supported command.
+
+    Example
+    -------
+    ```py
+    @tanjun.with_argument("arg", converters=int)
+    @tanjun.with_parser
+    @tanjun.as_message_command("hi")
+    async def hi(ctx: tanjun.MessageContext, arg: int) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    command : ParseableProtoT
+        The parseable command to set the parser on.
+
+    Returns
+    -------
+    ParseableProtoT
+        The command with the parser set.
+
+    Raises
+    ------
+    ValueError
+        If the command already has a parser set.
+    """
+    if command.parser:
+        raise ValueError("Command already has a parser set")
+
     return command.set_parser(ShlexParser())

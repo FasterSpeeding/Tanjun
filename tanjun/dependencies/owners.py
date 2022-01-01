@@ -43,6 +43,9 @@ import typing
 
 import hikari
 
+from .. import injecting
+from . import async_cache
+
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
@@ -109,6 +112,9 @@ class _CachedValue(typing.Generic[_T]):
             return self._result
 
 
+_ApplicationCacheT = async_cache.SingleStoreCache[hikari.Application]
+
+
 class Owners(AbstractOwners):
     """Default implementation of the owner check interface.
 
@@ -162,6 +168,13 @@ class Owners(AbstractOwners):
 
         if not self._fallback_to_application:
             return False
+
+        # TODO: upgrade the injector stuff to the standard interface
+        assert isinstance(client, injecting.InjectorClient)
+
+        application_cache = client.get_type_dependency(_ApplicationCacheT)
+        if application_cache and (application := await application_cache.get(default=None)):
+            return user.id in application.team.members if application.team else user.id == application.owner.id
 
         if client.rest.token_type is not hikari.TokenType.BOT:
             _LOGGER.warning(

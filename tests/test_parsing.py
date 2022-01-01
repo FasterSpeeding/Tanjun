@@ -29,55 +29,77 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Callback dependencies used for getting context and client based data."""
-from __future__ import annotations
 
-__all__: list[str] = ["fetch_my_user"]
+import pytest
 
-import typing
-
-import hikari
-
-from .. import abc
-from .. import injecting
-from . import async_cache
-
-_OwnUserCache = typing.Optional[async_cache.SingleStoreCache[hikari.OwnUser]]
+# pyright: reportUnknownMemberType=none
+# This leads to too many false-positives around mocks.
+import tanjun
 
 
-async def fetch_my_user(
-    client: abc.Client = injecting.inject(type=abc.Client),
-    me_cache: _OwnUserCache = injecting.inject(type=_OwnUserCache),
-) -> hikari.OwnUser:
-    """Fetch the current user from the client's cache or rest client.
+class TestUndefinedDefaultT:
+    def test___new__(self):
+        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UndefinedDefaultT()
+        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UNDEFINED_DEFAULT
 
-    .. note::
-        This is used in the standard `LazyConstant[hikari.OwnUser]`
-        dependency.
+    def test___repr__(self):
+        assert repr(tanjun.parsing.UNDEFINED_DEFAULT) == "UNDEFINED_DEFAULT"
 
-    Parameters
-    ----------
-    client : tanjun.abc.Client
-        The client to use to fetch the user.
+    def test___bool__(self):
+        assert bool(tanjun.parsing.UNDEFINED_DEFAULT) is False
 
-    Returns
-    -------
-    hikari.OwnUser
-        The current user.
 
-    Raises
-    ------
-    RuntimeError
-        If the cache couldn't be used to get the current user and the REST
-        client is not bound to a Bot token.
-    """
-    if client.cache and (user := client.cache.get_me()):
-        return user
+@pytest.mark.skip(reason="TODO")
+class Test_ShlexTokenizer:
+    ...
 
-    if me_cache and (user := await me_cache.get(default=None)):
-        return user
 
-    if client.rest.token_type is not hikari.TokenType.BOT:
-        raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
+@pytest.mark.skip(reason="TODO")
+def test__covert_option_or_empty():
+    ...
 
-    return await client.rest.fetch_my_user()
+
+@pytest.mark.skip(reason="TODO")
+class Test_SemanticShlex:
+    ...
+
+
+@pytest.mark.skip(reason="TODO")
+def test_with_argument():
+    ...
+
+
+@pytest.mark.skip(reason="TODO")
+def test_with_greedy_argument():
+    ...
+
+
+@pytest.mark.skip(reason="TODO")
+def test_with_multi_argument():
+    ...
+
+
+@pytest.mark.skip(reason="TODO")
+def test_with_option():
+    ...
+
+
+@pytest.mark.skip(reason="TODO")
+def test_with_multi_option():
+    ...
+
+
+class TestParameter:
+    ...
+
+
+class TestArgument:
+    ...
+
+
+class TestOption:
+    ...
+
+
+class TestShlexParser:
+    ...

@@ -81,7 +81,7 @@ if typing.TYPE_CHECKING:
             content: str,
             message: hikari.Message,
             *,
-            command: typing.Optional[tanjun_abc.MessageCommand] = None,
+            command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
             component: typing.Optional[tanjun_abc.Component] = None,
             triggering_name: str = "",
             triggering_prefix: str = "",
@@ -219,7 +219,7 @@ def as_loader(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.Client], None]]
+    collections.abc.Callable[[tanjun.abc.Client], None]]
         The decorated load callback.
     """
     return _LoaderDescriptor(callback, standard_impl)
@@ -510,10 +510,29 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
-        # TODO: logging or something to indicate this is running statelessly rather than statefully.
-        # TODO: warn if server and dispatch both None but don't error
+        if _LOGGER.isEnabledFor(logging.INFO):
+            _LOGGER.info(
+                "%s initialised with the following components: %s",
+                "Event-managed client" if event_managed else "Client",
+                ", ".join(
+                    name
+                    for name, value in [
+                        ("cache", cache),
+                        ("event manager", events),
+                        ("interaction server", server),
+                        ("rest", rest),
+                        ("shard manager", shards),
+                    ]
+                    if value
+                ),
+            )
 
-        # TODO: separate slash and gateway checks?
+        if not events and not server:
+            _LOGGER.warning(
+                "Client initiaited without an event manager or interaction server, "
+                "automatic command dispatch will be unavailable."
+            )
+
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
@@ -561,14 +580,25 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         declare_global_commands = declare_global_commands or set_global_commands
         command_ids = command_ids or {}
         if isinstance(declare_global_commands, collections.Sequence):
-            if command_ids and len(command_ids) > 1:
-                raise ValueError("Cannot declare global guilds in multiple-guilds and pass command IDs")
+            if command_ids and len(declare_global_commands) > 1:
+                raise ValueError(
+                    "Cannot provide specific command_ids while automatically "
+                    "declaring commands marked as 'global' in multiple-guilds on startup"
+                )
 
             for guild in declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for %s guild", guild)
                 self.add_client_callback(ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, guild))
 
         elif isinstance(declare_global_commands, bool):
             if declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for global commands")
+                if not command_ids:
+                    _LOGGER.warning(
+                        "No command IDs passed for startup command declarer, this could lead to previously set "
+                        "command permissions being lost when commands are renamed."
+                    )
+
                 self.add_client_callback(
                     ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, hikari.UNDEFINED)
                 )
@@ -698,6 +728,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cls,
         bot: hikari_traits.RESTBotAware,
         /,
+        *,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
@@ -1033,7 +1064,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if len(registered_commands) == len(builders) and all(
                 _cmp_command(builders.get(command.name), command) for command in registered_commands
             ):
-                _LOGGER.info("Skipping bulk declare for %s slash commands due to them already being set", target_type)
+                _LOGGER.info("Skipping bulk declare for %s slash commands since they're already being", target_type)
                 return registered_commands
 
         _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), target_type)
@@ -1056,7 +1087,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):
             _LOGGER.debug(
-                "declared %s command ids: %s", target_type, {response.name: response.id for response in responses}
+                "Declared %s command ids; %s",
+                target_type,
+                ", ".join(f"{response.name}: {response.id}" for response in responses),
             )
 
         return responses
@@ -1541,7 +1574,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         yield from self.iter_message_commands()
         yield from slash_commands
 
-    def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand]:
+    def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(component.message_commands for component in self.components)
 
@@ -1552,7 +1585,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return itertools.chain.from_iterable(component.slash_commands for component in self.components)
 
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
+    def check_message_name(
+        self, name: str, /
+    ) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(
             component.check_message_name(name) for component in self._components.values()
@@ -1649,9 +1684,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         await self.dispatch_client_callback(ClientCallbackNames.STARTING)
 
         if self._grab_mention_prefix:
+            user: typing.Optional[hikari.OwnUser] = None
             if self._cache:
-                user = self._cache.get_me() or await self._rest.fetch_my_user()
-            else:
+                user = self._cache.get_me()
+
+            if not user and (user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser])):
+                user = await user_cache.get(default=None)
+
+            if not user:
                 user = await self._rest.fetch_my_user()
 
             for prefix in f"<@{user.id}>", f"<@!{user.id}>":
@@ -1687,6 +1727,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """
         if self._cached_application_id:
             return self._cached_application_id
+
+        application_cache = self.get_type_dependency(
+            dependencies.SingleStoreCache[hikari.Application]
+        ) or self.get_type_dependency(dependencies.SingleStoreCache[hikari.AuthorizationApplication])
+        if application_cache and (application := await application_cache.get(default=None)):
+            self._cached_application_id = application.id
+            return application.id
 
         if self._rest.token_type == hikari.TokenType.BOT:
             self._cached_application_id = hikari.Snowflake(await self._rest.fetch_application())
@@ -1766,6 +1813,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         exported = getattr(module, "__all__", None)
         if exported is not None and isinstance(exported, collections.Iterable):
             _LOGGER.debug("Scanning %s module based on its declared __all__)", module_repr)
+            exported = typing.cast("collections.Iterable[typing.Any]", exported)
             return (getattr(module, name, None) for name in exported if isinstance(name, str))
 
         _LOGGER.debug("Scanning all public members on %s", module_repr)

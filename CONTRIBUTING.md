@@ -88,7 +88,7 @@ This project follows [semantic versioning 2.0.0](https://semver.org/) and [PEP 4
 * The maximum character count for a line is 120 characters and this may only ever be ignored for docstrings where types
   go over this count, in which case a `# noqa: E501 - Line too long` should be added after the doc-string (on the same
   line as its trailing `"""`.
-* All top-level modules should be explicitly imported into `Tanjun.__init__` and included in`Tanjun.__init__.__all__`
-* for type-completness with only the most important of their contents needing to be included in `Tanjun.__init__.__all__`.
+* All top-level modules should be explicitly imported into `tanjun.__init__` and included in `tanjun.__init__.__all__`
+* for type-completness with only the most important of their contents needing to be included in `tanjun.__init__.__all__`.
 
 

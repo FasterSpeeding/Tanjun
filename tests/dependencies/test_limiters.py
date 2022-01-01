@@ -60,53 +60,93 @@ async def test__get_ctx_target(resource_type: tanjun.BucketResource, mock_ctx: t
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_ctx, resource_type) == expected
 
 
+@pytest.mark.parametrize(
+    ("channel", "result"),
+    [(mock.Mock(parent_id=None, id=123), 123), (mock.Mock(parent_id=54123123, id=123321), 123321)],
+)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel():
+async def test__get_ctx_target_when_parent_channel_and_cache_result(channel: mock.Mock, result: int):
     mock_context = mock.Mock()
+    mock_context.get_channel.return_value = channel
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result is mock_context.get_channel.return_value.parent_id
+    assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
 
 
+@pytest.mark.parametrize(
+    ("channel", "result"),
+    [(mock.Mock(parent_id=None, id=123), 123), (mock.Mock(parent_id=54123123, id=123321), 123321)],
+)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_defaults_to_guild_id():
-    mock_context = mock.Mock()
-    mock_context.get_channel.return_value.parent_id = None
+async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_channel(channel: mock.Mock, result: int):
+    mock_cache = mock.AsyncMock()
+    mock_cache.get.return_value = channel
+    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context.get_channel.return_value = None
+    mock_context.get_type_dependency.return_value = mock_cache
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result is mock_context.guild_id
+    assert result == result
     mock_context.get_channel.assert_called_once_with()
+    mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
     mock_context.fetch_channel.assert_not_called()
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
 
 
+@pytest.mark.parametrize(
+    ("channel", "result"),
+    [
+        (mock.Mock(hikari.TextableGuildChannel, parent_id=None, id=123), 123),
+        (mock.Mock(hikari.TextableGuildChannel, parent_id=54123123, id=123321), 123321),
+    ],
+)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_falls_back_to_rest():
-    mock_context = mock.Mock()
+async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_none_falls_back_to_rest(
+    channel: mock.Mock, result: int
+):
+    mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.get_channel.return_value = None
-    mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.TextableGuildChannel))
+    mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
+    mock_cache = mock.AsyncMock()
+    mock_cache.get.return_value = None
+    mock_context.get_type_dependency.return_value = mock_cache
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result is mock_context.fetch_channel.return_value.parent_id
+    assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
+    mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
 
 
+@pytest.mark.parametrize(
+    ("channel", "result"),
+    [
+        (mock.Mock(hikari.TextableGuildChannel, parent_id=None, id=123), 123),
+        (mock.Mock(hikari.TextableGuildChannel, parent_id=54123123, id=123321), 123321),
+    ],
+)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_falls_back_to_rest_and_defaults_to_guild_id():
-    mock_context = mock.Mock()
+async def test__get_ctx_target_when_parent_channel_and_no_async_cache_falls_back_to_rest(
+    channel: mock.Mock, result: int
+):
+    mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.get_channel.return_value = None
-    mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.TextableGuildChannel, parent_id=None))
+    mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
+    mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result is mock_context.guild_id
+    assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
 
 
 @pytest.mark.asyncio()
@@ -127,7 +167,7 @@ async def test__get_ctx_target_when_top_role():
         mock.Mock(id=4354, position=0),
         mock.Mock(id=4123, position=11),
     ]
-    mock_context = mock.Mock()
+    mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=mock_roles)
     mock_context.member.fetch_roles = mock.AsyncMock()
@@ -136,6 +176,54 @@ async def test__get_ctx_target_when_top_role():
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_top_role_and_async_cache():
+    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context.member.role_ids = [674345, 123876, 7643, 9999999]
+    mock_context.member.get_roles = mock.Mock(return_value=[])
+    mock_cache = mock.AsyncMock()
+    mock_cache.get.side_effect = [
+        mock.Mock(position=42),
+        mock.Mock(id=994949, position=7634),
+        tanjun.dependencies.EntryNotFound,
+        mock.Mock(position=23),
+    ]
+    mock_context.get_type_dependency.return_value = mock_cache
+
+    assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 994949
+
+    mock_context.member.get_roles.assert_called_once_with()
+    mock_context.member.fetch_roles.assert_not_called()
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_cache.get.assert_has_awaits([mock.call(674345), mock.call(123876), mock.call(7643), mock.call(9999999)])
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_top_role_falls_back_to_rest_when_async_cache_raises_cache_miss():
+    mock_roles = [
+        mock.Mock(id=123321, position=42),
+        mock.Mock(id=123322, position=43),
+        mock.Mock(id=431, position=6969),
+        mock.Mock(id=111, position=0),
+        mock.Mock(id=4123, position=6959),
+    ]
+    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context.member.role_ids = [123, 312, 654]
+    mock_context.member.get_roles = mock.Mock(return_value=[])
+    mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
+    mock_cache = mock.AsyncMock()
+    mock_cache.get.side_effect = [mock.Mock(), tanjun.dependencies.CacheMissError]
+    mock_context.get_type_dependency.return_value = mock_cache
+
+    assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
+
+    mock_context.member.get_roles.assert_called_once_with()
+    mock_context.member.fetch_roles.assert_awaited_once_with()
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_cache.get.assert_has_awaits([mock.call(123), mock.call(312)])
 
 
 @pytest.mark.asyncio()
@@ -147,15 +235,17 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
         mock.Mock(id=111, position=0),
         mock.Mock(id=4123, position=6959),
     ]
-    mock_context = mock.Mock()
+    mock_context = mock.Mock(tanjun.context.BaseContext)
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
+    mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
 
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_awaited_once_with()
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
 
 
 @pytest.mark.asyncio()
@@ -174,6 +264,7 @@ async def test__get_ctx_target_when_top_role_when_no_member_in_guild():
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result == 654124
+    mock_context.get_type_dependency.assert_not_called()
 
 
 @pytest.mark.parametrize("role_ids", [[123321], []])
@@ -185,6 +276,7 @@ async def test__get_ctx_target_when_top_role_when_no_roles_or_only_1_role(role_i
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE)
 
     assert result == 123312
+    mock_context.get_type_dependency.assert_not_called()
 
 
 @pytest.mark.asyncio()
@@ -259,32 +351,32 @@ class Test_Cooldown:
         assert cooldown.counter == 123
         assert cooldown.resets_at == 54345543
 
-    def test_must_wait_until(self):
+    def test_must_wait_for(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 422.0]):
             cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=10.5, limit=3)
             cooldown.counter = 3
 
-            assert cooldown.must_wait_until() == 7.5
+            assert cooldown.must_wait_for() == 7.5
 
-    def test_must_wait_until_when_resource_limit_not_hit(self):
+    def test_must_wait_for_when_resource_limit_not_hit(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=2.0, limit=3)
         cooldown.counter = 2
 
-        assert cooldown.must_wait_until() is None
+        assert cooldown.must_wait_for() is None
 
-    def test_must_wait_until_when_reset_after_reached(self):
+    def test_must_wait_for_when_reset_after_reached(self):
         with mock.patch.object(time, "monotonic", side_effect=[419.0, 425.5]):
             cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=5.0, limit=3)
             cooldown.counter = 3
 
-            assert cooldown.must_wait_until() is None
+            assert cooldown.must_wait_for() is None
 
-    def test_must_wait_until_when_limit_is_negative_1(self):
+    def test_must_wait_for_when_limit_is_negative_1(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=64, limit=-1)
         cooldown.counter = 55
 
         with mock.patch.object(time, "monotonic") as monotonic:
-            assert cooldown.must_wait_until() is None
+            assert cooldown.must_wait_for() is None
 
             monotonic.assert_not_called()
 
@@ -681,13 +773,14 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(try_into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.try_into_inner.return_value
         manager._buckets["ok"] = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=False)
 
-        assert result is mock_bucket.try_into_inner.return_value.must_wait_until.return_value
+        assert result is mock_bucket.try_into_inner.return_value.must_wait_for.return_value
         mock_bucket.try_into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.try_into_inner.return_value.must_wait_until.assert_called_once_with()
+        mock_inner.must_wait_for.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_try_into_inner_returns_none(self):
@@ -706,14 +799,33 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.increment.return_value = mock_bucket.into_inner.return_value
+        mock_inner.must_wait_for.return_value = None
         manager._buckets["ok"] = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
-        assert result is mock_bucket.into_inner.return_value.increment.return_value.must_wait_until.return_value
+        assert result is None
         mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.into_inner.return_value.increment.assert_called_once_with()
-        mock_bucket.into_inner.return_value.increment.return_value.must_wait_until.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
+        mock_inner.must_wait_for.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_when_increment_and_must_wait_for_returns_time(self):
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        mock_context = mock.Mock()
+        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.increment.return_value = mock_inner
+        manager._buckets["ok"] = mock_bucket
+
+        result = await manager.check_cooldown("ok", mock_context, increment=True)
+
+        assert result is mock_inner.must_wait_for.return_value
+        mock_bucket.into_inner.assert_awaited_once_with(mock_context)
+        mock_inner.increment.assert_not_called()
+        mock_inner.must_wait_for.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket(self):
@@ -721,32 +833,56 @@ class TestInMemoryCooldownManager:
         mock_context = mock.Mock()
         mock_bucket = mock.Mock()
         mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
+        mock_inner.increment.return_value = mock_inner
+        mock_inner.must_wait_for.return_value = None
+
         manager._default_bucket_template = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
-        assert (
-            result
-            is mock_bucket.copy.return_value.into_inner.return_value.increment.return_value.must_wait_until.return_value
-        )
+        assert result is None
         assert manager._buckets["ok"] is mock_bucket.copy.return_value
         mock_bucket.copy.assert_called_once_with()
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.copy.return_value.into_inner.return_value.increment.assert_called_once_with()
-        mock_bucket.copy.return_value.into_inner.return_value.increment.return_value.must_wait_until.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
+        mock_inner.must_wait_for.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket_when_wait_for_returns_time(
+        self,
+    ):
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        mock_context = mock.Mock()
+        mock_bucket = mock.Mock()
+        mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
+        mock_inner.increment.return_value = mock_inner
+
+        manager._default_bucket_template = mock_bucket
+
+        result = await manager.check_cooldown("ok", mock_context, increment=True)
+
+        assert result is mock_inner.must_wait_for.return_value
+        assert manager._buckets["ok"] is mock_bucket.copy.return_value
+        mock_bucket.copy.assert_called_once_with()
+        mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
+        mock_inner.increment.assert_not_called()
+        mock_inner.must_wait_for.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
         manager._buckets["catgirl neko"] = mock_bucket
 
         result = await manager.increment_cooldown("catgirl neko", mock_context)
 
         assert result is None
         mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.into_inner.return_value.increment.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown_falls_back_to_default(self):
@@ -754,6 +890,7 @@ class TestInMemoryCooldownManager:
         mock_context = mock.Mock()
         mock_bucket = mock.Mock()
         mock_bucket.copy.return_value.into_inner = mock.AsyncMock(return_value=mock.Mock())
+        mock_inner = mock_bucket.copy.return_value.into_inner.return_value
         manager._default_bucket_template = mock_bucket
 
         result = await manager.increment_cooldown("69", mock_context)
@@ -762,7 +899,7 @@ class TestInMemoryCooldownManager:
         assert manager._buckets["69"] is mock_bucket.copy.return_value
         mock_bucket.copy.assert_called_once_with()
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_bucket.copy.return_value.into_inner.return_value.increment.assert_called_once_with()
+        mock_inner.increment.assert_called_once_with()
 
     def test_close(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -830,10 +967,10 @@ class TestInMemoryCooldownManager:
             cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == -1
@@ -851,10 +988,10 @@ class TestInMemoryCooldownManager:
             cooldown_bucket.return_value.copy.assert_called_once_with()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == -1
@@ -883,11 +1020,11 @@ class TestInMemoryCooldownManager:
             cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 2
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
-            assert cooldown_bucket.call_args_list[0].args[0] is resource_type
+            assert len(cooldown_bucket.call_args.args) == 2
+            assert len(cooldown_bucket.call_args.kwargs) == 0
+            assert cooldown_bucket.call_args.args[0] is resource_type
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown_maker = cooldown_bucket.call_args.args[1]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 123
@@ -905,11 +1042,11 @@ class TestInMemoryCooldownManager:
             assert result is manager
             assert manager._buckets["gay catgirl"] is cooldown_bucket.return_value
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 2
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
-            assert cooldown_bucket.call_args_list[0].args[0] is tanjun.BucketResource.USER
+            assert len(cooldown_bucket.call_args.args) == 2
+            assert len(cooldown_bucket.call_args.kwargs) == 0
+            assert cooldown_bucket.call_args.args[0] is tanjun.BucketResource.USER
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown_maker = cooldown_bucket.call_args.args[1]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 444
@@ -924,10 +1061,10 @@ class TestInMemoryCooldownManager:
             assert result is manager
             assert manager._buckets["meowth"] is cooldown_bucket.return_value
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 64
@@ -942,10 +1079,10 @@ class TestInMemoryCooldownManager:
             assert result is manager
             assert manager._buckets["meow"] is cooldown_bucket.return_value
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 420
@@ -963,11 +1100,11 @@ class TestInMemoryCooldownManager:
             cooldown_bucket.return_value.copy.assert_called_once_with()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 2
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
-            assert cooldown_bucket.call_args_list[0].args[0] is tanjun.BucketResource.USER
+            assert len(cooldown_bucket.call_args.args) == 2
+            assert len(cooldown_bucket.call_args.kwargs) == 0
+            assert cooldown_bucket.call_args.args[0] is tanjun.BucketResource.USER
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown_maker = cooldown_bucket.call_args.args[1]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 777
@@ -1013,6 +1150,18 @@ class TestCooldownPreExecution:
 
         mock_cooldown_manager.check_cooldown.assert_not_called()
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_owners_exempt_but_owner_check_is_none(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True)
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = None
+
+        await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=None)
+
+        mock_cooldown_manager.check_cooldown.assert_called_once_with("yuri catgirls", mock_context, increment=True)
+        assert pre_execution._owners_exempt is False
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_and_not_owner(self):
@@ -1090,184 +1239,6 @@ def test_with_cooldown_when_no_set_hooks():
         mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
         any_hooks.return_value.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
         any_hooks.assert_called_once_with()
-
-
-class TestOwners:
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_user_in_owner_ids(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=7634))
-
-        assert result is True
-        mock_client.rest.fetch_application.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_not_falling_back_to_application(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634], fallback_to_application=False)
-        mock_client = mock.Mock()
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
-
-        assert result is False
-        mock_client.rest.fetch_application.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_token_type_is_not_bot(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-        mock_client.rest.token_type = hikari.TokenType.BEARER
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
-
-        assert result is False
-        mock_client.rest.fetch_application.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_application_owner(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-        application = mock.Mock(owner=mock.Mock(id=654234), team=None)
-        mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
-        mock_client.rest.token_type = hikari.TokenType.BOT
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=654234))
-
-        assert result is True
-        mock_client.rest.fetch_application.assert_awaited_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_not_application_owner(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-        application = mock.Mock(owner=mock.Mock(id=654234), team=None)
-        mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
-        mock_client.rest.token_type = hikari.TokenType.BOT
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=666663333696969))
-
-        assert result is False
-        mock_client.rest.fetch_application.assert_awaited_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_application_team_member(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-        application = mock.Mock(
-            owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
-        )
-        mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
-        mock_client.rest.token_type = hikari.TokenType.BOT
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=64123))
-
-        assert result is True
-        mock_client.rest.fetch_application.assert_awaited_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_when_not_team_member(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-        application = mock.Mock(
-            owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
-        )
-        mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
-        mock_client.rest.token_type = hikari.TokenType.BOT
-
-        result = await check.check_ownership(mock_client, mock.Mock(id=654234))
-
-        assert result is False
-        mock_client.rest.fetch_application.assert_awaited_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_application_caching_behaviour(self):
-        check = tanjun.dependencies.Owners(owners=[123, 7634])
-        mock_client = mock.Mock()
-        application = mock.Mock(
-            owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
-        )
-        mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
-        mock_client.rest.token_type = hikari.TokenType.BOT
-
-        results = await asyncio.gather(*(check.check_ownership(mock_client, mock.Mock(id=64123)) for _ in range(0, 20)))
-
-        assert all(result is True for result in results)
-        mock_client.rest.fetch_application.assert_awaited_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_ownership_application_expires_cache(self):
-        check = tanjun.dependencies.Owners(expire_after=datetime.timedelta(seconds=60))
-        mock_client = mock.Mock()
-        application_1 = mock.Mock(team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()}))
-        application_2 = mock.Mock(team=mock.Mock(members={64123: mock.Mock()}))
-        mock_client.rest.fetch_application = mock.AsyncMock(side_effect=[application_1, application_2])
-        mock_client.rest.token_type = hikari.TokenType.BOT
-
-        with mock.patch.object(time, "monotonic", side_effect=[123.123, 184.5123, 184.6969, 185.6969]):
-            result = await check.check_ownership(mock_client, mock.Mock(id=64123))
-
-            assert result is True
-            mock_client.rest.fetch_application.assert_awaited_once_with()
-
-            result = await check.check_ownership(mock_client, mock.Mock(id=54123))
-
-            assert result is False
-            mock_client.rest.fetch_application.assert_has_calls([mock.call(), mock.call()])
-
-
-class TestLazyConstant:
-    def test_callback_property(self):
-        mock_callback = mock.Mock()
-        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-
-            assert tanjun.LazyConstant(mock_callback).callback is callback_descriptor.return_value
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-    def test_get_value(self):
-        assert tanjun.LazyConstant(mock.Mock()).get_value() is None
-
-    def test_reset(self):
-        constant = tanjun.LazyConstant(mock.Mock()).set_value(mock.Mock())
-
-        constant.reset()
-        assert constant.get_value() is None
-
-    def test_set_value(self):
-        mock_value = mock.Mock()
-        constant = tanjun.LazyConstant(mock.Mock())
-        constant._lock = mock.Mock()
-
-        result = constant.set_value(mock_value)
-
-        assert result is constant
-        assert constant.get_value() is mock_value
-        assert constant._lock is None
-
-    def test_set_value_when_value_already_set(self):
-        mock_value = mock.Mock()
-        constant = tanjun.LazyConstant(mock.Mock()).set_value(mock_value)
-        constant._lock = mock.Mock()
-
-        with pytest.raises(RuntimeError, match="Constant value already set."):
-            constant.set_value(mock.Mock())
-
-        assert constant.get_value() is mock_value
-
-    @pytest.mark.asyncio()
-    async def test_acquire(self):
-        with mock.patch.object(asyncio, "Lock") as lock:
-            constant = tanjun.LazyConstant(mock.Mock())
-            lock.assert_not_called()
-
-            result = constant.acquire()
-
-            lock.assert_called_once_with()
-            assert result is lock.return_value
-
-            result = constant.acquire()
-            lock.assert_called_once_with()
-            assert result is lock.return_value
 
 
 class Test_ConcurrencyLimit:
@@ -1445,7 +1416,8 @@ class TestInMemoryConcurrencyLimiter:
     @pytest.mark.asyncio()
     async def test_try_acquire(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_bucket.into_inner.return_value.acquire.return_value = True
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.acquire.return_value = True
         mock_context = mock.Mock()
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["aye"] = mock_bucket
@@ -1454,13 +1426,14 @@ class TestInMemoryConcurrencyLimiter:
 
         assert result is True
         mock_bucket.into_inner.assert_called_once_with(mock_context)
-        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert manager._acquiring_ctxs[("aye", mock_context)] is mock_bucket.into_inner.return_value
+        mock_inner.acquire.assert_called_once_with()
+        assert manager._acquiring_ctxs[("aye", mock_context)] is mock_inner
 
     @pytest.mark.asyncio()
     async def test_try_acquire_when_failed_to_acquire(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_bucket.into_inner.return_value.acquire.return_value = False
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.acquire.return_value = False
         mock_context = mock.Mock()
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["nya"] = mock_bucket
@@ -1469,7 +1442,7 @@ class TestInMemoryConcurrencyLimiter:
 
         assert result is False
         mock_bucket.into_inner.assert_called_once_with(mock_context)
-        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
+        mock_inner.acquire.assert_called_once_with()
         assert ("nya", mock_context) not in manager._acquiring_ctxs
 
     @pytest.mark.asyncio()
@@ -1491,7 +1464,8 @@ class TestInMemoryConcurrencyLimiter:
     @pytest.mark.asyncio()
     async def test_try_acquire_falls_back_to_default_bucket(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_bucket.into_inner.return_value.acquire.return_value = True
+        mock_inner: typing.Any = mock_bucket.into_inner.return_value
+        mock_inner.acquire.return_value = True
         mock_bucket_template = mock.Mock()
         mock_bucket_template.copy.return_value = mock_bucket
         mock_context = mock.Mock()
@@ -1503,8 +1477,8 @@ class TestInMemoryConcurrencyLimiter:
         assert result is True
         mock_bucket_template.copy.assert_called_once_with()
         mock_bucket.into_inner.assert_called_once_with(mock_context)
-        mock_bucket.into_inner.return_value.acquire.assert_called_once_with()
-        assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_bucket.into_inner.return_value
+        mock_inner.acquire.assert_called_once_with()
+        assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_inner
         assert manager._buckets["yeet"] is mock_bucket
 
     @pytest.mark.asyncio()
@@ -1539,10 +1513,10 @@ class TestInMemoryConcurrencyLimiter:
             cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == -1
@@ -1559,10 +1533,10 @@ class TestInMemoryConcurrencyLimiter:
             cooldown_bucket.return_value.copy.assert_called_once_with()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == -1
@@ -1590,11 +1564,11 @@ class TestInMemoryConcurrencyLimiter:
             cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 2
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
-            assert cooldown_bucket.call_args_list[0].args[0] is resource_type
+            assert len(cooldown_bucket.call_args.args) == 2
+            assert len(cooldown_bucket.call_args.kwargs) == 0
+            assert cooldown_bucket.call_args.args[0] is resource_type
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown_maker = cooldown_bucket.call_args.args[1]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == 321
@@ -1608,10 +1582,10 @@ class TestInMemoryConcurrencyLimiter:
             assert result is manager
             assert manager._buckets["meowth"] is cooldown_bucket.return_value
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == 69
@@ -1625,10 +1599,10 @@ class TestInMemoryConcurrencyLimiter:
             assert result is manager
             assert manager._buckets["meow"] is cooldown_bucket.return_value
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 1
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
+            assert len(cooldown_bucket.call_args.args) == 1
+            assert len(cooldown_bucket.call_args.kwargs) == 0
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[0]
+            cooldown_maker = cooldown_bucket.call_args.args[0]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == 42069
@@ -1645,11 +1619,11 @@ class TestInMemoryConcurrencyLimiter:
             cooldown_bucket.return_value.copy.assert_called_once_with()
 
             assert cooldown_bucket.call_count == 1
-            assert len(cooldown_bucket.call_args_list[0].args) == 2
-            assert len(cooldown_bucket.call_args_list[0].kwargs) == 0
-            assert cooldown_bucket.call_args_list[0].args[0] is tanjun.BucketResource.USER
+            assert len(cooldown_bucket.call_args.args) == 2
+            assert len(cooldown_bucket.call_args.kwargs) == 0
+            assert cooldown_bucket.call_args.args[0] is tanjun.BucketResource.USER
 
-            cooldown_maker = cooldown_bucket.call_args_list[0].args[1]
+            cooldown_maker = cooldown_bucket.call_args.args[1]
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._ConcurrencyLimit)
             assert cooldown.limit == 697

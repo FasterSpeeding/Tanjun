@@ -51,6 +51,8 @@ from collections import abc as collections
 import hikari
 
 from . import errors
+from . import injecting
+from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
     from . import abc
@@ -218,19 +220,35 @@ def calculate_permissions(
 async def _fetch_channel(
     client: abc.Client, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
 ) -> hikari.GuildChannel:
+    # TODO: upgrade injecting stuff to the standard interface
+    assert isinstance(client, injecting.InjectorClient)
+
     if isinstance(channel, hikari.GuildChannel):
         return channel
 
-    found_channel = None
-    if client.cache:
-        found_channel = client.cache.get_guild_channel(hikari.Snowflake(channel))
+    channel_id = hikari.Snowflake(channel)
+    if client.cache and (found_channel := client.cache.get_guild_channel(channel_id)):
+        return found_channel
 
-    if not found_channel:
-        raw_channel = await client.rest.fetch_channel(channel)
-        assert isinstance(raw_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
-        found_channel = raw_channel
+    if channel_cache := client.get_type_dependency(_ChannelCacheT):
+        try:
+            return await channel_cache.get(channel_id)
 
+        except async_cache.EntryNotFound:
+            raise
+
+        except async_cache.CacheMissError:
+            pass
+
+    found_channel = await client.rest.fetch_channel(channel_id)
+    assert isinstance(found_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
     return found_channel
+
+
+_ChannelCacheT = async_cache.SfCache[hikari.GuildChannel]
+_GuildCacheT = async_cache.SfCache[hikari.Guild]
+_RoleCacheT = async_cache.SfCache[hikari.Role]
+_GuldRoleCacheT = async_cache.SfGuildBound[hikari.Role]
 
 
 async def fetch_permissions(
@@ -265,11 +283,24 @@ async def fetch_permissions(
     hikari.permissions.Permissions
         The calculated permissions.
     """
+    # TODO: upgrade injecting stuff to the standard interface
+    assert isinstance(client, injecting.InjectorClient)
+
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     guild: typing.Optional[hikari.Guild]
     roles: typing.Optional[collections.Mapping[hikari.Snowflake, hikari.Role]] = None
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
+    if not guild and (guild_cache := client.get_type_dependency(_GuildCacheT)):
+        try:
+            guild = await guild_cache.get(member.guild_id)
+
+        except async_cache.EntryNotFound:
+            raise
+
+        except async_cache.CacheMissError:
+            pass
+
     if not guild:
         guild = await client.rest.fetch_guild(member.guild_id)
         roles = guild.roles
@@ -279,6 +310,9 @@ async def fetch_permissions(
         return ALL_PERMISSIONS
 
     roles = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
+    if not roles and (role_cache := client.get_type_dependency(_GuldRoleCacheT)):
+        roles = {role.id: role for role in await role_cache.iter_for_guild(member.guild_id)}
+
     if not roles:
         raw_roles = await client.rest.fetch_roles(member.guild_id)
         roles = {role.id: role for role in raw_roles}
@@ -374,9 +408,21 @@ async def fetch_everyone_permissions(
     hikari.permissions.Permissions
         The calculated permissions.
     """
+    # TODO: upgrade injecting stuff to the standard interface
+    assert isinstance(client, injecting.InjectorClient)
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     role = client.cache.get_role(guild_id) if client.cache else None
+    if not role and (role_cache := client.get_type_dependency(_RoleCacheT)):
+        try:
+            role = await role_cache.get(guild_id)
+
+        except async_cache.EntryNotFound:
+            raise
+
+        except async_cache.CacheMissError:
+            pass
+
     if not role:
         for role in await client.rest.fetch_roles(guild_id):
             if role.id == guild_id:

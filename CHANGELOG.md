@@ -6,8 +6,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- The interface for a generic (type-based) asynchronous cache dependency.
+
+  While this doesn't introduce any new implementation(s), this interface has been integrated into
+  Tanjun (based on Hikari types) in places which are currently making cache/REST calls and can be used to
+  better integrate 3rd-party caches with Tanjun.
+
+  Redis based implementations of this for the types found in Hikari's gateway cache interface can be found
+  in [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
+  `RedisResource.add_to_tanjun`).
+
+### Removed
+- `BaseConverter.convert` in-favour of having each standard converter directly implement `__call__`.
+- `tanjun.conversion.InjectableConverter`.
+- `InjectionContext.get_type_special_case` in favour of a `get_type_dependency` method which tries the
+  context's client before returning the special case if registered.
+
+## [2.2.2a1] - 2021-12-26
+### Added
+- Type based dependency injection now has ergonomic Union support.
+  This means that for `inject(type=Union[A, B, C])`/`inject(type=A | B | C)` the dependency injector will
+  try to find registered type injectors for `A`, `B` then `C` after trying to find a dependency injector
+  for the literal Union.
+- Type based dependency injection now has support for defaults through unions with `None` and `Optional`.
+  This means that, for `inject(type=Union[A, B, None])`/`inject(type=A | B | None)` and
+  `inject(type=Optional[A])`, if no registered implementations are found for the relevant types then `None`
+  will be injected for the relevant argument.
+
+### Changed
+- Message command parser arguments are now passed by keyword instead of positionally.
+- Cooldown checks can now run without a present AbstractOwners implementation.
+
+### Fixed
+- The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
+  The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
+  the real-world limit `limit-1`.
+
+## [2.2.1a1] - 2021-11-30
+### Added
 - Concurrency limiter dependency (in a similar style to cooldowns).
 - `disable_bucket` method to the in-memory concurrency and cooldown manager impls.
+- `any_checks`/`with_any_checks` and `all_checks`/`with_all_checks` functions for more garnular check
+  flow control. `any_checks` passes if any of the provided checks pass and `all_checks` passes if all
+  the provided checks pass while both ensure the checks are run sequentially rather than concurrently.
+- `as_slash_command`, `as_message_command` and `as_message_command_group` now support decorating Command
+  instances.
 
 ### Changed
 - `cached_inject` and `cache_callback` now both accept `float` and `int` seconds for `expire_after`.
@@ -15,6 +58,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `tanjun.dependencies.owners.OwnerCheck` and `tanjun.dependencies.owners.AbstractOwnerCheck`
   to `Owners` and `AbstractOwners` respectively.
 - `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
+- Updated application command name and option name checking to allow for all unicode \w characters
+  rather than just ASCII.
+- `@with_parser` now errors if a parser is already set.
+- `with_option` and `with_argument` command parser decorators now implicitly set shlex parser if not set.
+
+### Removed
+- `TanjunWarning` and `StateWarning`.
 
 ## [2.2.0a1] - 2021-11-23
 ### Added
@@ -357,7 +407,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...HEAD
+[2.2.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.1a1...v2.2.2a1
+[2.2.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.0a1...v2.2.1a1
 [2.2.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.4a1...v2.2.0a1
 [2.1.4a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.3a1...v2.1.4a1
 [2.1.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.2a1...v2.1.3a1
