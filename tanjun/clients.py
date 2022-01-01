@@ -812,7 +812,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return _check_human in (check.callback for check in self._checks)
+        return _check_human in self.checks
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:

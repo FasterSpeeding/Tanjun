@@ -36,6 +36,7 @@ __all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext", "SlashO
 
 import asyncio
 import datetime
+import enum
 import logging
 import typing
 
@@ -61,11 +62,8 @@ _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(min
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
 
-class _SENTINEL_TYPE:
-    pass
-
-
-_SENTINEL = _SENTINEL_TYPE()
+class _SENTINEL(enum.Enum):
+    SENTINEL = enum.auto()
 
 
 def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
@@ -604,7 +602,7 @@ class SlashOption(tanjun_abc.SlashOption):
         ...
 
     def resolve_to_member(
-        self, *, default: typing.Union[_T, _SENTINEL_TYPE] = _SENTINEL
+        self, *, default: typing.Union[_T, _SENTINEL] = _SENTINEL.SENTINEL
     ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
@@ -613,7 +611,7 @@ class SlashOption(tanjun_abc.SlashOption):
             if member := self._interaction.resolved.members.get(hikari.Snowflake(self.value)):
                 return member
 
-            if not isinstance(default, _SENTINEL_TYPE):
+            if default is not _SENTINEL.SENTINEL:
                 return default
 
             raise LookupError("User isn't in the current guild") from None
@@ -625,7 +623,7 @@ class SlashOption(tanjun_abc.SlashOption):
                 return member
 
             if target_id in self._interaction.resolved.users:
-                if not isinstance(default, _SENTINEL_TYPE):
+                if default is not _SENTINEL.SENTINEL:
                     return default
 
                 raise LookupError("User isn't in the current guild")
@@ -752,7 +750,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
 
-    # TODO: figure out why this is making mypy bug out?
     @property
     def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.

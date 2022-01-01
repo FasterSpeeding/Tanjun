@@ -85,9 +85,7 @@ This must be a callable or asynchronous callable which takes one position
 class ParseableProto(typing.Protocol):
     """Protocol of a command which supports this parser interface."""
 
-    # This fucks with MyPy even though at runtime python just straight out ignores slots when considering protocol
-    if not typing.TYPE_CHECKING:  # compatibility.
-        __slots__ = ()
+    __slots__ = ()
 
     @property
     def callback(self) -> tanjun_abc.CommandCallbackSig:

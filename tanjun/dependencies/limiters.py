@@ -221,8 +221,8 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         # TODO: upgrade this to the standard interface
         assert isinstance(ctx, injecting.AbstractInjectionContext)
         channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildChannel])
-        if channel_cache and (channel := await channel_cache.get(ctx.channel_id, default=None)):
-            return channel.parent_id or ctx.guild_id
+        if channel_cache and (channel_ := await channel_cache.get(ctx.channel_id, default=None)):
+            return channel_.parent_id or ctx.guild_id
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.TextableGuildChannel)

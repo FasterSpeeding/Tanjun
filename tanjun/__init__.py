@@ -223,10 +223,10 @@ from .abc import ClientCallbackNames
 from .checks import *
 from .clients import *
 from .commands import *
-from .components import *  # type: ignore[no-redef]  # (re-exports `CommandT`)
+from .components import *
 from .context import *
 from .conversion import *
-from .dependencies import *  # type: ignore[misc]  # (re-exports `OwnerCheck`)
+from .dependencies import *
 from .errors import *
 from .hooks import *
 from .injecting import *
