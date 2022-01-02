@@ -227,8 +227,8 @@ async def _fetch_channel(
         return channel
 
     channel_id = hikari.Snowflake(channel)
-    if client.cache and (found_channel := client.cache.get_guild_channel(channel_id)):
-        return found_channel
+    if client.cache and (found_channel_ := client.cache.get_guild_channel(channel_id)):
+        return found_channel_
 
     if channel_cache := client.get_type_dependency(_ChannelCacheT):
         try:

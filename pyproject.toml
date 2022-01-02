@@ -122,3 +122,19 @@ reportUnknownVariableType = "warning"           # Lotta false-positives, might f
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 required_plugins = ["pytest-asyncio"]
+
+[tool.mypy]
+# some good strict settings
+strict = true
+warn_unreachable = true
+
+# more narrow type ignores
+show_error_codes = true
+
+# these are used by pyright
+warn_unused_ignores = false
+warn_redundant_casts = false
+
+# compatibility with pyright
+allow_redefinition = true
+disable_error_code = ["return"]

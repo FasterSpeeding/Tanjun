@@ -1113,7 +1113,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         )
 
         self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
@@ -1315,8 +1315,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             actual_choices = {}
             warned = False
             for choice in choices:
-                if isinstance(choice, tuple):
-                    if not warned:
+                if isinstance(choice, tuple):  # type: ignore[unreachable]  # the point of this is for deprecation
+                    if not warned:  # type: ignore[unreachable]  # mypy sees `warned = True` and messes up.
                         warnings.warn(
                             "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
                             "please pass a mapping instead.",
@@ -1875,22 +1875,18 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 keyword_args[option.name] = option.resolve_to_role()
 
             elif option.type is hikari.OptionType.MENTIONABLE:
-                if option.type is hikari.OptionType.ROLE:
-                    keyword_args[option.name] = option.resolve_to_role()
+                member = None
+                if tracked_option.is_only_member and not (member := option.resolve_to_member()):
+                    raise errors.ConversionError(
+                        f"Couldn't find member for provided user: {option.value}", tracked_option.name
+                    )
 
-                else:
-                    member: typing.Optional[hikari.InteractionMember] = None
-                    if tracked_option.is_only_member and not (member := option.resolve_to_member()):
-                        raise errors.ConversionError(
-                            f"Couldn't find member for provided user: {option.value}", tracked_option.name
-                        )
-
-                    keyword_args[option.name] = member or option.resolve_to_mentionable()
+                keyword_args[option.name] = member or option.resolve_to_mentionable()
 
             else:
                 value = option.value
-                # To be type safe we obfuscate the fact that discord's double type will provide am int or float
-                # depending on the value Disocrd input by always casting to float.
+                # To be type safe we obfuscate the fact that discord's double type will provide an int or float
+                # depending on the value Discord inputs by always casting to float.
                 if tracked_option.type is hikari.OptionType.FLOAT and tracked_option.is_always_float:
                     value = float(value)
 
@@ -2044,7 +2040,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = injecting.CallbackDescriptor[None](callback)
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
         self._parser = parser
@@ -2310,8 +2306,8 @@ class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCo
             return
 
         for command in self._commands:
-            if (name := utilities.match_prefix_names(content, command.names)) is not None:
-                yield name, command
+            if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
+                yield name_, command
 
     async def execute(
         self,

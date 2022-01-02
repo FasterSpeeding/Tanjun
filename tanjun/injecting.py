@@ -317,11 +317,11 @@ class CallbackDescriptor(AbstractDescriptor[_T]):
         self._is_async: typing.Optional[bool] = None
         self._descriptors, self._needs_injector = self._parse_descriptors(callback)
 
-    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
+    # This is delegated to the callback to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
         return bool(self._callback == other)
 
-    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
+    # This is delegated to the callback to delegate set/list behaviour for this class to the callback.
     def __hash__(self) -> int:
         return hash(self._callback)
 

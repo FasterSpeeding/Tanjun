@@ -236,8 +236,8 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
         dm_cache: _DmCacheT = injecting.inject(type=_DmCacheT),
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
-        if ctx.cache and (channel := ctx.cache.get_guild_channel(channel_id)):
-            return channel
+        if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
+            return channel_
 
         no_guild_channel = False
         if cache:

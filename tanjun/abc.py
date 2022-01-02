@@ -2468,7 +2468,9 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
+    def with_slash_command(
+        self, /, *, copy: bool = False
+    ) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
         ...
 
     @abc.abstractmethod
@@ -2535,7 +2537,9 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_message_command(self, *, copy: bool = False) -> collections.Callable[[MessageCommandT], MessageCommandT]:
+    def with_message_command(
+        self, /, *, copy: bool = False
+    ) -> collections.Callable[[MessageCommandT], MessageCommandT]:
         ...
 
     @abc.abstractmethod

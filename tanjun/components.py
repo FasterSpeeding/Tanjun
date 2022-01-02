@@ -540,7 +540,7 @@ class Component(tanjun_abc.Component):
         ...
 
     @typing.overload
-    def with_command(self, *, copy: bool = False) -> collections.Callable[[CommandT], CommandT]:
+    def with_command(self, /, *, copy: bool = False) -> collections.Callable[[CommandT], CommandT]:
         ...
 
     def with_command(
@@ -593,7 +593,7 @@ class Component(tanjun_abc.Component):
 
     @typing.overload
     def with_slash_command(
-        self, *, copy: bool = False
+        self, /, *, copy: bool = False
     ) -> collections.Callable[[tanjun_abc.BaseSlashCommandT], tanjun_abc.BaseSlashCommandT]:
         ...
 
@@ -662,7 +662,7 @@ class Component(tanjun_abc.Component):
 
     @typing.overload
     def with_message_command(
-        self, *, copy: bool = False
+        self, /, *, copy: bool = False
     ) -> collections.Callable[[tanjun_abc.MessageCommandT], tanjun_abc.MessageCommandT]:
         ...
 
@@ -832,7 +832,7 @@ class Component(tanjun_abc.Component):
 
         return self
 
-    def unbind_client(self, client: tanjun_abc.Client, /) -> None:
+    def unbind_client(self: _ComponentT, client: tanjun_abc.Client, /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         if not self._client or self._client != client:
             raise RuntimeError("Component isn't bound to this client")
@@ -852,6 +852,8 @@ class Component(tanjun_abc.Component):
                     pass
 
         self._client = None
+
+        return self
 
     async def _check_context(self, ctx: tanjun_abc.Context, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
@@ -896,10 +898,8 @@ class Component(tanjun_abc.Component):
             return
 
         for command in self._message_commands:
-            if (name := utilities.match_prefix_names(content, command.names)) is not None:
-                yield name, command
-                # Don't want to match a command multiple times
-                continue
+            if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
+                yield name_, command
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_abc.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -923,7 +923,8 @@ class Component(tanjun_abc.Component):
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
-            return asyncio.get_running_loop().create_future().set_result(None)
+            asyncio.get_running_loop().create_future().set_result(None)
+            return None
 
         if self._slash_hooks:
             if hooks is None:

@@ -812,7 +812,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return _check_human in self._checks
+        return typing.cast("checks.InjectableCheck", _check_human) in self._checks
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -1651,9 +1651,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
-            for event_type, listeners in self._listeners.items():
+            for event_type_, listeners in self._listeners.items():
                 for listener in listeners:
-                    self._try_unsubscribe(self._events, event_type, listener.__call__)
+                    self._try_unsubscribe(self._events, event_type_, listener.__call__)
 
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
@@ -1708,9 +1708,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
-            for event_type, listeners in self._listeners.items():
+            for event_type_, listeners in self._listeners.items():
                 for listener in listeners:
-                    self._events.subscribe(event_type, listener.__call__)
+                    self._events.subscribe(event_type_, listener.__call__)
 
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
@@ -1736,13 +1736,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             return application.id
 
         if self._rest.token_type == hikari.TokenType.BOT:
-            application = await self._rest.fetch_application()
+            self._cached_application_id = hikari.Snowflake(await self._rest.fetch_application())
 
         else:
-            application = (await self._rest.fetch_authorization()).application
+            self._cached_application_id = hikari.Snowflake((await self._rest.fetch_authorization()).application)
 
-        self._cached_application_id = application.id
-        return application.id
+        return self._cached_application_id
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ClientT:
         """Set the general command execution hooks for this client.

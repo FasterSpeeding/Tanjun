@@ -995,17 +995,21 @@ class ShlexParser(AbstractParser):
 
         return self
 
-    def bind_client(self, client: tanjun_abc.Client, /) -> None:
+    def bind_client(self: _ShlexParserT, client: tanjun_abc.Client, /) -> _ShlexParserT:
         # <<inherited docstring from AbstractParser>>.
         self._client = client
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_client(client)
 
-    def bind_component(self, component: tanjun_abc.Component, /) -> None:
+        return self
+
+    def bind_component(self: _ShlexParserT, component: tanjun_abc.Component, /) -> _ShlexParserT:
         # <<inherited docstring from AbstractParser>>.
         self._component = component
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
+
+        return self
 
     def parse(
         self, ctx: tanjun_abc.MessageContext, /
