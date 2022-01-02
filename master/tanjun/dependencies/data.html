@@ -239,6 +239,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
+        <span class="c1"># LazyConstant gets type arguments at runtime</span>
         <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -1086,6 +1087,7 @@ The type of the constant to resolve.</li>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
+        <span class="c1"># LazyConstant gets type arguments at runtime</span>
         <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>

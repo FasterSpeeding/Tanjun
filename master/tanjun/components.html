@@ -779,7 +779,7 @@
         <span class="o">...</span>
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
     <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span>
@@ -832,7 +832,7 @@
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
@@ -901,7 +901,7 @@
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="nf">with_message_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommandT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
@@ -1071,7 +1071,7 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t bound to this client&quot;</span><span class="p">)</span>
@@ -1091,6 +1091,8 @@
                     <span class="k">pass</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
@@ -1135,10 +1137,8 @@
             <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="c1"># Don&#39;t want to match a command multiple times</span>
-                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">name_</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">name_</span><span class="p">,</span> <span class="n">command</span>
 
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
@@ -1162,7 +1162,8 @@
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1716,7 +1717,7 @@
         <span class="o">...</span>
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
     <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span>
@@ -1769,7 +1770,7 @@
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
@@ -1838,7 +1839,7 @@
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="nf">with_message_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommandT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
@@ -2008,7 +2009,7 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t bound to this client&quot;</span><span class="p">)</span>
@@ -2028,6 +2029,8 @@
                     <span class="k">pass</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
@@ -2072,10 +2075,8 @@
             <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="c1"># Don&#39;t want to match a command multiple times</span>
-                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">name_</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">name_</span><span class="p">,</span> <span class="n">command</span>
 
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
@@ -2099,7 +2100,8 @@
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3951,12 +3953,12 @@ take use injected dependencies.</p></li>
 
         
             <span class="def">def</span>
-            <span class="name">unbind_client</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
+            <span class="name">unbind_client</span><span class="signature">(self: ~_ComponentT, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t bound to this client&quot;</span><span class="p">)</span>
@@ -3976,6 +3978,8 @@ take use injected dependencies.</p></li>
                     <span class="k">pass</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -4008,10 +4012,8 @@ take use injected dependencies.</p></li>
             <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="c1"># Don&#39;t want to match a command multiple times</span>
-                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">name_</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">name_</span><span class="p">,</span> <span class="n">command</span>
 </pre></div>
 
         </details>

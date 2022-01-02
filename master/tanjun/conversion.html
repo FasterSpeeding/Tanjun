@@ -370,8 +370,8 @@
         <span class="n">dm_cache</span><span class="p">:</span> <span class="n">_DmCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_DmCacheT</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
         <span class="n">channel_id</span> <span class="o">=</span> <span class="n">parse_channel_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid channel mention or ID  found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">channel</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">channel</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">channel_</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">channel_</span>
 
         <span class="n">no_guild_channel</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>

@@ -1240,17 +1240,21 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">):</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">):</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
@@ -2395,17 +2399,21 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">):</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">):</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
@@ -2826,16 +2834,18 @@ Defaults to <code>False</code>.</li>
 
         
             <span class="def">def</span>
-            <span class="name">bind_client</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
+            <span class="name">bind_client</span><span class="signature">(self: ~_ShlexParserT, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; ~_ShlexParserT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">):</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -2848,16 +2858,22 @@ Defaults to <code>False</code>.</li>
 
         
             <span class="def">def</span>
-            <span class="name">bind_component</span><span class="signature">(self, component: <a href="abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
+            <span class="name">bind_component</span><span class="signature">(
+    self: ~_ShlexParserT,
+    component: <a href="abc.html#Component">tanjun.abc.Component</a>,
+    /
+) -&gt; ~_ShlexParserT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">):</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>

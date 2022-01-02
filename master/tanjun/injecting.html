@@ -562,11 +562,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_injector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
+    <span class="c1"># This is delegated to the callback to delegate set/list behaviour for this class to the callback.</span>
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
+    <span class="c1"># This is delegated to the callback to delegate set/list behaviour for this class to the callback.</span>
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)</span>
 
@@ -2083,11 +2083,11 @@ The associated type.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_injector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
+    <span class="c1"># This is delegated to the callback to delegate set/list behaviour for this class to the callback.</span>
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
+    <span class="c1"># This is delegated to the callback to delegate set/list behaviour for this class to the callback.</span>
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)</span>
 

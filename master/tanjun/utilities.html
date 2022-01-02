@@ -313,8 +313,8 @@
         <span class="k">return</span> <span class="n">channel</span>
 
     <span class="n">channel_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">found_channel</span> <span class="o">:=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="n">found_channel</span>
+    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">found_channel_</span> <span class="o">:=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">found_channel_</span>
 
     <span class="k">if</span> <span class="n">channel_cache</span> <span class="o">:=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ChannelCacheT</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -627,7 +627,7 @@ An iterable of injectable checks.</li>
                 <section id="ALL_PERMISSIONS">
                                 <div class="attr variable"><a class="headerlink" href="#ALL_PERMISSIONS">#&nbsp;&nbsp</a>
 
-        <span class="name">ALL_PERMISSIONS</span><span class="annotation">: Final[hikari.permissions.Permissions]</span><span class="default_value"> = &lt;Permissions.CREATE_INSTANT_INVITE|KICK_MEMBERS|BAN_MEMBERS|ADMINISTRATOR|MANAGE_CHANNELS|MANAGE_GUILD|ADD_REACTIONS|VIEW_AUDIT_LOG|PRIORITY_SPEAKER|STREAM|VIEW_CHANNEL|SEND_MESSAGES|SEND_TTS_MESSAGES|MANAGE_MESSAGES|EMBED_LINKS|ATTACH_FILES|READ_MESSAGE_HISTORY|MENTION_ROLES|USE_EXTERNAL_EMOJIS|VIEW_GUILD_INSIGHTS|CONNECT|SPEAK|MUTE_MEMBERS|DEAFEN_MEMBERS|MOVE_MEMBERS|USE_VOICE_ACTIVITY|CHANGE_NICKNAME|MANAGE_NICKNAMES|MANAGE_ROLES|MANAGE_WEBHOOKS|MANAGE_EMOJIS_AND_STICKERS|USE_APPLICATION_COMMANDS|REQUEST_TO_SPEAK|MANAGE_THREADS|CREATE_PUBLIC_THREADS|CREATE_PRIVATE_THREADS|USE_EXTERNAL_STICKERS|SEND_MESSAGES_IN_THREADS|START_EMBEDDED_ACTIVITIES: 1090921693183&gt;</span>
+        <span class="name">ALL_PERMISSIONS</span><span class="annotation">: Final[hikari.permissions.Permissions]</span><span class="default_value"> = &lt;Permissions.CREATE_INSTANT_INVITE|KICK_MEMBERS|BAN_MEMBERS|ADMINISTRATOR|MANAGE_CHANNELS|MANAGE_GUILD|ADD_REACTIONS|VIEW_AUDIT_LOG|PRIORITY_SPEAKER|STREAM|VIEW_CHANNEL|SEND_MESSAGES|SEND_TTS_MESSAGES|MANAGE_MESSAGES|EMBED_LINKS|ATTACH_FILES|READ_MESSAGE_HISTORY|MENTION_ROLES|USE_EXTERNAL_EMOJIS|VIEW_GUILD_INSIGHTS|CONNECT|SPEAK|MUTE_MEMBERS|DEAFEN_MEMBERS|MOVE_MEMBERS|USE_VOICE_ACTIVITY|CHANGE_NICKNAME|MANAGE_NICKNAMES|MANAGE_ROLES|MANAGE_WEBHOOKS|MANAGE_EMOJIS_AND_STICKERS|USE_APPLICATION_COMMANDS|REQUEST_TO_SPEAK|MANAGE_THREADS|CREATE_PUBLIC_THREADS|CREATE_PRIVATE_THREADS|USE_EXTERNAL_STICKERS|SEND_MESSAGES_IN_THREADS|START_EMBEDDED_ACTIVITIES|MODERATE_MEMBERS: 2190433320959&gt;</span>
     </div>
 
             <div class="docstring"><p>All of all the known permissions based on the linked version of Hikari.</p>

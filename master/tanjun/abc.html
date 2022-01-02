@@ -3238,7 +3238,9 @@
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">BaseSlashCommandT</span><span class="p">],</span> <span class="n">BaseSlashCommandT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">BaseSlashCommandT</span><span class="p">],</span> <span class="n">BaseSlashCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -3305,7 +3307,9 @@
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MessageCommandT</span><span class="p">],</span> <span class="n">MessageCommandT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_message_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MessageCommandT</span><span class="p">],</span> <span class="n">MessageCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12792,7 +12796,9 @@ user.</p>
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">BaseSlashCommandT</span><span class="p">],</span> <span class="n">BaseSlashCommandT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">BaseSlashCommandT</span><span class="p">],</span> <span class="n">BaseSlashCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12859,7 +12865,9 @@ user.</p>
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_message_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MessageCommandT</span><span class="p">],</span> <span class="n">MessageCommandT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">with_message_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MessageCommandT</span><span class="p">],</span> <span class="n">MessageCommandT</span><span class="p">]:</span>
         <span class="o">...</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
