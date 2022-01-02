@@ -36,7 +36,6 @@ __all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext", "SlashO
 
 import asyncio
 import datetime
-import enum
 import logging
 import typing
 
@@ -60,10 +59,6 @@ ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.In
 """Union of the response types which are valid for application command interactions."""
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")
-
-
-class _SENTINEL(enum.Enum):
-    SENTINEL = enum.auto()
 
 
 def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
@@ -601,9 +596,7 @@ class SlashOption(tanjun_abc.SlashOption):
     def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
         ...
 
-    def resolve_to_member(
-        self, *, default: typing.Union[_T, _SENTINEL] = _SENTINEL.SENTINEL
-    ) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.USER:
@@ -611,7 +604,7 @@ class SlashOption(tanjun_abc.SlashOption):
             if member := self._interaction.resolved.members.get(hikari.Snowflake(self.value)):
                 return member
 
-            if default is not _SENTINEL.SENTINEL:
+            if default is not ...:
                 return default
 
             raise LookupError("User isn't in the current guild") from None
@@ -623,7 +616,7 @@ class SlashOption(tanjun_abc.SlashOption):
                 return member
 
             if target_id in self._interaction.resolved.users:
-                if default is not _SENTINEL.SENTINEL:
+                if default is not ...:
                     return default
 
                 raise LookupError("User isn't in the current guild")
