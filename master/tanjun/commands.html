@@ -576,7 +576,7 @@
 <span class="sd">    help_group = tanjun.slash_command_group(&quot;help&quot;, &quot;get help&quot;)</span>
 
 <span class="sd">    @help_group.with_command</span>
-<span class="sd">    @tanjun.with_str_slash_option(&quot;commad_name&quot;, &quot;command name&quot;)</span>
+<span class="sd">    @tanjun.with_str_slash_option(&quot;command_name&quot;, &quot;command name&quot;)</span>
 <span class="sd">    @tanjun.as_slash_command(&quot;command&quot;, &quot;Get help with a command&quot;)</span>
 <span class="sd">    async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -&gt; None:</span>
 <span class="sd">        ...</span>
@@ -586,7 +586,7 @@
 <span class="sd">    async def help_me_command(ctx: tanjun.abc.SlashContext) -&gt; None:</span>
 <span class="sd">        ...</span>
 
-<span class="sd">    component = tanjun.Component().add_slash_command_command(help_group)</span>
+<span class="sd">    component = tanjun.Component().add_slash_command(help_group)</span>
 <span class="sd">    ```</span>
 
 <span class="sd">    Notes</span>
@@ -3147,7 +3147,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
 <span class="sd">    help_group = tanjun.slash_command_group(&quot;help&quot;, &quot;get help&quot;)</span>
 
 <span class="sd">    @help_group.with_command</span>
-<span class="sd">    @tanjun.with_str_slash_option(&quot;commad_name&quot;, &quot;command name&quot;)</span>
+<span class="sd">    @tanjun.with_str_slash_option(&quot;command_name&quot;, &quot;command name&quot;)</span>
 <span class="sd">    @tanjun.as_slash_command(&quot;command&quot;, &quot;Get help with a command&quot;)</span>
 <span class="sd">    async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -&gt; None:</span>
 <span class="sd">        ...</span>
@@ -3157,7 +3157,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
 <span class="sd">    async def help_me_command(ctx: tanjun.abc.SlashContext) -&gt; None:</span>
 <span class="sd">        ...</span>
 
-<span class="sd">    component = tanjun.Component().add_slash_command_command(help_group)</span>
+<span class="sd">    component = tanjun.Component().add_slash_command(help_group)</span>
 <span class="sd">    ```</span>
 
 <span class="sd">    Notes</span>
@@ -3227,7 +3227,7 @@ the following decorator based approach:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">help_group</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">slash_command_group</span><span class="p">(</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;get help&quot;</span><span class="p">)</span>
 
 <span class="nd">@help_group</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;commad_name&quot;</span><span class="p">,</span> <span class="s2">&quot;command name&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;command_name&quot;</span><span class="p">,</span> <span class="s2">&quot;command name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="s2">&quot;Get help with a command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">help_command_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">command_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
@@ -3237,7 +3237,7 @@ the following decorator based approach:</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">help_me_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 
-<span class="n">component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span><span class="o">.</span><span class="n">add_slash_command_command</span><span class="p">(</span><span class="n">help_group</span><span class="p">)</span>
+<span class="n">component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="n">help_group</span><span class="p">)</span>
 </code></pre></div>
 
 <h6 id="notes">Notes</h6>
