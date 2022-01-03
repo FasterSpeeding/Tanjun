@@ -71,7 +71,7 @@ def check_versions(session: nox.Session) -> None:
             "https://gist.githubusercontent.com/FasterSpeeding/139801789f00d15b4aa8ed2598fb524e/raw/check_versions.py"
         ).read()
 
-    session.install(".")
+    session.install(".", "--use-feature=in-tree-build")
     session.install(*requirements)
     # This is saved to a temporary file to avoid the source showing up in any of the output.
 
@@ -123,7 +123,7 @@ def cleanup(session: nox.Session) -> None:
 @nox.session(name="generate-docs", reuse_venv=True)
 def generate_docs(session: nox.Session) -> None:
     """Generate docs for this project using Pdoc."""
-    install_requirements(session, ".[docs]")
+    install_requirements(session, ".[docs]", "--use-feature=in-tree-build")
     session.log("Building docs into ./docs")
     output_directory = _try_find_option(session, "-o", "--output") or "./docs"
     session.run("pdoc", "--docformat", "numpy", "-o", output_directory, "./tanjun", "-t", "./templates")
@@ -157,14 +157,14 @@ def generate_docs(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def lint(session: nox.Session) -> None:
     """Run this project's modules against the pre-defined flake8 linters."""
-    install_requirements(session, ".[flake8]")
+    install_requirements(session, ".[flake8]", "--use-feature=in-tree-build")
     session.run("flake8", *GENERAL_TARGETS)
 
 
 @nox.session(reuse_venv=True, name="spell-check")
 def spell_check(session: nox.Session) -> None:
     """Check this project's text-like files for common spelling mistakes."""
-    install_requirements(session, ".[lint]")  # include_standard_requirements=False
+    install_requirements(session, ".[lint]", "--use-feature=in-tree-build")  # include_standard_requirements=False
     session.run(
         "codespell",
         *GENERAL_TARGETS,
@@ -226,7 +226,7 @@ def test_publish(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
-    install_requirements(session, ".[reformat]")  # include_standard_requirements=False
+    install_requirements(session, ".[reformat]", "--use-feature=in-tree-build")  # include_standard_requirements=False
     session.run("black", *GENERAL_TARGETS)
     session.run("isort", *GENERAL_TARGETS)
 
@@ -234,7 +234,7 @@ def reformat(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def test(session: nox.Session) -> None:
     """Run this project's tests using pytest."""
-    install_requirements(session, ".[tests]")
+    install_requirements(session, ".[tests]", "--use-feature=in-tree-build")
     # TODO: can import-mode be specified in the config.
     session.run("pytest", "--import-mode", "importlib")
 
@@ -242,7 +242,7 @@ def test(session: nox.Session) -> None:
 @nox.session(name="test-coverage", reuse_venv=True)
 def test_coverage(session: nox.Session) -> None:
     """Run this project's tests while recording test coverage."""
-    install_requirements(session, ".[tests]")
+    install_requirements(session, ".[tests]", "--use-feature=in-tree-build")
     # TODO: can import-mode be specified in the config.
     # https://github.com/nedbat/coveragepy/issues/1002
     session.run("pytest", "--cov=tanjun", "--cov-report", "html:coverage_html", "--cov-report", "xml:coverage.xml")
@@ -262,14 +262,16 @@ def _run_pyright(session: nox.Session, *args: str) -> None:
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
     """Statically analyse and veirfy this project using Pyright."""
-    install_requirements(session, ".[tests, type_checking]", "-r", "nox-requirements.txt")
+    install_requirements(
+        session, ".[tests, type_checking]", "--use-feature=in-tree-build", "-r", "nox-requirements.txt"
+    )
     _run_pyright(session)
 
 
 @nox.session(name="verify-types", reuse_venv=True)
 def verify_types(session: nox.Session) -> None:
     """Verify the "type completeness" of types exported by the library using Pyright."""
-    install_requirements(session, ".[type_checking]")
+    install_requirements(session, ".[type_checking]", "--use-feature=in-tree-build")
     _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")
 
 
