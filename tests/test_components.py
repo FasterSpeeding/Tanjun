@@ -1164,22 +1164,6 @@ class TestComponent:
         with pytest.raises(RuntimeError, match="Client isn't bound yet"):
             await component.open()
 
-    @pytest.mark.asyncio()
-    async def test_open_when_client_isnt_injection_client(self):
-        mock_callback_1 = mock.AsyncMock()
-        mock_callback_2 = mock.AsyncMock()
-        mock_client = mock.Mock()
-        component = tanjun.Component().bind_client(mock_client)
-        component._on_open = [mock_callback_1, mock_callback_2]
-
-        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
-            await component.open()
-
-        get_running_loop.assert_called_once_with()
-        assert component.loop is get_running_loop.return_value
-        mock_callback_1.resolve_without_injector.assert_awaited_once()
-        mock_callback_2.resolve_without_injector.assert_awaited_once()
-
     def test_make_loader_load(self):
         component = tanjun.Component()
         loader = component.make_loader(copy=False)

@@ -45,7 +45,6 @@ import abc
 import asyncio
 import base64
 import copy
-import datetime
 import inspect
 import itertools
 import logging
@@ -59,14 +58,12 @@ from . import abc as tanjun_abc
 from . import checks as checks_
 from . import errors
 from . import injecting
+from . import schedules
 from . import utilities
-from .repeaters import Repeater
 
 if typing.TYPE_CHECKING:
-    from . import AbstractRepeater
-    from . import CallbackSigT
-
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
+    _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
@@ -195,9 +192,9 @@ class Component(tanjun_abc.Component):
         "_names_to_commands",
         "_on_close",
         "_on_open",
+        "_schedules",
         "_slash_commands",
         "_slash_hooks",
-        "_repeaters",
     )
 
     def __init__(
@@ -227,9 +224,9 @@ class Component(tanjun_abc.Component):
         self._names_to_commands: dict[str, tanjun_abc.MessageCommand[typing.Any]] = {}
         self._on_close: list[injecting.CallbackDescriptor[None]] = []
         self._on_open: list[injecting.CallbackDescriptor[None]] = []
+        self._schedules: list[schedules.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
-        self._repeaters: list[AbstractRepeater] = []
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
@@ -238,9 +235,6 @@ class Component(tanjun_abc.Component):
     def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
         """Collection of the checks being run against every command execution in this component."""
         return tuple(check.callback for check in self._checks)
-
-    def repeaters(self) -> typing.Sequence[AbstractRepeater]:
-        return self._repeaters
 
     @property
     def client(self) -> typing.Optional[tanjun_abc.Client]:
@@ -266,6 +260,10 @@ class Component(tanjun_abc.Component):
     def name(self) -> str:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._name
+
+    @property
+    def schedules(self) -> typing.Sequence[schedules.AbstractSchedule]:
+        return self._schedules
 
     @property
     def slash_commands(self) -> collections.Collection[tanjun_abc.BaseSlashCommand]:
@@ -317,7 +315,7 @@ class Component(tanjun_abc.Component):
             self._message_commands = list(commands.values())
             self._metadata = self._metadata.copy()
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            self._repeaters = [copy.copy(repeater) for repeater in self._repeaters] if self._repeaters else []
+            self._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
             return self
 
         return copy.copy(self).copy(_new=False)
@@ -1009,22 +1007,18 @@ class Component(tanjun_abc.Component):
             if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
-    def with_repeater(
-        self,
-        delay: typing.Union[datetime.timedelta, int, float],
-        *,
-        max_runs: typing.Optional[int] = None,
-        event_loop: typing.Optional[asyncio.AbstractEventLoop] = None,
-    ) -> collections.Callable[[CallbackSigT], abc.AbstractRepeater]:
-        def decorator(callback: CallbackSigT) -> abc.AbstractRepeater:
-            repeater = Repeater(callback, delay, max_runs=max_runs, event_loop=event_loop)
-            self.add_repeater(repeater)
-            return repeater
+    def with_schedule(self, schedule: _ScheduleT, /) -> _ScheduleT:
+        self.add_schedule(schedule)
+        return schedule
 
-        return decorator
+    def add_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule) -> _ComponentT:
+        if self._client and self._loop:
+            # TODO: upgrade this to the standard interface
+            assert isinstance(self._client, injecting.InjectorClient)
+            schedule.start(self._client, loop=self._loop)
 
-    def add_repeater(self, repeater: AbstractRepeater):
-        self._repeaters.append(repeater)
+        self._schedules.append(schedule)
+        return self
 
     async def close(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -1032,6 +1026,9 @@ class Component(tanjun_abc.Component):
             raise RuntimeError("Component isn't active")
 
         assert self._client
+
+        for schedule in self._schedules:
+            schedule.stop()
 
         self._loop = None
         if isinstance(self._client, injecting.InjectorClient):
@@ -1051,13 +1048,14 @@ class Component(tanjun_abc.Component):
             raise RuntimeError("Client isn't bound yet")
 
         self._loop = asyncio.get_running_loop()
-        if isinstance(self._client, injecting.InjectorClient):
-            await asyncio.gather(
-                *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_open)
-            )
+        # TODO: upgrade this to the standard interface
+        assert isinstance(self._client, injecting.InjectorClient)
+        await asyncio.gather(
+            *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_open)
+        )
 
-        else:
-            await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_open))
+        for schedule in self._schedules:
+            schedule.start(self._client, loop=self._loop)
 
     def make_loader(self, *, copy: bool = True) -> tanjun_abc.ClientLoader:
         """Make a loader/unloader for this component.

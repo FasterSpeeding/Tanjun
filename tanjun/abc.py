@@ -2389,7 +2389,6 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    @abc.abstractmethod
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
         """The asyncio loop this client is bound to if it has been opened."""
 
