@@ -214,7 +214,7 @@ def slash_command_group(
     help_group = tanjun.slash_command_group("help", "get help")
 
     @help_group.with_command
-    @tanjun.with_str_slash_option("commad_name", "command name")
+    @tanjun.with_str_slash_option("command_name", "command name")
     @tanjun.as_slash_command("command", "Get help with a command")
     async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
         ...
@@ -224,7 +224,7 @@ def slash_command_group(
     async def help_me_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 
-    component = tanjun.Component().add_slash_command_command(help_group)
+    component = tanjun.Component().add_slash_command(help_group)
     ```
 
     Notes
