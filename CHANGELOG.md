@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.3a1] - 2022-01-06
 ### Added
 - The interface for a generic (type-based) asynchronous cache dependency.
 
@@ -407,7 +409,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.3a1...HEAD
+[2.2.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...v2.2.3a1
 [2.2.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.1a1...v2.2.2a1
 [2.2.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.0a1...v2.2.1a1
 [2.2.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.4a1...v2.2.0a1
