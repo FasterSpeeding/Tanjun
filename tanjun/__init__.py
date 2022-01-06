@@ -216,6 +216,7 @@ __all__: list[str] = [
     # repeaters.py
     "schedules",
     "AbstractSchedule",
+    "as_interval",
     "IntervalSchedule",
 ]
 

@@ -52,16 +52,17 @@ import random
 import typing
 from collections import abc as collections
 
-from hikari.events import base_events
-
 from . import abc as tanjun_abc
 from . import checks as checks_
 from . import errors
 from . import injecting
-from . import schedules
 from . import utilities
 
 if typing.TYPE_CHECKING:
+    from hikari.events import base_events
+
+    from . import schedules
+
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
     _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
 
@@ -262,7 +263,7 @@ class Component(tanjun_abc.Component):
         return self._name
 
     @property
-    def schedules(self) -> typing.Sequence[schedules.AbstractSchedule]:
+    def schedules(self) -> collections.Collection[schedules.AbstractSchedule]:
         return self._schedules
 
     @property
@@ -1007,11 +1008,7 @@ class Component(tanjun_abc.Component):
             if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
-    def with_schedule(self, schedule: _ScheduleT, /) -> _ScheduleT:
-        self.add_schedule(schedule)
-        return schedule
-
-    def add_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule) -> _ComponentT:
+    def add_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule, /) -> _ComponentT:
         if self._client and self._loop:
             # TODO: upgrade this to the standard interface
             assert isinstance(self._client, injecting.InjectorClient)
@@ -1019,6 +1016,10 @@ class Component(tanjun_abc.Component):
 
         self._schedules.append(schedule)
         return self
+
+    def with_schedule(self, schedule: _ScheduleT, /) -> _ScheduleT:
+        self.add_schedule(schedule)
+        return schedule
 
     async def close(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -1031,13 +1032,11 @@ class Component(tanjun_abc.Component):
             schedule.stop()
 
         self._loop = None
-        if isinstance(self._client, injecting.InjectorClient):
-            await asyncio.gather(
-                *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
-            )
-
-        else:
-            await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_close))
+        # TODO: upgrade this to the standard interface
+        assert isinstance(self._client, injecting.InjectorClient)
+        await asyncio.gather(
+            *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
+        )
 
     async def open(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.

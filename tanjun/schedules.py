@@ -32,22 +32,28 @@
 """A way to add repeating tasks to Tanjun bots."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractSchedule", "IntervalSchedule"]
+__all__: list[str] = ["AbstractSchedule", "as_interval", "IntervalSchedule"]
 
 import abc
 import asyncio
 import copy
 import datetime
 import typing
-from collections import abc as collections
 
+from . import components
 from . import injecting
 
-_CallbackSig = collections.Callable[..., collections.Awaitable[None]]
-_CallbackSigT = typing.TypeVar("_CallbackSigT", bound=_CallbackSig)
-_OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound=_CallbackSig)
-_IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
-_T = typing.TypeVar("_T")
+if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
+    from . import abc as tanjun_abc
+
+    _CallbackSig = collections.Callable[..., collections.Awaitable[None]]
+    _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
+    _IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
+    _T = typing.TypeVar("_T")
+
+_CallbackSigT = typing.TypeVar("_CallbackSigT", bound="_CallbackSig")
 
 
 class AbstractSchedule(abc.ABC):
@@ -60,25 +66,21 @@ class AbstractSchedule(abc.ABC):
     def callback(self) -> _CallbackSig:
         """Return the callback attached to the schedule.
 
-        Returns
-        -------
-        _CallbackSig
-            The callback attached to this schedule.
-
-            This should take no-positional arguments and may have injected
-            keyword-arguments.
+        This will be an asynchronous function which takes zero positional
+        arguments, returns `None` and may be relying on dependency injection.
         """
+
+    @property
+    @abc.abstractmethod
+    def is_alive(self) -> bool:
+        """Whether the schedule is alive."""
 
     @property
     @abc.abstractmethod
     def iteration_count(self) -> int:
         """Return the number of times this schedule has run.
 
-        Returns
-        -------
-        int
-            The number of times this schedule has run. Increments after
-            the callback is called, regardless if it was successful or not.
+        This increments after a call regardless of if it failed.
         """
 
     @abc.abstractmethod
@@ -131,15 +133,84 @@ class AbstractSchedule(abc.ABC):
         """
 
 
-class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
+@typing.runtime_checkable
+class _ComponentProto(typing.Protocol):
+    def add_schedule(self, schedule: AbstractSchedule, /) -> typing.Any:
+        raise NotImplementedError
+
+
+def as_interval(
+    interval: typing.Union[int, float, datetime.timedelta],
+    /,
+    *,
+    fatal_exceptions: collections.Sequence[type[Exception]] = (),
+    ignored_exceptions: collections.Sequence[type[Exception]] = (),
+    max_runs: typing.Optional[int] = None,
+) -> collections.Callable[[_CallbackSigT], IntervalSchedule[_CallbackSigT]]:
+    """Decorator to create an interval schedule.
+
+    Parameters
+    ----------
+    interval : typing.Union[int, float, datetime.timedelta]
+        The callback for the schedule.
+
+        This should be an asynchronous function which takes no positional
+        arguments, returns `None` and may use dependency injection.
+
+    Other Parameters
+    ----------------
+    fatal_exceptions : collections.abc.Sequence[type[Exception]]
+        A sequence of exceptions that will cause the schedule to stop if raised
+        by the callback, start callback or stop callback.
+
+        Defaults to no exceptions.
+    ignored_exceptions : collections.abc.Sequence[type[Exception]]
+        A sequence of exceptions that should be ignored if raised by the
+        callback, start callback or stop callback.
+
+        Defaults to no exceptions.
+    max_runs : typing.Optional[int]
+        The maximum amount of times the repeater runs. Defaults to no maximum.
+
+    Returns
+    -------
+    collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]
+        The decorator used to create the interval schedule.
+    """
+    return lambda callback: IntervalSchedule(
+        callback,
+        interval,
+        fatal_exceptions=fatal_exceptions,
+        ignored_exceptions=ignored_exceptions,
+        max_runs=max_runs,
+    )
+
+
+class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
     """A callback schedule with an interval between calls.
 
     Parameters
     ----------
-    callback : CallbackSigT
-        The callback for the schedule
+    callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        The callback for the schedule.
+
+        This should be an asynchronous function which takes no positional
+        arguments, returns `None` and may use dependency injection.
     interval : typing.Union[datetime.timedelta, int, float]
         The interval between calls. Passed as a timedelta, or a number of seconds.
+
+    Other Parameters
+    ----------------
+    fatal_exceptions : collections.abc.Sequence[type[Exception]]
+        A sequence of exceptions that will cause the schedule to stop if raised
+        by the callback, start callback or stop callback.
+
+        Defaults to no exceptions.
+    ignored_exceptions : collections.abc.Sequence[type[Exception]]
+        A sequence of exceptions that should be ignored if raised by the
+        callback, start callback or stop callback.
+
+        Defaults to no exceptions.
     max_runs : typing.Optional[int]
         The maximum amount of times the repeater runs. Defaults to no maximum.
     """
@@ -162,6 +233,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
         interval: typing.Union[datetime.timedelta, int, float],
         /,
         *,
+        fatal_exceptions: collections.Sequence[type[Exception]] = (),
+        ignored_exceptions: collections.Sequence[type[Exception]] = (),
         max_runs: typing.Optional[int] = None,
     ) -> None:
         if isinstance(interval, datetime.timedelta):
@@ -170,21 +243,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
             self._interval: datetime.timedelta = datetime.timedelta(seconds=interval)
 
         self._callback = injecting.CallbackDescriptor[None](callback)
-        self._fatal_exceptions: tuple[type[Exception], ...] = ()
-        self._ignored_exceptions: tuple[type[Exception], ...] = ()
+        self._fatal_exceptions = tuple(fatal_exceptions)
+        self._ignored_exceptions = tuple(ignored_exceptions)
         self._iteration_count: int = 0
         self._max_runs = max_runs
         self._stop_callback: typing.Optional[injecting.CallbackDescriptor[None]] = None
         self._start_callback: typing.Optional[injecting.CallbackDescriptor[None]] = None
         self._task: typing.Optional[asyncio.Task[None]] = None
-
-    if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT
-
-    else:
-
-        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-            await self._callback(*args, **kwargs)
 
     @property
     def callback(self) -> _CallbackSigT:
@@ -196,14 +261,34 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
         return self._interval
 
     @property
+    def is_alive(self) -> bool:
+        # <<inherited docstring from IntervalSchedule>>.
+        return self._task is not None
+
+    @property
     def iteration_count(self) -> int:
+        # <<inherited docstring from IntervalSchedule>>.
         return self._iteration_count
 
+    if typing.TYPE_CHECKING:
+        __call__: _CallbackSigT
+
+    else:
+
+        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+            await self._callback.callback(*args, **kwargs)
+
     def copy(self: _IntervalScheduleT) -> _IntervalScheduleT:
+        # <<inherited docstring from IntervalSchedule>>.
         if self._task:
             raise RuntimeError("Cannot copy an active schedule")
 
         return copy.copy(self)
+
+    def load_into_component(self, component: tanjun_abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
+        if isinstance(component, _ComponentProto):
+            component.add_schedule(self)
 
     def set_start_callback(self: _IntervalScheduleT, callback: _CallbackSig, /) -> _IntervalScheduleT:
         """
@@ -228,13 +313,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
 
         Parameters
         ----------
-        callback : CallbackSig
+        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
             The callback to set.
 
         Returns
         -------
-        IntervalSchedule[CallbackSigT]
-            Self
+        Self
+            The repeater instance to enable chained calls.
         """
         self._stop_callback = injecting.CallbackDescriptor(callback)
         return self
@@ -267,14 +352,15 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
             if self._stop_callback:
                 try:
                     await self._stop_callback.resolve(injecting.BasicInjectionContext(client))
-                except self._fatal_exceptions:
+                except self._ignored_exceptions:
                     pass
 
     def start(
         self, client: injecting.InjectorClient, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None
     ) -> None:
+        # <<inherited docstring from IntervalSchedule>>.
         if self._task:
-            raise RuntimeError("Scheduled callback is already active")
+            raise RuntimeError("Cannot start an active schedule")
 
         loop = loop or asyncio.get_running_loop()
 
@@ -284,8 +370,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
         self._task = loop.create_task(self._loop(client))
 
     def stop(self) -> None:
+        # <<inherited docstring from IntervalSchedule>>.
         if not self._task:
-            raise RuntimeError("IntervalSchedule not running")
+            raise RuntimeError("Interval schedule is not running")
 
         self._task.cancel()
         self._task = None
@@ -295,13 +382,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
 
         Parameters
         ----------
-        callback : CallbackSig
+        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
             The callback to set.
 
         Returns
         -------
-        CallbackSig
-            The callback.
+        collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+            The added callback.
 
         Examples
         --------
@@ -329,13 +416,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], AbstractSchedule):
 
         Parameters
         ----------
-        callback : CallbackSig
+        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
             The callback to set.
 
         Returns
         -------
-        CallbackSig
-            The callback.
+        collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+            The added callback.
 
         Examples
         --------
