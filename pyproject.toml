@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "hikari-tanjun"
-version = "2.2.4a1"
+version = "2.2.3a1"
 description = "A flexible command framework designed to extend Hikari."
 readme = "README.md"
 requires-python = ">=3.9.0,<3.12"
@@ -31,7 +31,7 @@ classifiers = [
 dependencies = ["hikari~=2.0.0.dev103"]
 
 [project.optional-dependencies]
-docs = ["pdoc==8.1.0"]
+docs = ["pdoc==8.2.0"]
 flake8 = [
     "flake8==4.0.1",
 
