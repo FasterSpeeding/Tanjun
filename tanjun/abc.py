@@ -536,8 +536,7 @@ class Context(abc.ABC):
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
-            invalid image URLs in embeds; if `reply` is not found or not in the
-            same channel as `channel`; too many components.
+            invalid image URLs in embeds; too many components.
         hikari.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
         hikari.ForbiddenError
@@ -690,8 +689,7 @@ class Context(abc.ABC):
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
-            invalid image URLs in embeds; if `reply` is not found or not in the
-            same channel as `channel`; too many components.
+            invalid image URLs in embeds; too many components.
         hikari.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
         hikari.ForbiddenError
@@ -876,8 +874,7 @@ class Context(abc.ABC):
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
-            invalid image URLs in embeds; if `reply` is not found or not in the
-            same channel as `channel`; too many components.
+            invalid image URLs in embeds; too many components.
         hikari.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
         hikari.ForbiddenError
@@ -971,7 +968,7 @@ class MessageContext(Context, abc.ABC):
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         nonce: hikari.UndefinedOr[str] = hikari.UNDEFINED,
-        reply: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialMessage]] = hikari.UNDEFINED,
+        reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -1014,8 +1011,11 @@ class MessageContext(Context, abc.ABC):
                 As of writing, this does not support ephemeral slash command responses.
         tts : hikari.UndefinedOr[bool]
             Whether to respond with tts/text to speech or no.
-        reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]
+        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]
             Whether to reply instead of sending the content to the context.
+
+            Defaults to `hikari.UNDEFINED`.
+            Passing `True` here indicates a reply to `MessageContext.message`.
         nonce : hikari.UndefinedOr[str]
             The nonce that validates that the message was sent.
         attachment : hikari.UndefinedOr[hikari.Resourceish]

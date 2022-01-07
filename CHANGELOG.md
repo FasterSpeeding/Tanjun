@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scheduled callback interface and interval implementation to the standard component implementation.
 - `always_defer` option to slash commands (not including groups).
 - `tanjun.MessageCommand` is now callable like `tanjun.SlashCommand`.
+- `MessageContext.respond` is now typed as allowing `bool` for the `reply` argument.
 
 ## [2.2.3a1] - 2022-01-06
 ### Added
