@@ -1958,6 +1958,15 @@ class TestMessageCommand:
     def test___repr__(self):
         ...
 
+    @pytest.mark.asyncio()
+    async def test___call__(self):
+        mock_callback = mock.AsyncMock()
+        command = tanjun.SlashCommand(mock_callback, "yee", "nsoosos")
+
+        await command(65123, "okokok", a="odoosd", gf=435123)  # type: ignore
+
+        mock_callback.assert_awaited_once_with(65123, "okokok", a="odoosd", gf=435123)
+
     def test_callback_property(self):
         mock_callback = mock.Mock()
 

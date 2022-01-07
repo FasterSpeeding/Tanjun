@@ -2066,6 +2066,14 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
 
+    if typing.TYPE_CHECKING:
+        __call__: abc.CommandCallbackSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._callback.callback(*args, **kwargs)
+
     @property
     def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
