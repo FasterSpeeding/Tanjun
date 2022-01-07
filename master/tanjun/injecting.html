@@ -731,10 +731,10 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">sub_results</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">result</span>
 
         <span class="c1"># TODO: should we avoid caching the result if args/kwargs are passed?</span>
@@ -2252,10 +2252,10 @@ The associated type.</li>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">sub_results</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">result</span>
 
         <span class="c1"># TODO: should we avoid caching the result if args/kwargs are passed?</span>
@@ -2629,10 +2629,10 @@ The keyword arguments to pass to the callback.</li>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">sub_results</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isawaitable</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">result</span>
 
         <span class="c1"># TODO: should we avoid caching the result if args/kwargs are passed?</span>
