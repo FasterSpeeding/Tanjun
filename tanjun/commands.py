@@ -287,6 +287,7 @@ def as_slash_command(
     description: str,
     /,
     *,
+    always_defer: bool = False,
     default_permission: bool = True,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
@@ -326,6 +327,15 @@ def as_slash_command(
 
     Other Parameters
     ----------------
+    always_defer : bool
+        Whether the contexts this command is executed with should always be deferred
+        before being passed to the command's callback.
+
+        Defaults to `False`.
+
+        .. note::
+            The ephemeral state of the first response is decided by whether the
+            deferral is ephemeral.
     default_permission : bool
         Whether this command can be accessed without set permissions.
 
@@ -370,6 +380,7 @@ def as_slash_command(
                 callback.callback,
                 name,
                 description,
+                always_defer=always_defer,
                 default_permission=default_permission,
                 default_to_ephemeral=default_to_ephemeral,
                 is_global=is_global,
@@ -381,6 +392,7 @@ def as_slash_command(
             callback,
             name,
             description,
+            always_defer=always_defer,
             default_permission=default_permission,
             default_to_ephemeral=default_to_ephemeral,
             is_global=is_global,
@@ -1084,7 +1096,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
-    __slots__ = ("_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
+    __slots__ = ("_always_defer", "_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
 
     def __init__(
         self,
@@ -1093,6 +1105,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
+        always_defer: bool = False,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
@@ -1112,6 +1125,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             metadata=metadata,
         )
 
+        self._always_defer = always_defer
         self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
@@ -1906,6 +1920,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        if self._always_defer:
+            await ctx.defer()
+
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:

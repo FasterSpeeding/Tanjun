@@ -1374,6 +1374,10 @@ class SlashContext(Context, abc.ABC):
     ) -> None:
         """Defer the initial response for this context.
 
+        .. note::
+            The ephemeral state of the first response is decided by whether the
+            deferral is ephemeral.
+
         Other Parameters
         ----------------
         flags : typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]
