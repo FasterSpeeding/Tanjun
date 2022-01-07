@@ -649,6 +649,7 @@
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -688,6 +689,15 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
+<span class="sd">    always_defer : bool</span>
+<span class="sd">        Whether the contexts this command is executed with should always be deferred</span>
+<span class="sd">        before being passed to the command&#39;s callback.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The ephemeral state of the first response is decided by whether the</span>
+<span class="sd">            deferral is ephemeral.</span>
 <span class="sd">    default_permission : bool</span>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
@@ -732,6 +742,7 @@
                 <span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span>
                 <span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="p">,</span>
+                <span class="n">always_defer</span><span class="o">=</span><span class="n">always_defer</span><span class="p">,</span>
                 <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
                 <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
@@ -743,6 +754,7 @@
             <span class="n">callback</span><span class="p">,</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
+            <span class="n">always_defer</span><span class="o">=</span><span class="n">always_defer</span><span class="p">,</span>
             <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
@@ -1446,7 +1458,7 @@
 
 
 <span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_always_defer&quot;</span><span class="p">,</span> <span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1455,6 +1467,7 @@
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1474,6 +1487,7 @@
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2268,6 +2282,9 @@
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">defer</span><span class="p">()</span>
+
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">own_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">or</span> <span class="n">_EMPTY_HOOKS</span>
         <span class="k">try</span><span class="p">:</span>
@@ -2910,6 +2927,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
     description: str,
     /,
     *,
+    always_defer: bool = False,
     default_permission: bool = True,
     default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
@@ -2924,6 +2942,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2963,6 +2982,15 @@ loading the other command into a component when using <code><a href="../tanjun.h
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
+<span class="sd">    always_defer : bool</span>
+<span class="sd">        Whether the contexts this command is executed with should always be deferred</span>
+<span class="sd">        before being passed to the command&#39;s callback.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The ephemeral state of the first response is decided by whether the</span>
+<span class="sd">            deferral is ephemeral.</span>
 <span class="sd">    default_permission : bool</span>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
@@ -3007,6 +3035,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
                 <span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span>
                 <span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="p">,</span>
+                <span class="n">always_defer</span><span class="o">=</span><span class="n">always_defer</span><span class="p">,</span>
                 <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
                 <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
@@ -3018,6 +3047,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
             <span class="n">callback</span><span class="p">,</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
+            <span class="n">always_defer</span><span class="o">=</span><span class="n">always_defer</span><span class="p">,</span>
             <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
@@ -3065,6 +3095,15 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
+<li><p><strong>always_defer</strong> (bool):
+Whether the contexts this command is executed with should always be deferred
+before being passed to the command's callback.</p>
+
+<p>Defaults to <code>False</code>.</p>
+
+<p><em>Note:</em>
+The ephemeral state of the first response is decided by whether the
+deferral is ephemeral.</p></li>
 <li><p><strong>default_permission</strong> (bool):
 Whether this command can be accessed without set permissions.</p>
 
@@ -5420,7 +5459,7 @@ The component this object should be loaded into.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_always_defer&quot;</span><span class="p">,</span> <span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -5429,6 +5468,7 @@ The component this object should be loaded into.</li>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5448,6 +5488,7 @@ The component this object should be loaded into.</li>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -6242,6 +6283,9 @@ The component this object should be loaded into.</li>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">defer</span><span class="p">()</span>
+
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">own_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">or</span> <span class="n">_EMPTY_HOOKS</span>
         <span class="k">try</span><span class="p">:</span>
@@ -6300,6 +6344,7 @@ The component this object should be loaded into.</li>
     description: str,
     /,
     *,
+    always_defer: bool = False,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     default_permission: bool = True,
     default_to_ephemeral: Optional[bool] = None,
@@ -6320,6 +6365,7 @@ The component this object should be loaded into.</li>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -6339,6 +6385,7 @@ The component this object should be loaded into.</li>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -7824,6 +7871,9 @@ being used.</p></li>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">defer</span><span class="p">()</span>
+
         <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">own_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">or</span> <span class="n">_EMPTY_HOOKS</span>
         <span class="k">try</span><span class="p">:</span>
