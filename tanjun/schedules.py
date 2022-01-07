@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""A way to add repeating tasks to Tanjun bots."""
+"""Interface and interval implementation for a Tanjun based callback scheduler."""
 from __future__ import annotations
 
 __all__: list[str] = ["AbstractSchedule", "as_interval", "IntervalSchedule"]
@@ -147,7 +147,7 @@ def as_interval(
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
     max_runs: typing.Optional[int] = None,
 ) -> collections.Callable[[_CallbackSigT], IntervalSchedule[_CallbackSigT]]:
-    """Decorator to create an interval schedule.
+    """Decorator to create an schedule.
 
     Parameters
     ----------
@@ -170,12 +170,12 @@ def as_interval(
 
         Defaults to no exceptions.
     max_runs : typing.Optional[int]
-        The maximum amount of times the repeater runs. Defaults to no maximum.
+        The maximum amount of times the schedule runs. Defaults to no maximum.
 
     Returns
     -------
     collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]
-        The decorator used to create the interval schedule.
+        The decorator used to create the schedule.
     """
     return lambda callback: IntervalSchedule(
         callback,
@@ -212,7 +212,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Defaults to no exceptions.
     max_runs : typing.Optional[int]
-        The maximum amount of times the repeater runs. Defaults to no maximum.
+        The maximum amount of times the schedule runs. Defaults to no maximum.
     """
 
     __slots__ = (
@@ -253,11 +253,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
     @property
     def callback(self) -> _CallbackSigT:
+        # <<inherited docstring from IntervalSchedule>>.
         return typing.cast(_CallbackSigT, self._callback.callback)
 
     @property
     def interval(self) -> datetime.timedelta:
-        """The interval between callback calls."""
+        """The interval between scheduled callback calls."""
         return self._interval
 
     @property
@@ -291,8 +292,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             component.add_schedule(self)
 
     def set_start_callback(self: _IntervalScheduleT, callback: _CallbackSig, /) -> _IntervalScheduleT:
-        """
-        Set the callback executed before the repeater starts to run.
+        """Set the callback executed before the schedule starts to run.
 
         Parameters
         ----------
@@ -302,14 +302,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Returns
         -------
         Self
-            The repeater instance to enable chained calls.
+            The schedule instance to enable chained calls.
         """
         self._start_callback = injecting.CallbackDescriptor(callback)
         return self
 
     def set_stop_callback(self: _IntervalScheduleT, callback: _CallbackSig, /) -> _IntervalScheduleT:
-        """
-        Set the callback executed after the repeater is finished.
+        """Set the callback executed after the schedule is finished.
 
         Parameters
         ----------
@@ -319,16 +318,14 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Returns
         -------
         Self
-            The repeater instance to enable chained calls.
+            The schedule instance to enable chained calls.
         """
         self._stop_callback = injecting.CallbackDescriptor(callback)
         return self
 
-    async def _wrap_callback(
-        self, client: injecting.InjectorClient, callback: injecting.CallbackDescriptor[None], /
-    ) -> None:
+    async def _execute(self, client: injecting.InjectorClient, /) -> None:
         try:
-            await callback.resolve(injecting.BasicInjectionContext(client))
+            await self._callback.resolve(injecting.BasicInjectionContext(client))
 
         except self._fatal_exceptions:
             self.stop()
@@ -341,17 +338,23 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         event_loop = asyncio.get_running_loop()
         try:
             if self._start_callback:
-                await self._wrap_callback(client, self._start_callback)
+                try:
+                    await self._start_callback.resolve(injecting.BasicInjectionContext(client))
+
+                except self._ignored_exceptions:
+                    pass
 
             while not self._max_runs or self._iteration_count < self._max_runs:
                 self._iteration_count += 1
-                event_loop.create_task(self._wrap_callback(client, self._callback))
+                event_loop.create_task(self._execute(client))
                 await asyncio.sleep(self._interval.total_seconds())
 
         finally:
+            self._task = None
             if self._stop_callback:
                 try:
                     await self._stop_callback.resolve(injecting.BasicInjectionContext(client))
+
                 except self._ignored_exceptions:
                     pass
 
@@ -372,13 +375,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     def stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if not self._task:
-            raise RuntimeError("Interval schedule is not running")
+            raise RuntimeError("Schedule is not running")
 
         self._task.cancel()
         self._task = None
 
     def with_start_callback(self, callback: _OtherCallbackT, /) -> _OtherCallbackT:
-        """Set the callback executed before the repeater is finished.
+        """Set the callback executed before the schedule is finished/stopped.
 
         Parameters
         ----------
@@ -393,17 +396,14 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Examples
         --------
         ```py
-        @component.with_repeater(
-            interval=1,
-            max_runs=20
-        )
-        async def repeater():
+        @component.with_schedule()
+        @tanjun.as_interval(1, max_runs=20)
+        async def interval():
             global counter
             counter += 1
             print(f"Run #{counter}")
 
-
-        @repeater.with_start_callback
+        @interval.with_start_callback
         async def pre():
             print("pre callback")
         ```
@@ -412,7 +412,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return callback
 
     def with_stop_callback(self, callback: _OtherCallbackT, /) -> _OtherCallbackT:
-        """Set the callback executed after the repeater is finished.
+        """Set the callback executed after the schedule is finished.
 
         Parameters
         ----------
@@ -427,17 +427,15 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Examples
         --------
         ```py
-        @component.with_repeater(
-            interval=1,
-            max_runs=20
-        )
-        async def repeater():
+        @component.with_schedule()
+        @tanjun.as_interval(1, max_runs=20)
+        async def interval():
             global counter
             counter += 1
             print(f"Run #{counter}")
 
 
-        @repeater.with_stop_callback
+        @interval.with_stop_callback
         async def post():
             print("pre callback")
         ```
@@ -446,8 +444,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return callback
 
     def set_ignored_exceptions(self: _IntervalScheduleT, *exceptions: type[Exception]) -> _IntervalScheduleT:
-        """
-        Set the exceptions that a task will ignore.
+        """Set the exceptions that a schedule will ignore.
 
         If any of these exceptions are encountered, there will be nothing printed to console.
 
@@ -459,14 +456,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Returns
         -------
         Self
-            The repeater object to enable chained calls.
+            The schedule object to enable chained calls.
         """
         self._ignored_exceptions = exceptions
         return self
 
     def set_fatal_exceptions(self: _IntervalScheduleT, *exceptions: type[Exception]) -> _IntervalScheduleT:
-        """
-        Set the exceptions that will stop a task.
+        """Set the exceptions that will stop a schedule.
 
         If any of these exceptions are encountered, the task will stop.
 
@@ -478,7 +474,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Returns
         -------
         Self
-            The repeater object to enable chianed calls.
+            The schedule object to enable chianed calls.
         """
         self._fatal_exceptions = exceptions
         return self

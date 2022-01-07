@@ -35,6 +35,7 @@
 # This leads to too many false-positives around mocks.
 
 import asyncio
+import contextlib
 import datetime
 import types
 import typing
@@ -148,41 +149,416 @@ class TestIntervalSchedule:
         assert interval._stop_callback.callback is mock_callback
 
     @pytest.mark.asyncio()
-    async def test__wrap_callback(self):
+    async def test__execute(self):
         mock_client = mock.Mock()
-        mock_callback = mock.AsyncMock()
+        mock_callback = mock.Mock()
         stop = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
-            "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
-            exec_body=lambda ns: ns.update({"stop": stop}),
-        )(mock.Mock(), 123)
 
-        with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as injection_context:
-            await interval._wrap_callback(mock_client, mock_callback)
+        with mock.patch.object(tanjun.injecting.CallbackDescriptor, "__class_getitem__") as callback_descriptor:
+            descriptor = callback_descriptor.return_value.return_value
+            descriptor.resolve = mock.AsyncMock()
 
-        mock_callback.resolve.assert_awaited_once_with(injection_context.return_value)
+            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"stop": stop}),
+            )(mock_callback, 123)
+
+            callback_descriptor.return_value.assert_called_once_with(mock_callback)
+
+        with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as basic_injection_context:
+            await interval._execute(mock_client)
+
+            basic_injection_context.assert_called_once_with(mock_client)
+
+        descriptor.resolve.assert_awaited_once_with(basic_injection_context.return_value)
         stop.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test__wrap_callback_when_fatal_exception(self):
-        ...
+    async def test__execute_when_fatal_exception(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock()
+        error = KeyError("hihihiih")
+        stop = mock.Mock()
+
+        with mock.patch.object(tanjun.injecting.CallbackDescriptor, "__class_getitem__") as callback_descriptor:
+            descriptor = callback_descriptor.return_value.return_value
+            descriptor.resolve = mock.AsyncMock(side_effect=error)
+
+            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"stop": stop}),
+            )(mock_callback, 123, fatal_exceptions=[LookupError], ignored_exceptions=[Exception])
+
+            callback_descriptor.return_value.assert_called_once_with(mock_callback)
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(mock.patch.object(tanjun.injecting, "BasicInjectionContext"))
+        exc_info = stack.enter_context(pytest.raises(KeyError))
+
+        with stack:
+            await interval._execute(mock_client)
+
+            basic_injection_context.assert_called_once_with(mock_client)
+
+        assert exc_info.value is error
+
+        descriptor.resolve.assert_awaited_once_with(basic_injection_context.return_value)
+        stop.assert_called_once_with()
 
     @pytest.mark.asyncio()
-    async def test__wrap_callback_when_ignored_exception(self):
-        ...
+    async def test__execute_when_ignored_exception(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock()
+        error = IndexError("hihihiih")
+        stop = mock.Mock()
+
+        with mock.patch.object(tanjun.injecting.CallbackDescriptor, "__class_getitem__") as callback_descriptor:
+            descriptor = callback_descriptor.return_value.return_value
+            descriptor.resolve = mock.AsyncMock(side_effect=error)
+
+            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"stop": stop}),
+            )(mock_callback, 123, fatal_exceptions=[KeyError], ignored_exceptions=[LookupError])
+
+            callback_descriptor.return_value.assert_called_once_with(mock_callback)
+
+        with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as basic_injection_context:
+            await interval._execute(mock_client)
+
+            basic_injection_context.assert_called_once_with(mock_client)
+
+        descriptor.resolve.assert_awaited_once_with(basic_injection_context.return_value)
+        stop.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test__wrap_callback_when_exception(self):
-        ...
+    async def test__execute_when_exception(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock()
+        error = ValueError("hihihiih")
+        stop = mock.Mock()
+
+        with mock.patch.object(tanjun.injecting.CallbackDescriptor, "__class_getitem__") as callback_descriptor:
+            descriptor = callback_descriptor.return_value.return_value
+            descriptor.resolve = mock.AsyncMock(side_effect=error)
+
+            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"stop": stop}),
+            )(mock_callback, 123, fatal_exceptions=[KeyError], ignored_exceptions=[TypeError])
+
+            callback_descriptor.return_value.assert_called_once_with(mock_callback)
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(mock.patch.object(tanjun.injecting, "BasicInjectionContext"))
+        exc_info = stack.enter_context(pytest.raises(ValueError, match="hihihiih"))
+
+        with stack:
+            await interval._execute(mock_client)
+
+            basic_injection_context.assert_called_once_with(mock_client)
+
+        assert exc_info.value is error
+
+        descriptor.resolve.assert_awaited_once_with(basic_injection_context.return_value)
+        stop.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test__loop(self):
-        ...
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_result_1 = mock.Mock()
+        mock_result_2 = mock.Mock()
+        mock_result_3 = mock.Mock()
+        mock_result_4 = mock.Mock()
+        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, mock_result_4, object()])
+        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+            "StubIntervalSchedule",
+            (tanjun.IntervalSchedule[typing.Any],),
+            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+        )(mock.Mock(), 123, ignored_exceptions=[LookupError])
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        sleep = stack.enter_context(
+            mock.patch.object(asyncio, "sleep", side_effect=[None, None, None, asyncio.CancelledError])
+        )
+        stack.enter_context(pytest.raises(asyncio.CancelledError))
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await interval._loop(mock_client)
+
+        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
+        get_running_loop.return_value.create_task.assert_has_calls(
+            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3), mock.call(mock_result_4)]
+        )
+        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+        assert interval._task is None
+
+    @pytest.mark.asyncio()
+    async def test__loop_when_max_runs(self):
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_result_1 = mock.Mock()
+        mock_result_2 = mock.Mock()
+        mock_result_3 = mock.Mock()
+        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, object()])
+        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+            "StubIntervalSchedule",
+            (tanjun.IntervalSchedule[typing.Any],),
+            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+        )(mock.Mock(), 123, ignored_exceptions=[LookupError], max_runs=3)
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep"))
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await interval._loop(mock_client)
+
+        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
+        get_running_loop.return_value.create_task.assert_has_calls(
+            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3)]
+        )
+        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+        assert interval._task is None
 
     @pytest.mark.asyncio()
     async def test__loop_and_start_and_stop_callbacks_set(self):
-        ...
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_start = mock.AsyncMock()
+        mock_stop = mock.AsyncMock()
+        mock_result_1 = mock.Mock()
+        mock_result_2 = mock.Mock()
+        mock_result_3 = mock.Mock()
+        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3])
+        interval: tanjun.IntervalSchedule[typing.Any] = (
+            types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
+            .set_start_callback(mock_start)
+            .set_stop_callback(mock_stop)
+        )
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(
+                tanjun.injecting,
+                "BasicInjectionContext",
+                side_effect=[
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                ],
+            )
+        )
+        sleep = stack.enter_context(
+            mock.patch.object(asyncio, "sleep", side_effect=[None, None, asyncio.CancelledError])
+        )
+        stack.enter_context(pytest.raises(asyncio.CancelledError))
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await interval._loop(mock_client)
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_start.assert_awaited_once_with()
+        mock_stop.assert_awaited_once_with()
+        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
+        get_running_loop.return_value.create_task.assert_has_calls(
+            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3)]
+        )
+        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+        assert interval._task is None
+
+    @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
+    @pytest.mark.asyncio()
+    async def test__loop_and_start_raises(self, fatal_exceptions: list[type[Exception]]):
+        error = KeyError()
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_start = mock.AsyncMock(side_effect=error)
+        mock_stop = mock.AsyncMock()
+        mock_execute = mock.Mock()
+        interval: tanjun.IntervalSchedule[typing.Any] = (
+            types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+            )(mock.Mock(), 123, ignored_exceptions=[RuntimeError], fatal_exceptions=fatal_exceptions)
+            .set_start_callback(mock_start)
+            .set_stop_callback(mock_stop)
+        )
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(
+                tanjun.injecting,
+                "BasicInjectionContext",
+                side_effect=[
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                ],
+            )
+        )
+        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep"))
+        exc_info = stack.enter_context(pytest.raises(KeyError))
+
+        with stack:
+            await interval._loop(mock_client)
+
+            assert exc_info.value is error
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_start.assert_awaited_once_with()
+        mock_stop.assert_awaited_once_with()
+        mock_execute.assert_not_called()
+        sleep.assert_not_called()
+        assert interval._task is None
+
+    @pytest.mark.asyncio()
+    async def test__loop_and_start_raises_ignored(self):
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_start = mock.AsyncMock(side_effect=KeyError)
+        mock_stop = mock.AsyncMock()
+        mock_execute = mock.Mock()
+        interval: tanjun.IntervalSchedule[typing.Any] = (
+            types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
+            .set_start_callback(mock_start)
+            .set_stop_callback(mock_stop)
+        )
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(
+                tanjun.injecting,
+                "BasicInjectionContext",
+                side_effect=[
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                ],
+            )
+        )
+        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError))
+        stack.enter_context(pytest.raises(asyncio.CancelledError))
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await interval._loop(mock_client)
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_start.assert_awaited_once_with()
+        mock_stop.assert_awaited_once_with()
+        mock_execute.assert_called_once_with(mock_client)
+        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
+        sleep.assert_awaited_once_with(123.0)
+        assert interval._task is None
+
+    @pytest.mark.asyncio()
+    async def test__loop_and_stop_raises(self):
+        error = RuntimeError()
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_start = mock.AsyncMock()
+        mock_stop = mock.AsyncMock(side_effect=error)
+        mock_execute = mock.Mock()
+        interval: tanjun.IntervalSchedule[typing.Any] = (
+            types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
+            .set_start_callback(mock_start)
+            .set_stop_callback(mock_stop)
+        )
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(
+                tanjun.injecting,
+                "BasicInjectionContext",
+                side_effect=[
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                ],
+            )
+        )
+        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError))
+        exc_info = stack.enter_context(pytest.raises(RuntimeError))
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await interval._loop(mock_client)
+
+        assert exc_info.value is error
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_start.assert_awaited_once_with()
+        mock_stop.assert_awaited_once_with()
+        mock_execute.assert_called_once_with(mock_client)
+        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
+        sleep.assert_awaited_once_with(123.0)
+        assert interval._task is None
+
+    @pytest.mark.asyncio()
+    async def test__loop_and_stop_raises_ignored(self):
+        mock_client = mock.Mock()
+        mock_client.get_callback_override.return_value = None
+        mock_start = mock.AsyncMock()
+        mock_stop = mock.AsyncMock(side_effect=LookupError)
+        mock_execute = mock.Mock()
+        interval: tanjun.IntervalSchedule[typing.Any] = (
+            types.new_class(
+                "StubIntervalSchedule",
+                (tanjun.IntervalSchedule[typing.Any],),
+                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
+            .set_start_callback(mock_start)
+            .set_stop_callback(mock_stop)
+        )
+        interval._task = mock.Mock()
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(
+                tanjun.injecting,
+                "BasicInjectionContext",
+                side_effect=[
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                    tanjun.injecting.BasicInjectionContext(mock_client),
+                ],
+            )
+        )
+        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError))
+        stack.enter_context(pytest.raises(asyncio.CancelledError))
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await interval._loop(mock_client)
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_start.assert_awaited_once_with()
+        mock_stop.assert_awaited_once_with()
+        mock_execute.assert_called_once_with(mock_client)
+        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
+        sleep.assert_awaited_once_with(123.0)
+        assert interval._task is None
 
     def test_start(self):
         mock_client = mock.Mock()
@@ -248,7 +624,7 @@ class TestIntervalSchedule:
     def test_stop_when_not_active(self):
         interval = tanjun.IntervalSchedule(mock.Mock(), 123)
 
-        with pytest.raises(RuntimeError, match="Interval schedule is not running"):
+        with pytest.raises(RuntimeError, match="Schedule is not running"):
             interval.stop()
 
     def test_with_start_callback(self):
