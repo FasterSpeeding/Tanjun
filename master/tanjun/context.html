@@ -770,7 +770,7 @@
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -1978,7 +1978,7 @@
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -2617,8 +2617,7 @@ behaviour).</li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -2827,8 +2826,7 @@ behaviour).</li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -2929,7 +2927,7 @@ nature, and will trigger this exception if they occur.</li>
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     tts: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     nonce: Union[str, hikari.undefined.UndefinedType] = UNDEFINED,
-    reply: Union[hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    reply: Union[bool, hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_reply: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -2953,7 +2951,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -3076,8 +3074,7 @@ specific roles.</p></li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -4987,8 +4984,7 @@ behaviour).</li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -5211,8 +5207,7 @@ behaviour).</li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -5463,8 +5458,7 @@ specific roles.</p></li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>

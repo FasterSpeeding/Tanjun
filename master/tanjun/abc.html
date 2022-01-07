@@ -1306,8 +1306,7 @@
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -1460,8 +1459,7 @@
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -1646,8 +1644,7 @@
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -1741,7 +1738,7 @@
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -1784,8 +1781,11 @@
 <span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
-<span class="sd">        reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]</span>
+<span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
 <span class="sd">            Whether to reply instead of sending the content to the context.</span>
+
+<span class="sd">            Defaults to `hikari.UNDEFINED`.</span>
+<span class="sd">            Passing `True` here indicates a reply to `MessageContext.message`.</span>
 <span class="sd">        nonce : hikari.UndefinedOr[str]</span>
 <span class="sd">            The nonce that validates that the message was sent.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
@@ -5005,8 +5005,7 @@ shouldn't lead to an execution.</p>
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -5159,8 +5158,7 @@ shouldn't lead to an execution.</p>
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -5345,8 +5343,7 @@ shouldn't lead to an execution.</p>
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -6086,8 +6083,7 @@ This method requires <code>hikari.config.CacheComponents.GUILDS</code> cache com
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -6226,8 +6222,7 @@ behaviour).</li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -6403,8 +6398,7 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -6545,8 +6539,7 @@ behaviour).</li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -6758,8 +6751,7 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">            being empty with no attachments or embeds; messages with more than</span>
 <span class="sd">            2000 characters in them, embeds that exceed one of the many embed</span>
 <span class="sd">            limits; too many attachments; attachments that are too large;</span>
-<span class="sd">            invalid image URLs in embeds; if `reply` is not found or not in the</span>
-<span class="sd">            same channel as `channel`; too many components.</span>
+<span class="sd">            invalid image URLs in embeds; too many components.</span>
 <span class="sd">        hikari.UnauthorizedError</span>
 <span class="sd">            If you are unauthorized to make the request (invalid/missing token).</span>
 <span class="sd">        hikari.ForbiddenError</span>
@@ -6867,8 +6859,7 @@ specific roles.</p></li>
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -9565,7 +9556,7 @@ The command to add.</li>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -9608,8 +9599,11 @@ The command to add.</li>
 <span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
-<span class="sd">        reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]</span>
+<span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
 <span class="sd">            Whether to reply instead of sending the content to the context.</span>
+
+<span class="sd">            Defaults to `hikari.UNDEFINED`.</span>
+<span class="sd">            Passing `True` here indicates a reply to `MessageContext.message`.</span>
 <span class="sd">        nonce : hikari.UndefinedOr[str]</span>
 <span class="sd">            The nonce that validates that the message was sent.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
@@ -9877,7 +9871,7 @@ This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</co
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     tts: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     nonce: Union[str, hikari.undefined.UndefinedType] = UNDEFINED,
-    reply: Union[hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    reply: Union[bool, hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_reply: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -9902,7 +9896,7 @@ This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</co
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -9945,8 +9939,11 @@ This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</co
 <span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
-<span class="sd">        reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]</span>
+<span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
 <span class="sd">            Whether to reply instead of sending the content to the context.</span>
+
+<span class="sd">            Defaults to `hikari.UNDEFINED`.</span>
+<span class="sd">            Passing `True` here indicates a reply to `MessageContext.message`.</span>
 <span class="sd">        nonce : hikari.UndefinedOr[str]</span>
 <span class="sd">            The nonce that validates that the message was sent.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
@@ -10089,8 +10086,11 @@ If provided, the seconds after which the response message should be delete.</p>
 As of writing, this does not support ephemeral slash command responses.</p></li>
 <li><strong>tts</strong> (hikari.UndefinedOr[bool]):
 Whether to respond with tts/text to speech or no.</li>
-<li><strong>reply</strong> (hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]):
-Whether to reply instead of sending the content to the context.</li>
+<li><p><strong>reply</strong> (typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]):
+Whether to reply instead of sending the content to the context.</p>
+
+<p>Defaults to <code>hikari.UNDEFINED</code>.
+Passing <code>True</code> here indicates a reply to <code><a href="#MessageContext.message">MessageContext.message</a></code>.</p></li>
 <li><strong>nonce</strong> (hikari.UndefinedOr[str]):
 The nonce that validates that the message was sent.</li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
