@@ -1037,7 +1037,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        schedule : schedules.AbstractSchedule
+        schedule : tanjun.schedules.AbstractSchedule
             The schedule to add.
 
         Returns
@@ -1051,6 +1051,27 @@ class Component(tanjun_abc.Component):
             schedule.start(self._client, loop=self._loop)
 
         self._schedules.append(schedule)
+        return self
+
+    def remove_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule, /) -> _ComponentT:
+        """Remove a schedule from the component.
+
+        Parameters
+        ----------
+        schedule : tanjun.schedules.AbstractSchedule
+            The schedule to remove
+
+        Returns
+        -------
+        Self
+            The component itself for chaining.
+
+        Raises
+        ------
+        ValueError
+            If the schedule isn't registered.
+        """
+        self._schedules.remove(schedule)
         return self
 
     def with_schedule(self, schedule: _ScheduleT, /) -> _ScheduleT:

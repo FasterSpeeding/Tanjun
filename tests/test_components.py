@@ -1111,6 +1111,16 @@ class TestComponent:
         assert component.schedules == [mock_schedule]
         mock_schedule.start.assert_called_once_with(mock_client, loop=mock_loop)
 
+    def test_remove_schedule(self):
+        mock_schedule = mock.Mock()
+        component = tanjun.Component().add_schedule(mock_schedule)
+        assert mock_schedule in component.schedules
+
+        result = component.remove_schedule(mock_schedule)
+
+        assert result is component
+        assert mock_schedule not in component.schedules
+
     def test_with_schedule(self):
         add_schedule = mock.Mock()
         component: tanjun.Component = types.new_class(
