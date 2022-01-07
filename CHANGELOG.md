@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Scheduled callback interface and interval implementation to the standard component implementation.
 
 ## [2.2.3a1] - 2022-01-06
 ### Added
@@ -17,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Redis based implementations of this for the types found in Hikari's gateway cache interface can be found
   in [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
   `RedisResource.add_to_tanjun`).
-- Scheduled callback interface and interval implementation to the standard component implementation.
 
 ### Removed
 - `BaseConverter.convert` in-favour of having each standard converter directly implement `__call__`.
