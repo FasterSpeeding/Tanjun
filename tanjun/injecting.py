@@ -486,10 +486,10 @@ class CallbackDescriptor(AbstractDescriptor[_T]):
         result = self._callback(*args, **sub_results, **kwargs)
 
         if self._is_async is None:
-            self._is_async = isinstance(result, collections.Awaitable)
+            self._is_async = inspect.isawaitable(result)
 
         if self._is_async:
-            assert isinstance(result, collections.Awaitable)
+            assert inspect.isawaitable(result)
             result = await result
 
         # TODO: should we avoid caching the result if args/kwargs are passed?

@@ -52,8 +52,6 @@ import random
 import typing
 from collections import abc as collections
 
-from hikari.events import base_events
-
 from . import abc as tanjun_abc
 from . import checks as checks_
 from . import errors
@@ -61,7 +59,12 @@ from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
+    from hikari.events import base_events
+
+    from . import schedules
+
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
+    _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
@@ -190,6 +193,7 @@ class Component(tanjun_abc.Component):
         "_names_to_commands",
         "_on_close",
         "_on_open",
+        "_schedules",
         "_slash_commands",
         "_slash_hooks",
     )
@@ -221,6 +225,7 @@ class Component(tanjun_abc.Component):
         self._names_to_commands: dict[str, tanjun_abc.MessageCommand[typing.Any]] = {}
         self._on_close: list[injecting.CallbackDescriptor[None]] = []
         self._on_open: list[injecting.CallbackDescriptor[None]] = []
+        self._schedules: list[schedules.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
 
@@ -256,6 +261,11 @@ class Component(tanjun_abc.Component):
     def name(self) -> str:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._name
+
+    @property
+    def schedules(self) -> collections.Collection[schedules.AbstractSchedule]:
+        """Collection of the schedules registered to this component."""
+        return self._schedules
 
     @property
     def slash_commands(self) -> collections.Collection[tanjun_abc.BaseSlashCommand]:
@@ -307,6 +317,7 @@ class Component(tanjun_abc.Component):
             self._message_commands = list(commands.values())
             self._metadata = self._metadata.copy()
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
+            self._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
             return self
 
         return copy.copy(self).copy(_new=False)
@@ -331,6 +342,8 @@ class Component(tanjun_abc.Component):
 
         Notes
         -----
+        * This will load schedules which support `AbstractComponentLoader`
+          (e.g. `tanjun.schedules.IntervalSchedule`).
         * This will ignore commands which are owned by command groups.
         * This will detect entries from the calling scope which implement
           `AbstractComponentLoader` unless `scope` is passed but this isn't possible
@@ -547,6 +560,27 @@ class Component(tanjun_abc.Component):
         self, command: typing.Optional[CommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[CommandT]:
         """Add a command to this component through a decorator call.
+
+        Examples
+        --------
+        This may be used inconjunction with `tanjun.as_slash_command`
+        and `tanjun.as_message_command`.
+
+        ```py
+        @component.with_command
+        @tanjun.with_slash_str_option("option_name", "option description")
+        @tanjun.as_slash_command("command_name", "command description")
+        async def slash_command(ctx: tanjun.abc.Context, arg: str) -> None:
+            await ctx.respond(f"Hi {arg}")
+        ```
+
+        ```py
+        @component.with_command
+        @tanjun.with_argument("argument_name")
+        @tanjun.as_message_command("command_name")
+        async def message_command(ctx: tanjun.abc.Context, arg: str) -> None:
+            await ctx.respond(f"Hi {arg}")
+        ```
 
         Parameters
         ----------
@@ -998,6 +1032,75 @@ class Component(tanjun_abc.Component):
             if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
+    def add_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule, /) -> _ComponentT:
+        """Add a schedule to the component.
+
+        Parameters
+        ----------
+        schedule : tanjun.schedules.AbstractSchedule
+            The schedule to add.
+
+        Returns
+        -------
+        Self
+            The component itself for chaining.
+        """
+        if self._client and self._loop:
+            # TODO: upgrade this to the standard interface
+            assert isinstance(self._client, injecting.InjectorClient)
+            schedule.start(self._client, loop=self._loop)
+
+        self._schedules.append(schedule)
+        return self
+
+    def remove_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule, /) -> _ComponentT:
+        """Remove a schedule from the component.
+
+        Parameters
+        ----------
+        schedule : tanjun.schedules.AbstractSchedule
+            The schedule to remove
+
+        Returns
+        -------
+        Self
+            The component itself for chaining.
+
+        Raises
+        ------
+        ValueError
+            If the schedule isn't registered.
+        """
+        self._schedules.remove(schedule)
+        return self
+
+    def with_schedule(self, schedule: _ScheduleT, /) -> _ScheduleT:
+        """Add a schedule to the component through a decorator call.
+
+        Example
+        -------
+        This may be used in conjunction with `tanjun.as_interval`.
+
+        ```py
+        @component.with_schedule
+        @tanjun.as_interval(60)
+        async def my_schedule():
+            print("I'm running every minute!")
+        ```
+
+        Parameters
+        ----------
+        schedule : schedules.AbstractSchedule
+            The schedule to add.
+
+        Returns
+        -------
+        schedules.AbstractSchedule
+            The added schedule.
+        """
+        self.add_schedule(schedule)
+        return schedule
+
     async def close(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
         if not self._loop:
@@ -1005,14 +1108,15 @@ class Component(tanjun_abc.Component):
 
         assert self._client
 
-        self._loop = None
-        if isinstance(self._client, injecting.InjectorClient):
-            await asyncio.gather(
-                *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
-            )
+        for schedule in self._schedules:
+            schedule.stop()
 
-        else:
-            await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_close))
+        self._loop = None
+        # TODO: upgrade this to the standard interface
+        assert isinstance(self._client, injecting.InjectorClient)
+        await asyncio.gather(
+            *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
+        )
 
     async def open(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -1023,13 +1127,14 @@ class Component(tanjun_abc.Component):
             raise RuntimeError("Client isn't bound yet")
 
         self._loop = asyncio.get_running_loop()
-        if isinstance(self._client, injecting.InjectorClient):
-            await asyncio.gather(
-                *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_open)
-            )
+        # TODO: upgrade this to the standard interface
+        assert isinstance(self._client, injecting.InjectorClient)
+        await asyncio.gather(
+            *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_open)
+        )
 
-        else:
-            await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_open))
+        for schedule in self._schedules:
+            schedule.start(self._client, loop=self._loop)
 
     def make_loader(self, *, copy: bool = True) -> tanjun_abc.ClientLoader:
         """Make a loader/unloader for this component.

@@ -257,12 +257,18 @@ class TestComponent:
             tanjun.Component().remove_check(mock.Mock())
 
     def test_with_check(self):
+        add_check = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_check": add_check}),
+        )()
         mock_check = mock.Mock()
-        component = tanjun.Component()
 
         result = component.with_check(mock_check)
 
         assert result is mock_check
+        add_check.assert_called_once_with(mock_check)
 
     def test_add_client_callback(self):
         mock_callback = mock.Mock()
@@ -1081,14 +1087,66 @@ class TestComponent:
     def test__load_from_properties(self):
         ...  # Should test this based on todo
 
+    def test_add_schedule(self):
+        mock_schedule = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_schedule(mock_schedule)
+
+        assert result is component
+        assert component.schedules == [mock_schedule]
+        mock_schedule.start.assert_not_called()
+
+    def test_add_schedule_when_active(self):
+        mock_schedule = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        mock_loop = mock.Mock()
+        component = tanjun.Component()
+        component._client = mock_client
+        component._loop = mock_loop
+
+        result = component.add_schedule(mock_schedule)
+
+        assert result is component
+        assert component.schedules == [mock_schedule]
+        mock_schedule.start.assert_called_once_with(mock_client, loop=mock_loop)
+
+    def test_remove_schedule(self):
+        mock_schedule = mock.Mock()
+        component = tanjun.Component().add_schedule(mock_schedule)
+        assert mock_schedule in component.schedules
+
+        result = component.remove_schedule(mock_schedule)
+
+        assert result is component
+        assert mock_schedule not in component.schedules
+
+    def test_with_schedule(self):
+        add_schedule = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_schedule": add_schedule}),
+        )()
+        mock_schedule = mock.Mock()
+
+        result = component.with_schedule(mock_schedule)
+
+        assert result is mock_schedule
+        add_schedule.assert_called_once_with(mock_schedule)
+
     @pytest.mark.asyncio()
     async def test_close(self):
         mock_callback_1 = mock.AsyncMock()
         mock_callback_2 = mock.AsyncMock()
+        mock_schedule_1 = mock.Mock()
+        mock_schedule_2 = mock.Mock()
         mock_ctx_1 = mock.Mock()
         mock_ctx_2 = mock.Mock()
         mock_client = mock.Mock(tanjun.injecting.InjectorClient)
-        component = tanjun.Component().bind_client(mock_client)
+        component = (
+            tanjun.Component().bind_client(mock_client).add_schedule(mock_schedule_1).add_schedule(mock_schedule_2)
+        )
         component._loop = mock.Mock()
         component._on_close = [mock_callback_1, mock_callback_2]
 
@@ -1100,6 +1158,8 @@ class TestComponent:
         basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
         mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
         mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        mock_schedule_1.stop.assert_called_once_with()
+        mock_schedule_2.stop.assert_called_once_with()
         assert component.loop is None
 
     @pytest.mark.asyncio()
@@ -1110,28 +1170,17 @@ class TestComponent:
             await component.close()
 
     @pytest.mark.asyncio()
-    async def test_close_when_client_isnt_injection_client(self):
-        mock_callback_1 = mock.AsyncMock()
-        mock_callback_2 = mock.AsyncMock()
-        mock_client = mock.Mock()
-        component = tanjun.Component().bind_client(mock_client)
-        component._loop = mock.Mock()
-        component._on_close = [mock_callback_1, mock_callback_2]
-
-        await component.close()
-
-        mock_callback_1.resolve_without_injector.assert_awaited_once()
-        mock_callback_2.resolve_without_injector.assert_awaited_once()
-        assert component.loop is None
-
-    @pytest.mark.asyncio()
     async def test_open(self):
         mock_callback_1 = mock.AsyncMock()
         mock_callback_2 = mock.AsyncMock()
+        mock_schedule_1 = mock.Mock()
+        mock_schedule_2 = mock.Mock()
         mock_ctx_1 = mock.Mock()
         mock_ctx_2 = mock.Mock()
         mock_client = mock.Mock(tanjun.injecting.InjectorClient)
-        component = tanjun.Component().bind_client(mock_client)
+        component = (
+            tanjun.Component().bind_client(mock_client).add_schedule(mock_schedule_1).add_schedule(mock_schedule_2)
+        )
         component._on_open = [mock_callback_1, mock_callback_2]
 
         stack = contextlib.ExitStack()
@@ -1148,6 +1197,8 @@ class TestComponent:
         basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
         mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
         mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        mock_schedule_1.start.assert_called_once_with(mock_client, loop=get_running_loop.return_value)
+        mock_schedule_2.start.assert_called_once_with(mock_client, loop=get_running_loop.return_value)
 
     @pytest.mark.asyncio()
     async def test_open_when_already_active(self):
@@ -1163,22 +1214,6 @@ class TestComponent:
 
         with pytest.raises(RuntimeError, match="Client isn't bound yet"):
             await component.open()
-
-    @pytest.mark.asyncio()
-    async def test_open_when_client_isnt_injection_client(self):
-        mock_callback_1 = mock.AsyncMock()
-        mock_callback_2 = mock.AsyncMock()
-        mock_client = mock.Mock()
-        component = tanjun.Component().bind_client(mock_client)
-        component._on_open = [mock_callback_1, mock_callback_2]
-
-        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
-            await component.open()
-
-        get_running_loop.assert_called_once_with()
-        assert component.loop is get_running_loop.return_value
-        mock_callback_1.resolve_without_injector.assert_awaited_once()
-        mock_callback_2.resolve_without_injector.assert_awaited_once()
 
     def test_make_loader_load(self):
         component = tanjun.Component()

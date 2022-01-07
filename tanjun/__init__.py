@@ -213,6 +213,11 @@ __all__: list[str] = [
     "with_parser",
     # utilities.py
     "utilities",
+    # repeaters.py
+    "schedules",
+    "AbstractSchedule",
+    "as_interval",
+    "IntervalSchedule",
 ]
 
 import typing
@@ -231,6 +236,7 @@ from .errors import *
 from .hooks import *
 from .injecting import *
 from .parsing import *
+from .schedules import *
 
 __author__: typing.Final[str] = "Faster Speeding"
 __ci__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/actions"
