@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cooldown checks can now run without a present AbstractOwners implementation.
 
 ### Fixed
-- The concurrency limiter now increments the internal counter after checking for cooldown rather than before.
+- The cooldown manager now increments the internal counter after checking for cooldown rather than before.
   The old behaviour resulted in the last valid call to a bucket being ratelimited therefore essentially making
   the real-world limit `limit-1`.
 
