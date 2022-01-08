@@ -1064,7 +1064,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if len(registered_commands) == len(builders) and all(
                 _cmp_command(builders.get(command.name), command) for command in registered_commands
             ):
-                _LOGGER.info("Skipping bulk declare for %s slash commands since they're already being", target_type)
+                _LOGGER.info("Skipping bulk declare for %s slash commands since they're already declared", target_type)
                 return registered_commands
 
         _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), target_type)
