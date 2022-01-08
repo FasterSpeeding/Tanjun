@@ -217,9 +217,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
     __slots__ = (
         "_callback",
-        "_interval",
         "_fatal_exceptions",
         "_ignored_exceptions",
+        "_interval",
         "_iteration_count",
         "_max_runs",
         "_stop_callback",
