@@ -452,6 +452,8 @@ def with_int_slash_option(
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
+    min_value: typing.Optional[int] = None,
+    max_value: typing.Optional[int] = None,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an integer option to a slash command.
@@ -478,6 +480,8 @@ def with_int_slash_option(
         default=default,
         choices=choices,
         converters=converters,
+        min_value=min_value,
+        max_value=max_value,
         pass_as_kwarg=pass_as_kwarg,
         _stack_level=1,
     )
@@ -492,6 +496,8 @@ def with_float_slash_option(
     choices: typing.Optional[collections.Mapping[str, float]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
+    min_value: typing.Optional[float] = None,
+    max_value: typing.Optional[float] = None,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a float option to a slash command.
@@ -519,6 +525,8 @@ def with_float_slash_option(
         default=default,
         choices=choices,
         converters=converters,
+        min_value=min_value,
+        max_value=max_value,
         pass_as_kwarg=pass_as_kwarg,
         _stack_level=1,
     )
@@ -1184,6 +1192,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         ] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
+        min_value: typing.Union[int, float, None] = None,
+        max_value: typing.Union[int, float, None] = None,
         only_member: bool = False,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
@@ -1194,6 +1204,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         if len(self._builder.options) == 25:
             raise ValueError("Slash commands cannot have more than 25 options")
+
+        if min_value and max_value and min_value > max_value:
+            raise ValueError("The min value cannot be greater than the max value")
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
@@ -1234,6 +1247,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 is_required=required,
                 choices=actual_choices,
                 channel_types=channel_types,
+                min_value=min_value,
+                max_value=max_value,
             )
         )
         if pass_as_kwarg:
@@ -1363,6 +1378,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         choices: typing.Optional[collections.Mapping[str, int]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
+        min_value: typing.Optional[int] = None,
+        max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
@@ -1397,6 +1414,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
+        min_value : typing.Optional[int]
+            The option's (inclusive) minimum value.
+
+            Defaults to no minimum value.
+        max_value : typing.Optional[int]
+            The option's (inclusive) maximum value.
+
+            Defaults to no minimum value.
         pass_as_kwarg : bool
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1419,6 +1444,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
+            * If `min_value` is greater than `max_value`.
         """
         return self._add_option(
             name,
@@ -1427,6 +1453,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             choices=choices,
             converters=converters,
             default=default,
+            min_value=min_value,
+            max_value=max_value,
             pass_as_kwarg=pass_as_kwarg,
             _stack_level=_stack_level + 1,
         )
@@ -1441,6 +1469,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         choices: typing.Optional[collections.Mapping[str, float]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
+        min_value: typing.Optional[float] = None,
+        max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
@@ -1481,6 +1511,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
+        min_value : typing.Optional[float]
+            The option's (inclusive) minimum value.
+
+            Defaults to no minimum value.
+        max_value : typing.Optional[float]
+            The option's (inclusive) maximum value.
+
+            Defaults to no minimum value.
         pass_as_kwarg : bool
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1504,6 +1542,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
+            * If `min_value` is greater than `max_value`.
         """
         return self._add_option(
             name,
@@ -1512,6 +1551,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             choices=choices,
             converters=converters,
             default=default,
+            min_value=float(min_value) if min_value is not None else None,
+            max_value=float(max_value) if max_value is not None else None,
             pass_as_kwarg=pass_as_kwarg,
             always_float=always_float,
             _stack_level=_stack_level + 1,
