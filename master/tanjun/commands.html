@@ -814,6 +814,8 @@
     <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an integer option to a slash command.</span>
@@ -840,6 +842,8 @@
         <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
         <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
@@ -854,6 +858,8 @@
     <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a float option to a slash command.</span>
@@ -881,6 +887,8 @@
         <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
         <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1546,6 +1554,8 @@
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">only_member</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -1556,6 +1566,9 @@
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slash commands cannot have more than 25 options&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">min_value</span> <span class="ow">and</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="n">min_value</span> <span class="o">&gt;</span> <span class="n">max_value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The min value cannot be greater than the max value&quot;</span><span class="p">)</span>
 
         <span class="n">type_</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converters</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
@@ -1596,6 +1609,8 @@
                 <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span>
                 <span class="n">choices</span><span class="o">=</span><span class="n">actual_choices</span><span class="p">,</span>
                 <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+                <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+                <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">pass_as_kwarg</span><span class="p">:</span>
@@ -1725,6 +1740,8 @@
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
@@ -1759,6 +1776,14 @@
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        min_value : typing.Optional[int]</span>
+<span class="sd">            The option&#39;s (inclusive) minimum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
+<span class="sd">        max_value : typing.Optional[int]</span>
+<span class="sd">            The option&#39;s (inclusive) maximum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -1781,6 +1806,7 @@
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the option has more than 25 choices.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If `min_value` is greater than `max_value`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -1789,6 +1815,8 @@
             <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
             <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="n">_stack_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1803,6 +1831,8 @@
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
@@ -1843,6 +1873,14 @@
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        min_value : typing.Optional[float]</span>
+<span class="sd">            The option&#39;s (inclusive) minimum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
+<span class="sd">        max_value : typing.Optional[float]</span>
+<span class="sd">            The option&#39;s (inclusive) maximum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -1866,6 +1904,7 @@
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the option has more than 25 choices.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If `min_value` is greater than `max_value`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -1874,6 +1913,8 @@
             <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">min_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
             <span class="n">always_float</span><span class="o">=</span><span class="n">always_float</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="n">_stack_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
@@ -5563,6 +5604,8 @@ The component this object should be loaded into.</li>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">only_member</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -5573,6 +5616,9 @@ The component this object should be loaded into.</li>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slash commands cannot have more than 25 options&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">min_value</span> <span class="ow">and</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="n">min_value</span> <span class="o">&gt;</span> <span class="n">max_value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The min value cannot be greater than the max value&quot;</span><span class="p">)</span>
 
         <span class="n">type_</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converters</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
@@ -5613,6 +5659,8 @@ The component this object should be loaded into.</li>
                 <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span>
                 <span class="n">choices</span><span class="o">=</span><span class="n">actual_choices</span><span class="p">,</span>
                 <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+                <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+                <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">pass_as_kwarg</span><span class="p">:</span>
@@ -5742,6 +5790,8 @@ The component this object should be loaded into.</li>
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
@@ -5776,6 +5826,14 @@ The component this object should be loaded into.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        min_value : typing.Optional[int]</span>
+<span class="sd">            The option&#39;s (inclusive) minimum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
+<span class="sd">        max_value : typing.Optional[int]</span>
+<span class="sd">            The option&#39;s (inclusive) maximum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -5798,6 +5856,7 @@ The component this object should be loaded into.</li>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the option has more than 25 choices.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If `min_value` is greater than `max_value`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -5806,6 +5865,8 @@ The component this object should be loaded into.</li>
             <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
             <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="n">_stack_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
@@ -5820,6 +5881,8 @@ The component this object should be loaded into.</li>
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
@@ -5860,6 +5923,14 @@ The component this object should be loaded into.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        min_value : typing.Optional[float]</span>
+<span class="sd">            The option&#39;s (inclusive) minimum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
+<span class="sd">        max_value : typing.Optional[float]</span>
+<span class="sd">            The option&#39;s (inclusive) maximum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -5883,6 +5954,7 @@ The component this object should be loaded into.</li>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the option has more than 25 choices.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If `min_value` is greater than `max_value`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -5891,6 +5963,8 @@ The component this object should be loaded into.</li>
             <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">min_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
             <span class="n">always_float</span><span class="o">=</span><span class="n">always_float</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="n">_stack_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
@@ -6737,6 +6811,8 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
     choices: Optional[collections.abc.Mapping[str, int]] = None,
     converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Any = &lt;object object&gt;,
+    min_value: Optional[int] = None,
+    max_value: Optional[int] = None,
     pass_as_kwarg: bool = True,
     _stack_level: int = 0
 ) -&gt; ~_SlashCommandT</span>:
@@ -6753,6 +6829,8 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
@@ -6787,6 +6865,14 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        min_value : typing.Optional[int]</span>
+<span class="sd">            The option&#39;s (inclusive) minimum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
+<span class="sd">        max_value : typing.Optional[int]</span>
+<span class="sd">            The option&#39;s (inclusive) maximum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -6809,6 +6895,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the option has more than 25 choices.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If `min_value` is greater than `max_value`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -6817,6 +6904,8 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
             <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
             <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="n">_stack_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
@@ -6858,6 +6947,14 @@ If no converters are provided then the raw value will be passed.</p>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
+<li><p><strong>min_value</strong> (typing.Optional[int]):
+The option's (inclusive) minimum value.</p>
+
+<p>Defaults to no minimum value.</p></li>
+<li><p><strong>max_value</strong> (typing.Optional[int]):
+The option's (inclusive) maximum value.</p>
+
+<p>Defaults to no minimum value.</p></li>
 <li><p><strong>pass_as_kwarg</strong> (bool):
 Whether or not to pass this option as a keyword argument to the
 command callback.</p>
@@ -6883,6 +6980,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the option has more than 25 choices.</li>
 <li>If the command already has 25 options.</li>
+<li>If <code>min_value</code> is greater than <code>max_value</code>.</li>
 </ul></li>
 </ul>
 </div>
@@ -6904,6 +7002,8 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
     choices: Optional[collections.abc.Mapping[str, float]] = None,
     converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Any = &lt;object object&gt;,
+    min_value: Optional[float] = None,
+    max_value: Optional[float] = None,
     pass_as_kwarg: bool = True,
     _stack_level: int = 0
 ) -&gt; ~_SlashCommandT</span>:
@@ -6921,6 +7021,8 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
@@ -6961,6 +7063,14 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        min_value : typing.Optional[float]</span>
+<span class="sd">            The option&#39;s (inclusive) minimum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
+<span class="sd">        max_value : typing.Optional[float]</span>
+<span class="sd">            The option&#39;s (inclusive) maximum value.</span>
+
+<span class="sd">            Defaults to no minimum value.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -6984,6 +7094,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the option has more than 25 choices.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If `min_value` is greater than `max_value`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -6992,6 +7103,8 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
             <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
             <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">min_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">min_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
             <span class="n">always_float</span><span class="o">=</span><span class="n">always_float</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="n">_stack_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
@@ -7040,6 +7153,14 @@ If no converters are provided then the raw value will be passed.</p>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
+<li><p><strong>min_value</strong> (typing.Optional[float]):
+The option's (inclusive) minimum value.</p>
+
+<p>Defaults to no minimum value.</p></li>
+<li><p><strong>max_value</strong> (typing.Optional[float]):
+The option's (inclusive) maximum value.</p>
+
+<p>Defaults to no minimum value.</p></li>
 <li><p><strong>pass_as_kwarg</strong> (bool):
 Whether or not to pass this option as a keyword argument to the
 command callback.</p>
@@ -7066,6 +7187,7 @@ ignored.</p></li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the option has more than 25 choices.</li>
 <li>If the command already has 25 options.</li>
+<li>If <code>min_value</code> is greater than <code>max_value</code>.</li>
 </ul></li>
 </ul>
 </div>
@@ -8668,6 +8790,8 @@ Command to add to this group.</li>
     choices: Optional[collections.abc.Mapping[str, int]] = None,
     converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Any = &lt;object object&gt;,
+    min_value: Optional[int] = None,
+    max_value: Optional[int] = None,
     pass_as_kwarg: bool = True
 ) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
@@ -8682,6 +8806,8 @@ Command to add to this group.</li>
     <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an integer option to a slash command.</span>
@@ -8708,6 +8834,8 @@ Command to add to this group.</li>
         <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
         <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
@@ -8750,6 +8878,8 @@ Command to add to this group.</li>
     choices: Optional[collections.abc.Mapping[str, float]] = None,
     converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Any = &lt;object object&gt;,
+    min_value: Optional[float] = None,
+    max_value: Optional[float] = None,
     pass_as_kwarg: bool = True
 ) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
@@ -8765,6 +8895,8 @@ Command to add to this group.</li>
     <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a float option to a slash command.</span>
@@ -8792,6 +8924,8 @@ Command to add to this group.</li>
         <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
         <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
