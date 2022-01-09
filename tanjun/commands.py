@@ -1205,9 +1205,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         if len(self._builder.options) == 25:
             raise ValueError("Slash commands cannot have more than 25 options")
 
-        if choices and (min_value or max_value):
-            raise ValueError("Cannot specify both choices and min/max values")
-
         if min_value and max_value and min_value > max_value:
             raise ValueError("The min value cannot be greater than the max value")
 
@@ -1417,6 +1414,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
+        min_value : typing.Optional[int]
+            The option's (inclusive) minimum value.
+
+            Defaults to no minimum value.
+        max_value : typing.Optional[int]
+            The option's (inclusive) maximum value.
+
+            Defaults to no minimum value.
         pass_as_kwarg : bool
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1439,6 +1444,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
+            * If `min_value` is greater than `max_value`.
         """
         return self._add_option(
             name,
@@ -1505,6 +1511,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
+        min_value : typing.Optional[float]
+            The option's (inclusive) minimum value.
+
+            Defaults to no minimum value.
+        max_value : typing.Optional[float]
+            The option's (inclusive) maximum value.
+
+            Defaults to no minimum value.
         pass_as_kwarg : bool
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1528,6 +1542,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
+            * If `min_value` is greater than `max_value`.
         """
         return self._add_option(
             name,

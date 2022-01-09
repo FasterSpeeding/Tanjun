@@ -1192,12 +1192,6 @@ class TestSlashCommand:
                 max_value=2232,
             )
 
-    def test_add_int_option_when_both_choices_and_min_max(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.raises(ValueError, match="Cannot specify both choices and min/max values"):
-            command.add_int_option(
-                "sesese", "asasasa", min_value=5213, max_value=6523, choices={"yee": 123, "mee": 54123}
-            )
-
     def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
@@ -1368,12 +1362,6 @@ class TestSlashCommand:
                 "asasasa",
                 min_value=333.222,
                 max_value=222.333,
-            )
-
-    def test_add_float_option_when_both_choices_and_min_max(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.raises(ValueError, match="Cannot specify both choices and min/max values"):
-            command.add_float_option(
-                "sesese", "asasasa", min_value=5213.123, max_value=6523.123, choices={"yee": 123.321, "mee": 54123.123}
             )
 
     def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
