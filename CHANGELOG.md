@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `always_defer` option to slash commands (not including groups).
 - `tanjun.MessageCommand` is now callable like `tanjun.SlashCommand`.
 - `MessageContext.respond` is now typed as allowing `bool` for the `reply` argument.
+- `min_value` and `max_value` option for int and float slash command options.
+
+### Changed
+- Bumped the minimum hikari version to hikari~=2.0.0.dev105.
 
 ## [2.2.3a1] - 2022-01-06
 ### Added

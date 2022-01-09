@@ -292,7 +292,14 @@ def test_with_int_slash_option():
     mock_converter = mock.Mock()
 
     result = tanjun.with_int_slash_option(
-        "im_con", "con man", choices={"a": 123}, converters=[mock_converter], default=321123, pass_as_kwarg=False
+        "im_con",
+        "con man",
+        choices={"a": 123},
+        converters=[mock_converter],
+        default=321123,
+        min_value=1123,
+        max_value=312123,
+        pass_as_kwarg=False,
     )(mock_command)
 
     assert result is mock_command.add_int_option.return_value
@@ -302,6 +309,8 @@ def test_with_int_slash_option():
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
+        min_value=1123,
+        max_value=312123,
         pass_as_kwarg=False,
         _stack_level=1,
     )
@@ -319,6 +328,8 @@ def test_with_int_slash_option_with_defaults():
         choices=None,
         converters=(),
         default=tanjun.commands._UNDEFINED_DEFAULT,
+        min_value=None,
+        max_value=None,
         pass_as_kwarg=True,
         _stack_level=1,
     )
@@ -335,6 +346,8 @@ def test_with_float_slash_option():
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
         default=21.321,
+        min_value=56.234,
+        max_value=765.234,
         pass_as_kwarg=False,
     )(mock_command)
 
@@ -346,6 +359,8 @@ def test_with_float_slash_option():
         default=21.321,
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
+        min_value=56.234,
+        max_value=765.234,
         pass_as_kwarg=False,
         _stack_level=1,
     )
@@ -364,6 +379,8 @@ def test_with_float_slash_option_with_defaults():
         default=tanjun.commands._UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
+        min_value=None,
+        max_value=None,
         pass_as_kwarg=True,
         _stack_level=1,
     )
@@ -976,6 +993,9 @@ class TestSlashCommand:
             hikari.CommandChoice(name="Aye", value="aye"),
             hikari.CommandChoice(name="Bye man", value="bye"),
         ]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1000,6 +1020,9 @@ class TestSlashCommand:
             hikari.CommandChoice(name="Channel", value="channel"),
             hikari.CommandChoice(name="Playlist", value="playlist"),
         ]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1031,6 +1054,9 @@ class TestSlashCommand:
             hikari.CommandChoice(name="lesbian_bi", value="Lesbian Bi"),
             hikari.CommandChoice(name="transive", value="Trans"),
         ]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1050,6 +1076,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.STRING
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1125,6 +1154,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.INTEGER
         assert option.choices == [hikari.CommandChoice(name="hi", value=1), hikari.CommandChoice(name="no", value=21)]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1134,6 +1166,37 @@ class TestSlashCommand:
         assert tracked.converters[0].callback is mock_converter
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
+
+    def test_add_int_option_with_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_int_option("sesese", "asasasa", min_value=123321, max_value=6451231)
+
+        option = command.build().options[0]
+        assert option.name == "sesese"
+        assert option.description == "asasasa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.INTEGER
+        assert option.choices is None
+        assert option.min_value == 123321
+        assert option.max_value == 6451231
+        assert option.channel_types is None
+
+        assert option.name in command._tracked_options
+
+    def test_add_int_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="The min value cannot be greater than the max value"):
+            command.add_int_option(
+                "sesese",
+                "asasasa",
+                min_value=33232,
+                max_value=2232,
+            )
+
+    def test_add_int_option_when_both_choices_and_min_max(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="Cannot specify both choices and min/max values"):
+            command.add_int_option(
+                "sesese", "asasasa", min_value=5213, max_value=6523, choices={"yee": 123, "mee": 54123}
+            )
 
     def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
         with warnings.catch_warnings():
@@ -1148,6 +1211,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.INTEGER
         assert option.choices == [hikari.CommandChoice(name="les", value=1), hikari.CommandChoice(name="g", value=43)]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1167,6 +1233,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.INTEGER
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1235,7 +1304,6 @@ class TestSlashCommand:
             choices={"no": 4.4, "ok": 6.9},
             converters=[mock_converter],
             default="eaf",
-            always_float=False,
         )
 
         option = command.build().options[0]
@@ -1248,6 +1316,9 @@ class TestSlashCommand:
             hikari.CommandChoice(name="no", value=4.4),
             hikari.CommandChoice(name="ok", value=6.9),
         ]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1255,8 +1326,55 @@ class TestSlashCommand:
         assert tracked.default == "eaf"
         assert len(tracked.converters) == 1
         assert tracked.converters[0].callback is mock_converter
-        assert tracked.is_always_float is False
+        assert tracked.is_always_float is True
         assert tracked.is_only_member is False
+
+    def test_add_float_option_with_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_float_option("sesese", "asasasa", min_value=5213.123, max_value=6523.123)
+
+        option = command.build().options[0]
+        assert option.name == "sesese"
+        assert option.description == "asasasa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.FLOAT
+        assert option.choices is None
+        assert option.min_value == 5213.123
+        assert option.max_value == 6523.123
+        assert option.channel_types is None
+
+        assert option.name in command._tracked_options
+
+    def test_add_float_option_when_ints_passed_for_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_float_option("sesese", "asasasa", min_value=3543, max_value=54123)
+
+        option = command.build().options[0]
+        assert option.name == "sesese"
+        assert option.description == "asasasa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.FLOAT
+        assert option.choices is None
+        assert option.min_value == 3543.0
+        assert option.max_value == 54123.0
+        assert option.channel_types is None
+
+        assert option.name in command._tracked_options
+
+    def test_add_float_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="The min value cannot be greater than the max value"):
+            command.add_float_option(
+                "sesese",
+                "asasasa",
+                min_value=333.222,
+                max_value=222.333,
+            )
+
+    def test_add_float_option_when_both_choices_and_min_max(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="Cannot specify both choices and min/max values"):
+            command.add_float_option(
+                "sesese", "asasasa", min_value=5213.123, max_value=6523.123, choices={"yee": 123.321, "mee": 54123.123}
+            )
 
     def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
         with warnings.catch_warnings():
@@ -1274,6 +1392,9 @@ class TestSlashCommand:
             hikari.CommandChoice(name="blam", value=4.20),
             hikari.CommandChoice(name="blam2", value=6.9),
         ]
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1293,6 +1414,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.FLOAT
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1363,6 +1487,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.BOOLEAN
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1382,6 +1509,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.BOOLEAN
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1449,6 +1579,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.USER
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1468,6 +1601,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.USER
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1535,6 +1671,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.USER
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1554,6 +1693,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.USER
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1609,6 +1751,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.CHANNEL
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1628,6 +1773,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.CHANNEL
         assert option.choices is None
+        assert option.channel_types is None
+        assert option.min_value is None
+        assert option.max_value is None
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
@@ -1724,6 +1872,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.ROLE
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1743,6 +1894,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.ROLE
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1807,6 +1961,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.MENTIONABLE
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1826,6 +1983,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.MENTIONABLE
         assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
