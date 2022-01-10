@@ -91,13 +91,27 @@ class ParseableProto(typing.Protocol):
 
     @property
     def callback(self) -> tanjun_abc.CommandCallbackSig:
+        """The callback for this message command."""
         raise NotImplementedError
 
     @property
     def parser(self) -> typing.Optional[AbstractParser]:
+        """The parser for this message command, if set."""
         raise NotImplementedError
 
     def set_parser(self: _T, _: typing.Optional[AbstractParser], /) -> _T:
+        """Set the parser for this message command.
+
+        Parameters
+        ----------
+        _ : typing.Optional[AbstractParser]
+            The parser to set.
+
+        Returns
+        -------
+        Self
+            The message command instance to enable call chaining.
+        """
         raise NotImplementedError
 
 
@@ -132,19 +146,68 @@ class AbstractParser(abc.ABC):
     @property
     @abc.abstractmethod
     def parameters(self) -> collections.Sequence[Parameter]:
-        raise NotImplementedError
+        """Sequence of the parameters registered with this parser."""
 
-    @abc.abstractmethod  # TODO: these lol
+    @abc.abstractmethod
     def add_parameter(self: _T, parameter: typing.Union[Argument, Option], /) -> _T:
-        raise NotImplementedError
+        """Add a parameter to this parser.
+
+
+        Arguments
+        ---------
+        parameter : typing.Union[Argument, Option]
+            Either the argument or option to add to this parser.
+
+            .. note::
+                For `Argument` type parameters the ordering matters and is decided
+                on `add_parameter` call order.
+
+        Returns
+        -------
+        Self
+            The parser instance to enable call chaining.
+        """
 
     @abc.abstractmethod
     def remove_parameter(self: _T, parameter: typing.Union[Argument, Option], /) -> _T:
-        raise NotImplementedError
+        """Remove a parameter from the parser.
+
+        Arguments
+        ---------
+        parameter : typing.Union[Argument, Option]
+            Either the argument or option to remove from this parser.
+
+        Returns
+        -------
+        Self
+            The parser instance to enable call chaining.
+
+        Raises
+        ------
+        ValueError
+            If the parameter isn't registered.
+        """
 
     @abc.abstractmethod
     def set_parameters(self: _T, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> _T:
-        raise NotImplementedError
+        """Set the parameters for this parser.
+
+        .. note::
+            This will override any previously set parameters.
+
+        Parameters
+        ----------
+        parameters : collections.abc.Iterable[typing.Union[Argument, Option]]
+            Iterable of the arguments and options to set for this parser.
+
+            .. note::
+                Order matters for `Argument` type parameters.
+
+        Returns
+        -------
+        Self
+            The parser instance to enable call chaining.
+        """
 
     @abc.abstractmethod
     def bind_client(self: _T, client: tanjun_abc.Client, /) -> _T:
@@ -156,11 +219,37 @@ class AbstractParser(abc.ABC):
 
     @abc.abstractmethod
     def copy(self: _T) -> _T:
-        raise NotImplementedError
+        """Copy the parser.
+
+        Returns
+        -------
+        Self
+            A copy of the parser.
+        """
 
     @abc.abstractmethod
     async def parse(self, ctx: tanjun_abc.MessageContext, /) -> dict[str, typing.Any]:
-        raise NotImplementedError
+        """Parse a message context.
+
+        .. warning::
+            This relies on the prefix and command name(s) having been removed
+            from `tanjun.abc.MessageContext.content`
+
+        Parameters
+        ----------
+        ctx : tanjun.abc.MessageContext
+            The message context to parse.
+
+        Returns
+        -------
+        dict[str, typing.Any]
+            Dictionary of argument names to the parsed values for them.
+
+        Raises
+        ------
+        tanjun.errors.ParserError
+            If the message could not be parsed.
+        """
 
 
 class _ShlexTokenizer:
@@ -845,6 +934,7 @@ class ShlexParser(AbstractParser):
         return (*self._arguments, *self._options)
 
     def copy(self: _ShlexParserT, *, _new: bool = True) -> _ShlexParserT:
+        # <<inherited docstring from AbstractParser>>.
         if not _new:
             self._arguments = [argument.copy() for argument in self._arguments]
             self._options = [option.copy() for option in self._options]
