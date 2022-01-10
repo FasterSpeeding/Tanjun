@@ -466,19 +466,11 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;_metadata&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span> <span class="k">if</span> <span class="n">metadata</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
@@ -640,7 +632,6 @@
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -1181,6 +1172,8 @@
 
 
 <span class="k">class</span> <span class="nc">BaseSlashCommand</span><span class="p">(</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class used for the standard slash command implementations.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span> <span class="s2">&quot;_description&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_global&quot;</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1191,12 +1184,8 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="n">_validate_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
@@ -1309,6 +1298,48 @@
 
 
 <span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Standard implementation of a slash command group.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Unlike message command grups, slash command groups cannot</span>
+<span class="sd">      be callable functions themselves.</span>
+<span class="sd">    * Under the standard implementation, `is_global` is used to determine whether</span>
+<span class="sd">      the command should be bulk set by `tanjun.Client.set_global_commands`</span>
+<span class="sd">      or when `set_global_commands` is True</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the command group.</span>
+
+<span class="sd">        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        The description of the command group.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    default_permission : bool</span>
+<span class="sd">        Whether this command can be accessed without set permissions.</span>
+
+<span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
+<span class="sd">    is_global : bool</span>
+<span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[\w-]{1,32}$` (Unicode mode).</span>
+<span class="sd">        * If the command name has uppercase characters.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_permission&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1320,21 +1351,8 @@
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
 
@@ -1466,6 +1484,72 @@
 
 
 <span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Standard implementation of a slash command.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Under the standard implementation, `is_global` is used to determine whether</span>
+<span class="sd">        the command should be bulk set by `tanjun.Client.set_global_commands`</span>
+<span class="sd">        or when `set_global_commands` is True</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        `default_permission` and `is_global` are ignored for commands within</span>
+<span class="sd">        slash command groups.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Awaitable[None]]</span>
+<span class="sd">        Callback to execute when the command is invoked.</span>
+
+<span class="sd">        This should be an asynchronous callback which takes one positional</span>
+<span class="sd">        argument of type `tanjun.abc.SlashContext`, returns `None` and may use</span>
+<span class="sd">        dependency injection to access other services.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The command&#39;s name.</span>
+
+<span class="sd">        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        The command&#39;s description.</span>
+<span class="sd">        This should be inclusively between 1-100 characters in length.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    always_defer : bool</span>
+<span class="sd">        Whether the contexts this command is executed with should always be deferred</span>
+<span class="sd">        before being passed to the command&#39;s callback.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The ephemeral state of the first response is decided by whether the</span>
+<span class="sd">            deferral is ephemeral.</span>
+<span class="sd">    default_permission : bool</span>
+<span class="sd">        Whether this command can be accessed without set permissions.</span>
+
+<span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
+<span class="sd">    is_global : bool</span>
+<span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
+<span class="sd">    sort_options : bool</span>
+<span class="sd">        Whether this command should sort its set options based on whether</span>
+<span class="sd">        they&#39;re required.</span>
+
+<span class="sd">        If this is `True` then the options are re-sorted to meet the requirement</span>
+<span class="sd">        from Discord that required command options be listed before optional</span>
+<span class="sd">        ones.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[\w-]{1,32}$` (Unicode mode).</span>
+<span class="sd">        * If the command name has uppercase characters.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_always_defer&quot;</span><span class="p">,</span> <span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1476,24 +1560,13 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
@@ -2380,7 +2453,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    names : str</span>
+<span class="sd">    *names : str</span>
 <span class="sd">        Variable positional arguments of other names for the command.</span>
 
 <span class="sd">    Returns</span>
@@ -2417,7 +2490,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    names : str</span>
+<span class="sd">    *names : str</span>
 <span class="sd">        Variable positional arguments of other names for the command.</span>
 <span class="sd">    strict : bool</span>
 <span class="sd">        Whether this command group should only allow commands without spaces in their names.</span>
@@ -2445,6 +2518,25 @@
 
 
 <span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard implementation of a message command.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]</span>
+<span class="sd">        Callback to execute when the command is invoked.</span>
+
+<span class="sd">        This should be an asynchronous callback which takes one positional</span>
+<span class="sd">        argument of type `tanjun.abc.MessageContext`, returns `None` and may use</span>
+<span class="sd">        dependency injection to access other services.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The command name.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    *names : str</span>
+<span class="sd">        Variable positional arguments of other names for the command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_parser&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2453,17 +2545,13 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">parser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_command</span> <span class="o">=</span> <span class="n">_wrapped_command</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2599,6 +2687,24 @@
 
 
 <span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard implementation of a message command group.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The command name.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    *names : str</span>
+<span class="sd">        Variable positional arguments of other names for the command.</span>
+<span class="sd">    strict : bool</span>
+<span class="sd">        Whether this command group should only allow commands without spaces in their names.</span>
+
+<span class="sd">        This allows for a more optimised command search pattern to be used and</span>
+<span class="sd">        enforces that command names are unique to a single command within the group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span> <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2607,23 +2713,10 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">callback</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">names</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">parser</span><span class="o">=</span><span class="n">parser</span><span class="p">,</span>
-            <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">_wrapped_command</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">_wrapped_command</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2820,7 +2913,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    names : str</span>
+<span class="sd">    *names : str</span>
 <span class="sd">        Variable positional arguments of other names for the command.</span>
 
 <span class="sd">    Returns</span>
@@ -2859,7 +2952,7 @@ The command name.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>names</strong> (str):
+<li><strong>*names</strong> (str):
 Variable positional arguments of other names for the command.</li>
 </ul>
 
@@ -2903,7 +2996,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    names : str</span>
+<span class="sd">    *names : str</span>
 <span class="sd">        Variable positional arguments of other names for the command.</span>
 <span class="sd">    strict : bool</span>
 <span class="sd">        Whether this command group should only allow commands without spaces in their names.</span>
@@ -2944,7 +3037,7 @@ The command name.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>names</strong> (str):
+<li><strong>*names</strong> (str):
 Variable positional arguments of other names for the command.</li>
 <li><p><strong>strict</strong> (bool):
 Whether this command group should only allow commands without spaces in their names.</p>
@@ -3299,7 +3392,6 @@ loading the other command into a component when using <code><a href="../tanjun.h
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 </pre></div>
 
@@ -3398,6 +3490,25 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard implementation of a message command.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]</span>
+<span class="sd">        Callback to execute when the command is invoked.</span>
+
+<span class="sd">        This should be an asynchronous callback which takes one positional</span>
+<span class="sd">        argument of type `tanjun.abc.MessageContext`, returns `None` and may use</span>
+<span class="sd">        dependency injection to access other services.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The command name.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    *names : str</span>
+<span class="sd">        Variable positional arguments of other names for the command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_parser&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -3406,17 +3517,13 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">parser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_command</span> <span class="o">=</span> <span class="n">_wrapped_command</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -3553,7 +3660,27 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
 
         </details>
 
-            <div class="docstring"><p>Base class for the standard ExecutableCommand implementations.</p>
+            <div class="docstring"><p>Standard implementation of a message command.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>, ...], collections.abc.Awaitable[None]]):
+Callback to execute when the command is invoked.</p>
+
+<p>This should be an asynchronous callback which takes one positional
+argument of type <code><a href="abc.html#MessageContext">tanjun.abc.MessageContext</a></code>, returns <code>None</code> and may use
+dependency injection to access other services.</p></li>
+<li><strong>name</strong> (str):
+The command name.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*names</strong> (str):
+Variable positional arguments of other names for the command.</li>
+</ul>
 </div>
 
 
@@ -3566,10 +3693,6 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
     name: str,
     /,
     *names: str,
-    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
-    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
-    parser: Optional[<a href="parsing.html#AbstractParser">tanjun.parsing.AbstractParser</a>] = None,
     _wrapped_command: Optional[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[Any]] = None
 )</span>
     </div>
@@ -3582,17 +3705,13 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">parser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_command</span> <span class="o">=</span> <span class="n">_wrapped_command</span>
 </pre></div>
 
@@ -3976,6 +4095,24 @@ The component this object should be loaded into.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard implementation of a message command group.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The command name.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    *names : str</span>
+<span class="sd">        Variable positional arguments of other names for the command.</span>
+<span class="sd">    strict : bool</span>
+<span class="sd">        Whether this command group should only allow commands without spaces in their names.</span>
+
+<span class="sd">        This allows for a more optimised command search pattern to be used and</span>
+<span class="sd">        enforces that command names are unique to a single command within the group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span> <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -3984,23 +4121,10 @@ The component this object should be loaded into.</li>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">callback</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">names</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">parser</span><span class="o">=</span><span class="n">parser</span><span class="p">,</span>
-            <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">_wrapped_command</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">_wrapped_command</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -4146,7 +4270,26 @@ The component this object should be loaded into.</li>
 
         </details>
 
-            <div class="docstring"><p>Base class for the standard ExecutableCommand implementations.</p>
+            <div class="docstring"><p>Standard implementation of a message command group.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The command name.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*names</strong> (str):
+Variable positional arguments of other names for the command.</li>
+<li><p><strong>strict</strong> (bool):
+Whether this command group should only allow commands without spaces in their names.</p>
+
+<p>This allows for a more optimised command search pattern to be used and
+enforces that command names are unique to a single command within the group.</p></li>
+</ul>
 </div>
 
 
@@ -4159,11 +4302,7 @@ The component this object should be loaded into.</li>
     name: str,
     /,
     *names: str,
-    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
-    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
     strict: bool = False,
-    parser: Optional[<a href="parsing.html#AbstractParser">tanjun.parsing.AbstractParser</a>] = None,
     _wrapped_command: Optional[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[Any]] = None
 )</span>
     </div>
@@ -4176,23 +4315,10 @@ The component this object should be loaded into.</li>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">AbstractParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">callback</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">names</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">parser</span><span class="o">=</span><span class="n">parser</span><span class="p">,</span>
-            <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">_wrapped_command</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">_wrapped_command</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -4629,19 +4755,11 @@ The command to add.</li>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;_metadata&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span> <span class="k">if</span> <span class="n">metadata</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
@@ -5025,6 +5143,8 @@ The check to remove.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BaseSlashCommand</span><span class="p">(</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class used for the standard slash command implementations.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span> <span class="s2">&quot;_description&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_global&quot;</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -5035,12 +5155,8 @@ The check to remove.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="n">_validate_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
@@ -5154,7 +5270,7 @@ The check to remove.</li>
 
         </details>
 
-            <div class="docstring"><p>Base class for the standard ExecutableCommand implementations.</p>
+            <div class="docstring"><p>Base class used for the standard slash command implementations.</p>
 </div>
 
 
@@ -5516,6 +5632,72 @@ The component this object should be loaded into.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Standard implementation of a slash command.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Under the standard implementation, `is_global` is used to determine whether</span>
+<span class="sd">        the command should be bulk set by `tanjun.Client.set_global_commands`</span>
+<span class="sd">        or when `set_global_commands` is True</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        `default_permission` and `is_global` are ignored for commands within</span>
+<span class="sd">        slash command groups.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Awaitable[None]]</span>
+<span class="sd">        Callback to execute when the command is invoked.</span>
+
+<span class="sd">        This should be an asynchronous callback which takes one positional</span>
+<span class="sd">        argument of type `tanjun.abc.SlashContext`, returns `None` and may use</span>
+<span class="sd">        dependency injection to access other services.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The command&#39;s name.</span>
+
+<span class="sd">        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        The command&#39;s description.</span>
+<span class="sd">        This should be inclusively between 1-100 characters in length.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    always_defer : bool</span>
+<span class="sd">        Whether the contexts this command is executed with should always be deferred</span>
+<span class="sd">        before being passed to the command&#39;s callback.</span>
+
+<span class="sd">        Defaults to `False`.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The ephemeral state of the first response is decided by whether the</span>
+<span class="sd">            deferral is ephemeral.</span>
+<span class="sd">    default_permission : bool</span>
+<span class="sd">        Whether this command can be accessed without set permissions.</span>
+
+<span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
+<span class="sd">    is_global : bool</span>
+<span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
+<span class="sd">    sort_options : bool</span>
+<span class="sd">        Whether this command should sort its set options based on whether</span>
+<span class="sd">        they&#39;re required.</span>
+
+<span class="sd">        If this is `True` then the options are re-sorted to meet the requirement</span>
+<span class="sd">        from Discord that required command options be listed before optional</span>
+<span class="sd">        ones.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[\w-]{1,32}$` (Unicode mode).</span>
+<span class="sd">        * If the command name has uppercase characters.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_always_defer&quot;</span><span class="p">,</span> <span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -5526,24 +5708,13 @@ The component this object should be loaded into.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
@@ -6420,7 +6591,78 @@ The component this object should be loaded into.</li>
 
         </details>
 
-            <div class="docstring"><p>Base class for the standard ExecutableCommand implementations.</p>
+            <div class="docstring"><p>Standard implementation of a slash command.</p>
+
+<p><em>Note:</em>
+Under the standard implementation, <code><a href="#SlashCommand.is_global">is_global</a></code> is used to determine whether
+the command should be bulk set by <code><a href="../tanjun.html#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
+or when <code>set_global_commands</code> is True</p>
+
+<p><em>Warning:</em>
+<code>default_permission</code> and <code><a href="#SlashCommand.is_global">is_global</a></code> are ignored for commands within
+slash command groups.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>, ...], collections.abc.Awaitable[None]]):
+Callback to execute when the command is invoked.</p>
+
+<p>This should be an asynchronous callback which takes one positional
+argument of type <code><a href="abc.html#SlashContext">tanjun.abc.SlashContext</a></code>, returns <code>None</code> and may use
+dependency injection to access other services.</p></li>
+<li><p><strong>name</strong> (str):
+The command's name.</p>
+
+<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p></li>
+<li><strong>description</strong> (str):
+The command's description.
+This should be inclusively between 1-100 characters in length.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>always_defer</strong> (bool):
+Whether the contexts this command is executed with should always be deferred
+before being passed to the command's callback.</p>
+
+<p>Defaults to <code>False</code>.</p>
+
+<p><em>Note:</em>
+The ephemeral state of the first response is decided by whether the
+deferral is ephemeral.</p></li>
+<li><p><strong>default_permission</strong> (bool):
+Whether this command can be accessed without set permissions.</p>
+
+<p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
+<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
+Whether this command's responses should default to ephemeral unless flags
+are set to override this.</p>
+
+<p>If this is left as <code>None</code> then the default set on the parent command(s),
+component or client will be in effect.</p></li>
+<li><strong>is_global</strong> (bool):
+Whether this command is a global command. Defaults to <code>True</code>.</li>
+<li><p><strong>sort_options</strong> (bool):
+Whether this command should sort its set options based on whether
+they're required.</p>
+
+<p>If this is <code>True</code> then the options are re-sorted to meet the requirement
+from Discord that required command options be listed before optional
+ones.</p></li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name has uppercase characters.</li>
+<li>If the description is over 100 characters long.</li>
+</ul></li>
+</ul>
 </div>
 
 
@@ -6435,12 +6677,9 @@ The component this object should be loaded into.</li>
     /,
     *,
     always_defer: bool = False,
-    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     default_permission: bool = True,
     default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
-    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
-    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
     sort_options: bool = True,
     _wrapped_command: Optional[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[Any]] = None
 )</span>
@@ -6456,24 +6695,13 @@ The component this object should be loaded into.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">always_defer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">_wrapped_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
@@ -8132,6 +8360,48 @@ being used.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Standard implementation of a slash command group.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Unlike message command grups, slash command groups cannot</span>
+<span class="sd">      be callable functions themselves.</span>
+<span class="sd">    * Under the standard implementation, `is_global` is used to determine whether</span>
+<span class="sd">      the command should be bulk set by `tanjun.Client.set_global_commands`</span>
+<span class="sd">      or when `set_global_commands` is True</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of the command group.</span>
+
+<span class="sd">        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        The description of the command group.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    default_permission : bool</span>
+<span class="sd">        Whether this command can be accessed without set permissions.</span>
+
+<span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
+<span class="sd">    is_global : bool</span>
+<span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[\w-]{1,32}$` (Unicode mode).</span>
+<span class="sd">        * If the command name has uppercase characters.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_permission&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -8143,21 +8413,8 @@ being used.</p></li>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
 
@@ -8290,7 +8547,56 @@ being used.</p></li>
 
         </details>
 
-            <div class="docstring"><p>Base class for the standard ExecutableCommand implementations.</p>
+            <div class="docstring"><p>Standard implementation of a slash command group.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>Unlike message command grups, slash command groups cannot
+be callable functions themselves.</li>
+<li>Under the standard implementation, <code><a href="#SlashCommandGroup.is_global">is_global</a></code> is used to determine whether
+the command should be bulk set by <code><a href="../tanjun.html#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
+or when <code>set_global_commands</code> is True</li>
+</ul>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name of the command group.</p>
+
+<p>This must match the regex <code>^[\w-]{1,32}$</code> in Unicode mode and be lowercase.</p></li>
+<li><strong>description</strong> (str):
+The description of the command group.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default_permission</strong> (bool):
+Whether this command can be accessed without set permissions.</p>
+
+<p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
+<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
+Whether this command's responses should default to ephemeral unless flags
+are set to override this.</p>
+
+<p>If this is left as <code>None</code> then the default set on the parent command(s),
+component or client will be in effect.</p></li>
+<li><strong>is_global</strong> (bool):
+Whether this command is a global command. Defaults to <code>True</code>.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name has uppercase characters.</li>
+<li>If the description is over 100 characters long.</li>
+</ul></li>
+</ul>
 </div>
 
 
@@ -8305,11 +8611,7 @@ being used.</p></li>
     *,
     default_to_ephemeral: Optional[bool] = None,
     default_permission: bool = True,
-    is_global: bool = True,
-    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
-    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
-    _stack: int = 0
+    is_global: bool = True
 )</span>
     </div>
 
@@ -8324,21 +8626,8 @@ being used.</p></li>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
-            <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
 </pre></div>
