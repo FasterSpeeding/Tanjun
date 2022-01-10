@@ -148,7 +148,7 @@ class Owners(AbstractOwners):
             This only works when the bot's rest client is bound to a Bot token.
         owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]
             Sequence of objects and IDs of the users that are allowed to use the
-            bot's "owners".
+            bot's owners-only commands.
         """
         if isinstance(expire_after, datetime.timedelta):
             expire_after = expire_after.total_seconds()
