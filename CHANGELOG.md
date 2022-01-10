@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped the minimum hikari version to hikari~=2.0.0.dev105.
 
+### Removed
+- Redundant keyword-arguments from the standard `MessageCommand`, `MessageCommandGroup`,
+  `SlashCommandGroup` and `SlashCommand` implementations' `__init__`s which should be set with methods.
+
 ## [2.2.3a1] - 2022-01-06
 ### Added
 - The interface for a generic (type-based) asynchronous cache dependency.

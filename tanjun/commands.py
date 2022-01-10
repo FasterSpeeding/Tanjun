@@ -104,19 +104,11 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractCom
 
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
 
-    def __init__(
-        self,
-        *,
-        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
-        hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None,
-        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
-    ) -> None:
-        self._checks: list[checks_.InjectableCheck] = (
-            [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
-        )
+    def __init__(self) -> None:
+        self._checks: list[checks_.InjectableCheck] = []
         self._component: typing.Optional[abc.Component] = None
-        self._hooks = hooks
-        self._metadata = dict(metadata) if metadata else {}
+        self._hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None
+        self._metadata: dict[typing.Any, typing.Any] = {}
 
     @property
     def checks(self) -> collections.Collection[abc.CheckSig]:
@@ -278,7 +270,6 @@ def slash_command_group(
         default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
-        _stack=1,
     )
 
 
@@ -819,6 +810,8 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
 
 class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
+    """Base class used for the standard slash command implementations."""
+
     __slots__ = ("_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent", "_tracked_command")
 
     def __init__(
@@ -829,12 +822,8 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         *,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
-        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
-        hooks: typing.Optional[abc.SlashHooks] = None,
-        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
-        _stack: int = 0,
     ) -> None:
-        super().__init__(checks=checks, hooks=hooks, metadata=metadata)
+        super().__init__()
         _validate_name(name)
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
@@ -947,6 +936,48 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
+    r"""Standard implementation of a slash command group.
+
+    Notes
+    -----
+    * Unlike message command grups, slash command groups cannot
+      be callable functions themselves.
+    * Under the standard implementation, `is_global` is used to determine whether
+      the command should be bulk set by `tanjun.Client.set_global_commands`
+      or when `set_global_commands` is True
+
+    Parameters
+    ----------
+    name : str
+        The name of the command group.
+
+        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+    description : str
+        The description of the command group.
+
+    Other Parameters
+    ----------------
+    default_permission : bool
+        Whether this command can be accessed without set permissions.
+
+        Defaults to `True`, meaning that users can access the command by default.
+    default_to_ephemeral : typing.Optional[bool]
+        Whether this command's responses should default to ephemeral unless flags
+        are set to override this.
+
+        If this is left as `None` then the default set on the parent command(s),
+        component or client will be in effect.
+    is_global : bool
+        Whether this command is a global command. Defaults to `True`.
+
+    Raises
+    ------
+    ValueError
+        Raises a value error for any of the following reasons:
+        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name has uppercase characters.
+        * If the description is over 100 characters long.
+    """
     __slots__ = ("_commands", "_default_permission")
 
     def __init__(
@@ -958,21 +989,8 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         default_to_ephemeral: typing.Optional[bool] = None,
         default_permission: bool = True,
         is_global: bool = True,
-        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
-        hooks: typing.Optional[abc.SlashHooks] = None,
-        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
-        _stack: int = 0,
     ) -> None:
-        super().__init__(
-            name,
-            description,
-            default_to_ephemeral=default_to_ephemeral,
-            is_global=is_global,
-            checks=checks,
-            hooks=hooks,
-            metadata=metadata,
-            _stack=_stack,
-        )
+        super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
         self._commands: dict[str, abc.BaseSlashCommand] = {}
         self._default_permission = default_permission
 
@@ -1104,6 +1122,72 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
+    r"""Standard implementation of a slash command.
+
+    .. note::
+        Under the standard implementation, `is_global` is used to determine whether
+        the command should be bulk set by `tanjun.Client.set_global_commands`
+        or when `set_global_commands` is True
+
+    .. warning::
+        `default_permission` and `is_global` are ignored for commands within
+        slash command groups.
+
+    Parameters
+    ----------
+    callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Awaitable[None]]
+        Callback to execute when the command is invoked.
+
+        This should be an asynchronous callback which takes one positional
+        argument of type `tanjun.abc.SlashContext`, returns `None` and may use
+        dependency injection to access other services.
+    name : str
+        The command's name.
+
+        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+    description : str
+        The command's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    always_defer : bool
+        Whether the contexts this command is executed with should always be deferred
+        before being passed to the command's callback.
+
+        Defaults to `False`.
+
+        .. note::
+            The ephemeral state of the first response is decided by whether the
+            deferral is ephemeral.
+    default_permission : bool
+        Whether this command can be accessed without set permissions.
+
+        Defaults to `True`, meaning that users can access the command by default.
+    default_to_ephemeral : typing.Optional[bool]
+        Whether this command's responses should default to ephemeral unless flags
+        are set to override this.
+
+        If this is left as `None` then the default set on the parent command(s),
+        component or client will be in effect.
+    is_global : bool
+        Whether this command is a global command. Defaults to `True`.
+    sort_options : bool
+        Whether this command should sort its set options based on whether
+        they're required.
+
+        If this is `True` then the options are re-sorted to meet the requirement
+        from Discord that required command options be listed before optional
+        ones.
+
+    Raises
+    ------
+    ValueError
+        Raises a value error for any of the following reasons:
+        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name has uppercase characters.
+        * If the description is over 100 characters long.
+    """
     __slots__ = ("_always_defer", "_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
 
     def __init__(
@@ -1114,24 +1198,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
-        hooks: typing.Optional[abc.SlashHooks] = None,
-        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
-        super().__init__(
-            name,
-            description,
-            checks=checks,
-            default_to_ephemeral=default_to_ephemeral,
-            hooks=hooks,
-            is_global=is_global,
-            metadata=metadata,
-        )
+        super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
 
         self._always_defer = always_defer
         self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
@@ -2018,7 +2091,7 @@ def as_message_command(
 
     Other Parameters
     ----------------
-    names : str
+    *names : str
         Variable positional arguments of other names for the command.
 
     Returns
@@ -2055,7 +2128,7 @@ def as_message_command_group(
 
     Other Parameters
     ----------------
-    names : str
+    *names : str
         Variable positional arguments of other names for the command.
     strict : bool
         Whether this command group should only allow commands without spaces in their names.
@@ -2083,6 +2156,25 @@ def as_message_command_group(
 
 
 class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.CommandCallbackSigT]):
+    """Standard implementation of a message command.
+
+    Parameters
+    ----------
+    callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]
+        Callback to execute when the command is invoked.
+
+        This should be an asynchronous callback which takes one positional
+        argument of type `tanjun.abc.MessageContext`, returns `None` and may use
+        dependency injection to access other services.
+    name : str
+        The command name.
+
+    Other Parameters
+    ----------------
+    *names : str
+        Variable positional arguments of other names for the command.
+    """
+
     __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
     def __init__(
@@ -2091,17 +2183,13 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
-        hooks: typing.Optional[abc.MessageHooks] = None,
-        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
-        parser: typing.Optional[parsing.AbstractParser] = None,
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
-        super().__init__(checks=checks, hooks=hooks, metadata=metadata)
+        super().__init__()
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
-        self._parser = parser
+        self._parser: typing.Optional[parsing.AbstractParser] = None
         self._wrapped_command = _wrapped_command
 
     def __repr__(self) -> str:
@@ -2237,6 +2325,24 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
 
 
 class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup[abc.CommandCallbackSigT]):
+    """Standard implementation of a message command group.
+
+    Parameters
+    ----------
+    name : str
+        The command name.
+
+    Other Parameters
+    ----------------
+    *names : str
+        Variable positional arguments of other names for the command.
+    strict : bool
+        Whether this command group should only allow commands without spaces in their names.
+
+        This allows for a more optimised command search pattern to be used and
+        enforces that command names are unique to a single command within the group.
+    """
+
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
     def __init__(
@@ -2245,23 +2351,10 @@ class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCo
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
-        hooks: typing.Optional[abc.MessageHooks] = None,
-        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         strict: bool = False,
-        parser: typing.Optional[parsing.AbstractParser] = None,
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
-        super().__init__(
-            callback,
-            name,
-            *names,
-            checks=checks,
-            hooks=hooks,
-            metadata=metadata,
-            parser=parser,
-            _wrapped_command=_wrapped_command,
-        )
+        super().__init__(callback, name, *names, _wrapped_command=_wrapped_command)
         self._commands: list[abc.MessageCommand[typing.Any]] = []
         self._is_strict = strict
         self._names_to_commands: dict[str, abc.MessageCommand[typing.Any]] = {}

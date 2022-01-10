@@ -689,7 +689,11 @@ class TestBaseSlashCommand:
         mock_checks = [mock.Mock(), mock.Mock()]
 
         with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
-            command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos", checks=[mock_callback, mock_other_callback])
+            command = (
+                stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+                .add_check(mock_callback)
+                .add_check(mock_other_callback)
+            )
 
             injectable_check.call_args_list == [mock.call(mock_callback), mock.call(mock_other_callback)]
 
@@ -2195,7 +2199,11 @@ class TestMessageCommand:
         mock_checks = [mock.Mock(), mock.Mock()]
 
         with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
-            command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos", checks=[mock_callback, mock_other_callback])
+            command = (
+                tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+                .add_check(mock_callback)
+                .add_check(mock_other_callback)
+            )
 
             injectable_check.call_args_list == [mock.call(mock_callback), mock.call(mock_other_callback)]
 
