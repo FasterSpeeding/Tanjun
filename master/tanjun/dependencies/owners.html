@@ -222,7 +222,7 @@
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token.</span>
 <span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
-<span class="sd">            bot&#39;s &quot;owners&quot;.</span>
+<span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
@@ -400,7 +400,7 @@ The user to check ownership for.</li>
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token.</span>
 <span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
-<span class="sd">            bot&#39;s &quot;owners&quot;.</span>
+<span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
@@ -486,7 +486,7 @@ is bound to a Bot token.</p>
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token.</span>
 <span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
-<span class="sd">            bot&#39;s &quot;owners&quot;.</span>
+<span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="n">expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
@@ -520,7 +520,7 @@ if the user isn't in `owners.</p>
 <p>This only works when the bot's rest client is bound to a Bot token.</p></li>
 <li><strong>owners</strong> (typing.Optional[hikari.SnowflakeishSequence[hikari.User]]):
 Sequence of objects and IDs of the users that are allowed to use the
-bot's "owners".</li>
+bot's owners-only commands.</li>
 </ul>
 </div>
 
