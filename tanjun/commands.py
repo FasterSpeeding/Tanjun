@@ -1961,7 +1961,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        if self._always_defer:
+        if self._always_defer and not ctx.has_been_deferred and not ctx.has_responded:
             await ctx.defer()
 
         ctx = ctx.set_command(self)
