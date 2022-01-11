@@ -2187,10 +2187,15 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the initial response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -2264,6 +2269,8 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -2338,10 +2345,15 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the last response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -2417,6 +2429,8 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -2553,16 +2567,23 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            If provided and set to `True` then this will always return `hikari.Message`,</span>
-<span class="sd">            otherwise this will return `Optional[hikari.Message]`.</span>
+<span class="sd">            Ensure that this call will always return a message object.</span>
+
+<span class="sd">            If `True` then this will always return `hikari.Message`, otherwise</span>
+<span class="sd">            this will return `Optional[hikari.Message]`.</span>
 
 <span class="sd">            It&#39;s worth noting that, under certain scenarios within the slash</span>
 <span class="sd">            command flow, this may lead to an extre request being made.</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this response.</span>
 <span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
@@ -2602,6 +2623,8 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -2736,14 +2759,12 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            This parameter does nothing in the message command flow, as the result</span>
-<span class="sd">            will always be available, but is present to keep the signature</span>
-<span class="sd">            compatible with `Context.respond`.</span>
-<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            Ensure this method call will return a message object.</span>
 
-<span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">            This does nothing for message command contexts as the result w ill</span>
+<span class="sd">            always be immedieatly available.</span>
+<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
 <span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
@@ -3174,10 +3195,15 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            If provided, the message attachment. This can be a resource,</span>
 <span class="sd">            or string of a path on your computer or a URL.</span>
@@ -3276,10 +3302,15 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        content : hikari.UndefinedOr[typing.Any]</span>
 <span class="sd">            If provided, the message contents. If</span>
 <span class="sd">            `hikari.UNDEFINED`, then nothing will be sent</span>
@@ -29325,11 +29356,11 @@ Whether to copy the component before loading it into a client.</p>
 
     <span class="k">def</span> <span class="nf">_get_flags</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span>
 
-        <span class="k">return</span> <span class="n">flags</span>
+        <span class="k">return</span> <span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span>
 
     <span class="k">def</span> <span class="nf">get_response_future</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the future which will be used to set the initial response.</span>
@@ -29480,8 +29511,14 @@ Whether to copy the component before loading it into a client.</p>
             <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+        <span class="c1"># This behaviour is undocumented and only kept by Discord for &quot;backwards compatibility&quot;</span>
+        <span class="c1"># but the followup endpoint can be used to create the initial response for slash</span>
+        <span class="c1"># commands or edit in a deferred response and (while this does lead to some</span>
+        <span class="c1"># unexpected behaviour around deferrals) should be accounted for.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">message</span>
@@ -29613,7 +29650,7 @@ Whether to copy the component before loading it into a client.</p>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create_initial_response</span><span class="p">(</span>
@@ -29694,7 +29731,7 @@ Whether to copy the component before loading it into a client.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
         <span class="n">delete_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_delete_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">)</span> <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -29709,10 +29746,10 @@ Whether to copy the component before loading it into a client.</p>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">message</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">edit_last_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -29751,7 +29788,7 @@ Whether to copy the component before loading it into a client.</p>
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">message</span>

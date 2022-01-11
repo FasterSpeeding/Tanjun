@@ -1222,10 +1222,15 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the initial response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -1299,6 +1304,8 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -1373,10 +1380,15 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the last response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -1452,6 +1464,8 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -1588,16 +1602,23 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            If provided and set to `True` then this will always return `hikari.Message`,</span>
-<span class="sd">            otherwise this will return `Optional[hikari.Message]`.</span>
+<span class="sd">            Ensure that this call will always return a message object.</span>
+
+<span class="sd">            If `True` then this will always return `hikari.Message`, otherwise</span>
+<span class="sd">            this will return `Optional[hikari.Message]`.</span>
 
 <span class="sd">            It&#39;s worth noting that, under certain scenarios within the slash</span>
 <span class="sd">            command flow, this may lead to an extre request being made.</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this response.</span>
 <span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
@@ -1637,6 +1658,8 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -1771,14 +1794,12 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            This parameter does nothing in the message command flow, as the result</span>
-<span class="sd">            will always be available, but is present to keep the signature</span>
-<span class="sd">            compatible with `Context.respond`.</span>
-<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            Ensure this method call will return a message object.</span>
 
-<span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">            This does nothing for message command contexts as the result w ill</span>
+<span class="sd">            always be immedieatly available.</span>
+<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
 <span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
@@ -2209,10 +2230,15 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            If provided, the message attachment. This can be a resource,</span>
 <span class="sd">            or string of a path on your computer or a URL.</span>
@@ -2311,10 +2337,15 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        content : hikari.UndefinedOr[typing.Any]</span>
 <span class="sd">            If provided, the message contents. If</span>
 <span class="sd">            `hikari.UNDEFINED`, then nothing will be sent</span>
@@ -4921,10 +4952,15 @@ shouldn't lead to an execution.</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the initial response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -4998,6 +5034,8 @@ shouldn't lead to an execution.</p>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -5072,10 +5110,15 @@ shouldn't lead to an execution.</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the last response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -5151,6 +5194,8 @@ shouldn't lead to an execution.</p>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -5287,16 +5332,23 @@ shouldn't lead to an execution.</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            If provided and set to `True` then this will always return `hikari.Message`,</span>
-<span class="sd">            otherwise this will return `Optional[hikari.Message]`.</span>
+<span class="sd">            Ensure that this call will always return a message object.</span>
+
+<span class="sd">            If `True` then this will always return `hikari.Message`, otherwise</span>
+<span class="sd">            this will return `Optional[hikari.Message]`.</span>
 
 <span class="sd">            It&#39;s worth noting that, under certain scenarios within the slash</span>
 <span class="sd">            command flow, this may lead to an extre request being made.</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this response.</span>
 <span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
@@ -5336,6 +5388,8 @@ shouldn't lead to an execution.</p>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -5999,10 +6053,15 @@ This method requires <code>hikari.config.CacheComponents.GUILDS</code> cache com
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the initial response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -6076,6 +6135,8 @@ This method requires <code>hikari.config.CacheComponents.GUILDS</code> cache com
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -6135,10 +6196,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
@@ -6216,7 +6282,9 @@ behaviour).</li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
@@ -6312,10 +6380,15 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the last response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
@@ -6391,6 +6464,8 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -6450,10 +6525,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
@@ -6533,7 +6613,9 @@ behaviour).</li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
@@ -6695,16 +6777,23 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            If provided and set to `True` then this will always return `hikari.Message`,</span>
-<span class="sd">            otherwise this will return `Optional[hikari.Message]`.</span>
+<span class="sd">            Ensure that this call will always return a message object.</span>
+
+<span class="sd">            If `True` then this will always return `hikari.Message`, otherwise</span>
+<span class="sd">            this will return `Optional[hikari.Message]`.</span>
 
 <span class="sd">            It&#39;s worth noting that, under certain scenarios within the slash</span>
 <span class="sd">            command flow, this may lead to an extre request being made.</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this response.</span>
 <span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
@@ -6744,6 +6833,8 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        ValueError</span>
 <span class="sd">            If more than 100 unique objects/entities are passed for</span>
 <span class="sd">            `role_mentions` or `user_mentions`.</span>
+<span class="sd">            If `delete_after` would be more than 14 minutes after the slash</span>
+<span class="sd">            command was called.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If both `attachment` and `attachments` are specified.</span>
 <span class="sd">        hikari.BadRequestError</span>
@@ -6803,16 +6894,23 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>ensure_result</strong> (bool):
-If provided and set to <code>True</code> then this will always return <code>hikari.Message</code>,
-otherwise this will return <code>Optional[hikari.Message]</code>.</p>
+Ensure that this call will always return a message object.</p>
+
+<p>If <code>True</code> then this will always return <code>hikari.Message</code>, otherwise
+this will return <code>Optional[hikari.Message]</code>.</p>
 
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p></li>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
 <li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
@@ -6853,7 +6951,9 @@ specific roles.</p></li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
@@ -9589,14 +9689,12 @@ The command to add.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            This parameter does nothing in the message command flow, as the result</span>
-<span class="sd">            will always be available, but is present to keep the signature</span>
-<span class="sd">            compatible with `Context.respond`.</span>
-<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            Ensure this method call will return a message object.</span>
 
-<span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">            This does nothing for message command contexts as the result w ill</span>
+<span class="sd">            always be immedieatly available.</span>
+<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
 <span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
@@ -9929,14 +10027,12 @@ This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</co
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
-<span class="sd">            This parameter does nothing in the message command flow, as the result</span>
-<span class="sd">            will always be available, but is present to keep the signature</span>
-<span class="sd">            compatible with `Context.respond`.</span>
-<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            Ensure this method call will return a message object.</span>
 
-<span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">            This does nothing for message command contexts as the result w ill</span>
+<span class="sd">            always be immedieatly available.</span>
+<span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : hikari.UndefinedOr[bool]</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
 <span class="sd">        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]</span>
@@ -10075,15 +10171,13 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>ensure_result</strong> (bool):
-This parameter does nothing in the message command flow, as the result
-will always be available, but is present to keep the signature
-compatible with <code><a href="#Context.respond">Context.respond</a></code>.</li>
-<li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+<li><p><strong>ensure_result</strong> (bool):
+Ensure this method call will return a message object.</p>
 
-<p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+<p>This does nothing for message command contexts as the result w ill
+always be immedieatly available.</p></li>
+<li><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
+If provided, the seconds after which the response message should be deleted.</li>
 <li><strong>tts</strong> (hikari.UndefinedOr[bool]):
 Whether to respond with tts/text to speech or no.</li>
 <li><p><strong>reply</strong> (typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]):
@@ -11135,10 +11229,15 @@ The command to add.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            If provided, the message attachment. This can be a resource,</span>
 <span class="sd">            or string of a path on your computer or a URL.</span>
@@ -11237,10 +11336,15 @@ The command to add.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        content : hikari.UndefinedOr[typing.Any]</span>
 <span class="sd">            If provided, the message contents. If</span>
 <span class="sd">            `hikari.UNDEFINED`, then nothing will be sent</span>
@@ -11657,10 +11761,15 @@ response message being sent.</p>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            If provided, the message attachment. This can be a resource,</span>
 <span class="sd">            or string of a path on your computer or a URL.</span>
@@ -11759,10 +11868,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 If provided, the message attachment. This can be a resource,
 or string of a path on your computer or a URL.</li>
@@ -11891,10 +12005,15 @@ due to it being outside of the range of a 64 bit integer.</li>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        delete_after : typing.Union[datetime.timedelta, float, int, None]</span>
-<span class="sd">            If provided, the seconds after which the response message should be delete.</span>
+<span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 
 <span class="sd">            .. note::</span>
-<span class="sd">                As of writing, this does not support ephemeral slash command responses.</span>
+<span class="sd">                Slash command responses can only be deleted within 14 minutes of the</span>
+<span class="sd">                command being received.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Since (as of writing) ephemeral responses cannot be deleted by the bot,</span>
+<span class="sd">                this is ignored for ephemeral slash command responses.</span>
 <span class="sd">        content : hikari.UndefinedOr[typing.Any]</span>
 <span class="sd">            If provided, the message contents. If</span>
 <span class="sd">            `hikari.UNDEFINED`, then nothing will be sent</span>
@@ -11992,10 +12111,15 @@ to the request and deferrals.</p>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
 If provided, the message contents. If
 <code>hikari.UNDEFINED</code>, then nothing will be sent
