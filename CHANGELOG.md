@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Redundant checks, hooks and metadata keyword-arguments from the standard `MessageCommand`,
   `MessageCommandGroup`, `SlashCommandGroup` and `SlashCommand` implementations' `__init__`s;
-  these should be set using methods.
+  these should be set using methods/decorators.
 - Redundant hook and check keyword-arguments from the standard `Client` impl; these should be set using
   methods.
 
