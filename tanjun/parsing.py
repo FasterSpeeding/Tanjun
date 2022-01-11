@@ -145,7 +145,7 @@ class AbstractParser(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def parameters(self) -> collections.Sequence[Parameter]:
+    def parameters(self) -> collections.Sequence[typing.Union[Argument, Option]]:
         """Sequence of the parameters registered with this parser."""
 
     @abc.abstractmethod
@@ -373,7 +373,7 @@ class _SemanticShlex(_ShlexTokenizer):
 
         return values
 
-    async def __process_argument(self, argument: Parameter) -> typing.Any:
+    async def __process_argument(self, argument: Argument) -> typing.Any:
         if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
             return await argument.convert(self.__ctx, value)
 
@@ -751,6 +751,8 @@ def with_multi_option(
 
 
 class Parameter:
+    """Base class for parameters for the standard parser(s)."""
+
     __slots__ = ("_client", "_component", "_converters", "_default", "_is_greedy", "_is_multi", "_key")
 
     def __init__(
@@ -786,26 +788,46 @@ class Parameter:
 
     @property
     def converters(self) -> collections.Sequence[ConverterSig]:
+        """Sequence of the converters registered for this parameter."""
         return tuple(converter.callback for converter in self._converters)
 
     @property
     def default(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
+        """The parameter's default.
+
+        If this is `UndefinedDefaultT` then this parameter is required.
+        """
         return self._default
 
     @property
     def is_greedy(self) -> bool:
+        """Whether this parameter is greedy.
+
+        Greedy parameters will consume the remaining message content as one
+        string (with converters also being passed the whole string).
+
+        .. note::
+            Greedy and multi parameters cannot be used together.
+        """
         return self._is_greedy
 
     @property
     def is_multi(self) -> bool:
+        """Whether this parameter is "multi".
+
+        Multi parameters will be passed a list of all the values provided for
+        this parameter (with each entry being converted separately.)
+        """
         return self._is_multi
 
     @property
     def key(self) -> str:
+        """The key of this parameter used to pass the result to the command's callback."""
         return self._key
 
     @property
     def needs_injector(self) -> bool:
+        """Whether this parameter needs an injector to be used."""
         # TODO: cache this value?
         return any(converter.needs_injector for converter in self._converters)
 
@@ -833,6 +855,7 @@ class Parameter:
         self._component = component
 
     async def convert(self, ctx: tanjun_abc.Context, value: str) -> typing.Any:
+        """Convert the given value to the type of this parameter."""
         if not self._converters:
             return value
 
@@ -848,6 +871,13 @@ class Parameter:
         raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self.key}'", self.key, sources)
 
     def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
+        """Copy the parameter.
+
+        Returns
+        -------
+        Self
+            A copy of the parameter.
+        """
         if not _new:
             self._converters = [converter.copy() for converter in self._converters]
             return self
@@ -857,6 +887,8 @@ class Parameter:
 
 
 class Argument(Parameter):
+    """Representation of a positional argument used by the standard parser."""
+
     __slots__ = ()
 
     def __init__(
@@ -876,12 +908,15 @@ class Argument(Parameter):
 
 
 class Option(Parameter):
+    """Representation of a named optional parameter used by the standard parser."""
+
     __slots__ = ("_empty_value", "_names")
 
     def __init__(
         self,
         key: str,
         name: str,
+        /,
         *names: str,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
@@ -897,10 +932,16 @@ class Option(Parameter):
 
     @property
     def empty_value(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
+        """The value to return if the option is empty.
+
+        If this is `UndefinedDefaultT` then a value will be required for the
+        option.
+        """
         return self._empty_value
 
     @property
     def names(self) -> collections.Sequence[str]:
+        """Sequence of the CLI names of this option."""
         return self._names.copy()
 
     def __repr__(self) -> str:
@@ -920,11 +961,12 @@ class ShlexParser(AbstractParser):
 
     @property
     def needs_injector(self) -> bool:
+        """Whether this parser needs an injector to be used."""
         # TODO: cache this value?
         return any(parameter.needs_injector for parameter in itertools.chain(self._options, self._arguments))
 
     @property
-    def parameters(self) -> collections.Sequence[Parameter]:
+    def parameters(self) -> collections.Sequence[typing.Union[Argument, Option]]:
         # <<inherited docstring from AbstractParser>>.
         return (*self._arguments, *self._options)
 

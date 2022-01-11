@@ -101,9 +101,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         """Collection of the asynchronous caches that this converter relies on.
 
         This will only be necessary if the suggested intents or cache_components
@@ -210,9 +208,7 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
         self._include_dms = include_dms
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_GuildChannelCacheT, _DmCacheT)
 
     @property
@@ -284,9 +280,7 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_EmojiCacheT,)
 
     @property
@@ -342,9 +336,7 @@ class GuildConverter(BaseConverter[hikari.Guild]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_GuildCacheT,)
 
     @property
@@ -398,9 +390,7 @@ class InviteConverter(BaseConverter[hikari.Invite]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_InviteCacheT,)
 
     @property
@@ -456,9 +446,7 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_InviteCacheT,)
 
     @property
@@ -505,9 +493,7 @@ class MemberConverter(BaseConverter[hikari.Member]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_MemberCacheT,)
 
     @property
@@ -578,9 +564,7 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_PresenceCacheT,)
 
     @property
@@ -624,9 +608,7 @@ class RoleConverter(BaseConverter[hikari.Role]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_RoleCacheT,)
 
     @property
@@ -679,9 +661,7 @@ class UserConverter(BaseConverter[hikari.User]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_UserCacheT,)
 
     @property
@@ -740,9 +720,7 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     __slots__ = ()
 
     @property
-    def async_caches(
-        self,
-    ) -> collections.Sequence[typing.Any]:
+    def async_caches(self) -> collections.Sequence[typing.Any]:
         return (_VoiceStateCacheT,)
 
     @property
