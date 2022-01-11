@@ -160,7 +160,7 @@ class AbstractParser(abc.ABC):
 
             .. note::
                 For `Argument` type parameters the ordering matters and is decided
-                on `add_parameter` call order.
+                by `add_parameter` call order.
 
         Returns
         -------
