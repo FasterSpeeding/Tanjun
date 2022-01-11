@@ -58,38 +58,38 @@ def test_as_interval():
     assert result._fatal_exceptions == (KeyError,)
     assert result._ignored_exceptions == (TabError,)
     assert result._max_runs == 55
-    assert isinstance(result, tanjun.IntervalSchedule)
+    assert isinstance(result, tanjun.schedules.IntervalSchedule)
 
 
 class TestIntervalSchedule:
     def test_callback_property(self):
         mock_callback = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock_callback, 123)
+        interval = tanjun.schedules.IntervalSchedule(mock_callback, 123)
 
         assert interval.callback is mock_callback
 
     def test_is_alive(self):
-        assert tanjun.IntervalSchedule(mock.Mock(), 34123).is_alive is False
+        assert tanjun.schedules.IntervalSchedule(mock.Mock(), 34123).is_alive is False
 
     def test_is_alive_when_is_alive(self):
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock.Mock()
 
         assert interval.is_alive is True
 
     @pytest.mark.parametrize("interval", [datetime.timedelta(seconds=652134), 652134, 652134.0])
     def test_interval_property(self, interval: typing.Union[int, float, datetime.timedelta]):
-        interval_ = tanjun.IntervalSchedule(mock.Mock(), interval)
+        interval_ = tanjun.schedules.IntervalSchedule(mock.Mock(), interval)
 
         assert interval_.interval == datetime.timedelta(seconds=652134)
 
     def test_iteration_count_property(self):
-        assert tanjun.IntervalSchedule(mock.Mock(), 123).iteration_count == 0
+        assert tanjun.schedules.IntervalSchedule(mock.Mock(), 123).iteration_count == 0
 
     @pytest.mark.asyncio()
     async def test___call___(self):
         mock_callback = mock.AsyncMock()
-        interval = tanjun.IntervalSchedule(
+        interval = tanjun.schedules.IntervalSchedule(
             typing.cast(collections.Callable[..., collections.Awaitable[None]], mock_callback), 123
         )
 
@@ -98,7 +98,7 @@ class TestIntervalSchedule:
         mock_callback.assert_awaited_once_with(123, 543, sex="OK", boo="31123")
 
     def test_copy(self):
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         result = interval.copy()
 
@@ -108,7 +108,7 @@ class TestIntervalSchedule:
         assert result is not interval
 
     def test_copy_when_schedule_is_active(self):
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock.Mock()
 
         with pytest.raises(RuntimeError, match="Cannot copy an active schedule"):
@@ -116,7 +116,7 @@ class TestIntervalSchedule:
 
     def test_load_into_component(self):
         mock_component = mock.Mock(tanjun.Component)
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         interval.load_into_component(mock_component)
 
@@ -124,13 +124,13 @@ class TestIntervalSchedule:
 
     def test_load_into_component_when_no_add_schedule_method(self):
         mock_component = mock.Mock(object)
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         interval.load_into_component(mock_component)
 
     def test_set_start_callback(self):
         mock_callback = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         result = interval.set_start_callback(mock_callback)
 
@@ -140,7 +140,7 @@ class TestIntervalSchedule:
 
     def test_set_stop_callback(self):
         mock_callback = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         result = interval.set_stop_callback(mock_callback)
 
@@ -158,9 +158,9 @@ class TestIntervalSchedule:
             descriptor = callback_descriptor.return_value.return_value
             descriptor.resolve = mock.AsyncMock()
 
-            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+            interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"stop": stop}),
             )(mock_callback, 123)
 
@@ -185,9 +185,9 @@ class TestIntervalSchedule:
             descriptor = callback_descriptor.return_value.return_value
             descriptor.resolve = mock.AsyncMock(side_effect=error)
 
-            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+            interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"stop": stop}),
             )(mock_callback, 123, fatal_exceptions=[LookupError], ignored_exceptions=[Exception])
 
@@ -218,9 +218,9 @@ class TestIntervalSchedule:
             descriptor = callback_descriptor.return_value.return_value
             descriptor.resolve = mock.AsyncMock(side_effect=error)
 
-            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+            interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"stop": stop}),
             )(mock_callback, 123, fatal_exceptions=[KeyError], ignored_exceptions=[LookupError])
 
@@ -245,9 +245,9 @@ class TestIntervalSchedule:
             descriptor = callback_descriptor.return_value.return_value
             descriptor.resolve = mock.AsyncMock(side_effect=error)
 
-            interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+            interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"stop": stop}),
             )(mock_callback, 123, fatal_exceptions=[KeyError], ignored_exceptions=[TypeError])
 
@@ -276,9 +276,9 @@ class TestIntervalSchedule:
         mock_result_3 = mock.Mock()
         mock_result_4 = mock.Mock()
         mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, mock_result_4, object()])
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
             exec_body=lambda ns: ns.update({"_execute": mock_execute}),
         )(mock.Mock(), 123, ignored_exceptions=[LookupError])
         interval._task = mock.Mock()
@@ -308,9 +308,9 @@ class TestIntervalSchedule:
         mock_result_2 = mock.Mock()
         mock_result_3 = mock.Mock()
         mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, object()])
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
             exec_body=lambda ns: ns.update({"_execute": mock_execute}),
         )(mock.Mock(), 123, ignored_exceptions=[LookupError], max_runs=3)
         interval._task = mock.Mock()
@@ -339,10 +339,10 @@ class TestIntervalSchedule:
         mock_result_2 = mock.Mock()
         mock_result_3 = mock.Mock()
         mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3])
-        interval: tanjun.IntervalSchedule[typing.Any] = (
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
             types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"_execute": mock_execute}),
             )(mock.Mock(), 123, ignored_exceptions=[LookupError])
             .set_start_callback(mock_start)
@@ -389,10 +389,10 @@ class TestIntervalSchedule:
         mock_start = mock.AsyncMock(side_effect=error)
         mock_stop = mock.AsyncMock()
         mock_execute = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = (
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
             types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"_execute": mock_execute}),
             )(mock.Mock(), 123, ignored_exceptions=[RuntimeError], fatal_exceptions=fatal_exceptions)
             .set_start_callback(mock_start)
@@ -433,10 +433,10 @@ class TestIntervalSchedule:
         mock_start = mock.AsyncMock(side_effect=KeyError)
         mock_stop = mock.AsyncMock()
         mock_execute = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = (
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
             types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"_execute": mock_execute}),
             )(mock.Mock(), 123, ignored_exceptions=[LookupError])
             .set_start_callback(mock_start)
@@ -478,10 +478,10 @@ class TestIntervalSchedule:
         mock_start = mock.AsyncMock()
         mock_stop = mock.AsyncMock(side_effect=error)
         mock_execute = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = (
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
             types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"_execute": mock_execute}),
             )(mock.Mock(), 123, ignored_exceptions=[LookupError])
             .set_start_callback(mock_start)
@@ -523,10 +523,10 @@ class TestIntervalSchedule:
         mock_start = mock.AsyncMock()
         mock_stop = mock.AsyncMock(side_effect=LookupError)
         mock_execute = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = (
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
             types.new_class(
                 "StubIntervalSchedule",
-                (tanjun.IntervalSchedule[typing.Any],),
+                (tanjun.schedules.IntervalSchedule[typing.Any],),
                 exec_body=lambda ns: ns.update({"_execute": mock_execute}),
             )(mock.Mock(), 123, ignored_exceptions=[LookupError])
             .set_start_callback(mock_start)
@@ -563,9 +563,9 @@ class TestIntervalSchedule:
     def test_start(self):
         mock_client = mock.Mock()
         loop_method = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
             exec_body=lambda ns: ns.update({"_loop": loop_method}),
         )(mock.Mock(), 123)
 
@@ -580,9 +580,9 @@ class TestIntervalSchedule:
         mock_client = mock.Mock()
         mock_loop = mock.Mock()
         loop_method = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
             exec_body=lambda ns: ns.update({"_loop": loop_method}),
         )(mock.Mock(), 123)
 
@@ -594,7 +594,7 @@ class TestIntervalSchedule:
     def test_start_when_passed_event_loop_isnt_active(self):
         mock_loop = mock.Mock()
         mock_loop.is_running.return_value = False
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         with pytest.raises(RuntimeError, match="Event loop is not running"):
             interval.start(mock.Mock(), loop=mock_loop)
@@ -603,7 +603,7 @@ class TestIntervalSchedule:
 
     def test_start_when_already_active(self):
         mock_task = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock_task
 
         with pytest.raises(RuntimeError, match="Cannot start an active schedule"):
@@ -613,7 +613,7 @@ class TestIntervalSchedule:
 
     def test_stop(self):
         mock_task = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock_task
 
         interval.stop()
@@ -622,16 +622,16 @@ class TestIntervalSchedule:
         assert interval._task is None
 
     def test_stop_when_not_active(self):
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
             interval.stop()
 
     def test_with_start_callback(self):
         set_start_callback = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
             exec_body=lambda ns: ns.update({"set_start_callback": set_start_callback}),
         )(mock.Mock(), 123)
         mock_callback = mock.Mock()
@@ -643,9 +643,9 @@ class TestIntervalSchedule:
 
     def test_with_stop_callback(self):
         set_stop_callback = mock.Mock()
-        interval: tanjun.IntervalSchedule[typing.Any] = types.new_class(
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
-            (tanjun.IntervalSchedule[typing.Any],),
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
             exec_body=lambda ns: ns.update({"set_stop_callback": set_stop_callback}),
         )(mock.Mock(), 123)
         mock_callback = mock.Mock()
@@ -658,7 +658,7 @@ class TestIntervalSchedule:
     def test_set_ignored_exceptions(self):
         mock_exception: typing.Any = mock.Mock()
         mock_other_exception: typing.Any = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         interval.set_ignored_exceptions(mock_exception, mock_other_exception)
 
@@ -667,7 +667,7 @@ class TestIntervalSchedule:
     def test_set_fatal_exceptions(self):
         mock_exception: typing.Any = mock.Mock()
         mock_other_exception: typing.Any = mock.Mock()
-        interval = tanjun.IntervalSchedule(mock.Mock(), 123)
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         interval.set_fatal_exceptions(mock_exception, mock_other_exception)
 

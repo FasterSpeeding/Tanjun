@@ -788,7 +788,7 @@ class TestInjectorClient:
         assert result is mock_value
 
     def test_get_type_dependency_for_unknown_dependency(self):
-        assert tanjun.injecting.InjectorClient().get_type_dependency(object) is tanjun.UNDEFINED
+        assert tanjun.injecting.InjectorClient().get_type_dependency(object) is tanjun.injecting.UNDEFINED
 
     def test_remove_type_dependency(self):
         mock_type: typing.Any = mock.Mock()
@@ -797,7 +797,7 @@ class TestInjectorClient:
         result = client.remove_type_dependency(mock_type)
 
         assert result is client
-        assert client.get_type_dependency(mock_type) is tanjun.UNDEFINED
+        assert client.get_type_dependency(mock_type) is tanjun.injecting.UNDEFINED
 
     def test_get_callback_override(self):
         mock_callback = mock.Mock()

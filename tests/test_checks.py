@@ -573,7 +573,7 @@ async def test_all_checks():
     mock_check_2 = mock.AsyncMock(return_value=True)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+    check = tanjun.checks.all_checks(mock_check_1, mock_check_2, mock_check_3)
 
     result = await check(mock_context)
 
@@ -592,7 +592,7 @@ async def test_all_checks_when_check_raises():
     mock_check_2 = mock.AsyncMock(side_effect=MockError)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+    check = tanjun.checks.all_checks(mock_check_1, mock_check_2, mock_check_3)
 
     with pytest.raises(MockError):
         await check(mock_context)
@@ -608,7 +608,7 @@ async def test_all_checks_when_first_fails():
     mock_check_2 = mock.AsyncMock(return_value=True)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+    check = tanjun.checks.all_checks(mock_check_1, mock_check_2, mock_check_3)
 
     result = await check(mock_context)
 
@@ -624,7 +624,7 @@ async def test_all_checks_when_last_fails():
     mock_check_2 = mock.AsyncMock(return_value=True)
     mock_check_3 = mock.AsyncMock(return_value=False)
     mock_context = mock.Mock()
-    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3)
+    check = tanjun.checks.all_checks(mock_check_1, mock_check_2, mock_check_3)
 
     result = await check(mock_context)
 
@@ -641,7 +641,7 @@ async def test_all_checks_when_any_check_fails():
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_check_4 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.all_checks(mock_check_1, mock_check_2, mock_check_3, mock_check_4)
+    check = tanjun.checks.all_checks(mock_check_1, mock_check_2, mock_check_3, mock_check_4)
 
     result = await check(mock_context)
 
@@ -672,7 +672,7 @@ async def test_any_checks_when_first_check_passes():
     mock_check_2 = mock.AsyncMock()
     mock_check_3 = mock.AsyncMock()
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
 
     result = await check(mock_context)
 
@@ -688,7 +688,7 @@ async def test_any_checks_when_last_check_passes():
     mock_check_2 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
 
     result = await check(mock_context)
 
@@ -706,7 +706,9 @@ async def test_any_checks_when_check_passes():
     mock_check_4 = mock.AsyncMock(return_value=True)
     mock_check_5 = mock.AsyncMock(return_value=False)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, mock_check_4, mock_check_5, error_message="hi")
+    check = tanjun.checks.any_checks(
+        mock_check_1, mock_check_2, mock_check_3, mock_check_4, mock_check_5, error_message="hi"
+    )
 
     result = await check(mock_context)
 
@@ -724,7 +726,7 @@ async def test_any_checks_when_all_fail():
     mock_check_2 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
     mock_check_3 = mock.AsyncMock(return_value=False)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
 
     result = await check(mock_context)
 
@@ -740,7 +742,7 @@ async def test_any_checks_when_all_fail_and_halt_execution():
     mock_check_2 = mock.AsyncMock(return_value=False)
     mock_check_3 = mock.AsyncMock(side_effect=tanjun.errors.FailedCheck)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, halt_execution=True)
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, halt_execution=True)
 
     with pytest.raises(tanjun.HaltExecution):
         await check(mock_context)
@@ -756,7 +758,7 @@ async def test_any_checks_when_all_fail_and_error_message():
     mock_check_2 = mock.AsyncMock(return_value=False)
     mock_check_3 = mock.AsyncMock(return_value=False)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="aye")
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="aye")
 
     with pytest.raises(tanjun.CommandError, match="aye"):
         await check(mock_context)
@@ -775,7 +777,7 @@ async def test_any_checks_when_generic_unsuppressed_error_raised():
     mock_check_2 = mock.AsyncMock(side_effect=MockError)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
 
     with pytest.raises(MockError):
         await check(mock_context)
@@ -794,7 +796,9 @@ async def test_any_checks_when_generic_error_suppressed():
     mock_check_2 = mock.AsyncMock(side_effect=MockError)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=(MockError,))
+    check = tanjun.checks.any_checks(
+        mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=(MockError,)
+    )
 
     result = await check(mock_context)
 
@@ -810,7 +814,7 @@ async def test_any_checks_when_halt_execution_not_suppressed():
     mock_check_2 = mock.AsyncMock(side_effect=tanjun.HaltExecution)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=())
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=())
 
     with pytest.raises(tanjun.HaltExecution):
         await check(mock_context)
@@ -826,7 +830,7 @@ async def test_any_checks_when_halt_execution_suppressed():
     mock_check_2 = mock.AsyncMock(side_effect=tanjun.HaltExecution)
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
 
     result = await check(mock_context)
 
@@ -842,7 +846,7 @@ async def test_any_checks_when_command_error_not_suppressed():
     mock_check_2 = mock.AsyncMock(side_effect=tanjun.CommandError("bye"))
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=())
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, suppress=())
 
     with pytest.raises(tanjun.CommandError, match="bye"):
         await check(mock_context)
@@ -858,7 +862,7 @@ async def test_any_checks_when_command_error_suppressed():
     mock_check_2 = mock.AsyncMock(side_effect=tanjun.CommandError("bye"))
     mock_check_3 = mock.AsyncMock(return_value=True)
     mock_context = mock.Mock()
-    check = tanjun.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None)
 
     result = await check(mock_context)
 

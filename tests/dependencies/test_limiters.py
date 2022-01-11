@@ -1641,7 +1641,7 @@ class TestConcurrencyPreExecution:
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = True
-        hook = tanjun.ConcurrencyPreExecution("bucket boobs")
+        hook = tanjun.dependencies.ConcurrencyPreExecution("bucket boobs")
 
         await hook(mock_context, mock_limiter)
 
@@ -1652,7 +1652,7 @@ class TestConcurrencyPreExecution:
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = False
-        hook = tanjun.ConcurrencyPreExecution("bucket catgirls", error_message="an error message")
+        hook = tanjun.dependencies.ConcurrencyPreExecution("bucket catgirls", error_message="an error message")
 
         with pytest.raises(tanjun.CommandError, match="an error message"):
             await hook(mock_context, mock_limiter)
@@ -1665,7 +1665,7 @@ class TestConcurrencyPostExecution:
     async def test_call(self):
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
-        hook = tanjun.ConcurrencyPostExecution("aye bucket")
+        hook = tanjun.dependencies.ConcurrencyPostExecution("aye bucket")
 
         await hook(mock_context, mock_limiter)
 

@@ -1026,7 +1026,7 @@ TOO_SMALL_SF = hikari.Snowflake.min() - 50
     ],
 )
 def test_parse_snowflake(value: typing.Union[str, int], result: int):
-    assert tanjun.parse_snowflake(value) == result
+    assert tanjun.conversion.parse_snowflake(value) == result
 
 
 @pytest.mark.parametrize(
@@ -1051,7 +1051,7 @@ def test_parse_snowflake(value: typing.Union[str, int], result: int):
 )
 def test_parse_snowflake_with_invalid_value(value: typing.Union[float, int, str]):
     with pytest.raises(ValueError, match="abcas"):
-        tanjun.parse_snowflake(value, message="abcas")
+        tanjun.conversion.parse_snowflake(value, message="abcas")
 
 
 def test_search_snowflakes():
@@ -1060,12 +1060,12 @@ def test_search_snowflakes():
         f" <#123321>, sleeper <a:32123> {TOO_SMALL_SF} <:gaaa:431123> <a:344213:43123>"
     )
 
-    assert set(tanjun.search_snowflakes(string)) == {123, 54123, 56123, 123321, 431123, 43123}
+    assert set(tanjun.conversion.search_snowflakes(string)) == {123, 54123, 56123, 123321, 431123, 43123}
 
 
 @pytest.mark.parametrize(("value", "result"), [("43123", 43123), (1233211, 1233211), ("<#12333>", 12333)])
 def test_parse_channel_id(value: typing.Union[str, int], result: int):
-    assert tanjun.parse_channel_id(value) == result
+    assert tanjun.conversion.parse_channel_id(value) == result
 
 
 @pytest.mark.parametrize(
@@ -1091,11 +1091,11 @@ def test_parse_channel_id(value: typing.Union[str, int], result: int):
 )
 def test_parse_channel_id_with_invalid_data(value: typing.Union[str, int, float]):
     with pytest.raises(ValueError, match="a message"):
-        tanjun.parse_channel_id(value, message="a message")
+        tanjun.conversion.parse_channel_id(value, message="a message")
 
 
 def test_search_channel_ids():
-    result = tanjun.search_channel_ids(
+    result = tanjun.conversion.search_channel_ids(
         f"65423 <#> <> {TOO_LARGE_SF} <#123321><#43123> {TOO_SMALL_SF} 54123 <@1> <@13> <@&32> <a:123:342> <:123:32>"
     )
 
@@ -1106,7 +1106,7 @@ def test_search_channel_ids():
     ("value", "result"), [("43123", 43123), (1233211, 1233211), ("<a:Name:12333>", 12333), ("<:name:32123>", 32123)]
 )
 def test_parse_emoji_id(value: typing.Union[str, int], result: int):
-    assert tanjun.parse_emoji_id(value) == result
+    assert tanjun.conversion.parse_emoji_id(value) == result
 
 
 @pytest.mark.parametrize(
@@ -1128,7 +1128,7 @@ def test_parse_emoji_id(value: typing.Union[str, int], result: int):
 )
 def test_parse_emoji_id_with_invalid_values(value: typing.Union[str, int, float]):
     with pytest.raises(ValueError, match="a messages"):
-        tanjun.parse_emoji_id(value, message="a messages")
+        tanjun.conversion.parse_emoji_id(value, message="a messages")
 
 
 def test_search_emoji_ids():
@@ -1137,14 +1137,14 @@ def test_search_emoji_ids():
         f"<a:{TOO_SMALL_SF}> <@1> <@!2> <@&123312> <#123321>"
     )
 
-    result = tanjun.search_emoji_ids(string)
+    result = tanjun.conversion.search_emoji_ids(string)
 
     assert set(result) == {67234, 32123, 4543123, 432}
 
 
 @pytest.mark.parametrize(("value", "result"), [("43123", 43123), (1233211, 1233211), ("<@&1234321>", 1234321)])
 def test_parse_role_id(value: typing.Union[str, int], result: int):
-    assert tanjun.parse_role_id(value) == result
+    assert tanjun.conversion.parse_role_id(value) == result
 
 
 @pytest.mark.parametrize(
@@ -1169,11 +1169,11 @@ def test_parse_role_id(value: typing.Union[str, int], result: int):
 )
 def test_parse_role_id_with_invalid_values(value: typing.Union[float, int, str]):
     with pytest.raises(ValueError, match="a messaged"):
-        tanjun.parse_role_id(value, message="a messaged")
+        tanjun.conversion.parse_role_id(value, message="a messaged")
 
 
 def test_search_role_ids():
-    result = tanjun.search_role_ids(
+    result = tanjun.conversion.search_role_ids(
         f"<@&{TOO_SMALL_SF}><@&123321><@&12222> 123 342 <#123> <@5623> <a:s:123> <:vs:123> <@&444> <@&{TOO_SMALL_SF}"
     )
 
@@ -1184,7 +1184,7 @@ def test_search_role_ids():
     ("value", "expected"), [("43123", 43123), ("<@!33333>", 33333), (1233211, 1233211), ("<@1234321>", 1234321)]
 )
 def test_parse_user_id(value: typing.Union[int, str], expected: int):
-    assert tanjun.parse_user_id(value) == expected
+    assert tanjun.conversion.parse_user_id(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -1209,13 +1209,13 @@ def test_parse_user_id(value: typing.Union[int, str], expected: int):
 )
 def test_parse_user_id_with_invalid_values(value: typing.Union[int, str]):
     with pytest.raises(ValueError, match="a"):
-        tanjun.parse_user_id(value, message="a")
+        tanjun.conversion.parse_user_id(value, message="a")
 
 
 def test_search_user_ids():
     string = f"<@{TOO_LARGE_SF}><@123321><@!6743234> 132321 <#123><@&3541234> 3123 <:a:3> <a:v:3> <@65123>"
 
-    result = tanjun.search_user_ids(string)
+    result = tanjun.conversion.search_user_ids(string)
 
     assert set(result) == {123321, 6743234, 132321, 3123, 65123}
 
@@ -1280,7 +1280,7 @@ def test_to_datetime_with_invalid_values(value: str):
 def test_from_datetime():
     date = datetime.datetime(2021, 9, 15, 14, 16, 18, 829252, tzinfo=datetime.timezone.utc)
 
-    result = tanjun.from_datetime(date, style="d")
+    result = tanjun.conversion.from_datetime(date, style="d")
 
     assert result == "<t:1631715379:d>"
 
@@ -1288,7 +1288,7 @@ def test_from_datetime():
 def test_from_datetime_with_default_style():
     date = datetime.datetime(2021, 9, 15, 14, 16, 18, 829252, tzinfo=datetime.timezone.utc)
 
-    result = tanjun.from_datetime(date)
+    result = tanjun.conversion.from_datetime(date)
 
     assert result == "<t:1631715379:f>"
 
@@ -1297,14 +1297,14 @@ def test_from_datetime_for_naive_datetime():
     date = datetime.datetime.utcnow()
 
     with pytest.raises(ValueError, match="Cannot convert naive datetimes, please specify a timezone."):
-        tanjun.from_datetime(date)
+        tanjun.conversion.from_datetime(date)
 
 
 def test_from_datetime_for_invalid_style():
     date = datetime.datetime.now(tz=datetime.timezone.utc)
 
     with pytest.raises(ValueError, match="Invalid style: granddad"):
-        tanjun.from_datetime(date, style="granddad")
+        tanjun.conversion.from_datetime(date, style="granddad")
 
 
 @pytest.mark.parametrize(
