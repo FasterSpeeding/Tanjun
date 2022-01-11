@@ -912,16 +912,11 @@ class ShlexParser(AbstractParser):
 
     __slots__ = ("_arguments", "_client", "_component", "_options")
 
-    def __init__(
-        self, *, parameters: typing.Optional[collections.Iterable[typing.Union[Argument, Option]]] = None
-    ) -> None:
+    def __init__(self) -> None:
         self._arguments: list[Argument] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._options: list[Option] = []
-
-        if parameters is not None:
-            self.set_parameters(parameters)
 
     @property
     def needs_injector(self) -> bool:

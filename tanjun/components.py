@@ -198,28 +198,17 @@ class Component(tanjun_abc.Component):
         "_slash_hooks",
     )
 
-    def __init__(
-        self,
-        *,
-        checks: typing.Optional[collections.Iterable[tanjun_abc.CheckSig]] = None,
-        hooks: typing.Optional[tanjun_abc.AnyHooks] = None,
-        slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None,
-        message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None,
-        name: typing.Optional[str] = None,
-        strict: bool = False,
-    ) -> None:
-        self._checks: list[checks_.InjectableCheck] = (
-            [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
-        )
+    def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
+        self._checks: list[checks_.InjectableCheck] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._client_callbacks: dict[str, list[tanjun_abc.MetaEventSig]] = {}
         self._defaults_to_ephemeral: typing.Optional[bool] = None
-        self._hooks = hooks
+        self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
         self._is_strict = strict
         self._listeners: dict[type[base_events.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._message_commands: list[tanjun_abc.MessageCommand[typing.Any]] = []
-        self._message_hooks = message_hooks
+        self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or base64.b64encode(random.randbytes(32)).decode()
         self._names_to_commands: dict[str, tanjun_abc.MessageCommand[typing.Any]] = {}
@@ -227,7 +216,7 @@ class Component(tanjun_abc.Component):
         self._on_open: list[injecting.CallbackDescriptor[None]] = []
         self._schedules: list[schedules.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
-        self._slash_hooks = slash_hooks
+        self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"

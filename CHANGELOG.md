@@ -16,8 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped the minimum hikari version to hikari~=2.0.0.dev105.
 
 ### Removed
-- Redundant keyword-arguments from the standard `MessageCommand`, `MessageCommandGroup`,
-  `SlashCommandGroup` and `SlashCommand` implementations' `__init__`s which should be set with methods.
+- Redundant checks, hooks and metadata keyword-arguments from the standard `MessageCommand`,
+  `MessageCommandGroup`, `SlashCommandGroup` and `SlashCommand` implementations' `__init__`s;
+  these should be set using methods.
+- Redundant hook and check keyword-arguments from the standard `Client` impl; these should be set using
+  methods.
 
 ## [2.2.3a1] - 2022-01-06
 ### Added
