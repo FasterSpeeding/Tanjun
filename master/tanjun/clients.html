@@ -726,82 +726,10 @@
 <span class="sd">    callbacks, prefix getters and event listeners. For more information on how</span>
 <span class="sd">    this works see `tanjun.injecting`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * For a quicker way to initiate this client around a standard bot aware</span>
-<span class="sd">      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
-<span class="sd">    * The endpoint used by `declare_global_commands` has a strict ratelimit which,</span>
-<span class="sd">      as of writing, only allows for 2 requests per minute (with that ratelimit</span>
-<span class="sd">      either being per-guild if targeting a specific guild otherwise globally).</span>
-<span class="sd">    * `event_manager` is necessary for message command dispatch and will also</span>
-<span class="sd">      be necessary for interaction command dispatch if `server` isn&#39;t</span>
-<span class="sd">      provided.</span>
-<span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
-<span class="sd">      events aren&#39;t being received from the event manager.</span>
-<span class="sd">    * By default this client includes a parser error handling hook which will</span>
-<span class="sd">      by overwritten if you call `Client.set_hooks`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    rest : hikari.api.rest.RestClient</span>
-<span class="sd">        The Hikari REST client this will use.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    cache : hikari.api.cache.CacheClient</span>
-<span class="sd">        The Hikari cache client this will use if applicable.</span>
-<span class="sd">    event_manager : hikari.api.event_manager.EventManagerClient</span>
-<span class="sd">        The Hikari event manager client this will use if applicable.</span>
-<span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
-<span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-<span class="sd">    shards : hikari.traits.ShardAware</span>
-<span class="sd">        The Hikari shard aware client this will use if applicable.</span>
-<span class="sd">    voice : hikari.api.voice.VoiceComponent</span>
-<span class="sd">        The Hikari voice component this will use if applicable.</span>
-<span class="sd">    event_managed : bool</span>
-<span class="sd">        Whether or not this client is managed by the event manager.</span>
-
-<span class="sd">        An event managed client will be automatically started and closed based</span>
-<span class="sd">        on Hikari&#39;s lifetime events.</span>
-
-<span class="sd">        Defaults to `False` and can only be passed as `True` if `event_manager`</span>
-<span class="sd">        is also provided.</span>
-<span class="sd">    mention_prefix : bool</span>
-<span class="sd">        Whether or not mention prefixes should be automatically set when this</span>
-<span class="sd">        client is first started.</span>
-
-<span class="sd">        Defaults to `False` and it should be noted that this only applies to</span>
-<span class="sd">        message commands.</span>
-<span class="sd">    declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
-<span class="sd">        Whether or not to automatically set global slash commands when this</span>
-<span class="sd">        client is first started. Defaults to `False`.</span>
-
-<span class="sd">        If one or more guild objects/IDs are passed here then the registered</span>
-<span class="sd">        global commands will be set on the specified guild(s) at startup rather</span>
-<span class="sd">        than globally. This can be useful for testing/debug purposes as slash</span>
-<span class="sd">        commands may take up to an hour to propagate globally but will</span>
-<span class="sd">        immediately propagate when set on a specific guild.</span>
-<span class="sd">    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
-<span class="sd">        Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">    command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">        If provided, a mapping of top level command names to IDs of the commands to update.</span>
-
-<span class="sd">        This field is complementary to `declare_global_commands` and, while it</span>
-<span class="sd">        isn&#39;t necessarily required, this will in some situations help avoid</span>
-<span class="sd">        permissions which were previously set for a command from being lost</span>
-<span class="sd">        after a rename.</span>
-
-<span class="sd">        This currently isn&#39;t supported when multiple guild IDs are passed for</span>
-<span class="sd">        `declare_global_commands`.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        Raises for the following reasons:</span>
-<span class="sd">        * If `event_managed` is `True` when `event_manager` is `None`.</span>
-<span class="sd">        * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.</span>
-<span class="sd">        * If `command_ids` is passed when `declare_global_commands` is `False`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        By default this client includes a parser error handling hook which will</span>
+<span class="sd">        by overwritten if you call `Client.set_hooks`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;_accepts&quot;</span><span class="p">,</span>
@@ -852,6 +780,82 @@
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a Tanjun client.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">        * The endpoint used by `declare_global_commands` has a strict ratelimit which,</span>
+<span class="sd">        as of writing, only allows for 2 requests per minute (with that ratelimit</span>
+<span class="sd">        either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">        be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">        provided.</span>
+<span class="sd">        * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">        events aren&#39;t being received from the event manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest : hikari.api.rest.RestClient</span>
+<span class="sd">            The Hikari REST client this will use.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        cache : hikari.api.cache.CacheClient</span>
+<span class="sd">            The Hikari cache client this will use if applicable.</span>
+<span class="sd">        event_manager : hikari.api.event_manager.EventManagerClient</span>
+<span class="sd">            The Hikari event manager client this will use if applicable.</span>
+<span class="sd">        server : hikari.api.interaction_server.InteractionServer</span>
+<span class="sd">            The Hikari interaction server client this will use if applicable.</span>
+<span class="sd">        shards : hikari.traits.ShardAware</span>
+<span class="sd">            The Hikari shard aware client this will use if applicable.</span>
+<span class="sd">        voice : hikari.api.voice.VoiceComponent</span>
+<span class="sd">            The Hikari voice component this will use if applicable.</span>
+<span class="sd">        event_managed : bool</span>
+<span class="sd">            Whether or not this client is managed by the event manager.</span>
+
+<span class="sd">            An event managed client will be automatically started and closed based</span>
+<span class="sd">            on Hikari&#39;s lifetime events.</span>
+
+<span class="sd">            Defaults to `False` and can only be passed as `True` if `event_manager`</span>
+<span class="sd">            is also provided.</span>
+<span class="sd">        mention_prefix : bool</span>
+<span class="sd">            Whether or not mention prefixes should be automatically set when this</span>
+<span class="sd">            client is first started.</span>
+
+<span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
+<span class="sd">            message commands.</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Whether or not to automatically set global slash commands when this</span>
+<span class="sd">            client is first started. Defaults to `False`.</span>
+
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises for the following reasons:</span>
+<span class="sd">            * If `event_managed` is `True` when `event_manager` is `None`.</span>
+<span class="sd">            * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.</span>
+<span class="sd">            * If `command_ids` is passed when `declare_global_commands` is `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
@@ -2607,82 +2611,10 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">    callbacks, prefix getters and event listeners. For more information on how</span>
 <span class="sd">    this works see `tanjun.injecting`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * For a quicker way to initiate this client around a standard bot aware</span>
-<span class="sd">      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
-<span class="sd">    * The endpoint used by `declare_global_commands` has a strict ratelimit which,</span>
-<span class="sd">      as of writing, only allows for 2 requests per minute (with that ratelimit</span>
-<span class="sd">      either being per-guild if targeting a specific guild otherwise globally).</span>
-<span class="sd">    * `event_manager` is necessary for message command dispatch and will also</span>
-<span class="sd">      be necessary for interaction command dispatch if `server` isn&#39;t</span>
-<span class="sd">      provided.</span>
-<span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
-<span class="sd">      events aren&#39;t being received from the event manager.</span>
-<span class="sd">    * By default this client includes a parser error handling hook which will</span>
-<span class="sd">      by overwritten if you call `Client.set_hooks`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    rest : hikari.api.rest.RestClient</span>
-<span class="sd">        The Hikari REST client this will use.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    cache : hikari.api.cache.CacheClient</span>
-<span class="sd">        The Hikari cache client this will use if applicable.</span>
-<span class="sd">    event_manager : hikari.api.event_manager.EventManagerClient</span>
-<span class="sd">        The Hikari event manager client this will use if applicable.</span>
-<span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
-<span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-<span class="sd">    shards : hikari.traits.ShardAware</span>
-<span class="sd">        The Hikari shard aware client this will use if applicable.</span>
-<span class="sd">    voice : hikari.api.voice.VoiceComponent</span>
-<span class="sd">        The Hikari voice component this will use if applicable.</span>
-<span class="sd">    event_managed : bool</span>
-<span class="sd">        Whether or not this client is managed by the event manager.</span>
-
-<span class="sd">        An event managed client will be automatically started and closed based</span>
-<span class="sd">        on Hikari&#39;s lifetime events.</span>
-
-<span class="sd">        Defaults to `False` and can only be passed as `True` if `event_manager`</span>
-<span class="sd">        is also provided.</span>
-<span class="sd">    mention_prefix : bool</span>
-<span class="sd">        Whether or not mention prefixes should be automatically set when this</span>
-<span class="sd">        client is first started.</span>
-
-<span class="sd">        Defaults to `False` and it should be noted that this only applies to</span>
-<span class="sd">        message commands.</span>
-<span class="sd">    declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
-<span class="sd">        Whether or not to automatically set global slash commands when this</span>
-<span class="sd">        client is first started. Defaults to `False`.</span>
-
-<span class="sd">        If one or more guild objects/IDs are passed here then the registered</span>
-<span class="sd">        global commands will be set on the specified guild(s) at startup rather</span>
-<span class="sd">        than globally. This can be useful for testing/debug purposes as slash</span>
-<span class="sd">        commands may take up to an hour to propagate globally but will</span>
-<span class="sd">        immediately propagate when set on a specific guild.</span>
-<span class="sd">    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
-<span class="sd">        Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">    command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">        If provided, a mapping of top level command names to IDs of the commands to update.</span>
-
-<span class="sd">        This field is complementary to `declare_global_commands` and, while it</span>
-<span class="sd">        isn&#39;t necessarily required, this will in some situations help avoid</span>
-<span class="sd">        permissions which were previously set for a command from being lost</span>
-<span class="sd">        after a rename.</span>
-
-<span class="sd">        This currently isn&#39;t supported when multiple guild IDs are passed for</span>
-<span class="sd">        `declare_global_commands`.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        Raises for the following reasons:</span>
-<span class="sd">        * If `event_managed` is `True` when `event_manager` is `None`.</span>
-<span class="sd">        * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.</span>
-<span class="sd">        * If `command_ids` is passed when `declare_global_commands` is `False`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        By default this client includes a parser error handling hook which will</span>
+<span class="sd">        by overwritten if you call `Client.set_hooks`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;_accepts&quot;</span><span class="p">,</span>
@@ -2733,6 +2665,82 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a Tanjun client.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">        * The endpoint used by `declare_global_commands` has a strict ratelimit which,</span>
+<span class="sd">        as of writing, only allows for 2 requests per minute (with that ratelimit</span>
+<span class="sd">        either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">        be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">        provided.</span>
+<span class="sd">        * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">        events aren&#39;t being received from the event manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest : hikari.api.rest.RestClient</span>
+<span class="sd">            The Hikari REST client this will use.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        cache : hikari.api.cache.CacheClient</span>
+<span class="sd">            The Hikari cache client this will use if applicable.</span>
+<span class="sd">        event_manager : hikari.api.event_manager.EventManagerClient</span>
+<span class="sd">            The Hikari event manager client this will use if applicable.</span>
+<span class="sd">        server : hikari.api.interaction_server.InteractionServer</span>
+<span class="sd">            The Hikari interaction server client this will use if applicable.</span>
+<span class="sd">        shards : hikari.traits.ShardAware</span>
+<span class="sd">            The Hikari shard aware client this will use if applicable.</span>
+<span class="sd">        voice : hikari.api.voice.VoiceComponent</span>
+<span class="sd">            The Hikari voice component this will use if applicable.</span>
+<span class="sd">        event_managed : bool</span>
+<span class="sd">            Whether or not this client is managed by the event manager.</span>
+
+<span class="sd">            An event managed client will be automatically started and closed based</span>
+<span class="sd">            on Hikari&#39;s lifetime events.</span>
+
+<span class="sd">            Defaults to `False` and can only be passed as `True` if `event_manager`</span>
+<span class="sd">            is also provided.</span>
+<span class="sd">        mention_prefix : bool</span>
+<span class="sd">            Whether or not mention prefixes should be automatically set when this</span>
+<span class="sd">            client is first started.</span>
+
+<span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
+<span class="sd">            message commands.</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Whether or not to automatically set global slash commands when this</span>
+<span class="sd">            client is first started. Defaults to `False`.</span>
+
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises for the following reasons:</span>
+<span class="sd">            * If `event_managed` is `True` when `event_manager` is `None`.</span>
+<span class="sd">            * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.</span>
+<span class="sd">            * If `command_ids` is passed when `declare_global_commands` is `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
@@ -4311,90 +4319,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 callbacks, prefix getters and event listeners. For more information on how
 this works see <code><a href="injecting.html">tanjun.injecting</a></code>.</p>
 
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>For a quicker way to initiate this client around a standard bot aware
-client, see <code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> and <code><a href="#Client.from_rest_bot">Client.from_rest_bot</a></code>.</li>
-<li>The endpoint used by <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> has a strict ratelimit which,
-as of writing, only allows for 2 requests per minute (with that ratelimit
-either being per-guild if targeting a specific guild otherwise globally).</li>
-<li><code>event_manager</code> is necessary for message command dispatch and will also
-be necessary for interaction command dispatch if <code><a href="#Client.server">server</a></code> isn't
-provided.</li>
-<li><code><a href="#Client.server">server</a></code> is used for interaction command dispatch if interaction
-events aren't being received from the event manager.</li>
-<li>By default this client includes a parser error handling hook which will
-by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a></code>.</li>
-</ul>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>rest</strong> (hikari.api.rest.RestClient):
-The Hikari REST client this will use.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><strong>cache</strong> (hikari.api.cache.CacheClient):
-The Hikari cache client this will use if applicable.</li>
-<li><strong>event_manager</strong> (hikari.api.event_manager.EventManagerClient):
-The Hikari event manager client this will use if applicable.</li>
-<li><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
-The Hikari interaction server client this will use if applicable.</li>
-<li><strong>shards</strong> (hikari.traits.ShardAware):
-The Hikari shard aware client this will use if applicable.</li>
-<li><strong>voice</strong> (hikari.api.voice.VoiceComponent):
-The Hikari voice component this will use if applicable.</li>
-<li><p><strong>event_managed</strong> (bool):
-Whether or not this client is managed by the event manager.</p>
-
-<p>An event managed client will be automatically started and closed based
-on Hikari's lifetime events.</p>
-
-<p>Defaults to <code>False</code> and can only be passed as <code>True</code> if <code>event_manager</code>
-is also provided.</p></li>
-<li><p><strong>mention_prefix</strong> (bool):
-Whether or not mention prefixes should be automatically set when this
-client is first started.</p>
-
-<p>Defaults to <code>False</code> and it should be noted that this only applies to
-message commands.</p></li>
-<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
-Whether or not to automatically set global slash commands when this
-client is first started. Defaults to <code>False</code>.</p>
-
-<p>If one or more guild objects/IDs are passed here then the registered
-global commands will be set on the specified guild(s) at startup rather
-than globally. This can be useful for testing/debug purposes as slash
-commands may take up to an hour to propagate globally but will
-immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
-Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
-If provided, a mapping of top level command names to IDs of the commands to update.</p>
-
-<p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
-isn't necessarily required, this will in some situations help avoid
-permissions which were previously set for a command from being lost
-after a rename.</p>
-
-<p>This currently isn't supported when multiple guild IDs are passed for
-<code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</p></li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>ValueError</strong>: Raises for the following reasons:
-<ul>
-<li>If <code>event_managed</code> is <code>True</code> when <code>event_manager</code> is <code>None</code>.</li>
-<li>If <code>command_ids</code> is passed when multiple guild ids are provided for <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li>If <code>command_ids</code> is passed when <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> is <code>False</code>.</li>
-</ul></li>
-</ul>
+<p><em>Note:</em>
+By default this client includes a parser error handling hook which will
+by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a></code>.</p>
 </div>
 
 
@@ -4439,6 +4366,82 @@ after a rename.</p>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a Tanjun client.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">        * The endpoint used by `declare_global_commands` has a strict ratelimit which,</span>
+<span class="sd">        as of writing, only allows for 2 requests per minute (with that ratelimit</span>
+<span class="sd">        either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">        be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">        provided.</span>
+<span class="sd">        * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">        events aren&#39;t being received from the event manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rest : hikari.api.rest.RestClient</span>
+<span class="sd">            The Hikari REST client this will use.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        cache : hikari.api.cache.CacheClient</span>
+<span class="sd">            The Hikari cache client this will use if applicable.</span>
+<span class="sd">        event_manager : hikari.api.event_manager.EventManagerClient</span>
+<span class="sd">            The Hikari event manager client this will use if applicable.</span>
+<span class="sd">        server : hikari.api.interaction_server.InteractionServer</span>
+<span class="sd">            The Hikari interaction server client this will use if applicable.</span>
+<span class="sd">        shards : hikari.traits.ShardAware</span>
+<span class="sd">            The Hikari shard aware client this will use if applicable.</span>
+<span class="sd">        voice : hikari.api.voice.VoiceComponent</span>
+<span class="sd">            The Hikari voice component this will use if applicable.</span>
+<span class="sd">        event_managed : bool</span>
+<span class="sd">            Whether or not this client is managed by the event manager.</span>
+
+<span class="sd">            An event managed client will be automatically started and closed based</span>
+<span class="sd">            on Hikari&#39;s lifetime events.</span>
+
+<span class="sd">            Defaults to `False` and can only be passed as `True` if `event_manager`</span>
+<span class="sd">            is also provided.</span>
+<span class="sd">        mention_prefix : bool</span>
+<span class="sd">            Whether or not mention prefixes should be automatically set when this</span>
+<span class="sd">            client is first started.</span>
+
+<span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
+<span class="sd">            message commands.</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Whether or not to automatically set global slash commands when this</span>
+<span class="sd">            client is first started. Defaults to `False`.</span>
+
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises for the following reasons:</span>
+<span class="sd">            * If `event_managed` is `True` when `event_manager` is `None`.</span>
+<span class="sd">            * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.</span>
+<span class="sd">            * If `command_ids` is passed when `declare_global_commands` is `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">_LOGGER</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
@@ -4569,7 +4572,92 @@ after a rename.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a Tanjun client.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>For a quicker way to initiate this client around a standard bot aware
+client, see <code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> and <code><a href="#Client.from_rest_bot">Client.from_rest_bot</a></code>.</li>
+<li>The endpoint used by <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> has a strict ratelimit which,
+as of writing, only allows for 2 requests per minute (with that ratelimit
+either being per-guild if targeting a specific guild otherwise globally).</li>
+<li><code>event_manager</code> is necessary for message command dispatch and will also
+be necessary for interaction command dispatch if <code><a href="#Client.server">server</a></code> isn't
+provided.</li>
+<li><code><a href="#Client.server">server</a></code> is used for interaction command dispatch if interaction
+events aren't being received from the event manager.</li>
+</ul>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>rest</strong> (hikari.api.rest.RestClient):
+The Hikari REST client this will use.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>cache</strong> (hikari.api.cache.CacheClient):
+The Hikari cache client this will use if applicable.</li>
+<li><strong>event_manager</strong> (hikari.api.event_manager.EventManagerClient):
+The Hikari event manager client this will use if applicable.</li>
+<li><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
+The Hikari interaction server client this will use if applicable.</li>
+<li><strong>shards</strong> (hikari.traits.ShardAware):
+The Hikari shard aware client this will use if applicable.</li>
+<li><strong>voice</strong> (hikari.api.voice.VoiceComponent):
+The Hikari voice component this will use if applicable.</li>
+<li><p><strong>event_managed</strong> (bool):
+Whether or not this client is managed by the event manager.</p>
+
+<p>An event managed client will be automatically started and closed based
+on Hikari's lifetime events.</p>
+
+<p>Defaults to <code>False</code> and can only be passed as <code>True</code> if <code>event_manager</code>
+is also provided.</p></li>
+<li><p><strong>mention_prefix</strong> (bool):
+Whether or not mention prefixes should be automatically set when this
+client is first started.</p>
+
+<p>Defaults to <code>False</code> and it should be noted that this only applies to
+message commands.</p></li>
+<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+Whether or not to automatically set global slash commands when this
+client is first started. Defaults to <code>False</code>.</p>
+
+<p>If one or more guild objects/IDs are passed here then the registered
+global commands will be set on the specified guild(s) at startup rather
+than globally. This can be useful for testing/debug purposes as slash
+commands may take up to an hour to propagate globally but will
+immediately propagate when set on a specific guild.</p></li>
+<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
+<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+If provided, a mapping of top level command names to IDs of the commands to update.</p>
+
+<p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
+isn't necessarily required, this will in some situations help avoid
+permissions which were previously set for a command from being lost
+after a rename.</p>
+
+<p>This currently isn't supported when multiple guild IDs are passed for
+<code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</p></li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises for the following reasons:
+<ul>
+<li>If <code>event_managed</code> is <code>True</code> when <code>event_manager</code> is <code>None</code>.</li>
+<li>If <code>command_ids</code> is passed when multiple guild ids are provided for <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
+<li>If <code>command_ids</code> is passed when <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> is <code>False</code>.</li>
+</ul></li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.from_gateway_bot" class="classattr">

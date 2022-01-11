@@ -3914,22 +3914,6 @@ The type of the constant to resolve.</li>
 
 <span class="sd">    To avoid race-conditions this handles both erroring when the bucket is hit</span>
 <span class="sd">    instead and incrementing the bucket&#39;s use counter.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    bucket_id : str</span>
-<span class="sd">        The cooldown bucket&#39;s ID.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    error_message : str</span>
-<span class="sd">        The error message to send in response as a command error if the check fails.</span>
-
-<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
-<span class="sd">    owners_exempt : bool</span>
-<span class="sd">        Whether owners should be exempt from the cooldown.</span>
-
-<span class="sd">        Defaults to `True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_owners_exempt&quot;</span><span class="p">)</span>
@@ -3942,6 +3926,24 @@ The type of the constant to resolve.</li>
         <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
         <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a pre-execution cooldown command hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket&#39;s ID.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">            Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
+<span class="sd">        owners_exempt : bool</span>
+<span class="sd">            Whether owners should be exempt from the cooldown.</span>
+
+<span class="sd">            Defaults to `True`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="o">=</span> <span class="n">owners_exempt</span>
@@ -4229,18 +4231,9 @@ The type of the constant to resolve.</li>
 <span class="k">class</span> <span class="nc">ConcurrencyPreExecution</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Pre-execution hook used to acquire a bucket concurrency limiter.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    bucket_id : str</span>
-<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    error_message : str</span>
-<span class="sd">        The error message to send in response as a command error if this fails</span>
-<span class="sd">        to acquire the concurrency limit.</span>
-
-<span class="sd">        Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`</span>
+<span class="sd">        and `ConcurrencyPostExecution` hooks must be registered for a command scope.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">)</span>
@@ -4252,6 +4245,21 @@ The type of the constant to resolve.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency pre-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message to send in response as a command error if this fails</span>
+<span class="sd">            to acquire the concurrency limit.</span>
+
+<span class="sd">            Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
 
@@ -4267,15 +4275,21 @@ The type of the constant to resolve.</li>
 <span class="k">class</span> <span class="nc">ConcurrencyPostExecution</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Post-execution hook used to release a bucket concurrency limiter.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    bucket_id : str</span>
-<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`</span>
+<span class="sd">        and `ConcurrencyPostExecution` hooks must be registered for a command scope.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
@@ -4832,18 +4846,9 @@ When executed in a DM this will be per-DM.</p>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConcurrencyPreExecution</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Pre-execution hook used to acquire a bucket concurrency limiter.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    bucket_id : str</span>
-<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    error_message : str</span>
-<span class="sd">        The error message to send in response as a command error if this fails</span>
-<span class="sd">        to acquire the concurrency limit.</span>
-
-<span class="sd">        Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`</span>
+<span class="sd">        and `ConcurrencyPostExecution` hooks must be registered for a command scope.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">)</span>
@@ -4855,6 +4860,21 @@ When executed in a DM this will be per-DM.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency pre-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message to send in response as a command error if this fails</span>
+<span class="sd">            to acquire the concurrency limit.</span>
+
+<span class="sd">            Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
 
@@ -4871,22 +4891,9 @@ When executed in a DM this will be per-DM.</p>
 
             <div class="docstring"><p>Pre-execution hook used to acquire a bucket concurrency limiter.</p>
 
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>bucket_id</strong> (str):
-The concurrency limit bucket's ID.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>error_message</strong> (str):
-The error message to send in response as a command error if this fails
-to acquire the concurrency limit.</p>
-
-<p>Defaults to "This resource is currently busy; please try again later.".</p></li>
-</ul>
+<p><em>Note:</em>
+For a concurrency limiter to work properly, both <code><a href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a></code>
+and <code><a href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a></code> hooks must be registered for a command scope.</p>
 </div>
 
 
@@ -4911,13 +4918,47 @@ to acquire the concurrency limit.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency pre-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message to send in response as a command error if this fails</span>
+<span class="sd">            to acquire the concurrency limit.</span>
+
+<span class="sd">            Defaults to &quot;This resource is currently busy; please try again later.&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a concurrency pre-execution hook.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency limit bucket's ID.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>error_message</strong> (str):
+The error message to send in response as a command error if this fails
+to acquire the concurrency limit.</p>
+
+<p>Defaults to "This resource is currently busy; please try again later.".</p></li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -4935,15 +4976,21 @@ to acquire the concurrency limit.</p>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConcurrencyPostExecution</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Post-execution hook used to release a bucket concurrency limiter.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    bucket_id : str</span>
-<span class="sd">        The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`</span>
+<span class="sd">        and `ConcurrencyPostExecution` hooks must be registered for a command scope.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
@@ -4958,12 +5005,9 @@ to acquire the concurrency limit.</p>
 
             <div class="docstring"><p>Post-execution hook used to release a bucket concurrency limiter.</p>
 
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>bucket_id</strong> (str):
-The concurrency limit bucket's ID.</li>
-</ul>
+<p><em>Note:</em>
+For a concurrency limiter to work properly, both <code><a href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a></code>
+and <code><a href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a></code> hooks must be registered for a command scope.</p>
 </div>
 
 
@@ -4977,12 +5021,28 @@ The concurrency limit bucket's ID.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a concurrency post-execution hook.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency limit bucket's ID.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -5002,22 +5062,6 @@ The concurrency limit bucket's ID.</li>
 
 <span class="sd">    To avoid race-conditions this handles both erroring when the bucket is hit</span>
 <span class="sd">    instead and incrementing the bucket&#39;s use counter.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    bucket_id : str</span>
-<span class="sd">        The cooldown bucket&#39;s ID.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    error_message : str</span>
-<span class="sd">        The error message to send in response as a command error if the check fails.</span>
-
-<span class="sd">        Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
-<span class="sd">    owners_exempt : bool</span>
-<span class="sd">        Whether owners should be exempt from the cooldown.</span>
-
-<span class="sd">        Defaults to `True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_error_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_owners_exempt&quot;</span><span class="p">)</span>
@@ -5030,6 +5074,24 @@ The concurrency limit bucket's ID.</li>
         <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
         <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a pre-execution cooldown command hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket&#39;s ID.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">            Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
+<span class="sd">        owners_exempt : bool</span>
+<span class="sd">            Whether owners should be exempt from the cooldown.</span>
+
+<span class="sd">            Defaults to `True`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="o">=</span> <span class="n">owners_exempt</span>
@@ -5060,26 +5122,6 @@ The concurrency limit bucket's ID.</li>
 
 <p>To avoid race-conditions this handles both erroring when the bucket is hit
 instead and incrementing the bucket's use counter.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>bucket_id</strong> (str):
-The cooldown bucket's ID.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>error_message</strong> (str):
-The error message to send in response as a command error if the check fails.</p>
-
-<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".</p></li>
-<li><p><strong>owners_exempt</strong> (bool):
-Whether owners should be exempt from the cooldown.</p>
-
-<p>Defaults to <code>True</code>.</p></li>
-</ul>
 </div>
 
 
@@ -5106,6 +5148,24 @@ Whether owners should be exempt from the cooldown.</p>
         <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
         <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a pre-execution cooldown command hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The cooldown bucket&#39;s ID.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message to send in response as a command error if the check fails.</span>
+
+<span class="sd">            Defaults to f&quot;Please wait {cooldown:0.2f} seconds before using this command again.&quot;.</span>
+<span class="sd">        owners_exempt : bool</span>
+<span class="sd">            Whether owners should be exempt from the cooldown.</span>
+
+<span class="sd">            Defaults to `True`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span> <span class="o">=</span> <span class="n">error_message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_owners_exempt</span> <span class="o">=</span> <span class="n">owners_exempt</span>
@@ -5113,7 +5173,29 @@ Whether owners should be exempt from the cooldown.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a pre-execution cooldown command hook.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The cooldown bucket's ID.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>error_message</strong> (str):
+The error message to send in response as a command error if the check fails.</p>
+
+<p>Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".</p></li>
+<li><p><strong>owners_exempt</strong> (bool):
+Whether owners should be exempt from the cooldown.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
+</ul>
+</div>
+
 
                             </div>
                 </section>

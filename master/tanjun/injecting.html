@@ -413,17 +413,18 @@
 
 
 <span class="k">class</span> <span class="nc">BasicInjectionContext</span><span class="p">(</span><span class="n">AbstractInjectionContext</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Basic implementation of a `AbstractInjectionContext`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    client : InjectorClient</span>
-<span class="sd">        The injection client this context is bound to.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Basic implementation of a `AbstractInjectionContext`.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_injection_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_result_cache&quot;</span><span class="p">,</span> <span class="s2">&quot;_special_case_types&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a basic injection context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : InjectorClient</span>
+<span class="sd">            The injection client this context is bound to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -542,22 +543,24 @@
     <span class="sd">&quot;&quot;&quot;Descriptor of a callback taking advantage of dependency injection.</span>
 
 <span class="sd">    This holds metadata and logic necessary for callback injection.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to wrap with dependency injection.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
-<span class="sd">        positionally.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_descriptors&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_async&quot;</span><span class="p">,</span> <span class="s2">&quot;_needs_injector&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injected callback descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The callback to wrap with dependency injection.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_injector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
@@ -757,24 +760,26 @@
 <span class="sd">    injecting_callback = tanjun.SelfInjectingCallback(callback, client)</span>
 <span class="sd">    await injecting_callback()</span>
 <span class="sd">    ```</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    injector : InjectorClient</span>
-<span class="sd">        The injection client to use to resolve dependencies.</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to make self-injecting.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
-<span class="sd">        positionally.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a self injecting callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        injector : InjectorClient</span>
+<span class="sd">            The injection client to use to resolve dependencies.</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The callback to make self-injecting.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">injector_client</span>
 
@@ -845,16 +850,18 @@
 
 <span class="sd">    This class holds all the logic for resolving a type with dependency</span>
 <span class="sd">    injection.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    type_ : type[_T]</span>
-<span class="sd">        The type to resolve.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_type&quot;</span><span class="p">,</span> <span class="s2">&quot;_union&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injected type descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type_ : type[_T]</span>
+<span class="sd">            The type to resolve.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">:</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">type_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -928,31 +935,6 @@
     <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
 
 <span class="sd">    This is the type returned by `inject`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : typing.Optional[CallbackSig[_T]]</span>
-<span class="sd">        The callback to use to resolve the dependency.</span>
-
-<span class="sd">        If this callback has no type dependencies then this will still work</span>
-<span class="sd">        without an injection context but this can be overridden using</span>
-<span class="sd">        `InjectionClient.set_callback_override`.</span>
-<span class="sd">    type : typing.Optional[type[_T]]</span>
-<span class="sd">        The type of the dependency to resolve.</span>
-
-<span class="sd">        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
-<span class="sd">        is passed for `type` then each type in the union will be tried</span>
-<span class="sd">        separately after the litarl union type is tried, allowing for resolving</span>
-<span class="sd">        `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
-
-<span class="sd">        If a union has `None` as one of its types (including `Optional[T]`)</span>
-<span class="sd">        then `None` will be passed for the parameter if none of the types could</span>
-<span class="sd">        be resolved using the linked client.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If both `callback` and `type` are specified or if neither is specified.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;callback&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
@@ -963,6 +945,33 @@
         <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: add default/factory to this?</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injection default descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">            The callback to use to resolve the dependency.</span>
+
+<span class="sd">            If this callback has no type dependencies then this will still work</span>
+<span class="sd">            without an injection context but this can be overridden using</span>
+<span class="sd">            `InjectionClient.set_callback_override`.</span>
+<span class="sd">        type : typing.Optional[type[_T]]</span>
+<span class="sd">            The type of the dependency to resolve.</span>
+
+<span class="sd">            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
+<span class="sd">            is passed for `type` then each type in the union will be tried</span>
+<span class="sd">            separately after the litarl union type is tried, allowing for resolving</span>
+<span class="sd">            `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
+
+<span class="sd">            If a union has `None` as one of its types (including `Optional[T]`)</span>
+<span class="sd">            then `None` will be passed for the parameter if none of the types could</span>
+<span class="sd">            be resolved using the linked client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If both `callback` and `type` are specified or if neither is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of `callback` or `type`&quot;</span><span class="p">)</span>
 
@@ -1041,6 +1050,7 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback_overrides&quot;</span><span class="p">,</span> <span class="s2">&quot;_type_dependencies&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injector client.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">InjectorClient</span><span class="p">:</span> <span class="bp">self</span><span class="p">}</span>
 
@@ -1826,17 +1836,18 @@ The injection client to use to resolve dependencies.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BasicInjectionContext</span><span class="p">(</span><span class="n">AbstractInjectionContext</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Basic implementation of a `AbstractInjectionContext`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    client : InjectorClient</span>
-<span class="sd">        The injection client this context is bound to.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Basic implementation of a `AbstractInjectionContext`.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_injection_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_result_cache&quot;</span><span class="p">,</span> <span class="s2">&quot;_special_case_types&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a basic injection context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : InjectorClient</span>
+<span class="sd">            The injection client this context is bound to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -1880,13 +1891,6 @@ The injection client to use to resolve dependencies.</li>
         </details>
 
             <div class="docstring"><p>Basic implementation of a <code><a href="#AbstractInjectionContext">AbstractInjectionContext</a></code>.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>client</strong> (InjectorClient):
-The injection client this context is bound to.</li>
-</ul>
 </div>
 
 
@@ -1900,6 +1904,13 @@ The injection client this context is bound to.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a basic injection context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : InjectorClient</span>
+<span class="sd">            The injection client this context is bound to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -1911,7 +1922,16 @@ The injection client this context is bound to.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a basic injection context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (InjectorClient):
+The injection client this context is bound to.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="BasicInjectionContext.injection_client" class="classattr">
@@ -2063,22 +2083,24 @@ The associated type.</li>
     <span class="sd">&quot;&quot;&quot;Descriptor of a callback taking advantage of dependency injection.</span>
 
 <span class="sd">    This holds metadata and logic necessary for callback injection.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to wrap with dependency injection.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
-<span class="sd">        positionally.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_descriptors&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_async&quot;</span><span class="p">,</span> <span class="s2">&quot;_needs_injector&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injected callback descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The callback to wrap with dependency injection.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_injector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
@@ -2268,20 +2290,6 @@ The associated type.</li>
             <div class="docstring"><p>Descriptor of a callback taking advantage of dependency injection.</p>
 
 <p>This holds metadata and logic necessary for callback injection.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>callback</strong> (CallbackSig[_T]):
-The callback to wrap with dependency injection.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>ValueError</strong>: If <code><a href="#CallbackDescriptor.callback">callback</a></code> has any injected arguments which can only be passed
-positionally.</li>
-</ul>
 </div>
 
 
@@ -2298,6 +2306,19 @@ positionally.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injected callback descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The callback to wrap with dependency injection.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_injector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
@@ -2305,7 +2326,23 @@ positionally.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise an injected callback descriptor.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>callback</strong> (CallbackSig[_T]):
+The callback to wrap with dependency injection.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If <code><a href="#CallbackDescriptor.callback">callback</a></code> has any injected arguments which can only be passed
+positionally.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="CallbackDescriptor.callback" class="classattr">
@@ -2932,31 +2969,6 @@ be resolved using the linked client.</p></li>
     <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
 
 <span class="sd">    This is the type returned by `inject`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : typing.Optional[CallbackSig[_T]]</span>
-<span class="sd">        The callback to use to resolve the dependency.</span>
-
-<span class="sd">        If this callback has no type dependencies then this will still work</span>
-<span class="sd">        without an injection context but this can be overridden using</span>
-<span class="sd">        `InjectionClient.set_callback_override`.</span>
-<span class="sd">    type : typing.Optional[type[_T]]</span>
-<span class="sd">        The type of the dependency to resolve.</span>
-
-<span class="sd">        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
-<span class="sd">        is passed for `type` then each type in the union will be tried</span>
-<span class="sd">        separately after the litarl union type is tried, allowing for resolving</span>
-<span class="sd">        `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
-
-<span class="sd">        If a union has `None` as one of its types (including `Optional[T]`)</span>
-<span class="sd">        then `None` will be passed for the parameter if none of the types could</span>
-<span class="sd">        be resolved using the linked client.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If both `callback` and `type` are specified or if neither is specified.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;callback&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
@@ -2967,6 +2979,33 @@ be resolved using the linked client.</p></li>
         <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: add default/factory to this?</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injection default descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">            The callback to use to resolve the dependency.</span>
+
+<span class="sd">            If this callback has no type dependencies then this will still work</span>
+<span class="sd">            without an injection context but this can be overridden using</span>
+<span class="sd">            `InjectionClient.set_callback_override`.</span>
+<span class="sd">        type : typing.Optional[type[_T]]</span>
+<span class="sd">            The type of the dependency to resolve.</span>
+
+<span class="sd">            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
+<span class="sd">            is passed for `type` then each type in the union will be tried</span>
+<span class="sd">            separately after the litarl union type is tried, allowing for resolving</span>
+<span class="sd">            `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
+
+<span class="sd">            If a union has `None` as one of its types (including `Optional[T]`)</span>
+<span class="sd">            then `None` will be passed for the parameter if none of the types could</span>
+<span class="sd">            be resolved using the linked client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If both `callback` and `type` are specified or if neither is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of `callback` or `type`&quot;</span><span class="p">)</span>
 
@@ -2982,6 +3021,68 @@ be resolved using the linked client.</p></li>
             <div class="docstring"><p>Decare a keyword-argument as requiring an injected dependency.</p>
 
 <p>This is the type returned by <code><a href="#inject">inject</a></code>.</p>
+</div>
+
+
+                            <div id="Injected.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Injected.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">Injected</span><span class="signature">(
+    *,
+    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
+    type: Optional[type[~_T]] = None
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: add default/factory to this?</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injection default descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">            The callback to use to resolve the dependency.</span>
+
+<span class="sd">            If this callback has no type dependencies then this will still work</span>
+<span class="sd">            without an injection context but this can be overridden using</span>
+<span class="sd">            `InjectionClient.set_callback_override`.</span>
+<span class="sd">        type : typing.Optional[type[_T]]</span>
+<span class="sd">            The type of the dependency to resolve.</span>
+
+<span class="sd">            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
+<span class="sd">            is passed for `type` then each type in the union will be tried</span>
+<span class="sd">            separately after the litarl union type is tried, allowing for resolving</span>
+<span class="sd">            `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
+
+<span class="sd">            If a union has `None` as one of its types (including `Optional[T]`)</span>
+<span class="sd">            then `None` will be passed for the parameter if none of the types could</span>
+<span class="sd">            be resolved using the linked client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If both `callback` and `type` are specified or if neither is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of `callback` or `type`&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `callback` or `type` can be specified&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise an injection default descriptor.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3012,39 +3113,6 @@ be resolved using the linked client.</p></li>
 </ul>
 </div>
 
-
-                            <div id="Injected.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Injected.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Injected</span><span class="signature">(
-    *,
-    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
-    type: Optional[type[~_T]] = None
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: add default/factory to this?</span>
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of `callback` or `type`&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `callback` or `type` can be specified&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
-</pre></div>
-
-        </details>
-
-    
 
                             </div>
                             <div id="Injected.callback" class="classattr">
@@ -3083,6 +3151,7 @@ be resolved using the linked client.</p></li>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback_overrides&quot;</span><span class="p">,</span> <span class="s2">&quot;_type_dependencies&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injector client.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">InjectorClient</span><span class="p">:</span> <span class="bp">self</span><span class="p">}</span>
 
@@ -3220,13 +3289,16 @@ be resolved using the linked client.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injector client.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">InjectorClient</span><span class="p">:</span> <span class="bp">self</span><span class="p">}</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise an injector client.</p>
+</div>
+
 
                             </div>
                             <div id="InjectorClient.set_type_dependency" class="classattr">
@@ -3604,24 +3676,26 @@ The injected callback to remove the override for.</li>
 <span class="sd">    injecting_callback = tanjun.SelfInjectingCallback(callback, client)</span>
 <span class="sd">    await injecting_callback()</span>
 <span class="sd">    ```</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    injector : InjectorClient</span>
-<span class="sd">        The injection client to use to resolve dependencies.</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to make self-injecting.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
-<span class="sd">        positionally.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a self injecting callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        injector : InjectorClient</span>
+<span class="sd">            The injection client to use to resolve dependencies.</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The callback to make self-injecting.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">injector_client</span>
 
@@ -3659,6 +3733,45 @@ The injected callback to remove the override for.</li>
 <span class="n">injecting_callback</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">injecting_callback</span><span class="p">()</span>
 </code></pre></div>
+</div>
+
+
+                            <div id="SelfInjectingCallback.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SelfInjectingCallback.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">SelfInjectingCallback</span><span class="signature">(
+    injector_client: <a href="#InjectorClient">tanjun.injecting.InjectorClient</a>,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    /
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a self injecting callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        injector : InjectorClient</span>
+<span class="sd">            The injection client to use to resolve dependencies.</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The callback to make self-injecting.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">injector_client</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise a self injecting callback.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3677,28 +3790,6 @@ positionally.</li>
 </ul>
 </div>
 
-
-                            <div id="SelfInjectingCallback.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#SelfInjectingCallback.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">SelfInjectingCallback</span><span class="signature">(
-    injector_client: <a href="#InjectorClient">tanjun.injecting.InjectorClient</a>,
-    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
-    /
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">injector_client</span>
-</pre></div>
-
-        </details>
-
-    
 
                             </div>
                             <div class="inherited">
@@ -3733,16 +3824,18 @@ positionally.</li>
 
 <span class="sd">    This class holds all the logic for resolving a type with dependency</span>
 <span class="sd">    injection.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    type_ : type[_T]</span>
-<span class="sd">        The type to resolve.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_type&quot;</span><span class="p">,</span> <span class="s2">&quot;_union&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injected type descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type_ : type[_T]</span>
+<span class="sd">            The type to resolve.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">:</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">type_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3815,13 +3908,6 @@ positionally.</li>
 
 <p>This class holds all the logic for resolving a type with dependency
 injection.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>type_</strong> (type[_T]):
-The type to resolve.</li>
-</ul>
 </div>
 
 
@@ -3835,6 +3921,13 @@ The type to resolve.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an injected type descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type_ : type[_T]</span>
+<span class="sd">            The type to resolve.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">:</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">type_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_union</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3855,7 +3948,16 @@ The type to resolve.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise an injected type descriptor.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>type_</strong> (type[_T]):
+The type to resolve.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="TypeDescriptor.needs_injector" class="classattr">

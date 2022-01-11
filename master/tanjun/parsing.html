@@ -1010,6 +1010,7 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1146,6 +1147,32 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a positional argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
 
@@ -1168,6 +1195,39 @@
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a named optional parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
 
@@ -1194,11 +1254,12 @@
 
 
 <span class="k">class</span> <span class="nc">ShlexParser</span><span class="p">(</span><span class="n">AbstractParser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A shlex based `tanjun.abc.Parser` implementation.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A shlex based `AbstractParser` implementation.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_arguments&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a shlex parser.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Argument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1278,6 +1339,9 @@
 <span class="sd">        key : str</span>
 <span class="sd">            The string identifier of this argument (may be used to pass the result</span>
 <span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
 <span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
 <span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
 <span class="sd">            during parsing.</span>
@@ -1921,6 +1985,32 @@ The message context to parse.</li>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a positional argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
 
@@ -1960,6 +2050,32 @@ The message context to parse.</li>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a positional argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
 
@@ -1968,7 +2084,37 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a positional argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, if left as
+<code><a href="#UNDEFINED_DEFAULT">UNDEFINED_DEFAULT</a></code> then this will have no default.</li>
+<li><strong>greedy</strong> (bool):
+Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</li>
+<li><strong>multi</strong> (bool):
+Whether this argument can be passed multiple times.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2035,6 +2181,39 @@ The message context to parse.</li>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a named optional parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
 
@@ -2095,6 +2274,39 @@ The message context to parse.</li>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a named optional parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
 
@@ -2105,7 +2317,44 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a named optional parameter.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</li>
+<li><strong>name</strong> (str):
+The name of this option used for identifying it in the parsed content.</li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, unlike arguments this is required
+for options.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*names</strong> (str):
+Other names of this option used for identifying it in the parsed content.</li>
+<li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>empty_value</strong> (typing.Any):
+The value to use if this option is provided without a value. If left as
+<code><a href="#UNDEFINED_DEFAULT">UNDEFINED_DEFAULT</a></code> then this option will error if it's
+provided without a value.</li>
+<li><strong>multi</strong> (bool):
+If this option can be provided multiple times.
+Defaults to <code>False</code>.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Option.empty_value" class="classattr">
@@ -2178,6 +2427,7 @@ option.</p>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2332,6 +2582,7 @@ option.</p>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2353,7 +2604,9 @@ option.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a parameter.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.converters" class="classattr">
@@ -2735,11 +2988,12 @@ The parser to set.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ShlexParser</span><span class="p">(</span><span class="n">AbstractParser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A shlex based `tanjun.abc.Parser` implementation.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A shlex based `AbstractParser` implementation.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_arguments&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a shlex parser.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Argument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2819,6 +3073,9 @@ The parser to set.</li>
 <span class="sd">        key : str</span>
 <span class="sd">            The string identifier of this argument (may be used to pass the result</span>
 <span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
 <span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
 <span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
 <span class="sd">            during parsing.</span>
@@ -2933,7 +3190,7 @@ The parser to set.</li>
 
         </details>
 
-            <div class="docstring"><p>A shlex based <code><a href="abc.html#Parser">tanjun.abc.Parser</a></code> implementation.</p>
+            <div class="docstring"><p>A shlex based <code><a href="#AbstractParser">AbstractParser</a></code> implementation.</p>
 </div>
 
 
@@ -2947,6 +3204,7 @@ The parser to set.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a shlex parser.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Argument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2955,7 +3213,9 @@ The parser to set.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a shlex parser.</p>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.needs_injector" class="classattr">
@@ -3163,6 +3423,9 @@ by `add_parameter` call order.
 <span class="sd">        key : str</span>
 <span class="sd">            The string identifier of this argument (may be used to pass the result</span>
 <span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
 <span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
 <span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
 <span class="sd">            during parsing.</span>
@@ -3200,6 +3463,11 @@ Order matters for positional arguments.</p>
 <li><strong>key</strong> (str):
 The string identifier of this argument (may be used to pass the result
 of this argument to the command's callback during execution).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
 <li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
 The converter(s) this argument should use to handle values passed to it
 during parsing.</p>

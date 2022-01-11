@@ -224,23 +224,18 @@
     <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 
 
 <span class="k">class</span> <span class="nc">CommandError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised to end command execution.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    message : str</span>
-<span class="sd">        String message which will be sent as a response to the message</span>
-<span class="sd">        that triggered the current command.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        Raised when the message is over 2000 characters long or empty.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised to end command execution.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
 
@@ -252,6 +247,19 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a command error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message which will be sent as a response to the message</span>
+<span class="sd">            that triggered the current command.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised when the message is over 2000 characters long or empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2000</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error message cannot be over 2_000 characters long.&quot;</span><span class="p">)</span>
 
@@ -282,14 +290,6 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        Expected errors raised by the parser will subclass this error.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    message : str</span>
-<span class="sd">        String message for this error.</span>
-<span class="sd">    parameter : typing.Optional[str]</span>
-<span class="sd">        Name of the parameter which caused this error, should be `None` if not</span>
-<span class="sd">        applicable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;parameter&quot;</span><span class="p">)</span>
@@ -310,6 +310,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message for this error.</span>
+<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
+<span class="sd">            applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
 
@@ -318,15 +328,7 @@
 
 
 <span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="n">ParserError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised by a parser parameter when it failed to converter a value.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    parameter : tanjun.abc.Parameter</span>
-<span class="sd">        The parameter this was raised by.</span>
-<span class="sd">    errors : collections.abc.Iterable[ValueError]</span>
-<span class="sd">        An iterable of the source value errors which were raised during conversion/</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised by a parser parameter when it failed to converter a value.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,)</span>
 
@@ -337,18 +339,21 @@
     <span class="sd">&quot;&quot;&quot;Name of the parameter this error was raised for.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a conversion error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this was raised by.</span>
+<span class="sd">        errors : collections.abc.Iterable[ValueError]</span>
+<span class="sd">            An iterable of the source value errors which were raised during conversion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">NotEnoughArgumentsError</span><span class="p">(</span><span class="n">ParserError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised by the parser when not enough arguments are found for a parameter.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    parameter : tanjun.abc.Parameter</span>
-<span class="sd">        The parameter this error was raised for</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised by the parser when not enough arguments are found for a parameter.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
@@ -356,17 +361,20 @@
     <span class="sd">&quot;&quot;&quot;Name of the parameter this error was raised for.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a not enough arguments error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this error was raised for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TooManyArgumentsError</span><span class="p">(</span><span class="n">ParserError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised by the parser when too many arguments are found for a parameter.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    parameter : tanjun.abc.Parameter</span>
-<span class="sd">        The parameter this error was raised for</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised by the parser when too many arguments are found for a parameter.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
@@ -374,6 +382,15 @@
     <span class="sd">&quot;&quot;&quot;Name of the parameter this error was raised for.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a too many arguments error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this error was raised for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 </pre></div>
 
@@ -392,19 +409,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CommandError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised to end command execution.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    message : str</span>
-<span class="sd">        String message which will be sent as a response to the message</span>
-<span class="sd">        that triggered the current command.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        Raised when the message is over 2000 characters long or empty.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised to end command execution.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
 
@@ -416,6 +421,19 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a command error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message which will be sent as a response to the message</span>
+<span class="sd">            that triggered the current command.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised when the message is over 2000 characters long or empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2000</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error message cannot be over 2_000 characters long.&quot;</span><span class="p">)</span>
 
@@ -431,6 +449,44 @@
         </details>
 
             <div class="docstring"><p>Error raised to end command execution.</p>
+</div>
+
+
+                            <div id="CommandError.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CommandError.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">CommandError</span><span class="signature">(message: str, /)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a command error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message which will be sent as a response to the message</span>
+<span class="sd">            that triggered the current command.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised when the message is over 2000 characters long or empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error message cannot be over 2_000 characters long.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">message</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Response message must have at least 1 character.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise a command error.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -447,29 +503,6 @@ that triggered the current command.</li>
 </ul>
 </div>
 
-
-                            <div id="CommandError.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CommandError.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">CommandError</span><span class="signature">(message: str, /)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2000</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error message cannot be over 2_000 characters long.&quot;</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="ow">not</span> <span class="n">message</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Response message must have at least 1 character.&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
-</pre></div>
-
-        </details>
-
-    
 
                             </div>
                             <div id="CommandError.message" class="classattr">
@@ -508,15 +541,7 @@ that triggered the current command.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="n">ParserError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised by a parser parameter when it failed to converter a value.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    parameter : tanjun.abc.Parameter</span>
-<span class="sd">        The parameter this was raised by.</span>
-<span class="sd">    errors : collections.abc.Iterable[ValueError]</span>
-<span class="sd">        An iterable of the source value errors which were raised during conversion/</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised by a parser parameter when it failed to converter a value.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,)</span>
 
@@ -527,6 +552,15 @@ that triggered the current command.</li>
     <span class="sd">&quot;&quot;&quot;Name of the parameter this error was raised for.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a conversion error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this was raised by.</span>
+<span class="sd">        errors : collections.abc.Iterable[ValueError]</span>
+<span class="sd">            An iterable of the source value errors which were raised during conversion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 </pre></div>
@@ -534,15 +568,6 @@ that triggered the current command.</li>
         </details>
 
             <div class="docstring"><p>Error raised by a parser parameter when it failed to converter a value.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>parameter</strong> (<a href="abc.html#Parameter">tanjun.abc.Parameter</a>):
-The parameter this was raised by.</li>
-<li><strong>errors</strong> (collections.abc.Iterable[ValueError]):
-An iterable of the source value errors which were raised during conversion/</li>
-</ul>
 </div>
 
 
@@ -561,13 +586,33 @@ An iterable of the source value errors which were raised during conversion/</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a conversion error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this was raised by.</span>
+<span class="sd">        errors : collections.abc.Iterable[ValueError]</span>
+<span class="sd">            An iterable of the source value errors which were raised during conversion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a conversion error.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>parameter</strong> (<a href="abc.html#Parameter">tanjun.abc.Parameter</a>):
+The parameter this was raised by.</li>
+<li><strong>errors</strong> (collections.abc.Iterable[ValueError]):
+An iterable of the source value errors which were raised during conversion.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ConversionError.errors" class="classattr">
@@ -710,6 +755,13 @@ other commands from being tried.</p>
     <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
 
@@ -729,12 +781,28 @@ other commands from being tried.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a missing dependency error.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MissingDependencyError.message" class="classattr">
@@ -771,13 +839,7 @@ other commands from being tried.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">NotEnoughArgumentsError</span><span class="p">(</span><span class="n">ParserError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised by the parser when not enough arguments are found for a parameter.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    parameter : tanjun.abc.Parameter</span>
-<span class="sd">        The parameter this error was raised for</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised by the parser when not enough arguments are found for a parameter.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
@@ -785,19 +847,21 @@ other commands from being tried.</p>
     <span class="sd">&quot;&quot;&quot;Name of the parameter this error was raised for.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a not enough arguments error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this error was raised for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Error raised by the parser when not enough arguments are found for a parameter.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>parameter</strong> (<a href="abc.html#Parameter">tanjun.abc.Parameter</a>):
-The parameter this error was raised for</li>
-</ul>
 </div>
 
 
@@ -811,12 +875,32 @@ The parameter this error was raised for</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a not enough arguments error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this error was raised for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a not enough arguments error.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message.</li>
+<li><strong>parameter</strong> (<a href="abc.html#Parameter">tanjun.abc.Parameter</a>):
+The parameter this error was raised for.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="NotEnoughArgumentsError.parameter" class="classattr">
@@ -857,13 +941,7 @@ The parameter this error was raised for</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TooManyArgumentsError</span><span class="p">(</span><span class="n">ParserError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised by the parser when too many arguments are found for a parameter.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    parameter : tanjun.abc.Parameter</span>
-<span class="sd">        The parameter this error was raised for</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Error raised by the parser when too many arguments are found for a parameter.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
@@ -871,19 +949,21 @@ The parameter this error was raised for</li>
     <span class="sd">&quot;&quot;&quot;Name of the parameter this error was raised for.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a too many arguments error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this error was raised for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Error raised by the parser when too many arguments are found for a parameter.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>parameter</strong> (<a href="abc.html#Parameter">tanjun.abc.Parameter</a>):
-The parameter this error was raised for</li>
-</ul>
 </div>
 
 
@@ -897,12 +977,32 @@ The parameter this error was raised for</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a too many arguments error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            The error message.</span>
+<span class="sd">        parameter : tanjun.abc.Parameter</span>
+<span class="sd">            The parameter this error was raised for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a too many arguments error.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message.</li>
+<li><strong>parameter</strong> (<a href="abc.html#Parameter">tanjun.abc.Parameter</a>):
+The parameter this error was raised for.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="TooManyArgumentsError.parameter" class="classattr">
@@ -947,14 +1047,6 @@ The parameter this error was raised for</li>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        Expected errors raised by the parser will subclass this error.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    message : str</span>
-<span class="sd">        String message for this error.</span>
-<span class="sd">    parameter : typing.Optional[str]</span>
-<span class="sd">        Name of the parameter which caused this error, should be `None` if not</span>
-<span class="sd">        applicable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;parameter&quot;</span><span class="p">)</span>
@@ -975,6 +1067,16 @@ The parameter this error was raised for</li>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message for this error.</span>
+<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
+<span class="sd">            applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
 
@@ -988,16 +1090,6 @@ The parameter this error was raised for</li>
 
 <p><em>Note:</em>
 Expected errors raised by the parser will subclass this error.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>message</strong> (str):
-String message for this error.</li>
-<li><strong>parameter</strong> (typing.Optional[str]):
-Name of the parameter which caused this error, should be <code>None</code> if not
-applicable.</li>
-</ul>
 </div>
 
 
@@ -1011,13 +1103,35 @@ applicable.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message for this error.</span>
+<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
+<span class="sd">            applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a parser error.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+String message for this error.</li>
+<li><strong>parameter</strong> (typing.Optional[str]):
+Name of the parameter which caused this error, should be <code>None</code> if not
+applicable.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ParserError.message" class="classattr">

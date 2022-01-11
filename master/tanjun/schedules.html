@@ -318,33 +318,7 @@
 
 
 <span class="k">class</span> <span class="nc">IntervalSchedule</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_CallbackSigT</span><span class="p">],</span> <span class="n">components</span><span class="o">.</span><span class="n">AbstractComponentLoader</span><span class="p">,</span> <span class="n">AbstractSchedule</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A callback schedule with an interval between calls.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]</span>
-<span class="sd">        The callback for the schedule.</span>
-
-<span class="sd">        This should be an asynchronous function which takes no positional</span>
-<span class="sd">        arguments, returns `None` and may use dependency injection.</span>
-<span class="sd">    interval : typing.Union[datetime.timedelta, int, float]</span>
-<span class="sd">        The interval between calls. Passed as a timedelta, or a number of seconds.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
-<span class="sd">        A sequence of exceptions that will cause the schedule to stop if raised</span>
-<span class="sd">        by the callback, start callback or stop callback.</span>
-
-<span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
-<span class="sd">        A sequence of exceptions that should be ignored if raised by the</span>
-<span class="sd">        callback, start callback or stop callback.</span>
-
-<span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    max_runs : typing.Optional[int]</span>
-<span class="sd">        The maximum amount of times the schedule runs. Defaults to no maximum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A callback schedule with an interval between calls.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;_callback&quot;</span><span class="p">,</span>
@@ -368,6 +342,33 @@
         <span class="n">ignored_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">max_runs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an interval schedule.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]</span>
+<span class="sd">            The callback for the schedule.</span>
+
+<span class="sd">            This should be an asynchronous function which takes no positional</span>
+<span class="sd">            arguments, returns `None` and may use dependency injection.</span>
+<span class="sd">        interval : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">            The interval between calls. Passed as a timedelta, or a number of seconds.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">            A sequence of exceptions that will cause the schedule to stop if raised</span>
+<span class="sd">            by the callback, start callback or stop callback.</span>
+
+<span class="sd">            Defaults to no exceptions.</span>
+<span class="sd">        ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">            A sequence of exceptions that should be ignored if raised by the</span>
+<span class="sd">            callback, start callback or stop callback.</span>
+
+<span class="sd">            Defaults to no exceptions.</span>
+<span class="sd">        max_runs : typing.Optional[int]</span>
+<span class="sd">            The maximum amount of times the schedule runs. Defaults to no maximum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">interval</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1014,33 +1015,7 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">IntervalSchedule</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_CallbackSigT</span><span class="p">],</span> <span class="n">components</span><span class="o">.</span><span class="n">AbstractComponentLoader</span><span class="p">,</span> <span class="n">AbstractSchedule</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A callback schedule with an interval between calls.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]</span>
-<span class="sd">        The callback for the schedule.</span>
-
-<span class="sd">        This should be an asynchronous function which takes no positional</span>
-<span class="sd">        arguments, returns `None` and may use dependency injection.</span>
-<span class="sd">    interval : typing.Union[datetime.timedelta, int, float]</span>
-<span class="sd">        The interval between calls. Passed as a timedelta, or a number of seconds.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
-<span class="sd">        A sequence of exceptions that will cause the schedule to stop if raised</span>
-<span class="sd">        by the callback, start callback or stop callback.</span>
-
-<span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
-<span class="sd">        A sequence of exceptions that should be ignored if raised by the</span>
-<span class="sd">        callback, start callback or stop callback.</span>
-
-<span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    max_runs : typing.Optional[int]</span>
-<span class="sd">        The maximum amount of times the schedule runs. Defaults to no maximum.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A callback schedule with an interval between calls.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;_callback&quot;</span><span class="p">,</span>
@@ -1064,6 +1039,33 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
         <span class="n">ignored_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">max_runs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an interval schedule.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]</span>
+<span class="sd">            The callback for the schedule.</span>
+
+<span class="sd">            This should be an asynchronous function which takes no positional</span>
+<span class="sd">            arguments, returns `None` and may use dependency injection.</span>
+<span class="sd">        interval : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">            The interval between calls. Passed as a timedelta, or a number of seconds.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">            A sequence of exceptions that will cause the schedule to stop if raised</span>
+<span class="sd">            by the callback, start callback or stop callback.</span>
+
+<span class="sd">            Defaults to no exceptions.</span>
+<span class="sd">        ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">            A sequence of exceptions that should be ignored if raised by the</span>
+<span class="sd">            callback, start callback or stop callback.</span>
+
+<span class="sd">            Defaults to no exceptions.</span>
+<span class="sd">        max_runs : typing.Optional[int]</span>
+<span class="sd">            The maximum amount of times the schedule runs. Defaults to no maximum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">interval</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1310,6 +1312,81 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
         </details>
 
             <div class="docstring"><p>A callback schedule with an interval between calls.</p>
+</div>
+
+
+                            <div id="IntervalSchedule.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#IntervalSchedule.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">IntervalSchedule</span><span class="signature">(
+    callback: ~_CallbackSigT,
+    interval: Union[datetime.timedelta, int, float],
+    /,
+    *,
+    fatal_exceptions: collections.abc.Sequence[type[Exception]] = (),
+    ignored_exceptions: collections.abc.Sequence[type[Exception]] = (),
+    max_runs: Optional[int] = None
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackSigT</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">fatal_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">ignored_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">max_runs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise an interval schedule.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]</span>
+<span class="sd">            The callback for the schedule.</span>
+
+<span class="sd">            This should be an asynchronous function which takes no positional</span>
+<span class="sd">            arguments, returns `None` and may use dependency injection.</span>
+<span class="sd">        interval : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">            The interval between calls. Passed as a timedelta, or a number of seconds.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">            A sequence of exceptions that will cause the schedule to stop if raised</span>
+<span class="sd">            by the callback, start callback or stop callback.</span>
+
+<span class="sd">            Defaults to no exceptions.</span>
+<span class="sd">        ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">            A sequence of exceptions that should be ignored if raised by the</span>
+<span class="sd">            callback, start callback or stop callback.</span>
+
+<span class="sd">            Defaults to no exceptions.</span>
+<span class="sd">        max_runs : typing.Optional[int]</span>
+<span class="sd">            The maximum amount of times the schedule runs. Defaults to no maximum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fatal_exceptions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">fatal_exceptions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ignored_exceptions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ignored_exceptions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_runs</span> <span class="o">=</span> <span class="n">max_runs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise an interval schedule.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -1341,52 +1418,6 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 </ul>
 </div>
 
-
-                            <div id="IntervalSchedule.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#IntervalSchedule.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">IntervalSchedule</span><span class="signature">(
-    callback: ~_CallbackSigT,
-    interval: Union[datetime.timedelta, int, float],
-    /,
-    *,
-    fatal_exceptions: collections.abc.Sequence[type[Exception]] = (),
-    ignored_exceptions: collections.abc.Sequence[type[Exception]] = (),
-    max_runs: Optional[int] = None
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackSigT</span><span class="p">,</span>
-        <span class="n">interval</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">fatal_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="n">ignored_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="n">max_runs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">interval</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="n">callback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fatal_exceptions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">fatal_exceptions</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ignored_exceptions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ignored_exceptions</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_max_runs</span> <span class="o">=</span> <span class="n">max_runs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_start_callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-</pre></div>
-
-        </details>
-
-    
 
                             </div>
                             <div id="IntervalSchedule.callback" class="classattr">
