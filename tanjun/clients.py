@@ -655,7 +655,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         -----
         * This implicitly defaults the client to human only mode.
         * This sets type dependency injectors for the hikari traits present in
-          `bot` (including `hikari.traits.GatewayBotaWARE`).
+          `bot` (including `hikari.traits.GatewayBotAware`).
         * The endpoint used by `declare_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
