@@ -2400,6 +2400,9 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
@@ -4278,6 +4281,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
@@ -8142,6 +8148,9 @@ The event to execute commands based on.</li>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
