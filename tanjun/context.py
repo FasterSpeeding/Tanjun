@@ -815,11 +815,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
     def _get_flags(
         self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
-    ) -> typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]:
+    ) -> typing.Union[int, hikari.MessageFlag]:
         if flags is hikari.UNDEFINED:
             return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
-        return flags
+        return flags or hikari.MessageFlag.NONE
 
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
         """Get the future which will be used to set the initial response.
@@ -970,8 +970,14 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             role_mentions=role_mentions,
         )
         self._last_response_id = message.id
+        # This behaviour is undocumented and only kept by Discord for "backwards compatibility"
+        # but the followup endpoint can be used to create the initial response for slash
+        # commands or edit in a deferred response and (while this does lead to some
+        # unexpected behaviour around deferrals) should be accounted for.
+        if not self._has_responded:
+            self._has_responded = True
 
-        if delete_after is not None:
+        if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
             asyncio.create_task(self._delete_followup_after(delete_after, message))
 
         return message
@@ -1103,7 +1109,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
             self._response_future.set_result(result)
 
-        if delete_after is not None:
+        if delete_after is not None and not flags & hikari.MessageFlag.EPHEMERAL:
             asyncio.create_task(self._delete_initial_response_after(delete_after))
 
     async def create_initial_response(
@@ -1184,7 +1190,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
-        result = await self._interaction.edit_initial_response(
+        message = await self._interaction.edit_initial_response(
             content=content,
             attachment=attachment,
             attachments=attachments,
@@ -1199,10 +1205,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         )
         self._has_responded = True
 
-        if delete_after is not None:
+        if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
             asyncio.create_task(self._delete_initial_response_after(delete_after))
 
-        return result
+        return message
 
     async def edit_last_response(
         self,
@@ -1241,7 +1247,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
             )
-            if delete_after is not None:
+            if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
                 asyncio.create_task(self._delete_followup_after(delete_after, message))
 
             return message
