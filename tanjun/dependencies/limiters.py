@@ -663,22 +663,6 @@ class CooldownPreExecution:
 
     To avoid race-conditions this handles both erroring when the bucket is hit
     instead and incrementing the bucket's use counter.
-
-    Parameters
-    ----------
-    bucket_id : str
-        The cooldown bucket's ID.
-
-    Other Parameters
-    ----------------
-    error_message : str
-        The error message to send in response as a command error if the check fails.
-
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
-    owners_exempt : bool
-        Whether owners should be exempt from the cooldown.
-
-        Defaults to `True`.
     """
 
     __slots__ = ("_bucket_id", "_error_message", "_owners_exempt")
@@ -691,6 +675,24 @@ class CooldownPreExecution:
         error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
         owners_exempt: bool = True,
     ) -> None:
+        """Initialise a pre-execution cooldown command hook.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The cooldown bucket's ID.
+
+        Other Parameters
+        ----------------
+        error_message : str
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
+        owners_exempt : bool
+            Whether owners should be exempt from the cooldown.
+
+            Defaults to `True`.
+        """
         self._bucket_id = bucket_id
         self._error_message = error_message
         self._owners_exempt = owners_exempt
@@ -978,18 +980,9 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 class ConcurrencyPreExecution:
     """Pre-execution hook used to acquire a bucket concurrency limiter.
 
-    Parameters
-    ----------
-    bucket_id : str
-        The concurrency limit bucket's ID.
-
-    Other Parameters
-    ----------------
-    error_message : str
-        The error message to send in response as a command error if this fails
-        to acquire the concurrency limit.
-
-        Defaults to "This resource is currently busy; please try again later.".
+    .. note::
+        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`
+        and `ConcurrencyPostExecution` hooks must be registered for a command scope.
     """
 
     __slots__ = ("_bucket_id", "_error_message")
@@ -1001,6 +994,21 @@ class ConcurrencyPreExecution:
         *,
         error_message: str = "This resource is currently busy; please try again later.",
     ) -> None:
+        """Initialise a concurrency pre-execution hook.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The concurrency limit bucket's ID.
+
+        Other Parameters
+        ----------------
+        error_message : str
+            The error message to send in response as a command error if this fails
+            to acquire the concurrency limit.
+
+            Defaults to "This resource is currently busy; please try again later.".
+        """
         self._bucket_id = bucket_id
         self._error_message = error_message
 
@@ -1016,15 +1024,21 @@ class ConcurrencyPreExecution:
 class ConcurrencyPostExecution:
     """Post-execution hook used to release a bucket concurrency limiter.
 
-    Parameters
-    ----------
-    bucket_id : str
-        The concurrency limit bucket's ID.
+    .. note::
+        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`
+        and `ConcurrencyPostExecution` hooks must be registered for a command scope.
     """
 
     __slots__ = ("_bucket_id",)
 
     def __init__(self, bucket_id: str, /) -> None:
+        """Initialise a concurrency post-execution hook.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The concurrency limit bucket's ID.
+        """
         self._bucket_id = bucket_id
 
     async def __call__(

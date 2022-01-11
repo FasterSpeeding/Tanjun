@@ -151,30 +151,6 @@ class Component(tanjun_abc.Component):
         This implementation supports dependency injection for its checks,
         command callbacks and listeners when linked to a client which
         supports dependency injection.
-
-    Parameters
-    ----------
-    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]
-        Iterable of check callbacks to set for this component, if provided.
-    hooks : typing.Optional[tanjun.abc.AnyHooks]
-        The hooks this component should add to the execution of all its
-        commands (message and slash).
-    slash_hooks : typing.Optional[tanjun.abc.SlashHooks]
-        The slash hooks this component should add to the execution of its
-        slash commands.
-    message_hooks : typing.Optional[tanjun.abc.MessageHooks]
-        The message hooks this component should add to the execution of its
-        message commands.
-    name : str
-        The component's identifier.
-
-        If not provided then this will be a random string.
-    strict : bool
-        Whether this component should use a stricter (more optimal) approach
-        for message command search.
-
-        When this is `True`, message command names will not be allowed to contain
-        spaces and will have to be unique to one command within the component.
     """
 
     __slots__ = (
@@ -199,6 +175,32 @@ class Component(tanjun_abc.Component):
     )
 
     def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
+        """Initialise a new component.
+
+        Parameters
+        ----------
+        checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]
+            Iterable of check callbacks to set for this component, if provided.
+        hooks : typing.Optional[tanjun.abc.AnyHooks]
+            The hooks this component should add to the execution of all its
+            commands (message and slash).
+        slash_hooks : typing.Optional[tanjun.abc.SlashHooks]
+            The slash hooks this component should add to the execution of its
+            slash commands.
+        message_hooks : typing.Optional[tanjun.abc.MessageHooks]
+            The message hooks this component should add to the execution of its
+            message commands.
+        name : str
+            The component's identifier.
+
+            If not provided then this will be a random string.
+        strict : bool
+            Whether this component should use a stricter (more optimal) approach
+            for message command search.
+
+            When this is `True`, message command names will not be allowed to contain
+            spaces and will have to be unique to one command within the component.
+        """
         self._checks: list[checks_.InjectableCheck] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._client_callbacks: dict[str, list[tanjun_abc.MetaEventSig]] = {}

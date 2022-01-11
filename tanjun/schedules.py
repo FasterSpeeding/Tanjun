@@ -187,33 +187,7 @@ def as_interval(
 
 
 class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
-    """A callback schedule with an interval between calls.
-
-    Parameters
-    ----------
-    callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
-        The callback for the schedule.
-
-        This should be an asynchronous function which takes no positional
-        arguments, returns `None` and may use dependency injection.
-    interval : typing.Union[datetime.timedelta, int, float]
-        The interval between calls. Passed as a timedelta, or a number of seconds.
-
-    Other Parameters
-    ----------------
-    fatal_exceptions : collections.abc.Sequence[type[Exception]]
-        A sequence of exceptions that will cause the schedule to stop if raised
-        by the callback, start callback or stop callback.
-
-        Defaults to no exceptions.
-    ignored_exceptions : collections.abc.Sequence[type[Exception]]
-        A sequence of exceptions that should be ignored if raised by the
-        callback, start callback or stop callback.
-
-        Defaults to no exceptions.
-    max_runs : typing.Optional[int]
-        The maximum amount of times the schedule runs. Defaults to no maximum.
-    """
+    """A callback schedule with an interval between calls."""
 
     __slots__ = (
         "_callback",
@@ -237,6 +211,33 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         ignored_exceptions: collections.Sequence[type[Exception]] = (),
         max_runs: typing.Optional[int] = None,
     ) -> None:
+        """Initialise an interval schedule.
+
+        Parameters
+        ----------
+        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+            The callback for the schedule.
+
+            This should be an asynchronous function which takes no positional
+            arguments, returns `None` and may use dependency injection.
+        interval : typing.Union[datetime.timedelta, int, float]
+            The interval between calls. Passed as a timedelta, or a number of seconds.
+
+        Other Parameters
+        ----------------
+        fatal_exceptions : collections.abc.Sequence[type[Exception]]
+            A sequence of exceptions that will cause the schedule to stop if raised
+            by the callback, start callback or stop callback.
+
+            Defaults to no exceptions.
+        ignored_exceptions : collections.abc.Sequence[type[Exception]]
+            A sequence of exceptions that should be ignored if raised by the
+            callback, start callback or stop callback.
+
+            Defaults to no exceptions.
+        max_runs : typing.Optional[int]
+            The maximum amount of times the schedule runs. Defaults to no maximum.
+        """
         if isinstance(interval, datetime.timedelta):
             self._interval: datetime.timedelta = interval
         else:

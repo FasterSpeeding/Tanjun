@@ -765,6 +765,7 @@ class Parameter:
         greedy: bool = False,
         multi: bool = False,
     ) -> None:
+        """Initialise a parameter."""
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
@@ -901,6 +902,32 @@ class Argument(Parameter):
         greedy: bool = False,
         multi: bool = False,
     ) -> None:
+        """Initialise a positional argument.
+
+        Parameters
+        ----------
+        key : str
+            The string identifier of this argument (may be used to pass the result
+            of this argument to the command's callback during execution).
+
+        Other Parameters
+        ----------------
+        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+            The converter(s) this argument should use to handle values passed to it
+            during parsing.
+
+            If no converters are provided then the raw string value will be passed.
+
+            Only the first converter to pass will be used.
+        default : typing.Any
+            The default value of this argument, if left as
+            `UNDEFINED_DEFAULT` then this will have no default.
+        greedy : bool
+            Whether or not this argument should be greedy (meaning that it
+            takes in the remaining argument values).
+        multi : bool
+            Whether this argument can be passed multiple times.
+        """
         if greedy and multi:
             raise ValueError("Argument cannot be both greed and multi.")
 
@@ -923,6 +950,39 @@ class Option(Parameter):
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         multi: bool = True,
     ) -> None:
+        """Initialise a named optional parameter.
+
+        Parameters
+        ----------
+        key : str
+            The string identifier of this option which will be used to pass the
+            result of this argument to the command's callback during execution as
+            a keyword argument.
+        name : str
+            The name of this option used for identifying it in the parsed content.
+        default : typing.Any
+            The default value of this argument, unlike arguments this is required
+            for options.
+
+        Other Parameters
+        ----------------
+        *names : str
+            Other names of this option used for identifying it in the parsed content.
+        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+            The converter(s) this argument should use to handle values passed to it
+            during parsing.
+
+            If no converters are provided then the raw string value will be passed.
+
+            Only the first converter to pass will be used.
+        empty_value : typing.Any
+            The value to use if this option is provided without a value. If left as
+            `UNDEFINED_DEFAULT` then this option will error if it's
+            provided without a value.
+        multi : bool
+            If this option can be provided multiple times.
+            Defaults to `False`.
+        """
         if not name.startswith("-") or not all(n.startswith("-") for n in names):
             raise ValueError("All option names must start with `-`")
 
@@ -949,11 +1009,12 @@ class Option(Parameter):
 
 
 class ShlexParser(AbstractParser):
-    """A shlex based `tanjun.abc.Parser` implementation."""
+    """A shlex based `AbstractParser` implementation."""
 
     __slots__ = ("_arguments", "_client", "_component", "_options")
 
     def __init__(self) -> None:
+        """Initialise a shlex parser."""
         self._arguments: list[Argument] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
@@ -1033,6 +1094,9 @@ class ShlexParser(AbstractParser):
         key : str
             The string identifier of this argument (may be used to pass the result
             of this argument to the command's callback during execution).
+
+        Other Parameters
+        ----------------
         converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
             The converter(s) this argument should use to handle values passed to it
             during parsing.

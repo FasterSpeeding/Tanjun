@@ -75,23 +75,18 @@ class MissingDependencyError(TanjunError):
     """The error's message."""
 
     def __init__(self, message: str) -> None:
+        """Initialise a missing dependency error.
+
+        Parameters
+        ----------
+        message : str
+            The error message.
+        """
         self.message = message
 
 
 class CommandError(TanjunError):
-    """Error raised to end command execution.
-
-    Parameters
-    ----------
-    message : str
-        String message which will be sent as a response to the message
-        that triggered the current command.
-
-    Raises
-    ------
-    ValueError
-        Raised when the message is over 2000 characters long or empty.
-    """
+    """Error raised to end command execution."""
 
     __slots__ = ("message",)
 
@@ -103,6 +98,19 @@ class CommandError(TanjunError):
     """
 
     def __init__(self, message: str, /) -> None:
+        """Initialise a command error.
+
+        Parameters
+        ----------
+        message : str
+            String message which will be sent as a response to the message
+            that triggered the current command.
+
+        Raises
+        ------
+        ValueError
+            Raised when the message is over 2000 characters long or empty.
+        """
         if len(message) > 2000:
             raise ValueError("Error message cannot be over 2_000 characters long.")
 
@@ -133,14 +141,6 @@ class ParserError(TanjunError, ValueError):
 
     .. note::
         Expected errors raised by the parser will subclass this error.
-
-    Parameters
-    ----------
-    message : str
-        String message for this error.
-    parameter : typing.Optional[str]
-        Name of the parameter which caused this error, should be `None` if not
-        applicable.
     """
 
     __slots__ = ("message", "parameter")
@@ -161,6 +161,16 @@ class ParserError(TanjunError, ValueError):
     """
 
     def __init__(self, message: str, parameter: typing.Optional[str], /) -> None:
+        """Initialise a parser error.
+
+        Parameters
+        ----------
+        message : str
+            String message for this error.
+        parameter : typing.Optional[str]
+            Name of the parameter which caused this error, should be `None` if not
+            applicable.
+        """
         self.message = message
         self.parameter = parameter
 
@@ -169,15 +179,7 @@ class ParserError(TanjunError, ValueError):
 
 
 class ConversionError(ParserError):
-    """Error raised by a parser parameter when it failed to converter a value.
-
-    Parameters
-    ----------
-    parameter : tanjun.abc.Parameter
-        The parameter this was raised by.
-    errors : collections.abc.Iterable[ValueError]
-        An iterable of the source value errors which were raised during conversion/
-    """
+    """Error raised by a parser parameter when it failed to converter a value."""
 
     __slots__ = ("errors",)
 
@@ -188,18 +190,21 @@ class ConversionError(ParserError):
     """Name of the parameter this error was raised for."""
 
     def __init__(self, message: str, parameter: str, /, errors: collections.Iterable[ValueError] = ()) -> None:
+        """Initialise a conversion error.
+
+        Parameters
+        ----------
+        parameter : tanjun.abc.Parameter
+            The parameter this was raised by.
+        errors : collections.abc.Iterable[ValueError]
+            An iterable of the source value errors which were raised during conversion.
+        """
         super().__init__(message, parameter)
         self.errors = tuple(errors)
 
 
 class NotEnoughArgumentsError(ParserError):
-    """Error raised by the parser when not enough arguments are found for a parameter.
-
-    Parameters
-    ----------
-    parameter : tanjun.abc.Parameter
-        The parameter this error was raised for
-    """
+    """Error raised by the parser when not enough arguments are found for a parameter."""
 
     __slots__ = ()
 
@@ -207,17 +212,20 @@ class NotEnoughArgumentsError(ParserError):
     """Name of the parameter this error was raised for."""
 
     def __init__(self, message: str, parameter: str, /) -> None:
+        """Initialise a not enough arguments error.
+
+        Parameters
+        ----------
+        message : str
+            The error message.
+        parameter : tanjun.abc.Parameter
+            The parameter this error was raised for.
+        """
         super().__init__(message, parameter)
 
 
 class TooManyArgumentsError(ParserError):
-    """Error raised by the parser when too many arguments are found for a parameter.
-
-    Parameters
-    ----------
-    parameter : tanjun.abc.Parameter
-        The parameter this error was raised for
-    """
+    """Error raised by the parser when too many arguments are found for a parameter."""
 
     __slots__ = ()
 
@@ -225,4 +233,13 @@ class TooManyArgumentsError(ParserError):
     """Name of the parameter this error was raised for."""
 
     def __init__(self, message: str, parameter: str, /) -> None:
+        """Initialise a too many arguments error.
+
+        Parameters
+        ----------
+        message : str
+            The error message.
+        parameter : tanjun.abc.Parameter
+            The parameter this error was raised for.
+        """
         super().__init__(message, parameter)

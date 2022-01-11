@@ -38,13 +38,6 @@ __all__: list[str] = [
     "any_checks",
     "CallbackReturnT",
     "CommandT",
-    "OwnerCheck",
-    "NsfwCheck",
-    "SfwCheck",
-    "DmCheck",
-    "GuildCheck",
-    "AuthorPermissionCheck",
-    "OwnPermissionCheck",
     "with_all_checks",
     "with_any_checks",
     "with_check",
@@ -55,6 +48,13 @@ __all__: list[str] = [
     "with_owner_check",
     "with_author_permission_check",
     "with_own_permission_check",
+    "DmCheck",
+    "GuildCheck",
+    "NsfwCheck",
+    "SfwCheck",
+    "OwnerCheck",
+    "AuthorPermissionCheck",
+    "OwnPermissionCheck",
 ]
 
 import typing
@@ -141,6 +141,11 @@ class _Check:
 
 
 class OwnerCheck(_Check):
+    """Standard owner check callback registered by `with_owner_check`.
+
+    This check will only pass if the author of the command is a bot owner.
+    """
+
     __slots__ = ()
 
     def __init__(
@@ -149,6 +154,24 @@ class OwnerCheck(_Check):
         error_message: typing.Optional[str] = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise a owner check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "Only bot owners can use this command" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message, halt_execution)
 
     async def __call__(
@@ -192,6 +215,11 @@ async def _get_is_nsfw(
 
 
 class NsfwCheck(_Check):
+    """Standard NSFW check callback registered by `with_nsfw_check`.
+
+    This check will only pass if the current channel is NSFW.
+    """
+
     __slots__ = ()
 
     def __init__(
@@ -200,6 +228,24 @@ class NsfwCheck(_Check):
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise a NSFW check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "Command can only be used in NSFW channels" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message, halt_execution)
 
     async def __call__(
@@ -212,6 +258,11 @@ class NsfwCheck(_Check):
 
 
 class SfwCheck(_Check):
+    """Standard SFW check callback registered by `with_sfw_check`.
+
+    This check will only pass if the current channel is SFW.
+    """
+
     __slots__ = ()
 
     def __init__(
@@ -220,6 +271,24 @@ class SfwCheck(_Check):
         error_message: typing.Optional[str] = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise a SFW check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "Command can only be used in SFW channels" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message, halt_execution)
 
     async def __call__(
@@ -232,6 +301,11 @@ class SfwCheck(_Check):
 
 
 class DmCheck(_Check):
+    """Standard DM check callback registered by `with_dm_check`.
+
+    This check will only pass if the current channel is a DM channel.
+    """
+
     __slots__ = ()
 
     def __init__(
@@ -240,6 +314,24 @@ class DmCheck(_Check):
         error_message: typing.Optional[str] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise a DM check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "Command can only be used in DMs" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message, halt_execution)
 
     def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
@@ -247,6 +339,11 @@ class DmCheck(_Check):
 
 
 class GuildCheck(_Check):
+    """Standard guild check callback registered by `with_guild_check`.
+
+    This check will only pass if the current channel is in a guild.
+    """
+
     __slots__ = ()
 
     def __init__(
@@ -255,6 +352,24 @@ class GuildCheck(_Check):
         error_message: typing.Optional[str] = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise a guild check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "Command can only be used in guild channels" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message, halt_execution)
 
     def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
@@ -262,6 +377,11 @@ class GuildCheck(_Check):
 
 
 class AuthorPermissionCheck(_Check):
+    """Standard author permission check callback registered by `with_author_permission_check`.
+
+    This check will only pass if the current author has the specified permission.
+    """
+
     __slots__ = ("_permissions",)
 
     def __init__(
@@ -272,6 +392,29 @@ class AuthorPermissionCheck(_Check):
         error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise an author permission check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Parameters
+        ----------
+        permissions: typing.Union[hikari.permissions.Permissions, int]
+            The permission(s) required for this command to run.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "You don't have the permissions required to use this command" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
 
@@ -298,6 +441,11 @@ class AuthorPermissionCheck(_Check):
 
 
 class OwnPermissionCheck(_Check):
+    """Standard own permission check callback registered by `with_own_permission_check`.
+
+    This check will only pass if the current bot user has the specified permission.
+    """
+
     __slots__ = ("_permissions",)
 
     def __init__(
@@ -308,6 +456,29 @@ class OwnPermissionCheck(_Check):
         error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
+        """Initialise a own permission check.
+
+        .. note::
+            error_message takes priority over halt_execution.
+
+        Parameters
+        ----------
+        permissions: typing.Union[hikari.permissions.Permissions, int]
+            The permission(s) required for this command to run.
+
+        Other Parameters
+        ----------------
+        error_message : typing.Optional[str]
+            The error message to send in response as a command error if the check fails.
+
+            Defaults to "Bot doesn't have the permissions required to run this command" and setting this to `None`
+            will disable the error message allowing the command search to continue.
+        halt_execution : bool
+            Whether this check should raise `tanjun.errors.HaltExecution` to
+            end the execution search when it fails instead of returning `False`.
+
+            Defaults to `False`.
+        """
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
 

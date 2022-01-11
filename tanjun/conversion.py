@@ -60,6 +60,16 @@ __all__: list[str] = [
     "to_snowflake",
     "to_user",
     "to_voice_state",
+    "ToChannel",
+    "ToEmoji",
+    "ToGuild",
+    "ToInvite",
+    "ToInviteWithMetadata",
+    "ToMember",
+    "ToPresence",
+    "ToRole",
+    "ToUser",
+    "ToVoiceState",
 ]
 
 import abc
@@ -88,6 +98,11 @@ _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     """Base class for the standard converters.
 
+    .. warning::
+        Inheriting from this is completely unnecessary and should be avoided
+        for people using the library unless they know what they're doing.
+
+
     This is detail of the standard implementation and isn't guaranteed to work
     between implementations but will work for implementations which provide
     the standard dependency injection or special cased support for these.
@@ -98,6 +113,13 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     """
 
     __slots__ = ()
+    __pdoc__: typing.ClassVar[dict[str, bool]] = {
+        "async_cache": False,
+        "cache_components": False,
+        "intents": False,
+        "requires_cache": False,
+        "__pdoc__": False,
+    }
 
     @property
     @abc.abstractmethod
@@ -188,39 +210,54 @@ _GuildChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]
 
 
 # TODO: GuildChannelConverter
-class ChannelConverter(BaseConverter[hikari.PartialChannel]):
+class ToChannel(BaseConverter[hikari.PartialChannel]):
     """Standard converter for channels mentions/IDs.
 
-    Other Parameters
-    ----------------
-    include_dms : bool
-        Whether to include DM channels in the results.
-
-        May lead to a lot of extra fallbacks to REST requests if
-        the client doesn't have a registered async cache for DMs.
-
-        Defaults to `True`.
+    For a standard instance of this see `to_channel`.
     """
 
     __slots__ = ("_include_dms",)
+    __pdoc__: typing.ClassVar[dict[str, bool]] = {
+        "async_cache": False,
+        "cache_components": False,
+        "intents": False,
+        "requires_cache": False,
+        "__pdoc__": False,
+    }
 
     def __init__(self, *, include_dms: bool = True) -> None:
+        """Initialise a to channel converter.
+
+        Other Parameters
+        ----------------
+        include_dms : bool
+            Whether to include DM channels in the results.
+
+            May lead to a lot of extra fallbacks to REST requests if
+            the client doesn't have a registered async cache for DMs.
+
+            Defaults to `True`.
+        """
         self._include_dms = include_dms
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_GuildChannelCacheT, _DmCacheT)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.GUILD_CHANNELS
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -271,28 +308,44 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
         raise ValueError("Couldn't find channel")
 
 
+ChannelConverter = ToChannel
+"""Deprecated alias of `ToChannel`."""
+
 _EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 
 
-class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
-    """Standard converter for custom emojis."""
+class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
+    """Standard converter for custom emojis.
+
+    For a standard instance of this see `to_emoji`.
+
+    .. note::
+        If you just want to convert inpute to a `hikari.Emoji`, `hikari.CustomEmoji`
+        or `hikari.UnicodeEmoji` without making any cache or REST calls then you
+        can just use the relevant `hikari.Emoji.parse`, `hikari.CustomEmoji.parse`
+        or `hikari.UnicodeEmoji.parse` methods.
+    """
 
     __slots__ = ()
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_EmojiCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.EMOJIS
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILD_EMOJIS | hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -327,28 +380,39 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         raise ValueError("Couldn't find emoji")
 
 
+EmojiConverter = ToEmoji
+"""Deprecated alias of `ToEmoji`."""
+
+
 _GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
 
 
-class GuildConverter(BaseConverter[hikari.Guild]):
-    """Stanard converter for guilds."""
+class ToGuild(BaseConverter[hikari.Guild]):
+    """Stanard converter for guilds.
+
+    For a standard instance of this see `to_guild`.
+    """
 
     __slots__ = ()
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_GuildCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.GUILDS
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -381,28 +445,35 @@ class GuildConverter(BaseConverter[hikari.Guild]):
         raise ValueError("Couldn't find guild")
 
 
+GuildConverter = ToGuild
+"""Deprecated alias of `ToGuild`."""
+
 _InviteCacheT = typing.Optional[async_cache.AsyncCache[str, hikari.InviteWithMetadata]]
 
 
-class InviteConverter(BaseConverter[hikari.Invite]):
+class ToInvite(BaseConverter[hikari.Invite]):
     """Standard converter for invites."""
 
     __slots__ = ()
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_InviteCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.INVITES
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILD_INVITES
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -436,8 +507,14 @@ class InviteConverter(BaseConverter[hikari.Invite]):
         raise ValueError("Couldn't find invite")
 
 
-class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
+InviteConverter = ToInvite
+"""Deprecated alias of `ToInvite`."""
+
+
+class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
     """Standard converter for invites with metadata.
+
+    For a standard instance of this see `to_invite_with_metadata`.
 
     .. note::
         Unlike `InviteConverter`, this converter is cache dependent.
@@ -447,18 +524,22 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_InviteCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.INVITES
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILD_INVITES
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return True
 
     async def __call__(
@@ -480,11 +561,17 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
         raise ValueError("Couldn't find invite")
 
 
+InviteWithMetadataConverter = ToInviteWithMetadata
+"""Deprecated alias of `ToInviteWithMetadata`."""
+
+
 _MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
 
 
-class MemberConverter(BaseConverter[hikari.Member]):
+class ToMember(BaseConverter[hikari.Member]):
     """Standard converter for guild members.
+
+    For a standard instance of this see `to_member`.
 
     This converter allows both mentions, raw IDs and partial usernames/nicknames
     and only works within a guild context.
@@ -494,18 +581,22 @@ class MemberConverter(BaseConverter[hikari.Member]):
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_MemberCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.MEMBERS
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILD_MEMBERS | hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -552,11 +643,16 @@ class MemberConverter(BaseConverter[hikari.Member]):
         raise ValueError("Couldn't find member in this guild")
 
 
+MemberConverter = ToMember
+"""Deprecated alias of `ToMember`."""
+
 _PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence]]
 
 
-class PresenceConverter(BaseConverter[hikari.MemberPresence]):
+class ToPresence(BaseConverter[hikari.MemberPresence]):
     """Standard converter for presences.
+
+    For a standard instance of this see `to_presence`.
 
     This converter is cache dependent and only works in a guild context.
     """
@@ -565,18 +661,22 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_PresenceCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.PRESENCES
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILD_PRESENCES | hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return True
 
     async def __call__(
@@ -599,28 +699,38 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
         raise ValueError("Couldn't find presence in current guild")
 
 
+PresenceConverter = ToPresence
+"""Deprecated alias of `ToPresence`."""
+
 _RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 
 
-class RoleConverter(BaseConverter[hikari.Role]):
-    """Standard converter for guild roles."""
+class ToRole(BaseConverter[hikari.Role]):
+    """Standard converter for guild roles.
+
+    For a standard instance of this see `to_role`.
+    """
 
     __slots__ = ()
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_RoleCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.ROLES
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -652,28 +762,38 @@ class RoleConverter(BaseConverter[hikari.Role]):
         raise ValueError("Couldn't find role")
 
 
+RoleConverter = ToRole
+"""Deprecated alias of `ToRole`."""
+
 _UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
 
 
-class UserConverter(BaseConverter[hikari.User]):
-    """Standard converter for users."""
+class ToUser(BaseConverter[hikari.User]):
+    """Standard converter for users.
+
+    For a standard instance of this see `to_user`.
+    """
 
     __slots__ = ()
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_UserCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.NONE
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return False
 
     async def __call__(
@@ -707,11 +827,16 @@ class UserConverter(BaseConverter[hikari.User]):
         raise ValueError("Couldn't find user")
 
 
+UserConverter = ToUser
+"""Deprecated alias of `ToUser`."""
+
 _VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
 
 
-class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
+class ToVoiceState(BaseConverter[hikari.VoiceState]):
     """Standard converter for voice states.
+
+    For a standard instance of this see `to_voice_state`.
 
     .. note::
         This converter is cache dependent and only works in a guild context.
@@ -721,18 +846,22 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
         return (_VoiceStateCacheT,)
 
     @property
     def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.CacheComponents.VOICE_STATES
 
     @property
     def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
         return hikari.Intents.GUILD_VOICE_STATES | hikari.Intents.GUILDS
 
     @property
     def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
         return True
 
     async def __call__(
@@ -754,6 +883,10 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
             return state
 
         raise ValueError("Voice state couldn't be found for current guild")
+
+
+VoiceStateConverter = ToVoiceState
+"""Deprecated alias of `ToVoiceState`."""
 
 
 class _IDMatcherSig(typing.Protocol):
@@ -1283,31 +1416,38 @@ def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
     return _TYPE_OVERRIDES.get(cls, cls)
 
 
-to_channel: typing.Final[ChannelConverter] = ChannelConverter()
+to_channel: typing.Final[ToChannel] = ToChannel()
 """Convert user input to a `hikari.channels.PartialChannel` object."""
 
 to_colour: typing.Final[collections.Callable[[ArgumentT], hikari.Color]] = to_color
 """Convert user input to a `hikari.colors.Color` object."""
 
-to_emoji: typing.Final[EmojiConverter] = EmojiConverter()
-"""Convert user input to a cached `hikari.emojis.KnownCustomEmoji` object."""
+to_emoji: typing.Final[ToEmoji] = ToEmoji()
+"""Convert user input to a cached `hikari.emojis.KnownCustomEmoji` object.
 
-to_guild: typing.Final[GuildConverter] = GuildConverter()
+.. note::
+    If you just want to convert inpute to a `hikari.Emoji`, `hikari.CustomEmoji`
+    or `hikari.UnicodeEmoji` without making any cache or REST calls then you
+    can just use the relevant `hikari.Emoji.parse`, `hikari.CustomEmoji.parse`
+    or `hikari.UnicodeEmoji.parse` methods.
+"""
+
+to_guild: typing.Final[ToGuild] = ToGuild()
 """Convert user input to a `hikari.guilds.Guild` object."""
 
-to_invite: typing.Final[InviteConverter] = InviteConverter()
+to_invite: typing.Final[ToInvite] = ToInvite()
 """Convert user input to a cached `hikari.invites.InviteWithMetadata` object."""
 
-to_invite_with_metadata: typing.Final[InviteWithMetadataConverter] = InviteWithMetadataConverter()
+to_invite_with_metadata: typing.Final[ToInviteWithMetadata] = ToInviteWithMetadata()
 """Convert user input to a `hikari.invites.Invite` object."""
 
-to_member: typing.Final[MemberConverter] = MemberConverter()
+to_member: typing.Final[ToMember] = ToMember()
 """Convert user input to a `hikari.guilds.Member` object."""
 
-to_presence: typing.Final[PresenceConverter] = PresenceConverter()
+to_presence: typing.Final[ToPresence] = ToPresence()
 """Convert user input to a cached `hikari.presences.MemberPresence`."""
 
-to_role: typing.Final[RoleConverter] = RoleConverter()
+to_role: typing.Final[ToRole] = ToRole()
 """Convert user input to a `hikari.guilds.Role` object."""
 
 to_snowflake: typing.Final[collections.Callable[[ArgumentT], hikari.Snowflake]] = parse_snowflake
@@ -1317,8 +1457,8 @@ to_snowflake: typing.Final[collections.Callable[[ArgumentT], hikari.Snowflake]] 
     This also range validates the input.
 """
 
-to_user: typing.Final[UserConverter] = UserConverter()
+to_user: typing.Final[ToUser] = ToUser()
 """Convert user input to a `hikari.users.User` object."""
 
-to_voice_state: typing.Final[VoiceStateConverter] = VoiceStateConverter()
+to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
 """Convert user input to a cached `hikari.voices.VoiceState`."""

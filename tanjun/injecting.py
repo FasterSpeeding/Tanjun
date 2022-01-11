@@ -168,17 +168,18 @@ class AbstractInjectionContext(abc.ABC):
 
 
 class BasicInjectionContext(AbstractInjectionContext):
-    """Basic implementation of a `AbstractInjectionContext`.
-
-    Parameters
-    ----------
-    client : InjectorClient
-        The injection client this context is bound to.
-    """
+    """Basic implementation of a `AbstractInjectionContext`."""
 
     __slots__ = ("_injection_client", "_result_cache", "_special_case_types")
 
     def __init__(self, client: InjectorClient, /) -> None:
+        """Initialise a basic injection context.
+
+        Parameters
+        ----------
+        client : InjectorClient
+            The injection client this context is bound to.
+        """
         self._injection_client = client
         self._result_cache: typing.Optional[dict[CallbackSig[typing.Any], typing.Any]] = None
         self._special_case_types: dict[type[typing.Any], typing.Any] = {
@@ -297,22 +298,24 @@ class CallbackDescriptor(AbstractDescriptor[_T]):
     """Descriptor of a callback taking advantage of dependency injection.
 
     This holds metadata and logic necessary for callback injection.
-
-    Parameters
-    ----------
-    callback : CallbackSig[_T]
-        The callback to wrap with dependency injection.
-
-    Raises
-    ------
-    ValueError
-        If `callback` has any injected arguments which can only be passed
-        positionally.
     """
 
     __slots__ = ("_callback", "_descriptors", "_is_async", "_needs_injector")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
+        """Initialise an injected callback descriptor.
+
+        Parameters
+        ----------
+        callback : CallbackSig[_T]
+            The callback to wrap with dependency injection.
+
+        Raises
+        ------
+        ValueError
+            If `callback` has any injected arguments which can only be passed
+            positionally.
+        """
         self._callback = callback
         self._is_async: typing.Optional[bool] = None
         self._descriptors, self._needs_injector = self._parse_descriptors(callback)
@@ -512,24 +515,26 @@ class SelfInjectingCallback(CallbackDescriptor[_T]):
     injecting_callback = tanjun.SelfInjectingCallback(callback, client)
     await injecting_callback()
     ```
-
-    Parameters
-    ----------
-    injector : InjectorClient
-        The injection client to use to resolve dependencies.
-    callback : CallbackSig[_T]
-        The callback to make self-injecting.
-
-    Raises
-    ------
-    ValueError
-        If `callback` has any injected arguments which can only be passed
-        positionally.
     """
 
     __slots__ = ("_client",)
 
     def __init__(self, injector_client: InjectorClient, callback: CallbackSig[_T], /) -> None:
+        """Initialise a self injecting callback.
+
+        Parameters
+        ----------
+        injector : InjectorClient
+            The injection client to use to resolve dependencies.
+        callback : CallbackSig[_T]
+            The callback to make self-injecting.
+
+        Raises
+        ------
+        ValueError
+            If `callback` has any injected arguments which can only be passed
+            positionally.
+        """
         super().__init__(callback)
         self._client = injector_client
 
@@ -600,16 +605,18 @@ class TypeDescriptor(AbstractDescriptor[_T]):
 
     This class holds all the logic for resolving a type with dependency
     injection.
-
-    Parameters
-    ----------
-    type_ : type[_T]
-        The type to resolve.
     """
 
     __slots__ = ("_default", "_type", "_union")
 
     def __init__(self, type_: _TypeT[_T], /) -> None:
+        """Initialise an injected type descriptor.
+
+        Parameters
+        ----------
+        type_ : type[_T]
+            The type to resolve.
+        """
         self._default: UndefinedOr[_T] = UNDEFINED
         self._type = type_
         self._union: typing.Optional[list[type[_T]]] = None
@@ -683,31 +690,6 @@ class Injected(typing.Generic[_T]):
     """Decare a keyword-argument as requiring an injected dependency.
 
     This is the type returned by `inject`.
-
-    Parameters
-    ----------
-    callback : typing.Optional[CallbackSig[_T]]
-        The callback to use to resolve the dependency.
-
-        If this callback has no type dependencies then this will still work
-        without an injection context but this can be overridden using
-        `InjectionClient.set_callback_override`.
-    type : typing.Optional[type[_T]]
-        The type of the dependency to resolve.
-
-        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
-        is passed for `type` then each type in the union will be tried
-        separately after the litarl union type is tried, allowing for resolving
-        `A | B` to the value set by `set_type_dependency(B, ...)`.
-
-        If a union has `None` as one of its types (including `Optional[T]`)
-        then `None` will be passed for the parameter if none of the types could
-        be resolved using the linked client.
-
-    Raises
-    ------
-    ValueError
-        If both `callback` and `type` are specified or if neither is specified.
     """
 
     __slots__ = ("callback", "type")
@@ -718,6 +700,33 @@ class Injected(typing.Generic[_T]):
         callback: typing.Optional[CallbackSig[_T]] = None,
         type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
     ) -> None:  # TODO: add default/factory to this?
+        """Initialise an injection default descriptor.
+
+        Parameters
+        ----------
+        callback : typing.Optional[CallbackSig[_T]]
+            The callback to use to resolve the dependency.
+
+            If this callback has no type dependencies then this will still work
+            without an injection context but this can be overridden using
+            `InjectionClient.set_callback_override`.
+        type : typing.Optional[type[_T]]
+            The type of the dependency to resolve.
+
+            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
+            is passed for `type` then each type in the union will be tried
+            separately after the litarl union type is tried, allowing for resolving
+            `A | B` to the value set by `set_type_dependency(B, ...)`.
+
+            If a union has `None` as one of its types (including `Optional[T]`)
+            then `None` will be passed for the parameter if none of the types could
+            be resolved using the linked client.
+
+        Raises
+        ------
+        ValueError
+            If both `callback` and `type` are specified or if neither is specified.
+        """
         if callback is None and type is None:
             raise ValueError("Must specify one of `callback` or `type`")
 
@@ -796,6 +805,7 @@ class InjectorClient:
     __slots__ = ("_callback_overrides", "_type_dependencies")
 
     def __init__(self) -> None:
+        """Initialise an injector client."""
         self._callback_overrides: dict[CallbackSig[typing.Any], CallbackDescriptor[typing.Any]] = {}
         self._type_dependencies: dict[type[typing.Any], typing.Any] = {InjectorClient: self}
 

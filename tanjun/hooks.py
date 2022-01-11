@@ -71,6 +71,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
     )
 
     def __init__(self) -> None:
+        """Initialise a command hook object."""
         self._error_callbacks: list[injecting.CallbackDescriptor[typing.Union[bool, None]]] = []
         self._parser_error_callbacks: list[injecting.CallbackDescriptor[None]] = []
         self._pre_execution_callbacks: list[injecting.CallbackDescriptor[None]] = []
