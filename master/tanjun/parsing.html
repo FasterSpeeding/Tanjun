@@ -390,7 +390,7 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Sequence of the parameters registered with this parser.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -618,7 +618,7 @@
 
         <span class="k">return</span> <span class="n">values</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__process_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__process_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">Argument</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_raw_arguments</span><span class="p">())):</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">argument</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -996,6 +996,8 @@
 
 
 <span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for parameters for the standard parser(s).&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1031,26 +1033,46 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the converters registered for this parameter.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The parameter&#39;s default.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then this parameter is required.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is greedy.</span>
+
+<span class="sd">        Greedy parameters will consume the remaining message content as one</span>
+<span class="sd">        string (with converters also being passed the whole string).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Greedy and multi parameters cannot be used together.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is &quot;multi&quot;.</span>
+
+<span class="sd">        Multi parameters will be passed a list of all the values provided for</span>
+<span class="sd">        this parameter (with each entry being converted separately.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The key of this parameter used to pass the result to the command&#39;s callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
@@ -1078,6 +1100,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the given value to the type of this parameter.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
@@ -1093,6 +1116,13 @@
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t convert </span><span class="si">{</span><span class="n">parameter_type</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ParameterT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ParameterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1102,6 +1132,8 @@
 
 
 <span class="k">class</span> <span class="nc">Argument</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a positional argument used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1121,12 +1153,15 @@
 
 
 <span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a named optional parameter used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
@@ -1142,10 +1177,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">empty_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The value to return if the option is empty.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then a value will be required for the</span>
+<span class="sd">        option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the CLI names of this option.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1165,11 +1206,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parser needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
 
@@ -1403,7 +1445,7 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Sequence of the parameters registered with this parser.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -1519,7 +1561,7 @@
                             <div id="AbstractParser.parameters" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#AbstractParser.parameters">#&nbsp;&nbsp</a>
 
-        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[<a href="#Parameter">tanjun.parsing.Parameter</a>]</span>
+        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[typing.Union[<a href="#Argument">tanjun.parsing.Argument</a>, <a href="#Option">tanjun.parsing.Option</a>]]</span>
     </div>
 
             <div class="docstring"><p>Sequence of the parameters registered with this parser.</p>
@@ -1865,6 +1907,8 @@ The message context to parse.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Argument</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a positional argument used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1885,7 +1929,9 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Representation of a positional argument used by the standard parser.</p>
+</div>
+
 
                             <div id="Argument.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Argument.__init__">#&nbsp;&nbsp</a>
@@ -1974,12 +2020,15 @@ The message context to parse.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a named optional parameter used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
@@ -1995,10 +2044,16 @@ The message context to parse.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">empty_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The value to return if the option is empty.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then a value will be required for the</span>
+<span class="sd">        option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the CLI names of this option.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2007,7 +2062,9 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Representation of a named optional parameter used by the standard parser.</p>
+</div>
+
 
                             <div id="Option.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Option.__init__">#&nbsp;&nbsp</a>
@@ -2016,6 +2073,7 @@ The message context to parse.</li>
             <span class="name">Option</span><span class="signature">(
     key: str,
     name: str,
+    /,
     *names: str,
     converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
@@ -2030,6 +2088,7 @@ The message context to parse.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
@@ -2055,7 +2114,12 @@ The message context to parse.</li>
         <span class="name">empty_value</span><span class="annotation">: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>The value to return if the option is empty.</p>
+
+<p>If this is <code><a href="#UndefinedDefaultT">UndefinedDefaultT</a></code> then a value will be required for the
+option.</p>
+</div>
+
 
                             </div>
                             <div id="Option.names" class="classattr">
@@ -2064,7 +2128,9 @@ The message context to parse.</li>
         <span class="name">names</span><span class="annotation">: collections.abc.Sequence[str]</span>
     </div>
 
-    
+            <div class="docstring"><p>Sequence of the CLI names of this option.</p>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2098,6 +2164,8 @@ The message context to parse.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for parameters for the standard parser(s).&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2133,26 +2201,46 @@ The message context to parse.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the converters registered for this parameter.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The parameter&#39;s default.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then this parameter is required.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is greedy.</span>
+
+<span class="sd">        Greedy parameters will consume the remaining message content as one</span>
+<span class="sd">        string (with converters also being passed the whole string).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Greedy and multi parameters cannot be used together.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is &quot;multi&quot;.</span>
+
+<span class="sd">        Multi parameters will be passed a list of all the values provided for</span>
+<span class="sd">        this parameter (with each entry being converted separately.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The key of this parameter used to pass the result to the command&#39;s callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
@@ -2180,6 +2268,7 @@ The message context to parse.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the given value to the type of this parameter.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
@@ -2195,6 +2284,13 @@ The message context to parse.</li>
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t convert </span><span class="si">{</span><span class="n">parameter_type</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ParameterT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ParameterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -2205,7 +2301,9 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Base class for parameters for the standard parser(s).</p>
+</div>
+
 
                             <div id="Parameter.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Parameter.__init__">#&nbsp;&nbsp</a>
@@ -2264,7 +2362,9 @@ The message context to parse.</li>
         <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
     </div>
 
-    
+            <div class="docstring"><p>Sequence of the converters registered for this parameter.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.default" class="classattr">
@@ -2273,7 +2373,11 @@ The message context to parse.</li>
         <span class="name">default</span><span class="annotation">: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>The parameter's default.</p>
+
+<p>If this is <code><a href="#UndefinedDefaultT">UndefinedDefaultT</a></code> then this parameter is required.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.is_greedy" class="classattr">
@@ -2282,7 +2386,15 @@ The message context to parse.</li>
         <span class="name">is_greedy</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parameter is greedy.</p>
+
+<p>Greedy parameters will consume the remaining message content as one
+string (with converters also being passed the whole string).</p>
+
+<p><em>Note:</em>
+Greedy and multi parameters cannot be used together.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.is_multi" class="classattr">
@@ -2291,7 +2403,12 @@ The message context to parse.</li>
         <span class="name">is_multi</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parameter is "multi".</p>
+
+<p>Multi parameters will be passed a list of all the values provided for
+this parameter (with each entry being converted separately.)</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.key" class="classattr">
@@ -2300,7 +2417,9 @@ The message context to parse.</li>
         <span class="name">key</span><span class="annotation">: str</span>
     </div>
 
-    
+            <div class="docstring"><p>The key of this parameter used to pass the result to the command's callback.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.needs_injector" class="classattr">
@@ -2309,7 +2428,9 @@ The message context to parse.</li>
         <span class="name">needs_injector</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parameter needs an injector to be used.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.bind_client" class="classattr">
@@ -2364,6 +2485,7 @@ The message context to parse.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the given value to the type of this parameter.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
@@ -2381,7 +2503,9 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert the given value to the type of this parameter.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.copy" class="classattr">
@@ -2395,6 +2519,13 @@ The message context to parse.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ParameterT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ParameterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -2405,7 +2536,15 @@ The message context to parse.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Copy the parameter.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: A copy of the parameter.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -2608,11 +2747,12 @@ The parser to set.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parser needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
 
@@ -2824,13 +2964,15 @@ The parser to set.</li>
         <span class="name">needs_injector</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parser needs an injector to be used.</p>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.parameters" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ShlexParser.parameters">#&nbsp;&nbsp</a>
 
-        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[<a href="#Parameter">tanjun.parsing.Parameter</a>]</span>
+        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[typing.Union[<a href="#Argument">tanjun.parsing.Argument</a>, <a href="#Option">tanjun.parsing.Option</a>]]</span>
     </div>
 
             <div class="docstring"><p>Sequence of the parameters registered with this parser.</p>
