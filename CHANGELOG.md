@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped the minimum hikari version to hikari~=2.0.0.dev105.
+- `delete_after` is now ignored for ephemeral responses instead of leading to a 404.
 
 ### Fixed
 - The client level ephemeral default is now respected for REST-based slash command execution.

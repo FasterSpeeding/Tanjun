@@ -455,7 +455,8 @@ class Context(abc.ABC):
             If provided, the seconds after which the response message should be delete.
 
             .. note::
-                As of writing, this does not support ephemeral slash command responses.
+                Since (as of writing) ephemeral responses cannot be deleted by the bot,
+                this is ignored for ephemeral slash command responses.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to edit the initial response with.
         attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
@@ -606,7 +607,8 @@ class Context(abc.ABC):
             If provided, the seconds after which the response message should be delete.
 
             .. note::
-                As of writing, this does not support ephemeral slash command responses.
+                Since (as of writing) ephemeral responses cannot be deleted by the bot,
+                this is ignored for ephemeral slash command responses.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to edit the last response with.
         attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
@@ -827,7 +829,8 @@ class Context(abc.ABC):
             If provided, the seconds after which the response message should be delete.
 
             .. note::
-                As of writing, this does not support ephemeral slash command responses.
+                Since (as of writing) ephemeral responses cannot be deleted by the bot,
+                this is ignored for ephemeral slash command responses.
         component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to include in this response.
         components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
@@ -1008,7 +1011,8 @@ class MessageContext(Context, abc.ABC):
             If provided, the seconds after which the response message should be delete.
 
             .. note::
-                As of writing, this does not support ephemeral slash command responses.
+                Since (as of writing) ephemeral responses cannot be deleted by the bot,
+                this is ignored for ephemeral slash command responses.
         tts : hikari.UndefinedOr[bool]
             Whether to respond with tts/text to speech or no.
         reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]
@@ -1442,7 +1446,8 @@ class SlashContext(Context, abc.ABC):
             If provided, the seconds after which the response message should be delete.
 
             .. note::
-                As of writing, this does not support ephemeral slash command responses.
+                Since (as of writing) ephemeral responses cannot be deleted by the bot,
+                this is ignored for ephemeral slash command responses.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
@@ -1544,7 +1549,8 @@ class SlashContext(Context, abc.ABC):
             If provided, the seconds after which the response message should be delete.
 
             .. note::
-                As of writing, this does not support ephemeral slash command responses.
+                Since (as of writing) ephemeral responses cannot be deleted by the bot,
+                this is ignored for ephemeral slash command responses.
         content : hikari.UndefinedOr[typing.Any]
             If provided, the message contents. If
             `hikari.UNDEFINED`, then nothing will be sent
