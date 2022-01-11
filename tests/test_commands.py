@@ -142,7 +142,7 @@ class TestPartialCommand:
     def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
         add_check = mock.Mock()
-        command = stub_class(tanjun.PartialCommand, add_check=add_check)()
+        command = stub_class(tanjun.commands.PartialCommand, add_check=add_check)()
 
         assert command.with_check(mock_check) is mock_check
         add_check.assert_called_once_with(mock_check)
@@ -629,53 +629,53 @@ class TestBaseSlashCommand:
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
-            stub_class(tanjun.BaseSlashCommand)(name, "desccc")
+            stub_class(tanjun.commands.BaseSlashCommand)(name, "desccc")
 
     def test__init__when_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
-            stub_class(tanjun.BaseSlashCommand)("VooDOo", "desccc")
+            stub_class(tanjun.commands.BaseSlashCommand)("VooDOo", "desccc")
 
     def test__init__when_description_too_long(self):
         with pytest.raises(
             ValueError,
             match="The command description cannot be over 100 characters in length",
         ):
-            stub_class(tanjun.BaseSlashCommand)("gary", "x" * 101)
+            stub_class(tanjun.commands.BaseSlashCommand)("gary", "x" * 101)
 
     def test_defaults_to_ephemeral_property(self):
-        command = stub_class(tanjun.BaseSlashCommand)("hi", "no")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("hi", "no")
 
         assert command.set_ephemeral_default(True).defaults_to_ephemeral is True
 
     def test_description_property(self):
-        command = stub_class(tanjun.BaseSlashCommand)("hi", "desccc")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("hi", "desccc")
 
         assert command.description == "desccc"
 
     def test_is_global_property(self):
-        command = stub_class(tanjun.BaseSlashCommand)("yeet", "No", is_global=False)
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yeet", "No", is_global=False)
 
         assert command.is_global is False
 
     def test_name_property(self):
-        command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
 
         assert command.name == "yee"
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
-        command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
 
         assert command.set_parent(mock_parent).parent is mock_parent
 
     def test_tracked_command_property(self):
-        command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
         mock_command = mock.Mock()
 
         assert command.set_tracked_command(mock_command).tracked_command is mock_command
 
     def test_tracked_command_id_property(self):
-        command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
         mock_command = mock.Mock()
 
         assert command.set_tracked_command(mock_command).tracked_command_id is mock_command.id
@@ -690,7 +690,7 @@ class TestBaseSlashCommand:
 
         with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
             command = (
-                stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+                stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
                 .add_check(mock_callback)
                 .add_check(mock_other_callback)
             )
@@ -708,17 +708,17 @@ class TestBaseSlashCommand:
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
         mock_parent = mock.MagicMock()
-        command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
 
         result = command.copy(parent=mock_parent)
 
         assert result is not command
-        assert isinstance(result, tanjun.BaseSlashCommand)
+        assert isinstance(result, tanjun.commands.BaseSlashCommand)
         assert result.parent is mock_parent
 
     def test_load_into_component_when_no_parent(self):
         mock_component = mock.Mock()
-        command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
 
         command.load_into_component(mock_component)
 
@@ -971,7 +971,7 @@ class TestSlashCommand:
 
     def test_load_into_component_when_wrapped_command_is_loadable(self, command: tanjun.SlashCommand[typing.Any]):
         mock_component = mock.Mock()
-        mock_other_command = mock.Mock(tanjun.AbstractComponentLoader)
+        mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
         command._wrapped_command = mock_other_command
 
         with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
@@ -2241,7 +2241,7 @@ class TestMessageCommand:
 
     def test_load_into_component_when_wrapped_command_is_loadable(self):
         mock_component = mock.Mock()
-        mock_other_command = mock.Mock(tanjun.AbstractComponentLoader)
+        mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
         command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
         command._wrapped_command = mock_other_command
 

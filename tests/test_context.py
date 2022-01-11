@@ -219,8 +219,8 @@ class TestBaseContext:
 
 class TestMessageContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.MessageContext:
-        return tanjun.MessageContext(
+    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.context.MessageContext:
+        return tanjun.context.MessageContext(
             mock_client,
             mock_injector_client,
             "hi there",
@@ -231,54 +231,54 @@ class TestMessageContext:
             triggering_prefix="bonhoven",
         )
 
-    def test___repr__(self, context: tanjun.MessageContext):
+    def test___repr__(self, context: tanjun.context.MessageContext):
         assert repr(context) == f"MessageContext <{context.message!r}, {context.command!r}>"
 
-    def test_author_property(self, context: tanjun.MessageContext):
+    def test_author_property(self, context: tanjun.context.MessageContext):
         assert context.author is context.message.author
 
-    def test_channel_id_property(self, context: tanjun.MessageContext):
+    def test_channel_id_property(self, context: tanjun.context.MessageContext):
         assert context.channel_id is context.message.channel_id
 
-    def test_created_at_property(self, context: tanjun.MessageContext):
+    def test_created_at_property(self, context: tanjun.context.MessageContext):
         assert context.created_at is context.message.created_at
 
-    def test_guild_id_property(self, context: tanjun.MessageContext):
+    def test_guild_id_property(self, context: tanjun.context.MessageContext):
         assert context.guild_id is context.message.guild_id
 
-    def test_has_responded_property(self, context: tanjun.MessageContext):
+    def test_has_responded_property(self, context: tanjun.context.MessageContext):
         assert context.has_responded is False
 
-    def test_has_responded_property_when_initial_repsonse_id_set(self, context: tanjun.MessageContext):
+    def test_has_responded_property_when_initial_repsonse_id_set(self, context: tanjun.context.MessageContext):
         context._initial_response_id = hikari.Snowflake(321123)
 
         assert context.has_responded is True
 
-    def test_is_human_property(self, context: tanjun.MessageContext):
+    def test_is_human_property(self, context: tanjun.context.MessageContext):
         context.message.author = mock.Mock(is_bot=False)
         context.message.webhook_id = None
 
         assert context.is_human is True
 
-    def test_is_human_property_when_is_bot(self, context: tanjun.MessageContext):
+    def test_is_human_property_when_is_bot(self, context: tanjun.context.MessageContext):
         context.message.author = mock.Mock(is_bot=True)
         context.message.webhook_id = None
 
         assert context.is_human is False
 
-    def test_is_human_property_when_is_webhook(self, context: tanjun.MessageContext):
+    def test_is_human_property_when_is_webhook(self, context: tanjun.context.MessageContext):
         context.message.author = mock.Mock(is_bot=False)
         context.message.webhook_id = hikari.Snowflake(123321)
 
         assert context.is_human is False
 
-    def test_member_property(self, context: tanjun.MessageContext):
+    def test_member_property(self, context: tanjun.context.MessageContext):
         assert context.member is context.message.member
 
-    def test_message_property(self, context: tanjun.MessageContext):
+    def test_message_property(self, context: tanjun.context.MessageContext):
         assert context.message is context._message
 
-    def test_shard_property(self, context: tanjun.MessageContext):
+    def test_shard_property(self, context: tanjun.context.MessageContext):
         mock_shard = mock.Mock()
         context._client = mock.Mock(
             shards=mock.MagicMock(spec=traits.ShardAware, shard_count=5, shards={2: mock_shard})
@@ -287,19 +287,19 @@ class TestMessageContext:
 
         assert context.shard is mock_shard
 
-    def test_shard_property_when_dm(self, context: tanjun.MessageContext):
+    def test_shard_property_when_dm(self, context: tanjun.context.MessageContext):
         mock_shard = mock.Mock()
         context._client = mock.Mock(shards=mock.Mock(shards={0: mock_shard}))
         context._message = mock.Mock(guild_id=None)
 
         assert context.shard is mock_shard
 
-    def test_shard_property_when_no_shards(self, context: tanjun.MessageContext):
+    def test_shard_property_when_no_shards(self, context: tanjun.context.MessageContext):
         context._client = mock.Mock(shards=None)
 
         assert context.shard is None
 
-    def test_set_command(self, context: tanjun.MessageContext):
+    def test_set_command(self, context: tanjun.context.MessageContext):
         mock_command = mock.Mock()
 
         assert context.set_command(mock_command) is context
@@ -309,7 +309,7 @@ class TestMessageContext:
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
         assert context.get_type_dependency(type(mock_command)) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.MessageContext, mock_injector_client: mock.Mock):
+    def test_set_command_when_none(self, context: tanjun.context.MessageContext, mock_injector_client: mock.Mock):
         mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         context.set_command(None)
         context.set_command(None)
@@ -319,7 +319,7 @@ class TestMessageContext:
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_none_and_previously_set(
-        self, context: tanjun.MessageContext, mock_injector_client: mock.Mock
+        self, context: tanjun.context.MessageContext, mock_injector_client: mock.Mock
     ):
         mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         mock_command = mock.Mock()
@@ -331,7 +331,7 @@ class TestMessageContext:
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
         assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
 
-    def test_set_command_when_finalised(self, context: tanjun.MessageContext):
+    def test_set_command_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()
         mock_command = mock.Mock()
 
@@ -340,11 +340,11 @@ class TestMessageContext:
 
         assert context.command is not mock_command
 
-    def test_set_content(self, context: tanjun.MessageContext):
+    def test_set_content(self, context: tanjun.context.MessageContext):
         assert context.set_content("hi") is context
         assert context.content == "hi"
 
-    def test_set_content_when_finalised(self, context: tanjun.MessageContext):
+    def test_set_content_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()
 
         with pytest.raises(TypeError):
@@ -352,12 +352,12 @@ class TestMessageContext:
 
         assert context.content != "hi"
 
-    def test_set_triggering_name(self, context: tanjun.MessageContext):
+    def test_set_triggering_name(self, context: tanjun.context.MessageContext):
         assert context.set_triggering_name("bonjour") is context
 
         assert context.triggering_name == "bonjour"
 
-    def test_set_triggering_name_when_finalised(self, context: tanjun.MessageContext):
+    def test_set_triggering_name_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()
 
         with pytest.raises(TypeError):
@@ -365,12 +365,12 @@ class TestMessageContext:
 
         assert context.triggering_name != "bonjour2"
 
-    def test_set_triggering_prefix(self, context: tanjun.MessageContext):
+    def test_set_triggering_prefix(self, context: tanjun.context.MessageContext):
         assert context.set_triggering_prefix("bonhoven") is context
 
         assert context.triggering_prefix == "bonhoven"
 
-    def test_set_triggering_prefix_when_finalised(self, context: tanjun.MessageContext):
+    def test_set_triggering_prefix_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()
 
         with pytest.raises(TypeError):
@@ -379,7 +379,7 @@ class TestMessageContext:
         assert context.triggering_prefix != "bonhoven2"
 
     @pytest.mark.asyncio()
-    async def test_delete_initial_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_delete_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._initial_response_id = hikari.Snowflake(32123)
 
         await context.delete_initial_response()
@@ -388,7 +388,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_delete_initial_response_when_no_initial_response(
-        self, context: tanjun.MessageContext, mock_client: mock.Mock
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
         with pytest.raises(LookupError):
             await context.delete_initial_response()
@@ -396,7 +396,7 @@ class TestMessageContext:
         mock_client.rest.delete_message.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_delete_last_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_delete_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._last_response_id = hikari.Snowflake(32123)
 
         await context.delete_last_response()
@@ -404,14 +404,16 @@ class TestMessageContext:
         mock_client.rest.delete_message.assert_awaited_once_with(context.message.channel_id, 32123)
 
     @pytest.mark.asyncio()
-    async def test_delete_last_response_when_no_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_delete_last_response_when_no_response(
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
+    ):
         with pytest.raises(LookupError):
             await context.delete_last_response()
 
         mock_client.rest.delete_message.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_edit_initial_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_edit_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._initial_response_id = hikari.Snowflake(32123)
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -454,7 +456,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_no_initial_response(
-        self, context: tanjun.MessageContext, mock_client: mock.Mock
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
         with pytest.raises(LookupError):
             await context.edit_initial_response("hi")
@@ -466,11 +468,11 @@ class TestMessageContext:
     async def test_edit_initial_response_when_delete_after(
         self,
         delete_after: typing.Union[datetime.timedelta, float, int],
-        context: tanjun.MessageContext,
+        context: tanjun.context.MessageContext,
         mock_client: mock.Mock,
     ):
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.MessageContext, _delete_after=mock_delete_after)(
+        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
             mock_client, mock.Mock(), "e", mock.AsyncMock()
         )
         context._initial_response_id = hikari.Snowflake(32123)
@@ -482,7 +484,7 @@ class TestMessageContext:
         mock_delete_after.assert_called_once_with(123.0, mock_client.rest.edit_message.return_value)
 
     @pytest.mark.asyncio()
-    async def test_edit_last_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_edit_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._last_response_id = hikari.Snowflake(32123)
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -523,7 +525,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_no_last_response(
-        self, context: tanjun.MessageContext, mock_client: mock.Mock
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
         with pytest.raises(LookupError):
             await context.edit_last_response("hi")
@@ -534,12 +536,12 @@ class TestMessageContext:
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_delete_after(
         self,
-        context: tanjun.MessageContext,
+        context: tanjun.context.MessageContext,
         mock_client: mock.Mock,
         delete_after: typing.Union[datetime.timedelta, int, float],
     ):
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.MessageContext, _delete_after=mock_delete_after)(
+        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
             mock_client, mock.Mock(), "e", mock.AsyncMock()
         )
         context._last_response_id = hikari.Snowflake(32123)
@@ -551,7 +553,7 @@ class TestMessageContext:
         mock_delete_after.assert_called_once_with(654.0, mock_client.rest.edit_message.return_value)
 
     @pytest.mark.asyncio()
-    async def test_fetch_initial_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_fetch_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._initial_response_id = hikari.Snowflake(32123)
 
         message = await context.fetch_initial_response()
@@ -561,7 +563,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_initial_response_when_no_initial_response(
-        self, context: tanjun.MessageContext, mock_client: mock.Mock
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
         with pytest.raises(LookupError):
             await context.fetch_initial_response()
@@ -569,7 +571,7 @@ class TestMessageContext:
         mock_client.rest.fetch_message.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_fetch_last_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
+    async def test_fetch_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._last_response_id = hikari.Snowflake(32123)
 
         message = await context.fetch_last_response()
@@ -579,7 +581,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_last_response_when_no_last_response(
-        self, context: tanjun.MessageContext, mock_client: mock.Mock
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
         context._last_response_id = None
         with pytest.raises(LookupError):
@@ -588,7 +590,7 @@ class TestMessageContext:
         mock_client.rest.fetch_message.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test__delete_after(self, context: tanjun.MessageContext):
+    async def test__delete_after(self, context: tanjun.context.MessageContext):
         mock_message = mock.AsyncMock()
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -598,7 +600,7 @@ class TestMessageContext:
             mock_message.delete.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test__delete_after_handles_not_found_error(self, context: tanjun.MessageContext):
+    async def test__delete_after_handles_not_found_error(self, context: tanjun.context.MessageContext):
         mock_message = mock.AsyncMock()
         mock_message.delete.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
 
@@ -609,7 +611,7 @@ class TestMessageContext:
             mock_message.delete.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test_respond(self, context: tanjun.MessageContext):
+    async def test_respond(self, context: tanjun.context.MessageContext):
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
         mock_component = mock.Mock()
@@ -657,7 +659,7 @@ class TestMessageContext:
         assert context._initial_response_id == context.message.respond.return_value.id
 
     @pytest.mark.asyncio()
-    async def test_respond_when_initial_response_id_already_set(self, context: tanjun.MessageContext):
+    async def test_respond_when_initial_response_id_already_set(self, context: tanjun.context.MessageContext):
         context._initial_response_id = hikari.Snowflake(32123)
 
         await context.respond("hi")
@@ -668,7 +670,7 @@ class TestMessageContext:
     @pytest.mark.asyncio()
     async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.MessageContext, _delete_after=mock_delete_after)(
+        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
             mock.Mock(), mock.Mock(), "e", mock.AsyncMock()
         )
 
@@ -684,17 +686,17 @@ class TestSlashOption:
     def test_name_property(self):
         mock_option = mock.Mock()
 
-        assert tanjun.SlashOption(mock.Mock(), mock_option).name is mock_option.name
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).name is mock_option.name
 
     def test_type_property(self):
         mock_option = mock.Mock()
 
-        assert tanjun.SlashOption(mock.Mock(), mock_option).type is mock_option.type
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).type is mock_option.type
 
     def test_value_property(self):
         mock_option = mock.Mock()
 
-        assert tanjun.SlashOption(mock.Mock(), mock_option).value is mock_option.value
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).value is mock_option.value
 
     def test_resolve_value_for_channel_option(self):
         resolve_to_channel = mock.Mock()
@@ -702,7 +704,7 @@ class TestSlashOption:
         resolve_to_user = mock.Mock()
         resolve_to_mentionable = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_channel=resolve_to_channel,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
@@ -723,7 +725,7 @@ class TestSlashOption:
         resolve_to_user = mock.Mock()
         resolve_to_mentionable = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_channel=resolve_to_channel,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
@@ -744,7 +746,7 @@ class TestSlashOption:
         resolve_to_user = mock.Mock()
         resolve_to_mentionable = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_channel=resolve_to_channel,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
@@ -765,7 +767,7 @@ class TestSlashOption:
         resolve_to_user = mock.Mock()
         resolve_to_mentionable = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_channel=resolve_to_channel,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
@@ -786,7 +788,7 @@ class TestSlashOption:
         resolve_to_user = mock.Mock()
         resolve_to_mentionable = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_channel=resolve_to_channel,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
@@ -805,7 +807,9 @@ class TestSlashOption:
         mock_channel = mock.Mock()
         mock_interaction = mock.Mock()
         mock_interaction.resolved.channels = {3123321: mock_channel}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.CHANNEL, value="3123321"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.CHANNEL, value="3123321")
+        )
 
         value = option.resolve_to_channel()
 
@@ -813,13 +817,13 @@ class TestSlashOption:
 
     def test_resolve_to_channel_for_non_channel_type(self):
         with pytest.raises(TypeError):
-            tanjun.SlashOption(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE)).resolve_to_channel()
+            tanjun.context.SlashOption(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE)).resolve_to_channel()
 
     def test_resolve_to_member(self):
         mock_member = mock.Mock()
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {421123: mock_member}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="421123"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="421123"))
 
         value = option.resolve_to_member()
 
@@ -828,7 +832,7 @@ class TestSlashOption:
     def test_resolve_to_member_when_user_only(self):
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="421123"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="421123"))
 
         with pytest.raises(LookupError):
             option.resolve_to_member()
@@ -837,7 +841,7 @@ class TestSlashOption:
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {}
         mock_result = mock.Mock()
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="421123"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="421123"))
 
         result = option.resolve_to_member(default=mock_result)
 
@@ -847,7 +851,9 @@ class TestSlashOption:
         mock_member = mock.Mock()
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {1122: mock_member}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_member()
 
@@ -857,7 +863,9 @@ class TestSlashOption:
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {1122: mock.Mock()}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         with pytest.raises(LookupError):
             option.resolve_to_member()
@@ -867,7 +875,9 @@ class TestSlashOption:
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {1122: mock.Mock()}
         mock_default = mock.Mock()
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_member(default=mock_default)
 
@@ -877,7 +887,9 @@ class TestSlashOption:
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         with pytest.raises(TypeError):
             option.resolve_to_member(default=mock.Mock())
@@ -888,7 +900,9 @@ class TestSlashOption:
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.roles = {1122: mock_role}
         mock_interaction.resolved.users = {}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -900,7 +914,9 @@ class TestSlashOption:
         mock_interaction.resolved.members = {1122: mock_member}
         mock_interaction.resolved.roles = {}
         mock_interaction.resolved.users = {}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -912,7 +928,9 @@ class TestSlashOption:
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.roles = {}
         mock_interaction.resolved.users = {1122: mock_user}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -922,7 +940,7 @@ class TestSlashOption:
         resolve_to_role = mock.Mock()
         resolve_to_user = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
         )(mock.Mock(), mock.Mock(type=hikari.OptionType.USER))
@@ -937,7 +955,7 @@ class TestSlashOption:
         resolve_to_role = mock.Mock()
         resolve_to_user = mock.Mock()
         option = stub_class(
-            tanjun.SlashOption,
+            tanjun.context.SlashOption,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
         )(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE))
@@ -950,13 +968,13 @@ class TestSlashOption:
 
     def test_resolve_to_mentionable_when_not_mentionable(self):
         with pytest.raises(TypeError):
-            tanjun.SlashOption(mock.Mock(), mock.Mock(type=hikari.OptionType.INTEGER)).resolve_to_mentionable()
+            tanjun.context.SlashOption(mock.Mock(), mock.Mock(type=hikari.OptionType.INTEGER)).resolve_to_mentionable()
 
     def test_resolve_to_role(self):
         mock_role = mock.Mock()
         mock_interaction = mock.Mock()
         mock_interaction.resolved.roles = {21321: mock_role}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.ROLE, value="21321"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.ROLE, value="21321"))
 
         result = option.resolve_to_role()
 
@@ -966,7 +984,9 @@ class TestSlashOption:
         mock_role = mock.Mock()
         mock_interaction = mock.Mock()
         mock_interaction.resolved.roles = {21321: mock_role}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321")
+        )
 
         result = option.resolve_to_role()
 
@@ -975,14 +995,16 @@ class TestSlashOption:
     def test_resolve_to_role_when_mentionable_but_targets_user(self):
         mock_interaction = mock.Mock()
         mock_interaction.resolved.roles = {}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321")
+        )
 
         with pytest.raises(TypeError):
             option.resolve_to_role()
 
     def test_resolve_to_role_when_not_role(self):
         mock_interaction = mock.Mock()
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.INTEGER, value="21321"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.INTEGER, value="21321"))
 
         with pytest.raises(TypeError):
             option.resolve_to_role()
@@ -992,7 +1014,7 @@ class TestSlashOption:
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {33333: mock_user}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="33333"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.USER, value="33333"))
 
         result = option.resolve_to_user()
 
@@ -1003,7 +1025,9 @@ class TestSlashOption:
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {33333: mock_member}
         mock_interaction.resolved.users = {33333: mock.Mock()}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         result = option.resolve_to_user()
 
@@ -1011,7 +1035,7 @@ class TestSlashOption:
 
     def test_resolve_to_user_when_not_user(self):
         mock_interaction = mock.Mock()
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.INTEGER, value="33333"))
+        option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.INTEGER, value="33333"))
 
         with pytest.raises(TypeError):
             option.resolve_to_user()
@@ -1021,7 +1045,9 @@ class TestSlashOption:
         mock_user = mock.Mock()
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {33333: mock_user}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         result = option.resolve_to_user()
 
@@ -1032,7 +1058,9 @@ class TestSlashOption:
         mock_member = mock.Mock()
         mock_interaction.resolved.members = {33333: mock_member}
         mock_interaction.resolved.users = {33333: mock.Mock()}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         result = option.resolve_to_user()
 
@@ -1042,7 +1070,9 @@ class TestSlashOption:
         mock_interaction = mock.Mock()
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {}
-        option = tanjun.SlashOption(mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.SlashOption(
+            mock_interaction, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         with pytest.raises(TypeError):
             option.resolve_to_user()
@@ -1050,8 +1080,8 @@ class TestSlashOption:
 
 class TestSlashContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.SlashContext:
-        return tanjun.SlashContext(
+    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.context.SlashContext:
+        return tanjun.context.SlashContext(
             mock_client,
             mock_injector_client,
             mock.AsyncMock(options=None),
@@ -1059,20 +1089,20 @@ class TestSlashContext:
             component=mock.Mock(),
         )
 
-    def test_author_property(self, context: tanjun.SlashContext):
+    def test_author_property(self, context: tanjun.context.SlashContext):
         assert context.author is context.interaction.user
 
-    def test_channel_id_property(self, context: tanjun.SlashContext):
+    def test_channel_id_property(self, context: tanjun.context.SlashContext):
         assert context.channel_id is context.interaction.channel_id
 
     def test_client_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):
         assert context.client is mock_client
 
-    def test_created_at_property(self, context: tanjun.SlashContext):
+    def test_created_at_property(self, context: tanjun.context.SlashContext):
         assert context.created_at is context.interaction.created_at
 
     def test_expires_at_property(self):
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock.Mock(),
             mock.Mock(),
             mock.Mock(
@@ -1082,32 +1112,32 @@ class TestSlashContext:
 
         assert context.expires_at == datetime.datetime(2021, 11, 15, 5, 57, 6, 445670, tzinfo=datetime.timezone.utc)
 
-    def test_guild_id_property(self, context: tanjun.SlashContext):
+    def test_guild_id_property(self, context: tanjun.context.SlashContext):
         assert context.guild_id is context.interaction.guild_id
 
-    def test_has_been_deferred_property(self, context: tanjun.SlashContext):
+    def test_has_been_deferred_property(self, context: tanjun.context.SlashContext):
         assert context.has_been_deferred is context._has_been_deferred
 
-    def test_has_responded_property(self, context: tanjun.SlashContext):
+    def test_has_responded_property(self, context: tanjun.context.SlashContext):
         assert context.has_responded is context._has_responded
 
-    def test_is_human_property(self, context: tanjun.SlashContext):
+    def test_is_human_property(self, context: tanjun.context.SlashContext):
         assert context.is_human is True
 
-    def test_member_property(self, context: tanjun.SlashContext):
+    def test_member_property(self, context: tanjun.context.SlashContext):
         assert context.member is context.interaction.member
 
-    def test_triggering_name_property(self, context: tanjun.SlashContext):
+    def test_triggering_name_property(self, context: tanjun.context.SlashContext):
         assert context.triggering_name is context.interaction.command_name
 
-    def test_interaction_property(self, context: tanjun.SlashContext):
+    def test_interaction_property(self, context: tanjun.context.SlashContext):
         assert context.interaction is context._interaction
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_when_no_options(
         self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
     ):
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock_client,
             mock.Mock(),
             mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options),
@@ -1122,7 +1152,7 @@ class TestSlashContext:
         mock_option_1.name = "hi"
         mock_option_2 = mock.Mock()
         mock_option_2.name = "bye"
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock_client,
             mock.Mock(),
             mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
@@ -1134,12 +1164,12 @@ class TestSlashContext:
         assert context.options["hi"].type is mock_option_1.type
         assert context.options["hi"].value is mock_option_1.value
         assert context.options["hi"].name is mock_option_1.name
-        assert isinstance(context.options["hi"], tanjun.SlashOption)
+        assert isinstance(context.options["hi"], tanjun.context.SlashOption)
 
         assert context.options["bye"].type is mock_option_2.type
         assert context.options["bye"].value is mock_option_2.value
         assert context.options["bye"].name is mock_option_2.name
-        assert isinstance(context.options["bye"], tanjun.SlashOption)
+        assert isinstance(context.options["bye"], tanjun.context.SlashOption)
 
     def test_options_property_for_command_group(self, mock_client: mock.Mock):
         mock_option_1 = mock.Mock()
@@ -1147,7 +1177,7 @@ class TestSlashContext:
         mock_option_2 = mock.Mock()
         mock_option_2.name = "nyaa"
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock_client,
             mock.Mock(),
             mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
@@ -1159,19 +1189,19 @@ class TestSlashContext:
         assert context.options["kachow"].type is mock_option_1.type
         assert context.options["kachow"].value is mock_option_1.value
         assert context.options["kachow"].name is mock_option_1.name
-        assert isinstance(context.options["kachow"], tanjun.SlashOption)
+        assert isinstance(context.options["kachow"], tanjun.context.SlashOption)
 
         assert context.options["nyaa"].type is mock_option_2.type
         assert context.options["nyaa"].value is mock_option_2.value
         assert context.options["nyaa"].name is mock_option_2.name
-        assert isinstance(context.options["nyaa"], tanjun.SlashOption)
+        assert isinstance(context.options["nyaa"], tanjun.context.SlashOption)
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_for_command_group_with_no_sub_option(
         self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
     ):
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock_client,
             mock.Mock(),
             mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
@@ -1188,7 +1218,7 @@ class TestSlashContext:
         mock_option_2.name = "nya"
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock_client,
             mock.Mock(),
             mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
@@ -1200,12 +1230,12 @@ class TestSlashContext:
         assert context.options["meow"].type is mock_option_1.type
         assert context.options["meow"].value is mock_option_1.value
         assert context.options["meow"].name is mock_option_1.name
-        assert isinstance(context.options["meow"], tanjun.SlashOption)
+        assert isinstance(context.options["meow"], tanjun.context.SlashOption)
 
         assert context.options["nya"].type is mock_option_2.type
         assert context.options["nya"].value is mock_option_2.value
         assert context.options["nya"].name is mock_option_2.name
-        assert isinstance(context.options["nya"], tanjun.SlashOption)
+        assert isinstance(context.options["nya"], tanjun.context.SlashOption)
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_for_sub_command_group_with_no_sub_option(
@@ -1213,7 +1243,7 @@ class TestSlashContext:
     ):
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-        context = tanjun.SlashContext(
+        context = tanjun.context.SlashContext(
             mock_client,
             mock.Mock(),
             mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]),
@@ -1226,7 +1256,7 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test__auto_defer_property(self, mock_client: mock.Mock):
         defer = mock.AsyncMock()
-        context = stub_class(tanjun.SlashContext, defer=defer)(
+        context = stub_class(tanjun.context.SlashContext, defer=defer)(
             mock_client,
             mock.AsyncMock(),
             mock.Mock(options=None),
@@ -1240,19 +1270,19 @@ class TestSlashContext:
             sleep.assert_awaited_once_with(0.1)
             defer.assert_awaited_once_with()
 
-    def test_cancel_defer(self, context: tanjun.SlashContext):
+    def test_cancel_defer(self, context: tanjun.context.SlashContext):
         context._defer_task = mock.Mock()
 
         context.cancel_defer()
 
         context._defer_task.cancel.assert_called_once_with()
 
-    def test_cancel_defer_when_no_active_task(self, context: tanjun.SlashContext):
+    def test_cancel_defer_when_no_active_task(self, context: tanjun.context.SlashContext):
         context._defer_task = None
         context.cancel_defer()
 
     @pytest.mark.parametrize(("flags", "result"), [(hikari.UNDEFINED, hikari.MessageFlag.NONE), (6666, 6666)])
-    def test__get_flags(self, context: tanjun.SlashContext, flags: hikari.UndefinedOr[int], result: int):
+    def test__get_flags(self, context: tanjun.context.SlashContext, flags: hikari.UndefinedOr[int], result: int):
         context.set_ephemeral_default(False)
 
         assert context._get_flags(flags) == result
@@ -1266,13 +1296,13 @@ class TestSlashContext:
         ],
     )
     def test__get_flags_when_defaulting_to_ephemeral(
-        self, context: tanjun.SlashContext, flags: hikari.UndefinedOr[int], result: int
+        self, context: tanjun.context.SlashContext, flags: hikari.UndefinedOr[int], result: int
     ):
         context.set_ephemeral_default(True)
 
         assert context._get_flags(flags) == result
 
-    def test_get_response_future(self, context: tanjun.SlashContext):
+    def test_get_response_future(self, context: tanjun.context.SlashContext):
         with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
             result = context.get_response_future()
 
@@ -1280,7 +1310,7 @@ class TestSlashContext:
             get_running_loop.return_value.create_future.assert_called_once_with()
             assert result is get_running_loop.return_value.create_future.return_value
 
-    def test_get_response_future_when_future_already_exists(self, context: tanjun.SlashContext):
+    def test_get_response_future_when_future_already_exists(self, context: tanjun.context.SlashContext):
         mock_future = mock.Mock()
         context._response_future = mock_future
 
@@ -1293,22 +1323,26 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test_mark_not_found(self):
         on_not_found = mock.AsyncMock()
-        context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
+        context = tanjun.context.SlashContext(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
+        )
 
         await context.mark_not_found()
 
         on_not_found.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio()
-    async def test_mark_not_found_when_no_callback(self, context: tanjun.SlashContext):
-        context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
+    async def test_mark_not_found_when_no_callback(self, context: tanjun.context.SlashContext):
+        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
 
         await context.mark_not_found()
 
     @pytest.mark.asyncio()
-    async def test_mark_not_found_when_already_marked_as_not_found(self, context: tanjun.SlashContext):
+    async def test_mark_not_found_when_already_marked_as_not_found(self, context: tanjun.context.SlashContext):
         on_not_found = mock.AsyncMock()
-        context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
+        context = tanjun.context.SlashContext(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
+        )
         await context.mark_not_found()
         on_not_found.reset_mock()
 
@@ -1318,7 +1352,7 @@ class TestSlashContext:
 
     def test_start_defer_timer(self, mock_client: mock.Mock):
         auto_defer = mock.Mock()
-        context = stub_class(tanjun.SlashContext, _auto_defer=auto_defer)(
+        context = stub_class(tanjun.context.SlashContext, _auto_defer=auto_defer)(
             mock_client,
             mock.AsyncMock(),
             mock.Mock(options=None),
@@ -1333,19 +1367,19 @@ class TestSlashContext:
             create_task.assert_called_once_with(auto_defer.return_value)
             assert context._defer_task is create_task.return_value
 
-    def test_start_defer_timer_when_already_started(self, context: tanjun.SlashContext):
+    def test_start_defer_timer_when_already_started(self, context: tanjun.context.SlashContext):
         context._defer_task = mock.Mock()
 
         with pytest.raises(RuntimeError):
             context.start_defer_timer(321)
 
-    def test_start_defer_timer_when_finalised(self, context: tanjun.SlashContext):
+    def test_start_defer_timer_when_finalised(self, context: tanjun.context.SlashContext):
         context.finalise()
 
         with pytest.raises(TypeError):
             context.start_defer_timer(123)
 
-    def test_set_command(self, context: tanjun.SlashContext):
+    def test_set_command(self, context: tanjun.context.SlashContext):
         mock_command = mock.Mock()
 
         assert context.set_command(mock_command) is context
@@ -1356,7 +1390,7 @@ class TestSlashContext:
         assert context.get_type_dependency(tanjun.abc.SlashCommand) is mock_command
         assert context.get_type_dependency(type(mock_command)) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.SlashContext, mock_injector_client: mock.Mock):
+    def test_set_command_when_none(self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock):
         mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         context.set_command(None)
         context.set_command(None)
@@ -1367,7 +1401,7 @@ class TestSlashContext:
         assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_none_and_previously_set(
-        self, context: tanjun.SlashContext, mock_injector_client: mock.Mock
+        self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock
     ):
         mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
         mock_command = mock.Mock()
@@ -1380,7 +1414,7 @@ class TestSlashContext:
         assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
         assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
 
-    def test_set_command_when_finalised(self, context: tanjun.SlashContext):
+    def test_set_command_when_finalised(self, context: tanjun.context.SlashContext):
         context.finalise()
         mock_command = mock.Mock()
 
@@ -1389,11 +1423,11 @@ class TestSlashContext:
 
         assert context.command is not mock_command
 
-    def test_set_ephemeral_default(self, context: tanjun.SlashContext):
+    def test_set_ephemeral_default(self, context: tanjun.context.SlashContext):
         assert context.set_ephemeral_default(True) is context
         assert context.defaults_to_ephemeral is True
 
-    def test_set_ephemeral_default_when_finalised(self, context: tanjun.SlashContext):
+    def test_set_ephemeral_default_when_finalised(self, context: tanjun.context.SlashContext):
         context.finalise()
         with pytest.raises(TypeError):
             context.set_ephemeral_default(True)
@@ -1401,15 +1435,15 @@ class TestSlashContext:
         assert context.defaults_to_ephemeral is False
 
     @pytest.mark.skip(reason="not implemented")
-    async def test_defer_cancels_defer_when_not_in_defer_task(self, context: tanjun.SlashContext):
+    async def test_defer_cancels_defer_when_not_in_defer_task(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
-    async def test_defer_doesnt_cancel_defer_when_in_deffer_task(self, context: tanjun.SlashContext):
+    async def test_defer_doesnt_cancel_defer_when_in_deffer_task(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.asyncio()
-    async def test__delete_followup_after(self, context: tanjun.SlashContext):
+    async def test__delete_followup_after(self, context: tanjun.context.SlashContext):
         mock_message = mock.Mock()
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -1421,7 +1455,7 @@ class TestSlashContext:
         context.interaction.delete_message.assert_awaited_once_with(mock_message)
 
     @pytest.mark.asyncio()
-    async def test__delete_followup_after_handles_not_found_error(self, context: tanjun.SlashContext):
+    async def test__delete_followup_after_handles_not_found_error(self, context: tanjun.context.SlashContext):
         mock_message = mock.Mock()
         assert isinstance(context.interaction.delete_message, mock.AsyncMock)
         context.interaction.delete_message.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
@@ -1435,13 +1469,13 @@ class TestSlashContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_followup(self, context: tanjun.SlashContext):
+    async def test_create_followup(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.asyncio()
-    async def test__delete_initial_response_after(self, context: tanjun.SlashContext):
+    async def test__delete_initial_response_after(self, context: tanjun.context.SlashContext):
         mock_delete_initial_response = mock.AsyncMock()
-        context = stub_class(tanjun.SlashContext, delete_initial_response=mock_delete_initial_response)(
+        context = stub_class(tanjun.context.SlashContext, delete_initial_response=mock_delete_initial_response)(
             mock.Mock(), mock.Mock(), mock.Mock(options=None)
         )
 
@@ -1452,12 +1486,12 @@ class TestSlashContext:
             mock_delete_initial_response.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test__delete_initial_response_after_handles_not_found_error(self, context: tanjun.SlashContext):
+    async def test__delete_initial_response_after_handles_not_found_error(self, context: tanjun.context.SlashContext):
         mock_delete_initial_response = mock.AsyncMock(
             side_effect=hikari.NotFoundError(url="", headers={}, raw_body=None)
         )
         assert isinstance(context.interaction.delete_message, mock.AsyncMock)
-        context = stub_class(tanjun.SlashContext, delete_initial_response=mock_delete_initial_response)(
+        context = stub_class(tanjun.context.SlashContext, delete_initial_response=mock_delete_initial_response)(
             mock.Mock(), mock.Mock(), mock.Mock(options=None)
         )
 
@@ -1469,41 +1503,43 @@ class TestSlashContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response(self, context: tanjun.SlashContext):
+    async def test_create_initial_response(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_for_gateway_interaction(self, context: tanjun.SlashContext):
+    async def test_create_initial_response_for_gateway_interaction(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_for_rest_interaction(self, context: tanjun.SlashContext):
+    async def test_create_initial_response_for_rest_interaction(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_already_responded(self, context: tanjun.SlashContext):
+    async def test_create_initial_response_when_already_responded(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_deferred(self, context: tanjun.SlashContext):
+    async def test_create_initial_response_when_deferred(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_delete_after(self, context: tanjun.SlashContext):
+    async def test_create_initial_response_when_delete_after(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_delete_after_will_have_expired(self, context: tanjun.SlashContext):
+    async def test_create_initial_response_when_delete_after_will_have_expired(
+        self, context: tanjun.context.SlashContext
+    ):
         ...
 
     @pytest.mark.asyncio()
-    async def test_delete_initial_response(self, context: tanjun.SlashContext):
+    async def test_delete_initial_response(self, context: tanjun.context.SlashContext):
         assert context.has_responded is False
 
         await context.delete_initial_response()
@@ -1513,7 +1549,7 @@ class TestSlashContext:
         assert context.has_responded is True
 
     @pytest.mark.asyncio()
-    async def test_edit_initial_response(self, context: tanjun.SlashContext):
+    async def test_edit_initial_response(self, context: tanjun.context.SlashContext):
         assert context.has_responded is False
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -1558,15 +1594,15 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after(
         self,
-        context: tanjun.SlashContext,
+        context: tanjun.context.SlashContext,
         mock_client: mock.Mock,
         delete_after: typing.Union[datetime.timedelta, int, float],
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
-        context = stub_class(tanjun.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after)(
-            mock_client, mock.Mock(), mock_interaction
-        )
+        context = stub_class(
+            tanjun.context.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after
+        )(mock_client, mock.Mock(), mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
@@ -1578,15 +1614,15 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after_will_have_expired(
         self,
-        context: tanjun.SlashContext,
+        context: tanjun.context.SlashContext,
         mock_client: mock.Mock,
         delete_after: typing.Union[datetime.timedelta, int, float],
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
-        context = stub_class(tanjun.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after)(
-            mock_client, mock.Mock(), mock_interaction
-        )
+        context = stub_class(
+            tanjun.context.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after
+        )(mock_client, mock.Mock(), mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             with pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"):
@@ -1597,50 +1633,50 @@ class TestSlashContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_only_initial_response(self, context: tanjun.SlashContext):
+    async def test_edit_last_response_when_only_initial_response(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_initial_response_deferred(self, context: tanjun.SlashContext):
+    async def test_edit_last_response_when_initial_response_deferred(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after(
-        self, context: tanjun.SlashContext
+        self, context: tanjun.context.SlashContext
     ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after_will_have_expired(
-        self, context: tanjun.SlashContext
+        self, context: tanjun.context.SlashContext
     ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_multiple_responses(self, context: tanjun.SlashContext):
+    async def test_edit_last_response_when_multiple_responses(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_no_previous_response(self, context: tanjun.SlashContext):
+    async def test_edit_last_response_when_no_previous_response(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.asyncio()
-    async def test_fetch_initial_response(self, context: tanjun.SlashContext):
+    async def test_fetch_initial_response(self, context: tanjun.context.SlashContext):
         assert isinstance(context.interaction.fetch_initial_response, mock.AsyncMock)
         assert await context.fetch_initial_response() is context.interaction.fetch_initial_response.return_value
         context.interaction.fetch_initial_response.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_fetch_last_response(self, context: tanjun.SlashContext):
+    async def test_fetch_last_response(self, context: tanjun.context.SlashContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_respond(self, context: tanjun.SlashContext):
+    async def test_respond(self, context: tanjun.context.SlashContext):
         ...

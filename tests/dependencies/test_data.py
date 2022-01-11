@@ -129,7 +129,7 @@ def test_inject_lc():
 @pytest.mark.asyncio()
 def test_cache_callback_when_invalid_expire_after(expire_after: typing.Union[float, int, datetime.timedelta]):
     with pytest.raises(ValueError, match="expire_after must be more than 0 seconds"):
-        tanjun.cache_callback(mock.Mock(), expire_after=expire_after)
+        tanjun.dependencies.cache_callback(mock.Mock(), expire_after=expire_after)
 
 
 @pytest.mark.asyncio()

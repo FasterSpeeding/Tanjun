@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   these should be set using methods/decorators.
 - Redundant hook and check keyword-arguments from the standard `Client` impl; these should be set using
   methods.
+- The use of star imports in `tanjun.__init__` and `tanjun.dependencies.__init__` meaning that now only
+  the documented types and attributes for these modules (whatever's in the `__all__`) may be accessed
+  directly on them now.
+- `tanjun.MessageContext`, `tanjun.SlashContext` and `tanjun.Context` are no-longer exported on the top
+  level as in most cases their abc equivalent should be used.
 
 ## [2.2.3a1] - 2022-01-06
 ### Added
