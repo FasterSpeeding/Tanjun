@@ -1205,7 +1205,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         )
         self._has_responded = True
 
-        if delete_after is not None and not (message.flags & hikari.MessageFlag.EPHEMERAL):
+        if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
             asyncio.create_task(self._delete_initial_response_after(delete_after))
 
         return message
