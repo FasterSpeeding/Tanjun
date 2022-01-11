@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped the minimum hikari version to hikari~=2.0.0.dev105.
 
+### Fixed
+- The client level ephemeral default is now respected for REST-based slash command execution.
+
 ### Removed
 - Redundant checks, hooks and metadata keyword-arguments from the standard `MessageCommand`,
   `MessageCommandGroup`, `SlashCommandGroup` and `SlashCommand` implementations' `__init__`s;

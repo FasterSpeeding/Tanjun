@@ -2056,6 +2056,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         try:
             if await self.check(ctx):
                 for component in self._components.values():
+                    # This is set on each iteration to ensure that any component
+                    # state which was set to this isn't propagated to other components.
+                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
                     if await component.execute_interaction(ctx, hooks=hooks):
                         return await future
 
