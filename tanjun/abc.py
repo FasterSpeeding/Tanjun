@@ -452,7 +452,11 @@ class Context(abc.ABC):
         Other Parameters
         ----------------
         delete_after : typing.Union[datetime.timedelta, float, int, None]
-            If provided, the seconds after which the response message should be delete.
+            If provided, the seconds after which the response message should be deleted.
+
+            .. note::
+                Slash command responses can only be deleted within 14 minutes of the
+                command being received.
 
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
@@ -530,6 +534,8 @@ class Context(abc.ABC):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+            If `delete_after` would be more than 14 minutes after the slash
+            command was called.
         TypeError
             If both `attachment` and `attachments` are specified.
         hikari.BadRequestError
@@ -604,7 +610,11 @@ class Context(abc.ABC):
         Other Parameters
         ----------------
         delete_after : typing.Union[datetime.timedelta, float, int, None]
-            If provided, the seconds after which the response message should be delete.
+            If provided, the seconds after which the response message should be deleted.
+
+            .. note::
+                Slash command responses can only be deleted within 14 minutes of the
+                command being received.
 
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
@@ -684,6 +694,8 @@ class Context(abc.ABC):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+            If `delete_after` would be more than 14 minutes after the slash
+            command was called.
         TypeError
             If both `attachment` and `attachments` are specified.
         hikari.BadRequestError
@@ -820,13 +832,19 @@ class Context(abc.ABC):
         Other Parameters
         ----------------
         ensure_result : bool
-            If provided and set to `True` then this will always return `hikari.Message`,
-            otherwise this will return `Optional[hikari.Message]`.
+            Ensure that this call will always return a message object.
+
+            If `True` then this will always return `hikari.Message`, otherwise
+            this will return `Optional[hikari.Message]`.
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
         delete_after : typing.Union[datetime.timedelta, float, int, None]
-            If provided, the seconds after which the response message should be delete.
+            If provided, the seconds after which the response message should be deleted.
+
+            .. note::
+                Slash command responses can only be deleted within 14 minutes of the
+                command being received.
 
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
@@ -870,6 +888,8 @@ class Context(abc.ABC):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+            If `delete_after` would be more than 14 minutes after the slash
+            command was called.
         TypeError
             If both `attachment` and `attachments` are specified.
         hikari.BadRequestError
@@ -1004,15 +1024,12 @@ class MessageContext(Context, abc.ABC):
         Other Parameters
         ----------------
         ensure_result : bool
-            This parameter does nothing in the message command flow, as the result
-            will always be available, but is present to keep the signature
-            compatible with `Context.respond`.
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
-            If provided, the seconds after which the response message should be delete.
+            Ensure this method call will return a message object.
 
-            .. note::
-                Since (as of writing) ephemeral responses cannot be deleted by the bot,
-                this is ignored for ephemeral slash command responses.
+            This does nothing for message command contexts as the result w ill
+            always be immedieatly available.
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be deleted.
         tts : hikari.UndefinedOr[bool]
             Whether to respond with tts/text to speech or no.
         reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]
@@ -1443,7 +1460,11 @@ class SlashContext(Context, abc.ABC):
         Other Parameters
         ----------------
         delete_after : typing.Union[datetime.timedelta, float, int, None]
-            If provided, the seconds after which the response message should be delete.
+            If provided, the seconds after which the response message should be deleted.
+
+            .. note::
+                Slash command responses can only be deleted within 14 minutes of the
+                command being received.
 
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
@@ -1546,7 +1567,11 @@ class SlashContext(Context, abc.ABC):
         Other Parameters
         ----------------
         delete_after : typing.Union[datetime.timedelta, float, int, None]
-            If provided, the seconds after which the response message should be delete.
+            If provided, the seconds after which the response message should be deleted.
+
+            .. note::
+                Slash command responses can only be deleted within 14 minutes of the
+                command being received.
 
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
