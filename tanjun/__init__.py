@@ -291,6 +291,7 @@ from .hooks import MessageHooks
 from .hooks import SlashHooks
 from .injecting import as_self_injecting
 from .injecting import inject
+from .injecting import injected
 from .parsing import ShlexParser
 from .parsing import with_argument
 from .parsing import with_greedy_argument
