@@ -33,7 +33,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "ArgumentT",
     "from_datetime",
     "parse_snowflake",
     "parse_channel_id",
@@ -90,7 +89,7 @@ from .dependencies import async_cache
 if typing.TYPE_CHECKING:
     from . import parsing
 
-ArgumentT = typing.Union[str, int, float]
+_ArgumentT = typing.Union[str, int, float]
 _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
@@ -262,7 +261,7 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
@@ -350,7 +349,7 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _EmojiCacheT = injecting.inject(type=_EmojiCacheT),
@@ -417,7 +416,7 @@ class ToGuild(BaseConverter[hikari.Guild]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _GuildCacheT = injecting.inject(type=_GuildCacheT),
@@ -478,7 +477,7 @@ class ToInvite(BaseConverter[hikari.Invite]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _InviteCacheT = injecting.inject(type=_InviteCacheT),
@@ -544,7 +543,7 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
@@ -601,7 +600,7 @@ class ToMember(BaseConverter[hikari.Member]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _MemberCacheT = injecting.inject(type=_MemberCacheT),
@@ -681,7 +680,7 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _PresenceCacheT = injecting.inject(type=_PresenceCacheT),
@@ -735,7 +734,7 @@ class ToRole(BaseConverter[hikari.Role]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
@@ -798,7 +797,7 @@ class ToUser(BaseConverter[hikari.User]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _UserCacheT = injecting.inject(type=_UserCacheT),
@@ -866,7 +865,7 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
 
     async def __call__(
         self,
-        argument: ArgumentT,
+        argument: _ArgumentT,
         /,
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _VoiceStateCacheT = injecting.inject(type=_VoiceStateCacheT),
@@ -890,12 +889,12 @@ VoiceStateConverter = ToVoiceState
 
 
 class _IDMatcherSig(typing.Protocol):
-    def __call__(self, value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+    def __call__(self, value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         raise NotImplementedError
 
 
 def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
-    def parse(value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+    def parse(value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         """Parse a snowflake from a string or int value.
 
         .. note::
@@ -948,7 +947,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
     return parse
 
 
-_IDSearcherSig = collections.Callable[[ArgumentT], collections.Iterator[hikari.Snowflake]]
+_IDSearcherSig = collections.Callable[[_ArgumentT], collections.Iterator[hikari.Snowflake]]
 
 
 def _range_check(snowflake: hikari.Snowflake, /) -> bool:
@@ -956,7 +955,7 @@ def _range_check(snowflake: hikari.Snowflake, /) -> bool:
 
 
 def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
-    def parse(value: ArgumentT, /) -> collections.Iterator[hikari.Snowflake]:
+    def parse(value: _ArgumentT, /) -> collections.Iterator[hikari.Snowflake]:
         """Iterate over the snowflakes in a string.
 
         .. note::
@@ -1388,7 +1387,7 @@ def to_bool(value: str, /) -> bool:
     raise ValueError(f"Invalid bool value `{value}`")
 
 
-def to_color(argument: ArgumentT, /) -> hikari.Color:
+def to_color(argument: _ArgumentT, /) -> hikari.Color:
     """Convert user input to a `hikari.colors.Color` object."""
     if isinstance(argument, str):
         values = argument.split(" ")
@@ -1419,7 +1418,7 @@ def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
 to_channel: typing.Final[ToChannel] = ToChannel()
 """Convert user input to a `hikari.channels.PartialChannel` object."""
 
-to_colour: typing.Final[collections.Callable[[ArgumentT], hikari.Color]] = to_color
+to_colour: typing.Final[collections.Callable[[_ArgumentT], hikari.Color]] = to_color
 """Convert user input to a `hikari.colors.Color` object."""
 
 to_emoji: typing.Final[ToEmoji] = ToEmoji()
@@ -1450,7 +1449,7 @@ to_presence: typing.Final[ToPresence] = ToPresence()
 to_role: typing.Final[ToRole] = ToRole()
 """Convert user input to a `hikari.guilds.Role` object."""
 
-to_snowflake: typing.Final[collections.Callable[[ArgumentT], hikari.Snowflake]] = parse_snowflake
+to_snowflake: typing.Final[collections.Callable[[_ArgumentT], hikari.Snowflake]] = parse_snowflake
 """Convert user input to a `hikari.snowflakes.Snowflake`.
 
 .. note::
