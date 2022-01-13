@@ -216,13 +216,6 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
     """
 
     __slots__ = ("_include_dms",)
-    __pdoc__: typing.ClassVar[dict[str, bool]] = {
-        "async_cache": False,
-        "cache_components": False,
-        "intents": False,
-        "requires_cache": False,
-        "__pdoc__": False,
-    }
 
     def __init__(self, *, include_dms: bool = True) -> None:
         """Initialise a to channel converter.
