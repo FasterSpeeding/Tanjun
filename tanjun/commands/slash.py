@@ -95,17 +95,9 @@ ConverterSig = typing.Union[
 ]
 
 
-def _validate_name(name: str) -> None:
-    if not _SCOMMAND_NAME_REG.fullmatch(name):
-        raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
-
-    if name.lower() != name:
-        raise ValueError(f"Invalid name provided, {name!r} must be lowercase")
-
-
 def slash_command_group(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -215,8 +207,8 @@ class _ResultProto(typing.Protocol):
 
 
 def as_slash_command(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     always_defer: bool = False,
@@ -343,8 +335,8 @@ UNDEFINED_DEFAULT = object()
 
 
 def with_attachment_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -376,8 +368,8 @@ def with_attachment_slash_option(
 
 
 def with_str_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -424,8 +416,8 @@ def with_str_slash_option(
 
 
 def with_int_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -472,8 +464,8 @@ def with_int_slash_option(
 
 
 def with_float_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     always_float: bool = True,
@@ -522,8 +514,8 @@ def with_float_slash_option(
 
 
 def with_bool_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -553,8 +545,8 @@ def with_bool_slash_option(
 
 
 def with_user_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -589,7 +581,12 @@ def with_user_slash_option(
 
 
 def with_member_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, key: typing.Optional[str] = None
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
@@ -637,8 +634,8 @@ for _channel_cls, _types in _CHANNEL_TYPES.copy().items():
 
 
 def with_channel_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
@@ -674,8 +671,8 @@ def with_channel_slash_option(
 
 
 def with_role_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -705,8 +702,8 @@ def with_role_slash_option(
 
 
 def with_mentionable_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -790,12 +787,21 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
     def __init__(
         self,
         name: str,
+        name_localizations: collections.Mapping[str, str],
         description: str,
+        description_localizations: collections.Mapping[str, str],
         sort_options: bool,
         *,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        super().__init__(name, description, id=id_)  # type: ignore
+        # TODO: switch to pyright ignore
+        super().__init__(
+            name,
+            description,
+            description_localizations=description_localizations,  # type: ignore
+            id=id_,  # type: ignore
+            name_localizations=name_localizations,  # type: ignore
+        )
         self._has_been_sorted = True
         self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
@@ -828,7 +834,14 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
     def copy(self, /) -> _SlashCommandBuilder:
-        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id_=self.id)
+        builder = _SlashCommandBuilder(
+            self.name,
+            self.name_localizations,
+            self.description,
+            self.description_localizations,
+            self._sort_options,
+            id_=self.id,
+        )
 
         for option in self.options:
             builder.add_option(option)
@@ -842,18 +855,18 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     __slots__ = (
         "_default_member_permissions",
         "_defaults_to_ephemeral",
-        "_description",
+        "_descriptions",
         "_is_dm_enabled",
         "_is_global",
-        "_name",
+        "_names",
         "_parent",
         "_tracked_command",
     )
 
     def __init__(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -862,19 +875,21 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        _validate_name(name)
-        if len(description) > 100:
-            raise ValueError("The command description cannot be over 100 characters in length")
+        names = utilities.MaybeLocalised(name)
+        names.assert_length("name", 1, 32)
+        names.assert_matches("name", _SCOMMAND_NAME_REG, lower_only=True)
+        descriptions = utilities.MaybeLocalised(description)
+        descriptions.assert_length("description", 1, 100)
 
         if default_member_permissions is not None:
             default_member_permissions = hikari.Permissions(default_member_permissions)
 
         self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
-        self._description = description
+        self._descriptions = descriptions
         self._is_dm_enabled = dm_enabled
         self._is_global = is_global
-        self._name = name
+        self._names = names
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.SlashCommand] = None
 
@@ -891,7 +906,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     @property
     def description(self) -> str:  # TODO: this feels like a mistake
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._description
+        return self._descriptions.default_value
+
+    @property
+    def description_localisations(self) -> collections.Mapping[str, str]:
+        return self._descriptions.localised_values.copy()
 
     @property
     def is_dm_enabled(self) -> typing.Optional[bool]:
@@ -906,7 +925,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     @property
     def name(self) -> str:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
-        return self._name
+        return self._names.default_value
+
+    @property
+    def name_localisations(self) -> collections.Mapping[str, str]:
+        return self._names.localised_values.copy()
 
     @property
     def parent(self) -> typing.Optional[tanjun.SlashCommandGroup]:
@@ -997,8 +1020,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def __init__(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -1072,7 +1095,13 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self, *, component: typing.Optional[tanjun.Component] = None
     ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(self._name, self._description, False)
+        builder = _SlashCommandBuilder(
+            self._names.default_value,
+            self._names.localised_values,
+            self._descriptions.default_value,
+            self._descriptions.localised_values,
+            False,
+        )
 
         for command in self._commands.values():
             option_type = (
@@ -1377,8 +1406,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     def __init__(
         self,
         callback: _CommandT[_CommandCallbackSigT],
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1396,8 +1425,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     def __init__(
         self,
         callback: _CommandCallbackSigT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1414,8 +1443,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     def __init__(
         self,
         callback: _CallbackishT[_CommandCallbackSigT],
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1510,7 +1539,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         self._always_defer = always_defer
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
-        self._builder = _SlashCommandBuilder(name, description, sort_options)
+        self._builder = _SlashCommandBuilder(
+            self.name, self.name_localisations, self.description, self.description_localisations, sort_options
+        )
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
         self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
@@ -1586,8 +1617,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def _add_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        names: utilities.MaybeLocalised,
+        descriptions: utilities.MaybeLocalised,
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
         *,
@@ -1608,8 +1639,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        if len(description) > 100:
-            raise ValueError("The option description cannot be over 100 characters in length")
+        names.assert_length("name", 1, 32)
+        names.assert_matches("name", _SCOMMAND_NAME_REG, lower_only=True)
+        descriptions.assert_length("description", 1, 100)
 
         if len(self._builder.options) == 25:
             raise ValueError("Slash commands cannot have more than 25 options")
@@ -1623,8 +1655,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         _assert_in_range("min_length", min_length, 0, 6000)
         _assert_in_range("max_length", max_length, 1, 6000)
 
-        key = key or name
-        _validate_name(name)
+        key = key or names.default_value
         if self._arg_names is not None and key not in self._arg_names:
             raise ValueError(f"{key!r} is not a valid keyword argument for {self._callback}")
 
@@ -1638,7 +1669,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         if self._client:
             for converter in converters:
                 if isinstance(converter, conversion.BaseConverter):
-                    converter.check_client(self._client, f"{self._name}'s slash option '{name}'")
+                    converter.check_client(self._client, f"{self._names.default_value}'s slash option '{name}'")
 
         if choices is None:
             actual_choices: typing.Optional[list[hikari.CommandChoice]] = None
@@ -1662,8 +1693,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self._builder.add_option(
             hikari.CommandOption(
                 type=type_,
-                name=name,
-                description=description,
+                name=names.default_value,
+                name_localizations=names.localised_values,
+                description=descriptions.default_value,
+                description_localizations=descriptions.localised_values,
                 is_required=required,
                 choices=actual_choices,
                 channel_types=channel_types,
@@ -1675,8 +1708,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             )
         )
         if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name,
+            self._tracked_options[names.default_value] = _TrackedOption(
+                name=names.default_value,
                 option_type=type_,
                 always_float=always_float,
                 converters=converters,
@@ -1688,8 +1721,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def add_attachment_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -1749,8 +1782,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name,
-            description,
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
             hikari.OptionType.ATTACHMENT,
             default=default,
             key=key,
@@ -1759,8 +1792,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def add_str_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -1884,9 +1917,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 else:
                     actual_choices[choice.capitalize()] = choice
 
+        names = utilities.MaybeLocalised(name)
+        descriptions = utilities.MaybeLocalised(description)
         self._add_option(
-            name,
-            description,
+            names,
+            descriptions,
             hikari.OptionType.STRING,
             autocomplete=autocomplete is not None,
             choices=actual_choices,
@@ -1899,14 +1934,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
         if autocomplete:
-            self._str_autocompletes[name] = autocomplete
+            self._str_autocompletes[names.default_value] = autocomplete
 
         return self
 
     def add_int_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -1991,9 +2026,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
+        names = utilities.MaybeLocalised(name)
+        descriptions = utilities.MaybeLocalised(description)
         self._add_option(
-            name,
-            description,
+            names,
+            descriptions,
             hikari.OptionType.INTEGER,
             autocomplete=autocomplete is not None,
             choices=choices,
@@ -2007,14 +2044,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
         if autocomplete:
-            self._int_autocompletes[name] = autocomplete
+            self._int_autocompletes[names.default_value] = autocomplete
 
         return self
 
     def add_float_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_float: bool = True,
@@ -2106,9 +2143,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
+        names = utilities.MaybeLocalised(name)
+        descriptions = utilities.MaybeLocalised(description)
         self._add_option(
-            name,
-            description,
+            names,
+            descriptions,
             hikari.OptionType.FLOAT,
             autocomplete=autocomplete is not None,
             choices=choices,
@@ -2123,14 +2162,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
         if autocomplete:
-            self._float_autocompletes[name] = autocomplete
+            self._float_autocompletes[names.default_value] = autocomplete
 
         return self
 
     def add_bool_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2183,13 +2222,18 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name, description, hikari.OptionType.BOOLEAN, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
+            hikari.OptionType.BOOLEAN,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_user_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2248,13 +2292,18 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name, description, hikari.OptionType.USER, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
+            hikari.OptionType.USER,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_member_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2309,12 +2358,19 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        return self._add_option(name, description, hikari.OptionType.USER, default=default, key=key, only_member=True)
+        return self._add_option(
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
+            hikari.OptionType.USER,
+            default=default,
+            key=key,
+            only_member=True,
+        )
 
     def add_channel_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2390,8 +2446,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             channel_types = None
 
         return self._add_option(
-            name,
-            description,
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
             hikari.OptionType.CHANNEL,
             channel_types=channel_types,
             default=default,
@@ -2401,8 +2457,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def add_role_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2455,13 +2511,18 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name, description, hikari.OptionType.ROLE, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
+            hikari.OptionType.ROLE,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_mentionable_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2518,7 +2579,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name, description, hikari.OptionType.MENTIONABLE, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            utilities.MaybeLocalised(name),
+            utilities.MaybeLocalised(description),
+            hikari.OptionType.MENTIONABLE,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def set_float_autocomplete(

@@ -64,7 +64,7 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
 def _as_menu(
-    name: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
     type_: _MenuTypeT,
     always_defer: bool = False,
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -113,7 +113,7 @@ class _ResultProto(typing.Protocol[_MenuTypeT]):
 
 
 def as_message_menu(
-    name: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     always_defer: bool = False,
@@ -201,7 +201,7 @@ def as_message_menu(
 
 
 def as_user_menu(
-    name: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     always_defer: bool = False,
@@ -304,7 +304,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         "_description",
         "_is_dm_enabled",
         "_is_global",
-        "_name",
+        "_names",
         "_parent",
         "_tracked_command",
         "_type",
@@ -318,7 +318,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             _MenuCommandCallbackSigT,
         ],
         type_: _MenuTypeT,
-        name: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -335,7 +335,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self,
         callback: _MenuCommandCallbackSigT,
         type_: _MenuTypeT,
-        name: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -351,7 +351,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self,
         callback: _CallbackishT[_MenuCommandCallbackSigT],
         type_: _MenuTypeT,
-        name: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -430,8 +430,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             * If the command name has uppercase characters.
         """
         super().__init__()
-        if not name or len(name) > 32:
-            raise ValueError("Command name must be between 1-32 characters in length")
+        names = utilities.MaybeLocalised(name)
+        names.assert_length("name", 1, 32)
 
         if type_ not in _VALID_TYPES:
             raise ValueError("Command type must be message or user")
@@ -448,7 +448,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_dm_enabled = dm_enabled
         self._is_global = is_global
-        self._name = name
+        self._names = names
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.ContextMenuCommand] = None
         self._type: _MenuTypeT = type_  # MyPy bug causes this to need an explicit annotation.
@@ -489,7 +489,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     @property
     def name(self) -> str:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
-        return self._name
+        return self._names.default_value
+
+    @property
+    def name_localisations(self) -> collections.Mapping[str, str]:
+        return self._names.localised_values.copy()
 
     @property
     def tracked_command(self) -> typing.Optional[hikari.ContextMenuCommand]:
@@ -513,7 +517,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        builder = hikari.impl.ContextMenuCommandBuilder(self._type, self._name)  # type: ignore
+        builder = hikari.impl.ContextMenuCommandBuilder(  # TODO: switch to pyright ignores
+            self._type,  # type: ignore
+            self._names.default_value,  # type: ignore
+            name_localizations=self._names.localised_values,  # type: ignore
+        )
 
         component = component or self._component
         if self._default_member_permissions is not None:
