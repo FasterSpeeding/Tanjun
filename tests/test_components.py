@@ -1144,8 +1144,14 @@ class TestComponent:
         mock_ctx_1 = mock.Mock()
         mock_ctx_2 = mock.Mock()
         mock_client = mock.Mock(tanjun.injecting.InjectorClient)
-        component = (
-            tanjun.Component().bind_client(mock_client).add_schedule(mock_schedule_1).add_schedule(mock_schedule_2)
+        mock_unbind = mock.Mock()
+        component: tanjun.Component = (
+            types.new_class(
+                "StubComponent", (tanjun.Component,), exec_body=lambda b: b.update({"unbind_client": mock_unbind})
+            )()
+            .bind_client(mock_client)
+            .add_schedule(mock_schedule_1)
+            .add_schedule(mock_schedule_2)
         )
         component._loop = mock.Mock()
         component._on_close = [mock_callback_1, mock_callback_2]
@@ -1160,6 +1166,41 @@ class TestComponent:
         mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
         mock_schedule_1.stop.assert_called_once_with()
         mock_schedule_2.stop.assert_called_once_with()
+        mock_unbind.assert_not_called()
+        assert component.loop is None
+
+    @pytest.mark.asyncio()
+    async def test_close_when_unbind(self):
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_schedule_1 = mock.Mock()
+        mock_schedule_2 = mock.Mock()
+        mock_ctx_1 = mock.Mock()
+        mock_ctx_2 = mock.Mock()
+        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        mock_unbind = mock.Mock()
+        component: tanjun.Component = (
+            types.new_class(
+                "StubComponent", (tanjun.Component,), exec_body=lambda b: b.update({"unbind_client": mock_unbind})
+            )()
+            .bind_client(mock_client)
+            .add_schedule(mock_schedule_1)
+            .add_schedule(mock_schedule_2)
+        )
+        component._loop = mock.Mock()
+        component._on_close = [mock_callback_1, mock_callback_2]
+
+        with mock.patch.object(
+            tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2]
+        ) as basic_injection_context:
+            await component.close(unbind=True)
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
+        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        mock_schedule_1.stop.assert_called_once_with()
+        mock_schedule_2.stop.assert_called_once_with()
+        mock_unbind.assert_called_once_with(mock_client)
         assert component.loop is None
 
     @pytest.mark.asyncio()

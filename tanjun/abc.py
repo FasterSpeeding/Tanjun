@@ -2777,8 +2777,15 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def close(self) -> None:
+    async def close(self, *, unbind: bool = False) -> None:
         """Close the component.
+
+        Other Parameters
+        ----------------
+        unbind : bool
+            Whether to unbind from the client after this is closed.
+
+            Defaults to `False`.
 
         Raises
         ------

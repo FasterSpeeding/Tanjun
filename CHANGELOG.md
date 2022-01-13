@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - The client level ephemeral default is now respected for REST-based slash command execution.
+- The client now waits until a component has been closed before "unbind" it when the component is
+  removed from an active client.
+  This should fix previous behaviour where trying to remove a component from an active client would
+  lead to an error being raised.
 
 ### Removed
 - Redundant checks, hooks and metadata keyword-arguments from the standard `MessageCommand`,

@@ -1355,13 +1355,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             raise ValueError(f"The component {component!r} is not registered.")
 
         del self._components[component.name]
-        stored_component.unbind_client(self)
 
         if self._loop:
-            self._loop.create_task(component.close())
+            self._loop.create_task(component.close(unbind=True))
             self._loop.create_task(
                 self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, stored_component)
             )
+
+        else:
+            stored_component.unbind_client(self)
 
         return self
 

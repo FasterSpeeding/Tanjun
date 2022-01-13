@@ -1092,7 +1092,7 @@ class Component(tanjun_abc.Component):
         self.add_schedule(schedule)
         return schedule
 
-    async def close(self) -> None:
+    async def close(self, *, unbind: bool = False) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
         if not self._loop:
             raise RuntimeError("Component isn't active")
@@ -1108,6 +1108,8 @@ class Component(tanjun_abc.Component):
         await asyncio.gather(
             *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
         )
+        if unbind:
+            self.unbind_client(self._client)
 
     async def open(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
