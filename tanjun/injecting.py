@@ -359,7 +359,7 @@ class CallbackDescriptor(AbstractDescriptor[_T]):
 
             else:
                 assert parameter.default.type is not None
-                descriptors[name] = TypeDescriptor(parameter.default.type)
+                descriptors[name] = TypeDescriptor(typing.cast("type[_T]", parameter.default.type))
 
         return descriptors, any(d.needs_injector for d in descriptors.values())
 
