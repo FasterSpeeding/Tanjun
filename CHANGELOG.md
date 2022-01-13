@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.3.0a1]
+## [2.3.0a1] - 2022-01-13
 ### Added
 - Scheduled callback interface and interval implementation to the standard component implementation.
 - `always_defer` option to slash commands (not including groups).
