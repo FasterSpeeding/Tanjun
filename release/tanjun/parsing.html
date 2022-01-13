@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 8.1.0" />
+    <meta name="generator" content="pdoc 8.2.0" />
     <title>tanjun.parsing API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
@@ -247,7 +247,7 @@
 <span class="c1"># cython: language_level=3</span>
 <span class="c1"># BSD 3-Clause License</span>
 <span class="c1">#</span>
-<span class="c1"># Copyright (c) 2020-2021, Faster Speeding</span>
+<span class="c1"># Copyright (c) 2020-2022, Faster Speeding</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># Redistribution and use in source and binary forms, with or without</span>
@@ -336,13 +336,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CommandCallbackSig</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The callback for this message command.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">AbstractParser</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The parser for this message command, if set.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">set_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">AbstractParser</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser for this message command.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _ : typing.Optional[AbstractParser]</span>
+<span class="sd">            The parser to set.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The message command instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
@@ -376,20 +390,69 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the parameters registered with this parser.&quot;&quot;&quot;</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>  <span class="c1"># TODO: these lol</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a parameter to this parser.</span>
+
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        parameter : typing.Union[Argument, Option]</span>
+<span class="sd">            Either the argument or option to add to this parser.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                For `Argument` type parameters the ordering matters and is decided</span>
+<span class="sd">                by `add_parameter` call order.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a parameter from the parser.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        parameter : typing.Union[Argument, Option]</span>
+<span class="sd">            Either the argument or option to remove from this parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the parameter isn&#39;t registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Set the parameters for this parser.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will override any previously set parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameters : collections.abc.Iterable[typing.Union[Argument, Option]]</span>
+<span class="sd">            Iterable of the arguments and options to set for this parser.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Order matters for `Argument` type parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -401,11 +464,37 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Parse a message context.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            This relies on the prefix and command name(s) having been removed</span>
+<span class="sd">            from `tanjun.abc.MessageContext.content`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.MessageContext</span>
+<span class="sd">            The message context to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, typing.Any]</span>
+<span class="sd">            Dictionary of argument names to the parsed values for them.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.ParserError</span>
+<span class="sd">            If the message could not be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">_ShlexTokenizer</span><span class="p">:</span>
@@ -529,7 +618,7 @@
 
         <span class="k">return</span> <span class="n">values</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">__process_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__process_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">Argument</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_raw_arguments</span><span class="p">())):</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">argument</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -907,6 +996,8 @@
 
 
 <span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for parameters for the standard parser(s).&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -919,6 +1010,7 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -942,26 +1034,46 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the converters registered for this parameter.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The parameter&#39;s default.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then this parameter is required.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is greedy.</span>
+
+<span class="sd">        Greedy parameters will consume the remaining message content as one</span>
+<span class="sd">        string (with converters also being passed the whole string).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Greedy and multi parameters cannot be used together.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is &quot;multi&quot;.</span>
+
+<span class="sd">        Multi parameters will be passed a list of all the values provided for</span>
+<span class="sd">        this parameter (with each entry being converted separately.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The key of this parameter used to pass the result to the command&#39;s callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
@@ -989,6 +1101,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the given value to the type of this parameter.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
@@ -1004,6 +1117,13 @@
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t convert </span><span class="si">{</span><span class="n">parameter_type</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ParameterT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ParameterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1013,6 +1133,8 @@
 
 
 <span class="k">class</span> <span class="nc">Argument</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a positional argument used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1025,6 +1147,32 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a positional argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
 
@@ -1032,18 +1180,54 @@
 
 
 <span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a named optional parameter used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a named optional parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
 
@@ -1053,10 +1237,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">empty_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The value to return if the option is empty.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then a value will be required for the</span>
+<span class="sd">        option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the CLI names of this option.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1064,32 +1254,30 @@
 
 
 <span class="k">class</span> <span class="nc">ShlexParser</span><span class="p">(</span><span class="n">AbstractParser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A shlex based `tanjun.abc.Parser` implementation.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A shlex based `AbstractParser` implementation.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_arguments&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a shlex parser.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Argument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Option</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parser needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">argument</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">]</span>
@@ -1151,6 +1339,9 @@
 <span class="sd">        key : str</span>
 <span class="sd">            The string identifier of this argument (may be used to pass the result</span>
 <span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
 <span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
 <span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
 <span class="sd">            during parsing.</span>
@@ -1318,20 +1509,69 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the parameters registered with this parser.&quot;&quot;&quot;</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>  <span class="c1"># TODO: these lol</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a parameter to this parser.</span>
+
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        parameter : typing.Union[Argument, Option]</span>
+<span class="sd">            Either the argument or option to add to this parser.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                For `Argument` type parameters the ordering matters and is decided</span>
+<span class="sd">                by `add_parameter` call order.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a parameter from the parser.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        parameter : typing.Union[Argument, Option]</span>
+<span class="sd">            Either the argument or option to remove from this parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the parameter isn&#39;t registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Set the parameters for this parser.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will override any previously set parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameters : collections.abc.Iterable[typing.Union[Argument, Option]]</span>
+<span class="sd">            Iterable of the arguments and options to set for this parser.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Order matters for `Argument` type parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -1343,11 +1583,37 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Parse a message context.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            This relies on the prefix and command name(s) having been removed</span>
+<span class="sd">            from `tanjun.abc.MessageContext.content`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.MessageContext</span>
+<span class="sd">            The message context to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, typing.Any]</span>
+<span class="sd">            Dictionary of argument names to the parsed values for them.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.ParserError</span>
+<span class="sd">            If the message could not be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -1359,10 +1625,12 @@
                             <div id="AbstractParser.parameters" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#AbstractParser.parameters">#&nbsp;&nbsp</a>
 
-        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[<a href="#Parameter">tanjun.parsing.Parameter</a>]</span>
+        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[typing.Union[<a href="#Argument">tanjun.parsing.Argument</a>, <a href="#Option">tanjun.parsing.Option</a>]]</span>
     </div>
 
-    
+            <div class="docstring"><p>Sequence of the parameters registered with this parser.</p>
+</div>
+
 
                             </div>
                             <div id="AbstractParser.add_parameter" class="classattr">
@@ -1380,14 +1648,48 @@
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>  <span class="c1"># TODO: these lol</span>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a parameter to this parser.</span>
+
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        parameter : typing.Union[Argument, Option]</span>
+<span class="sd">            Either the argument or option to add to this parser.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                For `Argument` type parameters the ordering matters and is decided</span>
+<span class="sd">                by `add_parameter` call order.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a parameter to this parser.</p>
+
+<h6 id="arguments">Arguments</h6>
+
+<p>parameter : typing.Union[Argument, Option]
+    Either the argument or option to add to this parser.</p>
+
+<pre><code>*Note:*
+For `Argument` type parameters the ordering matters and is decided
+by `add_parameter` call order.
+</code></pre>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The parser instance to enable call chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="AbstractParser.remove_parameter" class="classattr">
@@ -1407,12 +1709,47 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a parameter from the parser.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        parameter : typing.Union[Argument, Option]</span>
+<span class="sd">            Either the argument or option to remove from this parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the parameter isn&#39;t registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a parameter from the parser.</p>
+
+<h6 id="arguments">Arguments</h6>
+
+<p>parameter : typing.Union[Argument, Option]
+    Either the argument or option to remove from this parser.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The parser instance to enable call chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the parameter isn't registered.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="AbstractParser.set_parameters" class="classattr">
@@ -1432,12 +1769,50 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Set the parameters for this parser.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will override any previously set parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameters : collections.abc.Iterable[typing.Union[Argument, Option]]</span>
+<span class="sd">            Iterable of the arguments and options to set for this parser.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                Order matters for `Argument` type parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The parser instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the parameters for this parser.</p>
+
+<p><em>Note:</em>
+This will override any previously set parameters.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>parameters</strong> (collections.abc.Iterable[typing.Union[Argument, Option]]):
+Iterable of the arguments and options to set for this parser.</p>
+
+<p><em>Note:</em>
+Order matters for <code><a href="#Argument">Argument</a></code> type parameters.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The parser instance to enable call chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="AbstractParser.bind_client" class="classattr">
@@ -1495,12 +1870,26 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Copy the parser.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: A copy of the parser.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="AbstractParser.parse" class="classattr">
@@ -1516,12 +1905,57 @@
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Parse a message context.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            This relies on the prefix and command name(s) having been removed</span>
+<span class="sd">            from `tanjun.abc.MessageContext.content`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.MessageContext</span>
+<span class="sd">            The message context to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, typing.Any]</span>
+<span class="sd">            Dictionary of argument names to the parsed values for them.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.ParserError</span>
+<span class="sd">            If the message could not be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a message context.</p>
+
+<p><em>Warning:</em>
+This relies on the prefix and command name(s) having been removed
+from <code><a href="abc.html#MessageContext.content">tanjun.abc.MessageContext.content</a></code></p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>):
+The message context to parse.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>dict[str, typing.Any]</strong>: Dictionary of argument names to the parsed values for them.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong><a href="errors.html#ParserError">tanjun.errors.ParserError</a></strong>: If the message could not be parsed.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -1537,6 +1971,8 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Argument</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a positional argument used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1549,6 +1985,32 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a positional argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
 
@@ -1557,7 +2019,9 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Representation of a positional argument used by the standard parser.</p>
+</div>
+
 
                             <div id="Argument.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Argument.__init__">#&nbsp;&nbsp</a>
@@ -1586,6 +2050,32 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a positional argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
 
@@ -1594,7 +2084,37 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a positional argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, if left as
+<code><a href="#UNDEFINED_DEFAULT">UNDEFINED_DEFAULT</a></code> then this will have no default.</li>
+<li><strong>greedy</strong> (bool):
+Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</li>
+<li><strong>multi</strong> (bool):
+Whether this argument can be passed multiple times.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -1646,18 +2166,54 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a named optional parameter used by the standard parser.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a named optional parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
 
@@ -1667,10 +2223,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">empty_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The value to return if the option is empty.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then a value will be required for the</span>
+<span class="sd">        option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the CLI names of this option.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1679,7 +2241,9 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Representation of a named optional parameter used by the standard parser.</p>
+</div>
+
 
                             <div id="Option.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Option.__init__">#&nbsp;&nbsp</a>
@@ -1688,6 +2252,7 @@
             <span class="name">Option</span><span class="signature">(
     key: str,
     name: str,
+    /,
     *names: str,
     converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
@@ -1702,12 +2267,46 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a named optional parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
 
@@ -1718,7 +2317,44 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a named optional parameter.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</li>
+<li><strong>name</strong> (str):
+The name of this option used for identifying it in the parsed content.</li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, unlike arguments this is required
+for options.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*names</strong> (str):
+Other names of this option used for identifying it in the parsed content.</li>
+<li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>empty_value</strong> (typing.Any):
+The value to use if this option is provided without a value. If left as
+<code><a href="#UNDEFINED_DEFAULT">UNDEFINED_DEFAULT</a></code> then this option will error if it's
+provided without a value.</li>
+<li><strong>multi</strong> (bool):
+If this option can be provided multiple times.
+Defaults to <code>False</code>.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Option.empty_value" class="classattr">
@@ -1727,7 +2363,12 @@
         <span class="name">empty_value</span><span class="annotation">: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>The value to return if the option is empty.</p>
+
+<p>If this is <code><a href="#UndefinedDefaultT">UndefinedDefaultT</a></code> then a value will be required for the
+option.</p>
+</div>
+
 
                             </div>
                             <div id="Option.names" class="classattr">
@@ -1736,7 +2377,9 @@
         <span class="name">names</span><span class="annotation">: collections.abc.Sequence[str]</span>
     </div>
 
-    
+            <div class="docstring"><p>Sequence of the CLI names of this option.</p>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -1770,6 +2413,8 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for parameters for the standard parser(s).&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_converters&quot;</span><span class="p">,</span> <span class="s2">&quot;_default&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_greedy&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_key&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1782,6 +2427,7 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1805,26 +2451,46 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Sequence of the converters registered for this parameter.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The parameter&#39;s default.</span>
+
+<span class="sd">        If this is `UndefinedDefaultT` then this parameter is required.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_greedy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is greedy.</span>
+
+<span class="sd">        Greedy parameters will consume the remaining message content as one</span>
+<span class="sd">        string (with converters also being passed the whole string).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Greedy and multi parameters cannot be used together.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_greedy</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter is &quot;multi&quot;.</span>
+
+<span class="sd">        Multi parameters will be passed a list of all the values provided for</span>
+<span class="sd">        this parameter (with each entry being converted separately.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The key of this parameter used to pass the result to the command&#39;s callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parameter needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
@@ -1852,6 +2518,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the given value to the type of this parameter.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
@@ -1867,6 +2534,13 @@
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t convert </span><span class="si">{</span><span class="n">parameter_type</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ParameterT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ParameterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1877,7 +2551,9 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Base class for parameters for the standard parser(s).</p>
+</div>
+
 
                             <div id="Parameter.__init__" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Parameter.__init__">#&nbsp;&nbsp</a>
@@ -1906,6 +2582,7 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1927,7 +2604,9 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a parameter.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.converters" class="classattr">
@@ -1936,7 +2615,9 @@
         <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
     </div>
 
-    
+            <div class="docstring"><p>Sequence of the converters registered for this parameter.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.default" class="classattr">
@@ -1945,7 +2626,11 @@
         <span class="name">default</span><span class="annotation">: Union[Any, <a href="#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>The parameter's default.</p>
+
+<p>If this is <code><a href="#UndefinedDefaultT">UndefinedDefaultT</a></code> then this parameter is required.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.is_greedy" class="classattr">
@@ -1954,7 +2639,15 @@
         <span class="name">is_greedy</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parameter is greedy.</p>
+
+<p>Greedy parameters will consume the remaining message content as one
+string (with converters also being passed the whole string).</p>
+
+<p><em>Note:</em>
+Greedy and multi parameters cannot be used together.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.is_multi" class="classattr">
@@ -1963,7 +2656,12 @@
         <span class="name">is_multi</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parameter is "multi".</p>
+
+<p>Multi parameters will be passed a list of all the values provided for
+this parameter (with each entry being converted separately.)</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.key" class="classattr">
@@ -1972,7 +2670,9 @@
         <span class="name">key</span><span class="annotation">: str</span>
     </div>
 
-    
+            <div class="docstring"><p>The key of this parameter used to pass the result to the command's callback.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.needs_injector" class="classattr">
@@ -1981,7 +2681,9 @@
         <span class="name">needs_injector</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parameter needs an injector to be used.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.bind_client" class="classattr">
@@ -2036,6 +2738,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the given value to the type of this parameter.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
@@ -2053,7 +2756,9 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Convert the given value to the type of this parameter.</p>
+</div>
+
 
                             </div>
                             <div id="Parameter.copy" class="classattr">
@@ -2067,6 +2772,13 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ParameterT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ParameterT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Copy the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            A copy of the parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -2077,7 +2789,15 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Copy the parameter.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: A copy of the parameter.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -2103,13 +2823,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CommandCallbackSig</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The callback for this message command.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">AbstractParser</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The parser for this message command, if set.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">set_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">AbstractParser</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser for this message command.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _ : typing.Optional[AbstractParser]</span>
+<span class="sd">            The parser to set.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The message command instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </pre></div>
 
@@ -2168,7 +2902,9 @@
         <span class="name">callback</span><span class="annotation">: collections.abc.Callable[..., collections.abc.Awaitable[None]]</span>
     </div>
 
-    
+            <div class="docstring"><p>The callback for this message command.</p>
+</div>
+
 
                             </div>
                             <div id="ParseableProto.parser" class="classattr">
@@ -2177,7 +2913,9 @@
         <span class="name">parser</span><span class="annotation">: Optional[<a href="#AbstractParser">tanjun.parsing.AbstractParser</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>The parser for this message command, if set.</p>
+</div>
+
 
                             </div>
                             <div id="ParseableProto.set_parser" class="classattr">
@@ -2191,12 +2929,39 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">AbstractParser</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser for this message command.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _ : typing.Optional[AbstractParser]</span>
+<span class="sd">            The parser to set.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The message command instance to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the parser for this message command.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>_</strong> (typing.Optional[AbstractParser]):
+The parser to set.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The message command instance to enable call chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -2223,32 +2988,30 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ShlexParser</span><span class="p">(</span><span class="n">AbstractParser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A shlex based `tanjun.abc.Parser` implementation.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A shlex based `AbstractParser` implementation.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_arguments&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_component&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a shlex parser.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Argument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Option</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this parser needs an injector to be used.&quot;&quot;&quot;</span>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">argument</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">]</span>
@@ -2310,6 +3073,9 @@
 <span class="sd">        key : str</span>
 <span class="sd">            The string identifier of this argument (may be used to pass the result</span>
 <span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
 <span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
 <span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
 <span class="sd">            during parsing.</span>
@@ -2424,7 +3190,7 @@
 
         </details>
 
-            <div class="docstring"><p>A shlex based <code><a href="abc.html#Parser">tanjun.abc.Parser</a></code> implementation.</p>
+            <div class="docstring"><p>A shlex based <code><a href="#AbstractParser">AbstractParser</a></code> implementation.</p>
 </div>
 
 
@@ -2432,29 +3198,24 @@
                                         <div class="attr function"><a class="headerlink" href="#ShlexParser.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">ShlexParser</span><span class="signature">(
-    *,
-    parameters: Optional[collections.abc.Iterable[Union[<a href="#Argument">tanjun.parsing.Argument</a>, <a href="#Option">tanjun.parsing.Option</a>]]] = None
-)</span>
+            <span class="name">ShlexParser</span><span class="signature">()</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a shlex parser.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Argument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Option</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">if</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a shlex parser.</p>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.needs_injector" class="classattr">
@@ -2463,16 +3224,20 @@
         <span class="name">needs_injector</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this parser needs an injector to be used.</p>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.parameters" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ShlexParser.parameters">#&nbsp;&nbsp</a>
 
-        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[<a href="#Parameter">tanjun.parsing.Parameter</a>]</span>
+        <span class="name">parameters</span><span class="annotation">: collections.abc.Sequence[typing.Union[<a href="#Argument">tanjun.parsing.Argument</a>, <a href="#Option">tanjun.parsing.Option</a>]]</span>
     </div>
 
-    
+            <div class="docstring"><p>Sequence of the parameters registered with this parser.</p>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.copy" class="classattr">
@@ -2486,6 +3251,7 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span> <span class="o">=</span> <span class="p">[</span><span class="n">argument</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">]</span>
@@ -2496,7 +3262,15 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Copy the parser.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: A copy of the parser.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.add_parameter" class="classattr">
@@ -2540,7 +3314,25 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Add a parameter to this parser.</p>
+
+<h6 id="arguments">Arguments</h6>
+
+<p>parameter : typing.Union[Argument, Option]
+    Either the argument or option to add to this parser.</p>
+
+<pre><code>*Note:*
+For `Argument` type parameters the ordering matters and is decided
+by `add_parameter` call order.
+</code></pre>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The parser instance to enable call chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.remove_parameter" class="classattr">
@@ -2570,7 +3362,26 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a parameter from the parser.</p>
+
+<h6 id="arguments">Arguments</h6>
+
+<p>parameter : typing.Union[Argument, Option]
+    Either the argument or option to remove from this parser.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The parser instance to enable call chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the parameter isn't registered.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.add_argument" class="classattr">
@@ -2612,6 +3423,9 @@
 <span class="sd">        key : str</span>
 <span class="sd">            The string identifier of this argument (may be used to pass the result</span>
 <span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
 <span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
 <span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
 <span class="sd">            during parsing.</span>
@@ -2649,6 +3463,11 @@ Order matters for positional arguments.</p>
 <li><strong>key</strong> (str):
 The string identifier of this argument (may be used to pass the result
 of this argument to the command's callback during execution).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
 <li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
 The converter(s) this argument should use to handle values passed to it
 during parsing.</p>
@@ -2826,7 +3645,28 @@ Defaults to <code>False</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the parameters for this parser.</p>
+
+<p><em>Note:</em>
+This will override any previously set parameters.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>parameters</strong> (collections.abc.Iterable[typing.Union[Argument, Option]]):
+Iterable of the arguments and options to set for this parser.</p>
+
+<p><em>Note:</em>
+Order matters for <code><a href="#Argument">Argument</a></code> type parameters.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The parser instance to enable call chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ShlexParser.bind_client" class="classattr">
@@ -2904,7 +3744,32 @@ Defaults to <code>False</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a message context.</p>
+
+<p><em>Warning:</em>
+This relies on the prefix and command name(s) having been removed
+from <code><a href="abc.html#MessageContext.content">tanjun.abc.MessageContext.content</a></code></p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>):
+The message context to parse.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>dict[str, typing.Any]</strong>: Dictionary of argument names to the parsed values for them.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong><a href="errors.html#ParserError">tanjun.errors.ParserError</a></strong>: If the message could not be parsed.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>

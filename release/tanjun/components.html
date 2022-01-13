@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 8.1.0" />
+    <meta name="generator" content="pdoc 8.2.0" />
     <title>tanjun.components API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
@@ -56,6 +56,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Component.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Component.schedules">schedules</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Component.slash_commands">slash_commands</a>
@@ -184,6 +187,15 @@
                                 <a class="function" href="#Component.execute_message">execute_message</a>
                         </li>
                         <li>
+                                <a class="function" href="#Component.add_schedule">add_schedule</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.remove_schedule">remove_schedule</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.with_schedule">with_schedule</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Component.close">close</a>
                         </li>
                         <li>
@@ -241,7 +253,7 @@
 <span class="c1"># cython: language_level=3</span>
 <span class="c1"># BSD 3-Clause License</span>
 <span class="c1">#</span>
-<span class="c1"># Copyright (c) 2020-2021, Faster Speeding</span>
+<span class="c1"># Copyright (c) 2020-2022, Faster Speeding</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># Redistribution and use in source and binary forms, with or without</span>
@@ -291,8 +303,6 @@
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
-<span class="kn">from</span> <span class="nn">hikari.events</span> <span class="kn">import</span> <span class="n">base_events</span>
-
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span> <span class="k">as</span> <span class="n">checks_</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
@@ -300,7 +310,12 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">hikari.events</span> <span class="kn">import</span> <span class="n">base_events</span>
+
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">schedules</span>
+
     <span class="n">_ComponentT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ComponentT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Component&quot;</span><span class="p">)</span>
+    <span class="n">_ScheduleT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ScheduleT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">)</span>
 
 
 <span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;tanjun_abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
@@ -387,30 +402,6 @@
 <span class="sd">        This implementation supports dependency injection for its checks,</span>
 <span class="sd">        command callbacks and listeners when linked to a client which</span>
 <span class="sd">        supports dependency injection.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
-<span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
-<span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
-<span class="sd">        The hooks this component should add to the execution of all its</span>
-<span class="sd">        commands (message and slash).</span>
-<span class="sd">    slash_hooks : typing.Optional[tanjun.abc.SlashHooks]</span>
-<span class="sd">        The slash hooks this component should add to the execution of its</span>
-<span class="sd">        slash commands.</span>
-<span class="sd">    message_hooks : typing.Optional[tanjun.abc.MessageHooks]</span>
-<span class="sd">        The message hooks this component should add to the execution of its</span>
-<span class="sd">        message commands.</span>
-<span class="sd">    name : str</span>
-<span class="sd">        The component&#39;s identifier.</span>
-
-<span class="sd">        If not provided then this will be a random string.</span>
-<span class="sd">    strict : bool</span>
-<span class="sd">        Whether this component should use a stricter (more optimal) approach</span>
-<span class="sd">        for message command search.</span>
-
-<span class="sd">        When this is `True`, message command names will not be allowed to contain</span>
-<span class="sd">        spaces and will have to be unique to one command within the component.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
@@ -429,39 +420,56 @@
         <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_on_close&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_on_open&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_schedules&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a new component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
+<span class="sd">            Iterable of check callbacks to set for this component, if provided.</span>
+<span class="sd">        hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
+<span class="sd">            The hooks this component should add to the execution of all its</span>
+<span class="sd">            commands (message and slash).</span>
+<span class="sd">        slash_hooks : typing.Optional[tanjun.abc.SlashHooks]</span>
+<span class="sd">            The slash hooks this component should add to the execution of its</span>
+<span class="sd">            slash commands.</span>
+<span class="sd">        message_hooks : typing.Optional[tanjun.abc.MessageHooks]</span>
+<span class="sd">            The message hooks this component should add to the execution of its</span>
+<span class="sd">            message commands.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The component&#39;s identifier.</span>
+
+<span class="sd">            If not provided then this will be a random string.</span>
+<span class="sd">        strict : bool</span>
+<span class="sd">            Whether this component should use a stricter (more optimal) approach</span>
+<span class="sd">            for message command search.</span>
+
+<span class="sd">            When this is `True`, message command names will not be allowed to contain</span>
+<span class="sd">            spaces and will have to be unique to one command within the component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">checks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slash_hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message_hooks</span><span class="si">=}</span><span class="s2">)&quot;</span>
@@ -495,6 +503,11 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the schedules registered to this component.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
@@ -546,6 +559,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="o">=</span> <span class="p">[</span><span class="n">schedule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="k">else</span> <span class="p">[]</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -570,6 +584,8 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
+<span class="sd">        * This will load schedules which support `AbstractComponentLoader`</span>
+<span class="sd">          (e.g. `tanjun.schedules.IntervalSchedule`).</span>
 <span class="sd">        * This will ignore commands which are owned by command groups.</span>
 <span class="sd">        * This will detect entries from the calling scope which implement</span>
 <span class="sd">          `AbstractComponentLoader` unless `scope` is passed but this isn&#39;t possible</span>
@@ -786,6 +802,27 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WithCommandReturnSig</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Add a command to this component through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        This may be used inconjunction with `tanjun.as_slash_command`</span>
+<span class="sd">        and `tanjun.as_message_command`.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_command</span>
+<span class="sd">        @tanjun.with_slash_str_option(&quot;option_name&quot;, &quot;option description&quot;)</span>
+<span class="sd">        @tanjun.as_slash_command(&quot;command_name&quot;, &quot;command description&quot;)</span>
+<span class="sd">        async def slash_command(ctx: tanjun.abc.Context, arg: str) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;Hi {arg}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_command</span>
+<span class="sd">        @tanjun.with_argument(&quot;argument_name&quot;)</span>
+<span class="sd">        @tanjun.as_message_command(&quot;command_name&quot;)</span>
+<span class="sd">        async def message_command(ctx: tanjun.abc.Context, arg: str) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;Hi {arg}&quot;)</span>
+<span class="sd">        ```</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1237,21 +1274,93 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">AbstractComponentLoader</span><span class="p">):</span>
                 <span class="n">member</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a schedule to the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : tanjun.schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component itself for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="c1"># TODO: upgrade this to the standard interface</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">remove_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a schedule from the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : tanjun.schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to remove</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component itself for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the schedule isn&#39;t registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">with_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">_ScheduleT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ScheduleT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a schedule to the component through a decorator call.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        This may be used in conjunction with `tanjun.as_interval`.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_schedule</span>
+<span class="sd">        @tanjun.as_interval(60)</span>
+<span class="sd">        async def my_schedule():</span>
+<span class="sd">            print(&quot;I&#39;m running every minute!&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        schedules.AbstractSchedule</span>
+<span class="sd">            The added schedule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">schedule</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unbind</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t active&quot;</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># TODO: upgrade this to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unbind</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
@@ -1262,13 +1371,14 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t bound yet&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="c1"># TODO: upgrade this to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Make a loader/unloader for this component.</span>
@@ -1325,30 +1435,6 @@
 <span class="sd">        This implementation supports dependency injection for its checks,</span>
 <span class="sd">        command callbacks and listeners when linked to a client which</span>
 <span class="sd">        supports dependency injection.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
-<span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
-<span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
-<span class="sd">        The hooks this component should add to the execution of all its</span>
-<span class="sd">        commands (message and slash).</span>
-<span class="sd">    slash_hooks : typing.Optional[tanjun.abc.SlashHooks]</span>
-<span class="sd">        The slash hooks this component should add to the execution of its</span>
-<span class="sd">        slash commands.</span>
-<span class="sd">    message_hooks : typing.Optional[tanjun.abc.MessageHooks]</span>
-<span class="sd">        The message hooks this component should add to the execution of its</span>
-<span class="sd">        message commands.</span>
-<span class="sd">    name : str</span>
-<span class="sd">        The component&#39;s identifier.</span>
-
-<span class="sd">        If not provided then this will be a random string.</span>
-<span class="sd">    strict : bool</span>
-<span class="sd">        Whether this component should use a stricter (more optimal) approach</span>
-<span class="sd">        for message command search.</span>
-
-<span class="sd">        When this is `True`, message command names will not be allowed to contain</span>
-<span class="sd">        spaces and will have to be unique to one command within the component.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
@@ -1367,39 +1453,56 @@
         <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_on_close&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_on_open&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_schedules&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a new component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
+<span class="sd">            Iterable of check callbacks to set for this component, if provided.</span>
+<span class="sd">        hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
+<span class="sd">            The hooks this component should add to the execution of all its</span>
+<span class="sd">            commands (message and slash).</span>
+<span class="sd">        slash_hooks : typing.Optional[tanjun.abc.SlashHooks]</span>
+<span class="sd">            The slash hooks this component should add to the execution of its</span>
+<span class="sd">            slash commands.</span>
+<span class="sd">        message_hooks : typing.Optional[tanjun.abc.MessageHooks]</span>
+<span class="sd">            The message hooks this component should add to the execution of its</span>
+<span class="sd">            message commands.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The component&#39;s identifier.</span>
+
+<span class="sd">            If not provided then this will be a random string.</span>
+<span class="sd">        strict : bool</span>
+<span class="sd">            Whether this component should use a stricter (more optimal) approach</span>
+<span class="sd">            for message command search.</span>
+
+<span class="sd">            When this is `True`, message command names will not be allowed to contain</span>
+<span class="sd">            spaces and will have to be unique to one command within the component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">checks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slash_hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message_hooks</span><span class="si">=}</span><span class="s2">)&quot;</span>
@@ -1433,6 +1536,11 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schedules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the schedules registered to this component.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
@@ -1484,6 +1592,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="o">=</span> <span class="p">[</span><span class="n">schedule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="k">else</span> <span class="p">[]</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1508,6 +1617,8 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
+<span class="sd">        * This will load schedules which support `AbstractComponentLoader`</span>
+<span class="sd">          (e.g. `tanjun.schedules.IntervalSchedule`).</span>
 <span class="sd">        * This will ignore commands which are owned by command groups.</span>
 <span class="sd">        * This will detect entries from the calling scope which implement</span>
 <span class="sd">          `AbstractComponentLoader` unless `scope` is passed but this isn&#39;t possible</span>
@@ -1724,6 +1835,27 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WithCommandReturnSig</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Add a command to this component through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        This may be used inconjunction with `tanjun.as_slash_command`</span>
+<span class="sd">        and `tanjun.as_message_command`.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_command</span>
+<span class="sd">        @tanjun.with_slash_str_option(&quot;option_name&quot;, &quot;option description&quot;)</span>
+<span class="sd">        @tanjun.as_slash_command(&quot;command_name&quot;, &quot;command description&quot;)</span>
+<span class="sd">        async def slash_command(ctx: tanjun.abc.Context, arg: str) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;Hi {arg}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_command</span>
+<span class="sd">        @tanjun.with_argument(&quot;argument_name&quot;)</span>
+<span class="sd">        @tanjun.as_message_command(&quot;command_name&quot;)</span>
+<span class="sd">        async def message_command(ctx: tanjun.abc.Context, arg: str) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;Hi {arg}&quot;)</span>
+<span class="sd">        ```</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2175,21 +2307,93 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">AbstractComponentLoader</span><span class="p">):</span>
                 <span class="n">member</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a schedule to the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : tanjun.schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component itself for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="c1"># TODO: upgrade this to the standard interface</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">remove_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a schedule from the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : tanjun.schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to remove</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component itself for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the schedule isn&#39;t registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">with_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">_ScheduleT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ScheduleT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a schedule to the component through a decorator call.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        This may be used in conjunction with `tanjun.as_interval`.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_schedule</span>
+<span class="sd">        @tanjun.as_interval(60)</span>
+<span class="sd">        async def my_schedule():</span>
+<span class="sd">            print(&quot;I&#39;m running every minute!&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        schedules.AbstractSchedule</span>
+<span class="sd">            The added schedule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">schedule</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unbind</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t active&quot;</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># TODO: upgrade this to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unbind</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
@@ -2200,13 +2404,14 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t bound yet&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="c1"># TODO: upgrade this to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">make_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Make a loader/unloader for this component.</span>
@@ -2241,6 +2446,68 @@ callbacks which can be added to a generic client.</p>
 This implementation supports dependency injection for its checks,
 command callbacks and listeners when linked to a client which
 supports dependency injection.</p>
+</div>
+
+
+                            <div id="Component.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">Component</span><span class="signature">(*, name: Optional[str] = None, strict: bool = False)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a new component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
+<span class="sd">            Iterable of check callbacks to set for this component, if provided.</span>
+<span class="sd">        hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
+<span class="sd">            The hooks this component should add to the execution of all its</span>
+<span class="sd">            commands (message and slash).</span>
+<span class="sd">        slash_hooks : typing.Optional[tanjun.abc.SlashHooks]</span>
+<span class="sd">            The slash hooks this component should add to the execution of its</span>
+<span class="sd">            slash commands.</span>
+<span class="sd">        message_hooks : typing.Optional[tanjun.abc.MessageHooks]</span>
+<span class="sd">            The message hooks this component should add to the execution of its</span>
+<span class="sd">            message commands.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The component&#39;s identifier.</span>
+
+<span class="sd">            If not provided then this will be a random string.</span>
+<span class="sd">        strict : bool</span>
+<span class="sd">            Whether this component should use a stricter (more optimal) approach</span>
+<span class="sd">            for message command search.</span>
+
+<span class="sd">            When this is `True`, message command names will not be allowed to contain</span>
+<span class="sd">            spaces and will have to be unique to one command within the component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise a new component.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2269,58 +2536,6 @@ spaces and will have to be unique to one command within the component.</p></li>
 </ul>
 </div>
 
-
-                            <div id="Component.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Component.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Component</span><span class="signature">(
-    *,
-    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#Context">tanjun.abc.Context</a>]] = None,
-    slash_hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
-    message_hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
-    name: Optional[str] = None,
-    strict: bool = False
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
-</pre></div>
-
-        </details>
-
-    
 
                             </div>
                             <div id="Component.checks" class="classattr">
@@ -2399,6 +2614,17 @@ methods which support it.</p>
 
 <p><em>Note:</em>
 This will be preserved between copies of a component.</p>
+</div>
+
+
+                            </div>
+                            <div id="Component.schedules" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Component.schedules">#&nbsp;&nbsp</a>
+
+        <span class="name">schedules</span><span class="annotation">: collections.abc.Collection[<a href="schedules.html#AbstractSchedule">tanjun.schedules.AbstractSchedule</a>]</span>
+    </div>
+
+            <div class="docstring"><p>Collection of the schedules registered to this component.</p>
 </div>
 
 
@@ -2503,6 +2729,7 @@ the component.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="o">=</span> <span class="p">[</span><span class="n">schedule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span> <span class="k">else</span> <span class="p">[]</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -2538,6 +2765,8 @@ the component.</p>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
+<span class="sd">        * This will load schedules which support `AbstractComponentLoader`</span>
+<span class="sd">          (e.g. `tanjun.schedules.IntervalSchedule`).</span>
 <span class="sd">        * This will ignore commands which are owned by command groups.</span>
 <span class="sd">        * This will detect entries from the calling scope which implement</span>
 <span class="sd">          `AbstractComponentLoader` unless `scope` is passed but this isn&#39;t possible</span>
@@ -2607,6 +2836,8 @@ the component.</p>
 <h6 id="notes">Notes</h6>
 
 <ul>
+<li>This will load schedules which support <code><a href="#AbstractComponentLoader">AbstractComponentLoader</a></code>
+(e.g. <code><a href="schedules.html#IntervalSchedule">tanjun.schedules.IntervalSchedule</a></code>).</li>
 <li>This will ignore commands which are owned by command groups.</li>
 <li>This will detect entries from the calling scope which implement
 <code><a href="#AbstractComponentLoader">AbstractComponentLoader</a></code> unless <code>scope</code> is passed but this isn't possible
@@ -3115,6 +3346,27 @@ The command to remove.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WithCommandReturnSig</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Add a command to this component through a decorator call.</span>
 
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        This may be used inconjunction with `tanjun.as_slash_command`</span>
+<span class="sd">        and `tanjun.as_message_command`.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_command</span>
+<span class="sd">        @tanjun.with_slash_str_option(&quot;option_name&quot;, &quot;option description&quot;)</span>
+<span class="sd">        @tanjun.as_slash_command(&quot;command_name&quot;, &quot;command description&quot;)</span>
+<span class="sd">        async def slash_command(ctx: tanjun.abc.Context, arg: str) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;Hi {arg}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_command</span>
+<span class="sd">        @tanjun.with_argument(&quot;argument_name&quot;)</span>
+<span class="sd">        @tanjun.as_message_command(&quot;command_name&quot;)</span>
+<span class="sd">        async def message_command(ctx: tanjun.abc.Context, arg: str) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;Hi {arg}&quot;)</span>
+<span class="sd">        ```</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        command CommandT</span>
@@ -3136,6 +3388,25 @@ The command to remove.</li>
         </details>
 
             <div class="docstring"><p>Add a command to this component through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p>This may be used inconjunction with <code><a href="../tanjun.html#as_slash_command">tanjun.as_slash_command</a></code>
+and <code><a href="../tanjun.html#as_message_command">tanjun.as_message_command</a></code>.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_slash_str_option</span><span class="p">(</span><span class="s2">&quot;option_name&quot;</span><span class="p">,</span> <span class="s2">&quot;option description&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;command_name&quot;</span><span class="p">,</span> <span class="s2">&quot;command description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;argument_name&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command_name&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">message_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -4250,36 +4521,234 @@ execute with the current context.</li>
 
 
                             </div>
+                            <div id="Component.add_schedule" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.add_schedule">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_schedule</span><span class="signature">(
+    self: ~_ComponentT,
+    schedule: <a href="schedules.html#AbstractSchedule">tanjun.schedules.AbstractSchedule</a>,
+    /
+) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a schedule to the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : tanjun.schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component itself for chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="c1"># TODO: upgrade this to the standard interface</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a schedule to the component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>schedule</strong> (<a href="schedules.html#AbstractSchedule">tanjun.schedules.AbstractSchedule</a>):
+The schedule to add.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The component itself for chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.remove_schedule" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.remove_schedule">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">remove_schedule</span><span class="signature">(
+    self: ~_ComponentT,
+    schedule: <a href="schedules.html#AbstractSchedule">tanjun.schedules.AbstractSchedule</a>,
+    /
+) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">schedules</span><span class="o">.</span><span class="n">AbstractSchedule</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a schedule from the component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : tanjun.schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to remove</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component itself for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the schedule isn&#39;t registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Remove a schedule from the component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>schedule</strong> (<a href="schedules.html#AbstractSchedule">tanjun.schedules.AbstractSchedule</a>):
+The schedule to remove</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The component itself for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the schedule isn't registered.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.with_schedule" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.with_schedule">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_schedule</span><span class="signature">(self, schedule: ~_ScheduleT, /) -&gt; ~_ScheduleT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="n">_ScheduleT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ScheduleT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a schedule to the component through a decorator call.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        This may be used in conjunction with `tanjun.as_interval`.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @component.with_schedule</span>
+<span class="sd">        @tanjun.as_interval(60)</span>
+<span class="sd">        async def my_schedule():</span>
+<span class="sd">            print(&quot;I&#39;m running every minute!&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schedule : schedules.AbstractSchedule</span>
+<span class="sd">            The schedule to add.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        schedules.AbstractSchedule</span>
+<span class="sd">            The added schedule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">schedule</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a schedule to the component through a decorator call.</p>
+
+<h6 id="example">Example</h6>
+
+<p>This may be used in conjunction with <code><a href="../tanjun.html#as_interval">tanjun.as_interval</a></code>.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_schedule</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_interval</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_schedule</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I&#39;m running every minute!&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>schedule</strong> (schedules.AbstractSchedule):
+The schedule to add.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>schedules.AbstractSchedule</strong>: The added schedule.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Component.close" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Component.close">#&nbsp;&nbsp</a>
 
         
             <span class="def">async def</span>
-            <span class="name">close</span><span class="signature">(self) -&gt; None</span>:
+            <span class="name">close</span><span class="signature">(self, *, unbind: bool = False) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unbind</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t active&quot;</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># TODO: upgrade this to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unbind</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Close the component.</p>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>unbind</strong> (bool):
+Whether to unbind from the client after this is closed.</p>
+
+<p>Defaults to <code>False</code>.</p></li>
+</ul>
 
 <h6 id="raises">Raises</h6>
 
@@ -4309,13 +4778,14 @@ execute with the current context.</li>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t bound yet&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="c1"># TODO: upgrade this to the standard interface</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">)</span>
 </pre></div>
 
         </details>

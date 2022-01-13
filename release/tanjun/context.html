@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 8.1.0" />
+    <meta name="generator" content="pdoc 8.2.0" />
     <title>tanjun.context API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
@@ -277,7 +277,7 @@
 <span class="c1"># cython: language_level=3</span>
 <span class="c1"># BSD 3-Clause License</span>
 <span class="c1">#</span>
-<span class="c1"># Copyright (c) 2020-2021, Faster Speeding</span>
+<span class="c1"># Copyright (c) 2020-2022, Faster Speeding</span>
 <span class="c1"># All rights reserved.</span>
 <span class="c1">#</span>
 <span class="c1"># Redistribution and use in source and binary forms, with or without</span>
@@ -770,7 +770,7 @@
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -1090,11 +1090,11 @@
 
     <span class="k">def</span> <span class="nf">_get_flags</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span>
 
-        <span class="k">return</span> <span class="n">flags</span>
+        <span class="k">return</span> <span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span>
 
     <span class="k">def</span> <span class="nf">get_response_future</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the future which will be used to set the initial response.</span>
@@ -1245,8 +1245,14 @@
             <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+        <span class="c1"># This behaviour is undocumented and only kept by Discord for &quot;backwards compatibility&quot;</span>
+        <span class="c1"># but the followup endpoint can be used to create the initial response for slash</span>
+        <span class="c1"># commands or edit in a deferred response and (while this does lead to some</span>
+        <span class="c1"># unexpected behaviour around deferrals) should be accounted for.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">message</span>
@@ -1378,7 +1384,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create_initial_response</span><span class="p">(</span>
@@ -1459,7 +1465,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
         <span class="n">delete_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_delete_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">)</span> <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -1474,10 +1480,10 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">message</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">edit_last_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1516,7 +1522,7 @@
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">message</span>
@@ -1978,7 +1984,7 @@
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -2071,7 +2077,16 @@
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a basic injection context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (InjectorClient):
+The injection client this context is bound to.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.author" class="classattr">
@@ -2530,10 +2545,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
@@ -2611,14 +2631,15 @@ behaviour).</li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -2738,10 +2759,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
@@ -2821,14 +2847,15 @@ behaviour).</li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -2929,7 +2956,7 @@ nature, and will trigger this exception if they occur.</li>
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     tts: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     nonce: Union[str, hikari.undefined.UndefinedType] = UNDEFINED,
-    reply: Union[hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    reply: Union[bool, hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_reply: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -2953,7 +2980,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">nonce</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">reply</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialMessage</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_reply</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -3020,16 +3047,23 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>ensure_result</strong> (bool):
-If provided and set to <code>True</code> then this will always return <code>hikari.Message</code>,
-otherwise this will return <code>Optional[hikari.Message]</code>.</p>
+Ensure that this call will always return a message object.</p>
+
+<p>If <code>True</code> then this will always return <code>hikari.Message</code>, otherwise
+this will return <code>Optional[hikari.Message]</code>.</p>
 
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p></li>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
 <li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
@@ -3070,14 +3104,15 @@ specific roles.</p></li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -3287,11 +3322,11 @@ nature, and will trigger this exception if they occur.</li>
 
     <span class="k">def</span> <span class="nf">_get_flags</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span>
 
-        <span class="k">return</span> <span class="n">flags</span>
+        <span class="k">return</span> <span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span>
 
     <span class="k">def</span> <span class="nf">get_response_future</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the future which will be used to set the initial response.</span>
@@ -3442,8 +3477,14 @@ nature, and will trigger this exception if they occur.</li>
             <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+        <span class="c1"># This behaviour is undocumented and only kept by Discord for &quot;backwards compatibility&quot;</span>
+        <span class="c1"># but the followup endpoint can be used to create the initial response for slash</span>
+        <span class="c1"># commands or edit in a deferred response and (while this does lead to some</span>
+        <span class="c1"># unexpected behaviour around deferrals) should be accounted for.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">message</span>
@@ -3575,7 +3616,7 @@ nature, and will trigger this exception if they occur.</li>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create_initial_response</span><span class="p">(</span>
@@ -3656,7 +3697,7 @@ nature, and will trigger this exception if they occur.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
         <span class="n">delete_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_delete_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">)</span> <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -3671,10 +3712,10 @@ nature, and will trigger this exception if they occur.</li>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">message</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">edit_last_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3713,7 +3754,7 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">message</span>
@@ -3916,7 +3957,16 @@ nature, and will trigger this exception if they occur.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Initialise a basic injection context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (InjectorClient):
+The injection client this context is bound to.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.author" class="classattr">
@@ -4389,6 +4439,10 @@ on this context will default to being ephemeral.</p></li>
 
             <div class="docstring"><p>Defer the initial response for this context.</p>
 
+<p><em>Note:</em>
+The ephemeral state of the first response is decided by whether the
+deferral is ephemeral.</p>
+
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
@@ -4495,10 +4549,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 If provided, the message attachment. This can be a resource,
 or string of a path on your computer or a URL.</li>
@@ -4645,10 +4704,15 @@ to the request and deferrals.</p>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
 If provided, the message contents. If
 <code>hikari.UNDEFINED</code>, then nothing will be sent
@@ -4847,7 +4911,7 @@ nature, and will trigger this exception if they occur.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
         <span class="n">delete_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_delete_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">)</span> <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -4862,10 +4926,10 @@ nature, and will trigger this exception if they occur.</li>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
             <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_initial_response_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">message</span>
 </pre></div>
 
         </details>
@@ -4896,10 +4960,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
@@ -4977,14 +5046,15 @@ behaviour).</li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -5066,7 +5136,7 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delete_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
                 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_followup_after</span><span class="p">(</span><span class="n">delete_after</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
 
             <span class="k">return</span> <span class="n">message</span>
@@ -5118,10 +5188,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
@@ -5201,14 +5276,15 @@ behaviour).</li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
@@ -5403,16 +5479,23 @@ no <code>attachments</code> kwargs are provided.</p></li>
 
 <ul>
 <li><p><strong>ensure_result</strong> (bool):
-If provided and set to <code>True</code> then this will always return <code>hikari.Message</code>,
-otherwise this will return <code>Optional[hikari.Message]</code>.</p>
+Ensure that this call will always return a message object.</p>
+
+<p>If <code>True</code> then this will always return <code>hikari.Message</code>, otherwise
+this will return <code>Optional[hikari.Message]</code>.</p>
 
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p></li>
 <li><p><strong>delete_after</strong> (typing.Union[datetime.timedelta, float, int, None]):
-If provided, the seconds after which the response message should be delete.</p>
+If provided, the seconds after which the response message should be deleted.</p>
 
 <p><em>Note:</em>
-As of writing, this does not support ephemeral slash command responses.</p></li>
+Slash command responses can only be deleted within 14 minutes of the
+command being received.</p>
+
+<p><em>Note:</em>
+Since (as of writing) ephemeral responses cannot be deleted by the bot,
+this is ignored for ephemeral slash command responses.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
 <li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
@@ -5453,14 +5536,15 @@ specific roles.</p></li>
 
 <ul>
 <li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<code>role_mentions</code> or <code>user_mentions</code>.
+If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</li>
 <li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
 <li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
 2000 characters in them, embeds that exceed one of the many embed
 limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
+invalid image URLs in embeds; too many components.</li>
 <li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
 <li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</li>
