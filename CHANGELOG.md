@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.0a1]
 ### Added
 - Scheduled callback interface and interval implementation to the standard component implementation.
 - `always_defer` option to slash commands (not including groups).
@@ -441,7 +443,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.3a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...HEAD
+[2.3.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...v2.3.0a1
 [2.2.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...v2.2.3a1
 [2.2.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.1a1...v2.2.2a1
 [2.2.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.0a1...v2.2.1a1
