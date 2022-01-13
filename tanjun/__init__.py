@@ -310,6 +310,6 @@ __email__: typing.Final[str] = "lucina@lmbyrne.dev"
 __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/issues"
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
-__version__: typing.Final[str] = "2.3.0a1"
+__version__: typing.Final[str] = "2.3.1a1"
 
 injected
