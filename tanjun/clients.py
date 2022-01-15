@@ -1724,7 +1724,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
-        """Fetch the application ID of the application this client is linked to.
+        """Fetch the ID of the application this client is linked to.
 
         Returns
         -------
