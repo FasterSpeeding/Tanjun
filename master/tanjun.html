@@ -9397,7 +9397,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fetch the application ID of the application this client is linked to.</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the ID of the application this client is linked to.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -11288,7 +11288,7 @@ opposed to <code><a href="tanjun/abc.html#Client">tanjun.abc.Client</a></code>.<
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fetch the application ID of the application this client is linked to.</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the ID of the application this client is linked to.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -14892,7 +14892,7 @@ to Discord if it cannot get the current user from the cache.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fetch the application ID of the application this client is linked to.</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the ID of the application this client is linked to.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -14920,7 +14920,7 @@ to Discord if it cannot get the current user from the cache.</p>
 
         </details>
 
-            <div class="docstring"><p>Fetch the application ID of the application this client is linked to.</p>
+            <div class="docstring"><p>Fetch the ID of the application this client is linked to.</p>
 
 <h6 id="returns">Returns</h6>
 
