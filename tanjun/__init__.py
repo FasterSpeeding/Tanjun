@@ -199,6 +199,7 @@ __all__: list[str] = [
     "injecting",
     "as_self_injecting",
     "inject",
+    "injected",
     # parsing.py
     "parsing",
     "ShlexParser",
@@ -311,5 +312,3 @@ __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
 __version__: typing.Final[str] = "2.3.1a1"
-
-injected
