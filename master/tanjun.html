@@ -1163,6 +1163,9 @@
                     <a class="function" href="#inject">inject</a>
             </li>
             <li>
+                    <a class="function" href="#injected">injected</a>
+            </li>
+            <li>
                     <a class="module" href="#parsing">parsing</a>
             </li>
             <li>
@@ -1515,6 +1518,7 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;injecting&quot;</span><span class="p">,</span>
     <span class="s2">&quot;as_self_injecting&quot;</span><span class="p">,</span>
     <span class="s2">&quot;inject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;injected&quot;</span><span class="p">,</span>
     <span class="c1"># parsing.py</span>
     <span class="s2">&quot;parsing&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ShlexParser&quot;</span><span class="p">,</span>
@@ -1627,8 +1631,6 @@ enable slash (interaction) command execution:</p>
 <span class="n">__license__</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;BSD&quot;</span>
 <span class="n">__url__</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/FasterSpeeding/Tanjun&quot;</span>
 <span class="n">__version__</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2.3.1a1&quot;</span>
-
-<span class="n">injected</span>
 </pre></div>
 
         </details>
@@ -38667,6 +38669,36 @@ be resolved using the linked client.</p></li>
 <ul>
 <li><strong>ValueError</strong>: If both <code>callback</code> and <code>type</code> are specified or if neither is specified.</li>
 </ul>
+</div>
+
+
+                </section>
+                <section id="injected">
+                            <div class="attr function"><a class="headerlink" href="#injected">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">injected</span><span class="signature">(
+    *,
+    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
+    type: Optional[type[~_T]] = None
+) -&gt; <a href="tanjun/injecting.html#Injected">tanjun.injecting.Injected</a>[~_T]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">injected</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Alias of `inject`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Alias of <code><a href="#inject">inject</a></code>.</p>
 </div>
 
 
