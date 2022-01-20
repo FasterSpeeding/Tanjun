@@ -185,19 +185,8 @@ class Component(tanjun_abc.Component):
     def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
         """Initialise a new component.
 
-        Parameters
-        ----------
-        checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]
-            Iterable of check callbacks to set for this component, if provided.
-        hooks : typing.Optional[tanjun.abc.AnyHooks]
-            The hooks this component should add to the execution of all its
-            commands (message and slash).
-        slash_hooks : typing.Optional[tanjun.abc.SlashHooks]
-            The slash hooks this component should add to the execution of its
-            slash commands.
-        message_hooks : typing.Optional[tanjun.abc.MessageHooks]
-            The message hooks this component should add to the execution of its
-            message commands.
+        Other Parameters
+        ----------------
         name : str
             The component's identifier.
 
