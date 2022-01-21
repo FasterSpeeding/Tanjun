@@ -437,7 +437,7 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="n">channel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_id</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TextableGuildChannel</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">channel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TextableGuildChannel</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">channel</span>
 
         <span class="k">return</span> <span class="kc">None</span>
