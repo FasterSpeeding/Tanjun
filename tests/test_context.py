@@ -161,6 +161,14 @@ class TestBaseContext:
 
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
+    def test_get_channel_when_cache_returns_none(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
+        assert mock_client.cache is not None
+        mock_client.cache.get_guild_channel.return_value = None
+
+        assert context.get_channel() is None
+
+        mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
+
     def test_get_channel_when_cacheless(self, mock_component: tanjun.abc.Component):
         context = stub_class(tanjun.context.BaseContext, guild_id=None)(
             mock.Mock(cache=None), mock.Mock(), component=mock_component

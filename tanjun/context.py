@@ -162,7 +162,7 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._client.cache:
             channel = self._client.cache.get_guild_channel(self.channel_id)
-            assert isinstance(channel, hikari.TextableGuildChannel)
+            assert channel is None or isinstance(channel, hikari.TextableGuildChannel)
             return channel
 
         return None

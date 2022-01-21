@@ -120,6 +120,7 @@ reportImportCycles = "warning"                  # This isn't necessarily an issu
 reportUnknownVariableType = "warning"           # Lotta false-positives, might fix/change later.
 
 [tool.pytest.ini_options]
+asyncio_mode = "strict"
 testpaths = ["tests"]
 required_plugins = ["pytest-asyncio"]
 
