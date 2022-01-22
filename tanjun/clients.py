@@ -51,6 +51,7 @@ import importlib.util as importlib_util
 import inspect
 import itertools
 import logging
+import pathlib
 import typing
 import warnings
 from collections import abc as collections
@@ -68,7 +69,6 @@ from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    import pathlib
     import types
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
@@ -130,6 +130,14 @@ class _LoaderDescriptor(tanjun_abc.ClientLoader):  # Slots mess with functools.u
         self._must_be_std = standard_impl
         functools.update_wrapper(self, callback)
 
+    @property
+    def has_load(self) -> bool:
+        return True
+
+    @property
+    def has_unload(self) -> bool:
+        return False
+
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         self._callback(*args, **kwargs)
 
@@ -158,6 +166,14 @@ class _UnloaderDescriptor(tanjun_abc.ClientLoader):  # Slots mess with functools
         self._callback = callback
         self._must_be_std = standard_impl
         functools.update_wrapper(self, callback)
+
+    @property
+    def has_load(self) -> bool:
+        return False
+
+    @property
+    def has_unload(self) -> bool:
+        return True
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         self._callback(*args, **kwargs)
@@ -1814,42 +1830,38 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._message_hooks = hooks
         return self
 
-    @staticmethod
-    def _iter_module_members(module: types.ModuleType, module_repr: str, /) -> collections.Iterator[typing.Any]:
-        exported = getattr(module, "__all__", None)
-        if exported is not None and isinstance(exported, collections.Iterable):
-            _LOGGER.debug("Scanning %s module based on its declared __all__)", module_repr)
-            exported = typing.cast("collections.Iterable[typing.Any]", exported)
-            return (getattr(module, name, None) for name in exported if isinstance(name, str))
-
-        _LOGGER.debug("Scanning all public members on %s", module_repr)
-        return (
-            member
-            for name, member in inspect.getmembers(module)
-            if not name.startswith("_") or name.startswith("__") and name.endswith("__")
-        )
-
-    def _load_module(self, module: types.ModuleType, module_repr: str) -> None:
+    def _load_module(
+        self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun_abc.ClientLoader], /
+    ) -> None:
         found = False
-        for member in self._iter_module_members(module, module_repr):
-            if isinstance(member, tanjun_abc.ClientLoader) and member.load(self):
+        for loader in loaders:
+            if loader.load(self):
                 found = True
 
         if not found:
-            raise RuntimeError(f"Didn't find any loaders in {module_repr}")
+            raise errors.ModuleMissingLoaders(f"Didn't find any loaders in {module_path}", module_path)
 
-    def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _ClientT:
+    def _unload_module(
+        self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun_abc.ClientLoader], /
+    ) -> None:
+        found = False
+        for loader in loaders:
+            if loader.unload(self):
+                found = True
+
+        if not found:
+            raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in {module_path}", module_path)
+
+    def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
                 if module_path in self._modules:
                     raise ValueError(f"module {module_path} already loaded")
 
-                if _log:
-                    _LOGGER.info("Loading from %s", module_path)
-
+                _LOGGER.info("Loading from %s", module_path)
                 module = importlib.import_module(module_path)
-                self._load_module(module, str(module_path))
+                self._load_module(module_path, _get_loaders(module, module_path))
                 self._modules[module_path] = module
 
             else:
@@ -1857,36 +1869,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 if module_path_abs in self._path_modules:
                     raise ValueError(f"Module at {module_path} already loaded")
 
-                module_name = module_path.name.rsplit(".", 1)[0]
-                spec = importlib_util.spec_from_file_location(module_name, module_path_abs)
-
-                # https://github.com/python/typeshed/issues/2793
-                if not spec or not isinstance(spec.loader, importlib_abc.Loader):
-                    raise ModuleNotFoundError(
-                        f"Module not found at {module_path}", name=module_name, path=str(module_path)
-                    )
-
-                if _log:
-                    _LOGGER.info("Loading from %s", module_path)
-
-                module = importlib_util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                self._load_module(module, str(module_path))
+                _LOGGER.info("Loading from %s", module_path)
+                module = _get_path_module(module_path)
+                self._load_module(module_path, _get_loaders(module, module_path))
                 self._path_modules[module_path_abs] = module
 
         return self
 
-    def _unload_module(self, module: types.ModuleType, module_repr: str) -> None:
-        found = False
-        for member in self._iter_module_members(module, module_repr):
-            if isinstance(member, tanjun_abc.ClientLoader) and member.unload(self):
-                found = True
-
-        if not found:
-            raise RuntimeError(f"Didn't find any unloaders in {module_repr}")
-
-    def unload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _ClientT:
-        # <<inherited docstring from tanjun.abc.Client>>.
+    def unload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
+        # <<inherited docstring from tanjun.ab.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
                 module = self._modules.pop(module_path, None)
@@ -1896,12 +1887,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 module = self._path_modules.pop(module_path, None)
 
             if not module:
-                raise ValueError(f"Module {module_path!s} not loaded")
+                raise errors.ModuleStateConflict(f"Module {module_path!s} not loaded", module_path)
 
-            if _log:
-                _LOGGER.info("Unloading from %s", module_path)
-
-            self._unload_module(module, str(module_path))
+            _LOGGER.info("Unloading from %s", module_path)
+            self._unload_module(module_path, _get_loaders(module, module_path))
 
         return self
 
@@ -1909,21 +1898,49 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
-                module = self._modules.pop(module_path, None)
-                if not module:
-                    raise ValueError(f"Module {module_path} not loaded")
+                old_module = self._modules.pop(module_path, None)
 
-                module_repr = str(module_path)
-                _LOGGER.info("Reloading %s", module_repr)
-                self._unload_module(module, module_repr)
-                module = importlib.reload(module)
-                self._load_module(module, module_repr)
-                self._modules[module_path] = module
+                def load_module() -> types.ModuleType:
+                    assert old_module
+                    return importlib.reload(old_module)
+
+                modules_dict: dict[typing.Any, types.ModuleType] = self._modules
 
             else:
-                _LOGGER.info("Reloading %s", module_path)
-                self.unload_modules(module_path, _log=False)
-                self.load_modules(module_path, _log=False)
+                module_path = module_path.absolute()
+                old_module = self._path_modules.pop(module_path, None)
+
+                def load_module() -> types.ModuleType:
+                    assert isinstance(module_path, pathlib.Path)
+                    return _get_path_module(module_path)
+
+                modules_dict = self._path_modules
+
+            if not old_module:
+                raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
+
+            _LOGGER.info("Reloading %s", module_path)
+            module = load_module()
+            loaders = _get_loaders(module, module_path)
+            old_loaders = _get_loaders(old_module, module_path)
+
+            # We assert that the new module has loaders early to avoid unnecessarily
+            # unloading then rolling back when we know it's going to fail to load.
+            if not any(loader.has_load for loader in loaders):
+                raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
+
+            self._unload_module(module_path, old_loaders)
+
+            try:
+                self._load_module(module_path, loaders)
+
+            except Exception:
+                self._load_module(module_path, old_loaders)
+                modules_dict[module_path] = old_module
+                raise
+
+            else:
+                modules_dict[module_path] = module
 
         return self
 
@@ -2082,3 +2099,39 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
         return await future
+
+
+def _get_loaders(
+    module: types.ModuleType, module_path: typing.Union[str, pathlib.Path], /
+) -> list[tanjun_abc.ClientLoader]:
+    exported = getattr(module, "__all__", None)
+    if exported is not None and isinstance(exported, collections.Iterable):
+        _LOGGER.debug("Scanning %s module based on its declared __all__)", module_path)
+        exported = typing.cast("collections.Iterable[typing.Any]", exported)
+        iterator = (getattr(module, name, None) for name in exported if isinstance(name, str))
+
+    else:
+        _LOGGER.debug("Scanning all public members on %s", module_path)
+        iterator = (
+            member
+            for name, member in inspect.getmembers(module)
+            if not name.startswith("_") or name.startswith("__") and name.endswith("__")
+        )
+
+    results = list(filter(lambda x: isinstance(x, tanjun_abc.ClientLoader), iterator))
+    # TODO: remove cast as soon as pyright gets
+    # https://github.com/python/typeshed/commit/7c4ca2708341c24d30b8fa1b5c7215ea8731ad53
+    return typing.cast("list[tanjun_abc.ClientLoader]", results)
+
+
+def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
+    module_name = module_path.name.rsplit(".", 1)[0]
+    spec = importlib_util.spec_from_file_location(module_name, module_path)
+
+    # https://github.com/python/typeshed/issues/2793
+    if not spec or not isinstance(spec.loader, importlib_abc.Loader):
+        raise ModuleNotFoundError(f"Module not found at {module_path}", name=module_name, path=str(module_path))
+
+    module = importlib_util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

@@ -38,6 +38,8 @@ __all__: list[str] = [
     "HaltExecution",
     "FailedCheck",
     "MissingDependencyError",
+    "ModuleMissingLoaders",
+    "ModuleStateConflict",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
@@ -47,6 +49,7 @@ __all__: list[str] = [
 import typing
 
 if typing.TYPE_CHECKING:
+    import pathlib
     from collections import abc as collections
 
 
@@ -243,3 +246,43 @@ class TooManyArgumentsError(ParserError):
             The parameter this error was raised for.
         """
         super().__init__(message, parameter)
+
+
+class ModuleMissingLoaders(RuntimeError, TanjunError):
+    """Error raised when a module is missing loaders or unloaders."""
+
+    __slots__ = ("_message", "_path")
+
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path]) -> None:
+        self._message = message
+        self._path = path
+
+    @property
+    def message(self) -> str:
+        """The error message."""
+        return self._message
+
+    @property
+    def path(self) -> typing.Union[str, pathlib.Path]:
+        """The path of the module which is missing loaders or unloaders."""
+        return self._path
+
+
+class ModuleStateConflict(ValueError, TanjunError):
+    """Error raised when a module cannot be (un)loaded due to a state conflict."""
+
+    __slots__ = ("_message", "_path")
+
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path]) -> None:
+        self._message = message
+        self._path = path
+
+    @property
+    def message(self) -> str:
+        """The error message."""
+        return self._message
+
+    @property
+    def path(self) -> typing.Union[str, pathlib.Path]:
+        """The path of the module which caused the error."""
+        return self._path

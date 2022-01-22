@@ -131,6 +131,14 @@ class _ComponentManager(tanjun_abc.ClientLoader):
         self._component = component
         self._copy = copy
 
+    @property
+    def has_load(self) -> bool:
+        return True
+
+    @property
+    def has_unload(self) -> bool:
+        return True
+
     def load(self, client: tanjun_abc.Client, /) -> bool:
         client.add_component(self._component.copy() if self._copy else self._component)
         return True
