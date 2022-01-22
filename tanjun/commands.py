@@ -2009,13 +2009,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 keyword_args[option.name] = option.resolve_to_role()
 
             elif option.type is hikari.OptionType.MENTIONABLE:
-                member = None
-                if tracked_option.is_only_member and not (member := option.resolve_to_member()):
-                    raise errors.ConversionError(
-                        f"Couldn't find member for provided user: {option.value}", tracked_option.name
-                    )
-
-                keyword_args[option.name] = member or option.resolve_to_mentionable()
+                keyword_args[option.name] = option.resolve_to_mentionable()
 
             else:
                 value = option.value
