@@ -17847,13 +17847,7 @@ message create events.</p>
                 <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_role</span><span class="p">()</span>
 
             <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">:</span>
-                <span class="n">member</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">is_only_member</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">()):</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span>
-                    <span class="p">)</span>
-
-                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
+                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
@@ -21139,13 +21133,7 @@ The command to add.</li>
                 <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_role</span><span class="p">()</span>
 
             <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">:</span>
-                <span class="n">member</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">is_only_member</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">()):</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span>
-                    <span class="p">)</span>
-
-                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
+                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
