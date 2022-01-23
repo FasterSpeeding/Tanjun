@@ -574,12 +574,14 @@ class SlashOption(tanjun_abc.SlashOption):
         return self._option.value
 
     def boolean(self) -> bool:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self.type is hikari.OptionType.BOOLEAN:
             return bool(self._option.value)
 
         raise TypeError("Option is not a boolean")
 
     def float(self) -> float:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self.type is hikari.OptionType.FLOAT:
             assert self._option.value is not None
             return float(self._option.value)
@@ -587,6 +589,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError("Option is not a float")
 
     def integer(self) -> int:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self.type is hikari.OptionType.INTEGER:
             assert self._option.value is not None
             return int(self._option.value)
@@ -594,6 +597,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError("Option is not an integer")
 
     def snowflake(self) -> hikari.Snowflake:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self.type in _SnowflakeOptions:
             assert self._option.value is not None
             return hikari.Snowflake(self._option.value)
@@ -601,6 +605,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError("Option is not a unique resource")
 
     def string(self) -> str:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self.type is hikari.OptionType.STRING:
             return str(self._option.value)
 
