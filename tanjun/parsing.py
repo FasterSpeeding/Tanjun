@@ -39,8 +39,8 @@ __all__: list[str] = [
     "Option",
     "Parameter",
     "ShlexParser",
-    "UndefinedDefaultT",
-    "UNDEFINED_DEFAULT",
+    "UndefinedT",
+    "UNDEFINED",
     "with_argument",
     "with_greedy_argument",
     "with_multi_argument",
@@ -66,10 +66,19 @@ if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun_abc.MessageCommand[typing.Any])
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
-    _T = typing.TypeVar("_T")
+    _T_contra = typing.TypeVar("_T_contra", contravariant=True)
+
+    class _ComparableProto(typing.Protocol[_T_contra]):
+        def __gt__(self, __other: _T_contra) -> bool:
+            raise NotImplementedError
+
+        def __lt__(self, __other: _T_contra) -> bool:
+            raise NotImplementedError
 
 
-ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[typing.Any]]
+_T = typing.TypeVar("_T")
+
+ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
@@ -77,31 +86,39 @@ This must be a callable or asynchronous callable which takes one position
 """
 
 
-class UndefinedDefaultT:
-    """Type of the singleton value used for indicating an empty default."""
+class UndefinedT:
+    """Singleton used to indicate an undefined value within parsing logic."""
 
-    __singleton: typing.Optional[UndefinedDefaultT] = None
+    __singleton: typing.Optional[UndefinedT] = None
 
-    def __new__(cls) -> UndefinedDefaultT:
+    def __new__(cls) -> UndefinedT:
         if cls.__singleton is None:
             cls.__singleton = super().__new__(cls)
-            assert isinstance(cls.__singleton, UndefinedDefaultT)
+            assert isinstance(cls.__singleton, UndefinedT)
 
         return cls.__singleton
 
     def __repr__(self) -> str:
-        return "UNDEFINED_DEFAULT"
+        return "UNDEFINED"
 
     def __bool__(self) -> typing.Literal[False]:
         return False
 
 
-UNDEFINED_DEFAULT = UndefinedDefaultT()
-"""A singleton used to represent no default for a parameter."""
+UndefinedDefaultT = UndefinedT
+"""Deprecated alias of `UndefinedT`."""
+
+UNDEFINED = UndefinedT()
+"""A singleton used to represent an undefined value within parsing logic."""
+
+UNDEFINED_DEFAULT = UNDEFINED
+"""Deprecated alias of `UNDEFINED`."""
+
+_UndefinedOr = typing.Union[UndefinedT, _T]
 
 
 class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
-    """Abstract interface of an option-based message content parser."""
+    """Abstract interface of a message content parser."""
 
     __slots__ = ()
 
@@ -120,9 +137,9 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         self: _T,
         key: str,
         /,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         *,
-        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
         multi: bool = False,
     ) -> _T:
@@ -148,7 +165,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             Only the first converter to pass will be used.
         default : typing.Any
             The default value of this argument, if left as
-            `UNDEFINED_DEFAULT` then this will have no default.
+            `UNDEFINED` then this will have no default.
         greedy : bool
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -168,9 +185,9 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: typing.Any,
-        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add an named option to this parser.
@@ -199,8 +216,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
             Only the first converter to pass will be used.
         empty_value : typing.Any
-            The value to use if this option is provided without a value. If left as
-            `UNDEFINED_DEFAULT` then this option will error if it's
+            The value to use if this option is provided without a value.
+            If left as `UNDEFINED` then this option will error if it's
             provided without a value.
         multi : bool
             If this option can be provided multiple times.
@@ -304,7 +321,7 @@ async def _covert_option_or_empty(
     if value is not None:
         return await option.convert(ctx, value)
 
-    if option.empty_value is not UNDEFINED_DEFAULT:
+    if option.empty_value is not UNDEFINED:
         return option.empty_value
 
     raise errors.NotEnoughArgumentsError(f"Option '{option.key} cannot be empty.", option.key)
@@ -349,7 +366,7 @@ class _SemanticShlex(_ShlexTokenizer):
         if (optional_value := self.next_raw_argument()) is not None:
             return await argument.convert(self.__ctx, optional_value)
 
-        if argument.default is not UNDEFINED_DEFAULT:
+        if argument.default is not UNDEFINED:
             return argument.default
 
         # If this is reached then no value was found.
@@ -368,7 +385,7 @@ class _SemanticShlex(_ShlexTokenizer):
 
             return await _covert_option_or_empty(self.__ctx, option, value)
 
-        if option.default is not UNDEFINED_DEFAULT:
+        if option.default is not UNDEFINED:
             return option.default
 
         # If this is reached then no value was found.
@@ -390,9 +407,9 @@ def _get_or_set_parser(command: tanjun_abc.MessageCommand[typing.Any], /) -> Abs
 def with_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
-    default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -421,7 +438,7 @@ def with_argument(
         Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
-        `UNDEFINED_DEFAULT` then this will have no default.
+        `UNDEFINED` then this will have no default.
     greedy : bool
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
@@ -458,9 +475,9 @@ def with_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
-    default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
@@ -494,7 +511,7 @@ def with_greedy_argument(
         Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
-        `UNDEFINED_DEFAULT` then this will have no default.
+        `UNDEFINED` then this will have no default.
 
     Returns
     -------
@@ -519,9 +536,9 @@ def with_greedy_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
-    default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
@@ -556,7 +573,7 @@ def with_multi_argument(
         Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
-        `UNDEFINED_DEFAULT` then this will have no default.
+        `UNDEFINED` then this will have no default.
 
     Returns
     -------
@@ -584,9 +601,9 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     default: typing.Any,
-    empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
@@ -620,7 +637,7 @@ def with_option(
         Only the first converter to pass will be used.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
-        `UNDEFINED_DEFAULT` then this option will error if it's
+        `UNDEFINED` then this option will error if it's
         provided without a value.
     multi : bool
         If this option can be provided multiple times.
@@ -658,9 +675,9 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     default: typing.Any,
-    empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
@@ -698,7 +715,7 @@ def with_multi_option(
         Only the first converter to pass will be used.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
-        `UNDEFINED_DEFAULT` then this option will error if it's
+        `UNDEFINED` then this option will error if it's
         provided without a value.
 
     Returns
@@ -724,16 +741,17 @@ def with_multi_option(
 class Parameter:
     """Base class for parameters for the standard parser(s)."""
 
-    __slots__ = ("_client", "_component", "_converters", "_default", "_is_multi", "_key")
+    __slots__ = ("_client", "_component", "_converters", "_default", "_gt", "_is_multi", "_key", "_lt")
 
     def __init__(
         self,
         key: str,
         /,
         *,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
-        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-        greedy: bool = False,
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> None:
         """Initialise a parameter."""
@@ -741,8 +759,10 @@ class Parameter:
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
         self._default = default
+        self._gt = gt
         self._is_multi = multi
         self._key = key
+        self._lt = lt
 
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
@@ -758,15 +778,15 @@ class Parameter:
         return f"{type(self).__name__} <{self._key}>"
 
     @property
-    def converters(self) -> collections.Sequence[ConverterSig]:
+    def converters(self) -> collections.Sequence[ConverterSig[typing.Any]]:
         """Sequence of the converters registered for this parameter."""
         return tuple(converter.callback for converter in self._converters)
 
     @property
-    def default(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
+    def default(self) -> _UndefinedOr[typing.Any]:
         """The parameter's default.
 
-        If this is `UndefinedDefaultT` then this parameter is required.
+        If this is `UndefinedT` then this parameter is required.
         """
         return self._default
 
@@ -790,7 +810,7 @@ class Parameter:
         # TODO: cache this value?
         return any(converter.needs_injector for converter in self._converters)
 
-    def _add_converter(self, converter: ConverterSig, /) -> None:
+    def _add_converter(self, converter: ConverterSig[typing.Any], /) -> None:
         if isinstance(converter, conversion.BaseConverter):
             if self._client:
                 converter.check_client(self._client, f"{self._key} parameter")
@@ -821,10 +841,21 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                return await converter.resolve_with_command_context(ctx, value)
+                result = await converter.resolve_with_command_context(ctx, value)
 
             except ValueError as exc:
                 sources.append(exc)
+
+            else:
+                # assert result > self._gt
+                if self._gt is not UNDEFINED and result <= self._gt:
+                    raise errors.ConversionError(f"{self._key} must be less than {self._gt}", self.key)
+
+                # assert result < self._lt
+                if self._lt is not UNDEFINED and result >= self._lt:
+                    raise errors.ConversionError(f"{self._key} must be greater than {self._lt}", self.key)
+
+                return result
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
         raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self.key}'", self.key, sources)
@@ -855,8 +886,8 @@ class Argument(Parameter):
         key: str,
         /,
         *,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
-        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
         multi: bool = False,
     ) -> None:
@@ -879,7 +910,7 @@ class Argument(Parameter):
             Only the first converter to pass will be used.
         default : typing.Any
             The default value of this argument, if left as
-            `UNDEFINED_DEFAULT` then this will have no default.
+            `UNDEFINED` then this will have no default.
         greedy : bool
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -916,9 +947,9 @@ class Option(Parameter):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
-        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         multi: bool = True,
     ) -> None:
         """Initialise a named optional parameter.
@@ -948,7 +979,7 @@ class Option(Parameter):
             Only the first converter to pass will be used.
         empty_value : typing.Any
             The value to use if this option is provided without a value. If left as
-            `UNDEFINED_DEFAULT` then this option will error if it's
+            `UNDEFINED` then this option will error if it's
             provided without a value.
         multi : bool
             If this option can be provided multiple times.
@@ -962,10 +993,10 @@ class Option(Parameter):
         super().__init__(key, converters=converters, default=default, multi=multi)
 
     @property
-    def empty_value(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
+    def empty_value(self) -> _UndefinedOr[typing.Any]:
         """The value to return if the option is empty.
 
-        If this is `UndefinedDefaultT` then a value will be required for the
+        If this is `UndefinedT` then a value will be required for the
         option.
         """
         return self._empty_value
@@ -1018,9 +1049,9 @@ class ShlexParser(AbstractOptionParser):
         self: _ShlexParserT,
         key: str,
         /,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         *,
-        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
         multi: bool = False,
     ) -> _ShlexParserT:
@@ -1051,9 +1082,9 @@ class ShlexParser(AbstractOptionParser):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: typing.Any,
-        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
