@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `SlashContext.boolean`, `SlashContext.float`, `SlashContext.integer`, `SlashContext.snowflake`
+  and `SlashContext.string` methods as short hands for asserting the option type and ensuring type
+  safety.
+
+### Changed
+- `SlashContext.value` now returns `hikari.Snowflake` for object IDs.
+
 ### Fixed
 - `Context.get_channel` no longer raises an assertion error if the cache returns `None`.
 
