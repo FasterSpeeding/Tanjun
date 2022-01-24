@@ -529,6 +529,21 @@
                                 <a class="variable" href="#SlashOption.value">value</a>
                         </li>
                         <li>
+                                <a class="function" href="#SlashOption.boolean">boolean</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.float">float</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.integer">integer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.snowflake">snowflake</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.string">string</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#SlashOption.resolve_value">resolve_value</a>
                         </li>
                         <li>
@@ -1928,12 +1943,69 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Value provided for this option.</span>
 
 <span class="sd">        .. note::</span>
-<span class="sd">            For discord entity option types (e.g. user, member, channel and</span>
-<span class="sd">            role) this will be the entity&#39;s ID.</span>
+<span class="sd">            For discord entity option types (user, member, channel and role)</span>
+<span class="sd">            this will be the entity&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">boolean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the boolean value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not BOOLEAN.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the float value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not FLOAT.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If called on the focused option for an autocomplete interaction</span>
+<span class="sd">            when it&#39;s a malformed (incomplete) float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">integer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the integer value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not INTEGER.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If called on the focused option for an autocomplete interaction</span>
+<span class="sd">            when it&#39;s a malformed (incomplete) integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">snowflake</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the ID of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not one of CHANNEL, MENTIONABLE, ROLE</span>
+<span class="sd">            or USER.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the string value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not STRING.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -1967,16 +2039,6 @@
 <span class="sd">        TypeError</span>
 <span class="sd">            If the option is not a channel and a `default` wasn&#39;t provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-        <span class="o">...</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
@@ -12273,12 +12335,69 @@ nature, and will trigger this exception if they occur.</li>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Value provided for this option.</span>
 
 <span class="sd">        .. note::</span>
-<span class="sd">            For discord entity option types (e.g. user, member, channel and</span>
-<span class="sd">            role) this will be the entity&#39;s ID.</span>
+<span class="sd">            For discord entity option types (user, member, channel and role)</span>
+<span class="sd">            this will be the entity&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">boolean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the boolean value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not BOOLEAN.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the float value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not FLOAT.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If called on the focused option for an autocomplete interaction</span>
+<span class="sd">            when it&#39;s a malformed (incomplete) float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">integer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the integer value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not INTEGER.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If called on the focused option for an autocomplete interaction</span>
+<span class="sd">            when it&#39;s a malformed (incomplete) integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">snowflake</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the ID of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not one of CHANNEL, MENTIONABLE, ROLE</span>
+<span class="sd">            or USER.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the string value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not STRING.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12312,16 +12431,6 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        TypeError</span>
 <span class="sd">            If the option is not a channel and a `default` wasn&#39;t provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-        <span class="o">...</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
@@ -12449,14 +12558,201 @@ nature, and will trigger this exception if they occur.</li>
                             <div id="SlashOption.value" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#SlashOption.value">#&nbsp;&nbsp</a>
 
-        <span class="name">value</span><span class="annotation">: Union[str, int, bool, float]</span>
+        <span class="name">value</span><span class="annotation">: Union[str, hikari.snowflakes.Snowflake, int, bool, float]</span>
     </div>
 
             <div class="docstring"><p>Value provided for this option.</p>
 
 <p><em>Note:</em>
-For discord entity option types (e.g. user, member, channel and
-role) this will be the entity's ID.</p>
+For discord entity option types (user, member, channel and role)
+this will be the entity's ID.</p>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.boolean" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.boolean">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">boolean</span><span class="signature">(self) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">boolean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the boolean value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not BOOLEAN.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the boolean value of this option.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If <code><a href="#SlashOption.type">SlashOption.type</a></code> is not BOOLEAN.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.float" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.float">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">float</span><span class="signature">(self) -&gt; float</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the float value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not FLOAT.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If called on the focused option for an autocomplete interaction</span>
+<span class="sd">            when it&#39;s a malformed (incomplete) float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the float value of this option.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If <code><a href="#SlashOption.type">SlashOption.type</a></code> is not FLOAT.</li>
+<li><strong>ValueError</strong>: If called on the focused option for an autocomplete interaction
+when it's a malformed (incomplete) float.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.integer" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.integer">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">integer</span><span class="signature">(self) -&gt; int</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">integer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the integer value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not INTEGER.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If called on the focused option for an autocomplete interaction</span>
+<span class="sd">            when it&#39;s a malformed (incomplete) integer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the integer value of this option.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If <code><a href="#SlashOption.type">SlashOption.type</a></code> is not INTEGER.</li>
+<li><strong>ValueError</strong>: If called on the focused option for an autocomplete interaction
+when it's a malformed (incomplete) integer.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.snowflake" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.snowflake">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">snowflake</span><span class="signature">(self) -&gt; hikari.snowflakes.Snowflake</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">snowflake</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the ID of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not one of CHANNEL, MENTIONABLE, ROLE</span>
+<span class="sd">            or USER.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the ID of this option.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If <code><a href="#SlashOption.type">SlashOption.type</a></code> is not one of CHANNEL, MENTIONABLE, ROLE
+or USER.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.string" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.string">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">string</span><span class="signature">(self) -&gt; str</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the string value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `SlashOption.type` is not STRING.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the string value of this option.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If <code><a href="#SlashOption.type">SlashOption.type</a></code> is not STRING.</li>
+</ul>
 </div>
 
 
