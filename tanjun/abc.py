@@ -1158,12 +1158,69 @@ class SlashOption(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def value(self) -> typing.Union[str, int, bool, float]:
+    def value(self) -> typing.Union[str, hikari.Snowflake, int, bool, float]:
         """Value provided for this option.
 
         .. note::
-            For discord entity option types (e.g. user, member, channel and
-            role) this will be the entity's ID.
+            For discord entity option types (user, member, channel and role)
+            this will be the entity's ID.
+        """
+
+    @abc.abstractmethod
+    def boolean(self) -> bool:
+        """Get the boolean value of this option.
+
+        Raises
+        ------
+        TypeError
+            If `SlashOption.type` is not BOOLEAN.
+        """
+
+    @abc.abstractmethod
+    def float(self) -> float:
+        """Get the float value of this option.
+
+        Raises
+        ------
+        TypeError
+            If `SlashOption.type` is not FLOAT.
+        ValueError
+            If called on the focused option for an autocomplete interaction
+            when it's a malformed (incomplete) float.
+        """
+
+    @abc.abstractmethod
+    def integer(self) -> int:
+        """Get the integer value of this option.
+
+        Raises
+        ------
+        TypeError
+            If `SlashOption.type` is not INTEGER.
+        ValueError
+            If called on the focused option for an autocomplete interaction
+            when it's a malformed (incomplete) integer.
+        """
+
+    @abc.abstractmethod
+    def snowflake(self) -> hikari.Snowflake:
+        """Get the ID of this option.
+
+        Raises
+        ------
+        TypeError
+            If `SlashOption.type` is not one of CHANNEL, MENTIONABLE, ROLE
+            or USER.
+        """
+
+    @abc.abstractmethod
+    def string(self) -> str:
+        """Get the string value of this option.
+
+        Raises
+        ------
+        TypeError
+            If `SlashOption.type` is not STRING.
         """
 
     @abc.abstractmethod
@@ -1197,16 +1254,6 @@ class SlashOption(abc.ABC):
         TypeError
             If the option is not a channel and a `default` wasn't provided.
         """
-
-    @typing.overload
-    @abc.abstractmethod
-    def resolve_to_member(self) -> hikari.InteractionMember:
-        ...
-
-    @typing.overload
-    @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
-        ...
 
     @abc.abstractmethod
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:

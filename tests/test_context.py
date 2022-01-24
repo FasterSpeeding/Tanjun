@@ -701,10 +701,72 @@ class TestSlashOption:
 
         assert tanjun.context.SlashOption(mock.Mock(), mock_option).type is mock_option.type
 
-    def test_value_property(self):
-        mock_option = mock.Mock()
+    @pytest.mark.parametrize("type_", [hikari.OptionType.STRING, hikari.OptionType.FLOAT, hikari.OptionType.INTEGER])
+    def test_value_property(self, type_: hikari.OptionType):
+        mock_option = mock.Mock(type=type_)
 
         assert tanjun.context.SlashOption(mock.Mock(), mock_option).value is mock_option.value
+
+    @pytest.mark.parametrize(
+        "type_",
+        [hikari.OptionType.CHANNEL, hikari.OptionType.USER, hikari.OptionType.ROLE, hikari.OptionType.MENTIONABLE],
+    )
+    def test_value_property_for_unique_type(self, type_: hikari.OptionType):
+        mock_option = mock.Mock(type=type_, value="123321")
+
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).value == 123321
+
+    def test_boolean(self):
+        mock_option = mock.Mock(type=hikari.OptionType.BOOLEAN, value=True)
+
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).boolean() is True
+
+    def test_boolean_when_not_bool_type(self):
+        with pytest.raises(TypeError, match="Option is not a boolean"):
+            assert tanjun.context.SlashOption(mock.Mock(), mock.Mock()).boolean()
+
+    def test_float(self):
+        mock_option = mock.Mock(type=hikari.OptionType.FLOAT, value=123.312)
+
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).float() == 123.312
+
+    def test_float_when_not_float_type(self):
+        with pytest.raises(TypeError, match="Option is not a float"):
+            assert tanjun.context.SlashOption(mock.Mock(), mock.Mock()).float()
+
+    def test_integer(self):
+        mock_option = mock.Mock(type=hikari.OptionType.INTEGER, value=69300)
+
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).integer() == 69300
+
+    def test_integer_when_not_integer_type(self):
+        with pytest.raises(TypeError, match="Option is not an integer"):
+            assert tanjun.context.SlashOption(mock.Mock(), mock.Mock()).integer()
+
+    @pytest.mark.parametrize(
+        "type_",
+        [hikari.OptionType.CHANNEL, hikari.OptionType.USER, hikari.OptionType.ROLE, hikari.OptionType.MENTIONABLE],
+    )
+    def test_snowflake(self, type_: hikari.OptionType):
+        mock_option = mock.Mock(type=type_, value="45123")
+
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).snowflake() == 45123
+
+    @pytest.mark.parametrize("type_", [hikari.OptionType.STRING, hikari.OptionType.FLOAT, hikari.OptionType.INTEGER])
+    def test_snowflake_when_not_unique_type(self, type_: hikari.OptionType):
+        mock_option = mock.Mock(type=type_)
+
+        with pytest.raises(TypeError, match="Option is not a unique resource"):
+            assert tanjun.context.SlashOption(mock.Mock(), mock_option).snowflake()
+
+    def test_string(self):
+        mock_option = mock.Mock(type=hikari.OptionType.STRING, value="hi  meow")
+
+        assert tanjun.context.SlashOption(mock.Mock(), mock_option).string() == "hi  meow"
+
+    def test_string_when_not_str_type(self):
+        with pytest.raises(TypeError, match="Option is not a string"):
+            assert tanjun.context.SlashOption(mock.Mock(), mock.Mock()).string()
 
     def test_resolve_value_for_channel_option(self):
         resolve_to_channel = mock.Mock()
