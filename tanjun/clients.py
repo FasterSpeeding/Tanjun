@@ -1857,7 +1857,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         for module_path in modules:
             if isinstance(module_path, str):
                 if module_path in self._modules:
-                    raise ValueError(f"module {module_path} already loaded")
+                    raise errors.ModuleStateConflict(f"module {module_path} already loaded", module_path)
 
                 _LOGGER.info("Loading from %s", module_path)
                 module = importlib.import_module(module_path)
@@ -1867,7 +1867,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             else:
                 module_path_abs = module_path.absolute()
                 if module_path_abs in self._path_modules:
-                    raise ValueError(f"Module at {module_path} already loaded")
+                    raise errors.ModuleStateConflict(f"Module at {module_path} already loaded", module_path)
 
                 _LOGGER.info("Loading from %s", module_path)
                 module = _get_path_module(module_path)
@@ -1920,16 +1920,29 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
 
             _LOGGER.info("Reloading %s", module_path)
-            module = load_module()
+
+            try:
+                module = load_module()
+
+            except Exception:
+                modules_dict[module_path] = old_module
+                raise
+
             loaders = _get_loaders(module, module_path)
             old_loaders = _get_loaders(old_module, module_path)
 
             # We assert that the new module has loaders early to avoid unnecessarily
             # unloading then rolling back when we know it's going to fail to load.
             if not any(loader.has_load for loader in loaders):
+                modules_dict[module_path] = old_module
                 raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
 
-            self._unload_module(module_path, old_loaders)
+            try:
+                self._unload_module(module_path, old_loaders)
+
+            except errors.ModuleMissingLoaders:
+                modules_dict[module_path] = old_module
+                raise
 
             try:
                 self._load_module(module_path, loaders)
@@ -2118,10 +2131,7 @@ def _get_loaders(
             if not name.startswith("_") or name.startswith("__") and name.endswith("__")
         )
 
-    results = list(filter(lambda x: isinstance(x, tanjun_abc.ClientLoader), iterator))
-    # TODO: remove cast as soon as pyright gets
-    # https://github.com/python/typeshed/commit/7c4ca2708341c24d30b8fa1b5c7215ea8731ad53
-    return typing.cast("list[tanjun_abc.ClientLoader]", results)
+    return [value for value in iterator if isinstance(value, tanjun_abc.ClientLoader)]
 
 
 def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
