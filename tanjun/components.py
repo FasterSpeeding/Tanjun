@@ -1075,6 +1075,9 @@ class Component(tanjun_abc.Component):
         ValueError
             If the schedule isn't registered.
         """
+        if schedule.is_alive:
+            schedule.stop()
+
         self._schedules.remove(schedule)
         return self
 
@@ -1113,7 +1116,8 @@ class Component(tanjun_abc.Component):
         assert self._client
 
         for schedule in self._schedules:
-            schedule.stop()
+            if schedule.is_alive:
+                schedule.stop()
 
         self._loop = None
         # TODO: upgrade this to the standard interface

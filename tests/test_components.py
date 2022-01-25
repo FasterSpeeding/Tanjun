@@ -1122,7 +1122,7 @@ class TestComponent:
         mock_schedule.start.assert_called_once_with(mock_client, loop=mock_loop)
 
     def test_remove_schedule(self):
-        mock_schedule = mock.Mock()
+        mock_schedule = mock.Mock(is_alive=False)
         component = tanjun.Component().add_schedule(mock_schedule)
         assert mock_schedule in component.schedules
 
@@ -1130,6 +1130,18 @@ class TestComponent:
 
         assert result is component
         assert mock_schedule not in component.schedules
+        mock_schedule.stop.assert_not_called()
+
+    def test_remove_schedule_when_is_alive(self):
+        mock_schedule = mock.Mock(is_alive=True)
+        component = tanjun.Component().add_schedule(mock_schedule)
+        assert mock_schedule in component.schedules
+
+        result = component.remove_schedule(mock_schedule)
+
+        assert result is component
+        assert mock_schedule not in component.schedules
+        mock_schedule.stop.assert_called_once_with()
 
     def test_with_schedule(self):
         add_schedule = mock.Mock()
@@ -1149,8 +1161,9 @@ class TestComponent:
     async def test_close(self):
         mock_callback_1 = mock.AsyncMock()
         mock_callback_2 = mock.AsyncMock()
-        mock_schedule_1 = mock.Mock()
-        mock_schedule_2 = mock.Mock()
+        mock_schedule_1 = mock.Mock(is_alive=True)
+        mock_schedule_2 = mock.Mock(is_alive=True)
+        mock_closed_schedule = mock.Mock(is_alive=False)
         mock_ctx_1 = mock.Mock()
         mock_ctx_2 = mock.Mock()
         mock_client = mock.Mock(tanjun.injecting.InjectorClient)
@@ -1162,6 +1175,7 @@ class TestComponent:
             .bind_client(mock_client)
             .add_schedule(mock_schedule_1)
             .add_schedule(mock_schedule_2)
+            .add_schedule(mock_closed_schedule)
         )
         component._loop = mock.Mock()
         component._on_close = [mock_callback_1, mock_callback_2]
@@ -1176,6 +1190,7 @@ class TestComponent:
         mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
         mock_schedule_1.stop.assert_called_once_with()
         mock_schedule_2.stop.assert_called_once_with()
+        mock_closed_schedule.stop.assert_not_called()
         mock_unbind.assert_not_called()
         assert component.loop is None
 

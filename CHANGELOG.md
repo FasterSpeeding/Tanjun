@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `Context.get_channel` no longer raises an assertion error if the cache returns `None`.
+- Schedules are now stopped if they are removed from a component while active.
+- Schedules will no-longer raise a RuntimeError while closing a component if they were stopped before
+  before hand. 
 
 ## [2.3.0a1] - 2022-01-13
 ### Added
