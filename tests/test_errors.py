@@ -99,3 +99,19 @@ class TestTooManyArgumentsError:
 
         assert error.message == "blank"
         assert error.parameter == "fama"
+
+
+class TestModuleMissingLoaders:
+    def test___init__(self):
+        error = tanjun.ModuleMissingLoaders("foo", "bar")
+
+        assert error.message == "foo"
+        assert error.path == "bar"
+
+
+class TestModuleStateConflict:
+    def test___init__(self):
+        error = tanjun.ModuleStateConflict("esxd", "dsaasd")
+
+        assert error.message == "esxd"
+        assert error.path == "dsaasd"

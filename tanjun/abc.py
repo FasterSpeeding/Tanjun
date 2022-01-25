@@ -3654,9 +3654,9 @@ class Client(abc.ABC):
 
         Raises
         ------
-        ValueError
+        tanjun.errors.ModuleStateConflict
             If the module is already loaded.
-        RuntimeError
+        tanjun.errors.ModuleMissingLoaders
             If no loaders are found in the module.
         ModuleNotFoundError
             If the module is not found.
@@ -3703,9 +3703,9 @@ class Client(abc.ABC):
 
         Raises
         ------
-        ValueError
+        tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
-        RuntimeError
+        tanjun.errors.ModuleMissingLoaders
             If no unloaders are found in the module.
         """
 
@@ -3721,7 +3721,7 @@ class Client(abc.ABC):
         Examples
         --------
         For this to work the module has to have at least one ClientLoader
-        which handles both loading and unloading present.
+        which handles loading and one which handles unloading present.
 
         Parameters
         ----------
@@ -3737,11 +3737,13 @@ class Client(abc.ABC):
 
         Raises
         ------
-        ValueError
+        tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
-        RuntimeError
+        tanjun.errors.ModuleMissingLoaders
             If no unloaders are found in the current state of the module.
             If no loaders are found in the new state of the module.
+        ModuleNotFoundError
+            If the module can no-longer be found at the provided path.
         """
 
 
@@ -3749,6 +3751,16 @@ class ClientLoader(abc.ABC):
     """Interface of logic used to load and unload components into a generic client."""
 
     __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def has_load(self) -> bool:
+        """Whether this loader will load anything."""
+
+    @property
+    @abc.abstractmethod
+    def has_unload(self) -> bool:
+        """Whether this loader will unload anything."""
 
     @abc.abstractmethod
     def load(self, client: Client, /) -> bool:

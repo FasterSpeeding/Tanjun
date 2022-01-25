@@ -185,6 +185,8 @@ __all__: list[str] = [
     "HaltExecution",
     "FailedCheck",
     "MissingDependencyError",
+    "ModuleMissingLoaders",
+    "ModuleStateConflict",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
@@ -282,6 +284,8 @@ from .errors import ConversionError
 from .errors import FailedCheck
 from .errors import HaltExecution
 from .errors import MissingDependencyError
+from .errors import ModuleMissingLoaders
+from .errors import ModuleStateConflict
 from .errors import NotEnoughArgumentsError
 from .errors import ParserError
 from .errors import TanjunError

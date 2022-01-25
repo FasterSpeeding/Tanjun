@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `SlashContext.value` now returns `hikari.Snowflake` for object IDs.
+- `reload_modules` will now try to rollback a module if it failed to load before raising
+  and avoid trying to reload a module all together if no loaders or unloaders are found.
 
 ### Fixed
 - `Context.get_channel` no longer raises an assertion error if the cache returns `None`.
