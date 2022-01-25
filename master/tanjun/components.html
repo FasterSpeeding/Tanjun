@@ -1329,6 +1329,9 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            If the schedule isn&#39;t registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -1367,7 +1370,8 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
 
         <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
-            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+                <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># TODO: upgrade this to the standard interface</span>
@@ -2367,6 +2371,9 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            If the schedule isn&#39;t registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -2405,7 +2412,8 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
 
         <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
-            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+                <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># TODO: upgrade this to the standard interface</span>
@@ -4668,6 +4676,9 @@ The schedule to add.</li>
 <span class="sd">        ValueError</span>
 <span class="sd">            If the schedule isn&#39;t registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -4784,7 +4795,8 @@ The schedule to add.</li>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
 
         <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedules</span><span class="p">:</span>
-            <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+                <span class="n">schedule</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># TODO: upgrade this to the standard interface</span>
