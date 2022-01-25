@@ -204,7 +204,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
         gt
-            Assert that the parsed value(s) for this argument are (exclusively) treater than this.
+            Assert that the parsed value(s) for this argument are (exclusively) greater than this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -299,7 +299,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             If left as `UNDEFINED` then this option will error if it's
             provided without a value.
         gt
-            Assert that the parsed value(s) for this option are (exclusively) treater than this.
+            Assert that the parsed value(s) for this option are (exclusively) greater than this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -563,7 +563,7 @@ def with_argument(
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
     gt
-        Assert that the parsed value(s) for this argument are (exclusively) treater than this.
+        Assert that the parsed value(s) for this argument are (exclusively) greater than this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -807,7 +807,7 @@ def with_option(
         `UNDEFINED` then this option will error if it's
         provided without a value.
     gt
-        Assert that the parsed value(s) for this option are (exclusively) treater than this.
+        Assert that the parsed value(s) for this option are (exclusively) greater than this.
 
         If any converters are provided then this should be compatible
         with the result of them.
