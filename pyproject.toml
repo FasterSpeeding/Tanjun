@@ -31,7 +31,7 @@ classifiers = [
 dependencies = ["hikari~=2.0.0.dev105"]
 
 [project.optional-dependencies]
-docs = ["pdoc==8.3.0"]
+docs = ["pdoc==9"]
 flake8 = [
     "flake8==4.0.1",
 
