@@ -253,7 +253,7 @@ class ModuleMissingLoaders(RuntimeError, TanjunError):
 
     __slots__ = ("_message", "_path")
 
-    def __init__(self, message: str, path: typing.Union[str, pathlib.Path]) -> None:
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
         self._message = message
         self._path = path
 
@@ -273,7 +273,7 @@ class ModuleStateConflict(ValueError, TanjunError):
 
     __slots__ = ("_message", "_path")
 
-    def __init__(self, message: str, path: typing.Union[str, pathlib.Path]) -> None:
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
         self._message = message
         self._path = path
 

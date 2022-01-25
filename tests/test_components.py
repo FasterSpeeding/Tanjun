@@ -1256,6 +1256,12 @@ class TestComponent:
         with pytest.raises(RuntimeError, match="Client isn't bound yet"):
             await component.open()
 
+    def test_make_loader_has_load_property(self):
+        assert tanjun.Component().make_loader(copy=False).has_load is True
+
+    def test_make_loader_has_unload_property(self):
+        assert tanjun.Component().make_loader(copy=False).has_unload is True
+
     def test_make_loader_load(self):
         component = tanjun.Component()
         loader = component.make_loader(copy=False)

@@ -65,6 +65,18 @@ class TestMessageAcceptsEnum:
 
 
 class Test_LoaderDescriptor:
+    def test_has_load_property(self):
+        loader = tanjun.as_loader(mock.Mock())
+        assert isinstance(loader, tanjun.clients._LoaderDescriptor)
+
+        assert loader.has_load is True
+
+    def test_has_unload_property(self):
+        loader = tanjun.as_loader(mock.Mock())
+        assert isinstance(loader, tanjun.clients._LoaderDescriptor)
+
+        assert loader.has_unload is False
+
     def test___call__(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
@@ -117,6 +129,18 @@ class Test_LoaderDescriptor:
 
 
 class Test_UnloaderDescriptor:
+    def test_has_load_property(self):
+        loader = tanjun.as_unloader(mock.Mock())
+        assert isinstance(loader, tanjun.clients._UnloaderDescriptor)
+
+        assert loader.has_load is False
+
+    def test_has_unload_property(self):
+        loader = tanjun.as_unloader(mock.Mock())
+        assert isinstance(loader, tanjun.clients._UnloaderDescriptor)
+
+        assert loader.has_unload is True
+
     def test___call__(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
@@ -1121,7 +1145,7 @@ class TestClient:
                     assert False
                     client.add_component(5432)
                     client.add_client_callback(6543456)
-            """
+                """
             )
         )
         file.flush()
@@ -1175,7 +1199,7 @@ class TestClient:
                 @tanjun.as_loader
                 def not_in_all(client: tanjun.abc.Client) -> None:
                     assert False
-            """
+                """
             )
         )
         file.flush()
@@ -1216,7 +1240,7 @@ class TestClient:
                 @tanjun.as_loader
                 def not_in_all(client: tanjun.abc.Client) -> None:
                     assert False
-            """
+                """
             )
         )
         file.flush()
@@ -1249,14 +1273,23 @@ class TestClient:
 
                 class FullMetal:
                     ...
-
-            """
+                """
             )
         )
         file.flush()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
             client.load_modules(pathlib.Path(file.name))
+
+    def test_load_modules_with_system_path_when_already_loaded(self, file: typing.IO[str]):
+        client = tanjun.Client(mock.AsyncMock())
+        file.write(textwrap.dedent("""raise NotImplementedError("This shouldn't ever be imported")"""))
+        file.flush()
+        path = pathlib.Path(file.name)
+        client._path_modules[path] = mock.Mock()
+
+        with pytest.raises(tanjun.ModuleStateConflict):
+            client.load_modules(path)
 
     def test_load_modules_with_system_path_for_unknown_path(self):
         class MockClient(tanjun.Client):
@@ -1335,6 +1368,13 @@ class TestClient:
         mock_module.loader.load.assert_called_once_with(client)
         mock_module.other_loader.load.assert_called_once_with(client)
         priv_loader.load.assert_not_called()
+
+    def test_load_modules_with_python_module_path_when_already_loaded(self):
+        client = tanjun.Client(mock.AsyncMock())
+        client._modules["ayayayaya.ok"] = mock.Mock()
+
+        with pytest.raises(tanjun.ModuleStateConflict):
+            client.load_modules("ayayayaya.ok")
 
     def test_unload_modules_with_system_path(self, file: typing.IO[str]):
         remove_component_by_name_ = mock.Mock()
