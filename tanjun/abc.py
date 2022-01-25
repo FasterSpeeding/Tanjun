@@ -2140,7 +2140,6 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
         value : typing.Any
             Metadata value to set.
 
-
         Returns
         -------
         Self
@@ -2604,7 +2603,6 @@ class Component(abc.ABC):
             Metadata key to set.
         value : typing.Any
             Metadata value to set.
-
 
         Returns
         -------
@@ -3312,7 +3310,6 @@ class Client(abc.ABC):
             Metadata key to set.
         value : typing.Any
             Metadata value to set.
-
 
         Returns
         -------
