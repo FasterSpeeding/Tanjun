@@ -2129,6 +2129,23 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
             This command to enable chained calls
         """
 
+    @abc.abstractmethod
+    def set_metadata(self: _T, key: typing.Any, value: typing.Any, /) -> _T:
+        """Set a field in the command's metadata.
+
+        Parameters
+        ----------
+        key : typing.Any
+            Metadata key to set.
+        value : typing.Any
+            Metadata value to set.
+
+        Returns
+        -------
+        Self
+            The command instance to enable chained calls.
+        """
+
 
 class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
     """Base class for all slash command classes."""
@@ -2574,6 +2591,23 @@ class Component(abc.ABC):
         .. note::
             Any modifications made to this mutable mapping will be preserved by
             the component.
+        """
+
+    @abc.abstractmethod
+    def set_metadata(self: _T, key: typing.Any, value: typing.Any, /) -> _T:
+        """Set a field in the component's metadata.
+
+        Parameters
+        ----------
+        key : typing.Any
+            Metadata key to set.
+        value : typing.Any
+            Metadata value to set.
+
+        Returns
+        -------
+        Self
+            The component instance to enable chained calls.
         """
 
     @abc.abstractmethod
@@ -3264,6 +3298,23 @@ class Client(abc.ABC):
             Raises a value error for any of the following reasons:
             * If conflicting command names are found (multiple commanbds have the same top-level name).
             * If more than 100 top-level commands are passed.
+        """
+
+    @abc.abstractmethod
+    def set_metadata(self: _T, key: typing.Any, value: typing.Any, /) -> _T:
+        """Set a field in the client's metadata.
+
+        Parameters
+        ----------
+        key : typing.Any
+            Metadata key to set.
+        value : typing.Any
+            Metadata value to set.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
         """
 
     @abc.abstractmethod

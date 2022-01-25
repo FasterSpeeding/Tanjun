@@ -425,6 +425,11 @@ class Component(tanjun_abc.Component):
         self._defaults_to_ephemeral = state
         return self
 
+    def set_metadata(self: _ComponentT, key: typing.Any, value: typing.Any, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        self._metadata[key] = value
+        return self
+
     def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
         self._slash_hooks = hooks_
         return self

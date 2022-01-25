@@ -110,6 +110,15 @@ class TestPartialCommand:
         assert command.set_hooks(mock_hooks) is command
         assert command.hooks is mock_hooks
 
+    def test_set_metadata(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        key = mock.Mock()
+        value = mock.Mock()
+
+        result = command.set_metadata(key, value)
+
+        assert result is command
+        assert command.metadata[key] is value
+
     def test_add_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
 

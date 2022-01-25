@@ -173,6 +173,16 @@ class TestComponent:
 
         assert client.defaults_to_ephemeral is False
 
+    def test_set_metadata(self):
+        component = tanjun.Component()
+        key = mock.Mock()
+        value = mock.Mock()
+
+        result = component.set_metadata(key, value)
+
+        assert result is component
+        assert component.metadata[key] is value
+
     def test_set_slash_hooks(self):
         mock_hooks = mock.Mock()
         component = tanjun.Component()

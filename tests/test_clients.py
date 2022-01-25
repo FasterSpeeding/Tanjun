@@ -497,6 +497,16 @@ class TestClient:
     def test_set_hikari_trait_injectors(self):
         ...
 
+    def test_set_metadata(self):
+        client = tanjun.Client(mock.Mock())
+        key = mock.Mock()
+        value = mock.Mock()
+
+        result = client.set_metadata(key, value)
+
+        assert result is client
+        assert client.metadata[key] is value
+
     @pytest.mark.skip(reason="TODO")
     async def test_clear_commands(self):
         ...

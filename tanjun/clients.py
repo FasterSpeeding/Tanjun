@@ -1219,6 +1219,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._make_message_context = maker
         return self
 
+    def set_metadata(self: _ClientT, key: typing.Any, value: typing.Any, /) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        self._metadata[key] = value
+        return self
+
     def set_slash_ctx_maker(self: _ClientT, maker: _SlashContextMakerProto = context.SlashContext, /) -> _ClientT:
         """Set the slash context maker to use when creating context for a slash command.
 

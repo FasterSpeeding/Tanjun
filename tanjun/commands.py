@@ -148,6 +148,11 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractCom
         self._hooks = hooks
         return self
 
+    def set_metadata(self: _PartialCommandT, key: typing.Any, value: typing.Any, /) -> _PartialCommandT:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
+        self._metadata[key] = value
+        return self
+
     def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if check not in self._checks:
