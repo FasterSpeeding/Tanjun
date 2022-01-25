@@ -2291,11 +2291,30 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test_reload_modules_with_system_path_and_not_loaded(self, file: typing.IO[str]):
+    def test_reload_modules_with_system_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
 
         with pytest.raises(tanjun.ModuleStateConflict):
-            client.reload_modules(pathlib.Path("./test.py"))
+            client.reload_modules(pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode()))
+
+    def test_reload_modules_with_system_path_for_unknown_path(self):
+        old_module = mock.Mock(
+            loader=mock.Mock(tanjun.abc.ClientLoader),
+            ok=123,
+            naye=object(),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
+        )
+        client = tanjun.Client(mock.AsyncMock())
+        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        client._path_modules[random_path.absolute()] = old_module
+
+        with pytest.raises(ModuleNotFoundError):
+            client.reload_modules(random_path)
+
+        old_module.loader.load.assert_not_called()
+        old_module.loader.unload.assert_not_called()
+        old_module.other_loader.load.assert_not_called()
+        old_module.other_loader.unload.assert_not_called()
 
     def test_reload_modules_with_system_path_when_module_import_raises(self, file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
