@@ -1114,7 +1114,6 @@ class TestClient:
                 yield file
 
         finally:
-            file.close()
             pathlib.Path(file.name).unlink(missing_ok=False)
 
     def test_load_modules_with_system_path(self, file: typing.IO[str]):
