@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SlashContext.boolean`, `SlashContext.float`, `SlashContext.integer`, `SlashContext.snowflake`
   and `SlashContext.string` methods as short hands for asserting the option type and ensuring type
   safety.
+- A `MessageParser` standard abc.
 
 ### Changed
 - `SlashContext.value` now returns `hikari.Snowflake` for object IDs.

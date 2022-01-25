@@ -2306,6 +2306,54 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         """
 
 
+class MessageParser(abc.ABC):
+    """Base class for a message parser."""
+
+    __slots__ = ()
+
+    @abc.abstractmethod
+    def bind_client(self: _T, client: Client, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def bind_component(self: _T, component: Component, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def copy(self: _T) -> _T:
+        """Copy the parser.
+
+        Returns
+        -------
+        Self
+            A copy of the parser.
+        """
+
+    @abc.abstractmethod
+    async def parse(self, ctx: MessageContext, /) -> dict[str, typing.Any]:
+        """Parse a message context.
+
+        .. warning::
+            This relies on the prefix and command name(s) having been removed
+            from `tanjun.abc.MessageContext.content`
+
+        Parameters
+        ----------
+        ctx : tanjun.abc.MessageContext
+            The message context to parse.
+
+        Returns
+        -------
+        dict[str, typing.Any]
+            Dictionary of argument names to the parsed values for them.
+
+        Raises
+        ------
+        tanjun.errors.ParserError
+            If the message could not be parsed.
+        """
+
+
 class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[CommandCallbackSigT]):
     """Standard interface of a message command."""
 
@@ -2331,6 +2379,11 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
     def parent(self) -> typing.Optional[MessageCommandGroup[typing.Any]]:
         """Parent group of this command if applicable."""
 
+    @property
+    @abc.abstractmethod
+    def parser(self) -> typing.Optional[MessageParser]:
+        """Parser for this command."""
+
     @abc.abstractmethod
     def set_parent(self: _T, _: typing.Optional[MessageCommandGroup[typing.Any]], /) -> _T:
         """Set the parent of this command.
@@ -2339,6 +2392,21 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         ----------
         parent : typing.Optional[MessageCommandGroup[typing.Any]]
             The parent of this command.
+
+        Returns
+        -------
+        Self
+            The command instance to enable chained calls.
+        """
+
+    @abc.abstractmethod
+    def set_parser(self: _T, _: MessageParser, /) -> _T:
+        """Set the for this message command.
+
+        Parameters
+        ----------
+        parser : MessageParser
+            The parser to set.
 
         Returns
         -------

@@ -76,8 +76,6 @@ from . import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
 
-    from . import parsing
-
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
     _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any]")
@@ -2190,7 +2188,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
-        self._parser: typing.Optional[parsing.AbstractParser] = None
+        self._parser: typing.Optional[abc.MessageParser] = None
         self._wrapped_command = _wrapped_command
 
     def __repr__(self) -> str:
@@ -2224,7 +2222,8 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
         return self._parent
 
     @property
-    def parser(self) -> typing.Optional[parsing.AbstractParser]:
+    def parser(self) -> typing.Optional[abc.MessageParser]:
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._parser
 
     def bind_client(self: _MessageCommandT, client: abc.Client, /) -> _MessageCommandT:
@@ -2266,7 +2265,8 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
         self._parent = parent
         return self
 
-    def set_parser(self: _MessageCommandT, parser: typing.Optional[parsing.AbstractParser], /) -> _MessageCommandT:
+    def set_parser(self: _MessageCommandT, parser: typing.Optional[abc.MessageParser], /) -> _MessageCommandT:
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         self._parser = parser
         return self
 

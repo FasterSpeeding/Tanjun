@@ -33,13 +33,11 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "AbstractParser",
+    "AbstractOptionParser",
     "Argument",
     "ConverterSig",
     "Option",
     "Parameter",
-    "ParseableProto",
-    "ParseableProtoT",
     "ShlexParser",
     "UndefinedDefaultT",
     "UNDEFINED_DEFAULT",
@@ -65,13 +63,11 @@ from . import errors
 from . import injecting
 
 if typing.TYPE_CHECKING:
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun_abc.MessageCommand[typing.Any])
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T = typing.TypeVar("_T")
 
-
-ParseableProtoT = typing.TypeVar("ParseableProtoT", bound="ParseableProto")
-"""Generic type hint of `ParseableProto`."""
 
 ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used within a parser instance.
@@ -79,40 +75,6 @@ ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[typing.Any]]
 This must be a callable or asynchronous callable which takes one position
 `str`, argument and returns the resultant value.
 """
-
-
-@typing.runtime_checkable
-class ParseableProto(typing.Protocol):
-    """Protocol of a command which supports this parser interface."""
-
-    # This fucks with MyPy even though at runtime python just straight out ignores slots when considering protocol
-    if not typing.TYPE_CHECKING:  # compatibility.
-        __slots__ = ()
-
-    @property
-    def callback(self) -> tanjun_abc.CommandCallbackSig:
-        """The callback for this message command."""
-        raise NotImplementedError
-
-    @property
-    def parser(self) -> typing.Optional[AbstractParser]:
-        """The parser for this message command, if set."""
-        raise NotImplementedError
-
-    def set_parser(self: _T, _: typing.Optional[AbstractParser], /) -> _T:
-        """Set the parser for this message command.
-
-        Parameters
-        ----------
-        _ : typing.Optional[AbstractParser]
-            The parser to set.
-
-        Returns
-        -------
-        Self
-            The message command instance to enable call chaining.
-        """
-        raise NotImplementedError
 
 
 class UndefinedDefaultT:
@@ -138,118 +100,121 @@ UNDEFINED_DEFAULT = UndefinedDefaultT()
 """A singleton used to represent no default for a parameter."""
 
 
-class AbstractParser(abc.ABC):
-    """Abstract interface of a message content parser."""
+class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
+    """Abstract interface of an option-based message content parser."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def parameters(self) -> collections.Sequence[typing.Union[Argument, Option]]:
-        """Sequence of the parameters registered with this parser."""
+    def arguments(self) -> collections.Sequence[Argument]:
+        """Sequence of the positional arguments registered with this parser."""
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> collections.Sequence[Option]:
+        """Sequence of the named options registered with this parser."""
 
     @abc.abstractmethod
-    def add_parameter(self: _T, parameter: typing.Union[Argument, Option], /) -> _T:
-        """Add a parameter to this parser.
-
-
-        Arguments
-        ---------
-        parameter : typing.Union[Argument, Option]
-            Either the argument or option to add to this parser.
-
-            .. note::
-                For `Argument` type parameters the ordering matters and is decided
-                by `add_parameter` call order.
-
-        Returns
-        -------
-        Self
-            The parser instance to enable call chaining.
-        """
-
-    @abc.abstractmethod
-    def remove_parameter(self: _T, parameter: typing.Union[Argument, Option], /) -> _T:
-        """Remove a parameter from the parser.
-
-        Arguments
-        ---------
-        parameter : typing.Union[Argument, Option]
-            Either the argument or option to remove from this parser.
-
-        Returns
-        -------
-        Self
-            The parser instance to enable call chaining.
-
-        Raises
-        ------
-        ValueError
-            If the parameter isn't registered.
-        """
-
-    @abc.abstractmethod
-    def set_parameters(self: _T, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> _T:
-        """Set the parameters for this parser.
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        greedy: bool = False,
+        multi: bool = False,
+    ) -> _T:
+        """Add a positional argument type to the parser..
 
         .. note::
-            This will override any previously set parameters.
+            Order matters for positional arguments.
 
         Parameters
         ----------
-        parameters : collections.abc.Iterable[typing.Union[Argument, Option]]
-            Iterable of the arguments and options to set for this parser.
+        key : str
+            The string identifier of this argument (may be used to pass the result
+            of this argument to the command's callback during execution).
 
-            .. note::
-                Order matters for `Argument` type parameters.
+        Other Parameters
+        ----------------
+        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+            The converter(s) this argument should use to handle values passed to it
+            during parsing.
+
+            If no converters are provided then the raw string value will be passed.
+
+            Only the first converter to pass will be used.
+        default : typing.Any
+            The default value of this argument, if left as
+            `UNDEFINED_DEFAULT` then this will have no default.
+        greedy : bool
+            Whether or not this argument should be greedy (meaning that it
+            takes in the remaining argument values).
+        multi : bool
+            Whether this argument can be passed multiple times.
 
         Returns
         -------
         Self
-            The parser instance to enable call chaining.
+            This parser to enable chained calls.
         """
 
     @abc.abstractmethod
-    def bind_client(self: _T, client: tanjun_abc.Client, /) -> _T:
-        raise NotImplementedError
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        multi: bool = False,
+    ) -> _T:
+        """Add an named option to this parser.
 
-    @abc.abstractmethod
-    def bind_component(self: _T, component: tanjun_abc.Component, /) -> _T:
-        raise NotImplementedError
+        Parameters
+        ----------
+        key : str
+            The string identifier of this option which will be used to pass the
+            result of this option to the command's callback during execution as
+            a keyword argument.
+        name : str
+            The name of this option used for identifying it in the parsed content.
+        default : typing.Any
+            The default value of this option, unlike arguments this is required
+            for options.
 
-    @abc.abstractmethod
-    def copy(self: _T) -> _T:
-        """Copy the parser.
+        Other Parameters
+        ----------------
+        *names : str
+            Other names of this option used for identifying it in the parsed content.
+        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+            The converter(s) this option should use to handle values passed to it
+            during parsing.
+
+            If no converters are provided then the raw string value will be passed.
+
+            Only the first converter to pass will be used.
+        empty_value : typing.Any
+            The value to use if this option is provided without a value. If left as
+            `UNDEFINED_DEFAULT` then this option will error if it's
+            provided without a value.
+        multi : bool
+            If this option can be provided multiple times.
+            Defaults to `False`.
 
         Returns
         -------
         Self
-            A copy of the parser.
+            This parser to enable chained calls.
         """
 
-    @abc.abstractmethod
-    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> dict[str, typing.Any]:
-        """Parse a message context.
 
-        .. warning::
-            This relies on the prefix and command name(s) having been removed
-            from `tanjun.abc.MessageContext.content`
-
-        Parameters
-        ----------
-        ctx : tanjun.abc.MessageContext
-            The message context to parse.
-
-        Returns
-        -------
-        dict[str, typing.Any]
-            Dictionary of argument names to the parsed values for them.
-
-        Raises
-        ------
-        tanjun.errors.ParserError
-            If the message could not be parsed.
-        """
+AbstractParser = AbstractOptionParser
+"""Deprecated alias of `AbstractOptionParser`."""
 
 
 class _ShlexTokenizer:
@@ -285,23 +250,23 @@ class _ShlexTokenizer:
         if self.__arg_buffer:
             return self.__arg_buffer.pop(0)
 
-        # TODO: this is probably slow
-        while isinstance(value := self.__seek_shlex(), tuple):
-            self.__options_buffer.append(value)
+        while (value := self.__seek_shlex()) and value[0] == 1:
+            self.__options_buffer.append(value[1])
 
-        return value
+        return value[1] if value else None
 
     def next_raw_option(self) -> typing.Optional[tuple[str, typing.Optional[str]]]:
         if self.__options_buffer:
             return self.__options_buffer.pop(0)
 
-        # TODO: this is probably slow
-        while isinstance(value := self.__seek_shlex(), str):
-            self.__arg_buffer.append(value)
+        while (value := self.__seek_shlex()) and value[0] == 0:
+            self.__arg_buffer.append(value[1])
 
-        return value
+        return value[1] if value else None
 
-    def __seek_shlex(self) -> typing.Union[str, tuple[str, typing.Optional[str]], None]:
+    def __seek_shlex(
+        self,
+    ) -> typing.Union[tuple[typing.Literal[0], str], tuple[typing.Literal[1], tuple[str, typing.Optional[str]]], None]:
         option_name = self.__last_name
 
         try:
@@ -310,7 +275,7 @@ class _ShlexTokenizer:
         except StopIteration:
             if option_name is not None:
                 self.__last_name = None
-                return (option_name, None)
+                return (1, (option_name, None))
 
             return None
 
@@ -320,7 +285,7 @@ class _ShlexTokenizer:
         is_option = value.startswith("-")
         if is_option and option_name is not None:
             self.__last_name = value
-            return (option_name, None)
+            return (1, (option_name, None))
 
         if is_option:
             self.__last_name = value
@@ -328,9 +293,9 @@ class _ShlexTokenizer:
 
         if option_name:
             self.__last_name = None
-            return (option_name, value)
+            return (1, (option_name, value))
 
-        return value
+        return (0, value)
 
 
 async def _covert_option_or_empty(
@@ -410,6 +375,18 @@ class _SemanticShlex(_ShlexTokenizer):
         raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
 
 
+def _get_or_set_parser(command: tanjun_abc.MessageCommand[typing.Any], /) -> AbstractOptionParser:
+    if not command.parser:
+        parser = ShlexParser()
+        command.set_parser(parser)
+        return parser
+
+    if isinstance(command.parser, AbstractOptionParser):
+        return command.parser
+
+    raise TypeError("Expected parser to be an instance of tanjun.parsing.AbstractOptionParser")
+
+
 def with_argument(
     key: str,
     /,
@@ -418,8 +395,8 @@ def with_argument(
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
     greedy: bool = False,
     multi: bool = False,
-) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
-    """Add an argument to a parsable command through a decorator call.
+) -> collections.Callable[[_CommandT], _CommandT]:
+    """Add an argument to a message command through a decorator call.
 
     Notes
     -----
@@ -453,8 +430,8 @@ def with_argument(
 
     Returns
     -------
-    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
-        Decorator function for the parsable command this argument is being added to.
+    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
+        Decorator function for the message command this argument is being added to.
 
     Examples
     --------
@@ -469,13 +446,10 @@ def with_argument(
     ```
     """
 
-    def decorator(command: ParseableProtoT, /) -> ParseableProtoT:
-        if command.parser is None:
-            with_parser(command)
-            assert command.parser
-
-        argument = Argument(key, converters=converters, default=default, greedy=greedy, multi=multi)
-        command.parser.add_parameter(argument)
+    def decorator(command: _CommandT, /) -> _CommandT:
+        _get_or_set_parser(command).add_argument(
+            key, converters=converters, default=default, greedy=greedy, multi=multi
+        )
         return command
 
     return decorator
@@ -487,8 +461,8 @@ def with_greedy_argument(
     converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
-    """Add a greedy argument to a parsable command through a decorator call.
+) -> collections.Callable[[_CommandT], _CommandT]:
+    """Add a greedy argument to a message command through a decorator call.
 
     Notes
     -----
@@ -524,8 +498,8 @@ def with_greedy_argument(
 
     Returns
     -------
-    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
-        Decorator function for the parsable command this argument is being added to.
+    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
+        Decorator function for the message command this argument is being added to.
 
     Examples
     --------
@@ -548,8 +522,8 @@ def with_multi_argument(
     converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
-    """Add a multi-argument to a parsable command through a decorator call.
+) -> collections.Callable[[_CommandT], _CommandT]:
+    """Add a multi-argument to a message command through a decorator call.
 
     Notes
     -----
@@ -586,8 +560,8 @@ def with_multi_argument(
 
     Returns
     -------
-    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
-        Decorator function for the parsable command this argument is being added to.
+    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
+        Decorator function for the message command this argument is being added to.
 
     Examples
     --------
@@ -614,8 +588,8 @@ def with_option(
     default: typing.Any,
     empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
     multi: bool = False,
-) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
-    """Add an option to a parsable command through a decorator call.
+) -> collections.Callable[[_CommandT], _CommandT]:
+    """Add an option to a message command through a decorator call.
 
     .. note::
         If no parser is explicitly set on the command this is decorating before
@@ -654,8 +628,8 @@ def with_option(
 
     Returns
     -------
-    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
-        Decorator function for the parsable command this option is being added to.
+    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
+        Decorator function for the message command this option is being added to.
 
     Examples
     --------
@@ -670,13 +644,10 @@ def with_option(
     ```
     """
 
-    def decorator(command: ParseableProtoT) -> ParseableProtoT:
-        if command.parser is None:
-            with_parser(command)
-            assert command.parser
-
-        option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
-        command.parser.add_parameter(option)
+    def decorator(command: _CommandT, /) -> _CommandT:
+        _get_or_set_parser(command).add_option(
+            key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi
+        )
         return command
 
     return decorator
@@ -690,7 +661,7 @@ def with_multi_option(
     converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     default: typing.Any,
     empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
+) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
     Notes
@@ -732,8 +703,8 @@ def with_multi_option(
 
     Returns
     -------
-    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
-        Decorator function for the parsable command this option is being added to.
+    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
+        Decorator function for the message command this option is being added to.
 
     Examples
     --------
@@ -753,7 +724,7 @@ def with_multi_option(
 class Parameter:
     """Base class for parameters for the standard parser(s)."""
 
-    __slots__ = ("_client", "_component", "_converters", "_default", "_is_greedy", "_is_multi", "_key")
+    __slots__ = ("_client", "_component", "_converters", "_default", "_is_multi", "_key")
 
     def __init__(
         self,
@@ -770,7 +741,6 @@ class Parameter:
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
         self._default = default
-        self._is_greedy = greedy
         self._is_multi = multi
         self._key = key
 
@@ -799,18 +769,6 @@ class Parameter:
         If this is `UndefinedDefaultT` then this parameter is required.
         """
         return self._default
-
-    @property
-    def is_greedy(self) -> bool:
-        """Whether this parameter is greedy.
-
-        Greedy parameters will consume the remaining message content as one
-        string (with converters also being passed the whole string).
-
-        .. note::
-            Greedy and multi parameters cannot be used together.
-        """
-        return self._is_greedy
 
     @property
     def is_multi(self) -> bool:
@@ -890,7 +848,7 @@ class Parameter:
 class Argument(Parameter):
     """Representation of a positional argument used by the standard parser."""
 
-    __slots__ = ()
+    __slots__ = ("_is_greedy",)
 
     def __init__(
         self,
@@ -931,7 +889,20 @@ class Argument(Parameter):
         if greedy and multi:
             raise ValueError("Argument cannot be both greed and multi.")
 
+        self._is_greedy = greedy
         super().__init__(key, converters=converters, default=default, greedy=greedy, multi=multi)
+
+    @property
+    def is_greedy(self) -> bool:
+        """Whether this parameter is greedy.
+
+        Greedy parameters will consume the remaining message content as one
+        string (with converters also being passed the whole string).
+
+        .. note::
+            Greedy and multi parameters cannot be used together.
+        """
+        return self._is_greedy
 
 
 class Option(Parameter):
@@ -1008,8 +979,8 @@ class Option(Parameter):
         return f"{type(self).__name__} <{self.key}, {self._names}>"
 
 
-class ShlexParser(AbstractParser):
-    """A shlex based `AbstractParser` implementation."""
+class ShlexParser(AbstractOptionParser):
+    """A shlex based `AbstractOptionParser` implementation."""
 
     __slots__ = ("_arguments", "_client", "_component", "_options")
 
@@ -1018,7 +989,7 @@ class ShlexParser(AbstractParser):
         self._arguments: list[Argument] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
-        self._options: list[Option] = []
+        self._options: list[Option] = []  # TODO: maybe switch to dict[str, Option] and assert doesn't already exist
 
     @property
     def needs_injector(self) -> bool:
@@ -1027,52 +998,21 @@ class ShlexParser(AbstractParser):
         return any(parameter.needs_injector for parameter in itertools.chain(self._options, self._arguments))
 
     @property
-    def parameters(self) -> collections.Sequence[typing.Union[Argument, Option]]:
-        # <<inherited docstring from AbstractParser>>.
-        return (*self._arguments, *self._options)
+    def arguments(self) -> collections.Sequence[Argument]:
+        return self._arguments.copy()
+
+    @property
+    def options(self) -> collections.Sequence[Option]:
+        return self._options.copy()
 
     def copy(self: _ShlexParserT, *, _new: bool = True) -> _ShlexParserT:
-        # <<inherited docstring from AbstractParser>>.
+        # <<inherited docstring from AbstractOptionParser>>.
         if not _new:
             self._arguments = [argument.copy() for argument in self._arguments]
             self._options = [option.copy() for option in self._options]
             return self
 
         return copy.copy(self).copy(_new=False)
-
-    def add_parameter(self: _ShlexParserT, parameter: typing.Union[Argument, Option], /) -> _ShlexParserT:
-        # <<inherited docstring from AbstractParser>>.
-        if self._client:
-            parameter.bind_client(self._client)
-
-        if self._component:
-            parameter.bind_component(self._component)
-
-        if isinstance(parameter, Option):
-            self._options.append(parameter)
-
-        else:
-            self._arguments.append(parameter)
-            found_final_argument = False
-
-            for argument in self._arguments:
-                if found_final_argument:
-                    del self._arguments[-1]
-                    raise ValueError("Multi or greedy argument must be the last argument")
-
-                found_final_argument = argument.is_multi or argument.is_greedy
-
-        return self
-
-    def remove_parameter(self: _ShlexParserT, parameter: typing.Union[Argument, Option], /) -> _ShlexParserT:
-        # <<inherited docstring AbstractParser>>.
-        if isinstance(parameter, Option):
-            self._options.remove(parameter)
-
-        else:
-            self._arguments.remove(parameter)
-
-        return self
 
     def add_argument(
         self: _ShlexParserT,
@@ -1084,41 +1024,25 @@ class ShlexParser(AbstractParser):
         greedy: bool = False,
         multi: bool = False,
     ) -> _ShlexParserT:
-        """Add an argument type parameter to the parser..
+        argument = Argument(key, converters=converters, default=default, multi=multi, greedy=greedy)
 
-        .. note::
-            Order matters for positional arguments.
+        if self._client:
+            argument.bind_client(self._client)
 
-        Parameters
-        ----------
-        key : str
-            The string identifier of this argument (may be used to pass the result
-            of this argument to the command's callback during execution).
+        if self._component:
+            argument.bind_component(self._component)
 
-        Other Parameters
-        ----------------
-        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
-            The converter(s) this argument should use to handle values passed to it
-            during parsing.
+        found_final_argument = False
 
-            If no converters are provided then the raw string value will be passed.
+        for argument in self._arguments:
+            if found_final_argument:
+                del self._arguments[-1]
+                raise ValueError("Multi or greedy argument must be the last argument")
 
-            Only the first converter to pass will be used.
-        default : typing.Any
-            The default value of this argument, if left as
-            `UNDEFINED_DEFAULT` then this will have no default.
-        greedy : bool
-            Whether or not this argument should be greedy (meaning that it
-            takes in the remaining argument values).
-        multi : bool
-            Whether this argument can be passed multiple times.
+            found_final_argument = argument.is_multi or argument.is_greedy
 
-        Returns
-        -------
-        SelfT
-            This parser to enable chained calls.
-        """
-        return self.add_parameter(Argument(key, converters=converters, default=default, multi=multi, greedy=greedy))
+        self._arguments.append(argument)
+        return self
 
     # TODO: add default getter
     def add_option(
@@ -1132,62 +1056,19 @@ class ShlexParser(AbstractParser):
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         multi: bool = False,
     ) -> _ShlexParserT:
-        """Add an option type parameter to this parser.
+        option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
 
-        Parameters
-        ----------
-        key : str
-            The string identifier of this option which will be used to pass the
-            result of this argument to the command's callback during execution as
-            a keyword argument.
-        name : str
-            The name of this option used for identifying it in the parsed content.
-        default : typing.Any
-            The default value of this argument, unlike arguments this is required
-            for options.
+        if self._client:
+            option.bind_client(self._client)
 
-        Other Parameters
-        ----------------
-        *names : str
-            Other names of this option used for identifying it in the parsed content.
-        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
-            The converter(s) this argument should use to handle values passed to it
-            during parsing.
+        if self._component:
+            option.bind_component(self._component)
 
-            If no converters are provided then the raw string value will be passed.
-
-            Only the first converter to pass will be used.
-        empty_value : typing.Any
-            The value to use if this option is provided without a value. If left as
-            `UNDEFINED_DEFAULT` then this option will error if it's
-            provided without a value.
-        multi : bool
-            If this option can be provided multiple times.
-            Defaults to `False`.
-
-        Returns
-        -------
-        SelfT
-            This parser to enable chained calls.
-        """
-        return self.add_parameter(
-            Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
-        )
-
-    def set_parameters(
-        self: _ShlexParserT, parameters: collections.Iterable[typing.Union[Argument, Option]], /
-    ) -> _ShlexParserT:
-        # <<inherited docstring from AbstractParser>>.
-        self._arguments = []
-        self._options = []
-
-        for parameter in parameters:
-            self.add_parameter(parameter)
-
+        self._options.append(option)
         return self
 
     def bind_client(self: _ShlexParserT, client: tanjun_abc.Client, /) -> _ShlexParserT:
-        # <<inherited docstring from AbstractParser>>.
+        # <<inherited docstring from AbstractOptionParser>>.
         self._client = client
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_client(client)
@@ -1195,7 +1076,7 @@ class ShlexParser(AbstractParser):
         return self
 
     def bind_component(self: _ShlexParserT, component: tanjun_abc.Component, /) -> _ShlexParserT:
-        # <<inherited docstring from AbstractParser>>.
+        # <<inherited docstring from AbstractOptionParser>>.
         self._component = component
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
@@ -1205,11 +1086,11 @@ class ShlexParser(AbstractParser):
     def parse(
         self, ctx: tanjun_abc.MessageContext, /
     ) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
-        # <<inherited docstring from AbstractParser>>.
+        # <<inherited docstring from AbstractOptionParser>>.
         return _SemanticShlex(ctx, self._arguments, self._options).parse()
 
 
-def with_parser(command: ParseableProtoT, /) -> ParseableProtoT:
+def with_parser(command: _CommandT, /) -> _CommandT:
     """Add a shlex parser command parser to a supported command.
 
     Example
@@ -1224,12 +1105,12 @@ def with_parser(command: ParseableProtoT, /) -> ParseableProtoT:
 
     Parameters
     ----------
-    command : ParseableProtoT
-        The parseable command to set the parser on.
+    command : tanjun.abc.MessageCommands
+        The message command to set the parser on.
 
     Returns
     -------
-    ParseableProtoT
+    tanjun.abc.MessageCommand
         The command with the parser set.
 
     Raises
