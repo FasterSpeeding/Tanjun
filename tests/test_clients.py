@@ -2225,12 +2225,12 @@ class TestClient:
                 _priv_loader = mock.Mock(
                     tanjun.abc.ClientLoader,
                     has_load=True,
-                    load=mock.Mock(side_effect=RuntimeError("This shoudn't ever be called"))
+                    load=mock.Mock(side_effect=RuntimeError("This shouldn't ever be called"))
                 )
                 loader = mock.Mock(
                     tanjun.abc.ClientLoader,
                     has_load=True,
-                    load=mock.Mock(side_effect=RuntimeError("This shoudn't ever be called"))
+                    load=mock.Mock(side_effect=RuntimeError("This shouldn't ever be called"))
                 )
                 __all__ = ["ok", "naye"]
                 """
