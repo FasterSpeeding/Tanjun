@@ -77,6 +77,7 @@ if typing.TYPE_CHECKING:
 
 
 _T = typing.TypeVar("_T")
+_OtherT = typing.TypeVar("_OtherT")
 
 ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 """Type hint of a converter used within a parser instance.
@@ -132,6 +133,37 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
     def options(self) -> collections.Sequence[Option]:
         """Sequence of the named options registered with this parser."""
 
+    @typing.overload
+    @abc.abstractmethod
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
+        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
     @abc.abstractmethod
     def add_argument(
         self: _T,
@@ -141,6 +173,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add a positional argument type to the parser..
@@ -178,6 +212,39 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             This parser to enable chained calls.
         """
 
+    @typing.overload
+    @abc.abstractmethod
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
     @abc.abstractmethod
     def add_option(
         self: _T,
@@ -188,6 +255,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add an named option to this parser.
@@ -404,6 +473,35 @@ def _get_or_set_parser(command: tanjun_abc.MessageCommand[typing.Any], /) -> Abs
     raise TypeError("Expected parser to be an instance of tanjun.parsing.AbstractOptionParser")
 
 
+@typing.overload
+def with_argument(
+    key: str,
+    /,
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    greedy: bool = False,
+    gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_argument(
+    key: str,
+    /,
+    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    greedy: bool = False,
+    gt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
 def with_argument(
     key: str,
     /,
@@ -411,6 +509,8 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
+    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
@@ -465,7 +565,7 @@ def with_argument(
 
     def decorator(command: _CommandT, /) -> _CommandT:
         _get_or_set_parser(command).add_argument(
-            key, converters=converters, default=default, greedy=greedy, multi=multi
+            key, converters=converters, default=default, greedy=greedy, gt=gt, lt=lt, multi=multi
         )
         return command
 
@@ -478,6 +578,8 @@ def with_greedy_argument(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
+    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
@@ -530,7 +632,7 @@ def with_greedy_argument(
         ...
     ```
     """
-    return with_argument(key, converters=converters, default=default, greedy=True)
+    return with_argument(key, converters=converters, default=default, greedy=True, gt=gt, lt=lt)
 
 
 def with_multi_argument(
@@ -539,6 +641,8 @@ def with_multi_argument(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
+    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
@@ -592,7 +696,38 @@ def with_multi_argument(
         ...
     ```
     """
-    return with_argument(key, converters=converters, default=default, multi=True)
+    return with_argument(key, converters=converters, default=default, gt=gt, lt=lt, multi=True)
+
+
+@typing.overload
+def with_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    gt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
 
 
 # TODO: add default getter
@@ -604,6 +739,8 @@ def with_option(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
@@ -663,7 +800,15 @@ def with_option(
 
     def decorator(command: _CommandT, /) -> _CommandT:
         _get_or_set_parser(command).add_option(
-            key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi
+            key,
+            name,
+            *names,
+            converters=converters,
+            default=default,
+            empty_value=empty_value,
+            gt=gt,
+            lt=lt,
+            multi=multi,
         )
         return command
 
@@ -678,6 +823,8 @@ def with_multi_option(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
@@ -735,7 +882,9 @@ def with_multi_option(
         ...
     ```
     """
-    return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=True)
+    return with_option(
+        key, name, *names, converters=converters, default=default, empty_value=empty_value, gt=gt, lt=lt, multi=True
+    )
 
 
 class Parameter:
@@ -889,6 +1038,8 @@ class Argument(Parameter):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> None:
         """Initialise a positional argument.
@@ -921,7 +1072,7 @@ class Argument(Parameter):
             raise ValueError("Argument cannot be both greed and multi.")
 
         self._is_greedy = greedy
-        super().__init__(key, converters=converters, default=default, greedy=greedy, multi=multi)
+        super().__init__(key, converters=converters, default=default, gt=gt, lt=lt, multi=multi)
 
     @property
     def is_greedy(self) -> bool:
@@ -950,6 +1101,8 @@ class Option(Parameter):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = True,
     ) -> None:
         """Initialise a named optional parameter.
@@ -990,7 +1143,7 @@ class Option(Parameter):
 
         self._empty_value = empty_value
         self._names = [name, *names]
-        super().__init__(key, converters=converters, default=default, multi=multi)
+        super().__init__(key, converters=converters, default=default, gt=gt, lt=lt, multi=multi)
 
     @property
     def empty_value(self) -> _UndefinedOr[typing.Any]:
@@ -1045,6 +1198,35 @@ class ShlexParser(AbstractOptionParser):
 
         return copy.copy(self).copy(_new=False)
 
+    @typing.overload
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
+        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
     def add_argument(
         self: _ShlexParserT,
         key: str,
@@ -1053,9 +1235,11 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
-        argument = Argument(key, converters=converters, default=default, multi=multi, greedy=greedy)
+        argument = Argument(key, converters=converters, default=default, greedy=greedy, gt=gt, lt=lt, multi=multi)
 
         if self._client:
             argument.bind_client(self._client)
@@ -1075,6 +1259,37 @@ class ShlexParser(AbstractOptionParser):
         self._arguments.append(argument)
         return self
 
+    @typing.overload
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
     # TODO: add default getter
     def add_option(
         self: _ShlexParserT,
@@ -1085,9 +1300,21 @@ class ShlexParser(AbstractOptionParser):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
-        option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
+        option = Option(
+            key,
+            name,
+            *names,
+            converters=converters,
+            default=default,
+            empty_value=empty_value,
+            gt=gt,
+            lt=lt,
+            multi=multi,
+        )
 
         if self._client:
             option.bind_client(self._client)
