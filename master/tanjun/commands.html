@@ -163,6 +163,9 @@
                                 <a class="function" href="#PartialCommand.set_hooks">set_hooks</a>
                         </li>
                         <li>
+                                <a class="function" href="#PartialCommand.set_metadata">set_metadata</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#PartialCommand.add_check">add_check</a>
                         </li>
                         <li>
@@ -508,6 +511,11 @@
     <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
@@ -4118,6 +4126,7 @@ The component this object should be loaded into.</li>
                 <dd id="MessageCommand.hooks" class="variable"><a href="#PartialCommand.hooks">hooks</a></dd>
                 <dd id="MessageCommand.metadata" class="variable"><a href="#PartialCommand.metadata">metadata</a></dd>
                 <dd id="MessageCommand.set_hooks" class="function"><a href="#PartialCommand.set_hooks">set_hooks</a></dd>
+                <dd id="MessageCommand.set_metadata" class="function"><a href="#PartialCommand.set_metadata">set_metadata</a></dd>
                 <dd id="MessageCommand.add_check" class="function"><a href="#PartialCommand.add_check">add_check</a></dd>
                 <dd id="MessageCommand.remove_check" class="function"><a href="#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="MessageCommand.with_check" class="function"><a href="#PartialCommand.with_check">with_check</a></dd>
@@ -4794,6 +4803,7 @@ The command to add.</li>
                 <dd id="MessageCommandGroup.hooks" class="variable"><a href="#PartialCommand.hooks">hooks</a></dd>
                 <dd id="MessageCommandGroup.metadata" class="variable"><a href="#PartialCommand.metadata">metadata</a></dd>
                 <dd id="MessageCommandGroup.set_hooks" class="function"><a href="#PartialCommand.set_hooks">set_hooks</a></dd>
+                <dd id="MessageCommandGroup.set_metadata" class="function"><a href="#PartialCommand.set_metadata">set_metadata</a></dd>
                 <dd id="MessageCommandGroup.add_check" class="function"><a href="#PartialCommand.add_check">add_check</a></dd>
                 <dd id="MessageCommandGroup.remove_check" class="function"><a href="#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="MessageCommandGroup.with_check" class="function"><a href="#PartialCommand.with_check">with_check</a></dd>
@@ -4862,6 +4872,11 @@ The command to add.</li>
     <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
@@ -5022,6 +5037,49 @@ The hooks that are triggered when the command is executed.</li>
 
 <ul>
 <li><strong>Self</strong>: This command to enable chained calls</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="PartialCommand.set_metadata" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#PartialCommand.set_metadata">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_metadata</span><span class="signature">(
+    self: ~_PartialCommandT,
+    key: Any,
+    value: Any,
+    /
+) -&gt; ~_PartialCommandT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set a field in the command's metadata.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (typing.Any):
+Metadata key to set.</li>
+<li><strong>value</strong> (typing.Any):
+Metadata value to set.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The command instance to enable chained calls.</li>
 </ul>
 </div>
 
@@ -5668,6 +5726,7 @@ The component this object should be loaded into.</li>
                 <dd id="BaseSlashCommand.metadata" class="variable"><a href="#PartialCommand.metadata">metadata</a></dd>
                 <dd id="BaseSlashCommand.needs_injector" class="variable"><a href="#PartialCommand.needs_injector">needs_injector</a></dd>
                 <dd id="BaseSlashCommand.set_hooks" class="function"><a href="#PartialCommand.set_hooks">set_hooks</a></dd>
+                <dd id="BaseSlashCommand.set_metadata" class="function"><a href="#PartialCommand.set_metadata">set_metadata</a></dd>
                 <dd id="BaseSlashCommand.add_check" class="function"><a href="#PartialCommand.add_check">add_check</a></dd>
                 <dd id="BaseSlashCommand.remove_check" class="function"><a href="#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="BaseSlashCommand.with_check" class="function"><a href="#PartialCommand.with_check">with_check</a></dd>
@@ -8466,6 +8525,7 @@ being used.</p></li>
                 <dd id="SlashCommand.hooks" class="variable"><a href="#PartialCommand.hooks">hooks</a></dd>
                 <dd id="SlashCommand.metadata" class="variable"><a href="#PartialCommand.metadata">metadata</a></dd>
                 <dd id="SlashCommand.set_hooks" class="function"><a href="#PartialCommand.set_hooks">set_hooks</a></dd>
+                <dd id="SlashCommand.set_metadata" class="function"><a href="#PartialCommand.set_metadata">set_metadata</a></dd>
                 <dd id="SlashCommand.add_check" class="function"><a href="#PartialCommand.add_check">add_check</a></dd>
                 <dd id="SlashCommand.remove_check" class="function"><a href="#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="SlashCommand.with_check" class="function"><a href="#PartialCommand.with_check">with_check</a></dd>
@@ -9146,6 +9206,7 @@ Command to add to this group.</li>
                 <dd id="SlashCommandGroup.metadata" class="variable"><a href="#PartialCommand.metadata">metadata</a></dd>
                 <dd id="SlashCommandGroup.needs_injector" class="variable"><a href="#PartialCommand.needs_injector">needs_injector</a></dd>
                 <dd id="SlashCommandGroup.set_hooks" class="function"><a href="#PartialCommand.set_hooks">set_hooks</a></dd>
+                <dd id="SlashCommandGroup.set_metadata" class="function"><a href="#PartialCommand.set_metadata">set_metadata</a></dd>
                 <dd id="SlashCommandGroup.add_check" class="function"><a href="#PartialCommand.add_check">add_check</a></dd>
                 <dd id="SlashCommandGroup.remove_check" class="function"><a href="#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="SlashCommandGroup.with_check" class="function"><a href="#PartialCommand.with_check">with_check</a></dd>

@@ -142,6 +142,9 @@
                                 <a class="function" href="#Client.set_message_ctx_maker">set_message_ctx_maker</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.set_metadata">set_metadata</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.set_slash_ctx_maker">set_slash_ctx_maker</a>
                         </li>
                         <li>
@@ -1561,6 +1564,11 @@
 <span class="sd">            This defaults to `tanjun.context.MessageContext`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -3495,6 +3503,11 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            This defaults to `tanjun.context.MessageContext`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -6045,6 +6058,44 @@ The message context maker to use.</p>
 of <code><a href="context.html#MessageContext">tanjun.context.MessageContext</a></code>.</p>
 
 <p>This defaults to <code><a href="context.html#MessageContext">tanjun.context.MessageContext</a></code>.</p></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_metadata" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_metadata">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_metadata</span><span class="signature">(self: ~_ClientT, key: Any, value: Any, /) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set a field in the client's metadata.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (typing.Any):
+Metadata key to set.</li>
+<li><strong>value</strong> (typing.Any):
+Metadata value to set.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
 </ul>
 </div>
 

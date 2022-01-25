@@ -91,6 +91,9 @@
                                 <a class="function" href="#Component.set_ephemeral_default">set_ephemeral_default</a>
                         </li>
                         <li>
+                                <a class="function" href="#Component.set_metadata">set_metadata</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Component.set_slash_hooks">set_slash_hooks</a>
                         </li>
                         <li>
@@ -674,6 +677,11 @@
 <span class="sd">            This component to enable method chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
@@ -1707,6 +1715,11 @@
 <span class="sd">            This component to enable method chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
@@ -2938,6 +2951,44 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 <ul>
 <li><strong>SelfT</strong>: This component to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.set_metadata" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.set_metadata">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_metadata</span><span class="signature">(self: ~_ComponentT, key: Any, value: Any, /) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set a field in the component's metadata.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (typing.Any):
+Metadata key to set.</li>
+<li><strong>value</strong> (typing.Any):
+Metadata value to set.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The component instance to enable chained calls.</li>
 </ul>
 </div>
 
