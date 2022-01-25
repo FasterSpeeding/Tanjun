@@ -82,6 +82,36 @@
 
             </li>
             <li>
+                    <a class="class" href="#ModuleMissingLoaders">ModuleMissingLoaders</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ModuleMissingLoaders.__init__">ModuleMissingLoaders</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModuleMissingLoaders.message">message</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModuleMissingLoaders.path">path</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ModuleStateConflict">ModuleStateConflict</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ModuleStateConflict.__init__">ModuleStateConflict</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModuleStateConflict.message">message</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ModuleStateConflict.path">path</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#NotEnoughArgumentsError">NotEnoughArgumentsError</a>
                             <ul class="memberlist">
                         <li>
@@ -187,6 +217,8 @@
     <span class="s2">&quot;HaltExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;FailedCheck&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MissingDependencyError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ModuleMissingLoaders&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ModuleStateConflict&quot;</span><span class="p">,</span>
     <span class="s2">&quot;NotEnoughArgumentsError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TooManyArgumentsError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ParserError&quot;</span><span class="p">,</span>
@@ -196,6 +228,7 @@
 <span class="kn">import</span> <span class="nn">typing</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pathlib</span>
     <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
 
@@ -392,6 +425,46 @@
 <span class="sd">            The parameter this error was raised for.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ModuleMissingLoaders</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module is missing loaders or unloaders.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_path&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The path of the module which is missing loaders or unloaders.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+
+
+<span class="k">class</span> <span class="nc">ModuleStateConflict</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module cannot be (un)loaded due to a state conflict.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_path&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The path of the module which caused the error.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
 </pre></div>
 
         </details>
@@ -822,6 +895,184 @@ The error message.</li>
                                     <div><dt>builtins.BaseException</dt>
                                 <dd id="MissingDependencyError.with_traceback" class="function">with_traceback</dd>
                 <dd id="MissingDependencyError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ModuleMissingLoaders">
+                                <div class="attr class">
+        <a class="headerlink" href="#ModuleMissingLoaders">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ModuleMissingLoaders</span><wbr>(<span class="base">builtins.RuntimeError</span>, <span class="base"><a href="#TanjunError">TanjunError</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ModuleMissingLoaders</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module is missing loaders or unloaders.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_path&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The path of the module which is missing loaders or unloaders.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Error raised when a module is missing loaders or unloaders.</p>
+</div>
+
+
+                            <div id="ModuleMissingLoaders.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ModuleMissingLoaders.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ModuleMissingLoaders</span><span class="signature">(message: str, path: Union[str, pathlib.Path], /)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="ModuleMissingLoaders.message" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ModuleMissingLoaders.message">#&nbsp;&nbsp</a>
+
+        <span class="name">message</span><span class="annotation">: str</span>
+    </div>
+
+            <div class="docstring"><p>The error message.</p>
+</div>
+
+
+                            </div>
+                            <div id="ModuleMissingLoaders.path" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ModuleMissingLoaders.path">#&nbsp;&nbsp</a>
+
+        <span class="name">path</span><span class="annotation">: Union[str, pathlib.Path]</span>
+    </div>
+
+            <div class="docstring"><p>The path of the module which is missing loaders or unloaders.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.BaseException</dt>
+                                <dd id="ModuleMissingLoaders.with_traceback" class="function">with_traceback</dd>
+                <dd id="ModuleMissingLoaders.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ModuleStateConflict">
+                                <div class="attr class">
+        <a class="headerlink" href="#ModuleStateConflict">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ModuleStateConflict</span><wbr>(<span class="base">builtins.ValueError</span>, <span class="base"><a href="#TanjunError">TanjunError</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ModuleStateConflict</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module cannot be (un)loaded due to a state conflict.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_message&quot;</span><span class="p">,</span> <span class="s2">&quot;_path&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The path of the module which caused the error.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Error raised when a module cannot be (un)loaded due to a state conflict.</p>
+</div>
+
+
+                            <div id="ModuleStateConflict.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ModuleStateConflict.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ModuleStateConflict</span><span class="signature">(message: str, path: Union[str, pathlib.Path], /)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="ModuleStateConflict.message" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ModuleStateConflict.message">#&nbsp;&nbsp</a>
+
+        <span class="name">message</span><span class="annotation">: str</span>
+    </div>
+
+            <div class="docstring"><p>The error message.</p>
+</div>
+
+
+                            </div>
+                            <div id="ModuleStateConflict.path" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ModuleStateConflict.path">#&nbsp;&nbsp</a>
+
+        <span class="name">path</span><span class="annotation">: Union[str, pathlib.Path]</span>
+    </div>
+
+            <div class="docstring"><p>The path of the module which caused the error.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.BaseException</dt>
+                                <dd id="ModuleStateConflict.with_traceback" class="function">with_traceback</dd>
+                <dd id="ModuleStateConflict.args" class="variable">args</dd>
 
             </div>
                                 </dl>

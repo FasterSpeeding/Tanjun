@@ -34,6 +34,12 @@
                     <a class="class" href="#ClientLoader">ClientLoader</a>
                             <ul class="memberlist">
                         <li>
+                                <a class="variable" href="#ClientLoader.has_load">has_load</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientLoader.has_unload">has_unload</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#ClientLoader.load">load</a>
                         </li>
                         <li>
@@ -4445,9 +4451,9 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module is already loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no loaders are found in the module.</span>
 <span class="sd">        ModuleNotFoundError</span>
 <span class="sd">            If the module is not found.</span>
@@ -4494,9 +4500,9 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4512,7 +4518,7 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        For this to work the module has to have at least one ClientLoader</span>
-<span class="sd">        which handles both loading and unloading present.</span>
+<span class="sd">        which handles loading and one which handles unloading present.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -4528,11 +4534,13 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the current state of the module.</span>
 <span class="sd">            If no loaders are found in the new state of the module.</span>
+<span class="sd">        ModuleNotFoundError</span>
+<span class="sd">            If the module can no-longer be found at the provided path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
@@ -4540,6 +4548,16 @@
     <span class="sd">&quot;&quot;&quot;Interface of logic used to load and unload components into a generic client.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">has_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this loader will load anything.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">has_unload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this loader will unload anything.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -4591,6 +4609,16 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">has_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this loader will load anything.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">has_unload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this loader will unload anything.&quot;&quot;&quot;</span>
+
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Load logic into a client instance.</span>
@@ -4628,6 +4656,28 @@
 </div>
 
 
+                            <div id="ClientLoader.has_load" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientLoader.has_load">#&nbsp;&nbsp</a>
+
+        <span class="name">has_load</span><span class="annotation">: bool</span>
+    </div>
+
+            <div class="docstring"><p>Whether this loader will load anything.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientLoader.has_unload" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientLoader.has_unload">#&nbsp;&nbsp</a>
+
+        <span class="name">has_unload</span><span class="annotation">: bool</span>
+    </div>
+
+            <div class="docstring"><p>Whether this loader will unload anything.</p>
+</div>
+
+
+                            </div>
                             <div id="ClientLoader.load" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#ClientLoader.load">#&nbsp;&nbsp</a>
 
@@ -15455,9 +15505,9 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module is already loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no loaders are found in the module.</span>
 <span class="sd">        ModuleNotFoundError</span>
 <span class="sd">            If the module is not found.</span>
@@ -15504,9 +15554,9 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -15522,7 +15572,7 @@ If the component isn't bound to a client.</li>
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        For this to work the module has to have at least one ClientLoader</span>
-<span class="sd">        which handles both loading and unloading present.</span>
+<span class="sd">        which handles loading and one which handles unloading present.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -15538,11 +15588,13 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the current state of the module.</span>
 <span class="sd">            If no loaders are found in the new state of the module.</span>
+<span class="sd">        ModuleNotFoundError</span>
+<span class="sd">            If the module can no-longer be found at the provided path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -17235,9 +17287,9 @@ Name to check against.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module is already loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no loaders are found in the module.</span>
 <span class="sd">        ModuleNotFoundError</span>
 <span class="sd">            If the module is not found.</span>
@@ -17292,8 +17344,8 @@ module will fail to resolve.</p></li>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>ValueError</strong>: If the module is already loaded.</li>
-<li><strong>RuntimeError</strong>: If no loaders are found in the module.</li>
+<li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module is already loaded.</li>
+<li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no loaders are found in the module.</li>
 <li><strong>ModuleNotFoundError</strong>: If the module is not found.</li>
 </ul>
 </div>
@@ -17352,9 +17404,9 @@ module will fail to resolve.</p></li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
@@ -17401,8 +17453,8 @@ Path of one or more modules to unload.</p>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>ValueError</strong>: If the module hasn't been loaded.</li>
-<li><strong>RuntimeError</strong>: If no unloaders are found in the module.</li>
+<li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module hasn't been loaded.</li>
+<li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no unloaders are found in the module.</li>
 </ul>
 </div>
 
@@ -17431,7 +17483,7 @@ Path of one or more modules to unload.</p>
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        For this to work the module has to have at least one ClientLoader</span>
-<span class="sd">        which handles both loading and unloading present.</span>
+<span class="sd">        which handles loading and one which handles unloading present.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -17447,11 +17499,13 @@ Path of one or more modules to unload.</p>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
+<span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
+<span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the current state of the module.</span>
 <span class="sd">            If no loaders are found in the new state of the module.</span>
+<span class="sd">        ModuleNotFoundError</span>
+<span class="sd">            If the module can no-longer be found at the provided path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -17466,7 +17520,7 @@ used to find loaders and unloaders.</p>
 <h6 id="examples">Examples</h6>
 
 <p>For this to work the module has to have at least one ClientLoader
-which handles both loading and unloading present.</p>
+which handles loading and one which handles unloading present.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -17486,9 +17540,10 @@ Paths of one or more module to unload.</p>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>ValueError</strong>: If the module hasn't been loaded.</li>
-<li><strong>RuntimeError</strong>: If no unloaders are found in the current state of the module.
+<li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module hasn't been loaded.</li>
+<li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no unloaders are found in the current state of the module.
 If no loaders are found in the new state of the module.</li>
+<li><strong>ModuleNotFoundError</strong>: If the module can no-longer be found at the provided path.</li>
 </ul>
 </div>
 
