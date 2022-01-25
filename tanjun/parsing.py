@@ -203,6 +203,16 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         greedy : bool
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
+        gt
+            Assert that the parsed value(s) for this argument are (exclusively) treater than this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        lt
+            Assert that the parsed value(s) for this argument are (exclusively) less than this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
         multi : bool
             Whether this argument can be passed multiple times.
 
@@ -288,6 +298,16 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             The value to use if this option is provided without a value.
             If left as `UNDEFINED` then this option will error if it's
             provided without a value.
+        gt
+            Assert that the parsed value(s) for this option are (exclusively) treater than this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        lt
+            Assert that the parsed value(s) for this option are (exclusively) less than this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
         multi : bool
             If this option can be provided multiple times.
             Defaults to `False`.
@@ -542,6 +562,16 @@ def with_argument(
     greedy : bool
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
+    gt
+        Assert that the parsed value(s) for this argument are (exclusively) treater than this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    lt
+        Assert that the parsed value(s) for this argument are (exclusively) less than this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
     multi : bool
         Whether this argument can be passed multiple times.
 
@@ -776,6 +806,16 @@ def with_option(
         The value to use if this option is provided without a value. If left as
         `UNDEFINED` then this option will error if it's
         provided without a value.
+    gt
+        Assert that the parsed value(s) for this option are (exclusively) treater than this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    lt
+        Assert that the parsed value(s) for this option are (exclusively) less than this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
     multi : bool
         If this option can be provided multiple times.
         Defaults to `False`.
@@ -1183,10 +1223,12 @@ class ShlexParser(AbstractOptionParser):
 
     @property
     def arguments(self) -> collections.Sequence[Argument]:
+        # <<inherited docstring from AbstractOptionParser>>.
         return self._arguments.copy()
 
     @property
     def options(self) -> collections.Sequence[Option]:
+        # <<inherited docstring from AbstractOptionParser>>.
         return self._options.copy()
 
     def copy(self: _ShlexParserT, *, _new: bool = True) -> _ShlexParserT:
@@ -1239,6 +1281,7 @@ class ShlexParser(AbstractOptionParser):
         lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
+        # <<inherited docstring from AbstractOptionParser>>.
         argument = Argument(key, converters=converters, default=default, greedy=greedy, gt=gt, lt=lt, multi=multi)
 
         if self._client:
@@ -1281,7 +1324,7 @@ class ShlexParser(AbstractOptionParser):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]] = (),
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
@@ -1304,6 +1347,7 @@ class ShlexParser(AbstractOptionParser):
         lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
+        # <<inherited docstring from AbstractOptionParser>>.
         option = Option(
             key,
             name,
