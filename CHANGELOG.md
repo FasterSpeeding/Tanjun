@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `SlashContext.string` methods as short hands for asserting the option type and ensuring type
   safety.
 - A `MessageParser` standard abc.
-- `Client.set_metadata`, `Component.set_metadata` and `Component.set_metadata` fluent methods to
-  allow for chaining metadata setting.
+- `Client.set_metadata`, `Component.set_metadata` and `ExecutableCommand.set_metadata` fluent
+  methods to allow for chaining metadata setting.
 
 ### Changed
 - `SlashContext.value` now returns `hikari.Snowflake` for object IDs.
