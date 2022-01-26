@@ -142,8 +142,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -158,8 +158,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -173,8 +173,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add a positional argument type to the parser..
@@ -203,13 +203,13 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         greedy : bool
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
-        gt
-            Assert that the parsed value(s) for this argument are (exclusively) greater than this.
+        max_value
+            Assert that the parsed value(s) for this argument are less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
-        lt
-            Assert that the parsed value(s) for this argument are (exclusively) less than this.
+        min_value
+            Assert that the parsed value(s) for this argument are greater than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -232,8 +232,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *names: str,
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -249,8 +249,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -265,8 +265,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add an named option to this parser.
@@ -298,13 +298,13 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             The value to use if this option is provided without a value.
             If left as `UNDEFINED` then this option will error if it's
             provided without a value.
-        gt
-            Assert that the parsed value(s) for this option are (exclusively) greater than this.
+        max_value
+            Assert that the parsed value(s) for this option are less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
-        lt
-            Assert that the parsed value(s) for this option are (exclusively) less than this.
+        min_value
+            Assert that the parsed value(s) for this option are greater than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -500,8 +500,8 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -515,8 +515,8 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    gt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -529,8 +529,8 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
@@ -562,13 +562,13 @@ def with_argument(
     greedy : bool
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
-    gt
-        Assert that the parsed value(s) for this argument are (exclusively) greater than this.
+    max_value
+        Assert that the parsed value(s) for this argument are less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
-    lt
-        Assert that the parsed value(s) for this argument are (exclusively) less than this.
+    min_value
+        Assert that the parsed value(s) for this argument are greater than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -595,11 +595,42 @@ def with_argument(
 
     def decorator(command: _CommandT, /) -> _CommandT:
         _get_or_set_parser(command).add_argument(
-            key, converters=converters, default=default, greedy=greedy, gt=gt, lt=lt, multi=multi
+            key,
+            converters=converters,
+            default=default,
+            greedy=greedy,
+            max_value=max_value,
+            min_value=min_value,
+            multi=multi,
         )
         return command
 
     return decorator
+
+
+@typing.overload
+def with_greedy_argument(
+    key: str,
+    /,
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_greedy_argument(
+    key: str,
+    /,
+    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
 
 
 def with_greedy_argument(
@@ -608,8 +639,8 @@ def with_greedy_argument(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
@@ -644,6 +675,16 @@ def with_greedy_argument(
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED` then this will have no default.
+    max_value
+        Assert that the parsed value(s) for this argument are less than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    min_value
+        Assert that the parsed value(s) for this argument are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
 
     Returns
     -------
@@ -662,7 +703,34 @@ def with_greedy_argument(
         ...
     ```
     """
-    return with_argument(key, converters=converters, default=default, greedy=True, gt=gt, lt=lt)
+    return with_argument(
+        key, converters=converters, default=default, greedy=True, max_value=max_value, min_value=min_value
+    )
+
+
+@typing.overload
+def with_multi_argument(
+    key: str,
+    /,
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_argument(
+    key: str,
+    /,
+    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
 
 
 def with_multi_argument(
@@ -671,8 +739,8 @@ def with_multi_argument(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
@@ -708,6 +776,16 @@ def with_multi_argument(
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED` then this will have no default.
+    max_value
+        Assert that the parsed value(s) for this argument are less than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    min_value
+        Assert that the parsed value(s) for this argument are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
 
     Returns
     -------
@@ -726,7 +804,9 @@ def with_multi_argument(
         ...
     ```
     """
-    return with_argument(key, converters=converters, default=default, gt=gt, lt=lt, multi=True)
+    return with_argument(
+        key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=True
+    )
 
 
 @typing.overload
@@ -737,8 +817,8 @@ def with_option(
     *names: str,
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -753,8 +833,8 @@ def with_option(
     converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    gt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -769,8 +849,8 @@ def with_option(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
@@ -806,13 +886,13 @@ def with_option(
         The value to use if this option is provided without a value. If left as
         `UNDEFINED` then this option will error if it's
         provided without a value.
-    gt
-        Assert that the parsed value(s) for this option are (exclusively) greater than this.
+    max_value
+        Assert that the parsed value(s) for this option are less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
-    lt
-        Assert that the parsed value(s) for this option are (exclusively) less than this.
+    min_value
+        Assert that the parsed value(s) for this option are greater than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -846,13 +926,42 @@ def with_option(
             converters=converters,
             default=default,
             empty_value=empty_value,
-            gt=gt,
-            lt=lt,
+            max_value=max_value,
+            min_value=min_value,
             multi=multi,
         )
         return command
 
     return decorator
+
+
+@typing.overload
+def with_multi_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
 
 
 def with_multi_option(
@@ -863,8 +972,8 @@ def with_multi_option(
     converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
@@ -904,6 +1013,16 @@ def with_multi_option(
         The value to use if this option is provided without a value. If left as
         `UNDEFINED` then this option will error if it's
         provided without a value.
+    max_value
+        Assert that the parsed value(s) for this option are less than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    min_value
+        Assert that the parsed value(s) for this option are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
 
     Returns
     -------
@@ -923,14 +1042,22 @@ def with_multi_option(
     ```
     """
     return with_option(
-        key, name, *names, converters=converters, default=default, empty_value=empty_value, gt=gt, lt=lt, multi=True
+        key,
+        name,
+        *names,
+        converters=converters,
+        default=default,
+        empty_value=empty_value,
+        max_value=max_value,
+        min_value=min_value,
+        multi=True,
     )
 
 
 class Parameter:
     """Base class for parameters for the standard parser(s)."""
 
-    __slots__ = ("_client", "_component", "_converters", "_default", "_gt", "_is_multi", "_key", "_lt")
+    __slots__ = ("_client", "_component", "_converters", "_default", "_is_multi", "_key", "_max_value", "_min_value")
 
     def __init__(
         self,
@@ -939,8 +1066,8 @@ class Parameter:
         *,
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> None:
         """Initialise a parameter."""
@@ -948,10 +1075,10 @@ class Parameter:
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
         self._default = default
-        self._gt = gt
         self._is_multi = multi
         self._key = key
-        self._lt = lt
+        self._max_value = max_value
+        self._min_value = min_value
 
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
@@ -1036,13 +1163,17 @@ class Parameter:
                 sources.append(exc)
 
             else:
-                # assert result > self._gt
-                if self._gt is not UNDEFINED and result <= self._gt:
-                    raise errors.ConversionError(f"{self._key} must be less than {self._gt}", self.key)
+                # assert result >= self._min_value
+                if self._min_value is not UNDEFINED and result < self._min_value:
+                    raise errors.ConversionError(
+                        f"{self._key} must be greater than or equal to {self._min_value}", self.key
+                    )
 
-                # assert result < self._lt
-                if self._lt is not UNDEFINED and result >= self._lt:
-                    raise errors.ConversionError(f"{self._key} must be greater than {self._lt}", self.key)
+                # assert result <= self._max_value
+                if self._max_value is not UNDEFINED and result > self._max_value:
+                    raise errors.ConversionError(
+                        f"{self._key} must be less than or equal to {self._max_value}", self.key
+                    )
 
                 return result
 
@@ -1078,8 +1209,8 @@ class Argument(Parameter):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> None:
         """Initialise a positional argument.
@@ -1105,6 +1236,16 @@ class Argument(Parameter):
         greedy : bool
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
+        max_value
+            Assert that the parsed value(s) for this option are less than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        min_value
+            Assert that the parsed value(s) for this option are greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
         multi : bool
             Whether this argument can be passed multiple times.
         """
@@ -1112,7 +1253,9 @@ class Argument(Parameter):
             raise ValueError("Argument cannot be both greed and multi.")
 
         self._is_greedy = greedy
-        super().__init__(key, converters=converters, default=default, gt=gt, lt=lt, multi=multi)
+        super().__init__(
+            key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=multi
+        )
 
     @property
     def is_greedy(self) -> bool:
@@ -1141,8 +1284,8 @@ class Option(Parameter):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = True,
     ) -> None:
         """Initialise a named optional parameter.
@@ -1174,6 +1317,16 @@ class Option(Parameter):
             The value to use if this option is provided without a value. If left as
             `UNDEFINED` then this option will error if it's
             provided without a value.
+        max_value
+            Assert that the parsed value(s) for this option are less than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        min_value
+            Assert that the parsed value(s) for this option are greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
         multi : bool
             If this option can be provided multiple times.
             Defaults to `False`.
@@ -1183,7 +1336,9 @@ class Option(Parameter):
 
         self._empty_value = empty_value
         self._names = [name, *names]
-        super().__init__(key, converters=converters, default=default, gt=gt, lt=lt, multi=multi)
+        super().__init__(
+            key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=multi
+        )
 
     @property
     def empty_value(self) -> _UndefinedOr[typing.Any]:
@@ -1248,8 +1403,8 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1263,8 +1418,8 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1277,12 +1432,20 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
-        argument = Argument(key, converters=converters, default=default, greedy=greedy, gt=gt, lt=lt, multi=multi)
+        argument = Argument(
+            key,
+            converters=converters,
+            default=default,
+            greedy=greedy,
+            max_value=max_value,
+            min_value=min_value,
+            multi=multi,
+        )
 
         if self._client:
             argument.bind_client(self._client)
@@ -1311,8 +1474,8 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1327,8 +1490,8 @@ class ShlexParser(AbstractOptionParser):
         converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]] = (),
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1343,8 +1506,8 @@ class ShlexParser(AbstractOptionParser):
         converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        gt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        lt: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
@@ -1355,8 +1518,8 @@ class ShlexParser(AbstractOptionParser):
             converters=converters,
             default=default,
             empty_value=empty_value,
-            gt=gt,
-            lt=lt,
+            max_value=max_value,
+            min_value=min_value,
             multi=multi,
         )
 
