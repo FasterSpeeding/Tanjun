@@ -1272,10 +1272,10 @@ class TestClient:
             )
         )
         file.flush()
+        generator = client._load_module(pathlib.Path(file.name))
+        module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
-            generator = client._load_module(pathlib.Path(file.name))
-            module = next(generator)()
             generator.send(module)
 
     def test__load_modules_with_system_path_when_no_loaders_found(self, file: typing.IO[str]):
@@ -1307,10 +1307,10 @@ class TestClient:
             )
         )
         file.flush()
+        generator = client._load_module(pathlib.Path(file.name))
+        module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
-            generator = client._load_module(pathlib.Path(file.name))
-            module = next(generator)()
             generator.send(module)
 
     def test__load_modules_with_system_path_when_already_loaded(self, file: typing.IO[str]):
@@ -1319,11 +1319,10 @@ class TestClient:
         file.flush()
         path = pathlib.Path(file.name)
         client._path_modules[path] = mock.Mock()
+        generator = client._load_module(pathlib.Path(file.name))
 
         with pytest.raises(tanjun.ModuleStateConflict):
-            generator = client._load_module(pathlib.Path(file.name))
-            module = next(generator)()
-            generator.send(module)
+            next(generator)
 
     def test__load_modules_with_system_path_for_unknown_path(self):
         class MockClient(tanjun.Client):
@@ -1332,11 +1331,11 @@ class TestClient:
 
         client = MockClient(mock.AsyncMock())
         random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        generator = client._load_module(random_path)
+        next_ = next(generator)
 
         with pytest.raises(ModuleNotFoundError):
-            generator = client._load_module(random_path)
-            module = next(generator)()
-            generator.send(module)
+            next_()
 
     def test__load_modules_with_python_module_path_when_no_loader_found(self):
         client = tanjun.Client(mock.AsyncMock())
@@ -1349,9 +1348,10 @@ class TestClient:
         )
 
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
+            generator = client._load_module("okokok.no.u")
+            module = next(generator)()
+
             with pytest.raises(tanjun.ModuleMissingLoaders):
-                generator = client._load_module("okokok.no.u")
-                module = next(generator)()
                 generator.send(module)
 
             import_module.assert_called_once_with("okokok.no.u")
@@ -1427,11 +1427,10 @@ class TestClient:
     def test__load_modules_with_python_module_path_when_already_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
         client._modules["ayayayaya.ok"] = mock.Mock()
+        generator = client._load_module("ayayayaya.ok")
 
         with pytest.raises(tanjun.ModuleStateConflict):
-            generator = client._load_module("ayayayaya.ok")
-            module = next(generator)()
-            generator.send(module)
+            next(generator)
 
     def test_load_modules(self):
         mock_path = mock.Mock(pathlib.Path)
@@ -1871,9 +1870,10 @@ class TestClient:
             client.load_modules("waifus")
 
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            generator = client._reload_module("waifus")
+            module = next(generator)()
+
             with pytest.raises(tanjun.ModuleMissingLoaders):
-                generator = client._reload_module("waifus")
-                module = next(generator)()
                 generator.send(module)
 
             reload.assert_called_once_with(old_module)
@@ -1914,9 +1914,10 @@ class TestClient:
         priv_loader.unload.assert_not_called()
 
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            generator = client._reload_module("yuri.waifus")
+            module = next(generator)()
+
             with pytest.raises(tanjun.ModuleMissingLoaders):
-                generator = client._reload_module("yuri.waifus")
-                module = next(generator)()
                 generator.send(module)
 
             reload.assert_called_once_with(old_module)
@@ -2009,9 +2010,10 @@ class TestClient:
             client.load_modules("waifus")
 
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            generator = client._reload_module("waifus")
+            module = next(generator)()
+
             with pytest.raises(tanjun.ModuleMissingLoaders):
-                generator = client._reload_module("waifus")
-                module = next(generator)()
                 generator.send(module)
 
             reload.assert_called_once_with(old_module)
@@ -2058,9 +2060,10 @@ class TestClient:
         new_module.loader.unload.assert_not_called()
 
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            generator = client._reload_module("yuri.waifus")
+            module = next(generator)()
+
             with pytest.raises(tanjun.ModuleMissingLoaders):
-                generator = client._reload_module("yuri.waifus")
-                module = next(generator)()
                 generator.send(module)
 
             reload.assert_called_once_with(old_module)
@@ -2079,50 +2082,10 @@ class TestClient:
 
     def test__reload_modules_with_python_module_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
+        generator = client._reload_module("aya.gay.no")
 
         with pytest.raises(tanjun.ModuleStateConflict):
-            generator = client._reload_module("aya.gay.no")
-            module = next(generator)()
-            generator.send(module)
-
-    def test__reload_modules_with_python_module_path_when_module_import_raises(self):
-        old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
-        old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(unload=False)),
-            ok=123,
-            naye=object(),
-            other_loader=mock.Mock(tanjun.abc.ClientLoader),
-            _priv_loader=old_priv_loader,
-        )
-        mock_exception = RuntimeError("aye")
-        client = tanjun.Client(mock.AsyncMock())
-
-        with mock.patch.object(importlib, "import_module", return_value=old_module):
-            client.load_modules("waifus")
-
-        old_module.other_loader.load.assert_called_once_with(client)
-        old_module.other_loader.unload.assert_not_called()
-        old_module.loader.load.assert_called_once_with(client)
-        old_module.loader.unload.assert_not_called()
-        old_priv_loader.load.assert_not_called()
-        old_priv_loader.unload.assert_not_called()
-
-        with mock.patch.object(importlib, "reload", side_effect=mock_exception) as reload:
-            with pytest.raises(RuntimeError, match="aye") as exc_info:
-                generator = client._reload_module("waifus")
-                module = next(generator)()
-                generator.send(module)
-
-            assert exc_info.value is mock_exception
-            reload.assert_called_once_with(old_module)
-
-        old_module.other_loader.load.assert_called_once_with(client)
-        old_module.other_loader.unload.assert_not_called()
-        old_module.loader.load.assert_called_once_with(client)
-        old_module.loader.unload.assert_not_called()
-        old_priv_loader.load.assert_not_called()
-        old_priv_loader.unload.assert_not_called()
-        assert client._modules["waifus"] is old_module
+            next(generator)
 
     def test__reload_modules_with_python_module_path_rolls_back_when_new_module_loader_raises(self):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
@@ -2161,9 +2124,10 @@ class TestClient:
         priv_loader.unload.assert_not_called()
 
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            generator = client._reload_module("waifus")
+            module = next(generator)()
+
             with pytest.raises(KeyError, match="Aaaaaaaa") as exc_info:
-                generator = client._reload_module("waifus")
-                module = next(generator)()
                 generator.send(module)
 
             assert exc_info.value is mock_exception
@@ -2266,10 +2230,10 @@ class TestClient:
         file.flush()
         path = pathlib.Path(file.name)
         client._path_modules[path] = old_module
+        generator = client._reload_module(path)
+        module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
-            generator = client._reload_module(path)
-            module = next(generator)()
             generator.send(module)
 
         priv_loader.load.assert_not_called()
@@ -2303,10 +2267,10 @@ class TestClient:
             )
         )
         file.flush()
+        generator = client._reload_module(path)
+        module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
-            generator = client._reload_module(path)
-            module = next(generator)()
             generator.send(module)
 
         old_module.loader.load.assert_not_called()
@@ -2402,10 +2366,10 @@ class TestClient:
             )
         )
         file.flush()
+        generator = client._reload_module(path)
+        module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
-            generator = client._reload_module(path)
-            module = next(generator)()
             generator.send(module)
 
         priv_loader.assert_not_called()
@@ -2451,10 +2415,10 @@ class TestClient:
             )
         )
         file.flush()
+        generator = client._reload_module(path)
+        module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
-            generator = client._reload_module(path)
-            module = next(generator)()
             generator.send(module)
 
         old_module.loader.load.assert_not_called()
@@ -2469,11 +2433,10 @@ class TestClient:
 
     def test__reload_modules_with_system_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
+        generator = client._reload_module(pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode()))
 
         with pytest.raises(tanjun.ModuleStateConflict):
-            generator = client._reload_module(pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode()))
-            module = next(generator)()
-            generator.send(module)
+            next(generator)
 
     def test__reload_modules_with_system_path_for_unknown_path(self):
         old_module = mock.Mock(
@@ -2485,44 +2448,16 @@ class TestClient:
         client = tanjun.Client(mock.AsyncMock())
         random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
         client._path_modules[random_path.absolute()] = old_module
+        generator = client._reload_module(random_path.absolute())
+        next_ = next(generator)
 
         with pytest.raises(ModuleNotFoundError):
-            generator = client._reload_module(random_path.absolute())
-            module = next(generator)()
-            generator.send(module)
+            next_()
 
         old_module.loader.load.assert_not_called()
         old_module.loader.unload.assert_not_called()
         old_module.other_loader.load.assert_not_called()
         old_module.other_loader.unload.assert_not_called()
-
-    def test__reload_modules_with_system_path_when_module_import_raises(self, file: typing.IO[str]):
-        old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
-        old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(unload=False)),
-            ok=123,
-            naye=object(),
-            other_loader=mock.Mock(tanjun.abc.ClientLoader),
-            _priv_loader=old_priv_loader,
-        )
-        client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
-        client._path_modules[path] = old_module
-        file.write(textwrap.dedent("""raise RuntimeError("yeetetet")"""))
-        file.flush()
-
-        with pytest.raises(RuntimeError, match="yeetetet"):
-            generator = client._reload_module(path)
-            module = next(generator)()
-            generator.send(module)
-
-        old_module.other_loader.load.assert_not_called()
-        old_module.other_loader.unload.assert_not_called()
-        old_module.loader.load.assert_not_called()
-        old_module.loader.unload.assert_not_called()
-        old_priv_loader.load.assert_not_called()
-        old_priv_loader.unload.assert_not_called()
-        assert client._path_modules[path] is old_module
 
     def test__reload_modules_with_system_path_rolls_back_when_new_module_loader_raises(self, file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
@@ -2556,10 +2491,11 @@ class TestClient:
             )
         )
         file.flush()
+        generator = client._reload_module(path)
+        module = next(generator)()
 
         with pytest.raises(KeyError, match="Aaaaaaaaaaaaa"):
-            generator = client._reload_module(path)
-            module = next(generator)()
+
             generator.send(module)
 
         old_module.other_loader.load.assert_called_once_with(client)

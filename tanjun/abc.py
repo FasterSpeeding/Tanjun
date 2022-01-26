@@ -3714,7 +3714,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def load_modules_async(self: _T, *modules: typing.Union[str, pathlib.Path]) -> None:
+    async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
         """Asynchronous variant of `Client.load_modules`.
 
         Unlike `Client.load_modules`, this method will run blocking code in a
@@ -3725,7 +3725,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> _T:
+    def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Unload entities from this client based on unloaders in one or more modules.
 
         .. note::
