@@ -68,16 +68,16 @@ if typing.TYPE_CHECKING:
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
 
-    class _ComparableProto(typing.Protocol[_T_contra]):
+    class _CmpProto(typing.Protocol[_T_contra]):
         def __gt__(self, __other: _T_contra) -> bool:
             raise NotImplementedError
 
         def __lt__(self, __other: _T_contra) -> bool:
             raise NotImplementedError
 
+    _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
 
 _T = typing.TypeVar("_T")
-_OtherT = typing.TypeVar("_OtherT")
 
 ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 """Type hint of a converter used within a parser instance.
@@ -85,6 +85,8 @@ ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 This must be a callable or asynchronous callable which takes one position
 `str`, argument and returns the resultant value.
 """
+
+_MaybeIterable = typing.Union[collections.Iterable[_T], _T]
 
 
 class UndefinedT:
@@ -142,8 +144,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -154,12 +156,26 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         self: _T,
         key: str,
         /,
-        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        greedy: bool = False,
         multi: bool = False,
     ) -> _T:
         ...
@@ -169,12 +185,12 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         self: _T,
         key: str,
         /,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add a positional argument type to the parser..
@@ -232,8 +248,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         *names: str,
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -246,11 +262,26 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -262,11 +293,11 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         """Add an named option to this parser.
@@ -500,8 +531,8 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -511,12 +542,25 @@ def with_argument(
 def with_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    greedy: bool = False,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -525,12 +569,12 @@ def with_argument(
 def with_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+    converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
@@ -614,8 +658,8 @@ def with_greedy_argument(
     /,
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -624,11 +668,22 @@ def with_greedy_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_greedy_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -636,11 +691,11 @@ def with_greedy_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+    converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
@@ -714,8 +769,8 @@ def with_multi_argument(
     /,
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -724,11 +779,22 @@ def with_multi_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -736,11 +802,11 @@ def with_multi_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+    converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
@@ -817,8 +883,8 @@ def with_option(
     *names: str,
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -830,11 +896,25 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -846,11 +926,11 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+    converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
@@ -943,8 +1023,8 @@ def with_multi_option(
     *names: str,
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -955,11 +1035,24 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig[_T]], ConverterSig[_T]],
+    converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[_T]] = UNDEFINED,
+    max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+    min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -969,11 +1062,11 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+    converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-    min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+    max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+    min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
@@ -1064,10 +1157,10 @@ class Parameter:
         key: str,
         /,
         *,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> None:
         """Initialise a parameter."""
@@ -1149,9 +1242,21 @@ class Parameter:
     def bind_component(self, component: tanjun_abc.Component, /) -> None:
         self._component = component
 
+    def _validate(self, value: typing.Any, /) -> None:
+        # assert value >= self._min_value
+        if self._min_value is not UNDEFINED and self._min_value > value:
+            raise errors.ConversionError(
+                f"{self._key!r} must be greater than or equal to {self._min_value!r}", self.key
+            )
+
+        # assert value <= self._max_value
+        if self._max_value is not UNDEFINED and self._max_value < value:
+            raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self.key)
+
     async def convert(self, ctx: tanjun_abc.Context, value: str) -> typing.Any:
         """Convert the given value to the type of this parameter."""
         if not self._converters:
+            self._validate(value)
             return value
 
         sources: list[ValueError] = []
@@ -1163,18 +1268,7 @@ class Parameter:
                 sources.append(exc)
 
             else:
-                # assert result >= self._min_value
-                if self._min_value is not UNDEFINED and result < self._min_value:
-                    raise errors.ConversionError(
-                        f"{self._key} must be greater than or equal to {self._min_value}", self.key
-                    )
-
-                # assert result <= self._max_value
-                if self._max_value is not UNDEFINED and result > self._max_value:
-                    raise errors.ConversionError(
-                        f"{self._key} must be less than or equal to {self._max_value}", self.key
-                    )
-
+                self._validate(result)
                 return result
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
@@ -1206,11 +1300,11 @@ class Argument(Parameter):
         key: str,
         /,
         *,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> None:
         """Initialise a positional argument.
@@ -1281,11 +1375,11 @@ class Option(Parameter):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = True,
     ) -> None:
         """Initialise a named optional parameter.
@@ -1403,8 +1497,8 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1414,12 +1508,25 @@ class ShlexParser(AbstractOptionParser):
         self: _ShlexParserT,
         key: str,
         /,
-        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]],
+        converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         *,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
+        greedy: bool = False,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1428,12 +1535,12 @@ class ShlexParser(AbstractOptionParser):
         self: _ShlexParserT,
         key: str,
         /,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
@@ -1474,8 +1581,8 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[str]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1487,11 +1594,25 @@ class ShlexParser(AbstractOptionParser):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig[_OtherT]], ConverterSig[_OtherT]] = (),
+        converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         default: typing.Any,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[_OtherT]] = UNDEFINED,
+        max_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        min_value: typing.Union[UndefinedT, _CmpProto[_CmpProtoT], _CmpProtoT] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1503,11 +1624,11 @@ class ShlexParser(AbstractOptionParser):
         name: str,
         /,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig[typing.Any]], ConverterSig[typing.Any]] = (),
+        converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
-        min_value: _UndefinedOr[_ComparableProto[typing.Any]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[typing.Any]] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
