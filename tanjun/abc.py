@@ -3714,8 +3714,18 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
-        # <<inherited docstring from tanjun.abc.Client>>.
+    async def load_modules_async(self: _T, *modules: typing.Union[str, pathlib.Path]) -> None:
+        """Asynchronous variant of `Client.load_modules`.
+
+        Unlike `Client.load_modules`, this method will run blocking code in a
+        background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for `Client.load_modules`.
+        """
+
+    @abc.abstractmethod
+    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Unload entities from this client based on unloaders in one or more modules.
 
         .. note::
@@ -3762,7 +3772,6 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def reload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
-        # <<inherited docstring from tanjun.abc.Client>>.
         """Reload entities in this client based on the loaders in loaded module(s).
 
         .. note::
@@ -3795,6 +3804,17 @@ class Client(abc.ABC):
             If no loaders are found in the new state of the module.
         ModuleNotFoundError
             If the module can no-longer be found at the provided path.
+        """
+
+    @abc.abstractmethod
+    async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        """Asynchronous variant of `Client.reload_modules`.
+
+        Unlike `Client.reload_modules`, this method will run blocking code in a
+        background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for `Client.reload_modules`.
         """
 
 
