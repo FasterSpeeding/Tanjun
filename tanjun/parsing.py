@@ -67,6 +67,7 @@ if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
+    _OtherT = typing.TypeVar("_OtherT")
 
     class _CmpProto(typing.Protocol[_T_contra]):
         def __gt__(self, __other: _T_contra) -> bool:
@@ -172,12 +173,12 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         self: _T,
         key: str,
         /,
-        converters: _MaybeIterable[ConverterSig[_CmpProto[_T]]],
+        converters: _MaybeIterable[ConverterSig[_OtherT]],
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
-        min_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -295,11 +296,11 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         name: str,
         /,
         *names: str,
-        converters: _MaybeIterable[ConverterSig[_T]],
+        converters: _MaybeIterable[ConverterSig[_OtherT]],
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
-        min_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
+        max_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
+        min_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
