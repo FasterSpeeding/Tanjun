@@ -632,7 +632,7 @@ def with_channel_slash_option(
     description: str,
     /,
     *,
-    types: collections.Collection[type[hikari.PartialChannel]] | None = None,
+    types: typing.Union[collections.Collection[type[hikari.PartialChannel]], None] = None,
     default: typing.Any = _UNDEFINED_DEFAULT,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
