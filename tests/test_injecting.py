@@ -823,14 +823,14 @@ class TestInjectorClient:
 
 
 class Test_EmptyInjectorClient:
-    def set_type_dependency(self):
+    def test_set_type_dependency(self):
         mock_type: typing.Any = mock.Mock()
 
         result = tanjun.injecting._EMPTY_CLIENT.set_type_dependency(mock_type, mock.Mock())
 
         assert result is tanjun.injecting._EMPTY_CLIENT
 
-    def get_type_dependency(self):
+    def test_get_type_dependency(self):
         mock_type: typing.Any = mock.Mock()
         tanjun.injecting._EMPTY_CLIENT.set_type_dependency(mock_type, mock.Mock())
 
@@ -838,7 +838,7 @@ class Test_EmptyInjectorClient:
 
         assert result is tanjun.injecting.UNDEFINED
 
-    def remove_type_dependency(self):
+    def test_remove_type_dependency(self):
         mock_type: typing.Any = mock.Mock()
         tanjun.injecting._EMPTY_CLIENT.set_type_dependency(mock_type, mock.Mock())
 
@@ -847,19 +847,18 @@ class Test_EmptyInjectorClient:
 
         assert exc_info.value.args[0] is mock_type
 
-    def set_callback_override(self):
+    def test_set_callback_override(self):
         result = tanjun.injecting._EMPTY_CLIENT.set_callback_override(mock.Mock(), mock.Mock())
-        assert result is None
+        assert result is tanjun.injecting._EMPTY_CLIENT
 
-    def get_callback_override(self):
+    def test_get_callback_override(self):
         mock_callback = mock.Mock()
         tanjun.injecting._EMPTY_CLIENT.set_callback_override(mock_callback, mock.Mock())
 
-        result = tanjun.injecting._EMPTY_CLIENT.remove_callback_override(mock_callback)
+        with pytest.raises(KeyError):
+            tanjun.injecting._EMPTY_CLIENT.remove_callback_override(mock_callback)
 
-        assert result is None
-
-    def remove_callback_override(self):
+    def test_remove_callback_override(self):
         mock_callback = mock.Mock()
         tanjun.injecting._EMPTY_CLIENT.set_callback_override(mock_callback, mock.Mock())
 
@@ -869,11 +868,11 @@ class Test_EmptyInjectorClient:
         assert exc_info.value.args[0] is mock_callback
 
 
-class test_EmptyContext:
+class Test_EmptyContext:
     def test_injection_client_property(self):
         assert tanjun.injecting._EmptyContext().injection_client is tanjun.injecting._EMPTY_CLIENT
 
-    def cache_result(self) -> None:
+    def test_cache_result(self) -> None:
         mock_callback = mock.Mock()
         mock_result = mock.Mock()
         ctx = tanjun.injecting._EmptyContext()
@@ -883,19 +882,18 @@ class test_EmptyContext:
         assert result is None
         assert ctx.get_cached_result(mock_callback) is mock_result
 
-    def get_cached_result(self):
+    def test_get_cached_result(self):
         ctx = tanjun.injecting._EmptyContext()
 
         assert ctx.get_cached_result(mock.Mock()) is tanjun.injecting.UNDEFINED
 
-    def get_cached_result_when_not_found_but_previous_result_set_for_other_callback(self):
+    def test_get_cached_result_when_not_found_but_previous_result_set_for_other_callback(self):
         ctx = tanjun.injecting._EmptyContext()
         ctx.cache_result(mock.Mock(), mock.Mock())
 
         assert ctx.get_cached_result(mock.Mock()) is tanjun.injecting.UNDEFINED
 
-    def get_get_type_dependency(self):
+    def test_get_type_dependency(self):
         ctx = tanjun.injecting._EmptyContext()
         mock_type: typing.Any = mock.Mock()
-
         assert ctx.get_type_dependency(mock_type) is tanjun.injecting.UNDEFINED
