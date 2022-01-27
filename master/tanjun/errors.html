@@ -58,13 +58,25 @@
 
             </li>
             <li>
-                    <a class="class" href="#HaltExecution">HaltExecution</a>
+                    <a class="class" href="#FailedCheck">FailedCheck</a>
                             <ul class="memberlist">
                 </ul>
 
             </li>
             <li>
-                    <a class="class" href="#FailedCheck">FailedCheck</a>
+                    <a class="class" href="#FailedModuleLoad">FailedModuleLoad</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#FailedModuleUnload">FailedModuleUnload</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#HaltExecution">HaltExecution</a>
                             <ul class="memberlist">
                 </ul>
 
@@ -214,8 +226,10 @@
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;CommandError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ConversionError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HaltExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;FailedCheck&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FailedModuleLoad&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FailedModuleUnload&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HaltExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MissingDependencyError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ModuleMissingLoaders&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ModuleStateConflict&quot;</span><span class="p">,</span>
@@ -465,6 +479,36 @@
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;The path of the module which caused the error.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+
+
+<span class="k">class</span> <span class="nc">FailedModuleLoad</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module fails to load.</span>
+
+<span class="sd">    This may be raised by the module failing to import or by one of</span>
+<span class="sd">    its loaders erroring.</span>
+
+<span class="sd">    This source error can be accessed at `FailedLoad.__cause__`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span>
+    <span class="sd">&quot;&quot;&quot;The root error.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">FailedModuleUnload</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module fails to unload.</span>
+
+<span class="sd">    This may be raised by the module failing to import or by one</span>
+<span class="sd">    of its unloaders erroring.</span>
+
+<span class="sd">    The source error can be accessed at `FailedUnload.__cause__`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span>
+    <span class="sd">&quot;&quot;&quot;The root error.&quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -725,6 +769,148 @@ An iterable of the source value errors which were raised during conversion.</li>
                                 </dl>
                             </div>
                 </section>
+                <section id="FailedCheck">
+                                <div class="attr class">
+        <a class="headerlink" href="#FailedCheck">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">FailedCheck</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>, <span class="base">builtins.RuntimeError</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FailedCheck</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>  <span class="c1"># TODO: FailedCheckError</span>
+    <span class="sd">&quot;&quot;&quot;Error raised as an alternative to returning `False` in a check.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Error raised as an alternative to returning <code>False</code> in a check.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.RuntimeError</dt>
+                                <dd id="FailedCheck.__init__" class="function">RuntimeError</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="FailedCheck.with_traceback" class="function">with_traceback</dd>
+                <dd id="FailedCheck.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="FailedModuleLoad">
+                                <div class="attr class">
+        <a class="headerlink" href="#FailedModuleLoad">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">FailedModuleLoad</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FailedModuleLoad</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module fails to load.</span>
+
+<span class="sd">    This may be raised by the module failing to import or by one of</span>
+<span class="sd">    its loaders erroring.</span>
+
+<span class="sd">    This source error can be accessed at `FailedLoad.__cause__`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span>
+    <span class="sd">&quot;&quot;&quot;The root error.&quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Error raised when a module fails to load.</p>
+
+<p>This may be raised by the module failing to import or by one of
+its loaders erroring.</p>
+
+<p>This source error can be accessed at <code>FailedLoad.__cause__</code>.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="FailedModuleLoad.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="FailedModuleLoad.with_traceback" class="function">with_traceback</dd>
+                <dd id="FailedModuleLoad.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="FailedModuleUnload">
+                                <div class="attr class">
+        <a class="headerlink" href="#FailedModuleUnload">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">FailedModuleUnload</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FailedModuleUnload</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error raised when a module fails to unload.</span>
+
+<span class="sd">    This may be raised by the module failing to import or by one</span>
+<span class="sd">    of its unloaders erroring.</span>
+
+<span class="sd">    The source error can be accessed at `FailedUnload.__cause__`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span>
+    <span class="sd">&quot;&quot;&quot;The root error.&quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Error raised when a module fails to unload.</p>
+
+<p>This may be raised by the module failing to import or by one
+of its unloaders erroring.</p>
+
+<p>The source error can be accessed at <code>FailedUnload.__cause__</code>.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="FailedModuleUnload.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="FailedModuleUnload.with_traceback" class="function">with_traceback</dd>
+                <dd id="FailedModuleUnload.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
                 <section id="HaltExecution">
                                 <div class="attr class">
         <a class="headerlink" href="#HaltExecution">#&nbsp;&nbsp</a>
@@ -765,44 +951,6 @@ other commands from being tried.</p>
             <div><dt>builtins.BaseException</dt>
                                 <dd id="HaltExecution.with_traceback" class="function">with_traceback</dd>
                 <dd id="HaltExecution.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="FailedCheck">
-                                <div class="attr class">
-        <a class="headerlink" href="#FailedCheck">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">FailedCheck</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>, <span class="base">builtins.RuntimeError</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FailedCheck</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>  <span class="c1"># TODO: FailedCheckError</span>
-    <span class="sd">&quot;&quot;&quot;Error raised as an alternative to returning `False` in a check.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Error raised as an alternative to returning <code>False</code> in a check.</p>
-</div>
-
-
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.RuntimeError</dt>
-                                <dd id="FailedCheck.__init__" class="function">RuntimeError</dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="FailedCheck.with_traceback" class="function">with_traceback</dd>
-                <dd id="FailedCheck.args" class="variable">args</dd>
 
             </div>
                                 </dl>

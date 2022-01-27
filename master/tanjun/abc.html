@@ -775,10 +775,16 @@
                                 <a class="function" href="#Client.load_modules">load_modules</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.load_modules_async">load_modules_async</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.unload_modules">unload_modules</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.reload_modules">reload_modules</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.reload_modules_async">reload_modules_async</a>
                         </li>
                 </ul>
 
@@ -4511,6 +4517,11 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.FailedModuleLoad</span>
+<span class="sd">            If the new version of a module failed to load.</span>
+
+<span class="sd">            This includes if it failed to import or if one of its loaders raised.</span>
+<span class="sd">            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.</span>
 <span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module is already loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
@@ -4520,8 +4531,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">load_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronous variant of `Client.load_modules`.</span>
+
+<span class="sd">        Unlike `Client.load_modules`, this method will run blocking code in a</span>
+<span class="sd">        background thread.</span>
+
+<span class="sd">        For more information on the behaviour of this method see the</span>
+<span class="sd">        documentation for `Client.load_modules`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloaders in one or more modules.</span>
 
 <span class="sd">        .. note::</span>
@@ -4564,11 +4585,15 @@
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the module.</span>
+<span class="sd">        tanjun.errors.FailedModuleUnload</span>
+<span class="sd">            If the old version of a module failed to unload.</span>
+
+<span class="sd">            This indicates that one of its unloaders raised. The source</span>
+<span class="sd">            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the loaders in loaded module(s).</span>
 
 <span class="sd">        .. note::</span>
@@ -4594,6 +4619,16 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.FailedModuleLoad</span>
+<span class="sd">            If the new version of a module failed to load.</span>
+
+<span class="sd">            This includes if it failed to import or if one of its loaders raised.</span>
+<span class="sd">            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.</span>
+<span class="sd">        tanjun.errors.FailedModuleUnload</span>
+<span class="sd">            If the old version of a module failed to unload.</span>
+
+<span class="sd">            This indicates that one of its unloaders raised. The source</span>
+<span class="sd">            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.</span>
 <span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
@@ -4601,6 +4636,17 @@
 <span class="sd">            If no loaders are found in the new state of the module.</span>
 <span class="sd">        ModuleNotFoundError</span>
 <span class="sd">            If the module can no-longer be found at the provided path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">reload_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronous variant of `Client.reload_modules`.</span>
+
+<span class="sd">        Unlike `Client.reload_modules`, this method will run blocking code in a</span>
+<span class="sd">        background thread.</span>
+
+<span class="sd">        For more information on the behaviour of this method see the</span>
+<span class="sd">        documentation for `Client.reload_modules`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
 
@@ -15723,6 +15769,11 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.FailedModuleLoad</span>
+<span class="sd">            If the new version of a module failed to load.</span>
+
+<span class="sd">            This includes if it failed to import or if one of its loaders raised.</span>
+<span class="sd">            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.</span>
 <span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module is already loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
@@ -15732,8 +15783,18 @@ If the component isn't bound to a client.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">load_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronous variant of `Client.load_modules`.</span>
+
+<span class="sd">        Unlike `Client.load_modules`, this method will run blocking code in a</span>
+<span class="sd">        background thread.</span>
+
+<span class="sd">        For more information on the behaviour of this method see the</span>
+<span class="sd">        documentation for `Client.load_modules`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloaders in one or more modules.</span>
 
 <span class="sd">        .. note::</span>
@@ -15776,11 +15837,15 @@ If the component isn't bound to a client.</li>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the module.</span>
+<span class="sd">        tanjun.errors.FailedModuleUnload</span>
+<span class="sd">            If the old version of a module failed to unload.</span>
+
+<span class="sd">            This indicates that one of its unloaders raised. The source</span>
+<span class="sd">            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the loaders in loaded module(s).</span>
 
 <span class="sd">        .. note::</span>
@@ -15806,6 +15871,16 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.FailedModuleLoad</span>
+<span class="sd">            If the new version of a module failed to load.</span>
+
+<span class="sd">            This includes if it failed to import or if one of its loaders raised.</span>
+<span class="sd">            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.</span>
+<span class="sd">        tanjun.errors.FailedModuleUnload</span>
+<span class="sd">            If the old version of a module failed to unload.</span>
+
+<span class="sd">            This indicates that one of its unloaders raised. The source</span>
+<span class="sd">            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.</span>
 <span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
@@ -15813,6 +15888,17 @@ If the component isn't bound to a client.</li>
 <span class="sd">            If no loaders are found in the new state of the module.</span>
 <span class="sd">        ModuleNotFoundError</span>
 <span class="sd">            If the module can no-longer be found at the provided path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">reload_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronous variant of `Client.reload_modules`.</span>
+
+<span class="sd">        Unlike `Client.reload_modules`, this method will run blocking code in a</span>
+<span class="sd">        background thread.</span>
+
+<span class="sd">        For more information on the behaviour of this method see the</span>
+<span class="sd">        documentation for `Client.reload_modules`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -17556,6 +17642,11 @@ Name to check against.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.FailedModuleLoad</span>
+<span class="sd">            If the new version of a module failed to load.</span>
+
+<span class="sd">            This includes if it failed to import or if one of its loaders raised.</span>
+<span class="sd">            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.</span>
 <span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module is already loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
@@ -17613,10 +17704,53 @@ module will fail to resolve.</p></li>
 <h6 id="raises">Raises</h6>
 
 <ul>
+<li><strong><a href="errors.html#FailedModuleLoad">tanjun.errors.FailedModuleLoad</a></strong>: If the new version of a module failed to load.</li>
+</ul>
+
+<p>This includes if it failed to import or if one of its loaders raised.
+The source error can be found at <code><a href="errors.html#FailedModuleLoad.__source__">tanjun.errors.FailedModuleLoad.__source__</a></code>.</p>
+
+<ul>
 <li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module is already loaded.</li>
 <li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no loaders are found in the module.</li>
 <li><strong>ModuleNotFoundError</strong>: If the module is not found.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.load_modules_async" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.load_modules_async">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">load_modules_async</span><span class="signature">(self, *modules: Union[str, pathlib.Path]) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">load_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronous variant of `Client.load_modules`.</span>
+
+<span class="sd">        Unlike `Client.load_modules`, this method will run blocking code in a</span>
+<span class="sd">        background thread.</span>
+
+<span class="sd">        For more information on the behaviour of this method see the</span>
+<span class="sd">        documentation for `Client.load_modules`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Asynchronous variant of <code><a href="#Client.load_modules">Client.load_modules</a></code>.</p>
+
+<p>Unlike <code><a href="#Client.load_modules">Client.load_modules</a></code>, this method will run blocking code in a
+background thread.</p>
+
+<p>For more information on the behaviour of this method see the
+documentation for <code><a href="#Client.load_modules">Client.load_modules</a></code>.</p>
 </div>
 
 
@@ -17634,7 +17768,6 @@ module will fail to resolve.</p></li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloaders in one or more modules.</span>
 
 <span class="sd">        .. note::</span>
@@ -17677,6 +17810,11 @@ module will fail to resolve.</p></li>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
 <span class="sd">            If no unloaders are found in the module.</span>
+<span class="sd">        tanjun.errors.FailedModuleUnload</span>
+<span class="sd">            If the old version of a module failed to unload.</span>
+
+<span class="sd">            This indicates that one of its unloaders raised. The source</span>
+<span class="sd">            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -17724,7 +17862,11 @@ Path of one or more modules to unload.</p>
 <ul>
 <li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module hasn't been loaded.</li>
 <li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no unloaders are found in the module.</li>
+<li><strong><a href="errors.html#FailedModuleUnload">tanjun.errors.FailedModuleUnload</a></strong>: If the old version of a module failed to unload.</li>
 </ul>
+
+<p>This indicates that one of its unloaders raised. The source
+error can be found at <code><a href="errors.html#FailedModuleUnload.__source__">tanjun.errors.FailedModuleUnload.__source__</a></code>.</p>
 </div>
 
 
@@ -17742,7 +17884,6 @@ Path of one or more modules to unload.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the loaders in loaded module(s).</span>
 
 <span class="sd">        .. note::</span>
@@ -17768,6 +17909,16 @@ Path of one or more modules to unload.</p>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.FailedModuleLoad</span>
+<span class="sd">            If the new version of a module failed to load.</span>
+
+<span class="sd">            This includes if it failed to import or if one of its loaders raised.</span>
+<span class="sd">            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.</span>
+<span class="sd">        tanjun.errors.FailedModuleUnload</span>
+<span class="sd">            If the old version of a module failed to unload.</span>
+
+<span class="sd">            This indicates that one of its unloaders raised. The source</span>
+<span class="sd">            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.</span>
 <span class="sd">        tanjun.errors.ModuleStateConflict</span>
 <span class="sd">            If the module hasn&#39;t been loaded.</span>
 <span class="sd">        tanjun.errors.ModuleMissingLoaders</span>
@@ -17809,11 +17960,61 @@ Paths of one or more module to unload.</p>
 <h6 id="raises">Raises</h6>
 
 <ul>
+<li><strong><a href="errors.html#FailedModuleLoad">tanjun.errors.FailedModuleLoad</a></strong>: If the new version of a module failed to load.</li>
+</ul>
+
+<p>This includes if it failed to import or if one of its loaders raised.
+The source error can be found at <code><a href="errors.html#FailedModuleLoad.__source__">tanjun.errors.FailedModuleLoad.__source__</a></code>.</p>
+
+<ul>
+<li><strong><a href="errors.html#FailedModuleUnload">tanjun.errors.FailedModuleUnload</a></strong>: If the old version of a module failed to unload.</li>
+</ul>
+
+<p>This indicates that one of its unloaders raised. The source
+error can be found at <code><a href="errors.html#FailedModuleUnload.__source__">tanjun.errors.FailedModuleUnload.__source__</a></code>.</p>
+
+<ul>
 <li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module hasn't been loaded.</li>
 <li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no unloaders are found in the current state of the module.
 If no loaders are found in the new state of the module.</li>
 <li><strong>ModuleNotFoundError</strong>: If the module can no-longer be found at the provided path.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.reload_modules_async" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.reload_modules_async">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">reload_modules_async</span><span class="signature">(self, *modules: Union[str, pathlib.Path]) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">reload_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronous variant of `Client.reload_modules`.</span>
+
+<span class="sd">        Unlike `Client.reload_modules`, this method will run blocking code in a</span>
+<span class="sd">        background thread.</span>
+
+<span class="sd">        For more information on the behaviour of this method see the</span>
+<span class="sd">        documentation for `Client.reload_modules`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Asynchronous variant of <code><a href="#Client.reload_modules">Client.reload_modules</a></code>.</p>
+
+<p>Unlike <code><a href="#Client.reload_modules">Client.reload_modules</a></code>, this method will run blocking code in a
+background thread.</p>
+
+<p>For more information on the behaviour of this method see the
+documentation for <code><a href="#Client.reload_modules">Client.reload_modules</a></code>.</p>
 </div>
 
 

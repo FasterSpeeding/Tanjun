@@ -247,10 +247,16 @@
                                 <a class="function" href="#Client.load_modules">load_modules</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.load_modules_async">load_modules_async</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.unload_modules">unload_modules</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.reload_modules">reload_modules</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.reload_modules_async">reload_modules_async</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.on_message_create_event">on_message_create_event</a>
@@ -1157,9 +1163,9 @@
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aexit__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">exception_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]],</span>
-        <span class="n">exception</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span>
-        <span class="n">exception_traceback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">TracebackType</span><span class="p">],</span>
+        <span class="n">exc_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]],</span>
+        <span class="n">exc</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span>
+        <span class="n">exc_traceback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">TracebackType</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -2182,7 +2188,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_call_loaders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">loaders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
@@ -2193,7 +2199,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_unload_module</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_call_unloaders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">loaders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
@@ -2204,110 +2210,189 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any unloaders in </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="k">yield</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="k">yield</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+
     <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 
-                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">()</span>
 
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">load_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_module</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.ab.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
 
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
                 <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
+            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">!s}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unloading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_unload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleUnload</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_unloaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="k">del</span> <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_reload_module</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">old_module</span>
+                <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">old_module</span><span class="p">)</span>
+
+            <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">old_module</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reloading </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="n">old_loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">old_module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+        <span class="c1"># We assert that the old module has unloaders early to avoid unnecessarily</span>
+        <span class="c1"># importing the new module.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_unload</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">old_loaders</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any unloaders in old </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="n">module</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">load_module</span>
+
+        <span class="n">loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="c1"># We assert that the new module has loaders early to avoid unnecessarily</span>
+        <span class="c1"># unloading then rolling back when we know it&#39;s going to fail to load.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_load</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">loaders</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in new </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleUnload</span><span class="p">):</span>
+            <span class="c1"># This will never raise MissingLoaders as we assert this earlier</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_unloaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># This will never raise MissingLoaders as we assert this earlier</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">loaders</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span> <span class="kn">from</span> <span class="nn">exc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-                <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">old_module</span>
-                    <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">old_module</span><span class="p">)</span>
-
-                <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
-
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
                 <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-                <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-
-                <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">old_module</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reloading </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="k">try</span><span class="p">:</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">()</span>
 
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
-            <span class="n">loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-            <span class="n">old_loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">old_module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="c1"># We assert that the new module has loaders early to avoid unnecessarily</span>
-            <span class="c1"># unloading then rolling back when we know it&#39;s going to fail to load.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_load</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">loaders</span><span class="p">):</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in new </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_unload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">loaders</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">reload_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_module</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_message_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a message command based on a gateway event.</span>
@@ -2497,6 +2582,25 @@
     <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">module</span>
+
+
+<span class="k">class</span> <span class="nc">_WrapLoadError</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_error&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="ne">Exception</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">error</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">exc_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]],</span>
+        <span class="n">exc</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span>
+        <span class="n">exc_tb</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">TracebackType</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">()</span> <span class="kn">from</span> <span class="nn">exc</span>  <span class="c1"># noqa: R102 unnecessary parenthesis on raised exception</span>
 </pre></div>
 
         </details>
@@ -3096,9 +3200,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aexit__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">exception_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]],</span>
-        <span class="n">exception</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span>
-        <span class="n">exception_traceback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">TracebackType</span><span class="p">],</span>
+        <span class="n">exc_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]],</span>
+        <span class="n">exc</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span>
+        <span class="n">exc_traceback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">TracebackType</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -4121,7 +4225,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_call_loaders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">loaders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
@@ -4132,7 +4236,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_unload_module</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_call_unloaders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">loaders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientLoader</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
@@ -4143,110 +4247,189 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any unloaders in </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="k">yield</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="k">yield</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+
     <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 
-                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">()</span>
 
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">load_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_module</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.ab.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
 
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
                 <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
+            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">!s}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unloading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_unload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleUnload</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_unloaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="k">del</span> <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_reload_module</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">module_path</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">],</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">old_module</span>
+                <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">old_module</span><span class="p">)</span>
+
+            <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+            <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">old_module</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reloading </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="n">old_loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">old_module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+        <span class="c1"># We assert that the old module has unloaders early to avoid unnecessarily</span>
+        <span class="c1"># importing the new module.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_unload</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">old_loaders</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any unloaders in old </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="n">module</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">load_module</span>
+
+        <span class="n">loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="c1"># We assert that the new module has loaders early to avoid unnecessarily</span>
+        <span class="c1"># unloading then rolling back when we know it&#39;s going to fail to load.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_load</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">loaders</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in new </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleUnload</span><span class="p">):</span>
+            <span class="c1"># This will never raise MissingLoaders as we assert this earlier</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_unloaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># This will never raise MissingLoaders as we assert this earlier</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">loaders</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span> <span class="kn">from</span> <span class="nn">exc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-                <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">old_module</span>
-                    <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">old_module</span><span class="p">)</span>
-
-                <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
-
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
                 <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-                <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-
-                <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">old_module</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reloading </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="k">try</span><span class="p">:</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">()</span>
 
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
-            <span class="n">loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-            <span class="n">old_loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">old_module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="c1"># We assert that the new module has loaders early to avoid unnecessarily</span>
-            <span class="c1"># unloading then rolling back when we know it&#39;s going to fail to load.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_load</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">loaders</span><span class="p">):</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in new </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_unload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">loaders</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">reload_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_module</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_message_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a message command based on a gateway event.</span>
@@ -7926,24 +8109,20 @@ client.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
 
-                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">()</span>
 
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -7996,10 +8175,60 @@ module will fail to resolve.</p></li>
 <h6 id="raises">Raises</h6>
 
 <ul>
+<li><strong><a href="errors.html#FailedModuleLoad">tanjun.errors.FailedModuleLoad</a></strong>: If the new version of a module failed to load.</li>
+</ul>
+
+<p>This includes if it failed to import or if one of its loaders raised.
+The source error can be found at <code><a href="errors.html#FailedModuleLoad.__source__">tanjun.errors.FailedModuleLoad.__source__</a></code>.</p>
+
+<ul>
 <li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module is already loaded.</li>
 <li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no loaders are found in the module.</li>
 <li><strong>ModuleNotFoundError</strong>: If the module is not found.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.load_modules_async" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.load_modules_async">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">load_modules_async</span><span class="signature">(self, *modules: Union[str, pathlib.Path]) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">load_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_module</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Asynchronous variant of <code><a href="#Client.load_modules">Client.load_modules</a></code>.</p>
+
+<p>Unlike <code><a href="#Client.load_modules">Client.load_modules</a></code>, this method will run blocking code in a
+background thread.</p>
+
+<p>For more information on the behaviour of this method see the
+documentation for <code><a href="#Client.load_modules">Client.load_modules</a></code>.</p>
 </div>
 
 
@@ -8018,17 +8247,21 @@ module will fail to resolve.</p></li>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.ab.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
 
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
                 <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
+            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">!s}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unloading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_unload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleUnload</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_call_unloaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
+
+            <span class="k">del</span> <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -8077,7 +8310,11 @@ Path of one or more modules to unload.</p>
 <ul>
 <li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module hasn't been loaded.</li>
 <li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no unloaders are found in the module.</li>
+<li><strong><a href="errors.html#FailedModuleUnload">tanjun.errors.FailedModuleUnload</a></strong>: If the old version of a module failed to unload.</li>
 </ul>
+
+<p>This indicates that one of its unloaders raised. The source
+error can be found at <code><a href="errors.html#FailedModuleUnload.__source__">tanjun.errors.FailedModuleUnload.__source__</a></code>.</p>
 </div>
 
 
@@ -8095,63 +8332,20 @@ Path of one or more modules to unload.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-                <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">old_module</span>
-                    <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">old_module</span><span class="p">)</span>
-
-                <span class="n">modules_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span>
-
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
                 <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">old_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-                <span class="k">def</span> <span class="nf">load_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">_get_path_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-
-                <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">old_module</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> not loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reloading </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="k">try</span><span class="p">:</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="n">load_module</span><span class="p">()</span>
 
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
-            <span class="n">loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-            <span class="n">old_loaders</span> <span class="o">=</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">old_module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
-            <span class="c1"># We assert that the new module has loaders early to avoid unnecessarily</span>
-            <span class="c1"># unloading then rolling back when we know it&#39;s going to fail to load.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">has_load</span> <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">loaders</span><span class="p">):</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in new </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
-
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_unload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleMissingLoaders</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">loaders</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">old_loaders</span><span class="p">)</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_module</span>
-                <span class="k">raise</span>
-
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">modules_dict</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -8187,11 +8381,70 @@ Paths of one or more module to unload.</p>
 <h6 id="raises">Raises</h6>
 
 <ul>
+<li><strong><a href="errors.html#FailedModuleLoad">tanjun.errors.FailedModuleLoad</a></strong>: If the new version of a module failed to load.</li>
+</ul>
+
+<p>This includes if it failed to import or if one of its loaders raised.
+The source error can be found at <code><a href="errors.html#FailedModuleLoad.__source__">tanjun.errors.FailedModuleLoad.__source__</a></code>.</p>
+
+<ul>
+<li><strong><a href="errors.html#FailedModuleUnload">tanjun.errors.FailedModuleUnload</a></strong>: If the old version of a module failed to unload.</li>
+</ul>
+
+<p>This indicates that one of its unloaders raised. The source
+error can be found at <code><a href="errors.html#FailedModuleUnload.__source__">tanjun.errors.FailedModuleUnload.__source__</a></code>.</p>
+
+<ul>
 <li><strong><a href="errors.html#ModuleStateConflict">tanjun.errors.ModuleStateConflict</a></strong>: If the module hasn't been loaded.</li>
 <li><strong><a href="errors.html#ModuleMissingLoaders">tanjun.errors.ModuleMissingLoaders</a></strong>: If no unloaders are found in the current state of the module.
 If no loaders are found in the new state of the module.</li>
 <li><strong>ModuleNotFoundError</strong>: If the module can no-longer be found at the provided path.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.reload_modules_async" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.reload_modules_async">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">reload_modules_async</span><span class="signature">(self, *modules: Union[str, pathlib.Path]) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">reload_modules_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+
+            <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+            <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_module</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">generator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Generator didn&#39;t finish&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Asynchronous variant of <code><a href="#Client.reload_modules">Client.reload_modules</a></code>.</p>
+
+<p>Unlike <code><a href="#Client.reload_modules">Client.reload_modules</a></code>, this method will run blocking code in a
+background thread.</p>
+
+<p>For more information on the behaviour of this method see the
+documentation for <code><a href="#Client.reload_modules">Client.reload_modules</a></code>.</p>
 </div>
 
 
