@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.1a1] - 2022-01-27
 ### Added
 - `SlashContext.boolean`, `SlashContext.float`, `SlashContext.integer`, `SlashContext.snowflake`
   and `SlashContext.string` methods as short hands for asserting the option type and ensuring type
@@ -466,7 +468,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.1a1...HEAD
+[2.3.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...v2.3.1a1
 [2.3.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...v2.3.0a1
 [2.2.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...v2.2.3a1
 [2.2.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.1a1...v2.2.2a1
