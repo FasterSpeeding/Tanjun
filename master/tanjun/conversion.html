@@ -1745,7 +1745,7 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">override_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">parsing</span><span class="o">.</span><span class="n">ConverterSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parsing</span><span class="o">.</span><span class="n">ConverterSig</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">override_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">parsing</span><span class="o">.</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">parsing</span><span class="o">.</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
     <span class="k">return</span> <span class="n">_TYPE_OVERRIDES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span>
 
 
