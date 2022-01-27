@@ -182,8 +182,10 @@ __all__: list[str] = [
     "errors",
     "CommandError",
     "ConversionError",
-    "HaltExecution",
     "FailedCheck",
+    "FailedModuleLoad",
+    "FailedModuleUnload",
+    "HaltExecution",
     "MissingDependencyError",
     "ModuleMissingLoaders",
     "ModuleStateConflict",
@@ -282,6 +284,8 @@ from .dependencies import with_cooldown
 from .errors import CommandError
 from .errors import ConversionError
 from .errors import FailedCheck
+from .errors import FailedModuleLoad
+from .errors import FailedModuleUnload
 from .errors import HaltExecution
 from .errors import MissingDependencyError
 from .errors import ModuleMissingLoaders

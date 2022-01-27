@@ -3705,6 +3705,11 @@ class Client(abc.ABC):
 
         Raises
         ------
+        tanjun.errors.FailedModuleLoad
+            If the new version of a module failed to load.
+
+            This includes if it failed to import or if one of its loaders raised.
+            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.
         tanjun.errors.ModuleStateConflict
             If the module is already loaded.
         tanjun.errors.ModuleMissingLoaders
@@ -3768,6 +3773,11 @@ class Client(abc.ABC):
             If the module hasn't been loaded.
         tanjun.errors.ModuleMissingLoaders
             If no unloaders are found in the module.
+        tanjun.errors.FailedModuleUnload
+            If the old version of a module failed to unload.
+
+            This indicates that one of its unloaders raised. The source
+            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.
         """
 
     @abc.abstractmethod
@@ -3797,6 +3807,16 @@ class Client(abc.ABC):
 
         Raises
         ------
+        tanjun.errors.FailedModuleLoad
+            If the new version of a module failed to load.
+
+            This includes if it failed to import or if one of its loaders raised.
+            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.
+        tanjun.errors.FailedModuleUnload
+            If the old version of a module failed to unload.
+
+            This indicates that one of its unloaders raised. The source
+            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.
         tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
         tanjun.errors.ModuleMissingLoaders
