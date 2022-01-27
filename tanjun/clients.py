@@ -1942,7 +1942,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             with _WrapLoadError(errors.FailedModuleUnload):
                 self._call_unloaders(module_path, _get_loaders(module, module_path))
 
-            # TODO: test this isn't hit when there's no unloaders
             del modules_dict[module_path]
 
         return self
