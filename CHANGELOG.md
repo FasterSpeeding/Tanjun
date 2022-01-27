@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `MessageParser` standard abc.
 - `Client.set_metadata`, `Component.set_metadata` and `ExecutableCommand.set_metadata` fluent
   methods to allow for chaining metadata setting.
+- Complementary `Client.load_modules_async` and `Client.reload_modules_async` methods which execute
+  blocking file access operations in asyncio's threadpool executor.
+- The module load, unload and reload methods now raise `FailedModuleLoad` and `FailedModuleUnload`
+  to relay errors raised by the target module or its (un)loaders.
 
 ### Changed
 - `SlashContext.value` now returns `hikari.Snowflake` for object IDs.

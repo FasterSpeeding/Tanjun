@@ -810,9 +810,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def __aexit__(
         self,
-        exception_type: typing.Optional[type[BaseException]],
-        exception: typing.Optional[BaseException],
-        exception_traceback: typing.Optional[types.TracebackType],
+        exc_type: typing.Optional[type[Exception]],
+        exc: typing.Optional[Exception],
+        exc_traceback: typing.Optional[types.TracebackType],
     ) -> None:
         await self.close()
 
@@ -1835,7 +1835,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._message_hooks = hooks
         return self
 
-    def _load_module(
+    def _call_loaders(
         self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun_abc.ClientLoader], /
     ) -> None:
         found = False
@@ -1846,7 +1846,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not found:
             raise errors.ModuleMissingLoaders(f"Didn't find any loaders in {module_path}", module_path)
 
-    def _unload_module(
+    def _call_unloaders(
         self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun_abc.ClientLoader], /
     ) -> None:
         found = False
@@ -1857,110 +1857,189 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not found:
             raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in {module_path}", module_path)
 
+    def _load_module(
+        self, module_path: typing.Union[str, pathlib.Path]
+    ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
+        if isinstance(module_path, str):
+            if module_path in self._modules:
+                raise errors.ModuleStateConflict(f"module {module_path} already loaded", module_path)
+
+            _LOGGER.info("Loading from %s", module_path)
+            module = yield lambda: importlib.import_module(module_path)
+
+            with _WrapLoadError(errors.FailedModuleLoad):
+                self._call_loaders(module_path, _get_loaders(module, module_path))
+
+            self._modules[module_path] = module
+
+        else:
+            module_path_abs = module_path.absolute()
+            if module_path_abs in self._path_modules:
+                raise errors.ModuleStateConflict(f"Module at {module_path} already loaded", module_path)
+
+            _LOGGER.info("Loading from %s", module_path)
+            module = yield lambda: _get_path_module(module_path)
+
+            with _WrapLoadError(errors.FailedModuleLoad):
+                self._call_loaders(module_path, _get_loaders(module, module_path))
+
+            self._path_modules[module_path_abs] = module
+
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
-            if isinstance(module_path, str):
-                if module_path in self._modules:
-                    raise errors.ModuleStateConflict(f"module {module_path} already loaded", module_path)
+            if isinstance(module_path, pathlib.Path):
+                module_path = module_path.absolute()
 
-                _LOGGER.info("Loading from %s", module_path)
-                module = importlib.import_module(module_path)
-                self._load_module(module_path, _get_loaders(module, module_path))
-                self._modules[module_path] = module
+            generator = self._load_module(module_path)
+            load_module = next(generator)
+            with _WrapLoadError(errors.FailedModuleLoad):
+                module = load_module()
 
+            try:
+                generator.send(module)
+            except StopIteration:
+                pass
             else:
-                module_path_abs = module_path.absolute()
-                if module_path_abs in self._path_modules:
-                    raise errors.ModuleStateConflict(f"Module at {module_path} already loaded", module_path)
-
-                _LOGGER.info("Loading from %s", module_path)
-                module = _get_path_module(module_path)
-                self._load_module(module_path, _get_loaders(module, module_path))
-                self._path_modules[module_path_abs] = module
+                raise RuntimeError("Generator didn't finish")
 
         return self
+
+    async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        loop = asyncio.get_running_loop()
+        for module_path in modules:
+            if isinstance(module_path, pathlib.Path):
+                module_path = await loop.run_in_executor(None, module_path.absolute)
+
+            generator = self._load_module(module_path)
+            load_module = next(generator)
+            with _WrapLoadError(errors.FailedModuleLoad):
+                module = await loop.run_in_executor(None, load_module)
+
+            try:
+                generator.send(module)
+            except StopIteration:
+                pass
+            else:
+                raise RuntimeError("Generator didn't finish")
 
     def unload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         # <<inherited docstring from tanjun.ab.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
-                module = self._modules.pop(module_path, None)
+                modules_dict: dict[typing.Any, types.ModuleType] = self._modules
 
             else:
+                modules_dict = self._path_modules
                 module_path = module_path.absolute()
-                module = self._path_modules.pop(module_path, None)
 
+            module = modules_dict.get(module_path)
             if not module:
                 raise errors.ModuleStateConflict(f"Module {module_path!s} not loaded", module_path)
 
             _LOGGER.info("Unloading from %s", module_path)
-            self._unload_module(module_path, _get_loaders(module, module_path))
+            with _WrapLoadError(errors.FailedModuleUnload):
+                self._call_unloaders(module_path, _get_loaders(module, module_path))
+
+            del modules_dict[module_path]
 
         return self
+
+    def _reload_module(
+        self, module_path: typing.Union[str, pathlib.Path]
+    ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
+        if isinstance(module_path, str):
+            old_module = self._modules.get(module_path)
+
+            def load_module() -> types.ModuleType:
+                assert old_module
+                return importlib.reload(old_module)
+
+            modules_dict: dict[typing.Any, types.ModuleType] = self._modules
+
+        else:
+            old_module = self._path_modules.get(module_path)
+
+            def load_module() -> types.ModuleType:
+                assert isinstance(module_path, pathlib.Path)
+                return _get_path_module(module_path)
+
+            modules_dict = self._path_modules
+
+        if not old_module:
+            raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
+
+        _LOGGER.info("Reloading %s", module_path)
+
+        old_loaders = _get_loaders(old_module, module_path)
+        # We assert that the old module has unloaders early to avoid unnecessarily
+        # importing the new module.
+        if not any(loader.has_unload for loader in old_loaders):
+            raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in old {module_path}", module_path)
+
+        module = yield load_module
+
+        loaders = _get_loaders(module, module_path)
+
+        # We assert that the new module has loaders early to avoid unnecessarily
+        # unloading then rolling back when we know it's going to fail to load.
+        if not any(loader.has_load for loader in loaders):
+            raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
+
+        with _WrapLoadError(errors.FailedModuleUnload):
+            # This will never raise MissingLoaders as we assert this earlier
+            self._call_unloaders(module_path, old_loaders)
+
+        try:
+            # This will never raise MissingLoaders as we assert this earlier
+            self._call_loaders(module_path, loaders)
+        except Exception as exc:
+            self._call_loaders(module_path, old_loaders)
+            raise errors.FailedModuleLoad from exc
+        else:
+            modules_dict[module_path] = module
 
     def reload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
-            if isinstance(module_path, str):
-                old_module = self._modules.pop(module_path, None)
-
-                def load_module() -> types.ModuleType:
-                    assert old_module
-                    return importlib.reload(old_module)
-
-                modules_dict: dict[typing.Any, types.ModuleType] = self._modules
-
-            else:
+            if isinstance(module_path, pathlib.Path):
                 module_path = module_path.absolute()
-                old_module = self._path_modules.pop(module_path, None)
 
-                def load_module() -> types.ModuleType:
-                    assert isinstance(module_path, pathlib.Path)
-                    return _get_path_module(module_path)
-
-                modules_dict = self._path_modules
-
-            if not old_module:
-                raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
-
-            _LOGGER.info("Reloading %s", module_path)
-
-            try:
+            generator = self._reload_module(module_path)
+            load_module = next(generator)
+            with _WrapLoadError(errors.FailedModuleLoad):
                 module = load_module()
 
-            except Exception:
-                modules_dict[module_path] = old_module
-                raise
-
-            loaders = _get_loaders(module, module_path)
-            old_loaders = _get_loaders(old_module, module_path)
-
-            # We assert that the new module has loaders early to avoid unnecessarily
-            # unloading then rolling back when we know it's going to fail to load.
-            if not any(loader.has_load for loader in loaders):
-                modules_dict[module_path] = old_module
-                raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
-
             try:
-                self._unload_module(module_path, old_loaders)
-
-            except errors.ModuleMissingLoaders:
-                modules_dict[module_path] = old_module
-                raise
-
-            try:
-                self._load_module(module_path, loaders)
-
-            except Exception:
-                self._load_module(module_path, old_loaders)
-                modules_dict[module_path] = old_module
-                raise
-
+                generator.send(module)
+            except StopIteration:
+                pass
             else:
-                modules_dict[module_path] = module
+                raise RuntimeError("Generator didn't finish")
 
         return self
+
+    async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        loop = asyncio.get_running_loop()
+        for module_path in modules:
+            if isinstance(module_path, pathlib.Path):
+                module_path = await loop.run_in_executor(None, module_path.absolute)
+
+            generator = self._reload_module(module_path)
+            load_module = next(generator)
+            with _WrapLoadError(errors.FailedModuleLoad):
+                module = await loop.run_in_executor(None, load_module)
+
+            try:
+                generator.send(module)
+
+            except StopIteration:
+                pass
+
+            else:
+                raise RuntimeError("Generator didn't finish")
 
     async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
         """Execute a message command based on a gateway event.
@@ -2150,3 +2229,22 @@ def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
     module = importlib_util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+class _WrapLoadError:
+    __slots__ = ("_error",)
+
+    def __init__(self, error: collections.Callable[[], Exception], /) -> None:
+        self._error = error
+
+    def __enter__(self) -> None:
+        pass
+
+    def __exit__(
+        self,
+        exc_type: typing.Optional[type[Exception]],
+        exc: typing.Optional[Exception],
+        exc_tb: typing.Optional[types.TracebackType],
+    ) -> None:
+        if exc and not isinstance(exc, errors.ModuleMissingLoaders):
+            raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception

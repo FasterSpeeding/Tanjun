@@ -3705,6 +3705,11 @@ class Client(abc.ABC):
 
         Raises
         ------
+        tanjun.errors.FailedModuleLoad
+            If the new version of a module failed to load.
+
+            This includes if it failed to import or if one of its loaders raised.
+            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.
         tanjun.errors.ModuleStateConflict
             If the module is already loaded.
         tanjun.errors.ModuleMissingLoaders
@@ -3714,8 +3719,18 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
+    async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        """Asynchronous variant of `Client.load_modules`.
+
+        Unlike `Client.load_modules`, this method will run blocking code in a
+        background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for `Client.load_modules`.
+        """
+
+    @abc.abstractmethod
     def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
-        # <<inherited docstring from tanjun.abc.Client>>.
         """Unload entities from this client based on unloaders in one or more modules.
 
         .. note::
@@ -3758,11 +3773,15 @@ class Client(abc.ABC):
             If the module hasn't been loaded.
         tanjun.errors.ModuleMissingLoaders
             If no unloaders are found in the module.
+        tanjun.errors.FailedModuleUnload
+            If the old version of a module failed to unload.
+
+            This indicates that one of its unloaders raised. The source
+            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.
         """
 
     @abc.abstractmethod
     def reload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
-        # <<inherited docstring from tanjun.abc.Client>>.
         """Reload entities in this client based on the loaders in loaded module(s).
 
         .. note::
@@ -3788,6 +3807,16 @@ class Client(abc.ABC):
 
         Raises
         ------
+        tanjun.errors.FailedModuleLoad
+            If the new version of a module failed to load.
+
+            This includes if it failed to import or if one of its loaders raised.
+            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.
+        tanjun.errors.FailedModuleUnload
+            If the old version of a module failed to unload.
+
+            This indicates that one of its unloaders raised. The source
+            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.
         tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
         tanjun.errors.ModuleMissingLoaders
@@ -3795,6 +3824,17 @@ class Client(abc.ABC):
             If no loaders are found in the new state of the module.
         ModuleNotFoundError
             If the module can no-longer be found at the provided path.
+        """
+
+    @abc.abstractmethod
+    async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        """Asynchronous variant of `Client.reload_modules`.
+
+        Unlike `Client.reload_modules`, this method will run blocking code in a
+        background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for `Client.reload_modules`.
         """
 
 

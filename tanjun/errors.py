@@ -35,8 +35,10 @@ from __future__ import annotations
 __all__: list[str] = [
     "CommandError",
     "ConversionError",
-    "HaltExecution",
     "FailedCheck",
+    "FailedModuleLoad",
+    "FailedModuleUnload",
+    "HaltExecution",
     "MissingDependencyError",
     "ModuleMissingLoaders",
     "ModuleStateConflict",
@@ -286,3 +288,33 @@ class ModuleStateConflict(ValueError, TanjunError):
     def path(self) -> typing.Union[str, pathlib.Path]:
         """The path of the module which caused the error."""
         return self._path
+
+
+class FailedModuleLoad(TanjunError):
+    """Error raised when a module fails to load.
+
+    This may be raised by the module failing to import or by one of
+    its loaders erroring.
+
+    This source error can be accessed at `FailedLoad.__cause__`.
+    """
+
+    __slots__ = ()
+
+    __cause__: Exception
+    """The root error."""
+
+
+class FailedModuleUnload(TanjunError):
+    """Error raised when a module fails to unload.
+
+    This may be raised by the module failing to import or by one
+    of its unloaders erroring.
+
+    The source error can be accessed at `FailedUnload.__cause__`.
+    """
+
+    __slots__ = ()
+
+    __cause__: Exception
+    """The root error."""
