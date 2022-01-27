@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   blocking file access operations in asyncio's threadpool executor.
 - The module load, unload and reload methods now raise `FailedModuleLoad` and `FailedModuleUnload`
   to relay errors raised by the target module or its (un)loaders.
+- `max_value` and `min_value` options for message command option parser options and arguments.
 
 ### Changed
 - `SlashContext.value` now returns `hikari.Snowflake` for object IDs.

@@ -663,8 +663,8 @@ class SlashOption(tanjun_abc.SlashOption):
 
         if self._option.type is hikari.OptionType.MENTIONABLE:
             assert self._option.value is not None
-            target_id = hikari.Snowflake(self._option.value)
             assert self._interaction.resolved
+            target_id = hikari.Snowflake(self._option.value)
             if member := self._interaction.resolved.members.get(target_id):
                 return member
 
@@ -680,8 +680,8 @@ class SlashOption(tanjun_abc.SlashOption):
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.MENTIONABLE:
             assert self._option.value is not None
-            target_id = hikari.Snowflake(self._option.value)
             assert self._interaction.resolved
+            target_id = hikari.Snowflake(self._option.value)
             if role := self._interaction.resolved.roles.get(target_id):
                 return role
 

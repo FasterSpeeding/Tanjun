@@ -38,16 +38,21 @@ import pytest
 import tanjun
 
 
-class TestUndefinedDefaultT:
+class TestUndefinedT:
     def test___new__(self):
-        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UndefinedDefaultT()
+        assert tanjun.parsing.UndefinedT() is tanjun.parsing.UndefinedT()
+        assert tanjun.parsing.UndefinedT() is tanjun.parsing.UNDEFINED
+        assert tanjun.parsing.UndefinedT() is tanjun.parsing.UNDEFINED_DEFAULT
+        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UndefinedT()
+        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UNDEFINED
         assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UNDEFINED_DEFAULT
+        assert tanjun.parsing.UNDEFINED_DEFAULT is tanjun.parsing.UNDEFINED
 
     def test___repr__(self):
-        assert repr(tanjun.parsing.UNDEFINED_DEFAULT) == "UNDEFINED_DEFAULT"
+        assert repr(tanjun.parsing.UNDEFINED) == "UNDEFINED"
 
     def test___bool__(self):
-        assert bool(tanjun.parsing.UNDEFINED_DEFAULT) is False
+        assert bool(tanjun.parsing.UNDEFINED) is False
 
 
 @pytest.mark.skip(reason="TODO")
