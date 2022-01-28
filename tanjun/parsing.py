@@ -397,6 +397,7 @@ class _ShlexTokenizer:
         self.__options_buffer: list[tuple[str, typing.Optional[str]]] = []
         self.__shlex = shlex.shlex(content, posix=True)
         self.__shlex.commenters = ""
+        self.__shlex.quotes = '"'
         self.__shlex.whitespace = " "
         self.__shlex.whitespace_split = True
 
