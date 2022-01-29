@@ -260,7 +260,7 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
         cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
         dm_cache: _DmCacheT = injecting.inject(type=_DmCacheT),
     ) -> hikari.PartialChannel:
-        channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
+        channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
             return channel_
 
@@ -681,7 +681,7 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
-        user_id = parse_user_id(argument, message="No valid member mention or ID  found")
+        user_id = parse_user_id(argument, message="No valid member mention or ID found")
         if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
             return presence
 
@@ -732,7 +732,7 @@ class ToRole(BaseConverter[hikari.Role]):
         ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
         cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
     ) -> hikari.Role:
-        role_id = parse_role_id(argument, message="No valid role mention or ID  found")
+        role_id = parse_role_id(argument, message="No valid role mention or ID found")
         if ctx.cache and (role := ctx.cache.get_role(role_id)):
             return role
 
@@ -796,7 +796,7 @@ class ToUser(BaseConverter[hikari.User]):
         cache: _UserCacheT = injecting.inject(type=_UserCacheT),
     ) -> hikari.User:
         # TODO: search by name if this is a guild context
-        user_id = parse_user_id(argument, message="No valid user mention or ID  found")
+        user_id = parse_user_id(argument, message="No valid user mention or ID found")
         if ctx.cache and (user := ctx.cache.get_user(user_id)):
             return user
 
