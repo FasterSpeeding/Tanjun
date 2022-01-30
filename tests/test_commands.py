@@ -735,6 +735,17 @@ class TestBaseSlashCommand:
 
 
 class TestSlashCommandGroup:
+    @pytest.mark.parametrize(
+        "inner_command", [tanjun.SlashCommand(mock.Mock(), "a", "b"), tanjun.MessageCommand(mock.Mock(), "a")]
+    )
+    def test___init___when_command_object(
+        self,
+        inner_command: typing.Union[
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+        ],
+    ):
+        assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
+
     def test_commands_property(self):
         mock_command = mock.Mock()
         mock_other_command = mock.Mock()
@@ -2115,6 +2126,17 @@ def test_as_message_command_group_when_wrapping_command(
 
 
 class TestMessageCommand:
+    @pytest.mark.parametrize(
+        "inner_command", [tanjun.SlashCommand(mock.Mock(), "a", "b"), tanjun.MessageCommand(mock.Mock(), "a")]
+    )
+    def test___init___when_command_object(
+        self,
+        inner_command: typing.Union[
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+        ],
+    ):
+        assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback
+
     @pytest.mark.skip(reason="TODO")
     def test___repr__(self):
         ...

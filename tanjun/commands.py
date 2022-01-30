@@ -1214,6 +1214,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the description is over 100 characters long.
         """
         super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+        if not _wrapped_command and isinstance(callback, (abc.MessageCommand, abc.SlashCommand)):
+            callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
 
         self._always_defer = always_defer
         self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
@@ -2190,6 +2192,9 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.
             Variable positional arguments of other names for the command.
         """
         super().__init__()
+        if not _wrapped_command and isinstance(callback, (abc.MessageCommand, abc.SlashCommand)):
+            callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
+
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
