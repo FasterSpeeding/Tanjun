@@ -379,12 +379,15 @@ async def _wrap_client_callback(
         _LOGGER.error("Client callback raised exception", exc_info=exc)
 
 
-async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) -> None:
+async def on_parser_error(ctx: tanjun_abc.Context, exc: errors.ParserError, /) -> None:
     """Handle message parser errors.
 
     This is the default message parser error hook included by `Client`.
     """
-    await ctx.respond(error.message)
+    # if isinstance(exc, errors.ConversionError) and exc.errors:
+    #     message = "Failed to parse "
+
+    await ctx.respond(exc.message)
 
 
 def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.PartialCommand) -> bool:

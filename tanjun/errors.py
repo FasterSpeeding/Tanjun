@@ -194,18 +194,33 @@ class ConversionError(ParserError):
     parameter: str
     """Name of the parameter this error was raised for."""
 
-    def __init__(self, message: str, parameter: str, /, errors: collections.Iterable[ValueError] = ()) -> None:
+    value: typing.Union[str, int, float]
+    """The parameter's value which caused the error."""
+
+    def __init__(
+        self,
+        message: str,
+        parameter: str,
+        value: typing.Union[str, int, float],
+        /,
+        errors: collections.Iterable[ValueError] = (),
+    ) -> None:
         """Initialise a conversion error.
 
         Parameters
         ----------
+        message : str
+            The conversion error message
         parameter : tanjun.abc.Parameter
             The parameter this was raised by.
+        value : typing.Union[str, int, float]
+            The value which caused the error.
         errors : collections.abc.Iterable[ValueError]
             An iterable of the source value errors which were raised during conversion.
         """
         super().__init__(message, parameter)
         self.errors = tuple(errors)
+        self.value = value
 
 
 class NotEnoughArgumentsError(ParserError):

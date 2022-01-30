@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Context menu command support.
 - Slash command autocomplete support.
 - `shard` is now a property on all contexts.
+- A `value` attribute to ConversionError with the raw value.
 
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
-- Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`.
+- Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`
+  as callbacks.
 - The search snowflake conversion functions now return lists of snowflakes instead of iterators.
 - `tanjun.components` has been split into a directory of the same name with the structure
   `tanjun.components.slash`, `tanjun.components.message`, `tanjun.components.base` and
