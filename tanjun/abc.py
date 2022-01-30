@@ -1350,6 +1350,56 @@ class SlashOption(abc.ABC):
         """
 
 
+class AutocompleteOption(SlashOption, abc.ABC):
+    """Interface for an auto-complete option."""
+
+    @property
+    @abc.abstractmethod
+    def is_focused(self) -> bool:
+        """Whether this is the option being autocompleted."""
+
+
+class AppCommandContext(Context, abc.ABC):
+    """Base class for application command contexts."""
+
+    __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def expires_at(self) -> datetime.datetime:
+        """When this application command context expires.
+
+        After this time is reached, the message/response methods on this
+        context will always raise `hikari.errors.NotFoundError`.
+        """
+
+    @property
+    @abc.abstractmethod
+    def interaction(self) -> hikari.PartialInteraction:
+        """Interaction this context is for."""
+
+    @property
+    @abc.abstractmethod
+    def member(self) -> typing.Optional[hikari.InteractionMember]:
+        """Object of the member that triggered this command if this is in a guild."""
+
+
+
+class AutocompleteContext(AppCommandContext):
+    """Interface of an autocomplete context."""
+
+    @property
+    @abc.abstractmethod
+    def interaction(self) -> hikari.PartialInteraction:
+        """Interaction this context is for."""
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> collections.Mapping[str, AutocompleteOption]:
+        """Mapping of option names to the values provided for them."""
+
+
+
 class SlashContext(Context, abc.ABC):
     """Interface of a slash command specific context."""
 
@@ -1379,15 +1429,6 @@ class SlashContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def expires_at(self) -> datetime.datetime:
-        """When this application command context expires.
-
-        After this time is reached, the message/response methods on this
-        context will always raise `hikari.errors.NotFoundError`.
-        """
-
-    @property
-    @abc.abstractmethod
     def has_been_deferred(self) -> bool:
         """Whether the initial response for this context has been deferred.
 
@@ -1402,11 +1443,6 @@ class SlashContext(Context, abc.ABC):
     @abc.abstractmethod
     def interaction(self) -> hikari.CommandInteraction:
         """Interaction this context is for."""
-
-    @property
-    @abc.abstractmethod
-    def member(self) -> typing.Optional[hikari.InteractionMember]:
-        """Object of the member that triggered this command if this is in a guild."""
 
     @property
     @abc.abstractmethod
@@ -2212,7 +2248,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """Object of the group this command is in."""
 
     @property
-    def tracked_command(self) -> typing.Optional[hikari.Command]:
+    def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
         """Object of the actual command this object tracks if set."""
 
     @property
@@ -2221,12 +2257,12 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """ID of the actual command this object tracks if set."""
 
     @abc.abstractmethod
-    def build(self) -> hikari.api.CommandBuilder:
+    def build(self) -> hikari.api.SlashCommandBuilder:
         """Get a builder object for this command.
 
         Returns
         -------
-        hikari.api.CommandBuilder
+        hikari.api.SlashCommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -2251,12 +2287,12 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_tracked_command(self: _T, command: hikari.Command, /) -> _T:
+    def set_tracked_command(self: _T, command: hikari.SlashCommand, /) -> _T:
         """Set the global command this tracks.
 
         Parameters
         ----------
-        command : hikari.Command
+        command : hikari.SlashCommand
             Object of the global command this tracks.
 
         Returns
@@ -3168,12 +3204,12 @@ class Client(abc.ABC):
     @abc.abstractmethod
     async def declare_global_commands(
         self,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         """Set the global application commands for a bot based on the loaded components.
 
         .. warning::
@@ -3191,7 +3227,7 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
             If provided, a mapping of top level command names to IDs of the existing commands to update.
         application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
             Object or ID of the application to set the global commands for.
@@ -3225,9 +3261,24 @@ class Client(abc.ABC):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.Command:
-        """Declare a single slash command for a bot.
+    ) -> hikari.SlashCommand:
+        """Deprecated alias of `Client.declare_slash_command`.
+    
+        .. deprecated:: 0.0.1
+            Use `Client.declare_slash_command` instead.
+        """
 
+    @abc.abstractmethod
+    async def declare_slash_command(
+        self,
+        command: BaseSlashCommand,
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.SlashCommand:
+        """
         .. warning::
             Providing `command_id` when updating a command helps avoid any
             permissions set for the command being lose (e.g. when changing the
@@ -3254,7 +3305,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        hikari.Command
+        hikari.SlashCommand
             API representation of the command that was registered.
         """
 
@@ -3263,12 +3314,12 @@ class Client(abc.ABC):
         self,
         commands: collections.Iterable[BaseSlashCommand],
         /,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         """Declare a collection of slash commands for a bot.
 
         .. note::
@@ -3283,7 +3334,7 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
             If provided, a mapping of top level command names to IDs of the existing commands to update.
 
             While optional, this can be helpful when updating commands as
@@ -3309,7 +3360,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.abc.Sequence[hikari.Command]
+        collections.abc.Sequence[hikari.PartialCommand]
             API representations of the commands which were registered.
 
         Raises

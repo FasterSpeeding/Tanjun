@@ -763,10 +763,10 @@ class _TrackedOption:
         raise errors.ConversionError(f"Couldn't convert {self.type} '{self.name}'", self.name, errors=exceptions)
 
 
-_CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
+_SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCommandBuilder")
 
 
-class _CommandBuilder(hikari.impl.CommandBuilder):
+class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
     __slots__ = ("_has_been_sorted", "_sort_options")
 
     def __init__(
@@ -781,14 +781,14 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         self._has_been_sorted = True
         self._sort_options = sort_options
 
-    def add_option(self: _CommandBuilderT, option: hikari.CommandOption) -> _CommandBuilderT:
+    def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
         if self._options:
             self._has_been_sorted = False
 
         super().add_option(option)
         return self
 
-    def sort(self: _CommandBuilderT) -> _CommandBuilderT:
+    def sort(self: _SlashCommandBuilderT) -> _SlashCommandBuilderT:
         if self._sort_options and not self._has_been_sorted:
             required: list[hikari.CommandOption] = []
             not_required: list[hikari.CommandOption] = []
@@ -803,8 +803,8 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
         return self
 
-    def copy(self) -> _CommandBuilder:  # TODO: can we just del _CommandBuilder.__copy__ to go back to the default?
-        builder = _CommandBuilder(self.name, self.description, self._sort_options, id=self.id)
+    def copy(self) -> _SlashCommandBuilder:  # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
+        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id=self.id)
 
         for option in self._options:
             builder.add_option(option)
@@ -836,7 +836,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[abc.SlashCommandGroup] = None
-        self._tracked_command: typing.Optional[hikari.Command] = None
+        self._tracked_command: typing.Optional[hikari.SlashCommand] = None
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
@@ -864,7 +864,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         return self._parent
 
     @property
-    def tracked_command(self) -> typing.Optional[hikari.Command]:
+    def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._tracked_command
 
@@ -873,12 +873,12 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
-    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.Command, /) -> _BaseSlashCommandT:
+    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.SlashCommand, /) -> _BaseSlashCommandT:
         """Set the the global command this should be tracking.
 
         Parameters
         ----------
-        command : hikari.Command
+        command : hikari.SlashCommand
             object of the global command this should be tracking.
 
         Returns
@@ -1006,9 +1006,9 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
-    def build(self) -> special_endpoints_api.CommandBuilder:
+    def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _CommandBuilder(self._name, self._description, False).set_default_permission(self._default_permission)
+        builder = _SlashCommandBuilder(self._name, self._description, False).set_default_permission(self._default_permission)
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -1218,7 +1218,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
 
         self._always_defer = always_defer
-        self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
+        self._builder = _SlashCommandBuilder(name, description, sort_options).set_default_permission(default_permission)
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}

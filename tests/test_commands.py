@@ -624,7 +624,7 @@ class Test_TrackedOption:
 
 
 @pytest.mark.skip(reason="TODO")
-class Test_CommandBuilder:
+class Test_SlashCommandBuilder:
     ...
 
 
@@ -765,7 +765,7 @@ class TestSlashCommandGroup:
         result = command_group.build()
 
         assert result == (
-            tanjun.commands._CommandBuilder("yee", "nsoosos", False)
+            tanjun.commands._SlashCommandBuilder("yee", "nsoosos", False)
             .set_default_permission(True)
             .add_option(
                 hikari.CommandOption(

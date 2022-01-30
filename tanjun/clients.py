@@ -356,20 +356,26 @@ async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) ->
     await ctx.respond(error.message)
 
 
-def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.Command) -> bool:
-    if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id:
-        return False
-
-    if builder.name != command.name or builder.description != command.description:
+def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.PartialCommand) -> bool:
+    if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id or builder.type != command.type:
         return False
 
     default_perm = builder.default_permission if builder.default_permission is not hikari.UNDEFINED else True
-    command_options = command.options or ()
-    if default_perm is not command.default_permission or len(builder.options) != len(command_options):
+    if default_perm is not command.default_permission:
         return False
 
-    return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
+    if isinstance(command, hikari.SlashCommand):
+        assert isinstance(builder, hikari.api.SlashCommandBuilder)
+        if builder.name != command.name or builder.description != command.description:
+            return False
 
+        command_options = command.options or ()
+        if len(builder.options) != len(command_options):
+            return False
+
+        return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
+
+    return True
 
 class _StartDeclarer:
     __slots__ = ("client", "command_ids", "guild_id")
@@ -377,7 +383,7 @@ class _StartDeclarer:
     def __init__(
         self,
         client: Client,
-        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]],
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]],
         guild_id: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]],
     ) -> None:
         self.client = client
@@ -449,7 +455,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
     ) -> None:
         """Initialise a Tanjun client.
@@ -509,7 +515,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand]] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -667,7 +673,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -714,7 +720,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -753,7 +759,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -784,7 +790,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.PartialCommand] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -969,7 +975,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         """Alias of `Client.declare_global_commands`.
 
         .. deprecated:: v2.1.1a1
@@ -985,12 +991,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def declare_global_commands(
         self,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         commands = (
             command
@@ -1011,7 +1017,19 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.Command:
+    ) -> hikari.SlashCommand:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return await self.declare_slash_command(command, command_id, application=application, guild=guild)
+
+    async def declare_slash_command(
+        self,
+        command: tanjun_abc.BaseSlashCommand,
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.SlashCommand:
         # <<inherited docstring from tanjun.abc.Client>>.
         builder = command.build()
         if command_id:
@@ -1023,9 +1041,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 description=builder.description,
                 options=builder.options,
             )
+            assert isinstance(response, hikari.SlashCommand)
 
         else:
-            response = await self._rest.create_application_command(
+            response = await self._rest.create_slash_command(
                 application or self._cached_application_id or await self.fetch_rest_application_id(),
                 guild=guild,
                 name=builder.name,
@@ -1042,12 +1061,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self,
         commands: collections.Iterable[tanjun_abc.BaseSlashCommand],
         /,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
         names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
