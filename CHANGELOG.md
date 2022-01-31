@@ -14,7 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ShlexParser` no-longer treats `'` as a quote.
 - Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`.
 - The search snowflake conversion functions now return lists of snowflakes instead of iterators.
-- Split `tanjun.components` into a directory of the same name.
+- `tanjun.components` has been split into a directory of the same name with the structure
+  `tanjun.components.slash`, `tanjun.components.message`, `tanjun.components.base` and
+  `tanjun.components.menu`.
+- `tanjun.commands` has been split into a directory of the same name with the structure
+  `tanjun.commands.slash`, `tanjun.commands.message`, `tanjun.commands.base` and `tanjun.commands.menu`.
 
 ### Fixed
 - False-positive cache warnings from the standard converters. 
