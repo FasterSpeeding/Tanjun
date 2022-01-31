@@ -135,9 +135,6 @@
                     <a class="module" href="#data">data</a>
             </li>
             <li>
-                    <a class="function" href="#cache_callback">cache_callback</a>
-            </li>
-            <li>
                     <a class="function" href="#cached_inject">cached_inject</a>
             </li>
             <li>
@@ -166,9 +163,6 @@
             </li>
             <li>
                     <a class="function" href="#inject_lc">inject_lc</a>
-            </li>
-            <li>
-                    <a class="function" href="#make_lc_resolver">make_lc_resolver</a>
             </li>
             <li>
                     <a class="module" href="#limiters">limiters</a>
@@ -416,11 +410,9 @@
     <span class="s2">&quot;fetch_my_user&quot;</span><span class="p">,</span>
     <span class="c1"># data.py</span>
     <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cached_inject&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span>
     <span class="s2">&quot;inject_lc&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span>
     <span class="c1"># limiters.py</span>
     <span class="s2">&quot;limiters&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AbstractConcurrencyLimiter&quot;</span><span class="p">,</span>
@@ -454,10 +446,8 @@
 <span class="kn">from</span> <span class="nn">.async_cache</span> <span class="kn">import</span> <span class="n">SingleStoreCache</span>
 <span class="kn">from</span> <span class="nn">.callbacks</span> <span class="kn">import</span> <span class="n">fetch_my_user</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">LazyConstant</span>
-<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">cache_callback</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">cached_inject</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">inject_lc</span>
-<span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">make_lc_resolver</span>
 <span class="kn">from</span> <span class="nn">.limiters</span> <span class="kn">import</span> <span class="n">AbstractConcurrencyLimiter</span>
 <span class="kn">from</span> <span class="nn">.limiters</span> <span class="kn">import</span> <span class="n">AbstractCooldownManager</span>
 <span class="kn">from</span> <span class="nn">.limiters</span> <span class="kn">import</span> <span class="n">BucketResource</span>
@@ -673,17 +663,28 @@ The injector client to set the standard dependencies on.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -711,17 +712,28 @@ The injector client to set the standard dependencies on.</li>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -768,15 +780,19 @@ The injector client to set the standard dependencies on.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -836,17 +852,28 @@ The injector client to set the standard dependencies on.</li>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -958,17 +985,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1027,17 +1065,28 @@ and <code>hikari.MemberPresence</code> which aren'are only unique per-parent res
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1057,18 +1106,34 @@ and <code>hikari.MemberPresence</code> which aren'are only unique per-parent res
 Unique key of the entry to get; this will often be a snowflake.</li>
 </ul>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1153,15 +1218,19 @@ For more information on how this is used, see the documentation for
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1238,15 +1307,19 @@ For more information on how this is used, see the documentation for
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1271,15 +1344,22 @@ Unique key of the entry to get; this will usually be a snowflake.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1618,17 +1698,28 @@ that the cache is sure that the entry doesn't exist.</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1707,17 +1798,28 @@ that the cache is sure that the entry doesn't exist.</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1739,18 +1841,34 @@ ID of the guild to get an entry for.</li>
 Unique key of the entry to get; this will usually be a snowflake.</li>
 </ul>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1887,17 +2005,28 @@ For more information on how this is used, see the documentation for
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1934,17 +2063,28 @@ This is mostly just for the <code>hikari.OwnUser</code> cache store.</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1957,18 +2097,34 @@ This is mostly just for the <code>hikari.OwnUser</code> cache store.</p>
 
             <div class="docstring"><p>Get the entry.</p>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -2481,14 +2637,14 @@ client is not bound to a Bot token.</li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Callable[..., Awaitable[_T]]</span>
+<span class="sd">    collections.abc.Callable[..., Awaitable[_T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
 
@@ -2530,7 +2686,7 @@ client is not bound to a Bot token.</li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
@@ -2552,96 +2708,6 @@ client is not bound to a Bot token.</li>
         </details>
 
             <div class="docstring"><p>Dependency utilities used for managing data.</p>
-</div>
-
-
-                </section>
-                <section id="cache_callback">
-                            <div class="attr function"><a class="headerlink" href="#cache_callback">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">cache_callback</span><span class="signature">(
-    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
-    /,
-    *,
-    expire_after: Union[int, float, datetime.timedelta, NoneType] = None
-) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        This is internally used by `cached_inject`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to cache the result of.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
-<span class="sd">        The amount of time to cache the result for in seconds.</span>
-
-<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Callable[..., Awaitable[_T]]</span>
-<span class="sd">        A callback which will cache the result of the given callback after the</span>
-<span class="sd">        first call.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If expire_after is not a valid value.</span>
-<span class="sd">        If expire_after is not less than or equal to 0 seconds.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Cache the result of a callback within a dependency injection context.</p>
-
-<p><em>Note:</em>
-This is internally used by <code><a href="#cached_inject">cached_inject</a></code>.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>callback</strong> (CallbackSig[_T]):
-The callback to cache the result of.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>expire_after</strong> (typing.Union[int, float, datetime.timedelta, None]):
-The amount of time to cache the result for in seconds.</p>
-
-<p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>Callable[..., Awaitable[_T]]</strong>: A callback which will cache the result of the given callback after the
-first call.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>ValueError</strong>: If expire_after is not a valid value.
-If expire_after is not less than or equal to 0 seconds.</li>
-</ul>
 </div>
 
 
@@ -2690,7 +2756,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
@@ -2740,7 +2806,7 @@ The callback to inject.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (typing.Union[int, float, datetime.timedelta, None]):
+<li><p><strong>expire_after</strong> (int | float | datetime.timedelta | None):
 The amount of time to cache the result for in seconds.</p>
 
 <p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
@@ -3162,87 +3228,6 @@ The type of the constant to resolve.</li>
 
 
                 </section>
-                <section id="make_lc_resolver">
-                            <div class="attr function"><a class="headerlink" href="#make_lc_resolver">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">make_lc_resolver</span><span class="signature">(
-    type_: type[~_T],
-    /
-) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * This is internally used by `inject_lc`.</span>
-<span class="sd">    * For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
-<span class="sd">      dependency for the passed `type_`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    type_ : type[_T]</span>
-<span class="sd">        The type of the constant to resolve.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., collections.abc.Awaitable[_T]]</span>
-<span class="sd">        An injected callback used to resolve the LazyConstant.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
-        <span class="c1"># LazyConstant gets type arguments at runtime</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span>
-
-        <span class="k">async</span> <span class="k">with</span> <span class="n">constant</span><span class="o">.</span><span class="n">acquire</span><span class="p">():</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">value</span>
-
-            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">constant</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-            <span class="n">constant</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">return</span> <span class="n">resolve</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Make an injected callback which resolves a LazyConstant.</p>
-
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>This is internally used by <code><a href="#inject_lc">inject_lc</a></code>.</li>
-<li>For this to work, a <code><a href="#LazyConstant">LazyConstant</a></code> must've been set as a type
-dependency for the passed <code>type_</code>.</li>
-</ul>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>type_</strong> (type[_T]):
-The type of the constant to resolve.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Callable[..., collections.abc.Awaitable[_T]]</strong>: An injected callback used to resolve the LazyConstant.</li>
-</ul>
-</div>
-
-
-                </section>
                 <section id="limiters">
                                 <div class="attr module"><a class="headerlink" href="#limiters">#&nbsp;&nbsp</a>
 <span class="name"><a href="dependencies/limiters.html">tanjun.dependencies.limiters</a></span></div>
@@ -3350,7 +3335,7 @@ The type of the constant to resolve.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[float]</span>
+<span class="sd">        float | None</span>
 <span class="sd">            When this command will next be usable for the provided context</span>
 <span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3874,7 +3859,7 @@ The type of the constant to resolve.</li>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
-<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">        reset_after : int | float | datetime.timedelta</span>
 <span class="sd">            The cooldown period.</span>
 
 <span class="sd">        Returns</span>
@@ -4509,7 +4494,7 @@ The context to acquire this resource lock with.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[float]</span>
+<span class="sd">        float | None</span>
 <span class="sd">            When this command will next be usable for the provided context</span>
 <span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -4572,7 +4557,7 @@ The context to acquire this resource lock with.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[float]</span>
+<span class="sd">        float | None</span>
 <span class="sd">            When this command will next be usable for the provided context</span>
 <span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -4602,7 +4587,7 @@ it isn't depleted.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[float]</strong>: When this command will next be usable for the provided context
+<li><strong>float | None</strong>: When this command will next be usable for the provided context
 if it's in cooldown else <code>None</code>.</li>
 </ul>
 </div>
@@ -5971,7 +5956,7 @@ if limit is less 0 or negative.</li>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
-<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">        reset_after : int | float | datetime.timedelta</span>
 <span class="sd">            The cooldown period.</span>
 
 <span class="sd">        Returns</span>
@@ -6159,7 +6144,7 @@ it isn't depleted.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[float]</strong>: When this command will next be usable for the provided context
+<li><strong>float | None</strong>: When this command will next be usable for the provided context
 if it's in cooldown else <code>None</code>.</li>
 </ul>
 </div>
@@ -6386,7 +6371,7 @@ for unknown bucket IDs.</p></li>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
-<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">        reset_after : int | float | datetime.timedelta</span>
 <span class="sd">            The cooldown period.</span>
 
 <span class="sd">        Returns</span>
@@ -6438,7 +6423,7 @@ for unknown bucket IDs.</p></li>
 The type of resource to target for the cooldown.</li>
 <li><strong>limit</strong> (int):
 The number of uses per cooldown period.</li>
-<li><strong>reset_after</strong> (int, float, datetime.timedelta):
+<li><strong>reset_after</strong> (int | float | datetime.timedelta):
 The cooldown period.</li>
 </ul>
 
@@ -6805,7 +6790,7 @@ Whether owners should be exempt from the cooldown.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        expire_after : datetime.timedelta | int | float</span>
 <span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
@@ -6816,7 +6801,7 @@ Whether owners should be exempt from the cooldown.</p>
 
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token or</span>
 <span class="sd">            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
+<span class="sd">        owners : hikari.SnowflakeishSequence[hikari.User] | None</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -6989,7 +6974,7 @@ The user to check ownership for.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        expire_after : datetime.timedelta | int | float</span>
 <span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
@@ -7000,7 +6985,7 @@ The user to check ownership for.</li>
 
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token or</span>
 <span class="sd">            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
+<span class="sd">        owners : hikari.SnowflakeishSequence[hikari.User] | None</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -7077,7 +7062,7 @@ is bound to a Bot token or if a type dependency is registered for
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        expire_after : datetime.timedelta | int | float</span>
 <span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
@@ -7088,7 +7073,7 @@ is bound to a Bot token or if a type dependency is registered for
 
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token or</span>
 <span class="sd">            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
+<span class="sd">        owners : hikari.SnowflakeishSequence[hikari.User] | None</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -7112,7 +7097,7 @@ is bound to a Bot token or if a type dependency is registered for
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (typing.Union[datetime.timedelta, int, float]):
+<li><p><strong>expire_after</strong> (datetime.timedelta | int | float):
 The amount of time to cache application owner data for in seconds.</p>
 
 <p>This defaults to 5 minutes and is only applicable if <code>rest</code> is also
@@ -7123,7 +7108,7 @@ if the user isn't in `owners.</p>
 
 <p>This only works when the bot's rest client is bound to a Bot token or
 if <code><a href="#SingleStoreCache">tanjun.dependencies.SingleStoreCache</a>[hikari.Application]</code> is available.</p></li>
-<li><strong>owners</strong> (typing.Optional[hikari.SnowflakeishSequence[hikari.User]]):
+<li><strong>owners</strong> (hikari.SnowflakeishSequence[hikari.User] | None):
 Sequence of objects and IDs of the users that are allowed to use the
 bot's owners-only commands.</li>
 </ul>

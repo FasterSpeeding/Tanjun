@@ -610,7 +610,7 @@
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">    default_to_ephemeral : bool | None</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">        are set to override this.</span>
 
@@ -699,7 +699,7 @@
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">    default_to_ephemeral : bool | None</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">        are set to override this.</span>
 
@@ -1259,7 +1259,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">        bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
 
@@ -1345,7 +1345,7 @@
 <span class="sd">            Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">            Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">        default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        default_to_ephemeral : bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">            are set to override this.</span>
 
@@ -1554,7 +1554,7 @@
 <span class="sd">            Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">            Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">        default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        default_to_ephemeral : bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">            are set to override this.</span>
 
@@ -1742,14 +1742,14 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This either a mapping of [option_name, option_value] where both option_name</span>
 <span class="sd">            and option_value should be strings of up to 100 characters or a sequence</span>
 <span class="sd">            of strings where the string will be used for both the choice&#39;s name and</span>
 <span class="sd">            value.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -1846,13 +1846,13 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.abc.Mapping[str, int]]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, int] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This is a mapping of [option_name, option_value] where option_name</span>
 <span class="sd">            should be a string of up to 100 characters and option_value should</span>
 <span class="sd">            be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -1863,11 +1863,11 @@
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        min_value : typing.Optional[int]</span>
+<span class="sd">        min_value : int | None</span>
 <span class="sd">            The option&#39;s (inclusive) minimum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
-<span class="sd">        max_value : typing.Optional[int]</span>
+<span class="sd">        max_value : int | None</span>
 <span class="sd">            The option&#39;s (inclusive) maximum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
@@ -1943,13 +1943,13 @@
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.abc.Mapping[str, float]]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, float] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This is a mapping of [option_name, option_value] where option_name</span>
 <span class="sd">            should be a string of up to 100 characters and option_value should</span>
 <span class="sd">            be a float.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -1960,11 +1960,11 @@
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        min_value : typing.Optional[float]</span>
+<span class="sd">        min_value : float | None</span>
 <span class="sd">            The option&#39;s (inclusive) minimum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
-<span class="sd">        max_value : typing.Optional[float]</span>
+<span class="sd">        max_value : float | None</span>
 <span class="sd">            The option&#39;s (inclusive) maximum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
@@ -2196,7 +2196,7 @@
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]</span>
+<span class="sd">        types : collections.abc.Collection[type[hikari.PartialChannel]] | None</span>
 <span class="sd">            A collection of the channel classes this option should accept.</span>
 
 <span class="sd">            If left as `None` or empty then the option will allow all channel types.</span>
@@ -3152,7 +3152,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">    default_to_ephemeral : bool | None</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">        are set to override this.</span>
 
@@ -3265,7 +3265,7 @@ deferral is ephemeral.</p></li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
+<li><p><strong>default_to_ephemeral</strong> (bool | None):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this.</p>
 
@@ -3379,7 +3379,7 @@ loading the other command into a component when using <code><a href="../tanjun.h
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">    default_to_ephemeral : bool | None</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">        are set to override this.</span>
 
@@ -3463,7 +3463,7 @@ The description of the command group.</li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
+<li><p><strong>default_to_ephemeral</strong> (bool | None):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this.</p>
 
@@ -3916,7 +3916,7 @@ matches the message.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>parent</strong> (typing.Optional[MessageCommandGroup[tping.Any]]):
+<li><strong>parent</strong> (MessageCommandGroup[tping.Any] | None):
 The parent of the copy.</li>
 </ul>
 
@@ -3958,7 +3958,7 @@ The parent of the copy.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>parent</strong> (typing.Optional[MessageCommandGroup[typing.Any]]):
+<li><strong>parent</strong> (MessageCommandGroup[typing.Any] | None):
 The parent of this command.</li>
 </ul>
 
@@ -4473,7 +4473,7 @@ This may include command groups.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>parent</strong> (typing.Optional[MessageCommandGroup[tping.Any]]):
+<li><strong>parent</strong> (MessageCommandGroup[tping.Any] | None):
 The parent of the copy.</li>
 </ul>
 
@@ -5040,7 +5040,7 @@ the command.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>hooks</strong> (typing.Optional[Hooks[ContextT_co]]):
+<li><strong>hooks</strong> (Hooks[ContextT_co] | None):
 The hooks that are triggered when the command is executed.</li>
 </ul>
 
@@ -5356,7 +5356,7 @@ The check to remove.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">        bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
 
@@ -5569,7 +5569,7 @@ object of the global command this should be tracking.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">        bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
 
@@ -5593,7 +5593,7 @@ object of the global command this should be tracking.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>typing.Optional[bool]</strong>: Whether this command's responses should default to ephemeral.
+<li><strong>bool | None</strong>: Whether this command's responses should default to ephemeral.
 This will be overridden by any response calls which specify flags.</li>
 </ul>
 
@@ -5825,7 +5825,7 @@ The component this object should be loaded into.</li>
 <span class="sd">            Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">            Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">        default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        default_to_ephemeral : bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">            are set to override this.</span>
 
@@ -6013,14 +6013,14 @@ The component this object should be loaded into.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This either a mapping of [option_name, option_value] where both option_name</span>
 <span class="sd">            and option_value should be strings of up to 100 characters or a sequence</span>
 <span class="sd">            of strings where the string will be used for both the choice&#39;s name and</span>
 <span class="sd">            value.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6117,13 +6117,13 @@ The component this object should be loaded into.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.abc.Mapping[str, int]]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, int] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This is a mapping of [option_name, option_value] where option_name</span>
 <span class="sd">            should be a string of up to 100 characters and option_value should</span>
 <span class="sd">            be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6134,11 +6134,11 @@ The component this object should be loaded into.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        min_value : typing.Optional[int]</span>
+<span class="sd">        min_value : int | None</span>
 <span class="sd">            The option&#39;s (inclusive) minimum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
-<span class="sd">        max_value : typing.Optional[int]</span>
+<span class="sd">        max_value : int | None</span>
 <span class="sd">            The option&#39;s (inclusive) maximum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
@@ -6214,13 +6214,13 @@ The component this object should be loaded into.</li>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.abc.Mapping[str, float]]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, float] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This is a mapping of [option_name, option_value] where option_name</span>
 <span class="sd">            should be a string of up to 100 characters and option_value should</span>
 <span class="sd">            be a float.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6231,11 +6231,11 @@ The component this object should be loaded into.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        min_value : typing.Optional[float]</span>
+<span class="sd">        min_value : float | None</span>
 <span class="sd">            The option&#39;s (inclusive) minimum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
-<span class="sd">        max_value : typing.Optional[float]</span>
+<span class="sd">        max_value : float | None</span>
 <span class="sd">            The option&#39;s (inclusive) maximum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
@@ -6467,7 +6467,7 @@ The component this object should be loaded into.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]</span>
+<span class="sd">        types : collections.abc.Collection[type[hikari.PartialChannel]] | None</span>
 <span class="sd">            A collection of the channel classes this option should accept.</span>
 
 <span class="sd">            If left as `None` or empty then the option will allow all channel types.</span>
@@ -6803,7 +6803,7 @@ The component this object should be loaded into.</li>
 <span class="sd">            Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">            Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">        default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        default_to_ephemeral : bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">            are set to override this.</span>
 
@@ -6886,7 +6886,7 @@ deferral is ephemeral.</p></li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
+<li><p><strong>default_to_ephemeral</strong> (bool | None):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this.</p>
 
@@ -7076,14 +7076,14 @@ The component this object should be loaded into.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This either a mapping of [option_name, option_value] where both option_name</span>
 <span class="sd">            and option_value should be strings of up to 100 characters or a sequence</span>
 <span class="sd">            of strings where the string will be used for both the choice&#39;s name and</span>
 <span class="sd">            value.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -7177,14 +7177,14 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>choices</strong> (typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]):
+<li><p><strong>choices</strong> (collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None):
 The option's choices.</p>
 
 <p>This either a mapping of [option_name, option_value] where both option_name
 and option_value should be strings of up to 100 characters or a sequence
 of strings where the string will be used for both the choice's name and
 value.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]):
+<li><p><strong>converters</strong> (collections.abc.Sequence[ConverterSig] | ConverterSig):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code><a href="#ConverterSig">ConverterSig</a></code> callbacks used to
@@ -7277,13 +7277,13 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.abc.Mapping[str, int]]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, int] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This is a mapping of [option_name, option_value] where option_name</span>
 <span class="sd">            should be a string of up to 100 characters and option_value should</span>
 <span class="sd">            be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -7294,11 +7294,11 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        min_value : typing.Optional[int]</span>
+<span class="sd">        min_value : int | None</span>
 <span class="sd">            The option&#39;s (inclusive) minimum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
-<span class="sd">        max_value : typing.Optional[int]</span>
+<span class="sd">        max_value : int | None</span>
 <span class="sd">            The option&#39;s (inclusive) maximum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
@@ -7359,13 +7359,13 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>choices</strong> (typing.Optional[collections.abc.Mapping[str, int]]):
+<li><p><strong>choices</strong> (collections.abc.Mapping[str, int] | None):
 The option's choices.</p>
 
 <p>This is a mapping of [option_name, option_value] where option_name
 should be a string of up to 100 characters and option_value should
 be an integer.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]):
+<li><p><strong>converters</strong> (collections.abc.Sequence[ConverterSig] | ConverterSig | None):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code><a href="#ConverterSig">ConverterSig</a></code> callbacks used to
@@ -7376,11 +7376,11 @@ If no converters are provided then the raw value will be passed.</p>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
-<li><p><strong>min_value</strong> (typing.Optional[int]):
+<li><p><strong>min_value</strong> (int | None):
 The option's (inclusive) minimum value.</p>
 
 <p>Defaults to no minimum value.</p></li>
-<li><p><strong>max_value</strong> (typing.Optional[int]):
+<li><p><strong>max_value</strong> (int | None):
 The option's (inclusive) maximum value.</p>
 
 <p>Defaults to no minimum value.</p></li>
@@ -7475,13 +7475,13 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.abc.Mapping[str, float]]</span>
+<span class="sd">        choices : collections.abc.Mapping[str, float] | None</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This is a mapping of [option_name, option_value] where option_name</span>
 <span class="sd">            should be a string of up to 100 characters and option_value should</span>
 <span class="sd">            be a float.</span>
-<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -7492,11 +7492,11 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        min_value : typing.Optional[float]</span>
+<span class="sd">        min_value : float | None</span>
 <span class="sd">            The option&#39;s (inclusive) minimum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
-<span class="sd">        max_value : typing.Optional[float]</span>
+<span class="sd">        max_value : float | None</span>
 <span class="sd">            The option&#39;s (inclusive) maximum value.</span>
 
 <span class="sd">            Defaults to no minimum value.</span>
@@ -7565,13 +7565,13 @@ float (this will happen before it's passed to converters).</p>
 
 <p>This masks behaviour from Discord where we will either be provided a <code>float</code>
 or <code>int</code> dependent on what the user provided and defaults to <code>True</code>.</p></li>
-<li><p><strong>choices</strong> (typing.Optional[collections.abc.Mapping[str, float]]):
+<li><p><strong>choices</strong> (collections.abc.Mapping[str, float] | None):
 The option's choices.</p>
 
 <p>This is a mapping of [option_name, option_value] where option_name
 should be a string of up to 100 characters and option_value should
 be a float.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]):
+<li><p><strong>converters</strong> (collections.abc.Sequence[ConverterSig] | ConverterSig | None):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code><a href="#ConverterSig">ConverterSig</a></code> callbacks used to
@@ -7582,11 +7582,11 @@ If no converters are provided then the raw value will be passed.</p>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
-<li><p><strong>min_value</strong> (typing.Optional[float]):
+<li><p><strong>min_value</strong> (float | None):
 The option's (inclusive) minimum value.</p>
 
 <p>Defaults to no minimum value.</p></li>
-<li><p><strong>max_value</strong> (typing.Optional[float]):
+<li><p><strong>max_value</strong> (float | None):
 The option's (inclusive) maximum value.</p>
 
 <p>Defaults to no minimum value.</p></li>
@@ -8051,7 +8051,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]</span>
+<span class="sd">        types : collections.abc.Collection[type[hikari.PartialChannel]] | None</span>
 <span class="sd">            A collection of the channel classes this option should accept.</span>
 
 <span class="sd">            If left as `None` or empty then the option will allow all channel types.</span>
@@ -8125,7 +8125,7 @@ This should be inclusively between 1-100 characters in length.</li>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
-<li><p><strong>types</strong> (typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]):
+<li><p><strong>types</strong> (collections.abc.Collection[type[hikari.PartialChannel]] | None):
 A collection of the channel classes this option should accept.</p>
 
 <p>If left as <code>None</code> or empty then the option will allow all channel types.</p></li>
@@ -8603,7 +8603,7 @@ being used.</p></li>
 <span class="sd">            Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">            Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">        default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        default_to_ephemeral : bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">            are set to override this.</span>
 
@@ -8810,7 +8810,7 @@ be callable functions themselves.</p>
 <span class="sd">            Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">            Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">        default_to_ephemeral : typing.Optional[bool]</span>
+<span class="sd">        default_to_ephemeral : bool | None</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">            are set to override this.</span>
 
@@ -8859,7 +8859,7 @@ The description of the command group.</li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
+<li><p><strong>default_to_ephemeral</strong> (bool | None):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this.</p>
 

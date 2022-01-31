@@ -242,7 +242,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        loop : typing.Optional[asyncio.AbstractEventLoop]</span>
+<span class="sd">        loop : asyncio.AbstractEventLoop | None</span>
 <span class="sd">            The event loop to use. If not provided, the current event loop will</span>
 <span class="sd">            be used.</span>
 
@@ -282,7 +282,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    interval : typing.Union[int, float, datetime.timedelta]</span>
+<span class="sd">    interval : int | float | datetime.timedelta</span>
 <span class="sd">        The callback for the schedule.</span>
 
 <span class="sd">        This should be an asynchronous function which takes no positional</span>
@@ -300,7 +300,7 @@
 <span class="sd">        callback, start callback or stop callback.</span>
 
 <span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    max_runs : typing.Optional[int]</span>
+<span class="sd">    max_runs : int | None</span>
 <span class="sd">        The maximum amount of times the schedule runs. Defaults to no maximum.</span>
 
 <span class="sd">    Returns</span>
@@ -351,7 +351,7 @@
 
 <span class="sd">            This should be an asynchronous function which takes no positional</span>
 <span class="sd">            arguments, returns `None` and may use dependency injection.</span>
-<span class="sd">        interval : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        interval : datetime.timedelta | int | float</span>
 <span class="sd">            The interval between calls. Passed as a timedelta, or a number of seconds.</span>
 
 <span class="sd">        Other Parameters</span>
@@ -366,7 +366,7 @@
 <span class="sd">            callback, start callback or stop callback.</span>
 
 <span class="sd">            Defaults to no exceptions.</span>
-<span class="sd">        max_runs : typing.Optional[int]</span>
+<span class="sd">        max_runs : int | None</span>
 <span class="sd">            The maximum amount of times the schedule runs. Defaults to no maximum.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
@@ -681,7 +681,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        loop : typing.Optional[asyncio.AbstractEventLoop]</span>
+<span class="sd">        loop : asyncio.AbstractEventLoop | None</span>
 <span class="sd">            The event loop to use. If not provided, the current event loop will</span>
 <span class="sd">            be used.</span>
 
@@ -823,7 +823,7 @@ arguments, returns <code>None</code> and may be relying on dependency injection.
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        loop : typing.Optional[asyncio.AbstractEventLoop]</span>
+<span class="sd">        loop : asyncio.AbstractEventLoop | None</span>
 <span class="sd">            The event loop to use. If not provided, the current event loop will</span>
 <span class="sd">            be used.</span>
 
@@ -848,7 +848,7 @@ arguments, returns <code>None</code> and may be relying on dependency injection.
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>loop</strong> (typing.Optional[asyncio.AbstractEventLoop]):
+<li><strong>loop</strong> (asyncio.AbstractEventLoop | None):
 The event loop to use. If not provided, the current event loop will
 be used.</li>
 </ul>
@@ -928,7 +928,7 @@ If the current or provided event loop isn't running.</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    interval : typing.Union[int, float, datetime.timedelta]</span>
+<span class="sd">    interval : int | float | datetime.timedelta</span>
 <span class="sd">        The callback for the schedule.</span>
 
 <span class="sd">        This should be an asynchronous function which takes no positional</span>
@@ -946,7 +946,7 @@ If the current or provided event loop isn't running.</li>
 <span class="sd">        callback, start callback or stop callback.</span>
 
 <span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    max_runs : typing.Optional[int]</span>
+<span class="sd">    max_runs : int | None</span>
 <span class="sd">        The maximum amount of times the schedule runs. Defaults to no maximum.</span>
 
 <span class="sd">    Returns</span>
@@ -970,7 +970,7 @@ If the current or provided event loop isn't running.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>interval</strong> (typing.Union[int, float, datetime.timedelta]):
+<li><p><strong>interval</strong> (int | float | datetime.timedelta):
 The callback for the schedule.</p>
 
 <p>This should be an asynchronous function which takes no positional
@@ -990,7 +990,7 @@ A sequence of exceptions that should be ignored if raised by the
 callback, start callback or stop callback.</p>
 
 <p>Defaults to no exceptions.</p></li>
-<li><strong>max_runs</strong> (typing.Optional[int]):
+<li><strong>max_runs</strong> (int | None):
 The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 </ul>
 
@@ -1048,7 +1048,7 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 
 <span class="sd">            This should be an asynchronous function which takes no positional</span>
 <span class="sd">            arguments, returns `None` and may use dependency injection.</span>
-<span class="sd">        interval : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        interval : datetime.timedelta | int | float</span>
 <span class="sd">            The interval between calls. Passed as a timedelta, or a number of seconds.</span>
 
 <span class="sd">        Other Parameters</span>
@@ -1063,7 +1063,7 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 <span class="sd">            callback, start callback or stop callback.</span>
 
 <span class="sd">            Defaults to no exceptions.</span>
-<span class="sd">        max_runs : typing.Optional[int]</span>
+<span class="sd">        max_runs : int | None</span>
 <span class="sd">            The maximum amount of times the schedule runs. Defaults to no maximum.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
@@ -1351,7 +1351,7 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 
 <span class="sd">            This should be an asynchronous function which takes no positional</span>
 <span class="sd">            arguments, returns `None` and may use dependency injection.</span>
-<span class="sd">        interval : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        interval : datetime.timedelta | int | float</span>
 <span class="sd">            The interval between calls. Passed as a timedelta, or a number of seconds.</span>
 
 <span class="sd">        Other Parameters</span>
@@ -1366,7 +1366,7 @@ The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 <span class="sd">            callback, start callback or stop callback.</span>
 
 <span class="sd">            Defaults to no exceptions.</span>
-<span class="sd">        max_runs : typing.Optional[int]</span>
+<span class="sd">        max_runs : int | None</span>
 <span class="sd">            The maximum amount of times the schedule runs. Defaults to no maximum.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
@@ -1396,7 +1396,7 @@ The callback for the schedule.</p>
 
 <p>This should be an asynchronous function which takes no positional
 arguments, returns <code>None</code> and may use dependency injection.</p></li>
-<li><strong>interval</strong> (typing.Union[datetime.timedelta, int, float]):
+<li><strong>interval</strong> (datetime.timedelta | int | float):
 The interval between calls. Passed as a timedelta, or a number of seconds.</li>
 </ul>
 
@@ -1413,7 +1413,7 @@ A sequence of exceptions that should be ignored if raised by the
 callback, start callback or stop callback.</p>
 
 <p>Defaults to no exceptions.</p></li>
-<li><strong>max_runs</strong> (typing.Optional[int]):
+<li><strong>max_runs</strong> (int | None):
 The maximum amount of times the schedule runs. Defaults to no maximum.</li>
 </ul>
 </div>
@@ -1682,7 +1682,7 @@ The callback to set.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>loop</strong> (typing.Optional[asyncio.AbstractEventLoop]):
+<li><strong>loop</strong> (asyncio.AbstractEventLoop | None):
 The event loop to use. If not provided, the current event loop will
 be used.</li>
 </ul>

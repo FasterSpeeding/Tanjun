@@ -601,7 +601,7 @@
 <span class="sd">            This defaults to `False`, cannot be `True` when `scope` is provided</span>
 <span class="sd">            and will only ever be needed when the local scope is different</span>
 <span class="sd">            from the global scope.</span>
-<span class="sd">        scope : typing.Optional[collections.Mapping[str, typing.Any]]</span>
+<span class="sd">        scope : collections.Mapping[str, typing.Any] | None</span>
 <span class="sd">            The scope to detect entries which implement `AbstractComponentLoader`</span>
 <span class="sd">            from.</span>
 
@@ -652,7 +652,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">        bool | None</span>
 <span class="sd">            Whether slash command contexts executed in this component should</span>
 <span class="sd">            should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
@@ -1632,7 +1632,7 @@
 <span class="sd">            This defaults to `False`, cannot be `True` when `scope` is provided</span>
 <span class="sd">            and will only ever be needed when the local scope is different</span>
 <span class="sd">            from the global scope.</span>
-<span class="sd">        scope : typing.Optional[collections.Mapping[str, typing.Any]]</span>
+<span class="sd">        scope : collections.Mapping[str, typing.Any] | None</span>
 <span class="sd">            The scope to detect entries which implement `AbstractComponentLoader`</span>
 <span class="sd">            from.</span>
 
@@ -1683,7 +1683,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">        bool | None</span>
 <span class="sd">            Whether slash command contexts executed in this component should</span>
 <span class="sd">            should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
@@ -2767,7 +2767,7 @@ the component.</p>
 <span class="sd">            This defaults to `False`, cannot be `True` when `scope` is provided</span>
 <span class="sd">            and will only ever be needed when the local scope is different</span>
 <span class="sd">            from the global scope.</span>
-<span class="sd">        scope : typing.Optional[collections.Mapping[str, typing.Any]]</span>
+<span class="sd">        scope : collections.Mapping[str, typing.Any] | None</span>
 <span class="sd">            The scope to detect entries which implement `AbstractComponentLoader`</span>
 <span class="sd">            from.</span>
 
@@ -2840,7 +2840,7 @@ detecting from the calling scope.</p>
 <p>This defaults to <code>False</code>, cannot be <code>True</code> when <code>scope</code> is provided
 and will only ever be needed when the local scope is different
 from the global scope.</p></li>
-<li><p><strong>scope</strong> (typing.Optional[collections.Mapping[str, typing.Any]]):
+<li><p><strong>scope</strong> (collections.Mapping[str, typing.Any] | None):
 The scope to detect entries which implement <code><a href="#AbstractComponentLoader">AbstractComponentLoader</a></code>
 from.</p>
 
@@ -2879,7 +2879,7 @@ stack frame inspection when <code>scope</code> is not provided.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">        bool | None</span>
 <span class="sd">            Whether slash command contexts executed in this component should</span>
 <span class="sd">            should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
@@ -2903,7 +2903,7 @@ stack frame inspection when <code>scope</code> is not provided.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>typing.Optional[bool]</strong>: Whether slash command contexts executed in this component should
+<li><strong>bool | None</strong>: Whether slash command contexts executed in this component should
 should default to ephemeral.
 This will be overridden by any response calls which specify flags.</li>
 </ul>
@@ -4438,14 +4438,14 @@ The context to execute.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>hooks</strong> (typing.Optional[collections.abc.MutableSet[SlashHooks]] = None):
+<li><strong>hooks</strong> (collections.abc.MutableSet[SlashHooks] | None):
 Set of hooks to include in this command execution.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[collections.abc.Awaitable[None]]</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>
@@ -4519,7 +4519,7 @@ The context to execute.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>hooks</strong> (typing.Optional[collections.abc.MutableSet[MessageHooks]] = None):
+<li><strong>hooks</strong> (collections.abc.MutableSet[MessageHooks] | None):
 Set of hooks to include in this command execution.</li>
 </ul>
 

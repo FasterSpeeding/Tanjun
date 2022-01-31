@@ -667,7 +667,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[type[hikari.message_events.MessageCreateEvent]]</span>
+<span class="sd">        type[hikari.message_events.MessageCreateEvent] | None</span>
 <span class="sd">            The type object of the MessageCreateEvent class this mode will</span>
 <span class="sd">            register a listener for.</span>
 
@@ -851,7 +851,7 @@
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -860,9 +860,9 @@
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -1056,7 +1056,7 @@
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -1065,9 +1065,9 @@
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -1126,7 +1126,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -1135,9 +1135,9 @@
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -1228,7 +1228,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[tanjun.abc.AnyHooks]</span>
+<span class="sd">        tanjun.abc.AnyHooks | None</span>
 <span class="sd">            The top level `tanjun.abc.Context` based hooks set for this</span>
 <span class="sd">            client if applicable, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1476,7 +1476,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        time : typing.Optional[float]</span>
+<span class="sd">        time : float | None</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1529,7 +1529,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : typing.Optional[str]</span>
+<span class="sd">        message : str | None</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
@@ -1856,7 +1856,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
+<span class="sd">        prefixes : collections.abc.Iterable[str] | str</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -1900,7 +1900,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        getter : typing.Optional[PrefixGetterSig]</span>
+<span class="sd">        getter : PrefixGetterSig | None</span>
 <span class="sd">            The callback which&#39;ll be used to retrieve prefixes for the guild a</span>
 <span class="sd">            message context is from. If `None` is passed here then the callback</span>
 <span class="sd">            will be unset.</span>
@@ -2131,7 +2131,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.AnyHooks]</span>
+<span class="sd">        hooks : tanjun_abc.AnyHooks | None</span>
 <span class="sd">            The general command execution hooks to set for this client.</span>
 
 <span class="sd">            Passing `None` will remove all hooks.</span>
@@ -2152,7 +2152,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.SlashHooks]</span>
+<span class="sd">        hooks : tanjun_abc.SlashHooks | None</span>
 <span class="sd">            The slash context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -2174,7 +2174,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.MessageHooks]</span>
+<span class="sd">        hooks : tanjun_abc.MessageHooks | None</span>
 <span class="sd">            The message context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -2888,7 +2888,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -2897,9 +2897,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -3093,7 +3093,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -3102,9 +3102,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -3163,7 +3163,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -3172,9 +3172,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -3265,7 +3265,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[tanjun.abc.AnyHooks]</span>
+<span class="sd">        tanjun.abc.AnyHooks | None</span>
 <span class="sd">            The top level `tanjun.abc.Context` based hooks set for this</span>
 <span class="sd">            client if applicable, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3513,7 +3513,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        time : typing.Optional[float]</span>
+<span class="sd">        time : float | None</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
@@ -3566,7 +3566,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : typing.Optional[str]</span>
+<span class="sd">        message : str | None</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
@@ -3893,7 +3893,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
+<span class="sd">        prefixes : collections.abc.Iterable[str] | str</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -3937,7 +3937,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        getter : typing.Optional[PrefixGetterSig]</span>
+<span class="sd">        getter : PrefixGetterSig | None</span>
 <span class="sd">            The callback which&#39;ll be used to retrieve prefixes for the guild a</span>
 <span class="sd">            message context is from. If `None` is passed here then the callback</span>
 <span class="sd">            will be unset.</span>
@@ -4168,7 +4168,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.AnyHooks]</span>
+<span class="sd">        hooks : tanjun_abc.AnyHooks | None</span>
 <span class="sd">            The general command execution hooks to set for this client.</span>
 
 <span class="sd">            Passing `None` will remove all hooks.</span>
@@ -4189,7 +4189,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.SlashHooks]</span>
+<span class="sd">        hooks : tanjun_abc.SlashHooks | None</span>
 <span class="sd">            The slash context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -4211,7 +4211,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.MessageHooks]</span>
+<span class="sd">        hooks : tanjun_abc.MessageHooks | None</span>
 <span class="sd">            The message context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -4689,7 +4689,7 @@ by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -4698,9 +4698,9 @@ by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -4900,7 +4900,7 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -4909,9 +4909,9 @@ global commands will be set on the specified guild(s) at startup rather
 than globally. This can be useful for testing/debug purposes as slash
 commands may take up to an hour to propagate globally but will
 immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><strong>set_global_commands</strong> (hikari.SnowflakeishOr[hikari.PartialGuild]  | bool):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
 If provided, a mapping of top level command names to IDs of the commands to update.</p>
 
 <p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
@@ -5006,7 +5006,7 @@ after a rename.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -5015,9 +5015,9 @@ after a rename.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -5088,7 +5088,7 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -5097,9 +5097,9 @@ global commands will be set on the specified guild(s) at startup rather
 than globally. This can be useful for testing/debug purposes as slash
 commands may take up to an hour to propagate globally but will
 immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><strong>set_global_commands</strong> (hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
 If provided, a mapping of top level command names to IDs of the commands to update.</p>
 
 <p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
@@ -5163,7 +5163,7 @@ after a rename.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -5172,9 +5172,9 @@ after a rename.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -5220,7 +5220,7 @@ The bot client to build from.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -5229,9 +5229,9 @@ global commands will be set on the specified guild(s) at startup rather
 than globally. This can be useful for testing/debug purposes as slash
 commands may take up to an hour to propagate globally but will
 immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><strong>set_global_commands</strong> (hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
 If provided, a mapping of top level command names to IDs of the commands to update.</p>
 
 <p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
@@ -5366,7 +5366,7 @@ These may be taking advantage of the standard dependency injection.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[<a href="abc.html#AnyHooks">tanjun.abc.AnyHooks</a>]</strong>: The top level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based hooks set for this
+<li><strong><a href="abc.html#AnyHooks">tanjun.abc.AnyHooks</a> | None</strong>: The top level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based hooks set for this
 client if applicable, else <code>None</code>.</li>
 </ul>
 </div>
@@ -5546,12 +5546,12 @@ being per-guild if targeting a specific guild otherwise globally).</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
+<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
 The application to clear commands for.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
+<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED):
 Object or ID of the guild to clear commands for.</p>
 
 <p>If left as <code>None</code> global commands will be cleared.</p></li>
@@ -5667,14 +5667,14 @@ will immediately propagate when set on a specific guild.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+<li><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
 If provided, a mapping of top level command names to IDs of the existing commands to update.</li>
-<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
+<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
 Object or ID of the application to set the global commands for.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
+<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
 Object or ID of the guild to set the global commands to.</p>
 
 <p>If left as <code>None</code> global commands will be set.</p></li>
@@ -5769,14 +5769,14 @@ The command to register.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
+<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
 The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.Snowflakeish]):
+<li><strong>command_id</strong> (hikari.snowflakes.Snowflakeish | None):
 ID of the command to update.</li>
-<li><p><strong>guild</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
+<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
 Object or ID of the guild to register the command with.</p>
 
 <p>If left as <code>None</code> then the command will be registered globally.</p></li>
@@ -5906,19 +5906,19 @@ Iterable of the commands to register.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
 If provided, a mapping of top level command names to IDs of the existing commands to update.</p>
 
 <p>While optional, this can be helpful when updating commands as
 providing the current IDs will prevent changes such as renames from
 leading to other state set for commands (e.g. permissions) from
 being lost.</p></li>
-<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
+<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
 The application to register the commands with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
+<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
 Object or ID of the guild to register the commands with.</p>
 
 <p>If left as <code>None</code> then the commands will be registered globally.</p></li>
@@ -5969,7 +5969,7 @@ of only 200 application command creates per day (per guild or globally).</p></li
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        time : typing.Optional[float]</span>
+<span class="sd">        time : float | None</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
@@ -5987,7 +5987,7 @@ This may lead to unexpected behaviour.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>time</strong> (typing.Optional[float]):
+<li><strong>time</strong> (float | None):
 The time in seconds to defer interaction command responses after.</li>
 </ul>
 </div>
@@ -6113,7 +6113,7 @@ The hikari client to set dependency injectors for.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : typing.Optional[str]</span>
+<span class="sd">        message : str | None</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
@@ -6132,7 +6132,7 @@ only be done if you know what you're doing.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>message</strong> (typing.Optional[str]):
+<li><strong>message</strong> (str | None):
 The message to respond with when an interaction command isn't found.</li>
 </ul>
 </div>
@@ -6693,7 +6693,7 @@ Name to get a component by.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[Component]</strong>: The component instance if found, else <code>None</code>.</li>
+<li><strong>Component | None</strong>: The component instance if found, else <code>None</code>.</li>
 </ul>
 </div>
 
@@ -6835,7 +6835,7 @@ Name of the component to remove from this client.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
+<li><p><strong>name</strong> (str | ClientCallbackNames):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -6890,7 +6890,7 @@ detail around the <code>name</code> being subscribed to.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
+<li><strong>name</strong> (str | ClientCallbackNames):
 The name of the callback to dispatch.</li>
 </ul>
 
@@ -6942,7 +6942,7 @@ Positional arguments to pass to the callback(s).</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
+<li><p><strong>name</strong> (str | ClientCallbackNames):
 The name to get the callbacks registered for.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -6991,7 +6991,7 @@ The name to get the callbacks registered for.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
+<li><p><strong>name</strong> (str | ClientCallbackNames):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -7056,7 +7056,7 @@ The callback to remove from the client's callbacks.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>name</strong> (typing.Union[str, ClientCallbackNames]):
+<li><p><strong>name</strong> (str | ClientCallbackNames):
 The name this callback is being registered to.</p>
 
 <p>This is case-insensitive.</p></li>
@@ -7277,7 +7277,7 @@ regardless of client implementation detail.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
+<span class="sd">        prefixes : collections.abc.Iterable[str] | str</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -7307,7 +7307,7 @@ execution should be initiated.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>prefixes</strong> (typing.Union[collections.abc.Iterable[str], str]):
+<li><strong>prefixes</strong> (collections.abc.Iterable[str] | str):
 Either a single string or an iterable of strings to be used as
 prefixes.</li>
 </ul>
@@ -7398,7 +7398,7 @@ The prefix to remove.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        getter : typing.Optional[PrefixGetterSig]</span>
+<span class="sd">        getter : PrefixGetterSig | None</span>
 <span class="sd">            The callback which&#39;ll be used to retrieve prefixes for the guild a</span>
 <span class="sd">            message context is from. If `None` is passed here then the callback</span>
 <span class="sd">            will be unset.</span>
@@ -7423,7 +7423,7 @@ The prefix to remove.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>getter</strong> (typing.Optional[PrefixGetterSig]):
+<li><p><strong>getter</strong> (PrefixGetterSig | None):
 The callback which'll be used to retrieve prefixes for the guild a
 message context is from. If <code>None</code> is passed here then the callback
 will be unset.</p>
@@ -7931,7 +7931,7 @@ to Discord if it cannot get the current user from the cache.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.AnyHooks]</span>
+<span class="sd">        hooks : tanjun_abc.AnyHooks | None</span>
 <span class="sd">            The general command execution hooks to set for this client.</span>
 
 <span class="sd">            Passing `None` will remove all hooks.</span>
@@ -7955,7 +7955,7 @@ command execution started by this client.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>hooks</strong> (typing.Optional[tanjun_abc.AnyHooks]):
+<li><p><strong>hooks</strong> (tanjun_abc.AnyHooks | None):
 The general command execution hooks to set for this client.</p>
 
 <p>Passing <code>None</code> will remove all hooks.</p></li>
@@ -7992,7 +7992,7 @@ The general command execution hooks to set for this client.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.SlashHooks]</span>
+<span class="sd">        hooks : tanjun_abc.SlashHooks | None</span>
 <span class="sd">            The slash context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -8017,7 +8017,7 @@ execution started by this client.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>hooks</strong> (typing.Optional[tanjun_abc.SlashHooks]):
+<li><p><strong>hooks</strong> (tanjun_abc.SlashHooks | None):
 The slash context specific command execution hooks to set for this
 client.</p>
 
@@ -8055,7 +8055,7 @@ client.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[tanjun_abc.MessageHooks]</span>
+<span class="sd">        hooks : tanjun_abc.MessageHooks | None</span>
 <span class="sd">            The message context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -8080,7 +8080,7 @@ execution started by this client.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>hooks</strong> (typing.Optional[tanjun_abc.MessageHooks]):
+<li><p><strong>hooks</strong> (tanjun_abc.MessageHooks | None):
 The message context specific command execution hooks to set for this
 client.</p>
 
@@ -8152,7 +8152,7 @@ used to find loaders.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+<li><p><strong>*modules</strong> (str | pathlib.Path):
 Path(s) of the modules to load from.</p>
 
 <p>When <code>str</code> this will be treated as a normal import path which is
@@ -8293,7 +8293,7 @@ used to find unloaders.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+<li><p><strong>*modules</strong> (str | pathlib.Path):
 Path of one or more modules to unload.</p>
 
 <p>These should be the same path(s) which were passed to <code>load_module</code>.</p></li>
@@ -8366,7 +8366,7 @@ which handles loading and one which handles unloading present.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+<li><p><strong>*modules</strong> (str | pathlib.Path):
 Paths of one or more module to unload.</p>
 
 <p>These should be the same paths which were passed to <code>load_module</code>.</p></li>
@@ -8982,7 +8982,7 @@ the client is inactive.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[type[hikari.message_events.MessageCreateEvent]]</span>
+<span class="sd">        type[hikari.message_events.MessageCreateEvent] | None</span>
 <span class="sd">            The type object of the MessageCreateEvent class this mode will</span>
 <span class="sd">            register a listener for.</span>
 
@@ -9059,7 +9059,7 @@ the client is inactive.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[type[hikari.message_events.MessageCreateEvent]]</span>
+<span class="sd">        type[hikari.message_events.MessageCreateEvent] | None</span>
 <span class="sd">            The type object of the MessageCreateEvent class this mode will</span>
 <span class="sd">            register a listener for.</span>
 
@@ -9076,7 +9076,7 @@ the client is inactive.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[type[hikari.message_events.MessageCreateEvent]]</strong>: The type object of the MessageCreateEvent class this mode will
+<li><strong>type[hikari.message_events.MessageCreateEvent] | None</strong>: The type object of the MessageCreateEvent class this mode will
 register a listener for.</li>
 </ul>
 

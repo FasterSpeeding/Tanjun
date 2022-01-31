@@ -296,7 +296,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[float]</span>
+<span class="sd">        float | None</span>
 <span class="sd">            When this command will next be usable for the provided context</span>
 <span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -820,7 +820,7 @@
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
-<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">        reset_after : int | float | datetime.timedelta</span>
 <span class="sd">            The cooldown period.</span>
 
 <span class="sd">        Returns</span>
@@ -1451,7 +1451,7 @@ The context to acquire this resource lock with.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[float]</span>
+<span class="sd">        float | None</span>
 <span class="sd">            When this command will next be usable for the provided context</span>
 <span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1514,7 +1514,7 @@ The context to acquire this resource lock with.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[float]</span>
+<span class="sd">        float | None</span>
 <span class="sd">            When this command will next be usable for the provided context</span>
 <span class="sd">            if it&#39;s in cooldown else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1544,7 +1544,7 @@ it isn't depleted.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[float]</strong>: When this command will next be usable for the provided context
+<li><strong>float | None</strong>: When this command will next be usable for the provided context
 if it's in cooldown else <code>None</code>.</li>
 </ul>
 </div>
@@ -2913,7 +2913,7 @@ if limit is less 0 or negative.</li>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
-<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">        reset_after : int | float | datetime.timedelta</span>
 <span class="sd">            The cooldown period.</span>
 
 <span class="sd">        Returns</span>
@@ -3101,7 +3101,7 @@ it isn't depleted.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[float]</strong>: When this command will next be usable for the provided context
+<li><strong>float | None</strong>: When this command will next be usable for the provided context
 if it's in cooldown else <code>None</code>.</li>
 </ul>
 </div>
@@ -3328,7 +3328,7 @@ for unknown bucket IDs.</p></li>
 <span class="sd">            The type of resource to target for the cooldown.</span>
 <span class="sd">        limit : int</span>
 <span class="sd">            The number of uses per cooldown period.</span>
-<span class="sd">        reset_after : int, float, datetime.timedelta</span>
+<span class="sd">        reset_after : int | float | datetime.timedelta</span>
 <span class="sd">            The cooldown period.</span>
 
 <span class="sd">        Returns</span>
@@ -3380,7 +3380,7 @@ for unknown bucket IDs.</p></li>
 The type of resource to target for the cooldown.</li>
 <li><strong>limit</strong> (int):
 The number of uses per cooldown period.</li>
-<li><strong>reset_after</strong> (int, float, datetime.timedelta):
+<li><strong>reset_after</strong> (int | float | datetime.timedelta):
 The cooldown period.</li>
 </ul>
 

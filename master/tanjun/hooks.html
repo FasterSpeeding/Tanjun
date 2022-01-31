@@ -261,7 +261,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.ErrorHookSig]</span>
+<span class="sd">        callback : tanjun.abc.ErrorHookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -297,7 +297,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -331,7 +331,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -362,7 +362,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -393,7 +393,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.HookSig]]</span>
+<span class="sd">        callback : HookSig[tanjun.abc.HookSig] | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -613,7 +613,7 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.ErrorHookSig]</span>
+<span class="sd">        callback : tanjun.abc.ErrorHookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -649,7 +649,7 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -683,7 +683,7 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -714,7 +714,7 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -745,7 +745,7 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.HookSig]]</span>
+<span class="sd">        callback : HookSig[tanjun.abc.HookSig] | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -1049,7 +1049,7 @@ other error hooks make by majority rule.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.ErrorHookSig]</span>
+<span class="sd">        callback : tanjun.abc.ErrorHookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -1083,7 +1083,7 @@ are generally speaking expected. To handle those see
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[<a href="abc.html#ErrorHookSig">tanjun.abc.ErrorHookSig</a>]):
+<li><p><strong>callback</strong> (<a href="abc.html#ErrorHookSig">tanjun.abc.ErrorHookSig</a> | None):
 The callback to set for this hook. This will remove any previously
 set callbacks.</p>
 
@@ -1234,7 +1234,7 @@ always suppress the error.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -1261,7 +1261,7 @@ always suppress the error.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[<a href="abc.html#HookSig">tanjun.abc.HookSig</a>]):
+<li><p><strong>callback</strong> (<a href="abc.html#HookSig">tanjun.abc.HookSig</a> | None):
 The callback to set for this hook. This will remove any previously
 set callbacks.</p>
 
@@ -1394,7 +1394,7 @@ synchronous or asynchronous.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -1418,7 +1418,7 @@ synchronous or asynchronous.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[<a href="abc.html#HookSig">tanjun.abc.HookSig</a>]):
+<li><p><strong>callback</strong> (<a href="abc.html#HookSig">tanjun.abc.HookSig</a> | None):
 The callback to set for this hook. This will remove any previously
 set callbacks.</p>
 
@@ -1548,7 +1548,7 @@ synchronous or asynchronous.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[tanjun.abc.HookSig]</span>
+<span class="sd">        callback : tanjun.abc.HookSig | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -1572,7 +1572,7 @@ synchronous or asynchronous.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[<a href="abc.html#HookSig">tanjun.abc.HookSig</a>]):
+<li><p><strong>callback</strong> (<a href="abc.html#HookSig">tanjun.abc.HookSig</a> | None):
 The callback to set for this hook. This will remove any previously
 set callbacks.</p>
 
@@ -1702,7 +1702,7 @@ synchronous or asynchronous.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.HookSig]]</span>
+<span class="sd">        callback : HookSig[tanjun.abc.HookSig] | None</span>
 <span class="sd">            The callback to set for this hook. This will remove any previously</span>
 <span class="sd">            set callbacks.</span>
 
@@ -1726,7 +1726,7 @@ synchronous or asynchronous.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[HookSig[<a href="abc.html#HookSig">tanjun.abc.HookSig</a>]]):
+<li><p><strong>callback</strong> (HookSig[<a href="abc.html#HookSig">tanjun.abc.HookSig</a>] | None):
 The callback to set for this hook. This will remove any previously
 set callbacks.</p>
 

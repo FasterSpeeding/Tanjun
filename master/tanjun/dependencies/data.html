@@ -376,14 +376,14 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Callable[..., Awaitable[_T]]</span>
+<span class="sd">    collections.abc.Callable[..., Awaitable[_T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
 
@@ -425,7 +425,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
@@ -477,14 +477,14 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Callable[..., Awaitable[_T]]</span>
+<span class="sd">    collections.abc.Callable[..., Awaitable[_T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
 
@@ -514,7 +514,7 @@ The callback to cache the result of.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (typing.Union[int, float, datetime.timedelta, None]):
+<li><p><strong>expire_after</strong> (int | float | datetime.timedelta | None):
 The amount of time to cache the result for in seconds.</p>
 
 <p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
@@ -523,7 +523,7 @@ The amount of time to cache the result for in seconds.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>Callable[..., Awaitable[_T]]</strong>: A callback which will cache the result of the given callback after the
+<li><strong>collections.abc.Callable[..., Awaitable[_T]]</strong>: A callback which will cache the result of the given callback after the
 first call.</li>
 </ul>
 
@@ -581,7 +581,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    expire_after : typing.Union[int, float, datetime.timedelta, None]</span>
+<span class="sd">    expire_after : int | float | datetime.timedelta | None</span>
 <span class="sd">        The amount of time to cache the result for in seconds.</span>
 
 <span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
@@ -631,7 +631,7 @@ The callback to inject.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (typing.Union[int, float, datetime.timedelta, None]):
+<li><p><strong>expire_after</strong> (int | float | datetime.timedelta | None):
 The amount of time to cache the result for in seconds.</p>
 
 <p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>

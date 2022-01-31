@@ -319,7 +319,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Only bot owners can use this command&quot; and setting this to `None`</span>
@@ -393,7 +393,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in NSFW channels&quot; and setting this to `None`</span>
@@ -436,7 +436,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in SFW channels&quot; and setting this to `None`</span>
@@ -479,7 +479,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in DMs&quot; and setting this to `None`</span>
@@ -517,7 +517,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in guild channels&quot; and setting this to `None`</span>
@@ -557,12 +557,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">        permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">            The permission(s) required for this command to run.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;You don&#39;t have the permissions required to use this command&quot; and setting this to `None`</span>
@@ -621,12 +621,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">        permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">            The permission(s) required for this command to run.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Bot doesn&#39;t have the permissions required to run this command&quot; and setting this to `None`</span>
@@ -690,12 +690,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in DMs&quot; and setting this to `None`</span>
@@ -743,12 +743,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in guild channels&quot; and setting this to `None`</span>
@@ -796,12 +796,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in NSFW channels&quot; and setting this to `None`</span>
@@ -851,12 +851,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in SFW channels&quot; and setting this to `None`</span>
@@ -906,12 +906,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Only bot owners can use this command&quot; and setting this to `None`</span>
@@ -946,12 +946,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">    permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">        The permission(s) required for this command to run.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;You don&#39;t have the permissions required to use this command&quot; and setting this to `None`</span>
@@ -988,12 +988,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">    permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">        The permission(s) required for this command to run.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Bot doesn&#39;t have the permissions required to run this command&quot; and setting this to `None`</span>
@@ -1156,7 +1156,7 @@
 <span class="sd">        The first check callback to combine.</span>
 <span class="sd">    *checks : typing_abc.CheckSig</span>
 <span class="sd">        Additional check callbacks to combine.</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        This takes priority over `halt_execution`.</span>
@@ -1202,7 +1202,7 @@
 <span class="sd">        The first check callback to combine.</span>
 <span class="sd">    *checks : typing_abc.CheckSig</span>
 <span class="sd">        Additional check callbacks to combine.</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        This takes priority over `halt_execution`.</span>
@@ -1334,7 +1334,7 @@ Additional check callbacks to combine.</li>
 <span class="sd">        The first check callback to combine.</span>
 <span class="sd">    *checks : typing_abc.CheckSig</span>
 <span class="sd">        Additional check callbacks to combine.</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        This takes priority over `halt_execution`.</span>
@@ -1375,7 +1375,7 @@ rather than concurrently.</p>
 The first check callback to combine.</li>
 <li><strong>*checks</strong> (typing_abc.CheckSig):
 Additional check callbacks to combine.</li>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>This takes priority over <code>halt_execution</code>.</p></li>
@@ -1544,7 +1544,7 @@ Additional check callbacks to combine.</li>
 <span class="sd">        The first check callback to combine.</span>
 <span class="sd">    *checks : typing_abc.CheckSig</span>
 <span class="sd">        Additional check callbacks to combine.</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        This takes priority over `halt_execution`.</span>
@@ -1585,7 +1585,7 @@ rather than concurrently.</p>
 The first check callback to combine.</li>
 <li><strong>*checks</strong> (typing_abc.CheckSig):
 Additional check callbacks to combine.</li>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>This takes priority over <code>halt_execution</code>.</p></li>
@@ -1690,12 +1690,12 @@ The check to add to this command.</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in DMs&quot; and setting this to `None`</span>
@@ -1727,14 +1727,14 @@ The check to add to this command.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (typing.Optional[CommandT]):
+<li><strong>command</strong> (CommandT | None):
 The command to add this check to.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in DMs" and setting this to <code>None</code>
@@ -1790,12 +1790,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in guild channels&quot; and setting this to `None`</span>
@@ -1827,14 +1827,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (typing.Optional[CommandT]):
+<li><strong>command</strong> (CommandT | None):
 The command to add this check to.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in guild channels" and setting this to <code>None</code>
@@ -1890,12 +1890,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in NSFW channels&quot; and setting this to `None`</span>
@@ -1927,14 +1927,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (typing.Optional[CommandT]):
+<li><strong>command</strong> (CommandT | None):
 The command to add this check to.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in NSFW channels" and setting this to <code>None</code>
@@ -1990,12 +1990,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Command can only be used in SFW channels&quot; and setting this to `None`</span>
@@ -2027,14 +2027,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (typing.Optional[CommandT]):
+<li><strong>command</strong> (CommandT | None):
 The command to add this check to.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in SFW channels" and setting this to <code>None</code>
@@ -2090,12 +2090,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : typing.Optional[CommandT]</span>
+<span class="sd">    command : CommandT | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Only bot owners can use this command&quot; and setting this to `None`</span>
@@ -2127,14 +2127,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (typing.Optional[CommandT]):
+<li><strong>command</strong> (CommandT | None):
 The command to add this check to.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Only bot owners can use this command" and setting this to <code>None</code>
@@ -2188,12 +2188,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">    permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">        The permission(s) required for this command to run.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;You don&#39;t have the permissions required to use this command&quot; and setting this to `None`</span>
@@ -2227,14 +2227,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>permissions</strong> (typing.Union[hikari.permissions.Permissions, int]):
+<li><strong>permissions</strong> (hikari.permissions.Permissions | int):
 The permission(s) required for this command to run.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "You don't have the permissions required to use this command" and setting this to <code>None</code>
@@ -2288,12 +2288,12 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">    permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">        The permission(s) required for this command to run.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    error_message : typing.Optional[str]</span>
+<span class="sd">    error_message : str | None</span>
 <span class="sd">        The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">        Defaults to &quot;Bot doesn&#39;t have the permissions required to run this command&quot; and setting this to `None`</span>
@@ -2327,14 +2327,14 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>permissions</strong> (typing.Union[hikari.permissions.Permissions, int]):
+<li><strong>permissions</strong> (hikari.permissions.Permissions | int):
 The permission(s) required for this command to run.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Bot doesn't have the permissions required to run this command" and setting this to <code>None</code>
@@ -2395,7 +2395,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in DMs&quot; and setting this to `None`</span>
@@ -2446,7 +2446,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in DMs&quot; and setting this to `None`</span>
@@ -2470,7 +2470,7 @@ error_message takes priority over halt_execution.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in DMs" and setting this to <code>None</code>
@@ -2518,7 +2518,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in guild channels&quot; and setting this to `None`</span>
@@ -2569,7 +2569,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in guild channels&quot; and setting this to `None`</span>
@@ -2593,7 +2593,7 @@ error_message takes priority over halt_execution.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in guild channels" and setting this to <code>None</code>
@@ -2641,7 +2641,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in NSFW channels&quot; and setting this to `None`</span>
@@ -2697,7 +2697,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in NSFW channels&quot; and setting this to `None`</span>
@@ -2721,7 +2721,7 @@ error_message takes priority over halt_execution.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in NSFW channels" and setting this to <code>None</code>
@@ -2769,7 +2769,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in SFW channels&quot; and setting this to `None`</span>
@@ -2825,7 +2825,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Command can only be used in SFW channels&quot; and setting this to `None`</span>
@@ -2849,7 +2849,7 @@ error_message takes priority over halt_execution.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Command can only be used in SFW channels" and setting this to <code>None</code>
@@ -2897,7 +2897,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Only bot owners can use this command&quot; and setting this to `None`</span>
@@ -2952,7 +2952,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Only bot owners can use this command&quot; and setting this to `None`</span>
@@ -2976,7 +2976,7 @@ error_message takes priority over halt_execution.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Only bot owners can use this command" and setting this to <code>None</code>
@@ -3026,12 +3026,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">        permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">            The permission(s) required for this command to run.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;You don&#39;t have the permissions required to use this command&quot; and setting this to `None`</span>
@@ -3105,12 +3105,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">        permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">            The permission(s) required for this command to run.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;You don&#39;t have the permissions required to use this command&quot; and setting this to `None`</span>
@@ -3135,14 +3135,14 @@ error_message takes priority over halt_execution.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>permissions</strong> (typing.Union[hikari.permissions.Permissions, int]):
+<li><strong>permissions</strong> (hikari.permissions.Permissions | int):
 The permission(s) required for this command to run.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "You don't have the permissions required to use this command" and setting this to <code>None</code>
@@ -3192,12 +3192,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">        permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">            The permission(s) required for this command to run.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Bot doesn&#39;t have the permissions required to run this command&quot; and setting this to `None`</span>
@@ -3276,12 +3276,12 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        permissions: typing.Union[hikari.permissions.Permissions, int]</span>
+<span class="sd">        permissions: hikari.permissions.Permissions | int</span>
 <span class="sd">            The permission(s) required for this command to run.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        error_message : typing.Optional[str]</span>
+<span class="sd">        error_message : str | None</span>
 <span class="sd">            The error message to send in response as a command error if the check fails.</span>
 
 <span class="sd">            Defaults to &quot;Bot doesn&#39;t have the permissions required to run this command&quot; and setting this to `None`</span>
@@ -3306,14 +3306,14 @@ error_message takes priority over halt_execution.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>permissions</strong> (typing.Union[hikari.permissions.Permissions, int]):
+<li><strong>permissions</strong> (hikari.permissions.Permissions | int):
 The permission(s) required for this command to run.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>error_message</strong> (typing.Optional[str]):
+<li><p><strong>error_message</strong> (str | None):
 The error message to send in response as a command error if the check fails.</p>
 
 <p>Defaults to "Bot doesn't have the permissions required to run this command" and setting this to <code>None</code>

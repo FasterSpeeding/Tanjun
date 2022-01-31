@@ -363,7 +363,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        message : str</span>
 <span class="sd">            String message for this error.</span>
-<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">        parameter : str | None</span>
 <span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
 <span class="sd">            applicable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1472,7 +1472,7 @@ The parameter this error was raised for.</li>
 <span class="sd">        ----------</span>
 <span class="sd">        message : str</span>
 <span class="sd">            String message for this error.</span>
-<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">        parameter : str | None</span>
 <span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
 <span class="sd">            applicable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1508,7 +1508,7 @@ Expected errors raised by the parser will subclass this error.</p>
 <span class="sd">        ----------</span>
 <span class="sd">        message : str</span>
 <span class="sd">            String message for this error.</span>
-<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">        parameter : str | None</span>
 <span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
 <span class="sd">            applicable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1525,7 +1525,7 @@ Expected errors raised by the parser will subclass this error.</p>
 <ul>
 <li><strong>message</strong> (str):
 String message for this error.</li>
-<li><strong>parameter</strong> (typing.Optional[str]):
+<li><strong>parameter</strong> (str | None):
 Name of the parameter which caused this error, should be <code>None</code> if not
 applicable.</li>
 </ul>

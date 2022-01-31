@@ -187,7 +187,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    typing.Optional[str]</span>
+<span class="sd">    str | None</span>
 <span class="sd">        The name that matched or None if no name matched.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
@@ -274,7 +274,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.channels.GuildChannel]</span>
+<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
 <span class="sd">        Object of the channel to calculate the member&#39;s permissions in.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate their</span>
@@ -359,7 +359,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]</span>
+<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None</span>
 <span class="sd">        The object of ID of the channel to get their permissions in.</span>
 <span class="sd">        If left as `None` then this will return their base guild</span>
 <span class="sd">        permissions.</span>
@@ -432,7 +432,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.channels.GuildChannel]</span>
+<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -482,7 +482,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel]]</span>
+<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -773,7 +773,7 @@ For example, a generic mapping type might be defined as::</p>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.channels.GuildChannel]</span>
+<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -815,7 +815,7 @@ The guild's default @everyone role.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>channel</strong> (typing.Optional[hikari.channels.GuildChannel]):
+<li><p><strong>channel</strong> (hikari.channels.GuildChannel | None):
 The channel to calculate the permissions for.</p>
 
 <p>If this is left as <code>None</code> then this will just calculate the default
@@ -868,7 +868,7 @@ permissions on a guild level.</p></li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.channels.GuildChannel]</span>
+<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
 <span class="sd">        Object of the channel to calculate the member&#39;s permissions in.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate their</span>
@@ -916,7 +916,7 @@ guild.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>channel</strong> (typing.Optional[hikari.channels.GuildChannel]):
+<li><p><strong>channel</strong> (hikari.channels.GuildChannel | None):
 Object of the channel to calculate the member's permissions in.</p>
 
 <p>If this is left as <code>None</code> then this will just calculate their
@@ -971,7 +971,7 @@ guild channel.</li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel]]</span>
+<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -1042,7 +1042,7 @@ ID of the guild to calculate the default permissions for.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>channel</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel]]):
+<li><p><strong>channel</strong> (hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None):
 The channel to calculate the permissions for.</p>
 
 <p>If this is left as <code>None</code> then this will just calculate the default
@@ -1096,7 +1096,7 @@ permissions on a guild level.</p></li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]</span>
+<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None</span>
 <span class="sd">        The object of ID of the channel to get their permissions in.</span>
 <span class="sd">        If left as `None` then this will return their base guild</span>
 <span class="sd">        permissions.</span>
@@ -1174,7 +1174,7 @@ The object of the member to calculate the permissions for.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>channel</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]):
+<li><strong>channel</strong> (hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None):
 The object of ID of the channel to get their permissions in.
 If left as <code>None</code> then this will return their base guild
 permissions.</li>
@@ -1215,7 +1215,7 @@ permissions.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    typing.Optional[str]</span>
+<span class="sd">    str | None</span>
 <span class="sd">        The name that matched or None if no name matched.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
@@ -1243,7 +1243,7 @@ The names to search for.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[str]</strong>: The name that matched or None if no name matched.</li>
+<li><strong>str | None</strong>: The name that matched or None if no name matched.</li>
 </ul>
 </div>
 

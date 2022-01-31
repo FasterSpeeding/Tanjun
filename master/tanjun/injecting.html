@@ -949,13 +949,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">        callback : CallbackSig[_T] | None</span>
 <span class="sd">            The callback to use to resolve the dependency.</span>
 
 <span class="sd">            If this callback has no type dependencies then this will still work</span>
 <span class="sd">            without an injection context but this can be overridden using</span>
 <span class="sd">            `InjectionClient.set_callback_override`.</span>
-<span class="sd">        type : typing.Optional[type[_T]]</span>
+<span class="sd">        type : type[_T] | None</span>
 <span class="sd">            The type of the dependency to resolve.</span>
 
 <span class="sd">            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
@@ -1009,13 +1009,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">    callback : CallbackSig[_T] | None</span>
 <span class="sd">        The callback to use to resolve the dependency.</span>
 
 <span class="sd">        If this callback has no type dependencies then this will still work</span>
 <span class="sd">        without an injection context but this can be overridden using</span>
 <span class="sd">        `InjectionClient.set_callback_override`.</span>
-<span class="sd">    type : typing.Optional[type[_T]]</span>
+<span class="sd">    type : type[_T] | None</span>
 <span class="sd">        The type of the dependency to resolve.</span>
 
 <span class="sd">        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
@@ -1145,7 +1145,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[CallbackDescriptor[_T]]</span>
+<span class="sd">        CallbackDescriptor[_T] | None</span>
 <span class="sd">            The override if found, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
@@ -2846,13 +2846,13 @@ returning either an awaitable or raw value may lead to errors.</p>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">    callback : CallbackSig[_T] | None</span>
 <span class="sd">        The callback to use to resolve the dependency.</span>
 
 <span class="sd">        If this callback has no type dependencies then this will still work</span>
 <span class="sd">        without an injection context but this can be overridden using</span>
 <span class="sd">        `InjectionClient.set_callback_override`.</span>
-<span class="sd">    type : typing.Optional[type[_T]]</span>
+<span class="sd">    type : type[_T] | None</span>
 <span class="sd">        The type of the dependency to resolve.</span>
 
 <span class="sd">        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
@@ -2896,13 +2896,13 @@ returning either an awaitable or raw value may lead to errors.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[CallbackSig[_T]]):
+<li><p><strong>callback</strong> (CallbackSig[_T] | None):
 The callback to use to resolve the dependency.</p>
 
 <p>If this callback has no type dependencies then this will still work
 without an injection context but this can be overridden using
 <code>InjectionClient.set_callback_override</code>.</p></li>
-<li><p><strong>type</strong> (typing.Optional[type[_T]]):
+<li><p><strong>type</strong> (type[_T] | None):
 The type of the dependency to resolve.</p>
 
 <p>If a union (e.g. <code>typing.Union[A, B]</code>, <code>A | B</code>, <code>typing.Optional[A]</code>)
@@ -2983,13 +2983,13 @@ be resolved using the linked client.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">        callback : CallbackSig[_T] | None</span>
 <span class="sd">            The callback to use to resolve the dependency.</span>
 
 <span class="sd">            If this callback has no type dependencies then this will still work</span>
 <span class="sd">            without an injection context but this can be overridden using</span>
 <span class="sd">            `InjectionClient.set_callback_override`.</span>
-<span class="sd">        type : typing.Optional[type[_T]]</span>
+<span class="sd">        type : type[_T] | None</span>
 <span class="sd">            The type of the dependency to resolve.</span>
 
 <span class="sd">            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
@@ -3047,13 +3047,13 @@ be resolved using the linked client.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">        callback : CallbackSig[_T] | None</span>
 <span class="sd">            The callback to use to resolve the dependency.</span>
 
 <span class="sd">            If this callback has no type dependencies then this will still work</span>
 <span class="sd">            without an injection context but this can be overridden using</span>
 <span class="sd">            `InjectionClient.set_callback_override`.</span>
-<span class="sd">        type : typing.Optional[type[_T]]</span>
+<span class="sd">        type : type[_T] | None</span>
 <span class="sd">            The type of the dependency to resolve.</span>
 
 <span class="sd">            If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
@@ -3087,13 +3087,13 @@ be resolved using the linked client.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>callback</strong> (typing.Optional[CallbackSig[_T]]):
+<li><p><strong>callback</strong> (CallbackSig[_T] | None):
 The callback to use to resolve the dependency.</p>
 
 <p>If this callback has no type dependencies then this will still work
 without an injection context but this can be overridden using
 <code>InjectionClient.set_callback_override</code>.</p></li>
-<li><p><strong>type</strong> (typing.Optional[type[_T]]):
+<li><p><strong>type</strong> (type[_T] | None):
 The type of the dependency to resolve.</p>
 
 <p>If a union (e.g. <code>typing.Union[A, B]</code>, <code>A | B</code>, <code>typing.Optional[A]</code>)
@@ -3246,7 +3246,7 @@ be resolved using the linked client.</p></li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[CallbackDescriptor[_T]]</span>
+<span class="sd">        CallbackDescriptor[_T] | None</span>
 <span class="sd">            The override if found, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
@@ -3561,7 +3561,7 @@ The callback to use instead.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[CallbackDescriptor[_T]]</span>
+<span class="sd">        CallbackDescriptor[_T] | None</span>
 <span class="sd">            The override if found, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
@@ -3581,7 +3581,7 @@ The injected callback to get the override for.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[CallbackDescriptor[_T]]</strong>: The override if found, else <code>None</code>.</li>
+<li><strong>CallbackDescriptor[_T] | None</strong>: The override if found, else <code>None</code>.</li>
 </ul>
 </div>
 

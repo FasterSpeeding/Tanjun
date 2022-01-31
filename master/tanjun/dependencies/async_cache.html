@@ -303,17 +303,28 @@ registered with the client:</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -341,17 +352,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -398,15 +420,19 @@ registered with the client:</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -466,17 +492,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -555,17 +592,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -624,17 +672,28 @@ and <code>hikari.MemberPresence</code> which aren'are only unique per-parent res
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -654,18 +713,34 @@ and <code>hikari.MemberPresence</code> which aren'are only unique per-parent res
 Unique key of the entry to get; this will often be a snowflake.</li>
 </ul>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -750,15 +825,19 @@ For more information on how this is used, see the documentation for
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -835,15 +914,19 @@ For more information on how this is used, see the documentation for
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -868,15 +951,22 @@ Unique key of the entry to get; this will usually be a snowflake.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1215,17 +1305,28 @@ that the cache is sure that the entry doesn't exist.</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1304,17 +1405,28 @@ that the cache is sure that the entry doesn't exist.</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1336,18 +1448,34 @@ ID of the guild to get an entry for.</li>
 Unique key of the entry to get; this will usually be a snowflake.</li>
 </ul>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1484,17 +1612,28 @@ For more information on how this is used, see the documentation for
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1531,17 +1670,28 @@ This is mostly just for the <code>hikari.OwnUser</code> cache store.</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1554,18 +1704,34 @@ This is mostly just for the <code>hikari.OwnUser</code> cache store.</p>
 
             <div class="docstring"><p>Get the entry.</p>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
