@@ -1005,7 +1005,7 @@ class MessageContext(Context, abc.ABC):
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED|
+        content : typing.Any | hikari.UNDEFINED
             The content to respond with.
 
             If provided, the message contents. If
