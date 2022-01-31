@@ -334,7 +334,7 @@ class Context(abc.ABC):
         -------
         hikari.Guild | None
             An optional guild the context was invoked in.
-            `None` will be returned if the context was invoked in a DM channel .
+            `None` will be returned if the context was invoked in a DM channel.
 
         Raises
         ------
