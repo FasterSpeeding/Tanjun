@@ -1239,10 +1239,18 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+
         <span class="n">in_defer_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_task</span> <span class="ow">is</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">current_task</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">in_defer_task</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
@@ -1334,6 +1342,7 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">delete_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1351,6 +1360,9 @@
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_followup</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
@@ -1464,6 +1476,7 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">delete_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1479,6 +1492,9 @@
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
                 <span class="n">delete_after</span><span class="o">=</span><span class="n">delete_after</span><span class="p">,</span>
@@ -3471,10 +3487,18 @@ nature, and will trigger this exception if they occur.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+
         <span class="n">in_defer_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_task</span> <span class="ow">is</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">current_task</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">in_defer_task</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
@@ -3566,6 +3590,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">delete_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -3583,6 +3608,9 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_followup</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
@@ -3696,6 +3724,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">delete_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -3711,6 +3740,9 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
                 <span class="n">delete_after</span><span class="o">=</span><span class="n">delete_after</span><span class="p">,</span>
@@ -4475,17 +4507,27 @@ on this context will default to being ephemeral.</p></li>
             <span class="def">async def</span>
             <span class="name">defer</span><span class="signature">(
     self,
-    flags: Union[hikari.undefined.UndefinedType, int, hikari.messages.MessageFlag] = UNDEFINED
+    *,
+    flags: Union[hikari.undefined.UndefinedType, int, hikari.messages.MessageFlag] = UNDEFINED,
+    ephemeral: bool = False
 ) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">defer</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+
         <span class="n">in_defer_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_task</span> <span class="ow">is</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">current_task</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">in_defer_task</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
@@ -4518,6 +4560,11 @@ deferral is ephemeral.</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
+<li><p><strong>ephemeral</strong> (bool):
+Whether the deferred response should be ephemeral.</p>
+
+<p>Passing <code>True</code> here is a shorthand for including <code>1 &lt;&lt; 64</code> in the
+passed flags.</p></li>
 <li><strong>flags</strong> (hikari.UNDEFINED | int | hikari.MessageFlag):
 The flags to use for the initial response.</li>
 </ul>
@@ -4535,6 +4582,7 @@ The flags to use for the initial response.</li>
     content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
     *,
     delete_after: Union[datetime.timedelta, float, int, NoneType] = None,
+    ephemeral: bool = False,
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -4556,6 +4604,7 @@ The flags to use for the initial response.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">delete_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -4573,6 +4622,9 @@ The flags to use for the initial response.</li>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_followup</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
@@ -4630,6 +4682,11 @@ command being received.</p>
 <p><em>Note:</em>
 Since (as of writing) ephemeral responses cannot be deleted by the bot,
 this is ignored for ephemeral slash command responses.</p></li>
+<li><p><strong>ephemeral</strong> (bool):
+Whether the deferred response should be ephemeral.</p>
+
+<p>Passing <code>True</code> here is a shorthand for including <code>1 &lt;&lt; 64</code> in the
+passed flags.</p></li>
 <li><strong>attachment</strong> (hikari.Resourceish | hikari.UNDEFINED):
 If provided, the message attachment. This can be a resource,
 or string of a path on your computer or a URL.</li>
@@ -4712,6 +4769,7 @@ due to it being outside of the range of a 64 bit integer.</li>
     content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
     *,
     delete_after: Union[datetime.timedelta, float, int, NoneType] = None,
+    ephemeral: bool = False,
     component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
     components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -4731,6 +4789,7 @@ due to it being outside of the range of a 64 bit integer.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">delete_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -4746,6 +4805,9 @@ due to it being outside of the range of a 64 bit integer.</li>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Context&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">ephemeral</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="o">.</span><span class="n">EPHEMERAL</span>
+
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
                 <span class="n">delete_after</span><span class="o">=</span><span class="n">delete_after</span><span class="p">,</span>
@@ -4785,6 +4847,11 @@ command being received.</p>
 <p><em>Note:</em>
 Since (as of writing) ephemeral responses cannot be deleted by the bot,
 this is ignored for ephemeral slash command responses.</p></li>
+<li><p><strong>ephemeral</strong> (bool):
+Whether the deferred response should be ephemeral.</p>
+
+<p>Passing <code>True</code> here is a shorthand for including <code>1 &lt;&lt; 64</code> in the
+passed flags.</p></li>
 <li><p><strong>content</strong> (typing.Any | hikari.UNDEFINED):
 If provided, the message contents. If
 <code>hikari.UNDEFINED</code>, then nothing will be sent
