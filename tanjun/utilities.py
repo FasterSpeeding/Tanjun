@@ -101,7 +101,7 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
 
     Returns
     -------
-    typing.Optional[str]
+    str | None
         The name that matched or None if no name matched.
     """
     for name in names:
@@ -188,7 +188,7 @@ def calculate_permissions(
 
     Other Parameters
     ----------------
-    channel : typing.Optional[hikari.channels.GuildChannel]
+    channel : hikari.channels.GuildChannel | None
         Object of the channel to calculate the member's permissions in.
 
         If this is left as `None` then this will just calculate their
@@ -273,7 +273,7 @@ async def fetch_permissions(
 
     Other Parameters
     ----------------
-    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]
+    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None
         The object of ID of the channel to get their permissions in.
         If left as `None` then this will return their base guild
         permissions.
@@ -346,7 +346,7 @@ def calculate_everyone_permissions(
 
     Other Parameters
     ----------------
-    channel : typing.Optional[hikari.channels.GuildChannel]
+    channel : hikari.channels.GuildChannel | None
         The channel to calculate the permissions for.
 
         If this is left as `None` then this will just calculate the default
@@ -396,7 +396,7 @@ async def fetch_everyone_permissions(
 
     Other Parameters
     ----------------
-    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel]]
+    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None
         The channel to calculate the permissions for.
 
         If this is left as `None` then this will just calculate the default

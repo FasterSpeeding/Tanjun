@@ -347,7 +347,7 @@ class Component(tanjun_abc.Component):
             This defaults to `False`, cannot be `True` when `scope` is provided
             and will only ever be needed when the local scope is different
             from the global scope.
-        scope : typing.Optional[collections.Mapping[str, typing.Any]]
+        scope : collections.Mapping[str, typing.Any] | None
             The scope to detect entries which implement `AbstractComponentLoader`
             from.
 
@@ -398,7 +398,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        typing.Optional[bool]
+        bool | None
             Whether slash command contexts executed in this component should
             should default to ephemeral.
             This will be overridden by any response calls which specify flags.

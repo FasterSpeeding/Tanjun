@@ -245,7 +245,7 @@ def slash_command_group(
         Whether this command can be accessed without set permissions.
 
         Defaults to `True`, meaning that users can access the command by default.
-    default_to_ephemeral : typing.Optional[bool]
+    default_to_ephemeral : bool | None
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
@@ -334,7 +334,7 @@ def as_slash_command(
         Whether this command can be accessed without set permissions.
 
         Defaults to `True`, meaning that users can access the command by default.
-    default_to_ephemeral : typing.Optional[bool]
+    default_to_ephemeral : bool | None
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
@@ -894,7 +894,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
         Parameters
         ----------
-        typing.Optional[bool]
+        bool | None
             Whether this command's responses should default to ephemeral.
             This will be overridden by any response calls which specify flags.
 
@@ -980,7 +980,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             Whether this command can be accessed without set permissions.
 
             Defaults to `True`, meaning that users can access the command by default.
-        default_to_ephemeral : typing.Optional[bool]
+        default_to_ephemeral : bool | None
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
@@ -1189,7 +1189,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             Whether this command can be accessed without set permissions.
 
             Defaults to `True`, meaning that users can access the command by default.
-        default_to_ephemeral : typing.Optional[bool]
+        default_to_ephemeral : bool | None
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
@@ -1377,14 +1377,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         Other Parameters
         ----------------
-        choices : typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]
+        choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None
             The option's choices.
 
             This either a mapping of [option_name, option_value] where both option_name
             and option_value should be strings of up to 100 characters or a sequence
             of strings where the string will be used for both the choice's name and
             value.
-        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]
+        converters : collections.abc.Sequence[ConverterSig] | ConverterSig
             The option's converters.
 
             This may be either one or multiple `ConverterSig` callbacks used to
@@ -1481,13 +1481,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         Other Parameters
         ----------------
-        choices : typing.Optional[collections.abc.Mapping[str, int]]
+        choices : collections.abc.Mapping[str, int] | None
             The option's choices.
 
             This is a mapping of [option_name, option_value] where option_name
             should be a string of up to 100 characters and option_value should
             be an integer.
-        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]
+        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None
             The option's converters.
 
             This may be either one or multiple `ConverterSig` callbacks used to
@@ -1498,11 +1498,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
-        min_value : typing.Optional[int]
+        min_value : int | None
             The option's (inclusive) minimum value.
 
             Defaults to no minimum value.
-        max_value : typing.Optional[int]
+        max_value : int | None
             The option's (inclusive) maximum value.
 
             Defaults to no minimum value.
@@ -1578,13 +1578,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
             This masks behaviour from Discord where we will either be provided a `float`
             or `int` dependent on what the user provided and defaults to `True`.
-        choices : typing.Optional[collections.abc.Mapping[str, float]]
+        choices : collections.abc.Mapping[str, float] | None
             The option's choices.
 
             This is a mapping of [option_name, option_value] where option_name
             should be a string of up to 100 characters and option_value should
             be a float.
-        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]
+        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None
             The option's converters.
 
             This may be either one or multiple `ConverterSig` callbacks used to
@@ -1595,11 +1595,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
-        min_value : typing.Optional[float]
+        min_value : float | None
             The option's (inclusive) minimum value.
 
             Defaults to no minimum value.
-        max_value : typing.Optional[float]
+        max_value : float | None
             The option's (inclusive) maximum value.
 
             Defaults to no minimum value.
@@ -1831,7 +1831,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
-        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]
+        types : collections.abc.Collection[type[hikari.PartialChannel]] | None
             A collection of the channel classes this option should accept.
 
             If left as `None` or empty then the option will allow all channel types.

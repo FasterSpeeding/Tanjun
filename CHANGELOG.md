@@ -411,8 +411,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - injection.resolve_getters (this logic is now on the descriptors).
 
 ### Fixed
-- Now handle when Discord doesn't include boolean options in interaction payloads because they were passed as `False`
-  and weight reduction bro.
 - Doc typo and export fixes.
 - Fix handling of ctx.content and ctx.triggering_nameand in MessageCommandGroup to account for doubly nested command groups.
 - Fix double-calling command group checks instead of calling the command group checks then the sub-command's check.

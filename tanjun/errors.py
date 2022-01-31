@@ -172,7 +172,7 @@ class ParserError(TanjunError, ValueError):
         ----------
         message : str
             String message for this error.
-        parameter : typing.Optional[str]
+        parameter : str | None
             Name of the parameter which caused this error, should be `None` if not
             applicable.
         """
