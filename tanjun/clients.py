@@ -377,6 +377,7 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
 
     return True
 
+
 class _StartDeclarer:
     __slots__ = ("client", "command_ids", "guild_id")
 
@@ -2167,7 +2168,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         await ctx.mark_not_found()
 
-    async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
+    async def on_interaction_create_request(
+        self, interaction: hikari.CommandInteraction, /
+    ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
         """Execute a slash command based on received REST requests.
 
         Parameters

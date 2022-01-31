@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `ephemeral` keyword-argument to `SlashContext`'s `create_initial_response`, `create_follow_up`
   and `defer` methods as a shorthand for including `1 << 6` in the passed flags.
+- Context menu command support.
 
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
 - Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`.
 - The search snowflake conversion functions now return lists of snowflakes instead of iterators.
+- Split `tanjun.components` into a directory of the same name.
 
 ### Fixed
 - False-positive cache warnings from the standard converters. 

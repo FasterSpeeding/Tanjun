@@ -1384,7 +1384,6 @@ class AppCommandContext(Context, abc.ABC):
         """Object of the member that triggered this command if this is in a guild."""
 
 
-
 class AutocompleteContext(AppCommandContext):
     """Interface of an autocomplete context."""
 
@@ -1397,7 +1396,6 @@ class AutocompleteContext(AppCommandContext):
     @abc.abstractmethod
     def options(self) -> collections.Mapping[str, AutocompleteOption]:
         """Mapping of option names to the values provided for them."""
-
 
 
 class SlashContext(Context, abc.ABC):
@@ -3263,7 +3261,7 @@ class Client(abc.ABC):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.SlashCommand:
         """Deprecated alias of `Client.declare_slash_command`.
-    
+
         .. deprecated:: 0.0.1
             Use `Client.declare_slash_command` instead.
         """

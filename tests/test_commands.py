@@ -45,6 +45,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun.context import base as base_context
 
 _T = typing.TypeVar("_T")
 
@@ -586,7 +587,7 @@ class Test_TrackedOption:
         mock_converter_1.resolve_with_command_context.side_effect = exc_1
         mock_converter_2 = mock.AsyncMock()
         mock_converter_2.resolve_with_command_context.side_effect = exc_2
-        mock_context = mock.Mock(tanjun.context.BaseContext)
+        mock_context = mock.Mock(base_context.BaseContext)
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
             name="no", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
@@ -607,7 +608,7 @@ class Test_TrackedOption:
         mock_converter_1.resolve_with_command_context.side_effect = ValueError()
         mock_converter_2 = mock.AsyncMock()
         mock_converter_3 = mock.AsyncMock()
-        mock_context = mock.Mock(tanjun.context.BaseContext)
+        mock_context = mock.Mock(base_context.BaseContext)
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
             name="no",

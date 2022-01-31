@@ -803,7 +803,10 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 
         return self
 
-    def copy(self) -> _SlashCommandBuilder:  # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
+    # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
+    def copy(
+        self,
+    ) -> _SlashCommandBuilder:
         builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id=self.id)
 
         for option in self._options:
@@ -1008,7 +1011,9 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(self._name, self._description, False).set_default_permission(self._default_permission)
+        builder = _SlashCommandBuilder(self._name, self._description, False).set_default_permission(
+            self._default_permission
+        )
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -1253,7 +1258,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         return self
 
-    def build(self) -> special_endpoints_api.CommandBuilder:
+    def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._builder.sort().copy()
 
