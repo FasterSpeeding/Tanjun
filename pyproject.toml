@@ -39,7 +39,7 @@ flake8 = [
     # Ref: https://github.com/DmytroLitvinov/awesome-flake8-extensions
 
     "flake8-bandit==2.1.2",             # runs bandit
-    "flake8-black==0.2.3",              # runs black
+    "flake8-black==0.2.4",              # runs black
     "flake8-broken-line==0.4",          # forbey "\" linebreaks
     "flake8-builtins==1.5.3",           # builtin shadowing checks
     "flake8-coding==1.3.2",             # coding magic-comment detection
@@ -64,7 +64,7 @@ flake8 = [
 ]
 lint = ["codespell==2.1"]
 publish = ["flit==3.6.0"]
-reformat = ["black==21.12b0", "isort==5.10.1"]
+reformat = ["black==22.1", "isort==5.10.1"]
 tests = ["pytest==6.2.5", "pytest-asyncio==0.17.2", "pytest-cov==3"]
 type_checking = ["pyright==0.0.13"]
 
