@@ -509,7 +509,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str | hikari.SnowflakeishOr[hikari.Command]]
+        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -712,9 +712,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]| bool
+        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str | hikari.SnowflakeishOr[hikari.Command]]
+        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
