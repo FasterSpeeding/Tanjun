@@ -1005,7 +1005,7 @@ class MessageContext(Context, abc.ABC):
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED
+        content : typing.Any | hikari.UNDEFINED|
             The content to respond with.
 
             If provided, the message contents. If
@@ -1032,7 +1032,7 @@ class MessageContext(Context, abc.ABC):
             If provided, the seconds after which the response message should be deleted.
         tts : bool | hikari.UNDEFINED
             Whether to respond with tts/text to speech or no.
-        reply : bool| hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED
+        reply : bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED
             Whether to reply instead of sending the content to the context.
 
             Defaults to `hikari.UNDEFINED`.
