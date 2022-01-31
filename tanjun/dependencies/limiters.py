@@ -99,7 +99,7 @@ class AbstractCooldownManager(abc.ABC):
 
         Returns
         -------
-        typing.Optional[float]
+        float | None
             When this command will next be usable for the provided context
             if it's in cooldown else `None`.
         """
@@ -623,7 +623,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The type of resource to target for the cooldown.
         limit : int
             The number of uses per cooldown period.
-        reset_after : int, float, datetime.timedelta
+        reset_after : int | float | datetime.timedelta
             The cooldown period.
 
         Returns

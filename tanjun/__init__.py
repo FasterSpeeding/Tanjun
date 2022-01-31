@@ -60,7 +60,7 @@ async def test_command(ctx: tanjun.abc.Context, name: str) -> None:
 @component.with_command
 @tanjun.with_user_slash_option("user", "The user facing command option's description", default=None)
 @tanjun.as_slash_command("hello", "The command's user facing description")
-async def hello(ctx: tanjun.abc.Context, user: typing.Optional[hikari.User]) -> None:
+async def hello(ctx: tanjun.abc.Context, user: hikari.User | None) -> None:
     user = user or ctx.author
     await ctx.respond(f"Hello, {user}!")
 ```

@@ -129,7 +129,7 @@ def test_inject_lc():
 @pytest.mark.asyncio()
 def test_cache_callback_when_invalid_expire_after(expire_after: typing.Union[float, int, datetime.timedelta]):
     with pytest.raises(ValueError, match="expire_after must be more than 0 seconds"):
-        tanjun.dependencies.cache_callback(mock.Mock(), expire_after=expire_after)
+        tanjun.dependencies.data.cache_callback(mock.Mock(), expire_after=expire_after)
 
 
 @pytest.mark.asyncio()
@@ -139,7 +139,7 @@ async def test_cache_callback():
     with mock.patch.object(
         tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
     ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback)
+        cached_callback = tanjun.dependencies.data.cache_callback(mock_callback)
 
         callback_descriptor.assert_called_once_with(mock_callback)
 
@@ -173,7 +173,7 @@ async def test_cache_callback_when_expired(expire_after: typing.Union[float, int
         "CallbackDescriptor",
         return_value=mock.Mock(resolve=mock.AsyncMock(side_effect=[mock_first_result, mock_second_result])),
     ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=expire_after)
+        cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
 
         callback_descriptor.assert_called_once_with(mock_callback)
 
@@ -208,7 +208,7 @@ async def test_cache_callback_when_not_expired(expire_after: typing.Union[float,
     with mock.patch.object(
         tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
     ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=expire_after)
+        cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
 
         callback_descriptor.assert_called_once_with(mock_callback)
 

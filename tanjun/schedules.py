@@ -111,7 +111,7 @@ class AbstractSchedule(abc.ABC):
 
         Other Parameters
         ----------------
-        loop : typing.Optional[asyncio.AbstractEventLoop]
+        loop : asyncio.AbstractEventLoop | None
             The event loop to use. If not provided, the current event loop will
             be used.
 
@@ -151,7 +151,7 @@ def as_interval(
 
     Parameters
     ----------
-    interval : typing.Union[int, float, datetime.timedelta]
+    interval : int | float | datetime.timedelta
         The callback for the schedule.
 
         This should be an asynchronous function which takes no positional
@@ -169,7 +169,7 @@ def as_interval(
         callback, start callback or stop callback.
 
         Defaults to no exceptions.
-    max_runs : typing.Optional[int]
+    max_runs : int | None
         The maximum amount of times the schedule runs. Defaults to no maximum.
 
     Returns
@@ -220,7 +220,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
             This should be an asynchronous function which takes no positional
             arguments, returns `None` and may use dependency injection.
-        interval : typing.Union[datetime.timedelta, int, float]
+        interval : datetime.timedelta | int | float
             The interval between calls. Passed as a timedelta, or a number of seconds.
 
         Other Parameters
@@ -235,7 +235,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             callback, start callback or stop callback.
 
             Defaults to no exceptions.
-        max_runs : typing.Optional[int]
+        max_runs : int | None
             The maximum amount of times the schedule runs. Defaults to no maximum.
         """
         if isinstance(interval, datetime.timedelta):

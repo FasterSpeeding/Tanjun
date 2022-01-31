@@ -127,7 +127,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
         Parameters
         ----------
-        callback : typing.Optional[tanjun.abc.ErrorHookSig]
+        callback : tanjun.abc.ErrorHookSig | None
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
@@ -163,7 +163,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
         Parameters
         ----------
-        callback : typing.Optional[tanjun.abc.HookSig]
+        callback : tanjun.abc.HookSig | None
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
@@ -197,7 +197,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
         Parameters
         ----------
-        callback : typing.Optional[tanjun.abc.HookSig]
+        callback : tanjun.abc.HookSig | None
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
@@ -228,7 +228,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
         Parameters
         ----------
-        callback : typing.Optional[tanjun.abc.HookSig]
+        callback : tanjun.abc.HookSig | None
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
@@ -259,7 +259,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
         Parameters
         ----------
-        callback : typing.Optional[HookSig[tanjun.abc.HookSig]]
+        callback : HookSig[tanjun.abc.HookSig] | None
             The callback to set for this hook. This will remove any previously
             set callbacks.
 

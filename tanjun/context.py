@@ -381,11 +381,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -426,11 +426,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -498,11 +498,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -907,7 +907,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
         Parameters
         ----------
-        count_down : typing.Union[int, float]
+        count_down : int | float
             The number of seconds to wait before automatically deferring the
             interaction.
 
@@ -1010,11 +1010,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
@@ -1060,11 +1060,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
@@ -1107,11 +1107,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1192,11 +1192,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1254,11 +1254,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -1296,11 +1296,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -1369,11 +1369,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
         ...
@@ -1390,11 +1390,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         ...
@@ -1410,11 +1410,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
         # <<inherited docstring from tanjun.abc.Context>>.

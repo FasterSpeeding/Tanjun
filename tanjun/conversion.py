@@ -895,7 +895,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
 
         Parameters
         ----------
-        value: typing.Union[str, int]
+        value: str | int
             The value to parse (this argument can only be passed positionally).
 
         Other Parameters
@@ -956,7 +956,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
         Parameters
         ----------
-        value: typing.Union[str, int]
+        value: str | int
             The value to parse (this argument can only be passed positionally).
 
         Returns
@@ -997,7 +997,7 @@ parse_snowflake: _IDMatcherSig = _make_snowflake_parser(_SNOWFLAKE_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Other Parameters
@@ -1021,7 +1021,7 @@ search_snowflakes: _IDSearcherSig = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1036,7 +1036,7 @@ parse_channel_id: _IDMatcherSig = _make_snowflake_parser(_CHANNEL_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Other Parameters
@@ -1060,7 +1060,7 @@ search_channel_ids: _IDSearcherSig = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1075,7 +1075,7 @@ parse_emoji_id: _IDMatcherSig = _make_snowflake_parser(_EMOJI_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Other Parameters
@@ -1099,7 +1099,7 @@ search_emoji_ids: _IDSearcherSig = _make_snowflake_searcher(_EMOJI_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1114,7 +1114,7 @@ parse_role_id: _IDMatcherSig = _make_snowflake_parser(_ROLE_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Other Parameters
@@ -1138,7 +1138,7 @@ search_role_ids: _IDSearcherSig = _make_snowflake_searcher(_ROLE_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1153,7 +1153,7 @@ parse_user_id: _IDMatcherSig = _make_snowflake_parser(_USER_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Other Parameters
@@ -1177,7 +1177,7 @@ search_user_ids: _IDSearcherSig = _make_snowflake_searcher(_USER_ID_REGEX)
 
 Parameters
 ----------
-value: typing.Union[str, int]
+value: str | int
     The value to parse (this argument can only be passed positionally).
 
 Returns

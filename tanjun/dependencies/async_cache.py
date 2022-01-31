@@ -140,17 +140,28 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
     async def get(self, *, default: _DefaultT = ...) -> typing.Union[_ValueT, _DefaultT]:
         """Get the entry.
 
+        Other Parameters
+        ----------------
+        default : _DefaultT
+            The default value to return if an entry wasn't found.
+
+            If provided then `CacheMissError`/`EntryNotFound` won't be raised.
+
         Returns
         -------
-        _ValueT
-            The found entry.
+        _ValueT | _DefaultT
+            The found entry or the default if any was provided.
 
         Raises
         ------
         CacheMissError
             If the entry wasn't found.
+
+            This won't be raised if `default` is passed.
         EntryNotFound
             If the entry wasn't found and the the entry definietly doesn't exist.
+
+            This won't be raised if `default` is passed.
 
             .. note::
                 This is a specialisation of `CacheMissError` and thus may be
@@ -178,17 +189,28 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         key : _KeyT
             Unique key of the entry to get; this will often be a snowflake.
 
+        Other Parameters
+        ----------------
+        default : _DefaultT
+            The default value to return if an entry wasn't found.
+
+            If provided then `CacheMissError`/`EntryNotFound` won't be raised.
+
         Returns
         -------
-        _ValueT
-            The found entry.
+        _ValueT | _DefaultT
+            The found entry or the default if any was provided.
 
         Raises
         ------
         CacheMissError
             If the entry wasn't found.
+
+            This won't be raised if `default` is passed.
         EntryNotFound
             If the entry wasn't found and the the entry definietly doesn't exist.
+
+            This won't be raised if `default` is passed.
 
             .. note::
                 This is a specialisation of `CacheMissError` and thus may be
@@ -235,15 +257,19 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         Returns
         -------
-        _ValueT
-            The found entry.
+        _ValueT | _DefaultT
+            The found entry or the default if any was provided.
 
         Raises
         ------
         CacheMissError
             If the entry wasn't found.
+
+            This won't be raised if `default` is passed.
         EntryNotFound
             If the entry wasn't found and the the entry definietly doesn't exist.
+
+            This won't be raised if `default` is passed.
 
             .. note::
                 This is a specialisation of `CacheMissError` and thus may be
@@ -303,17 +329,28 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         key : _KeyT
             Unique key of the entry to get; this will usually be a snowflake.
 
+        Other Parameters
+        ----------------
+        default : _DefaultT
+            The default value to return if an entry wasn't found.
+
+            If provided then `CacheMissError`/`EntryNotFound` won't be raised.
+
         Returns
         -------
-        _ValueT
-            The found entry.
+        _ValueT | _DefaultT
+            The found entry or the default if any was provided.
 
         Raises
         ------
         CacheMissError
             If the entry wasn't found.
+
+            This won't be raised if `default` is passed.
         EntryNotFound
             If the entry wasn't found and the the entry definietly doesn't exist.
+
+            This won't be raised if `default` is passed.
 
             .. note::
                 This is a specialisation of `CacheMissError` and thus may be

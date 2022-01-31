@@ -52,11 +52,9 @@ __all__: list[str] = [
     "fetch_my_user",
     # data.py
     "data",
-    "cache_callback",
     "cached_inject",
     "LazyConstant",
     "inject_lc",
-    "make_lc_resolver",
     # limiters.py
     "limiters",
     "AbstractConcurrencyLimiter",
@@ -90,10 +88,8 @@ from .async_cache import SfGuildBound
 from .async_cache import SingleStoreCache
 from .callbacks import fetch_my_user
 from .data import LazyConstant
-from .data import cache_callback
 from .data import cached_inject
 from .data import inject_lc
-from .data import make_lc_resolver
 from .limiters import AbstractConcurrencyLimiter
 from .limiters import AbstractCooldownManager
 from .limiters import BucketResource
