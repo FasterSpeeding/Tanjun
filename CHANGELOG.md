@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `ephemeral` keyword-argument to `SlashContext`'s `create_initial_response`, `create_follow_up`
+  and `defer` methods as a shorthand for including `1 << 6` in the passed flags.
+
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
 - Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`.
