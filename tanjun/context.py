@@ -949,10 +949,18 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return self
 
     async def defer(
-        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
+        self,
+        *,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+        ephemeral: bool = False,
     ) -> None:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
-        flags = self._get_flags(flags)
+        if ephemeral:
+            flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
+
+        else:
+            flags = self._get_flags(flags)
+
         in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
         if not in_defer_task:
             self.cancel_defer()
@@ -1044,6 +1052,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        ephemeral: bool = False,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -1061,6 +1070,9 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
+        if ephemeral:
+            flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
+
         async with self._response_lock:
             return await self._create_followup(
                 content=content,
@@ -1174,6 +1186,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        ephemeral: bool = False,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -1189,6 +1202,9 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
+        if ephemeral:
+            flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
+
         async with self._response_lock:
             await self._create_initial_response(
                 delete_after=delete_after,

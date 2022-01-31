@@ -1438,7 +1438,10 @@ class SlashContext(Context, abc.ABC):
 
     @abc.abstractmethod
     async def defer(
-        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
+        self,
+        *,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+        ephemeral: bool = False,
     ) -> None:
         """Defer the initial response for this context.
 
@@ -1448,6 +1451,11 @@ class SlashContext(Context, abc.ABC):
 
         Other Parameters
         ----------------
+        ephemeral : bool
+            Whether the deferred response should be ephemeral.
+
+            Passing `True` here is a shorthand for including `1 << 64` in the
+            passed flags.
         flags : typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]
             The flags to use for the initial response.
         """
@@ -1466,6 +1474,7 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        ephemeral: bool = False,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -1516,6 +1525,11 @@ class SlashContext(Context, abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
+        ephemeral : bool
+            Whether the deferred response should be ephemeral.
+
+            Passing `True` here is a shorthand for including `1 << 64` in the
+            passed flags.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
@@ -1589,6 +1603,7 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        ephemeral: bool = False,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -1623,6 +1638,11 @@ class SlashContext(Context, abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
+        ephemeral : bool
+            Whether the deferred response should be ephemeral.
+
+            Passing `True` here is a shorthand for including `1 << 64` in the
+            passed flags.
         content : hikari.UndefinedOr[typing.Any]
             If provided, the message contents. If
             `hikari.UNDEFINED`, then nothing will be sent
