@@ -161,7 +161,7 @@ class OwnerCheck(_Check):
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "Only bot owners can use this command" and setting this to `None`
@@ -235,7 +235,7 @@ class NsfwCheck(_Check):
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "Command can only be used in NSFW channels" and setting this to `None`
@@ -278,7 +278,7 @@ class SfwCheck(_Check):
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "Command can only be used in SFW channels" and setting this to `None`
@@ -321,7 +321,7 @@ class DmCheck(_Check):
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "Command can only be used in DMs" and setting this to `None`
@@ -359,7 +359,7 @@ class GuildCheck(_Check):
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "Command can only be used in guild channels" and setting this to `None`
@@ -399,12 +399,12 @@ class AuthorPermissionCheck(_Check):
 
         Parameters
         ----------
-        permissions: typing.Union[hikari.permissions.Permissions, int]
+        permissions: hikari.permissions.Permissions | int
             The permission(s) required for this command to run.
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "You don't have the permissions required to use this command" and setting this to `None`
@@ -463,12 +463,12 @@ class OwnPermissionCheck(_Check):
 
         Parameters
         ----------
-        permissions: typing.Union[hikari.permissions.Permissions, int]
+        permissions: hikari.permissions.Permissions | int
             The permission(s) required for this command to run.
 
         Other Parameters
         ----------------
-        error_message : typing.Optional[str]
+        error_message : str | None
             The error message to send in response as a command error if the check fails.
 
             Defaults to "Bot doesn't have the permissions required to run this command" and setting this to `None`
@@ -532,12 +532,12 @@ def with_dm_check(
 
     Parameters
     ----------
-    command : typing.Optional[CommandT]
+    command : CommandT | None
         The command to add this check to.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "Command can only be used in DMs" and setting this to `None`
@@ -585,12 +585,12 @@ def with_guild_check(
 
     Parameters
     ----------
-    command : typing.Optional[CommandT]
+    command : CommandT | None
         The command to add this check to.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "Command can only be used in guild channels" and setting this to `None`
@@ -638,12 +638,12 @@ def with_nsfw_check(
 
     Parameters
     ----------
-    command : typing.Optional[CommandT]
+    command : CommandT | None
         The command to add this check to.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "Command can only be used in NSFW channels" and setting this to `None`
@@ -693,12 +693,12 @@ def with_sfw_check(
 
     Parameters
     ----------
-    command : typing.Optional[CommandT]
+    command : CommandT | None
         The command to add this check to.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "Command can only be used in SFW channels" and setting this to `None`
@@ -748,12 +748,12 @@ def with_owner_check(
 
     Parameters
     ----------
-    command : typing.Optional[CommandT]
+    command : CommandT | None
         The command to add this check to.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "Only bot owners can use this command" and setting this to `None`
@@ -788,12 +788,12 @@ def with_author_permission_check(
 
     Parameters
     ----------
-    permissions: typing.Union[hikari.permissions.Permissions, int]
+    permissions: hikari.permissions.Permissions | int
         The permission(s) required for this command to run.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "You don't have the permissions required to use this command" and setting this to `None`
@@ -830,12 +830,12 @@ def with_own_permission_check(
 
     Parameters
     ----------
-    permissions: typing.Union[hikari.permissions.Permissions, int]
+    permissions: hikari.permissions.Permissions | int
         The permission(s) required for this command to run.
 
     Other Parameters
     ----------------
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         Defaults to "Bot doesn't have the permissions required to run this command" and setting this to `None`
@@ -998,7 +998,7 @@ def any_checks(
         The first check callback to combine.
     *checks : typing_abc.CheckSig
         Additional check callbacks to combine.
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         This takes priority over `halt_execution`.
@@ -1044,7 +1044,7 @@ def with_any_checks(
         The first check callback to combine.
     *checks : typing_abc.CheckSig
         Additional check callbacks to combine.
-    error_message : typing.Optional[str]
+    error_message : str | None
         The error message to send in response as a command error if the check fails.
 
         This takes priority over `halt_execution`.

@@ -287,14 +287,14 @@ def cache_callback(
 
     Other Parameters
     ----------------
-    expire_after : typing.Union[int, float, datetime.timedelta, None]
+    expire_after : int | float | datetime.timedelta | None
         The amount of time to cache the result for in seconds.
 
         Leave this as `None` to cache for the runtime of the application.
 
     Returns
     -------
-    Callable[..., Awaitable[_T]]
+    collections.abc.Callable[..., Awaitable[_T]]
         A callback which will cache the result of the given callback after the
         first call.
 
@@ -336,7 +336,7 @@ def cached_inject(
 
     Other Parameters
     ----------------
-    expire_after : typing.Union[int, float, datetime.timedelta, None]
+    expire_after : int | float | datetime.timedelta | None
         The amount of time to cache the result for in seconds.
 
         Leave this as `None` to cache for the runtime of the application.

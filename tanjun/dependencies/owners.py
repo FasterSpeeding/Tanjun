@@ -137,7 +137,7 @@ class Owners(AbstractOwners):
 
         Other Parameters
         ----------------
-        expire_after : typing.Union[datetime.timedelta, int, float]
+        expire_after : datetime.timedelta | int | float
             The amount of time to cache application owner data for in seconds.
 
             This defaults to 5 minutes and is only applicable if `rest` is also
@@ -148,7 +148,7 @@ class Owners(AbstractOwners):
 
             This only works when the bot's rest client is bound to a Bot token or
             if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.
-        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]
+        owners : hikari.SnowflakeishSequence[hikari.User] | None
             Sequence of objects and IDs of the users that are allowed to use the
             bot's owners-only commands.
         """

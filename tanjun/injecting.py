@@ -704,13 +704,13 @@ class Injected(typing.Generic[_T]):
 
         Parameters
         ----------
-        callback : typing.Optional[CallbackSig[_T]]
+        callback : CallbackSig[_T] | None
             The callback to use to resolve the dependency.
 
             If this callback has no type dependencies then this will still work
             without an injection context but this can be overridden using
             `InjectionClient.set_callback_override`.
-        type : typing.Optional[type[_T]]
+        type : type[_T] | None
             The type of the dependency to resolve.
 
             If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
@@ -764,13 +764,13 @@ def inject(
 
     Parameters
     ----------
-    callback : typing.Optional[CallbackSig[_T]]
+    callback : CallbackSig[_T] | None
         The callback to use to resolve the dependency.
 
         If this callback has no type dependencies then this will still work
         without an injection context but this can be overridden using
         `InjectionClient.set_callback_override`.
-    type : typing.Optional[type[_T]]
+    type : type[_T] | None
         The type of the dependency to resolve.
 
         If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
@@ -900,7 +900,7 @@ class InjectorClient:
 
         Returns
         -------
-        typing.Optional[CallbackDescriptor[_T]]
+        CallbackDescriptor[_T] | None
             The override if found, else `None`.
         """
         return self._callback_overrides.get(callback)

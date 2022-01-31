@@ -332,9 +332,9 @@ class Context(abc.ABC):
 
         Returns
         -------
-        typing.Optional[hikari.Guild]
+        hikari.Guild | None
             An optional guild the context was invoked in.
-            `None` will be returned if the guild was not found or the context was invoked in a DM channel .
+            `None` will be returned if the context was invoked in a DM channel .
 
         Raises
         ------
@@ -368,7 +368,7 @@ class Context(abc.ABC):
 
         Returns
         -------
-        typing.Optional[hikari.TextableGuildChannel]
+        hikari.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
             `None` will be returned if the channel was not found or if it
             is DM channel.
@@ -383,7 +383,7 @@ class Context(abc.ABC):
 
         Returns
         -------
-        typing.Optional[hikari.Guild]
+        hikari.Guild | None
             An optional guild the context was invoked in.
             `None` will be returned if the guild was not found.
         """
@@ -422,18 +422,18 @@ class Context(abc.ABC):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Edit the initial response for this context.
 
         Parameters
         ----------
-        content : hikari.UndefinedOr[typing.Any]
+        content : typing.Any | hikari.UNDEFINED
             The content to edit the initial response with.
 
             If provided, the message contents. If
@@ -451,7 +451,7 @@ class Context(abc.ABC):
 
         Other Parameters
         ----------------
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
+        delete_after : datetime.timedelta | float | int | None
             If provided, the seconds after which the response message should be deleted.
 
             .. note::
@@ -461,9 +461,9 @@ class Context(abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        attachment : hikari.UndefinedOr[hikari.Resourceish]
+        attachment : hikari.Resourceish | hikari.UNDEFINED
             A singular attachment to edit the initial response with.
-        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
+        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
             A sequence of attachments to edit the initial response with.
         component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to set for this message.
@@ -474,22 +474,22 @@ class Context(abc.ABC):
             this message. These components will replace any previously set
             components and passing `None` or an empty sequence will
             remove all components.
-        embed : hikari.UndefinedOr[hikari.Embed]
+        embed : hikari.Embed | hikari.UNDEFINED
             An embed to replace the initial response with.
-        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
+        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
             A sequence of embeds to replace the initial response with.
         replace_attachments : bool
             Whether to replace the attachments of the response or not. Default to `False`.
-        mentions_everyone : hikari.UndefinedOr[bool]
+        mentions_everyone : bool | hikari.UNDEFINED
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
             Alternatively this may be a collection of
             `hikari.Snowflake`, or `hikari.PartialUser`
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]
+        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
             Alternatively this may be a collection of
@@ -580,18 +580,18 @@ class Context(abc.ABC):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Edit the last response for this context.
 
         Parameters
         ----------
-        content : hikari.UndefinedOr[typing.Any]
+        content : typing.Any | hikari.UNDEFINED
             The content to edit the last response with.
 
             If provided, the message contents. If
@@ -609,7 +609,7 @@ class Context(abc.ABC):
 
         Other Parameters
         ----------------
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
+        delete_after : datetime.timedelta | float | int | None
             If provided, the seconds after which the response message should be deleted.
 
             .. note::
@@ -619,9 +619,9 @@ class Context(abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        attachment : hikari.UndefinedOr[hikari.Resourceish]
+        attachment : hikari.Resourceish | hikari.UNDEFINED
             A singular attachment to edit the last response with.
-        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
+        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
             A sequence of attachments to edit the last response with.
         component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to set for this message.
@@ -632,23 +632,23 @@ class Context(abc.ABC):
             this message. These components will replace any previously set
             components and passing `None` or an empty sequence will
             remove all components.
-        embed : hikari.UndefinedOr[hikari.Embed]
+        embed : hikari.Embed | hikari.UNDEFINED
             An embed to replace the last response with.
-        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
+        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
             A sequence of embeds to replace the last response with.
         replace_attachments : bool
             Whether to replace the attachments of the response or not. Default to `False`.
-        mentions_everyone : hikari.UndefinedOr[bool]
+        mentions_everyone : bool | hikari.UNDEFINED
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
 
             Alternatively this may be a collection of
             `hikari.Snowflake`, or `hikari.PartialUser`
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]
+        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
 
@@ -759,11 +759,11 @@ class Context(abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
         ...
@@ -781,11 +781,11 @@ class Context(abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         ...
@@ -802,18 +802,18 @@ class Context(abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
         """Respond to this context.
 
         Parameters
         ----------
-        content : hikari.UndefinedOr[typing.Any]
+        content : typing.Any | hikari.UNDEFINED
             The content to respond with.
 
             If provided, the message contents. If
@@ -839,7 +839,7 @@ class Context(abc.ABC):
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
+        delete_after : datetime.timedelta | float | int | None
             If provided, the seconds after which the response message should be deleted.
 
             .. note::
@@ -849,26 +849,26 @@ class Context(abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
+        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
             If provided, builder object of the component to include in this response.
-        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
+        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
             If provided, a sequence of the component builder objects to include
             in this response.
-        embed : hikari.UndefinedOr[hikari.Embed]
+        embed : hikari.Embed | hikari.UNDEFINED
             An embed to respond with.
-        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
+        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
             A sequence of embeds to respond with.
-        mentions_everyone : hikari.UndefinedOr[bool]
+        mentions_everyone : bool | hikari.UNDEFINED
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
 
             Alternatively this may be a collection of
             `hikari.Snowflake`, or `hikari.PartialUser`
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]
+        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
 
@@ -879,7 +879,7 @@ class Context(abc.ABC):
 
         Returns
         -------
-        typing.Optional[hikari.Message]
+        hikari.Message | None
             The message that has been created if it was immedieatly available or
             `ensure_result` was set to `True`, else `None`.
 
@@ -994,18 +994,18 @@ class MessageContext(Context, abc.ABC):
         reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Respond to this context.
 
         Parameters
         ----------
-        content : hikari.UndefinedOr[typing.Any]
+        content : typing.Any | hikari.UNDEFINED
             The content to respond with.
 
             If provided, the message contents. If
@@ -1028,41 +1028,41 @@ class MessageContext(Context, abc.ABC):
 
             This does nothing for message command contexts as the result w ill
             always be immedieatly available.
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
+        delete_after : datetime.timedelta | float | int | None
             If provided, the seconds after which the response message should be deleted.
-        tts : hikari.UndefinedOr[bool]
+        tts : bool | hikari.UNDEFINED
             Whether to respond with tts/text to speech or no.
-        reply : typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType]
+        reply : bool| hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED
             Whether to reply instead of sending the content to the context.
 
             Defaults to `hikari.UNDEFINED`.
             Passing `True` here indicates a reply to `MessageContext.message`.
-        nonce : hikari.UndefinedOr[str]
+        nonce : str | hikari.UNDEFINED
             The nonce that validates that the message was sent.
-        attachment : hikari.UndefinedOr[hikari.Resourceish]
+        attachment : hikari.Resourceish | hikari.UNDEFINED
             A singular attachment to respond with.
-        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
+        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
             A sequence of attachments to respond with.
-        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
+        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
             If provided, builder object of the component to include in this message.
-        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
+        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
             If provided, a sequence of the component builder objects to include
             in this message.
-        embed : hikari.UndefinedOr[hikari.Embed]
+        embed : hikari.Embed | hikari.UNDEFINED
             An embed to respond with.
-        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
+        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
             A sequence of embeds to respond with.
-        mentions_everyone : hikari.UndefinedOr[bool]
+        mentions_everyone : bool | hikari.UNDEFINED
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
 
             Alternatively this may be a collection of
             `hikari.Snowflake`, or `hikari.PartialUser`
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]
+        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
             Alternatively this may be a collection of
@@ -1231,7 +1231,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]
+        hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User
             The object value of this option.
 
         Raises
@@ -1269,7 +1269,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        typing.Union[hikari.InteractionMember, _T]
+        hikari.InteractionMember | _T
             The member object or `default` if it was provided and this option
             was a user type but had no member.
 
@@ -1297,7 +1297,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        typing.Union[hikari.Role, hikari.User, hikari.Member]
+        hikari.Role | hikari.User | hikari.Member
             The mentionable object.
 
         Raises
@@ -1338,7 +1338,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        typing.Union[hikari.User, hikari.Member]
+        hikari.User | hikari.Member
             The user object.
 
         Raises
@@ -1419,7 +1419,7 @@ class SlashContext(Context, abc.ABC):
 
         Parameters
         ----------
-        command : typing.Optional[BaseSlashCommand]
+        command : BaseSlashCommand | None
             The command this context is for.
         """
 
@@ -1448,7 +1448,7 @@ class SlashContext(Context, abc.ABC):
 
         Other Parameters
         ----------------
-        flags : typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]
+        flags : hikari.UNDEFINED | int | hikari.MessageFlag
             The flags to use for the initial response.
         """
 
@@ -1473,11 +1473,11 @@ class SlashContext(Context, abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
@@ -1490,7 +1490,7 @@ class SlashContext(Context, abc.ABC):
 
         Parameters
         ----------
-        content : hikari.UndefinedOr[typing.Any]
+        content : typing.Any | hikari.UNDEFINED
             If provided, the message contents. If
             `hikari.UNDEFINED`, then nothing will be sent
             in the content. Any other value here will be cast to a
@@ -1506,7 +1506,7 @@ class SlashContext(Context, abc.ABC):
 
         Other Parameters
         ----------------
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
+        delete_after : datetime.timedelta | float | int | None
             If provided, the seconds after which the response message should be deleted.
 
             .. note::
@@ -1516,25 +1516,25 @@ class SlashContext(Context, abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        attachment : hikari.UndefinedOr[hikari.Resourceish]
+        attachment : hikari.Resourceish | hikari.UNDEFINED
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
-        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
+        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
             If provided, the message attachments. These can be resources, or
             strings consisting of paths on your computer or URLs.
-        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
+        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
             If provided, builder object of the component to include in this message.
-        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
+        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
             If provided, a sequence of the component builder objects to include
             in this message.
-        embed : hikari.UndefinedOr[hikari.Embed]
+        embed : hikari.Embed | hikari.UNDEFINED
             If provided, the message embed.
-        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
+        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
             If provided, the message embeds.
-        mentions_everyone : hikari.UndefinedOr[bool]
+        mentions_everyone : bool | hikari.UNDEFINED
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool] | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
 
@@ -1542,16 +1542,16 @@ class SlashContext(Context, abc.ABC):
             `hikari.Snowflake`, or
             `hikari.PartialUser` derivatives to enforce mentioning
             specific users.
-        role_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]
+        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
             If provided, and `True`, all mentions will be parsed.
             If provided, and `False`, no mentions will be parsed.
             Alternatively this may be a collection of
             `hikari.Snowflake`, or
             `hikari.PartialRole` derivatives to enforce mentioning
             specific roles.
-        tts : hikari.UndefinedOr[bool]
+        tts : bool | hikari.UNDEFINED
             If provided, whether the message will be sent as a TTS message.
-        flags : typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]
+        flags : hikari.UNDEFINED | int | hikari.MessageFlag
             The flags to set for this response.
 
             As of writing this can only flag which can be provided is EPHEMERAL,
@@ -1594,11 +1594,11 @@ class SlashContext(Context, abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1613,7 +1613,7 @@ class SlashContext(Context, abc.ABC):
 
         Other Parameters
         ----------------
-        delete_after : typing.Union[datetime.timedelta, float, int, None]
+        delete_after : datetime.timedelta | float | int | None
             If provided, the seconds after which the response message should be deleted.
 
             .. note::
@@ -1623,7 +1623,7 @@ class SlashContext(Context, abc.ABC):
             .. note::
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        content : hikari.UndefinedOr[typing.Any]
+        content : typing.Any | hikari.UNDEFINED
             If provided, the message contents. If
             `hikari.UNDEFINED`, then nothing will be sent
             in the content. Any other value here will be cast to a
@@ -1632,27 +1632,27 @@ class SlashContext(Context, abc.ABC):
             If this is a `hikari.Embed` and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
-        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
+        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
             If provided, builder object of the component to include in this message.
-        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
+        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
             If provided, a sequence of the component builder objects to include
             in this message.
-        embed : hikari.UndefinedOr[hikari.Embed]
+        embed : hikari.Embed | hikari.UNDEFINED
             If provided, the message embed.
-        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
+        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
             If provided, the message embeds.
-        flags : typing.Union[int, hikari.MessageFlag, hikari.UndefinedType]
+        flags : int | hikari.MessageFlag | hikari.UNDEFINED
             If provided, the message flags this response should have.
 
             As of writing the only message flag which can be set here is
             `hikari.MessageFlag.EPHEMERAL`.
-        tts : hikari.UndefinedOr[bool]
+        tts : bool | hikari.UNDEFINED
             If provided, whether the message will be read out by a screen
             reader using Discord's TTS (text-to-speech) system.
-        mentions_everyone : hikari.UndefinedOr[bool]
+        mentions_everyone : bool | hikari.UNDEFINED
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
             If provided, and `True`, all user mentions will be detected.
             If provided, and `False`, all user mentions will be ignored
             if appearing in the message body.
@@ -1661,7 +1661,7 @@ class SlashContext(Context, abc.ABC):
             `hikari.Snowflake`, or
             `hikari.PartialUser` derivatives to enforce mentioning
             specific users.
-        role_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]
+        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
             If provided, and `True`, all role mentions will be detected.
             If provided, and `False`, all role mentions will be ignored
             if appearing in the message body.
@@ -2085,7 +2085,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
 
         Parameters
         ----------
-        hooks : typing.Optional[Hooks[ContextT_co]]
+        hooks : Hooks[ContextT_co] | None
             The hooks that are triggered when the command is executed.
 
         Returns
@@ -2407,7 +2407,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
 
         Parameters
         ----------
-        parent : typing.Optional[MessageCommandGroup[typing.Any]]
+        parent : MessageCommandGroup[typing.Any] | None
             The parent of this command.
 
         Returns
@@ -2437,7 +2437,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
 
         Other Parameters
         ----------------
-        parent : typing.Optional[MessageCommandGroup[tping.Any]]
+        parent : MessageCommandGroup[tping.Any] | None
             The parent of the copy.
 
         Returns
@@ -2877,12 +2877,12 @@ class Component(abc.ABC):
 
         Other Parameters
         ----------------
-        hooks : typing.Optional[collections.abc.MutableSet[SlashHooks]] = None
+        hooks : collections.abc.MutableSet[SlashHooks] | None
             Set of hooks to include in this command execution.
 
         Returns
         -------
-        typing.Optional[collections.abc.Awaitable[None]]
+        collections.abc.Awaitable[None] | None
             Awaitable used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
@@ -2904,7 +2904,7 @@ class Component(abc.ABC):
 
         Other Parameters
         ----------------
-        hooks : typing.Optional[collections.abc.MutableSet[MessageHooks]] = None
+        hooks : collections.abc.MutableSet[MessageHooks] | None
             Set of hooks to include in this command execution.
 
         Returns
@@ -3134,12 +3134,12 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
             The application to clear commands for.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED
             Object or ID of the guild to clear commands for.
 
             If left as `None` global commands will be cleared.
@@ -3171,14 +3171,14 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
             If provided, a mapping of top level command names to IDs of the existing commands to update.
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
             Object or ID of the application to set the global commands for.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None
             Object or ID of the guild to set the global commands to.
 
             If left as `None` global commands will be set.
@@ -3220,14 +3220,14 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
             The application to register the command with.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]
+        command_id : hikari.snowflakes.Snowflakeish | None
             ID of the command to update.
-        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None
             Object or ID of the guild to register the command with.
 
             If left as `None` then the command will be registered globally.
@@ -3263,19 +3263,19 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
             If provided, a mapping of top level command names to IDs of the existing commands to update.
 
             While optional, this can be helpful when updating commands as
             providing the current IDs will prevent changes such as renames from
             leading to other state set for commands (e.g. permissions) from
             being lost.
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
             The application to register the commands with.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None
             Object or ID of the guild to register the commands with.
 
             If left as `None` then the commands will be registered globally.
@@ -3343,7 +3343,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        typing.Optional[Component]
+        Component | None
             The component instance if found, else `None`.
         """
 
@@ -3394,7 +3394,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : typing.Union[str, ClientCallbackNames]
+        name : str | ClientCallbackNames
             The name this callback is being registered to.
 
             This is case-insensitive.
@@ -3419,7 +3419,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : typing.Union[str, ClientCallbackNames]
+        name : str | ClientCallbackNames
             The name of the callback to dispatch.
 
         Other Parameters
@@ -3441,7 +3441,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : typing.Union[str, ClientCallbackNames]
+        name : str | ClientCallbackNames
             The name to get the callbacks registered for.
 
             This is case-insensitive.
@@ -3458,7 +3458,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : typing.Union[str, ClientCallbackNames]
+        name : str | ClientCallbackNames
             The name this callback is being registered to.
 
             This is case-insensitive.
@@ -3496,7 +3496,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : typing.Union[str, ClientCallbackNames]
+        name : str | ClientCallbackNames
             The name this callback is being registered to.
 
             This is case-insensitive.
@@ -3685,7 +3685,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        *modules : typing.Union[str, pathlib.Path]
+        *modules : str | pathlib.Path
             Path(s) of the modules to load from.
 
             When `str` this will be treated as a normal import path which is
@@ -3757,7 +3757,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        *modules: typing.Union[str, pathlib.Path]
+        *modules: str | pathlib.Path
             Path of one or more modules to unload.
 
             These should be the same path(s) which were passed to `load_module`.
@@ -3795,7 +3795,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        *modules: typing.Union[str, pathlib.Path]
+        *modules: str | pathlib.Path
             Paths of one or more module to unload.
 
             These should be the same paths which were passed to `load_module`.

@@ -223,7 +223,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
         Other Parameters
         ----------------
-        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
             The converter(s) this argument should use to handle values passed to it
             during parsing.
 
@@ -352,7 +352,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         ----------------
         *names : str
             Other names of this option used for identifying it in the parsed content.
-        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
             The converter(s) this option should use to handle values passed to it
             during parsing.
 
@@ -643,7 +643,7 @@ def with_argument(
     key : str
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's callback during execution).
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
@@ -783,7 +783,7 @@ def with_greedy_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
@@ -908,7 +908,7 @@ def with_multi_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
@@ -1047,7 +1047,7 @@ def with_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
@@ -1202,7 +1202,7 @@ def with_multi_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
@@ -1424,7 +1424,7 @@ class Argument(Parameter):
 
         Other Parameters
         ----------------
-        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
             The converter(s) this argument should use to handle values passed to it
             during parsing.
 
@@ -1507,7 +1507,7 @@ class Option(Parameter):
         ----------------
         *names : str
             Other names of this option used for identifying it in the parsed content.
-        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
             The converter(s) this argument should use to handle values passed to it
             during parsing.
 

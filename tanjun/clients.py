@@ -314,7 +314,7 @@ class MessageAcceptsEnum(str, enum.Enum):
 
         Returns
         -------
-        typing.Optional[type[hikari.message_events.MessageCreateEvent]]
+        type[hikari.message_events.MessageCreateEvent] | None
             The type object of the MessageCreateEvent class this mode will
             register a listener for.
 
@@ -498,7 +498,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -507,9 +507,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+        command_ids : collections.abc.Mapping[str | hikari.SnowflakeishOr[hikari.Command]]
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -703,7 +703,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -712,9 +712,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]| bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+        command_ids : collections.abc.Mapping[str | hikari.SnowflakeishOr[hikari.Command]]
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -773,7 +773,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
-        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -782,9 +782,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -875,7 +875,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        typing.Optional[tanjun.abc.AnyHooks]
+        tanjun.abc.AnyHooks | None
             The top level `tanjun.abc.Context` based hooks set for this
             client if applicable, else `None`.
         """
@@ -1123,7 +1123,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        time : typing.Optional[float]
+        time : float | None
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
@@ -1176,7 +1176,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        message : typing.Optional[str]
+        message : str | None
             The message to respond with when an interaction command isn't found.
         """
         self._interaction_not_found = message
@@ -1503,7 +1503,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        prefixes : typing.Union[collections.abc.Iterable[str], str]
+        prefixes : collections.abc.Iterable[str] | str
             Either a single string or an iterable of strings to be used as
             prefixes.
 
@@ -1547,7 +1547,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        getter : typing.Optional[PrefixGetterSig]
+        getter : PrefixGetterSig | None
             The callback which'll be used to retrieve prefixes for the guild a
             message context is from. If `None` is passed here then the callback
             will be unset.
@@ -1778,7 +1778,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : typing.Optional[tanjun_abc.AnyHooks]
+        hooks : tanjun_abc.AnyHooks | None
             The general command execution hooks to set for this client.
 
             Passing `None` will remove all hooks.
@@ -1799,7 +1799,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : typing.Optional[tanjun_abc.SlashHooks]
+        hooks : tanjun_abc.SlashHooks | None
             The slash context specific command execution hooks to set for this
             client.
 
@@ -1821,7 +1821,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : typing.Optional[tanjun_abc.MessageHooks]
+        hooks : tanjun_abc.MessageHooks | None
             The message context specific command execution hooks to set for this
             client.
 
