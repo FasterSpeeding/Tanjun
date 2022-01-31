@@ -1440,8 +1440,8 @@ class SlashContext(Context, abc.ABC):
     async def defer(
         self,
         *,
-        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
         ephemeral: bool = False,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> None:
         """Defer the initial response for this context.
 
