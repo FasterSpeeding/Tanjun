@@ -1281,7 +1281,7 @@
     <span class="k">return</span> <span class="n">parse</span>
 
 
-<span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ArgumentT</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span>
+<span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ArgumentT</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span>
 
 
 <span class="k">def</span> <span class="nf">_range_check</span><span class="p">(</span><span class="n">snowflake</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1289,8 +1289,8 @@
 
 
 <span class="k">def</span> <span class="nf">_make_snowflake_searcher</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDSearcherSig</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
@@ -1302,32 +1302,30 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        list[hikari.Snowflake]</span>
+<span class="sd">            List of the IDs found in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">result</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-                <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">results</span><span class="p">,</span> <span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))]</span>
 
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
-                <span class="c1"># but we handle that by catching TypeError</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
 
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">return</span> <span class="n">parse</span>
 
@@ -1358,7 +1356,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">search_snowflakes</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+<span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">Parameters</span>
 <span class="sd">----------</span>
@@ -1367,8 +1365,8 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">    An iterator over the snowflakes in the string.</span>
+<span class="sd">list[hikari.Snowflake]</span>
+<span class="sd">    List of the snowflakes in the string.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_CHANNEL_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;#(\d+)&gt;&quot;</span><span class="p">)</span>
@@ -1397,7 +1395,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">search_channel_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Iterate over the channel IDs in a string.</span>
+<span class="sd">&quot;&quot;&quot;Get the channel IDs in a string.</span>
 
 <span class="sd">Parameters</span>
 <span class="sd">----------</span>
@@ -1406,8 +1404,8 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">    An iterator over the channel IDs in the string.</span>
+<span class="sd">list[hikari.Snowflake]</span>
+<span class="sd">    List of the channel IDs in the string.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_EMOJI_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;a?:\w+:(\d+)&gt;&quot;</span><span class="p">)</span>
@@ -1436,7 +1434,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">search_emoji_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Iterate over the emoji IDs in a string.</span>
+<span class="sd">&quot;&quot;&quot;Get the emoji IDs in a string.</span>
 
 <span class="sd">Parameters</span>
 <span class="sd">----------</span>
@@ -1445,8 +1443,8 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">    An iterator over the emoji IDs in the string.</span>
+<span class="sd">list[hikari.Snowflake]</span>
+<span class="sd">    List of the emoji IDs in the string.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_ROLE_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@&amp;(\d+)&gt;&quot;</span><span class="p">)</span>
@@ -1475,7 +1473,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">search_role_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Iterate over the role IDs in a string.</span>
+<span class="sd">&quot;&quot;&quot;Get the role IDs in a string.</span>
 
 <span class="sd">Parameters</span>
 <span class="sd">----------</span>
@@ -1484,8 +1482,8 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">    An iterator over the role IDs in the string.</span>
+<span class="sd">list[hikari.Snowflake]</span>
+<span class="sd">    List of the role IDs in the string.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_USER_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@!?(\d+)&gt;&quot;</span><span class="p">)</span>
@@ -1514,7 +1512,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">search_user_ids</span><span class="p">:</span> <span class="n">_IDSearcherSig</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Iterate over the user IDs in a string.</span>
+<span class="sd">&quot;&quot;&quot;Get the user IDs in a string.</span>
 
 <span class="sd">Parameters</span>
 <span class="sd">----------</span>
@@ -1523,8 +1521,8 @@
 
 <span class="sd">Returns</span>
 <span class="sd">-------</span>
-<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">    An iterator over the user IDs in the string.</span>
+<span class="sd">list[hikari.Snowflake]</span>
+<span class="sd">    List of the user IDs in the string.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -2394,13 +2392,13 @@ The error message to raise if the value cannot be parsed.</li>
             <span class="name">search_snowflakes</span><span class="signature">(
     value: Union[str, int, float],
     /
-) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
+) -&gt; list[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
@@ -2412,37 +2410,35 @@ The error message to raise if the value cannot be parsed.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        list[hikari.Snowflake]</span>
+<span class="sd">            List of the IDs found in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">result</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-                <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">results</span><span class="p">,</span> <span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))]</span>
 
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
-                <span class="c1"># but we handle that by catching TypeError</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
 
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Iterate over the snowflakes in a string.</p>
+            <div class="docstring"><p>Get the snowflakes in a string.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2454,7 +2450,7 @@ The value to parse (this argument can only be passed positionally).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the snowflakes in the string.</li>
+<li><strong>list[hikari.Snowflake]</strong>: List of the snowflakes in the string.</li>
 </ul>
 </div>
 
@@ -2468,13 +2464,13 @@ The value to parse (this argument can only be passed positionally).</li>
             <span class="name">search_channel_ids</span><span class="signature">(
     value: Union[str, int, float],
     /
-) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
+) -&gt; list[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
@@ -2486,37 +2482,35 @@ The value to parse (this argument can only be passed positionally).</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        list[hikari.Snowflake]</span>
+<span class="sd">            List of the IDs found in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">result</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-                <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">results</span><span class="p">,</span> <span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))]</span>
 
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
-                <span class="c1"># but we handle that by catching TypeError</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
 
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Iterate over the channel IDs in a string.</p>
+            <div class="docstring"><p>Get the channel IDs in a string.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2528,7 +2522,7 @@ The value to parse (this argument can only be passed positionally).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the channel IDs in the string.</li>
+<li><strong>list[hikari.Snowflake]</strong>: List of the channel IDs in the string.</li>
 </ul>
 </div>
 
@@ -2542,13 +2536,13 @@ The value to parse (this argument can only be passed positionally).</li>
             <span class="name">search_emoji_ids</span><span class="signature">(
     value: Union[str, int, float],
     /
-) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
+) -&gt; list[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
@@ -2560,37 +2554,35 @@ The value to parse (this argument can only be passed positionally).</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        list[hikari.Snowflake]</span>
+<span class="sd">            List of the IDs found in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">result</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-                <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">results</span><span class="p">,</span> <span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))]</span>
 
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
-                <span class="c1"># but we handle that by catching TypeError</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
 
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Iterate over the emoji IDs in a string.</p>
+            <div class="docstring"><p>Get the emoji IDs in a string.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2602,7 +2594,7 @@ The value to parse (this argument can only be passed positionally).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the emoji IDs in the string.</li>
+<li><strong>list[hikari.Snowflake]</strong>: List of the emoji IDs in the string.</li>
 </ul>
 </div>
 
@@ -2616,13 +2608,13 @@ The value to parse (this argument can only be passed positionally).</li>
             <span class="name">search_role_ids</span><span class="signature">(
     value: Union[str, int, float],
     /
-) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
+) -&gt; list[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
@@ -2634,37 +2626,35 @@ The value to parse (this argument can only be passed positionally).</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        list[hikari.Snowflake]</span>
+<span class="sd">            List of the IDs found in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">result</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-                <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">results</span><span class="p">,</span> <span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))]</span>
 
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
-                <span class="c1"># but we handle that by catching TypeError</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
 
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Iterate over the role IDs in a string.</p>
+            <div class="docstring"><p>Get the role IDs in a string.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2676,7 +2666,7 @@ The value to parse (this argument can only be passed positionally).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the role IDs in the string.</li>
+<li><strong>list[hikari.Snowflake]</strong>: List of the role IDs in the string.</li>
 </ul>
 </div>
 
@@ -2690,13 +2680,13 @@ The value to parse (this argument can only be passed positionally).</li>
             <span class="name">search_user_ids</span><span class="signature">(
     value: Union[str, int, float],
     /
-) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
+) -&gt; list[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the snowflakes in a string.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
@@ -2708,37 +2698,35 @@ The value to parse (this argument can only be passed positionally).</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
-<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        list[hikari.Snowflake]</span>
+<span class="sd">            List of the IDs found in the string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">result</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
-                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
-                <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">results</span><span class="p">,</span> <span class="o">*</span><span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))]</span>
 
-                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
-                <span class="c1"># but we handle that by catching TypeError</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
 
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Iterate over the user IDs in a string.</p>
+            <div class="docstring"><p>Get the user IDs in a string.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2750,7 +2738,7 @@ The value to parse (this argument can only be passed positionally).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the user IDs in the string.</li>
+<li><strong>list[hikari.Snowflake]</strong>: List of the user IDs in the string.</li>
 </ul>
 </div>
 
