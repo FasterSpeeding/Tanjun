@@ -940,7 +940,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
     return parse
 
 
-_IDSearcherSig = collections.Callable[[_ArgumentT], collections.Iterator[hikari.Snowflake]]
+_IDSearcherSig = collections.Callable[[_ArgumentT], list[hikari.Snowflake]]
 
 
 def _range_check(snowflake: hikari.Snowflake, /) -> bool:
@@ -948,8 +948,8 @@ def _range_check(snowflake: hikari.Snowflake, /) -> bool:
 
 
 def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
-    def parse(value: _ArgumentT, /) -> collections.Iterator[hikari.Snowflake]:
-        """Iterate over the snowflakes in a string.
+    def parse(value: _ArgumentT, /) -> list[hikari.Snowflake]:
+        """Get the snowflakes in a string.
 
         .. note::
             This only allows the relevant entity's mention format if applicable.
@@ -961,32 +961,30 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
         Returns
         -------
-        collections.abc.Iterator[hikari.Snowflake]
-            An iterator over the IDs found in the string.
+        list[hikari.Snowflake]
+            List of the IDs found in the string.
         """
         if isinstance(value, str):
             if value.isdigit() and _range_check(result := hikari.Snowflake(value)):
-                yield result
+                return [result]
 
-            else:
-                yield from filter(
-                    _range_check, map(hikari.Snowflake, (match.groups()[0] for match in regex.finditer(value)))
-                )
+            results = filter(
+                _range_check, map(hikari.Snowflake, (match.groups()[0] for match in regex.finditer(value)))
+            )
+            return [*results, *filter(_range_check, map(hikari.Snowflake, filter(str.isdigit, value.split())))]
 
-                yield from filter(_range_check, map(hikari.Snowflake, filter(str.isdigit, value.split())))
+        try:
+            # Technically passing a float here is invalid (typing wise)
+            # but we handle that by catching TypeError
+            result = hikari.Snowflake(operator.index(typing.cast(int, value)))
 
-        else:
-            try:
-                # Technically passing a float here is invalid (typing wise)
-                # but we handle that by catching TypeError
-                result = hikari.Snowflake(operator.index(typing.cast(int, value)))
+        except (TypeError, ValueError):
+            return []
 
-            except (TypeError, ValueError):
-                pass
+        if _range_check(result):
+            return [result]
 
-            else:
-                if _range_check(result):
-                    yield result
+        return []
 
     return parse
 
@@ -1017,7 +1015,7 @@ ValueError
 """
 
 search_snowflakes: _IDSearcherSig = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
-"""Iterate over the snowflakes in a string.
+"""Get the snowflakes in a string.
 
 Parameters
 ----------
@@ -1026,8 +1024,8 @@ value: str | int
 
 Returns
 -------
-collections.abc.Iterator[hikari.Snowflake]
-    An iterator over the snowflakes in the string.
+list[hikari.Snowflake]
+    List of the snowflakes in the string.
 """
 
 _CHANNEL_ID_REGEX = re.compile(r"<#(\d+)>")
@@ -1056,7 +1054,7 @@ ValueError
 """
 
 search_channel_ids: _IDSearcherSig = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
-"""Iterate over the channel IDs in a string.
+"""Get the channel IDs in a string.
 
 Parameters
 ----------
@@ -1065,8 +1063,8 @@ value: str | int
 
 Returns
 -------
-collections.abc.Iterator[hikari.Snowflake]
-    An iterator over the channel IDs in the string.
+list[hikari.Snowflake]
+    List of the channel IDs in the string.
 """
 
 _EMOJI_ID_REGEX = re.compile(r"<a?:\w+:(\d+)>")
@@ -1095,7 +1093,7 @@ ValueError
 """
 
 search_emoji_ids: _IDSearcherSig = _make_snowflake_searcher(_EMOJI_ID_REGEX)
-"""Iterate over the emoji IDs in a string.
+"""Get the emoji IDs in a string.
 
 Parameters
 ----------
@@ -1104,8 +1102,8 @@ value: str | int
 
 Returns
 -------
-collections.abc.Iterator[hikari.Snowflake]
-    An iterator over the emoji IDs in the string.
+list[hikari.Snowflake]
+    List of the emoji IDs in the string.
 """
 
 _ROLE_ID_REGEX = re.compile(r"<@&(\d+)>")
@@ -1134,7 +1132,7 @@ ValueError
 """
 
 search_role_ids: _IDSearcherSig = _make_snowflake_searcher(_ROLE_ID_REGEX)
-"""Iterate over the role IDs in a string.
+"""Get the role IDs in a string.
 
 Parameters
 ----------
@@ -1143,8 +1141,8 @@ value: str | int
 
 Returns
 -------
-collections.abc.Iterator[hikari.Snowflake]
-    An iterator over the role IDs in the string.
+list[hikari.Snowflake]
+    List of the role IDs in the string.
 """
 
 _USER_ID_REGEX = re.compile(r"<@!?(\d+)>")
@@ -1173,7 +1171,7 @@ ValueError
 """
 
 search_user_ids: _IDSearcherSig = _make_snowflake_searcher(_USER_ID_REGEX)
-"""Iterate over the user IDs in a string.
+"""Get the user IDs in a string.
 
 Parameters
 ----------
@@ -1182,8 +1180,8 @@ value: str | int
 
 Returns
 -------
-collections.abc.Iterator[hikari.Snowflake]
-    An iterator over the user IDs in the string.
+list[hikari.Snowflake]
+    List of the user IDs in the string.
 """
 
 

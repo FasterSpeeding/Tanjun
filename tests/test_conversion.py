@@ -1060,7 +1060,7 @@ def test_search_snowflakes():
         f" <#123321>, sleeper <a:32123> {TOO_SMALL_SF} <:gaaa:431123> <a:344213:43123>"
     )
 
-    assert set(tanjun.conversion.search_snowflakes(string)) == {123, 54123, 56123, 123321, 431123, 43123}
+    assert tanjun.conversion.search_snowflakes(string) == [54123, 56123, 123321, 431123, 43123, 123]
 
 
 @pytest.mark.parametrize(("value", "result"), [("43123", 43123), (1233211, 1233211), ("<#12333>", 12333)])
@@ -1099,7 +1099,7 @@ def test_search_channel_ids():
         f"65423 <#> <> {TOO_LARGE_SF} <#123321><#43123> {TOO_SMALL_SF} 54123 <@1> <@13> <@&32> <a:123:342> <:123:32>"
     )
 
-    assert set(result) == {65423, 123321, 43123, 54123}
+    assert result == [123321, 43123, 65423, 54123]
 
 
 @pytest.mark.parametrize(
@@ -1139,7 +1139,7 @@ def test_search_emoji_ids():
 
     result = tanjun.conversion.search_emoji_ids(string)
 
-    assert set(result) == {67234, 32123, 4543123, 432}
+    assert result == [67234, 32123, 4543123, 432]
 
 
 @pytest.mark.parametrize(("value", "result"), [("43123", 43123), (1233211, 1233211), ("<@&1234321>", 1234321)])
@@ -1177,7 +1177,7 @@ def test_search_role_ids():
         f"<@&{TOO_SMALL_SF}><@&123321><@&12222> 123 342 <#123> <@5623> <a:s:123> <:vs:123> <@&444> <@&{TOO_SMALL_SF}"
     )
 
-    assert set(result) == {123321, 12222, 123, 342, 444}
+    assert result == [123321, 12222, 444, 123, 342]
 
 
 @pytest.mark.parametrize(
@@ -1217,7 +1217,7 @@ def test_search_user_ids():
 
     result = tanjun.conversion.search_user_ids(string)
 
-    assert set(result) == {123321, 6743234, 132321, 3123, 65123}
+    assert result == [123321, 6743234, 65123, 132321, 3123]
 
 
 def test_defragment_url():

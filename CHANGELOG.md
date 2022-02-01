@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
 - Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`.
+- The search snowflake conversion functions now return lists of snowflakes instead of iterators.
 
 ## [2.3.1a1] - 2022-01-27
 ### Added
