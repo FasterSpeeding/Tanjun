@@ -178,17 +178,17 @@ def calculate_permissions(
 
     Parameters
     ----------
-    member : hikari.guilds.Member
+    member : hikari.Member
         Object of the member to calculate the permissions for.
-    guild : hikari.guilds.Guild
+    guild : hikari.Guild
         Object of the guild to calculate their permissions within.
-    roles : collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]
+    roles : collections.abc.Mapping[hikari.Snowflake, hikari.Role]
         Mapping of snowflake IDs to objects of the roles within the target
         guild.
 
     Other Parameters
     ----------------
-    channel : hikari.channels.GuildChannel | None
+    channel : hikari.GuildChannel | None
         Object of the channel to calculate the member's permissions in.
 
         If this is left as `None` then this will just calculate their
@@ -196,7 +196,7 @@ def calculate_permissions(
 
     Returns
     -------
-    hikari.permissions.Permission
+    hikari.Permission
         Value of the member's permissions either within the guild or specified
         guild channel.
     """
@@ -268,19 +268,19 @@ async def fetch_permissions(
     ----------
     client : tanjun.abc.Client
         The Tanjun client to use for lookups.
-    member : hikari.guilds.Member
+    member : hikari.Member
         The object of the member to calculate the permissions for.
 
     Other Parameters
     ----------------
-    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None
+    channel : hikari.SnowflakeishOr | hikari.GuildChannel | None
         The object of ID of the channel to get their permissions in.
         If left as `None` then this will return their base guild
         permissions.
 
     Returns
     -------
-    hikari.permissions.Permissions
+    hikari.Permissions
         The calculated permissions.
     """
     # TODO: upgrade injecting stuff to the standard interface
@@ -341,12 +341,12 @@ def calculate_everyone_permissions(
 
     Parameters
     ----------
-    everyone_role : hikari.guilds.Role
+    everyone_role : hikari.Role
         The guild's default @everyone role.
 
     Other Parameters
     ----------------
-    channel : hikari.channels.GuildChannel | None
+    channel : hikari.GuildChannel | None
         The channel to calculate the permissions for.
 
         If this is left as `None` then this will just calculate the default
@@ -354,7 +354,7 @@ def calculate_everyone_permissions(
 
     Returns
     -------
-    hikari.permissions.Permissions
+    hikari.Permissions
         The calculated permissions.
     """
     # The ordering of how this adds and removes permissions does matter.
@@ -391,12 +391,12 @@ async def fetch_everyone_permissions(
     ----------
     client : tanjun.abc.Client
         The Tanjun client to use for lookups.
-    guild_id : hikari.snowflakes.Snowflake
+    guild_id : hikari.Snowflake
         ID of the guild to calculate the default permissions for.
 
     Other Parameters
     ----------------
-    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None
+    channel : hikari.SnowflakeishOr | hikari.PartialChannel | None
         The channel to calculate the permissions for.
 
         If this is left as `None` then this will just calculate the default
@@ -405,7 +405,7 @@ async def fetch_everyone_permissions(
 
     Returns
     -------
-    hikari.permissions.Permissions
+    hikari.Permissions
         The calculated permissions.
     """
     # TODO: upgrade injecting stuff to the standard interface

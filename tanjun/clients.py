@@ -498,7 +498,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
+        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -507,9 +507,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool
+        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -703,7 +703,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
+        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -712,9 +712,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool
+        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -773,7 +773,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
-        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
+        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -782,9 +782,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool
+        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -1280,7 +1280,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        check : tanjun_abc.CheckSig
+        check : tanjun.abc.CheckSig
             The check to add. This may be either synchronous or asynchronous
             and must take one positional argument of type `tanjun.abc.Context`
             with dependency injection being supported for its keyword arguments.
@@ -1300,7 +1300,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        check : tanjun_abc.CheckSig
+        check : tanjun.abc.CheckSig
             The check to remove.
 
         Raises
@@ -1316,14 +1316,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        check : tanjun_abc.CheckSig
+        check : tanjun.abc.CheckSig
             The check to add. This may be either synchronous or asynchronous
             and must take one positional argument of type `tanjun.abc.Context`
             with dependency injection being supported for its keyword arguments.
 
         Returns
         -------
-        tanjun_abc.CheckSig
+        tanjun.abc.CheckSig
             The added check.
         """
         self.add_check(check)
@@ -1778,7 +1778,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun_abc.AnyHooks | None
+        hooks : tanjun.abc.AnyHooks | None
             The general command execution hooks to set for this client.
 
             Passing `None` will remove all hooks.
@@ -1799,7 +1799,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun_abc.SlashHooks | None
+        hooks : tanjun.abc.SlashHooks | None
             The slash context specific command execution hooks to set for this
             client.
 
@@ -1821,7 +1821,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun_abc.MessageHooks | None
+        hooks : tanjun.abc.MessageHooks | None
             The message context specific command execution hooks to set for this
             client.
 

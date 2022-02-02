@@ -1407,13 +1407,13 @@ def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.Converter
 
 
 to_channel: typing.Final[ToChannel] = ToChannel()
-"""Convert user input to a `hikari.channels.PartialChannel` object."""
+"""Convert user input to a `hikari.PartialChannel` object."""
 
 to_colour: typing.Final[collections.Callable[[_ArgumentT], hikari.Color]] = to_color
-"""Convert user input to a `hikari.colors.Color` object."""
+"""Convert user input to a `hikari.Color` object."""
 
 to_emoji: typing.Final[ToEmoji] = ToEmoji()
-"""Convert user input to a cached `hikari.emojis.KnownCustomEmoji` object.
+"""Convert user input to a cached `hikari.KnownCustomEmoji` object.
 
 .. note::
     If you just want to convert inpute to a `hikari.Emoji`, `hikari.CustomEmoji`
@@ -1423,32 +1423,32 @@ to_emoji: typing.Final[ToEmoji] = ToEmoji()
 """
 
 to_guild: typing.Final[ToGuild] = ToGuild()
-"""Convert user input to a `hikari.guilds.Guild` object."""
+"""Convert user input to a `hikari.Guild` object."""
 
 to_invite: typing.Final[ToInvite] = ToInvite()
-"""Convert user input to a cached `hikari.invites.InviteWithMetadata` object."""
+"""Convert user input to a cached `hikari.InviteWithMetadata` object."""
 
 to_invite_with_metadata: typing.Final[ToInviteWithMetadata] = ToInviteWithMetadata()
-"""Convert user input to a `hikari.invites.Invite` object."""
+"""Convert user input to a `hikari.Invite` object."""
 
 to_member: typing.Final[ToMember] = ToMember()
-"""Convert user input to a `hikari.guilds.Member` object."""
+"""Convert user input to a `hikari.Member` object."""
 
 to_presence: typing.Final[ToPresence] = ToPresence()
-"""Convert user input to a cached `hikari.presences.MemberPresence`."""
+"""Convert user input to a cached `hikari.MemberPresence`."""
 
 to_role: typing.Final[ToRole] = ToRole()
-"""Convert user input to a `hikari.guilds.Role` object."""
+"""Convert user input to a `hikari.Role` object."""
 
 to_snowflake: typing.Final[collections.Callable[[_ArgumentT], hikari.Snowflake]] = parse_snowflake
-"""Convert user input to a `hikari.snowflakes.Snowflake`.
+"""Convert user input to a `hikari.Snowflake`.
 
 .. note::
     This also range validates the input.
 """
 
 to_user: typing.Final[ToUser] = ToUser()
-"""Convert user input to a `hikari.users.User` object."""
+"""Convert user input to a `hikari.User` object."""
 
 to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
-"""Convert user input to a cached `hikari.voices.VoiceState`."""
+"""Convert user input to a cached `hikari.VoiceState`."""

@@ -37,9 +37,11 @@ A few examples of pdoc style would be:
   for types in the current module (e.g. `` `Class.attribute` ``.
 * Documenting fluent methods: The return type for fluent methods should be given as `Self` with the description for it
   following the lines of something like "the {x} instance to enable chained calls".
+* Documented types (such as for parameters and return types) which are unions should be documented using `|` style
+  and `T | None`/`T | hikari.UndefinedType` are preferred over `typing.Optional[T]`/`hikari.UndefinedOr[T]`
 
 ### CHANGELOG.md
- 
+
 While you aren't required to update the changelog as a contributor, a reference on the schema CHANGELOG.md follows
 can be found [here](https://keepachangelog.com/en/1.0.0/).
 
@@ -62,12 +64,13 @@ good references for how projects should be type-hinted to be `type-complete`.
 ---
 **NOTES**
 
-* This project deviates from the symbolic python standard of importing types from the typing module and instead
+* This project deviates from the common convention of importing types from the typing module and instead
   imports the typing module itself to use generics and types in it like `typing.Union` and `typing.Optional`.
 * Since this project supports python 3.9+, the `typing` types which were deprecated by
   [PEP 585](https://www.python.org/dev/peps/pep-0585/) should be avoided in favour of their `collections.abc`,
   builtin, `re` and `contextlib` equivalents.
 * The standard approach for using `collections.abc` types within this project is to `import collections.abc as collections`.
+* All exported symbols should have docstrings.
 ---
 
 ### Versioning
@@ -79,16 +82,21 @@ This project follows [semantic versioning 2.0.0](https://semver.org/) and [PEP 4
 * All modules present in Tanjun should start with the commented out licence (including the source encoding and cython
   language level declarations), a relevant component documentation string, `from __future__ import annotations`, an
  `__all__` declaration and then imports. For an example see any of Tanjun's current components.
-* Public type variables (e.g. `CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]`) should be
-  included in the `__all__` of the module they're declared in and should also be documented but
-  should not included in the `__all__` of any parent module(s).
-  .
+* Only callback type variables (e.g. `CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]`) should
+  public, meaning that they should also be included in the `__all__` of the module they're declared in and should also be
+  documented but should not included in the `__all__` of any parent module(s). Any other type variables should be protected
+  (prefixed with `_`).
 * [pep8](https://www.python.org/dev/peps/pep-0008/) should be followed as much as possible with notable cases where its
   ignored being that [black](https://github.com/psf/black) style may override this.
 * The maximum character count for a line is 120 characters and this may only ever be ignored for docstrings where types
   go over this count, in which case a `# noqa: E501 - Line too long` should be added after the doc-string (on the same
   line as its trailing `"""`.
-* All top-level modules should be explicitly imported into `tanjun.__init__` and included in `tanjun.__init__.__all__`
+* All public top-level modules should be explicitly imported into `tanjun.__init__` and included in `tanjun.__init__.__all__`.
 * for type-completness with only the most important of their contents needing to be included in `tanjun.__init__.__all__`.
-
-
+  Note here that star imports should not be used; import each entry you want to re-export explicitly and let isort reformat
+  the imports.
+* When an abstract class is defined outside of `tanjun.abc` (meaning that its not a part of the standard interface),
+  its name should be prefixed with `Abstract`.
+* `collections.abc.Awaitable` is generally preferred over `collections.abc.Coroutine` for interfaces and types.
+* Explicit `|` unions are preferred over using generic union shorthands (e.g. `UndefinedOr`, `Optional`, `SnowflakeishOr`)
+  in documentation.

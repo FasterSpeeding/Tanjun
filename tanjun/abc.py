@@ -1032,7 +1032,7 @@ class MessageContext(Context, abc.ABC):
             If provided, the seconds after which the response message should be deleted.
         tts : bool | hikari.UNDEFINED
             Whether to respond with tts/text to speech or no.
-        reply : bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED
+        reply : bool | hikari.Snowflakeish | hikari.PartialMessage | hikari.UNDEFINED
             Whether to reply instead of sending the content to the context.
 
             Defaults to `hikari.UNDEFINED`.
@@ -3154,12 +3154,12 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
+        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
             The application to clear commands for.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED
+        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED
             Object or ID of the guild to clear commands for.
 
             If left as `None` global commands will be cleared.
@@ -3191,14 +3191,14 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
             If provided, a mapping of top level command names to IDs of the existing commands to update.
-        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
+        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
             Object or ID of the application to set the global commands for.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None
+        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None
             Object or ID of the guild to set the global commands to.
 
             If left as `None` global commands will be set.
@@ -3240,14 +3240,14 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
+        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
             The application to register the command with.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
         command_id : hikari.snowflakes.Snowflakeish | None
             ID of the command to update.
-        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None
+        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None
             Object or ID of the guild to register the command with.
 
             If left as `None` then the command will be registered globally.
@@ -3283,19 +3283,19 @@ class Client(abc.ABC):
 
         Other Parameters
         ----------------
-        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
             If provided, a mapping of top level command names to IDs of the existing commands to update.
 
             While optional, this can be helpful when updating commands as
             providing the current IDs will prevent changes such as renames from
             leading to other state set for commands (e.g. permissions) from
             being lost.
-        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None
+        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
             The application to register the commands with.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None
+        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None
             Object or ID of the guild to register the commands with.
 
             If left as `None` then the commands will be registered globally.

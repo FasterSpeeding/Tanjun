@@ -399,7 +399,7 @@ class AuthorPermissionCheck(_Check):
 
         Parameters
         ----------
-        permissions: hikari.permissions.Permissions | int
+        permissions: hikari.Permissions | int
             The permission(s) required for this command to run.
 
         Other Parameters
@@ -463,7 +463,7 @@ class OwnPermissionCheck(_Check):
 
         Parameters
         ----------
-        permissions: hikari.permissions.Permissions | int
+        permissions: hikari.Permissions | int
             The permission(s) required for this command to run.
 
         Other Parameters
@@ -788,7 +788,7 @@ def with_author_permission_check(
 
     Parameters
     ----------
-    permissions: hikari.permissions.Permissions | int
+    permissions: hikari.Permissions | int
         The permission(s) required for this command to run.
 
     Other Parameters
@@ -830,7 +830,7 @@ def with_own_permission_check(
 
     Parameters
     ----------
-    permissions: hikari.permissions.Permissions | int
+    permissions: hikari.Permissions | int
         The permission(s) required for this command to run.
 
     Other Parameters
