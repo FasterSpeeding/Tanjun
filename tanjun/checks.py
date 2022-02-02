@@ -512,7 +512,7 @@ class OwnPermissionCheck(_Check):
 
 
 class HasAnyRoleCheck(_Check):
-    __slots__ = ("required_roles",)
+    __slots__ = ("required_roles", "ids_only")
 
     def __init__(
         self,
@@ -523,17 +523,21 @@ class HasAnyRoleCheck(_Check):
     ) -> None:
         super().__init__(error_message, halt_execution)
         self.required_roles = roles
+        self.ids_only = all(isinstance(role, int) for role in self.required_roles)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         if not ctx.member:
             return self._handle_result(False)
 
-        guild_roles = ctx.cache.get_roles_view_for_guild(ctx.member.guild_id) if ctx.cache else None
-        if not guild_roles:
-            guild_roles = await ctx.rest.fetch_roles(ctx.member.guild_id)
-            member_roles = [role for role in guild_roles if role.id in ctx.member.role_ids]
+        if not self.ids_only:
+            guild_roles = ctx.cache.get_roles_view_for_guild(ctx.member.guild_id) if ctx.cache else None
+            if not guild_roles:
+                guild_roles = await ctx.rest.fetch_roles(ctx.member.guild_id)
+                member_roles = [role for role in guild_roles if role.id in ctx.member.role_ids]
+            else:
+                member_roles = [guild_roles.get(role) for role in ctx.member.role_ids]
         else:
-            member_roles = [guild_roles.get(role) for role in ctx.member.role_ids]
+            member_roles = ctx.member.role_ids
 
         return self._handle_result(any(map(self._check_roles, member_roles)))
 
