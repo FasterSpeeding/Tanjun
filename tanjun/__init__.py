@@ -91,6 +91,10 @@ async def main() -> None:
 
 For more extensive examples see the
 [repository's examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples).
+
+There are also
+[written tutorials](https://patchwork.systems/programming/hikari-discord-bot/index.html)
+that cover making a bot from scratch through to advanced concepts like Dependency Injection.
 """
 from __future__ import annotations
 
