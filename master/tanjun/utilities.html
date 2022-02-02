@@ -264,17 +264,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    member : hikari.guilds.Member</span>
+<span class="sd">    member : hikari.Member</span>
 <span class="sd">        Object of the member to calculate the permissions for.</span>
-<span class="sd">    guild : hikari.guilds.Guild</span>
+<span class="sd">    guild : hikari.Guild</span>
 <span class="sd">        Object of the guild to calculate their permissions within.</span>
-<span class="sd">    roles : collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]</span>
+<span class="sd">    roles : collections.abc.Mapping[hikari.Snowflake, hikari.Role]</span>
 <span class="sd">        Mapping of snowflake IDs to objects of the roles within the target</span>
 <span class="sd">        guild.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
+<span class="sd">    channel : hikari.GuildChannel | None</span>
 <span class="sd">        Object of the channel to calculate the member&#39;s permissions in.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate their</span>
@@ -282,7 +282,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permission</span>
+<span class="sd">    hikari.Permission</span>
 <span class="sd">        Value of the member&#39;s permissions either within the guild or specified</span>
 <span class="sd">        guild channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -354,19 +354,19 @@
 <span class="sd">    ----------</span>
 <span class="sd">    client : tanjun.abc.Client</span>
 <span class="sd">        The Tanjun client to use for lookups.</span>
-<span class="sd">    member : hikari.guilds.Member</span>
+<span class="sd">    member : hikari.Member</span>
 <span class="sd">        The object of the member to calculate the permissions for.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None</span>
+<span class="sd">    channel : hikari.SnowflakeishOr | hikari.GuildChannel | None</span>
 <span class="sd">        The object of ID of the channel to get their permissions in.</span>
 <span class="sd">        If left as `None` then this will return their base guild</span>
 <span class="sd">        permissions.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
@@ -427,12 +427,12 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    everyone_role : hikari.guilds.Role</span>
+<span class="sd">    everyone_role : hikari.Role</span>
 <span class="sd">        The guild&#39;s default @everyone role.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
+<span class="sd">    channel : hikari.GuildChannel | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -440,7 +440,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
@@ -477,12 +477,12 @@
 <span class="sd">    ----------</span>
 <span class="sd">    client : tanjun.abc.Client</span>
 <span class="sd">        The Tanjun client to use for lookups.</span>
-<span class="sd">    guild_id : hikari.snowflakes.Snowflake</span>
+<span class="sd">    guild_id : hikari.Snowflake</span>
 <span class="sd">        ID of the guild to calculate the default permissions for.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None</span>
+<span class="sd">    channel : hikari.SnowflakeishOr | hikari.PartialChannel | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -491,7 +491,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
@@ -768,12 +768,12 @@ For example, a generic mapping type might be defined as::</p>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    everyone_role : hikari.guilds.Role</span>
+<span class="sd">    everyone_role : hikari.Role</span>
 <span class="sd">        The guild&#39;s default @everyone role.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
+<span class="sd">    channel : hikari.GuildChannel | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -781,7 +781,7 @@ For example, a generic mapping type might be defined as::</p>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
@@ -808,14 +808,14 @@ For example, a generic mapping type might be defined as::</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>everyone_role</strong> (hikari.guilds.Role):
+<li><strong>everyone_role</strong> (hikari.Role):
 The guild's default @everyone role.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>channel</strong> (hikari.channels.GuildChannel | None):
+<li><p><strong>channel</strong> (hikari.GuildChannel | None):
 The channel to calculate the permissions for.</p>
 
 <p>If this is left as <code>None</code> then this will just calculate the default
@@ -825,7 +825,7 @@ permissions on a guild level.</p></li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.permissions.Permissions</strong>: The calculated permissions.</li>
+<li><strong>hikari.Permissions</strong>: The calculated permissions.</li>
 </ul>
 </div>
 
@@ -858,17 +858,17 @@ permissions on a guild level.</p></li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    member : hikari.guilds.Member</span>
+<span class="sd">    member : hikari.Member</span>
 <span class="sd">        Object of the member to calculate the permissions for.</span>
-<span class="sd">    guild : hikari.guilds.Guild</span>
+<span class="sd">    guild : hikari.Guild</span>
 <span class="sd">        Object of the guild to calculate their permissions within.</span>
-<span class="sd">    roles : collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]</span>
+<span class="sd">    roles : collections.abc.Mapping[hikari.Snowflake, hikari.Role]</span>
 <span class="sd">        Mapping of snowflake IDs to objects of the roles within the target</span>
 <span class="sd">        guild.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.channels.GuildChannel | None</span>
+<span class="sd">    channel : hikari.GuildChannel | None</span>
 <span class="sd">        Object of the channel to calculate the member&#39;s permissions in.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate their</span>
@@ -876,7 +876,7 @@ permissions on a guild level.</p></li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permission</span>
+<span class="sd">    hikari.Permission</span>
 <span class="sd">        Value of the member&#39;s permissions either within the guild or specified</span>
 <span class="sd">        guild channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -904,11 +904,11 @@ permissions on a guild level.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>member</strong> (hikari.guilds.Member):
+<li><strong>member</strong> (hikari.Member):
 Object of the member to calculate the permissions for.</li>
-<li><strong>guild</strong> (hikari.guilds.Guild):
+<li><strong>guild</strong> (hikari.Guild):
 Object of the guild to calculate their permissions within.</li>
-<li><strong>roles</strong> (collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]):
+<li><strong>roles</strong> (collections.abc.Mapping[hikari.Snowflake, hikari.Role]):
 Mapping of snowflake IDs to objects of the roles within the target
 guild.</li>
 </ul>
@@ -916,7 +916,7 @@ guild.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>channel</strong> (hikari.channels.GuildChannel | None):
+<li><p><strong>channel</strong> (hikari.GuildChannel | None):
 Object of the channel to calculate the member's permissions in.</p>
 
 <p>If this is left as <code>None</code> then this will just calculate their
@@ -926,7 +926,7 @@ permissions on a guild level.</p></li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.permissions.Permission</strong>: Value of the member's permissions either within the guild or specified
+<li><strong>hikari.Permission</strong>: Value of the member's permissions either within the guild or specified
 guild channel.</li>
 </ul>
 </div>
@@ -966,12 +966,12 @@ guild channel.</li>
 <span class="sd">    ----------</span>
 <span class="sd">    client : tanjun.abc.Client</span>
 <span class="sd">        The Tanjun client to use for lookups.</span>
-<span class="sd">    guild_id : hikari.snowflakes.Snowflake</span>
+<span class="sd">    guild_id : hikari.Snowflake</span>
 <span class="sd">        ID of the guild to calculate the default permissions for.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None</span>
+<span class="sd">    channel : hikari.SnowflakeishOr | hikari.PartialChannel | None</span>
 <span class="sd">        The channel to calculate the permissions for.</span>
 
 <span class="sd">        If this is left as `None` then this will just calculate the default</span>
@@ -980,7 +980,7 @@ guild channel.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
@@ -1035,14 +1035,14 @@ are not possible.</p>
 <ul>
 <li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
 The Tanjun client to use for lookups.</li>
-<li><strong>guild_id</strong> (hikari.snowflakes.Snowflake):
+<li><strong>guild_id</strong> (hikari.Snowflake):
 ID of the guild to calculate the default permissions for.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>channel</strong> (hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel] | None):
+<li><p><strong>channel</strong> (hikari.SnowflakeishOr | hikari.PartialChannel | None):
 The channel to calculate the permissions for.</p>
 
 <p>If this is left as <code>None</code> then this will just calculate the default
@@ -1052,7 +1052,7 @@ permissions on a guild level.</p></li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.permissions.Permissions</strong>: The calculated permissions.</li>
+<li><strong>hikari.Permissions</strong>: The calculated permissions.</li>
 </ul>
 </div>
 
@@ -1091,19 +1091,19 @@ permissions on a guild level.</p></li>
 <span class="sd">    ----------</span>
 <span class="sd">    client : tanjun.abc.Client</span>
 <span class="sd">        The Tanjun client to use for lookups.</span>
-<span class="sd">    member : hikari.guilds.Member</span>
+<span class="sd">    member : hikari.Member</span>
 <span class="sd">        The object of the member to calculate the permissions for.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    channel : hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None</span>
+<span class="sd">    channel : hikari.SnowflakeishOr | hikari.GuildChannel | None</span>
 <span class="sd">        The object of ID of the channel to get their permissions in.</span>
 <span class="sd">        If left as `None` then this will return their base guild</span>
 <span class="sd">        permissions.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
@@ -1167,14 +1167,14 @@ are not possible.</p>
 <ul>
 <li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
 The Tanjun client to use for lookups.</li>
-<li><strong>member</strong> (hikari.guilds.Member):
+<li><strong>member</strong> (hikari.Member):
 The object of the member to calculate the permissions for.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>channel</strong> (hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel] | None):
+<li><strong>channel</strong> (hikari.SnowflakeishOr | hikari.GuildChannel | None):
 The object of ID of the channel to get their permissions in.
 If left as <code>None</code> then this will return their base guild
 permissions.</li>
@@ -1183,7 +1183,7 @@ permissions.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.permissions.Permissions</strong>: The calculated permissions.</li>
+<li><strong>hikari.Permissions</strong>: The calculated permissions.</li>
 </ul>
 </div>
 

@@ -1748,13 +1748,13 @@
 
 
 <span class="n">to_channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToChannel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToChannel</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.channels.PartialChannel` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.PartialChannel` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Color` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_emoji</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToEmoji</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToEmoji</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.emojis.KnownCustomEmoji` object.</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.KnownCustomEmoji` object.</span>
 
 <span class="sd">.. note::</span>
 <span class="sd">    If you just want to convert inpute to a `hikari.Emoji`, `hikari.CustomEmoji`</span>
@@ -1764,35 +1764,35 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">to_guild</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToGuild</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToGuild</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.guilds.Guild` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Guild` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_invite</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToInvite</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToInvite</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.invites.InviteWithMetadata` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.InviteWithMetadata` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_invite_with_metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToInviteWithMetadata</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToInviteWithMetadata</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.invites.Invite` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Invite` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_member</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToMember</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToMember</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.guilds.Member` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Member` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_presence</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToPresence</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToPresence</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.presences.MemberPresence`.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.MemberPresence`.&quot;&quot;&quot;</span>
 
 <span class="n">to_role</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToRole</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToRole</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.guilds.Role` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Role` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.snowflakes.Snowflake`.</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Snowflake`.</span>
 
 <span class="sd">.. note::</span>
 <span class="sd">    This also range validates the input.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">to_user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToUser</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToUser</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.users.User` object.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.User` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_voice_state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToVoiceState</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToVoiceState</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.voices.VoiceState`.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.VoiceState`.&quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -2814,7 +2814,7 @@ The value to convert.</li>
         <span class="name">to_channel</span><span class="annotation">: Final[<a href="#ToChannel">tanjun.conversion.ToChannel</a>]</span><span class="default_value"> = &lt;<a href="#ToChannel">tanjun.conversion.ToChannel</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.channels.PartialChannel</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.PartialChannel</code> object.</p>
 </div>
 
 
@@ -2872,7 +2872,7 @@ The value to convert.</li>
 
         </details>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.colors.Color</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.Color</code> object.</p>
 </div>
 
 
@@ -2952,7 +2952,7 @@ The value to parse.</li>
         <span class="name">to_emoji</span><span class="annotation">: Final[<a href="#ToEmoji">tanjun.conversion.ToEmoji</a>]</span><span class="default_value"> = &lt;<a href="#ToEmoji">tanjun.conversion.ToEmoji</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a cached <code>hikari.emojis.KnownCustomEmoji</code> object.</p>
+            <div class="docstring"><p>Convert user input to a cached <code>hikari.KnownCustomEmoji</code> object.</p>
 
 <p><em>Note:</em>
 If you just want to convert inpute to a <code>hikari.Emoji</code>, <code>hikari.CustomEmoji</code>
@@ -2969,7 +2969,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
         <span class="name">to_guild</span><span class="annotation">: Final[<a href="#ToGuild">tanjun.conversion.ToGuild</a>]</span><span class="default_value"> = &lt;<a href="#ToGuild">tanjun.conversion.ToGuild</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.guilds.Guild</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.Guild</code> object.</p>
 </div>
 
 
@@ -2980,7 +2980,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
         <span class="name">to_invite</span><span class="annotation">: Final[<a href="#ToInvite">tanjun.conversion.ToInvite</a>]</span><span class="default_value"> = &lt;<a href="#ToInvite">tanjun.conversion.ToInvite</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a cached <code>hikari.invites.InviteWithMetadata</code> object.</p>
+            <div class="docstring"><p>Convert user input to a cached <code>hikari.InviteWithMetadata</code> object.</p>
 </div>
 
 
@@ -2991,7 +2991,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
         <span class="name">to_invite_with_metadata</span><span class="annotation">: Final[<a href="#ToInviteWithMetadata">tanjun.conversion.ToInviteWithMetadata</a>]</span><span class="default_value"> = &lt;<a href="#ToInviteWithMetadata">tanjun.conversion.ToInviteWithMetadata</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.invites.Invite</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.Invite</code> object.</p>
 </div>
 
 
@@ -3002,7 +3002,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
         <span class="name">to_member</span><span class="annotation">: Final[<a href="#ToMember">tanjun.conversion.ToMember</a>]</span><span class="default_value"> = &lt;<a href="#ToMember">tanjun.conversion.ToMember</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.guilds.Member</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.Member</code> object.</p>
 </div>
 
 
@@ -3013,7 +3013,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
         <span class="name">to_presence</span><span class="annotation">: Final[<a href="#ToPresence">tanjun.conversion.ToPresence</a>]</span><span class="default_value"> = &lt;<a href="#ToPresence">tanjun.conversion.ToPresence</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a cached <code>hikari.presences.MemberPresence</code>.</p>
+            <div class="docstring"><p>Convert user input to a cached <code>hikari.MemberPresence</code>.</p>
 </div>
 
 
@@ -3024,7 +3024,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
         <span class="name">to_role</span><span class="annotation">: Final[<a href="#ToRole">tanjun.conversion.ToRole</a>]</span><span class="default_value"> = &lt;<a href="#ToRole">tanjun.conversion.ToRole</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.guilds.Role</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.Role</code> object.</p>
 </div>
 
 
@@ -3097,7 +3097,7 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
 
         </details>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.snowflakes.Snowflake</code>.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.Snowflake</code>.</p>
 
 <p><em>Note:</em>
 This also range validates the input.</p>
@@ -3111,7 +3111,7 @@ This also range validates the input.</p>
         <span class="name">to_user</span><span class="annotation">: Final[<a href="#ToUser">tanjun.conversion.ToUser</a>]</span><span class="default_value"> = &lt;<a href="#ToUser">tanjun.conversion.ToUser</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a <code>hikari.users.User</code> object.</p>
+            <div class="docstring"><p>Convert user input to a <code>hikari.User</code> object.</p>
 </div>
 
 
@@ -3122,7 +3122,7 @@ This also range validates the input.</p>
         <span class="name">to_voice_state</span><span class="annotation">: Final[<a href="#ToVoiceState">tanjun.conversion.ToVoiceState</a>]</span><span class="default_value"> = &lt;<a href="#ToVoiceState">tanjun.conversion.ToVoiceState</a> object&gt;</span>
     </div>
 
-            <div class="docstring"><p>Convert user input to a cached <code>hikari.voices.VoiceState</code>.</p>
+            <div class="docstring"><p>Convert user input to a cached <code>hikari.VoiceState</code>.</p>
 </div>
 
 

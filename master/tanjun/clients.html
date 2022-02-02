@@ -851,7 +851,7 @@
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -860,9 +860,9 @@
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -1056,7 +1056,7 @@
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -1065,9 +1065,9 @@
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -1126,7 +1126,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -1135,9 +1135,9 @@
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -1633,7 +1633,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
 <span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
 <span class="sd">            with dependency injection being supported for its keyword arguments.</span>
@@ -1653,7 +1653,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to remove.</span>
 
 <span class="sd">        Raises</span>
@@ -1669,14 +1669,14 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
 <span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
 <span class="sd">            with dependency injection being supported for its keyword arguments.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tanjun_abc.CheckSig</span>
+<span class="sd">        tanjun.abc.CheckSig</span>
 <span class="sd">            The added check.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
@@ -2131,7 +2131,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.AnyHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.AnyHooks | None</span>
 <span class="sd">            The general command execution hooks to set for this client.</span>
 
 <span class="sd">            Passing `None` will remove all hooks.</span>
@@ -2152,7 +2152,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.SlashHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.SlashHooks | None</span>
 <span class="sd">            The slash context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -2174,7 +2174,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.MessageHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.MessageHooks | None</span>
 <span class="sd">            The message context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -2888,7 +2888,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -2897,9 +2897,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -3093,7 +3093,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -3102,9 +3102,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -3163,7 +3163,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -3172,9 +3172,9 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -3670,7 +3670,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
 <span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
 <span class="sd">            with dependency injection being supported for its keyword arguments.</span>
@@ -3690,7 +3690,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to remove.</span>
 
 <span class="sd">        Raises</span>
@@ -3706,14 +3706,14 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
 <span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
 <span class="sd">            with dependency injection being supported for its keyword arguments.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tanjun_abc.CheckSig</span>
+<span class="sd">        tanjun.abc.CheckSig</span>
 <span class="sd">            The added check.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
@@ -4168,7 +4168,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.AnyHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.AnyHooks | None</span>
 <span class="sd">            The general command execution hooks to set for this client.</span>
 
 <span class="sd">            Passing `None` will remove all hooks.</span>
@@ -4189,7 +4189,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.SlashHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.SlashHooks | None</span>
 <span class="sd">            The slash context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -4211,7 +4211,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.MessageHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.MessageHooks | None</span>
 <span class="sd">            The message context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -4689,7 +4689,7 @@ by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -4698,9 +4698,9 @@ by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild]  | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -4900,7 +4900,7 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
+<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -4909,9 +4909,9 @@ global commands will be set on the specified guild(s) at startup rather
 than globally. This can be useful for testing/debug purposes as slash
 commands may take up to an hour to propagate globally but will
 immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (hikari.SnowflakeishOr[hikari.PartialGuild]  | bool):
+<li><strong>set_global_commands</strong> (hikari.Snowflakeish | hikari.PartialGuild | bool):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None):
 If provided, a mapping of top level command names to IDs of the commands to update.</p>
 
 <p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
@@ -5006,7 +5006,7 @@ after a rename.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -5015,9 +5015,9 @@ after a rename.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -5088,7 +5088,7 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
+<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -5097,9 +5097,9 @@ global commands will be set on the specified guild(s) at startup rather
 than globally. This can be useful for testing/debug purposes as slash
 commands may take up to an hour to propagate globally but will
 immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
+<li><strong>set_global_commands</strong> (hikari.Snowflakeish | hikari.PartialGuild | bool):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None):
 If provided, a mapping of top level command names to IDs of the commands to update.</p>
 
 <p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
@@ -5163,7 +5163,7 @@ after a rename.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
@@ -5172,9 +5172,9 @@ after a rename.</p>
 <span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
 <span class="sd">            commands may take up to an hour to propagate globally but will</span>
 <span class="sd">            immediately propagate when set on a specific guild.</span>
-<span class="sd">        set_global_commands : hikari.SnowflakeishOr[hikari.PartialGuild] | bool</span>
+<span class="sd">        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
 
 <span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
@@ -5220,7 +5220,7 @@ The bot client to build from.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequenceOr[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
+<li><p><strong>declare_global_commands</strong> (hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -5229,9 +5229,9 @@ global commands will be set on the specified guild(s) at startup rather
 than globally. This can be useful for testing/debug purposes as slash
 commands may take up to an hour to propagate globally but will
 immediately propagate when set on a specific guild.</p></li>
-<li><strong>set_global_commands</strong> (hikari.SnowflakeishOr[hikari.PartialGuild] | bool):
+<li><strong>set_global_commands</strong> (hikari.Snowflakeish | hikari.PartialGuild | bool):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
-<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None):
 If provided, a mapping of top level command names to IDs of the commands to update.</p>
 
 <p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
@@ -5546,12 +5546,12 @@ being per-guild if targeting a specific guild otherwise globally).</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 The application to clear commands for.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED):
 Object or ID of the guild to clear commands for.</p>
 
 <p>If left as <code>None</code> global commands will be cleared.</p></li>
@@ -5667,14 +5667,14 @@ will immediately propagate when set on a specific guild.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None):
 If provided, a mapping of top level command names to IDs of the existing commands to update.</li>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 Object or ID of the application to set the global commands for.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None):
 Object or ID of the guild to set the global commands to.</p>
 
 <p>If left as <code>None</code> global commands will be set.</p></li>
@@ -5769,14 +5769,14 @@ The command to register.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
 <li><strong>command_id</strong> (hikari.snowflakes.Snowflakeish | None):
 ID of the command to update.</li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None):
 Object or ID of the guild to register the command with.</p>
 
 <p>If left as <code>None</code> then the command will be registered globally.</p></li>
@@ -5906,19 +5906,19 @@ Iterable of the commands to register.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None):
 If provided, a mapping of top level command names to IDs of the existing commands to update.</p>
 
 <p>While optional, this can be helpful when updating commands as
 providing the current IDs will prevent changes such as renames from
 leading to other state set for commands (e.g. permissions) from
 being lost.</p></li>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 The application to register the commands with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None):
 Object or ID of the guild to register the commands with.</p>
 
 <p>If left as <code>None</code> then the commands will be registered globally.</p></li>
@@ -6427,7 +6427,7 @@ based on webhook and bot messages.</p></li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
 <span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
 <span class="sd">            with dependency injection being supported for its keyword arguments.</span>
@@ -6452,7 +6452,7 @@ based on webhook and bot messages.</p></li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>check</strong> (tanjun_abc.CheckSig):
+<li><strong>check</strong> (<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>):
 The check to add. This may be either synchronous or asynchronous
 and must take one positional argument of type <code><a href="abc.html#Context">tanjun.abc.Context</a></code>
 with dependency injection being supported for its keyword arguments.</li>
@@ -6486,7 +6486,7 @@ with dependency injection being supported for its keyword arguments.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to remove.</span>
 
 <span class="sd">        Raises</span>
@@ -6505,7 +6505,7 @@ with dependency injection being supported for its keyword arguments.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>check</strong> (tanjun_abc.CheckSig):
+<li><strong>check</strong> (<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>):
 The check to remove.</li>
 </ul>
 
@@ -6533,14 +6533,14 @@ The check to remove.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">        check : tanjun.abc.CheckSig</span>
 <span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
 <span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
 <span class="sd">            with dependency injection being supported for its keyword arguments.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tanjun_abc.CheckSig</span>
+<span class="sd">        tanjun.abc.CheckSig</span>
 <span class="sd">            The added check.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
@@ -6554,7 +6554,7 @@ The check to remove.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>check</strong> (tanjun_abc.CheckSig):
+<li><strong>check</strong> (<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>):
 The check to add. This may be either synchronous or asynchronous
 and must take one positional argument of type <code><a href="abc.html#Context">tanjun.abc.Context</a></code>
 with dependency injection being supported for its keyword arguments.</li>
@@ -6563,7 +6563,7 @@ with dependency injection being supported for its keyword arguments.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>tanjun_abc.CheckSig</strong>: The added check.</li>
+<li><strong><a href="abc.html#CheckSig">tanjun.abc.CheckSig</a></strong>: The added check.</li>
 </ul>
 </div>
 
@@ -7931,7 +7931,7 @@ to Discord if it cannot get the current user from the cache.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.AnyHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.AnyHooks | None</span>
 <span class="sd">            The general command execution hooks to set for this client.</span>
 
 <span class="sd">            Passing `None` will remove all hooks.</span>
@@ -7955,7 +7955,7 @@ command execution started by this client.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>hooks</strong> (tanjun_abc.AnyHooks | None):
+<li><p><strong>hooks</strong> (<a href="abc.html#AnyHooks">tanjun.abc.AnyHooks</a> | None):
 The general command execution hooks to set for this client.</p>
 
 <p>Passing <code>None</code> will remove all hooks.</p></li>
@@ -7992,7 +7992,7 @@ The general command execution hooks to set for this client.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.SlashHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.SlashHooks | None</span>
 <span class="sd">            The slash context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -8017,7 +8017,7 @@ execution started by this client.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>hooks</strong> (tanjun_abc.SlashHooks | None):
+<li><p><strong>hooks</strong> (<a href="abc.html#SlashHooks">tanjun.abc.SlashHooks</a> | None):
 The slash context specific command execution hooks to set for this
 client.</p>
 
@@ -8055,7 +8055,7 @@ client.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : tanjun_abc.MessageHooks | None</span>
+<span class="sd">        hooks : tanjun.abc.MessageHooks | None</span>
 <span class="sd">            The message context specific command execution hooks to set for this</span>
 <span class="sd">            client.</span>
 
@@ -8080,7 +8080,7 @@ execution started by this client.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>hooks</strong> (tanjun_abc.MessageHooks | None):
+<li><p><strong>hooks</strong> (<a href="abc.html#MessageHooks">tanjun.abc.MessageHooks</a> | None):
 The message context specific command execution hooks to set for this
 client.</p>
 

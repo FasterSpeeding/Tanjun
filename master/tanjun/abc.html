@@ -1844,7 +1844,7 @@
 <span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : bool | hikari.UNDEFINED</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
-<span class="sd">        reply : bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED</span>
+<span class="sd">        reply : bool | hikari.Snowflakeish | hikari.PartialMessage | hikari.UNDEFINED</span>
 <span class="sd">            Whether to reply instead of sending the content to the context.</span>
 
 <span class="sd">            Defaults to `hikari.UNDEFINED`.</span>
@@ -3966,12 +3966,12 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to clear commands for.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED</span>
 <span class="sd">            Object or ID of the guild to clear commands for.</span>
 
 <span class="sd">            If left as `None` global commands will be cleared.</span>
@@ -4003,14 +4003,14 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            Object or ID of the application to set the global commands for.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
@@ -4052,14 +4052,14 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to register the command with.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : hikari.snowflakes.Snowflakeish | None</span>
 <span class="sd">            ID of the command to update.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
@@ -4095,19 +4095,19 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
 
 <span class="sd">            While optional, this can be helpful when updating commands as</span>
 <span class="sd">            providing the current IDs will prevent changes such as renames from</span>
 <span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
 <span class="sd">            being lost.</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to register the commands with.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to register the commands with.</span>
 
 <span class="sd">            If left as `None` then the commands will be registered globally.</span>
@@ -10166,7 +10166,7 @@ The command to add.</li>
 <span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : bool | hikari.UNDEFINED</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
-<span class="sd">        reply : bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED</span>
+<span class="sd">        reply : bool | hikari.Snowflakeish | hikari.PartialMessage | hikari.UNDEFINED</span>
 <span class="sd">            Whether to reply instead of sending the content to the context.</span>
 
 <span class="sd">            Defaults to `hikari.UNDEFINED`.</span>
@@ -10504,7 +10504,7 @@ This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</co
 <span class="sd">            If provided, the seconds after which the response message should be deleted.</span>
 <span class="sd">        tts : bool | hikari.UNDEFINED</span>
 <span class="sd">            Whether to respond with tts/text to speech or no.</span>
-<span class="sd">        reply : bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED</span>
+<span class="sd">        reply : bool | hikari.Snowflakeish | hikari.PartialMessage | hikari.UNDEFINED</span>
 <span class="sd">            Whether to reply instead of sending the content to the context.</span>
 
 <span class="sd">            Defaults to `hikari.UNDEFINED`.</span>
@@ -10649,7 +10649,7 @@ always be immedieatly available.</p></li>
 If provided, the seconds after which the response message should be deleted.</li>
 <li><strong>tts</strong> (bool | hikari.UNDEFINED):
 Whether to respond with tts/text to speech or no.</li>
-<li><p><strong>reply</strong> (bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UNDEFINED):
+<li><p><strong>reply</strong> (bool | hikari.Snowflakeish | hikari.PartialMessage | hikari.UNDEFINED):
 Whether to reply instead of sending the content to the context.</p>
 
 <p>Defaults to <code>hikari.UNDEFINED</code>.
@@ -15277,12 +15277,12 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to clear commands for.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED</span>
 <span class="sd">            Object or ID of the guild to clear commands for.</span>
 
 <span class="sd">            If left as `None` global commands will be cleared.</span>
@@ -15314,14 +15314,14 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            Object or ID of the application to set the global commands for.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
@@ -15363,14 +15363,14 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to register the command with.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : hikari.snowflakes.Snowflakeish | None</span>
 <span class="sd">            ID of the command to update.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
@@ -15406,19 +15406,19 @@ If the component isn't bound to a client.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
 
 <span class="sd">            While optional, this can be helpful when updating commands as</span>
 <span class="sd">            providing the current IDs will prevent changes such as renames from</span>
 <span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
 <span class="sd">            being lost.</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to register the commands with.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to register the commands with.</span>
 
 <span class="sd">            If left as `None` then the commands will be registered globally.</span>
@@ -16190,12 +16190,12 @@ to this command client.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to clear commands for.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED</span>
 <span class="sd">            Object or ID of the guild to clear commands for.</span>
 
 <span class="sd">            If left as `None` global commands will be cleared.</span>
@@ -16214,12 +16214,12 @@ being per-guild if targeting a specific guild otherwise globally).</p>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 The application to clear commands for.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | hikari.UNDEFINED):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED):
 Object or ID of the guild to clear commands for.</p>
 
 <p>If left as <code>None</code> global commands will be cleared.</p></li>
@@ -16272,14 +16272,14 @@ Object or ID of the guild to clear commands for.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            Object or ID of the application to set the global commands for.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
@@ -16320,14 +16320,14 @@ will immediately propagate when set on a specific guild.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None):
 If provided, a mapping of top level command names to IDs of the existing commands to update.</li>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 Object or ID of the application to set the global commands for.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None):
 Object or ID of the guild to set the global commands to.</p>
 
 <p>If left as <code>None</code> global commands will be set.</p></li>
@@ -16392,14 +16392,14 @@ of only 200 application command creates per day (per guild or globally).</p></li
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to register the command with.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : hikari.snowflakes.Snowflakeish | None</span>
 <span class="sd">            ID of the command to update.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
@@ -16430,14 +16430,14 @@ The command to register.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
 <li><strong>command_id</strong> (hikari.snowflakes.Snowflakeish | None):
 ID of the command to update.</li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None):
 Object or ID of the guild to register the command with.</p>
 
 <p>If left as <code>None</code> then the command will be registered globally.</p></li>
@@ -16497,19 +16497,19 @@ Object or ID of the guild to register the command with.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None</span>
+<span class="sd">        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None</span>
 <span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
 
 <span class="sd">            While optional, this can be helpful when updating commands as</span>
 <span class="sd">            providing the current IDs will prevent changes such as renames from</span>
 <span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
 <span class="sd">            being lost.</span>
-<span class="sd">        application : hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None</span>
+<span class="sd">        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None</span>
 <span class="sd">            The application to register the commands with.</span>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None</span>
+<span class="sd">        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None</span>
 <span class="sd">            Object or ID of the guild to register the commands with.</span>
 
 <span class="sd">            If left as `None` then the commands will be registered globally.</span>
@@ -16554,19 +16554,19 @@ Iterable of the commands to register.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]] | None):
+<li><p><strong>command_ids</strong> (collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None):
 If provided, a mapping of top level command names to IDs of the existing commands to update.</p>
 
 <p>While optional, this can be helpful when updating commands as
 providing the current IDs will prevent changes such as renames from
 leading to other state set for commands (e.g. permissions) from
 being lost.</p></li>
-<li><p><strong>application</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication] | None):
+<li><p><strong>application</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None):
 The application to register the commands with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild] | None):
+<li><p><strong>guild</strong> (hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None):
 Object or ID of the guild to register the commands with.</p>
 
 <p>If left as <code>None</code> then the commands will be registered globally.</p></li>
