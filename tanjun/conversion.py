@@ -183,7 +183,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         """
         # TODO: upgrade this stuff to the standard interface
         assert isinstance(client, injecting.InjectorClient)
-        if not client.cache or any(client.get_type_dependency(cls) is injecting.UNDEFINED for cls in self.async_caches):
+        if not client.cache and any(
+            client.get_type_dependency(cls) is injecting.UNDEFINED for cls in self.async_caches
+        ):
             if self.requires_cache:
                 _LOGGER.warning(
                     f"Converter {self!r} registered with {parent_name} will always fail with a stateless client.",
