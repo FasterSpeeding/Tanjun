@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ephemeral` keyword-argument to `SlashContext`'s `create_initial_response`, `create_follow_up`
   and `defer` methods as a shorthand for including `1 << 6` in the passed flags.
 - Context menu command support.
+- Slash command autocomplete support.
 
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
