@@ -817,8 +817,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def __aexit__(
         self,
-        exc_type: typing.Optional[type[Exception]],
-        exc: typing.Optional[Exception],
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
         exc_traceback: typing.Optional[types.TracebackType],
     ) -> None:
         await self.close()
@@ -2264,9 +2264,9 @@ class _WrapLoadError:
 
     def __exit__(
         self,
-        exc_type: typing.Optional[type[Exception]],
-        exc: typing.Optional[Exception],
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
         exc_tb: typing.Optional[types.TracebackType],
     ) -> None:
-        if exc and not isinstance(exc, errors.ModuleMissingLoaders):
+        if exc and isinstance(exc, Exception) and not isinstance(exc, errors.ModuleMissingLoaders):
             raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception

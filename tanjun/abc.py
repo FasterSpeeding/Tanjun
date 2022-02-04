@@ -96,6 +96,8 @@ MetaEventSig = collections.Callable[..., MaybeAwaitableT[None]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
 BaseSlashCommandT = typing.TypeVar("BaseSlashCommandT", bound="BaseSlashCommand")
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand[typing.Any]")
+_AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
+_AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
 
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
@@ -1366,56 +1368,6 @@ class AppCommandContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def expires_at(self) -> datetime.datetime:
-        """When this application command context expires.
-
-        After this time is reached, the message/response methods on this
-        context will always raise `hikari.errors.NotFoundError`.
-        """
-
-    @property
-    @abc.abstractmethod
-    def interaction(self) -> hikari.PartialInteraction:
-        """Interaction this context is for."""
-
-    @property
-    @abc.abstractmethod
-    def member(self) -> typing.Optional[hikari.InteractionMember]:
-        """Object of the member that triggered this command if this is in a guild."""
-
-
-class AutocompleteContext(AppCommandContext):
-    """Interface of an autocomplete context."""
-
-    @property
-    @abc.abstractmethod
-    def interaction(self) -> hikari.PartialInteraction:
-        """Interaction this context is for."""
-
-    @property
-    @abc.abstractmethod
-    def options(self) -> collections.Mapping[str, AutocompleteOption]:
-        """Mapping of option names to the values provided for them."""
-
-
-class SlashContext(Context, abc.ABC):
-    """Interface of a slash command specific context."""
-
-    __slots__ = ()
-
-    @property
-    @abc.abstractmethod
-    def command(self) -> typing.Optional[BaseSlashCommand]:
-        """Command that was invoked.
-
-        .. note::
-            This should always be set during command, command check execution
-            and command hook execution but isn't guaranteed for client callbacks
-            nor component/client checks.
-        """
-
-    @property
-    @abc.abstractmethod
     def defaults_to_ephemeral(self) -> bool:
         """Whether the context is marked as defaulting to ephemeral response.
 
@@ -1423,6 +1375,15 @@ class SlashContext(Context, abc.ABC):
         `SlashContext.create_initial_response`, `SlashContext.defer` and
         `SlashContext.respond` unless the `flags` field is provided for the
         methods which support it.
+        """
+
+    @property
+    @abc.abstractmethod
+    def expires_at(self) -> datetime.datetime:
+        """When this application command context expires.
+
+        After this time is reached, the message/response methods on this
+        context will always raise `hikari.errors.NotFoundError`.
         """
 
     @property
@@ -1439,23 +1400,13 @@ class SlashContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def interaction(self) -> hikari.CommandInteraction:
+    def interaction(self) -> hikari.PartialInteraction:
         """Interaction this context is for."""
 
     @property
     @abc.abstractmethod
-    def options(self) -> collections.Mapping[str, SlashOption]:
-        """Mapping of option names to the values provided for them."""
-
-    @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
-        """Set the command for this context.
-
-        Parameters
-        ----------
-        command : BaseSlashCommand | None
-            The command this context is for.
-        """
+    def member(self) -> typing.Optional[hikari.InteractionMember]:
+        """Object of the member that triggered this command if this is in a guild."""
 
     @abc.abstractmethod
     def set_ephemeral_default(self: _T, state: bool, /) -> _T:
@@ -1757,6 +1708,311 @@ class SlashContext(Context, abc.ABC):
             nature, and will trigger this exception if they occur.
         hikari.InternalServerError
             If an internal error occurs on Discord while handling the request.
+        """
+
+
+_MenuTypeT = typing.TypeVar("_MenuTypeT", hikari.User, hikari.Member)
+
+
+class MenuContext(AppCommandContext, abc.ABC, typing.Generic[_MenuTypeT]):
+    """Interface of a menu command context."""
+
+    # @property
+    # @abc.abstractmethod
+    # def command(self) -> typing.Optional[MenuCommand]:
+    #     """Command that was invoked.
+
+    #     .. note::
+    #         This should always be set during command, command check execution
+    #         and command hook execution but isn't guaranteed for client callbacks
+    #         nor component/client checks.
+    #     """
+
+    @property
+    @abc.abstractmethod
+    def interaction(self) -> hikari.CommandInteraction:
+        """ "Interaction this context is for."""
+
+    @property
+    @abc.abstractmethod
+    def target_id(self) -> hikari.Snowflake:
+        """Id of the entity this menu command context targets."""
+
+    @property
+    @abc.abstractmethod
+    def target(self) -> SlashOption:
+        """Option of the entity this menu command context targets."""
+
+    # @abc.abstractmethod
+    # def set_command(self: _T, _: typing.Optional[MenuCommand], /) -> _T:
+    #     """Set the command for this context.
+
+    #     Parameters
+    #     ----------
+    #     command : MenuCommand | None
+    #         The command this context is for.
+    #     """
+
+
+class SlashContext(AppCommandContext, abc.ABC):
+    """Interface of a slash command specific context."""
+
+    __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def command(self) -> typing.Optional[BaseSlashCommand]:
+        """Command that was invoked.
+
+        .. note::
+            This should always be set during command, command check execution
+            and command hook execution but isn't guaranteed for client callbacks
+            nor component/client checks.
+        """
+
+    @property
+    @abc.abstractmethod
+    def interaction(self) -> hikari.CommandInteraction:
+        """Interaction this context is for."""
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> collections.Mapping[str, SlashOption]:
+        """Mapping of option names to the values provided for them."""
+
+    @abc.abstractmethod
+    def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
+        """Set the command for this context.
+
+        Parameters
+        ----------
+        command : BaseSlashCommand | None
+            The command this context is for.
+        """
+
+
+class AutocompleteContext(typing.Generic[_AutocompleteValueT]):
+    """Interface of an autocomplete context."""
+
+    @property
+    @abc.abstractmethod
+    def author(self) -> hikari.User:
+        """Object of the user who triggered this autocomplete."""
+
+    @property
+    @abc.abstractmethod
+    def channel_id(self) -> hikari.Snowflake:
+        """ID of the channel this autocomplete was triggered in."""
+
+    @property
+    @abc.abstractmethod
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
+        """Hikari cache instance this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def client(self) -> Client:
+        """Tanjun `Client` implementation this context was spawned by."""
+
+    @property
+    @abc.abstractmethod
+    def component(self) -> typing.Optional[Component]:
+        """Object of the `Component` this context is bound to."""
+
+    @property
+    @abc.abstractmethod
+    def created_at(self) -> datetime.datetime:
+        """When this context was created.
+
+        .. note::
+            This will either refer to a message or integration's creation date.
+        """
+
+    @property
+    @abc.abstractmethod
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
+        """Object of the event manager this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+        """ID of the guild this autocomplete was triggered in.
+
+        Will be `None` for all DM autocomplete executions.
+        """
+
+    @property
+    @abc.abstractmethod
+    def member(self) -> typing.Optional[hikari.Member]:
+        """Guild member object of this autocomplete's author.
+
+        Will be `None` for DM autocomplete executions.
+        """
+
+    @property
+    @abc.abstractmethod
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+        """Object of the Hikari interaction server provided for this context's client."""
+
+    @property
+    @abc.abstractmethod
+    def rest(self) -> hikari.api.RESTClient:
+        """Object of the Hikari REST client this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+        """Object of the Hikari shard manager this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def value(self) -> str:  # TODO: will this ever be float or int?
+        """"""
+
+    @property
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+        """Object of the Hikari voice component this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def has_responded(self) -> bool:
+        """Whether the choices have been set for this autocomplete."""
+
+    @property
+    @abc.abstractmethod
+    def interaction(self) -> hikari.AutocompleteInteraction:
+        """Interaction this context is for."""
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> collections.Mapping[str, AutocompleteOption]:
+        """Mapping of option names to the values provided for them."""
+
+    @abc.abstractmethod
+    async def fetch_channel(self) -> hikari.TextableChannel:
+        """Fetch the channel the context was invoked in.
+
+        .. note::
+            This performs an API call. Consider using `Context.get_channel`
+            if you have `hikari.config.CacheComponents.GUILD_CHANNELS` cache component enabled.
+
+        Returns
+        -------
+        hikari.TextableChannel
+            The textable DM or guild channel the context was invoked in.
+
+        Raises
+        ------
+        hikari.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.ForbiddenError
+            If you are missing the `READ_MESSAGES` permission in the channel.
+        hikari.NotFoundError
+            If the channel is not found.
+        hikari.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """
+
+    @abc.abstractmethod
+    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
+        """Fetch the guild the context was invoked in.
+
+        .. note::
+            This performs an API call. Consider using `Context.get_guild`
+            if you have `hikari.config.CacheComponents.GUILDS` cache component enabled.
+
+        Returns
+        -------
+        hikari.Guild | None
+            An optional guild the context was invoked in.
+            `None` will be returned if the context was invoked in a DM channel.
+
+        Raises
+        ------
+        hikari.ForbiddenError
+            If you are not part of the guild.
+        hikari.NotFoundError
+            If the guild is not found.
+        hikari.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """
+
+    @abc.abstractmethod
+    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
+        """Retrieve the channel the context was invoked in from the cache.
+
+        .. note::
+            This method requires the `hikari.config.CacheComponents.GUILD_CHANNELS` cache component.
+
+        Returns
+        -------
+        hikari.TextableGuildChannel | None
+            An optional guild channel the context was invoked in.
+            `None` will be returned if the channel was not found or if it
+            is DM channel.
+        """
+
+    @abc.abstractmethod
+    def get_guild(self) -> typing.Optional[hikari.Guild]:
+        """Fetch the guild that the context was invoked in.
+
+        .. note::
+            This method requires `hikari.config.CacheComponents.GUILDS` cache component enabled.
+
+        Returns
+        -------
+        hikari.Guild | None
+            An optional guild the context was invoked in.
+            `None` will be returned if the guild was not found.
+        """
+
+    @abc.abstractmethod
+    async def set_choices(
+        self,
+        choices: typing.Union[
+            collections.Mapping[str, _AutocompleteValueT], collections.Iterable[tuple[str, _AutocompleteValueT]]
+        ] = ...,
+        /,
+        **kwargs: _AutocompleteValueT,
+    ) -> None:
+        """Set the choices for this autocomplete.
+
+        .. note::
+            Only up to (and including) 25 choices may be set for an autocomplete.
+
+        Parameters
+        ----------
+        choices : collections.abc.Mapping[str, _T]
+            Mapping of string option names to their values.
+        **kwargs : _T
+            Keyword arguments mapping string option names to their values.
         """
 
 
@@ -2201,8 +2457,8 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
         """
 
 
-class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
-    """Base class for all slash command classes."""
+class AppCommand(ExecutableCommand[_AppCommandContextT]):
+    """Base class for all application command classes."""
 
     __slots__ = ()
 
@@ -2241,6 +2497,47 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """Name of the command."""
 
     @property
+    def tracked_command(self) -> typing.Optional[hikari.PartialCommand]:
+        """Object of the actual command this object tracks if set."""
+
+    @property
+    @abc.abstractmethod
+    def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
+        """ID of the actual command this object tracks if set."""
+
+    @abc.abstractmethod
+    def build(self) -> hikari.api.CommandBuilder:
+        """Get a builder object for this command.
+
+        Returns
+        -------
+        hikari.api.CommandBuilder
+            A builder object for this command. Use to declare this command on
+            globally or for a specific guild.
+        """
+
+    @abc.abstractmethod
+    async def check_context(self, ctx: _AppCommandContextT, /) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def execute(
+        self,
+        ctx: _AppCommandContextT,
+        /,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
+        *,
+        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
+    ) -> None:
+        raise NotImplementedError
+
+
+class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
+    """Base class for all slash command classes."""
+
+    __slots__ = ()
+
+    @property
     @abc.abstractmethod
     def parent(self) -> typing.Optional[SlashCommandGroup]:
         """Object of the group this command is in."""
@@ -2248,11 +2545,6 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
     @property
     def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
         """Object of the actual command this object tracks if set."""
-
-    @property
-    @abc.abstractmethod
-    def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        """ID of the actual command this object tracks if set."""
 
     @abc.abstractmethod
     def build(self) -> hikari.api.SlashCommandBuilder:
@@ -2264,21 +2556,6 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
-
-    @abc.abstractmethod
-    async def check_context(self, ctx: SlashContext, /) -> bool:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def execute(
-        self,
-        ctx: SlashContext,
-        /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
-        *,
-        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
-    ) -> None:
-        raise NotImplementedError
 
     @abc.abstractmethod
     def set_parent(self: _T, _: typing.Optional[SlashCommandGroup], /) -> _T:
@@ -2309,6 +2586,12 @@ class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSigT:
         """Callback which is called during execution."""
+
+
+class MenuCommand(AppCommand[_MenuTypeT]):
+    """A contextmenu command."""
+
+    __slots__ = ()
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):
