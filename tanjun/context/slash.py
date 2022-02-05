@@ -49,8 +49,10 @@ if typing.TYPE_CHECKING:
 
     from .. import injecting
 
+    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
     _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
     _T = typing.TypeVar("_T")
+
 
 _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
@@ -261,9 +263,8 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
     return options or ()
 
 
-class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
+class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
     __slots__ = (
-        "_command",
         "_defaults_to_ephemeral",
         "_defer_task",
         "_has_been_deferred",
@@ -272,7 +273,6 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         "_last_response_id",
         "_marked_not_found",
         "_on_not_found",
-        "_options",
         "_response_future",
         "_response_lock",
     )
@@ -283,14 +283,12 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
-        command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[SlashContext], collections.Awaitable[None]]] = None,
+        on_not_found: typing.Optional[collections.Callable[[AppCommandContext], collections.Awaitable[None]]] = None,
     ) -> None:
         super().__init__(client, injection_client, component=component)
-        self._command = command
         self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._has_been_deferred = False
@@ -301,13 +299,7 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         self._on_not_found = on_not_found
         self._response_future = future
         self._response_lock = asyncio.Lock()
-        self._set_type_special_case(tanjun_abc.SlashContext, self)._set_type_special_case(SlashContext, self)
-
-        if options := flatten_options(interaction.options):
-            self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
-
-        else:
-            self._options = {}
+        # TODO: _set_type_special_case
 
     @property
     def author(self) -> hikari.User:
@@ -323,11 +315,6 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
     def client(self) -> tanjun_abc.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
-
-    @property
-    def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
-        return self._command
 
     @property
     def created_at(self) -> datetime.datetime:
@@ -380,15 +367,6 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._interaction
 
-    @property
-    def options(self) -> collections.Mapping[str, tanjun_abc.SlashOption]:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
-        return self._options.copy()
-
-    async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
-        await asyncio.sleep(countdown)
-        await self.defer()
-
     def cancel_defer(self) -> None:
         """Cancel the auto-deferral if its active."""
         if self._defer_task:
@@ -409,47 +387,7 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def start_defer_timer(self: _SlashContextT, count_down: typing.Union[int, float], /) -> _SlashContextT:
-        """Start the auto-deferral timer.
-
-        Parameters
-        ----------
-        count_down : int | float
-            The number of seconds to wait before automatically deferring the
-            interaction.
-
-        Returns
-        -------
-        Self
-            This context to allow for chaining.
-        """
-        self._assert_not_final()
-        if self._defer_task:
-            raise RuntimeError("Defer timer already set")
-
-        self._defer_task = asyncio.create_task(self._auto_defer(count_down))
-        return self
-
-    def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
-        self._assert_not_final()
-        self._command = command
-        if command:
-            (
-                self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
-                ._set_type_special_case(tanjun_abc.BaseSlashCommand, command)
-                ._set_type_special_case(tanjun_abc.SlashCommand, command)
-                ._set_type_special_case(type(command), command)
-            )
-        elif command_case := self._special_case_types.get(tanjun_abc.ExecutableCommand):
-            self._remove_type_special_case(tanjun_abc.ExecutableCommand)
-            self._remove_type_special_case(tanjun_abc.BaseSlashCommand)
-            self._remove_type_special_case(tanjun_abc.SlashCommand)  # TODO: command group?
-            self._remove_type_special_case(type(command_case))
-
-        return self
-
-    def set_ephemeral_default(self: _SlashContextT, state: bool, /) -> _SlashContextT:
+    def set_ephemeral_default(self: _AppCommandContextT, state: bool, /) -> _AppCommandContextT:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()  # TODO: document not final assertions.
         self._defaults_to_ephemeral = state
@@ -966,3 +904,65 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
 
         if ensure_result:
             return await self._interaction.fetch_initial_response()
+
+
+class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
+    __slots__ = ("_command", "_options")
+
+    def __init__(
+        self,
+        client: tanjun_abc.Client,
+        injection_client: injecting.InjectorClient,
+        interaction: hikari.CommandInteraction,
+        *,
+        command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
+        component: typing.Optional[tanjun_abc.Component] = None,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        on_not_found: typing.Optional[collections.Callable[[AppCommandContext], collections.Awaitable[None]]] = None,
+    ) -> None:
+        super().__init__(
+            client,
+            injection_client,
+            interaction,
+            component=component,
+            default_to_ephemeral=default_to_ephemeral,
+            future=future,
+            on_not_found=on_not_found,
+        )
+
+        self._command = command
+        if options := flatten_options(interaction.options):
+            self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
+
+        else:
+            self._options = {}
+
+    @property
+    def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        return self._command
+
+    @property
+    def options(self) -> collections.Mapping[str, tanjun_abc.SlashOption]:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        return self._options.copy()
+
+    def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        self._assert_not_final()
+        self._command = command
+        if command:
+            (
+                self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
+                ._set_type_special_case(tanjun_abc.BaseSlashCommand, command)
+                ._set_type_special_case(tanjun_abc.SlashCommand, command)
+                ._set_type_special_case(type(command), command)
+            )
+        elif command_case := self._special_case_types.get(tanjun_abc.ExecutableCommand):
+            self._remove_type_special_case(tanjun_abc.ExecutableCommand)
+            self._remove_type_special_case(tanjun_abc.BaseSlashCommand)
+            self._remove_type_special_case(tanjun_abc.SlashCommand)  # TODO: command group?
+            self._remove_type_special_case(type(command_case))
+
+        return self

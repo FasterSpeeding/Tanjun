@@ -104,7 +104,7 @@ if typing.TYPE_CHECKING:
                 ]
             ] = None,
             on_not_found: typing.Optional[
-                collections.Callable[[context.SlashContext], collections.Awaitable[None]]
+                collections.Callable[[context.slash.AppCommandContext], collections.Awaitable[None]]
             ] = None,
         ) -> context.SlashContext:
             raise NotImplementedError

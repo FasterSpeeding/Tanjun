@@ -88,9 +88,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
         self._has_responded = False
         self._interaction = interaction
 
-        print(interaction.options)
         options = slash.flatten_options(interaction.options)
-
         focused: typing.Optional[AutocompleteOption] = None
         self._options: dict[str, AutocompleteOption] = {}
         if options := slash.flatten_options(interaction.options):
@@ -101,6 +99,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
 
         assert focused is not None
         self._focused = focused
+        # TODO: self._set_type_special_case
 
     @property
     def author(self) -> hikari.User:
@@ -188,6 +187,9 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
         /,
         **kwargs: _ValueT,
     ) -> None:
+        if self._has_responded:
+            raise RuntimeError("Cannot set choices after responding")
+
         choices = dict(choices, **kwargs)
         if len(choices) > 25:
             raise ValueError("Cannot set more than 25 choices")

@@ -1401,7 +1401,7 @@ class AppCommandContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def interaction(self) -> hikari.PartialInteraction:
+    def interaction(self) -> hikari.CommandInteraction:
         """Interaction this context is for."""
 
     @property
@@ -1718,21 +1718,16 @@ _MenuTypeT = typing.TypeVar("_MenuTypeT", hikari.User, hikari.Member)
 class MenuContext(AppCommandContext, abc.ABC, typing.Generic[_MenuTypeT]):
     """Interface of a menu command context."""
 
-    # @property
-    # @abc.abstractmethod
-    # def command(self) -> typing.Optional[MenuCommand]:
-    #     """Command that was invoked.
-
-    #     .. note::
-    #         This should always be set during command, command check execution
-    #         and command hook execution but isn't guaranteed for client callbacks
-    #         nor component/client checks.
-    #     """
-
     @property
     @abc.abstractmethod
-    def interaction(self) -> hikari.CommandInteraction:
-        """ "Interaction this context is for."""
+    def command(self) -> typing.Optional[MenuCommand[_MenuTypeT]]:
+        """Command that was invoked.
+
+        .. note::
+            This should always be set during command, command check execution
+            and command hook execution but isn't guaranteed for client callbacks
+            nor component/client checks.
+        """
 
     @property
     @abc.abstractmethod
@@ -1744,15 +1739,15 @@ class MenuContext(AppCommandContext, abc.ABC, typing.Generic[_MenuTypeT]):
     def target(self) -> SlashOption:
         """Option of the entity this menu command context targets."""
 
-    # @abc.abstractmethod
-    # def set_command(self: _T, _: typing.Optional[MenuCommand], /) -> _T:
-    #     """Set the command for this context.
+    @abc.abstractmethod
+    def set_command(self: _T, _: typing.Optional[MenuCommand[_MenuTypeT]], /) -> _T:
+        """Set the command for this context.
 
-    #     Parameters
-    #     ----------
-    #     command : MenuCommand | None
-    #         The command this context is for.
-    #     """
+        Parameters
+        ----------
+        command : MenuCommand | None
+            The command this context is for.
+        """
 
 
 class SlashContext(AppCommandContext, abc.ABC):
@@ -1770,11 +1765,6 @@ class SlashContext(AppCommandContext, abc.ABC):
             and command hook execution but isn't guaranteed for client callbacks
             nor component/client checks.
         """
-
-    @property
-    @abc.abstractmethod
-    def interaction(self) -> hikari.CommandInteraction:
-        """Interaction this context is for."""
 
     @property
     @abc.abstractmethod
