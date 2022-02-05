@@ -37,6 +37,8 @@ __all__: list[str] = ["AutocompleteContext"]
 
 import typing
 
+import hikari
+
 from .. import abc
 from .. import injecting
 from . import slash
@@ -46,7 +48,6 @@ if typing.TYPE_CHECKING:
     import datetime
     from collections import abc as collections
 
-    import hikari
     from hikari import traits as hikari_traits
 
 
@@ -67,7 +68,7 @@ class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):
         return self._option.is_focused
 
 
-class AutocompleteContext(abc.AutocompleteContext):
+class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
     __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction", "_options")
@@ -81,6 +82,7 @@ class AutocompleteContext(abc.AutocompleteContext):
     ) -> None:
         # TODO: upgrade injector client to the abc
         assert isinstance(client, injecting.InjectorClient)
+        super().__init__(client)
         self._client = client
         self._future = future
         self._has_responded = False
@@ -190,7 +192,7 @@ class AutocompleteContext(abc.AutocompleteContext):
         if len(choices) > 25:
             raise ValueError("Cannot set more than 25 choices")
 
-        choice_objects = [hikari.CommandChoice(name=name, value=value) for name, value in choices]
+        choice_objects = [hikari.CommandChoice(name=name, value=value) for name, value in choices.items()]
 
         if self._future:
             self._future.set_result(self._interaction.build_response(choice_objects))

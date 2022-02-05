@@ -304,7 +304,6 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         self._set_type_special_case(tanjun_abc.SlashContext, self)._set_type_special_case(SlashContext, self)
 
         if options := flatten_options(interaction.options):
-            assert interaction.resolved
             self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
 
         else:

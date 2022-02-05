@@ -314,6 +314,7 @@ def with_str_slash_option(
     description: str,
     /,
     *,
+    autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
     choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -340,9 +341,10 @@ def with_str_slash_option(
     return lambda c: c.add_str_option(
         name,
         description,
-        default=default,
+        autocomplete=autocomplete,
         choices=choices,
         converters=converters,
+        default=default,
         pass_as_kwarg=pass_as_kwarg,
         _stack_level=1,
     )
@@ -353,6 +355,7 @@ def with_int_slash_option(
     description: str,
     /,
     *,
+    autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -381,6 +384,7 @@ def with_int_slash_option(
     return lambda c: c.add_int_option(
         name,
         description,
+        autocomplete=autocomplete,
         default=default,
         choices=choices,
         converters=converters,
@@ -397,6 +401,7 @@ def with_float_slash_option(
     /,
     *,
     always_float: bool = True,
+    autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -426,6 +431,7 @@ def with_float_slash_option(
         name,
         description,
         always_float=always_float,
+        autocomplete=autocomplete,
         default=default,
         choices=choices,
         converters=converters,
@@ -1247,6 +1253,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         /,
         *,
         always_float: bool = False,
+        autocomplete: bool = False,
         channel_types: typing.Optional[collections.Sequence[int]] = None,
         choices: typing.Union[
             collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
@@ -1310,6 +1317,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 channel_types=channel_types,
                 min_value=min_value,
                 max_value=max_value,
+                autocomplete=autocomplete,
             )
         )
         if pass_as_kwarg:
@@ -1321,7 +1329,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 default=default,
                 only_member=only_member,
             )
-
         return self
 
     def add_str_option(
@@ -1330,6 +1337,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
+        autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
         choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -1421,15 +1429,21 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 else:
                     actual_choices[choice.capitalize()] = choice
 
-        return self._add_option(
+        self._add_option(
             name,
             description,
             hikari.OptionType.STRING,
+            autocomplete=autocomplete is not None,
             choices=actual_choices,
             converters=converters,
             default=default,
             pass_as_kwarg=pass_as_kwarg,
         )
+
+        if autocomplete:
+            self._str_autocompletes[name] = injecting.CallbackDescriptor(autocomplete)
+
+        return self
 
     def add_int_option(
         self: _SlashCommandT,
@@ -1437,6 +1451,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
+        autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
         choices: typing.Optional[collections.Mapping[str, int]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -1508,10 +1523,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
         """
-        return self._add_option(
+        self._add_option(
             name,
             description,
             hikari.OptionType.INTEGER,
+            autocomplete=autocomplete is not None,
             choices=choices,
             converters=converters,
             default=default,
@@ -1521,6 +1537,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             _stack_level=_stack_level + 1,
         )
 
+        if autocomplete:
+            self._int_autocompletes[name] = injecting.CallbackDescriptor(autocomplete)
+
+        return self
+
     def add_float_option(
         self: _SlashCommandT,
         name: str,
@@ -1528,6 +1549,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         /,
         *,
         always_float: bool = True,
+        autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
         choices: typing.Optional[collections.Mapping[str, float]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -1606,10 +1628,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
         """
-        return self._add_option(
+        self._add_option(
             name,
             description,
             hikari.OptionType.FLOAT,
+            autocomplete=autocomplete is not None,
             choices=choices,
             converters=converters,
             default=default,
@@ -1619,6 +1642,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             always_float=always_float,
             _stack_level=_stack_level + 1,
         )
+
+        if autocomplete:
+            self._float_autocompletes[name] = injecting.CallbackDescriptor(autocomplete)
+
+        return self
 
     def add_bool_option(
         self: _SlashCommandT,

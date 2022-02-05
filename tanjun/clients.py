@@ -2184,7 +2184,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             assert isinstance(event.interaction, hikari.CommandInteraction)
             return await self.on_gateway_command_create(event.interaction)
 
-        if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
+        if event.interaction.type is hikari.InteractionType.AUTOCOMPLETE:
             assert isinstance(event.interaction, hikari.AutocompleteInteraction)
             return await self.on_gateway_autocomplete_create(event.interaction)
 
