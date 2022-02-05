@@ -286,6 +286,7 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
         default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[collections.Callable[[SlashContext], collections.Awaitable[None]]] = None,
     ) -> None:
         super().__init__(client, injection_client, component=component)
@@ -298,7 +299,7 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
-        self._response_future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None
+        self._response_future = future
         self._response_lock = asyncio.Lock()
         self._set_type_special_case(tanjun_abc.SlashContext, self)._set_type_special_case(SlashContext, self)
 
@@ -401,23 +402,6 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
             return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
         return flags or hikari.MessageFlag.NONE
-
-    def get_response_future(self) -> asyncio.Future[_ResponseTypeT]:
-        """Get the future which will be used to set the initial response.
-
-        .. note::
-            This will change the behaviour of this context to match the
-            REST server flow.
-
-        Returns
-        -------
-        asyncio.Future[_ResponseTypeT]
-            The future which will be used to set the initial response.
-        """
-        if not self._response_future:
-            self._response_future = asyncio.get_running_loop().create_future()
-
-        return self._response_future
 
     async def mark_not_found(self) -> None:
         # <<inherited docstring from tanjun.abc.SlashContext>>.

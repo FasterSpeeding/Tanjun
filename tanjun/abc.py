@@ -1792,7 +1792,7 @@ class SlashContext(AppCommandContext, abc.ABC):
         """
 
 
-class AutocompleteContext(typing.Generic[_AutocompleteValueT]):
+class AutocompleteContext:
     """Interface of an autocomplete context."""
 
     @property
@@ -1836,6 +1836,11 @@ class AutocompleteContext(typing.Generic[_AutocompleteValueT]):
 
     @property
     @abc.abstractmethod
+    def focused(self) -> AutocompleteOption:
+        """The option being autocompleted."""
+
+    @property
+    @abc.abstractmethod
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         """ID of the guild this autocomplete was triggered in.
 
@@ -1864,11 +1869,6 @@ class AutocompleteContext(typing.Generic[_AutocompleteValueT]):
     @abc.abstractmethod
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         """Object of the Hikari shard manager this context's client was initialised with."""
-
-    @property
-    @abc.abstractmethod
-    def value(self) -> str:  # TODO: will this ever be float or int?
-        """"""
 
     @property
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
@@ -2577,6 +2577,14 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
             The command instance to enable chained calls.
         """
 
+    async def execute_autocomplete(
+        self,
+        ctx: AutocompleteContext,
+        /,
+        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
+    ) -> None:
+        ...
+
 
 class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT]):
     """A command that can be executed in a slash context."""
@@ -3213,6 +3221,13 @@ class Component(abc.ABC):
         collections.abc.Iterator[BaseSlashCommand]
             An iterator of the matching slash commands.
         """
+
+    def execute_autocomplete(
+        self,
+        ctx: AutocompleteContext,
+        /,
+    ) -> typing.Optional[collections.Awaitable[None]]:
+        ...
 
     @abc.abstractmethod
     async def execute_interaction(

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tanjun.components.menu`.
 - `tanjun.commands` has been split into a directory of the same name with the structure
   `tanjun.commands.slash`, `tanjun.commands.message`, `tanjun.commands.base` and `tanjun.commands.menu`.
+- Bumped the minimum hikari version to `hikari~=2.0.0.dev106`.
 
 ### Fixed
 - False-positive cache warnings from the standard converters. 

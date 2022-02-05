@@ -933,6 +933,14 @@ class Component(tanjun_abc.Component):
         if command := self._slash_commands.get(name):
             yield command
 
+    def execute_autocomplete(
+        self,
+        ctx: tanjun_abc.AutocompleteContext,
+        /,
+    ) -> typing.Optional[collections.Awaitable[None]]:
+        if command := self._slash_commands.get(ctx.interaction.command_name):
+            return command.execute_autocomplete(ctx)
+
     async def _execute_interaction(
         self,
         ctx: tanjun_abc.SlashContext,
@@ -965,7 +973,7 @@ class Component(tanjun_abc.Component):
 
             hooks.add(self._hooks)
 
-        return asyncio.get_running_loop().create_task(command.execute(ctx, hooks=hooks))
+        return command.execute(ctx, hooks=hooks)
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding

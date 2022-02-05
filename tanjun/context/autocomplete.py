@@ -67,17 +67,17 @@ class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):
         return self._option.is_focused
 
 
-class AutocompleteContext(abc.AutocompleteContext[_ValueT]):
+class AutocompleteContext(abc.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
-    __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction")
+    __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction", "_options")
 
     def __init__(
         self,
         client: abc.Client,
         interaction: hikari.AutocompleteInteraction,
         *,
-        future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]],
+        future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
     ) -> None:
         # TODO: upgrade injector client to the abc
         assert isinstance(client, injecting.InjectorClient)
@@ -89,13 +89,13 @@ class AutocompleteContext(abc.AutocompleteContext[_ValueT]):
         print(interaction.options)
         options = slash.flatten_options(interaction.options)
 
-        focused: typing.Optional[hikari.AutocompleteInteractionOption] = None
+        focused: typing.Optional[AutocompleteOption] = None
         self._options: dict[str, AutocompleteOption] = {}
         if options := slash.flatten_options(interaction.options):
             for option in options:
-                self._options[option.name] = AutocompleteOption(resolved, option)
+                self._options[option.name] = AutocompleteOption(interaction.resolved, option)
                 if option.is_focused:
-                    focused = option
+                    focused = self._options[option.name]
 
         assert focused is not None
         self._focused = focused
@@ -129,6 +129,10 @@ class AutocompleteContext(abc.AutocompleteContext[_ValueT]):
         return self._client.events
 
     @property
+    def focused(self) -> abc.AutocompleteOption:
+        return self._focused
+
+    @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._interaction.guild_id
 
@@ -147,10 +151,6 @@ class AutocompleteContext(abc.AutocompleteContext[_ValueT]):
     @property
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._client.shards
-
-    @property
-    def value(self) -> str:  # TODO: will this ever be float or int?
-        return typing.cast(str, self._focused.value)
 
     @property
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:

@@ -87,7 +87,7 @@ ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
-
+_AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=abc.AutocompleteCallbackSig)
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
 
 
@@ -677,7 +677,7 @@ _SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCom
 
 
 class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
-    __slots__ = ("_has_been_sorted", "_sort_options")
+    __slots__ = ("_has_been_sorted", "_options_dict", "_sort_options")
 
     def __init__(
         self,
@@ -688,6 +688,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,  # noqa: A002
     ) -> None:
         super().__init__(name, description, id=id)  # type: ignore
+        self._options_dict: dict[str, hikari.CommandOption] = {}
         self._has_been_sorted = True
         self._sort_options = sort_options
 
@@ -696,7 +697,11 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
             self._has_been_sorted = False
 
         super().add_option(option)
+        self._options_dict[option.name] = option
         return self
+
+    def get_option(self, name: str) -> typing.Optional[hikari.CommandOption]:
+        return self._options_dict.get(name)
 
     def sort(self: _SlashCommandBuilderT) -> _SlashCommandBuilderT:
         if self._sort_options and not self._has_been_sorted:
@@ -1042,6 +1047,27 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         await ctx.mark_not_found()
 
+    async def execute_autocomplete(
+        self,
+        ctx: abc.AutocompleteContext,
+        /,
+        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
+    ) -> None:
+        if not option and ctx.interaction.options:
+            option = ctx.interaction.options[0]
+
+        elif option and option.options:
+            option = typing.cast("hikari.AutocompleteInteractionOption", option.options[0])
+
+        else:
+            raise RuntimeError("Missing sub-command option")
+
+        command = self._commands.get(option.name)
+        if not command:
+            raise RuntimeError(f"Sub-command '{option.name}' no found")
+
+        await command.execute_autocomplete(ctx, option=option)
+
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     """Standard implementation of a slash command."""
@@ -1054,7 +1080,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         "_float_autocompletes",
         "_int_autocompletes",
         "_str_autocompletes",
-        "_option_types",
         "_tracked_options",
         "_wrapped_command",
     )
@@ -1150,7 +1175,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         self._float_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
         self._int_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
         self._str_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
-        self._option_types: dict[str, hikari.OptionType] = {}
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
 
@@ -1298,7 +1322,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 only_member=only_member,
             )
 
-        self._option_types[self.name] = type_
         return self
 
     def add_str_option(
@@ -1943,20 +1966,74 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     def set_float_autocomplete(
         self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
     ) -> _SlashCommandT:
-        self._builder.options
+        option = self._builder.get_option(name)
+
+        if not option:
+            raise KeyError("Option not found")
+
+        if option.type is not hikari.OptionType.FLOAT:
+            raise TypeError("Option is not a float option")
+
+        option.autocomplete = True
+        self._float_autocompletes[name] = injecting.CallbackDescriptor(callback)
         return self
+
+    def with_float_autocomplete(
+        self, name: str, /
+    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+            self.set_float_autocomplete(name, callback)
+            return callback
+
+        return decorator
 
     def set_int_autocomplete(
         self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
     ) -> _SlashCommandT:
-        self._builder.options
+        option = self._builder.get_option(name)
+
+        if not option:
+            raise KeyError("Option not found")
+
+        if option.type is not hikari.OptionType.INTEGER:
+            raise TypeError("Option is not a int option")
+
+        option.autocomplete = True
+        self._int_autocompletes[name] = injecting.CallbackDescriptor(callback)
         return self
+
+    def with_int_autocomplete(
+        self, name: str, /
+    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+            self.set_int_autocomplete(name, callback)
+            return callback
+
+        return decorator
 
     def set_str_autocomplete(
         self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
     ) -> _SlashCommandT:
-        self._builder.options
+        option = self._builder.get_option(name)
+
+        if not option:
+            raise KeyError("Option not found")
+
+        if option.type is not hikari.OptionType.STRING:
+            raise TypeError("Option is not a str option")
+
+        option.autocomplete = True
+        self._str_autocompletes[name] = injecting.CallbackDescriptor(callback)
         return self
+
+    def with_str_autocomplete(
+        self, name: str, /
+    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+            self.set_str_autocomplete(name, callback)
+            return callback
+
+        return decorator
 
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
@@ -2045,6 +2122,30 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+
+    async def execute_autocomplete(
+        self,
+        ctx: abc.AutocompleteContext,
+        /,
+        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
+    ) -> None:
+        if ctx.focused.type is hikari.OptionType.STRING:
+            callback = self._str_autocompletes.get(ctx.focused.name)
+
+        elif ctx.focused.type is hikari.OptionType.FLOAT:
+            callback = self._float_autocompletes.get(ctx.focused.name)
+
+        elif ctx.focused.type is hikari.OptionType.INTEGER:
+            callback = self._int_autocompletes.get(ctx.focused.name)
+
+        else:
+            raise NotImplementedError(f"Autocomplete isn't implemented for '{ctx.focused.type}' option yet.")
+
+        if not callback:
+            raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")
+
+        assert isinstance(ctx, injecting.AbstractInjectionContext)
+        await callback.resolve(ctx, ctx, ctx.focused.value)
 
     def copy(
         self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None

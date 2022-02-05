@@ -98,6 +98,11 @@ if typing.TYPE_CHECKING:
             command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
             component: typing.Optional[tanjun_abc.Component] = None,
             default_to_ephemeral: bool = False,
+            future: typing.Optional[
+                asyncio.Future[
+                    typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+                ]
+            ] = None,
             on_not_found: typing.Optional[
                 collections.Callable[[context.SlashContext], collections.Awaitable[None]]
             ] = None,
@@ -1704,6 +1709,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
+            self._server.set_listener(hikari.AutocompleteInteraction, None)
 
         await asyncio.gather(*(component.close() for component in self._components.copy().values()))
 
@@ -1760,7 +1766,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     self._events.subscribe(event_type_, listener.__call__)
 
         if register_listeners and self._server:
-            self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
+            self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
+            self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
 
         self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
@@ -2122,25 +2129,18 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if self._interaction_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._interaction_not_found)
 
-    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
-        """Execute a slash command based on Gateway events.
+    async def on_gateway_autocomplete_create(self, interaction: hikari.AutocompleteInteraction, /) -> None:
+        ctx = context.AutocompleteContext(self, interaction)
+        for component in self._components.values():
+            if coro := component.execute_autocomplete(ctx):
+                await coro
+                return
 
-        .. note::
-            Any event where `event.interaction` is not
-            `hikari.CommandInteraction` will be ignored.
-
-        Parameters
-        ----------
-        event : hikari.events.interaction_events.InteractionCreateEvent
-            The event to execute commands based on.
-        """
-        if not isinstance(event.interaction, hikari.CommandInteraction):
-            return
-
+    async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
         ctx = self._make_slash_context(
             client=self,
             injection_client=self,
-            interaction=event.interaction,
+            interaction=interaction,
             on_not_found=self._on_slash_not_found,
             default_to_ephemeral=self._defaults_to_ephemeral,
         )
@@ -2168,7 +2168,41 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         await ctx.mark_not_found()
 
-    async def on_interaction_create_request(
+    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
+        """Execute a slash command based on Gateway events.
+
+        .. note::
+            Any event where `event.interaction` is not
+            `hikari.CommandInteraction` will be ignored.
+
+        Parameters
+        ----------
+        event : hikari.events.interaction_events.InteractionCreateEvent
+            The event to execute commands based on.
+        """
+        if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
+            assert isinstance(event.interaction, hikari.CommandInteraction)
+            return await self.on_gateway_command_create(event.interaction)
+
+        if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
+            assert isinstance(event.interaction, hikari.AutocompleteInteraction)
+            return await self.on_gateway_autocomplete_create(event.interaction)
+
+    async def on_autocomplete_interaction_request(
+        self, interaction: hikari.AutocompleteInteraction, /
+    ) -> hikari.api.InteractionAutocompleteBuilder:
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
+        ctx = context.AutocompleteContext(self, interaction, future=future)
+
+        for component in self._components.values():
+            if coro := component.execute_autocomplete(ctx):
+                loop.create_task(coro)
+                return await future
+
+        raise RuntimeError(f"Autocomplete not found for {interaction!r}")
+
+    async def on_command_interaction_request(
         self, interaction: hikari.CommandInteraction, /
     ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
         """Execute a slash command based on received REST requests.
@@ -2183,25 +2217,30 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         tanjun.context.ResponseType
             The initial response to send back to Discord.
         """
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[
+            typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+        ] = loop.create_future()
         ctx = self._make_slash_context(
             client=self,
             injection_client=self,
             interaction=interaction,
             on_not_found=self._on_slash_not_found,
             default_to_ephemeral=self._defaults_to_ephemeral,
+            future=future,
         )
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
         hooks = self._get_slash_hooks()
-        future = ctx.get_response_future()
         try:
             if await self.check(ctx):
                 for component in self._components.values():
                     # This is set on each iteration to ensure that any component
                     # state which was set to this isn't propagated to other components.
                     ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if await component.execute_interaction(ctx, hooks=hooks):
+                    if coro := await component.execute_interaction(ctx, hooks=hooks):
+                        loop.create_task(coro)
                         return await future
 
         except errors.HaltExecution:
