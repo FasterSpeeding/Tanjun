@@ -10976,7 +10976,7 @@ is inherited regardless of what it's set as on the child command.</p>
                             <div id="BaseSlashCommand.tracked_command" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.tracked_command">#&nbsp;&nbsp</a>
 
-        <span class="name">tracked_command</span><span class="annotation">: Optional[hikari.commands.Command]</span>
+        <span class="name">tracked_command</span><span class="annotation">: &#39;typing.Optional[hikari.Command]&#39;</span>
     </div>
 
             <div class="docstring"><p>Object of the actual command this object tracks if set.</p>
@@ -11115,7 +11115,7 @@ globally or for a specific guild.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">set_tracked_command</span><span class="signature">(self: ~_T, command: hikari.commands.Command, /) -&gt; ~_T</span>:
+            <span class="name">set_tracked_command</span><span class="signature">(self: ~_T, command: &#39;hikari.Command&#39;, /) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -16236,12 +16236,12 @@ Object or ID of the guild to clear commands for.</p>
             <span class="def">async def</span>
             <span class="name">declare_global_commands</span><span class="signature">(
     self,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
     force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+) -&gt; &#39;collections.Sequence[hikari.Command]&#39;</span>:
     </div>
 
                 <details>
@@ -16363,7 +16363,7 @@ of only 200 application command creates per day (per guild or globally).</p></li
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; hikari.commands.Command</span>:
+) -&gt; &#39;hikari.Command&#39;</span>:
     </div>
 
                 <details>
@@ -16462,12 +16462,12 @@ Object or ID of the guild to register the command with.</p>
     self,
     commands: collections.abc.Iterable[<a href="#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>],
     /,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
     force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+) -&gt; &#39;collections.Sequence[hikari.Command]&#39;</span>:
     </div>
 
                 <details>

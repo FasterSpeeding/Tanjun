@@ -4618,7 +4618,7 @@ by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a
     mention_prefix: bool = False,
     set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
     declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None,
     _stack_level: int = 0
 )</span>
     </div>
@@ -4952,7 +4952,7 @@ after a rename.</p>
     mention_prefix: bool = False,
     declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
     set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None
 ) -&gt; <a href="#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -5127,7 +5127,7 @@ after a rename.</p>
     *,
     declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
     set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None
 ) -&gt; <a href="#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -5571,7 +5571,7 @@ Object or ID of the guild to clear commands for.</p>
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
     force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+) -&gt; &#39;collections.Sequence[hikari.Command]&#39;</span>:
     </div>
 
                 <details>
@@ -5614,12 +5614,12 @@ Use <code><a href="#Client.declare_global_commands">Client.declare_global_comman
             <span class="def">async def</span>
             <span class="name">declare_global_commands</span><span class="signature">(
     self,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
     force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+) -&gt; &#39;collections.Sequence[hikari.Command]&#39;</span>:
     </div>
 
                 <details>
@@ -5709,7 +5709,7 @@ of only 200 application command creates per day (per guild or globally).</p></li
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; hikari.commands.Command</span>:
+) -&gt; &#39;hikari.Command&#39;</span>:
     </div>
 
                 <details>
@@ -5800,12 +5800,12 @@ Object or ID of the guild to register the command with.</p>
     self,
     commands: collections.abc.Iterable[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>],
     /,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    command_ids: &#39;typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]&#39; = None,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
     force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+) -&gt; &#39;collections.Sequence[hikari.Command]&#39;</span>:
     </div>
 
                 <details>
