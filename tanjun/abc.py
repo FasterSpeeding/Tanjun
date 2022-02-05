@@ -48,6 +48,7 @@ __all__: list[str] = [
     "MessageHooks",
     "SlashHooks",
     "ExecutableCommand",
+    "AutocompleteCallbackSig",
     "HookSig",
     "HookSigT",
     "ErrorHookSig",
@@ -98,7 +99,7 @@ BaseSlashCommandT = typing.TypeVar("BaseSlashCommandT", bound="BaseSlashCommand"
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand[typing.Any]")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
-
+AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback a `Command` instance will operate on.
@@ -2587,11 +2588,31 @@ class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT
     def callback(self) -> CommandCallbackSigT:
         """Callback which is called during execution."""
 
+    @property
+    @abc.abstractmethod
+    def float_autocompletes(self) -> collections.Mapping[str, AutocompleteCallbackSig]:
+        """Collection of the float option autocompletes."""
 
-class MenuCommand(AppCommand[_MenuTypeT]):
+    @property
+    @abc.abstractmethod
+    def int_autocompletes(self) -> collections.Mapping[str, AutocompleteCallbackSig]:
+        """Collection of the integer option autocompletes."""
+
+    @property
+    @abc.abstractmethod
+    def str_autocompletes(self) -> collections.Mapping[str, AutocompleteCallbackSig]:
+        """Collection of the string option autocompletes."""
+
+
+class MenuCommand(AppCommand[MenuContext[_MenuTypeT]], typing.Generic[_MenuTypeT]):
     """A contextmenu command."""
 
     __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def callback(self) -> CommandCallbackSig:
+        """Callback which is called during execution."""
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):

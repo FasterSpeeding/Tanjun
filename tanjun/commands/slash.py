@@ -1046,7 +1046,18 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     """Standard implementation of a slash command."""
 
-    __slots__ = ("_always_defer", "_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
+    __slots__ = (
+        "_always_defer",
+        "_builder",
+        "_callback",
+        "_client",
+        "_float_autocompletes",
+        "_int_autocompletes",
+        "_str_autocompletes",
+        "_option_types",
+        "_tracked_options",
+        "_wrapped_command",
+    )
 
     def __init__(
         self,
@@ -1136,6 +1147,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         self._builder = _SlashCommandBuilder(name, description, sort_options).set_default_permission(default_permission)
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
+        self._float_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
+        self._int_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
+        self._str_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
+        self._option_types: dict[str, hikari.OptionType] = {}
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
 
@@ -1151,6 +1166,29 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
+
+    @property
+    def float_autocompletes(self) -> collections.Mapping[str, abc.AutocompleteCallbackSig]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        return {
+            name: typing.cast(abc.AutocompleteCallbackSig, value.callback)
+            for name, value in self._float_autocompletes.items()
+        }
+
+    @property
+    def int_autocompletes(self) -> collections.Mapping[str, abc.AutocompleteCallbackSig]:
+        return {
+            name: typing.cast(abc.AutocompleteCallbackSig, value.callback)
+            for name, value in self._int_autocompletes.items()
+        }
+
+    @property
+    def str_autocompletes(self) -> collections.Mapping[str, abc.AutocompleteCallbackSig]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        return {
+            name: typing.cast(abc.AutocompleteCallbackSig, value.callback)
+            for name, value in self._str_autocompletes.items()
+        }
 
     @property
     def needs_injector(self) -> bool:
@@ -1259,6 +1297,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 default=default,
                 only_member=only_member,
             )
+
+        self._option_types[self.name] = type_
         return self
 
     def add_str_option(
@@ -1899,6 +1939,24 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         return self._add_option(
             name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
         )
+
+    def set_float_autocomplete(
+        self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
+    ) -> _SlashCommandT:
+        self._builder.options
+        return self
+
+    def set_int_autocomplete(
+        self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
+    ) -> _SlashCommandT:
+        self._builder.options
+        return self
+
+    def set_str_autocomplete(
+        self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
+    ) -> _SlashCommandT:
+        self._builder.options
+        return self
 
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}

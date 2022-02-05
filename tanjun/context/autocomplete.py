@@ -52,15 +52,13 @@ if typing.TYPE_CHECKING:
 
 _ValueT = typing.TypeVar("_ValueT", int, float, str)
 
-_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
-    [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
-)
-
 
 class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):
     __slots__ = ()
 
-    def __init__(self, resolved: hikari.ResolvedOptionData, option: hikari.AutocompleteInteractionOption, /):
+    def __init__(
+        self, resolved: typing.Optional[hikari.ResolvedOptionData], option: hikari.AutocompleteInteractionOption, /
+    ):
         self._option: hikari.AutocompleteInteractionOption
         super().__init__(resolved, option)
 
@@ -84,23 +82,23 @@ class AutocompleteContext(abc.AutocompleteContext[_ValueT]):
         # TODO: upgrade injector client to the abc
         assert isinstance(client, injecting.InjectorClient)
         self._client = client
-        self._focused: hikari.AutocompleteInteractionOption
         self._future = future
         self._has_responded = False
         self._interaction = interaction
 
-        options = interaction.options
-        print(options)
-        while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
-            options = first_option.options
+        print(interaction.options)
+        options = slash.flatten_options(interaction.options)
 
+        focused: typing.Optional[hikari.AutocompleteInteractionOption] = None
         self._options: dict[str, AutocompleteOption] = {}
-        if options:
-            assert interaction.resolved
+        if options := slash.flatten_options(interaction.options):
             for option in options:
-                self._options[option.name] = AutocompleteOption(interaction.resolved, option)
+                self._options[option.name] = AutocompleteOption(resolved, option)
                 if option.is_focused:
-                    self._focused = option
+                    focused = option
+
+        assert focused is not None
+        self._focused = focused
 
     @property
     def author(self) -> hikari.User:

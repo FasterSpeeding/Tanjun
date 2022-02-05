@@ -72,12 +72,14 @@ _SnowflakeOptions = {
 class SlashOption(tanjun_abc.SlashOption):
     __slots__ = ("_option", "_resolved")
 
-    def __init__(self, resolved: hikari.ResolvedOptionData, option: hikari.CommandInteractionOption, /):
+    def __init__(
+        self, resolved: typing.Optional[hikari.ResolvedOptionData], option: hikari.CommandInteractionOption, /
+    ):
         if option.value is None:
             raise ValueError("Cannot build a slash option with a value-less API representation")
 
         self._option = option
-        self._resolved = resolved
+        self._resolved = resolved  # TODO: is making resolved optional here sufficient?
 
     @property
     def name(self) -> str:
@@ -159,7 +161,7 @@ class SlashOption(tanjun_abc.SlashOption):
     def resolve_to_channel(self) -> hikari.InteractionChannel:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
-        if self._option.type is hikari.OptionType.CHANNEL:
+        if self._option.type is hikari.OptionType.CHANNEL and self._resolved:
             assert self._option.value is not None
             return self._resolved.channels[hikari.Snowflake(self._option.value)]
 
@@ -176,7 +178,7 @@ class SlashOption(tanjun_abc.SlashOption):
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
-        if self._option.type is hikari.OptionType.USER:
+        if self._option.type is hikari.OptionType.USER and self._resolved:
             assert self._option.value is not None
             if member := self._resolved.members.get(hikari.Snowflake(self._option.value)):
                 return member
@@ -186,7 +188,7 @@ class SlashOption(tanjun_abc.SlashOption):
 
             raise LookupError("User isn't in the current guild") from None
 
-        if self._option.type is hikari.OptionType.MENTIONABLE:
+        if self._option.type is hikari.OptionType.MENTIONABLE and self._resolved:
             assert self._option.value is not None
             target_id = hikari.Snowflake(self._option.value)
             if member := self._resolved.members.get(target_id):
@@ -202,7 +204,7 @@ class SlashOption(tanjun_abc.SlashOption):
 
     def resolve_to_mentionable(self) -> typing.Union[hikari.Role, hikari.User, hikari.Member]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
-        if self._option.type is hikari.OptionType.MENTIONABLE:
+        if self._option.type is hikari.OptionType.MENTIONABLE and self._resolved:
             assert self._option.value is not None
             target_id = hikari.Snowflake(self._option.value)
             if role := self._resolved.roles.get(target_id):
@@ -220,12 +222,11 @@ class SlashOption(tanjun_abc.SlashOption):
 
     def resolve_to_role(self) -> hikari.Role:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
-        if self._option.type is hikari.OptionType.ROLE:
+        if self._option.type is hikari.OptionType.ROLE and self._resolved:
             assert self._option.value is not None
             return self._resolved.roles[hikari.Snowflake(self._option.value)]
 
-        if self._option.type is hikari.OptionType.MENTIONABLE:
-            assert self._resolved
+        if self._option.type is hikari.OptionType.MENTIONABLE and self._resolved:
             if role := self._resolved.roles.get(hikari.Snowflake(self.value)):
                 return role
 
@@ -233,12 +234,12 @@ class SlashOption(tanjun_abc.SlashOption):
 
     def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
-        if self._option.type is hikari.OptionType.USER:
+        if self._option.type is hikari.OptionType.USER and self._resolved:
             assert self._option.value is not None
             user_id = hikari.Snowflake(self._option.value)
             return self._resolved.members.get(user_id) or self._resolved.users[user_id]
 
-        if self._option.type is hikari.OptionType.MENTIONABLE:
+        if self._option.type is hikari.OptionType.MENTIONABLE and self._resolved:
             assert self._option.value is not None
             user_id = hikari.Snowflake(self._option.value)
             if result := self._resolved.members.get(user_id) or self._resolved.users.get(user_id):
@@ -247,9 +248,17 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a user")
 
 
+_OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)
 _COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
     [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
 )
+
+
+def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /) -> collections.Sequence[_OptionT]:
+    while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
+        options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
+
+    return options or ()
 
 
 class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
@@ -293,11 +302,7 @@ class SlashContext(base.BaseContext, tanjun_abc.SlashContext):
         self._response_lock = asyncio.Lock()
         self._set_type_special_case(tanjun_abc.SlashContext, self)._set_type_special_case(SlashContext, self)
 
-        options = interaction.options
-        while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
-            options = first_option.options
-
-        if options:
+        if options := flatten_options(interaction.options):
             assert interaction.resolved
             self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
 
