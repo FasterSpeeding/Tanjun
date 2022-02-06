@@ -122,7 +122,7 @@ class _TaskData:
 
 
 class _TaskInfo(AbstractTaskInfo):
-    __slots__ = "_task_data"
+    __slots__ = ("_task_data",)
 
     def __init__(self, data: _TaskData, /) -> None:
         self._task_data = data
