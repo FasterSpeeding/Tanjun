@@ -146,7 +146,6 @@ class AsyncioTaskManager(AbstractTaskManager):
     def __init__(self) -> None:
         self._event_loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._groups: dict[str, set[str]] = {}
-        self._loop_task: typing.Optional[asyncio.Task[None]]
         self._tasks: dict[str, _TaskData] = {}
 
     def _get_loop(self) -> asyncio.AbstractEventLoop:
@@ -154,21 +153,6 @@ class AsyncioTaskManager(AbstractTaskManager):
             return self._event_loop
 
         raise RuntimeError("Task manager is inactive.")
-
-    async def _loop(self):
-        await asyncio.sleep(60)
-        for task_id, task_info in self._tasks.copy().items():
-            if not task_info.task.done():
-                continue
-
-            if exc := task_info.task.exception():
-                _LOGGER.error("Task failed with exception", exc_info=exc)
-
-            del self._tasks[task_id]
-            if task_info.group_id:
-                self._groups[task_info.group_id].remove(task_id)
-                if not self._groups[task_info.group_id]:
-                    del self._groups[task_info.group_id]
 
     def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         # TODO: upgrade this to the client
@@ -191,6 +175,15 @@ class AsyncioTaskManager(AbstractTaskManager):
     ) -> str:
         task_id = task_id or str(uuid.uuid4())
         task = self._get_loop().create_task(callback(*args, **kwargs))
+
+        def done_callback(_: asyncio.Task[typing.Any]) -> None:
+            self._tasks[task_id]
+            if group_id:
+                self._groups[group_id].remove(task_id)
+                if not self._groups[group_id]:
+                    del self._groups[group_id]
+
+        task.add_done_callback(done_callback)
 
         self._tasks[task_id] = _TaskData(task_id, group_id, task)
         if group_id:
@@ -242,12 +235,9 @@ class AsyncioTaskManager(AbstractTaskManager):
 
     async def close(self, force: bool = False) -> None:
         self._get_loop()
-        assert self._loop_task
         self._event_loop = None
-        self._loop_task.cancel()
-        self._loop_task = None
 
-        tasks = (task_info.task for task_info in self._tasks.values())
+        tasks = (task_info.task for task_info in self._tasks.copy().values())
 
         if force:
             for task in tasks:
@@ -264,11 +254,8 @@ class AsyncioTaskManager(AbstractTaskManager):
                 if isinstance(result, Exception):
                     _LOGGER.error("Task failed with exception", exc_info=result)
 
-        self._tasks.clear()
-
     def start(self) -> None:
         if self._event_loop:
             raise RuntimeError("Task manager is already active.")
 
         self._event_loop = asyncio.get_running_loop()
-        self._event_loop.create_task(self._loop())
