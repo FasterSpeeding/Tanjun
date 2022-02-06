@@ -1008,8 +1008,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         commands = itertools.chain(
-            self.iter_slash_commands(global_only=True),
-            self.iter_menu_commands(global_only=True)
+            self.iter_slash_commands(global_only=True), self.iter_menu_commands(global_only=True)
         )
         return await self.declare_application_commands(
             commands, command_ids, application=application, guild=guild, force=force

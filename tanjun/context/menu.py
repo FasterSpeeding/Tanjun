@@ -36,14 +36,14 @@ __all__: list[str] = []
 
 import typing
 
+import hikari
+
 from .. import abc
 from . import slash
-import hikari
 
 if typing.TYPE_CHECKING:
     import asyncio
     from collections import abc as collections
-
 
     from .. import injecting
 
