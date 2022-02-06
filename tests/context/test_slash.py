@@ -696,24 +696,6 @@ class TestSlashContext:
 
         assert context._get_flags(flags) == result
 
-    def test_get_response_future(self, context: tanjun.context.SlashContext):
-        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
-            result = context.get_response_future()
-
-            get_running_loop.assert_called_once_with()
-            get_running_loop.return_value.create_future.assert_called_once_with()
-            assert result is get_running_loop.return_value.create_future.return_value
-
-    def test_get_response_future_when_future_already_exists(self, context: tanjun.context.SlashContext):
-        mock_future = mock.Mock()
-        context._response_future = mock_future
-
-        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
-            result = context.get_response_future()
-
-            assert result is mock_future
-            get_running_loop.assert_not_called()
-
     @pytest.mark.asyncio()
     async def test_mark_not_found(self):
         on_not_found = mock.AsyncMock()

@@ -1715,12 +1715,22 @@ class AppCommandContext(Context, abc.ABC):
 _MenuTypeT = typing.TypeVar("_MenuTypeT", hikari.User, hikari.Member)
 
 
-class MenuContext(AppCommandContext, abc.ABC, typing.Generic[_MenuTypeT]):
+class MenuType(enum.Enum):
+    """Enumeration of the context menu types."""
+
+    USER = "user"
+    """A menu for a single user."""
+
+    MESSAGE = "message"
+    """A menu for a single message."""
+
+
+class MenuContext(AppCommandContext, abc.ABC):
     """Interface of a menu command context."""
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[MenuCommand[_MenuTypeT]]:
+    def command(self) -> typing.Optional[MenuCommand[typing.Any]]:
         """Command that was invoked.
 
         .. note::
@@ -1732,21 +1742,86 @@ class MenuContext(AppCommandContext, abc.ABC, typing.Generic[_MenuTypeT]):
     @property
     @abc.abstractmethod
     def target_id(self) -> hikari.Snowflake:
-        """Id of the entity this menu command context targets."""
+        """ID of the entity this menu command context targets."""
 
     @property
     @abc.abstractmethod
-    def target(self) -> SlashOption:
-        """Option of the entity this menu command context targets."""
+    def target(self) -> typing.Union[hikari.InteractionMember, hikari.User, hikari.Message]:
+        """Object of the entity this menu targets."""
+
+    @property
+    @abc.abstractmethod
+    def type(self) -> MenuType:
+        """The type of context menu this context is for."""
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[MenuCommand[_MenuTypeT]], /) -> _T:
+    def set_command(self: _T, _: typing.Optional[MenuCommand[typing.Any]], /) -> _T:
         """Set the command for this context.
 
         Parameters
         ----------
         command : MenuCommand | None
             The command this context is for.
+        """
+
+    @typing.overload
+    @abc.abstractmethod
+    def resolve_to_member(self) -> hikari.InteractionMember:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
+        ...
+
+    @abc.abstractmethod
+    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+        """Resolve a user context menu context to a member object.
+
+        Returns
+        -------
+        hikari.Member
+            The resolved member.
+
+        Raises
+        ------
+        TypeError
+            If the context is not a user menu context.
+        LookupError
+            If the member was not found for this user menu context.
+
+            This will happen if this was executed in a DM or the target
+            user isn't in the current guild.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_message(self) -> hikari.Message:
+        """Resolve a message context menu to a message object.
+
+        Returns
+        -------
+        hikari.Message
+            The resolved message.
+
+        Raises
+        ------
+        TypeEror
+        if the context is not for a message menu.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+        """Resolve a user context menu context to a user object.
+
+        Returns
+        -------
+        hikari.User | hikari.Member
+            The resolved user.
+
+        Raises
+        ------
+        TypeError
+            If the context is not a user menu context.
         """
 
 
@@ -2602,7 +2677,7 @@ class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT
         """Collection of the string option autocompletes."""
 
 
-class MenuCommand(AppCommand[MenuContext[_MenuTypeT]], typing.Generic[_MenuTypeT]):
+class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuTypeT]):
     """A contextmenu command."""
 
     __slots__ = ()

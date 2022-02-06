@@ -2124,7 +2124,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return hooks
 
-    async def _on_slash_not_found(self, ctx: context.SlashContext) -> None:
+    async def _on_slash_not_found(self, ctx: context.slash.AppCommandContext) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._interaction_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._interaction_not_found)

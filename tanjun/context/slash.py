@@ -72,6 +72,8 @@ _SnowflakeOptions = {
 
 
 class SlashOption(tanjun_abc.SlashOption):
+    """Standard implementation of the SlashOption interface."""
+
     __slots__ = ("_option", "_resolved")
 
     def __init__(
@@ -264,6 +266,8 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
 
 
 class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
+    """Base class for interaction-based command contexts."""
+
     __slots__ = (
         "_defaults_to_ephemeral",
         "_defer_task",
@@ -367,6 +371,10 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._interaction
 
+    async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
+        await asyncio.sleep(countdown)
+        await self.defer()
+
     def cancel_defer(self) -> None:
         """Cancel the auto-deferral if its active."""
         if self._defer_task:
@@ -386,6 +394,27 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         if self._on_not_found and not self._marked_not_found:
             self._marked_not_found = True
             await self._on_not_found(self)
+
+    def start_defer_timer(self: _AppCommandContextT, count_down: typing.Union[int, float], /) -> _AppCommandContextT:
+        """Start the auto-deferral timer.
+
+        Parameters
+        ----------
+        count_down : int | float
+            The number of seconds to wait before automatically deferring the
+            interaction.
+
+        Returns
+        -------
+        Self
+            This context to allow for chaining.
+        """
+        self._assert_not_final()
+        if self._defer_task:
+            raise RuntimeError("Defer timer already set")
+
+        self._defer_task = asyncio.create_task(self._auto_defer(count_down))
+        return self
 
     def set_ephemeral_default(self: _AppCommandContextT, state: bool, /) -> _AppCommandContextT:
         # <<inherited docstring from tanjun.abc.SlashContext>>.

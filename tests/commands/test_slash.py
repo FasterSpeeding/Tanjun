@@ -141,12 +141,14 @@ def test_as_slash_command_with_defaults():
 
 
 def test_with_str_slash_option():
+    mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
 
     result = tanjun.with_str_slash_option(
         "a_name",
         "a_value",
+        autocomplete=mock_autocomplete,
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
         default="ANY",
@@ -157,6 +159,7 @@ def test_with_str_slash_option():
     mock_command.add_str_option.assert_called_once_with(
         "a_name",
         "a_value",
+        autocomplete=mock_autocomplete,
         default="ANY",
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
@@ -174,6 +177,7 @@ def test_with_str_slash_option_with_defaults():
     mock_command.add_str_option.assert_called_once_with(
         "a_name",
         "a_value",
+        autocomplete=None,
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
@@ -183,12 +187,14 @@ def test_with_str_slash_option_with_defaults():
 
 
 def test_with_int_slash_option():
+    mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
 
     result = tanjun.with_int_slash_option(
         "im_con",
         "con man",
+        autocomplete=mock_autocomplete,
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
@@ -201,6 +207,7 @@ def test_with_int_slash_option():
     mock_command.add_int_option.assert_called_once_with(
         "im_con",
         "con man",
+        autocomplete=mock_autocomplete,
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
@@ -220,6 +227,7 @@ def test_with_int_slash_option_with_defaults():
     mock_command.add_int_option.assert_called_once_with(
         "im_con",
         "con man",
+        autocomplete=None,
         choices=None,
         converters=(),
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
@@ -231,6 +239,7 @@ def test_with_int_slash_option_with_defaults():
 
 
 def test_with_float_slash_option():
+    mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
 
@@ -238,6 +247,7 @@ def test_with_float_slash_option():
         "di",
         "ni",
         always_float=False,
+        autocomplete=mock_autocomplete,
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
         default=21.321,
@@ -251,6 +261,7 @@ def test_with_float_slash_option():
         "di",
         "ni",
         always_float=False,
+        autocomplete=mock_autocomplete,
         default=21.321,
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
@@ -271,6 +282,7 @@ def test_with_float_slash_option_with_defaults():
         "hi",
         "bye",
         always_float=True,
+        autocomplete=None,
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
