@@ -77,7 +77,7 @@ class AbstractTaskManager(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def add_task(
+    def add_task(
         self,
         callback: collections.Callable[_P, collections.Awaitable[typing.Any]],
         task_id: typing.Optional[str] = None,
@@ -96,11 +96,11 @@ class AbstractTaskManager(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def stop_group(self, task_id: str, /) -> int:
+    def stop_group(self, task_id: str, /) -> None:
         ...
 
     @abc.abstractmethod
-    async def stop_task(self, task_id: str, /) -> bool:
+    def stop_task(self, task_id: str, /) -> None:
         ...
 
     @abc.abstractmethod
@@ -181,17 +181,7 @@ class AsyncioTaskManager(AbstractTaskManager):
             .add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
         )
 
-    async def add_task(
-        self,
-        callback: collections.Callable[_P, collections.Awaitable[typing.Any]],
-        task_id: typing.Optional[str] = None,
-        group_id: typing.Optional[str] = None,
-        *args: _P.args,
-        **kwargs: _P.kwargs,
-    ) -> str:
-        return self.add_task_sync(callback, task_id, group_id, *args, **kwargs)
-
-    def add_task_sync(
+    def add_task(
         self,
         callback: collections.Callable[_P, collections.Awaitable[typing.Any]],
         task_id: typing.Optional[str] = None,
@@ -227,28 +217,15 @@ class AsyncioTaskManager(AbstractTaskManager):
     async def get_task(self, task_id: str, /) -> typing.Optional[AbstractTaskInfo]:
         return self.get_task_sync(task_id)
 
-    def stop_group_sync(self, group_id: str, /) -> int:
-        result = 0
+    def stop_group(self, group_id: str, /) -> None:
         if task_ids := self._groups.get(group_id):
             for task in map(self._tasks.__getitem__, task_ids):
                 if not task.task.done():
                     task.task.cancel()
-                    result += 1
 
-        return result
-
-    async def stop_group(self, group_id: str, /) -> int:
-        return self.stop_group_sync(group_id)
-
-    def stop_task_sync(self, task_id: str, /) -> bool:
+    def stop_task(self, task_id: str, /) -> None:
         if (task_info := self._tasks.get(task_id)) and not task_info.task.done():
             task_info.task.cancel()
-            return True
-
-        return False
-
-    async def stop_task(self, task_id: str, /) -> bool:
-        return self.stop_task_sync(task_id)
 
     async def wait_for_task(self, task_id: str, /) -> bool:
         task_info = self._tasks.get(task_id)
