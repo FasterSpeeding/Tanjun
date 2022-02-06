@@ -1366,6 +1366,8 @@ class SlashOption(abc.ABC):
 class AutocompleteOption(SlashOption, abc.ABC):
     """Interface for an auto-complete option."""
 
+    __slots__ = ()
+
     @property
     @abc.abstractmethod
     def is_focused(self) -> bool:
@@ -1735,6 +1737,8 @@ _MenuTypeT = typing.TypeVar(
 class MenuContext(AppCommandContext, abc.ABC):
     """Interface of a menu command context."""
 
+    __slots__ = ()
+
     @property
     @abc.abstractmethod
     def command(self) -> typing.Optional[MenuCommand[typing.Any, typing.Any]]:
@@ -1866,6 +1870,8 @@ class SlashContext(AppCommandContext, abc.ABC):
 
 class AutocompleteContext:
     """Interface of an autocomplete context."""
+
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
