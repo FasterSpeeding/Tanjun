@@ -65,6 +65,8 @@ if typing.TYPE_CHECKING:
 
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
     _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
+    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="tanjun_abc.AppCommandContext")
+    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="tanjun_abc.MenuCommand[typing.Any, typing.Any]")
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
@@ -146,6 +148,10 @@ class _ComponentManager(tanjun_abc.ClientLoader):
     def unload(self, client: tanjun_abc.Client, /) -> bool:
         client.remove_component_by_name(self._component.name)
         return True
+
+
+async def _empty_coro() -> None:
+    return None
 
 
 # TODO: do we want to setup a custom equality and hash here to make it easier to unload components?
@@ -613,6 +619,31 @@ class Component(tanjun_abc.Component):
         self._menu_commands[name] = command
         return self
 
+    def remove_menu_command(
+        self: _ComponentT, command: tanjun_abc.MenuCommand[typing.Any, typing.Any], /
+    ) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        try:
+            del self._menu_commands[command.name.casefold()]
+        except KeyError:
+            raise ValueError(f"Command {command.name} not found") from None
+
+        return self
+
+    @typing.overload
+    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT:
+        ...
+
+    @typing.overload
+    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
+        ...
+
+    def with_menu_command(
+        self, command: typing.Optional[_MenuCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[_MenuCommandT]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        return _with_command(self.add_menu_command, command, copy=copy)
+
     def add_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         name = command.name.casefold()
@@ -963,13 +994,14 @@ class Component(tanjun_abc.Component):
         if command := self._slash_commands.get(ctx.interaction.command_name):
             return command.execute_autocomplete(ctx)
 
-    async def _execute_slash(
+    async def _execute_app(
         self,
-        ctx: tanjun_abc.SlashContext,
-        command: typing.Optional[tanjun_abc.BaseSlashCommand],
+        ctx: _AppCommandContextT,
+        command: typing.Optional[tanjun_abc.AppCommand[_AppCommandContextT]],
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[tanjun_abc.SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[tanjun_abc.Hooks[_AppCommandContextT]]] = None,
+        other_hooks: typing.Optional[tanjun_abc.Hooks[_AppCommandContextT]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
         try:
             if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
@@ -983,28 +1015,43 @@ class Component(tanjun_abc.Component):
             asyncio.get_running_loop().create_future().set_result(None)
             return None
 
-        if self._slash_hooks:
-            if hooks is None:
-                hooks = set()
-
-            hooks.add(self._slash_hooks)
-
         if self._hooks:
             if hooks is None:
                 hooks = set()
 
             hooks.add(self._hooks)
 
+        if other_hooks:
+            if hooks is None:
+                hooks = set()
+
+            hooks.add(other_hooks)
+
         return command.execute(ctx, hooks=hooks)
 
-    async def execute_menu(
+    # To ensure that ctx.set_ephemeral_default is called as soon as possible if
+    # a match is found the public function is kept sync to avoid yielding
+    # to the event loop until after this is set.
+    def execute_menu(
         self,
         ctx: tanjun_abc.MenuContext,
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[tanjun_abc.MenuHooks]] = None,
-    ) -> typing.Optional[collections.Awaitable[None]]:
-        raise NotImplementedError
+    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        command = self._menu_commands.get(ctx.interaction.command_name)
+        if command:
+            if command.type is not ctx.type:
+                return _empty_coro()
+
+            if command.defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(command.defaults_to_ephemeral)
+
+            elif self._defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+
+        return self._execute_app(ctx, command, hooks=hooks)  # other_hooks=self._menu_hooks
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
@@ -1025,7 +1072,7 @@ class Component(tanjun_abc.Component):
             elif self._defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
-        return self._execute_slash(ctx, command, hooks=hooks)
+        return self._execute_app(ctx, command, hooks=hooks, other_hooks=self._slash_hooks)
 
     async def execute_message(
         self,

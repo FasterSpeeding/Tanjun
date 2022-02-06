@@ -38,6 +38,9 @@ import typing
 
 from .. import abc
 from .. import components
+from .. import errors
+from .. import hooks as hooks_
+from .. import injecting
 from .. import utilities
 from . import base
 from . import slash
@@ -53,40 +56,66 @@ _MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="abc
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
+_EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
+_CallbackishT = typing.Union[
+    _MenuCommandCallbackSigT,
+    abc.MessageCommand[_MenuCommandCallbackSigT],
+    abc.SlashCommand[_MenuCommandCallbackSigT],
+]
+
+
+def _as_menu(
+    name: str, type_: _MenuTypeT, /, *, default_to_ephemeral: typing.Optional[bool] = None, is_global: bool = True
+) -> collections.Callable[[_CallbackishT[_MenuCommandCallbackSigT]], MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]]:
+    def decorator(
+        callback: _CallbackishT[_MenuCommandCallbackSigT], /
+    ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
+            return MenuCommand(
+                callback.callback,
+                type_,
+                name,
+                default_to_ephemeral=default_to_ephemeral,
+                is_global=is_global,
+            )
+
+        return MenuCommand(
+            callback,
+            type_,
+            name,
+            default_to_ephemeral=default_to_ephemeral,
+            is_global=is_global,
+        )
+
+    return decorator
 
 
 def as_message_menu(
     name: str, /, *, default_to_ephemeral: typing.Optional[bool] = None, is_global: bool = True
 ) -> collections.Callable[
-    [_MenuCommandCallbackSigT], MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]
+    [_CallbackishT[_MenuCommandCallbackSigT]],
+    MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
 ]:
-    return lambda callback: MenuCommand(
-        callback,
-        hikari.CommandType.MESSAGE,
-        name,
-        default_to_ephemeral=default_to_ephemeral,
-        is_global=is_global,
-    )
+    return _as_menu(name, hikari.CommandType.MESSAGE, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
 
 
 def as_user_menu(
     name: str, /, *, default_to_ephemeral: typing.Optional[bool] = None, is_global: bool = True
 ) -> collections.Callable[
-    [_MenuCommandCallbackSigT], MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER]]
+    [_CallbackishT[_MenuCommandCallbackSigT]],
+    MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER]],
 ]:
-    return lambda callback: MenuCommand(
-        callback,
-        hikari.CommandType.USER,
-        name,
-        default_to_ephemeral=default_to_ephemeral,
-        is_global=is_global,
-    )
+    return _as_menu(name, hikari.CommandType.USER, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+
+
+_VALID_TYPES = set((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
     """Base class used for the standard slash command implementations."""
 
     __slots__ = (
+        "_always_defer",
         "_callback",
         "_default_permission",
         "_defaults_to_ephemeral",
@@ -106,6 +135,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         name: str,
         /,
         *,
+        always_defer: bool = False,
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
@@ -113,10 +143,15 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
     ) -> None:
         super().__init__()
         slash.validate_name(name)
+
+        if type_ not in _VALID_TYPES:
+            raise ValueError("Command type must be message or user")
+
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             callback = typing.cast(_MenuCommandCallbackSigT, callback.callback)
 
-        self._callback = callback
+        self._always_defer = always_defer
+        self._callback = injecting.CallbackDescriptor(callback)
         self._default_permission = default_permission
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_global = is_global
@@ -129,7 +164,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
     @property
     def callback(self) -> _MenuCommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return self._callback
+        return typing.cast("_MenuCommandCallbackSigT", self._callback.callback)
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
@@ -222,7 +257,40 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
     async def execute(
         self, ctx: abc.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[abc.MenuHooks]] = None
     ) -> None:
-        raise NotImplementedError
+        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        if self._always_defer and not ctx.has_been_deferred and not ctx.has_responded:
+            await ctx.defer()
+
+        ctx = ctx.set_command(self)
+        own_hooks = self._hooks or _EMPTY_HOOKS
+        try:
+            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
+
+            if self._type is hikari.CommandType.USER:
+                value = ctx.resolve_to_user()
+
+            else:
+                value = ctx.resolve_to_message()
+
+            await self._callback.resolve_with_command_context(ctx, ctx, value)
+
+        except errors.CommandError as exc:
+            await ctx.respond(exc.message)
+
+        except errors.HaltExecution:
+            # Unlike a message command, this won't necessarily reach the client level try except
+            # block so we have to handle this here.
+            await ctx.mark_not_found()
+
+        except Exception as exc:
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+                raise
+
+        else:
+            await own_hooks.trigger_success(ctx, hooks=hooks)
+
+        finally:
+            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def load_into_component(self, component: abc.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.

@@ -72,6 +72,7 @@ if typing.TYPE_CHECKING:
     import types
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
+    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="tanjun_abc.AppCommandContext")
 
     class _MessageContextMakerProto(typing.Protocol):
         def __call__(
@@ -430,6 +431,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_grab_mention_prefix",
         "_hooks",
         "_interaction_not_found",
+        "_menu_hooks",
         "_slash_hooks",
         "_is_closing",
         "_listeners",
@@ -579,6 +581,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_not_found: typing.Optional[str] = "Command not found"
+        self._menu_hooks: typing.Optional[tanjun_abc.MenuHooks] = None
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_closing = False
         self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
@@ -1004,12 +1007,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        commands = (
-            command
-            for command in itertools.chain.from_iterable(
-                component.slash_commands for component in self._components.values()
-            )
-            if command.is_global
+        commands = itertools.chain(
+            self.iter_slash_commands(global_only=True),
+            self.iter_menu_commands(global_only=True)
         )
         return await self.declare_application_commands(
             commands, command_ids, application=application, guild=guild, force=force
@@ -1065,7 +1065,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[tanjun_abc.BaseSlashCommand],
+        commands: collections.Iterable[tanjun_abc.AppCommand[typing.Any]],
         /,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
@@ -1075,7 +1075,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
-        names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
+        names_to_commands: dict[str, tanjun_abc.AppCommand[typing.Any]] = {}
         conflicts: set[str] = set()
         builders: dict[str, hikari.api.CommandBuilder] = {}
 
@@ -1622,9 +1622,50 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def iter_commands(self) -> collections.Iterator[tanjun_abc.ExecutableCommand[tanjun_abc.Context]]:
         # <<inherited docstring from tanjun.abc.Client>>.
+        menu_commands = self.iter_menu_commands()
         slash_commands = self.iter_slash_commands(global_only=False)
         yield from self.iter_message_commands()
         yield from slash_commands
+        yield from menu_commands
+
+    @typing.overload
+    def iter_menu_commands(
+        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE]] = None
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
+        ...
+
+    @typing.overload
+    def iter_menu_commands(
+        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
+        ...
+
+    @typing.overload
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
+        ...
+
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        if global_only:
+            return filter(lambda c: c.is_global, self.iter_menu_commands(global_only=False, type=type))
+
+        if type:
+            if type not in _MENU_TYPES:
+                raise ValueError("Command type filter must be USER or MESSAGE")
+
+            return filter(lambda c: c.type == type, self.iter_menu_commands(global_only=global_only, type=None))
+
+        return itertools.chain.from_iterable(component.menu_commands for component in self.components)
 
     def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1667,7 +1708,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self,
         event_manager: hikari.api.EventManager,
         event_type: type[hikari.Event],
-        callback: tanjun_abc.ListenerCallbackSig,
+        callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]],
     ) -> None:
         try:
             event_manager.unsubscribe(event_type, callback)
@@ -1816,6 +1857,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The client instance to enable chained calls.
         """
         self._hooks = hooks
+        return self
+
+    def set_menu_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.MenuHooks], /) -> _ClientT:
+        """Set the menu command execution hooks for this client.
+
+        The callbacks within this hook will be added to every menu command
+        execution started by this client.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.MenuHooks | None
+            The menu context specific command execution hooks to set for this
+            client.
+
+            Passing `None` will remove the hooks.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
+        self._menu_hooks = hooks
         return self
 
     def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.SlashHooks], /) -> _ClientT:
@@ -2124,6 +2187,19 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return hooks
 
+    def _get_menu_hooks(self) -> typing.Optional[set[tanjun_abc.MenuHooks]]:
+        hooks: typing.Optional[set[tanjun_abc.MenuHooks]] = None
+        if self._hooks and self._menu_hooks:
+            hooks = {self._hooks, self._menu_hooks}
+
+        elif self._hooks:
+            hooks = {self._hooks}
+
+        elif self._menu_hooks:
+            hooks = {self._menu_hooks}
+
+        return hooks
+
     async def _on_slash_not_found(self, ctx: context.slash.AppCommandContext) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._interaction_not_found and not ctx.has_responded:
@@ -2136,36 +2212,58 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 await coro
                 return
 
+    @staticmethod
+    def _execute_slash(
+        component: tanjun_abc.Component, ctx: tanjun_abc.SlashContext, /
+    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
+        return component.execute_slash(ctx)
+
     async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
-        # if interaction.type is hikari.CommandType.SLASH:
-        ctx = self._make_slash_context(
-            client=self,
-            injection_client=self,
-            interaction=interaction,
-            on_not_found=self._on_slash_not_found,
-            default_to_ephemeral=self._defaults_to_ephemeral,
-        )
+        if interaction.type is hikari.CommandType.SLASH:
+            ctx = self._make_slash_context(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+            )
+            hooks = self._get_slash_hooks()
 
-        # elif interaction.type in _COMMAND_MENU_TYPES:
-        #     ctx = context.MenuContext(self, self, interaction, on_not_found=self._on_slash_not_found)
+        elif interaction.type in _COMMAND_MENU_TYPES:
+            ctx = context.MenuContext(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+            )
+            hooks = self._get_menu_hooks()
 
-        # else:
-        #     raise RuntimeError(f"Unknown command type {interaction.type}")
-
-        hooks = self._get_slash_hooks()
+        else:
+            raise RuntimeError(f"Unknown command type {interaction.type}")
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
         try:
-            if await self.check(ctx):
-                for component in self._components.values():
-                    # This is set on each iteration to ensure that any component
-                    # state which was set to this isn't propagated to other components.
-                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if future := await component.execute_slash(ctx, hooks=hooks):
-                        await future
-                        return
+            if not await self.check(ctx):
+                await ctx.mark_not_found()
+                return
+
+            for component in self._components.values():
+                # This is set on each iteration to ensure that any component
+                # state which was set to this isn't propagated to other components.
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+                if ctx.type is hikari.CommandType.SLASH:
+                    assert isinstance(ctx, tanjun_abc.SlashContext)
+                    coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun_abc.SlashHooks]", hooks))
+
+                else:
+                    assert isinstance(ctx, tanjun_abc.MenuContext)
+                    coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun_abc.MenuHooks]", hooks))
+
+                if coro:
+                    return await coro
 
         except errors.HaltExecution:
             pass
@@ -2229,27 +2327,56 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         future: asyncio.Future[
             typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
         ] = loop.create_future()
-        ctx = self._make_slash_context(
-            client=self,
-            injection_client=self,
-            interaction=interaction,
-            on_not_found=self._on_slash_not_found,
-            default_to_ephemeral=self._defaults_to_ephemeral,
-            future=future,
-        )
+
+        if interaction.type is hikari.CommandType.SLASH:
+            ctx = self._make_slash_context(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+                future=future,
+            )
+            hooks = self._get_slash_hooks()
+
+        elif interaction.type in _COMMAND_MENU_TYPES:
+            ctx = context.MenuContext(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+                future=future,
+            )
+            hooks = self._get_menu_hooks()
+
+        else:
+            raise RuntimeError(f"Unknown command type {interaction.type}")
+
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
         hooks = self._get_slash_hooks()
         try:
-            if await self.check(ctx):
-                for component in self._components.values():
-                    # This is set on each iteration to ensure that any component
-                    # state which was set to this isn't propagated to other components.
-                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if coro := await component.execute_slash(ctx, hooks=hooks):
-                        loop.create_task(coro)
-                        return await future
+            if not await self.check(ctx):
+                asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
+                return await future
+
+            for component in self._components.values():
+                # This is set on each iteration to ensure that any component
+                # state which was set to this isn't propagated to other components.
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+                if ctx.type is hikari.CommandType.SLASH:
+                    assert isinstance(ctx, tanjun_abc.SlashContext)
+                    coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun_abc.SlashHooks]", hooks))
+
+                else:
+                    assert isinstance(ctx, tanjun_abc.MenuContext)
+                    coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun_abc.MenuHooks]", hooks))
+
+                if coro:
+                    loop.create_task(coro)
+                    return await future
 
         except errors.HaltExecution:
             pass
@@ -2320,3 +2447,6 @@ class _WrapLoadError:
     ) -> None:
         if exc and isinstance(exc, Exception) and not isinstance(exc, errors.ModuleMissingLoaders):
             raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception
+
+
+_MENU_TYPES = set((hikari.CommandType.MESSAGE, hikari.CommandType.USER))

@@ -59,6 +59,7 @@ if typing.TYPE_CHECKING:
 
 _CallbackishT = typing.Union[
     abc.CommandCallbackSigT,
+    abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
     abc.MessageCommand[abc.CommandCallbackSigT],
     abc.SlashCommand[abc.CommandCallbackSigT],
 ]
@@ -99,7 +100,7 @@ def as_message_command(
         callback: _CallbackishT[abc.CommandCallbackSigT],
         /,
     ) -> MessageCommand[abc.CommandCallbackSigT]:
-        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return MessageCommand(callback.callback, name, *names, _wrapped_command=callback)
 
         return MessageCommand(callback, name, *names)
@@ -138,7 +139,7 @@ def as_message_command_group(
     """
 
     def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
-        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return MessageCommandGroup(callback.callback, name, *names, strict=strict, _wrapped_command=callback)
 
         return MessageCommandGroup(callback, name, *names, strict=strict)

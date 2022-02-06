@@ -38,12 +38,12 @@ import typing
 
 from .. import abc
 from . import slash
+import hikari
 
 if typing.TYPE_CHECKING:
     import asyncio
     from collections import abc as collections
 
-    import hikari
 
     from .. import injecting
 
@@ -81,7 +81,6 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
             on_not_found=on_not_found,
         )
         self._command = command
-        self._target = slash.SlashOption
 
     @property
     def command(self) -> typing.Optional[abc.MenuCommand[typing.Any, typing.Any]]:

@@ -76,6 +76,7 @@ if typing.TYPE_CHECKING:
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
     _CallbackishT = typing.Union[
         abc.CommandCallbackSigT,
+        abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
         abc.MessageCommand[abc.CommandCallbackSigT],
         abc.SlashCommand[abc.CommandCallbackSigT],
     ]
@@ -193,7 +194,7 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], SlashCommand[abc.CommandCallbackSigT]]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], SlashCommand[abc.CommandCallbackSigT]]:
     r"""Build a `SlashCommand` by decorating a function.
 
     .. note::
@@ -276,7 +277,7 @@ def as_slash_command(
     """
 
     def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
-        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return SlashCommand(
                 callback.callback,
                 name,

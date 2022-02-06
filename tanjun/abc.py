@@ -99,6 +99,7 @@ BaseSlashCommandT = typing.TypeVar("BaseSlashCommandT", bound="BaseSlashCommand"
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand[typing.Any]")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
+_MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
 AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
@@ -159,7 +160,7 @@ returns `bool` or `None` and may take advantage of dependency injection.
 ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig)
 """Generic equivalent of `ErrorHookSig`."""
 
-ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+ListenerCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of a hikari event manager callback.
 
 This is guaranteed one positional arg of type `hikari.Event` regardless
@@ -169,7 +170,7 @@ of implementation and must be a coruotine function which returns `None`.
 ListenerCallbackSigT = typing.TypeVar("ListenerCallbackSigT", bound=ListenerCallbackSig)
 """Generic equivalent of `ListenerCallbackSig`."""
 
-MenuCommandCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of a contex menu command callback.
 
 This is guaranteed two positiona; arguments of type `tanjun.abc.MenuContext`
@@ -3115,6 +3116,53 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
+    def remove_menu_command(self: _T, command: MenuCommand[typing.Any, typing.Any], /) -> _T:
+        """Remove a menu command from this component.
+
+        Parameters
+        ----------
+        command : MenuCommand
+            Object of the menu command to remove.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
+        """
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
+        ...
+
+    @abc.abstractmethod
+    def with_menu_command(
+        self, command: typing.Optional[_MenuCommandT] = None, /, *, copy: bool = False
+    ) -> typing.Union[_MenuCommandT, collections.Callable[[_MenuCommandT], _MenuCommandT]]:
+        """Add a menu command to this component through a decorator call.
+
+        Parameters
+        ----------
+        command : MenuCommand
+            The command to add.
+
+        Other Parameters
+        ----------------
+        copy : bool
+            Whether to copy the command before adding it.
+
+        Returns
+        -------
+        MenuCommand
+            The added command.
+        """
+
+    @abc.abstractmethod
     def add_slash_command(self: _T, command: BaseSlashCommand, /) -> _T:
         """Add a slash command to this component.
 
@@ -3778,7 +3826,7 @@ class Client(abc.ABC):
     @abc.abstractmethod
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[BaseSlashCommand],
+        commands: collections.Iterable[AppCommand[typing.Any]],
         /,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
@@ -3795,7 +3843,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        commands : collections.abc.Iterable[BaseSlashCommand]
+        commands : collections.abc.Iterable[AppCommand]
             Iterable of the commands to register.
 
         Other Parameters
@@ -4134,6 +4182,52 @@ class Client(abc.ABC):
             Iterator of all the commands registered to this client.
         """
 
+    @typing.overload
+    @abc.abstractmethod
+    def iter_menu_commands(
+        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE]] = None
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def iter_menu_commands(
+        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
+        ...
+
+    @abc.abstractmethod
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
+        """Iterator over the menu commands registered to this client.
+
+        Other Parameters
+        ----------------
+        global_only : bool
+            Whether to only iterate over global menu commands.
+        type : typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER] | None
+            Menu command type to filter by.
+
+        Returns
+        -------
+        collections.abc.Iterator[MenuCommand]
+            Iterator of the menu commands registered to this client.
+        """
+
     @abc.abstractmethod
     def iter_message_commands(self) -> collections.Iterator[MessageCommand[typing.Any]]:
         """Iterate over all the message commands registered to this client.
@@ -4148,15 +4242,15 @@ class Client(abc.ABC):
     def iter_slash_commands(self, *, global_only: bool = False) -> collections.Iterator[BaseSlashCommand]:
         """Iterate over all the slash commands registered to this client.
 
-        Parameters
-        ----------
+        Other Parameters
+        ----------------
         global_only : bool
             Whether to only iterate over global slash commands.
 
         Returns
         -------
         collections.abc.Iterator[BaseSlashCommand]
-            Iterator of all the slash commands registered to this client.
+            Iterator of the slash commands registered to this client.
         """
 
     @abc.abstractmethod
