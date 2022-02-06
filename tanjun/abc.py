@@ -1727,7 +1727,9 @@ class AppCommandContext(Context, abc.ABC):
         """
 
 
-_MenuTypeT = typing.TypeVar("_MenuTypeT", bound=typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE])
+_MenuTypeT = typing.TypeVar(
+    "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
+)
 
 
 class MenuContext(AppCommandContext, abc.ABC):
@@ -2619,6 +2621,11 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
     def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
         """Object of the actual command this object tracks if set."""
 
+    @property
+    @abc.abstractmethod
+    def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
+        """The type of this command."""
+
     @abc.abstractmethod
     def build(self) -> hikari.api.SlashCommandBuilder:
         """Get a builder object for this command.
@@ -2708,8 +2715,8 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSi
 
     @property
     @abc.abstractmethod
-    def types(self) -> collections.Collection[_MenuTypeT]:
-        """Collection of the menu type(s) this is for."""
+    def type(self) -> _MenuTypeT:
+        """The menu type(s) this is for."""
 
     @property
     @abc.abstractmethod

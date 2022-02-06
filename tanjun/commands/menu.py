@@ -32,7 +32,7 @@
 """Standard implementation of Tanjun's command objects."""
 from __future__ import annotations
 
-__all__: list[str] = []
+__all__: list[str] = ["as_message_menu", "as_user_menu", "MenuCommand"]
 
 import typing
 
@@ -50,25 +50,36 @@ if typing.TYPE_CHECKING:
 import hikari
 
 _MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="abc.MenuCommandCallbackSig")
-_MenuTypeT = typing.TypeVar("_MenuTypeT", bound=typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE])
+_MenuTypeT = typing.TypeVar(
+    "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
+)
 
 
-def as_menu_command(
-    name: str,
-    /,
-    *,
-    default_to_ephemeral: typing.Optional[bool] = None,
-    is_global: bool = True,
-    message: bool = False,
-    user: bool = False,
-) -> collections.Callable[[_MenuCommandCallbackSigT], MenuCommand[_MenuCommandCallbackSigT, typing.Any]]:
+def as_message_menu(
+    name: str, /, *, default_to_ephemeral: typing.Optional[bool] = None, is_global: bool = True
+) -> collections.Callable[
+    [_MenuCommandCallbackSigT], MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]
+]:
     return lambda callback: MenuCommand(
         callback,
+        hikari.CommandType.MESSAGE,
         name,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
-        message=message,
-        user=user,
+    )
+
+
+def as_user_menu(
+    name: str, /, *, default_to_ephemeral: typing.Optional[bool] = None, is_global: bool = True
+) -> collections.Callable[
+    [_MenuCommandCallbackSigT], MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER]]
+]:
+    return lambda callback: MenuCommand(
+        callback,
+        hikari.CommandType.USER,
+        name,
+        default_to_ephemeral=default_to_ephemeral,
+        is_global=is_global,
     )
 
 
@@ -77,70 +88,27 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
 
     __slots__ = (
         "_callback",
+        "_default_permission",
         "_defaults_to_ephemeral",
         "_description",
         "_is_global",
         "_name",
         "_parent",
         "_tracked_command",
-        "_types",
+        "_type",
         "_wrapped_command",
     )
 
-    @typing.overload
     def __init__(
-        self: MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
+        self,
         callback: _MenuCommandCallbackSigT,
+        type_: _MenuTypeT,
         name: str,
         /,
         *,
+        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
-        message: typing.Literal[True],
-    ) -> None:
-        ...
-
-    @typing.overload
-    def __init__(
-        self: MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER]],
-        callback: _MenuCommandCallbackSigT,
-        name: str,
-        /,
-        *,
-        default_to_ephemeral: typing.Optional[bool] = None,
-        is_global: bool = True,
-        user: typing.Literal[True],
-    ) -> None:
-        ...
-
-    @typing.overload
-    def __init__(
-        self: MenuCommand[
-            _MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]
-        ],
-        callback: _MenuCommandCallbackSigT,
-        name: str,
-        /,
-        *,
-        default_to_ephemeral: typing.Optional[bool] = None,
-        is_global: bool = True,
-        message: typing.Literal[True],
-        user: typing.Literal[True],
-    ) -> None:
-        ...
-
-    def __init__(
-        self: MenuCommand[
-            _MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]
-        ],
-        callback: _MenuCommandCallbackSigT,
-        name: str,
-        /,
-        *,
-        default_to_ephemeral: typing.Optional[bool] = None,
-        is_global: bool = True,
-        message: bool = False,
-        user: bool = False,
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         super().__init__()
@@ -149,18 +117,14 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             callback = typing.cast(_MenuCommandCallbackSigT, callback.callback)
 
         self._callback = callback
+        self._default_permission = default_permission
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[abc.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.ContextMenuCommand] = None
-        self._types: set[_MenuTypeT] = set()
+        self._type = type_
         self._wrapped_command = _wrapped_command
-        if message:
-            self._types.add(hikari.CommandType.MESSAGE)
-
-        if user:
-            self._types.add(hikari.CommandType.USER)
 
     @property
     def callback(self) -> _MenuCommandCallbackSigT:
@@ -193,11 +157,13 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         return self._tracked_command.id if self._tracked_command else None
 
     @property
-    def types(self) -> collections.Collection[_MenuTypeT]:
-        return self._types
+    def type(self) -> _MenuTypeT:
+        return self._type
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
-        raise NotImplementedError
+        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name).set_default_permission(
+            self._default_permission
+        )
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.ContextMenuCommand, /) -> _MenuCommandT:
         """Set the the global command this should be tracking.

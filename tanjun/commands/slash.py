@@ -795,6 +795,11 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
+    @property
+    def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        return hikari.CommandType.SLASH
+
     def set_tracked_command(self: _BaseSlashCommandT, command: hikari.SlashCommand, /) -> _BaseSlashCommandT:
         """Set the the global command this should be tracking.
 

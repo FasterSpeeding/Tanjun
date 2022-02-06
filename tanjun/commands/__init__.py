@@ -35,7 +35,9 @@ from __future__ import annotations
 __all__: list[str] = [
     "as_message_command",
     "as_message_command_group",
+    "as_message_menu",
     "as_slash_command",
+    "as_user_menu",
     "slash_command_group",
     "MessageCommand",
     "MessageCommandGroup",
@@ -55,6 +57,8 @@ __all__: list[str] = [
 ]
 
 from .menu import MenuCommand
+from .menu import as_message_menu
+from .menu import as_user_menu
 from .message import MessageCommand
 from .message import MessageCommandGroup
 from .message import as_message_command
