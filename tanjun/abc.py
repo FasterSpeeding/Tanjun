@@ -169,6 +169,16 @@ of implementation and must be a coruotine function which returns `None`.
 ListenerCallbackSigT = typing.TypeVar("ListenerCallbackSigT", bound=ListenerCallbackSig)
 """Generic equivalent of `ListenerCallbackSig`."""
 
+MenuCommandCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+"""Type hint of a contex menu command callback.
+
+This is guaranteed two positiona; arguments of type `tanjun.abc.MenuContext`
+and either `tanjun.abc.User` | `tanjun.abc.InteractionMember` and/or
+`tanjun.abc.Message` dependent on the type(s) of menu this is.
+"""
+
+_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound=MenuCommandCallbackSig)
+
 
 class Context(abc.ABC):
     """Interface for the context of a command execution."""
@@ -1409,6 +1419,11 @@ class AppCommandContext(Context, abc.ABC):
     def member(self) -> typing.Optional[hikari.InteractionMember]:
         """Object of the member that triggered this command if this is in a guild."""
 
+    @property
+    @abc.abstractmethod
+    def type(self) -> hikari.CommandType:
+        """Type of application command this context is for."""
+
     @abc.abstractmethod
     def set_ephemeral_default(self: _T, state: bool, /) -> _T:
         """Set the ephemeral default state for this context.
@@ -1712,17 +1727,7 @@ class AppCommandContext(Context, abc.ABC):
         """
 
 
-_MenuTypeT = typing.TypeVar("_MenuTypeT", hikari.User, hikari.Member)
-
-
-class MenuType(enum.Enum):
-    """Enumeration of the context menu types."""
-
-    USER = "user"
-    """A menu for a single user."""
-
-    MESSAGE = "message"
-    """A menu for a single message."""
+_MenuTypeT = typing.TypeVar("_MenuTypeT", bound=typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE])
 
 
 class MenuContext(AppCommandContext, abc.ABC):
@@ -1730,7 +1735,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[MenuCommand[typing.Any]]:
+    def command(self) -> typing.Optional[MenuCommand[typing.Any, typing.Any]]:
         """Command that was invoked.
 
         .. note::
@@ -1751,11 +1756,11 @@ class MenuContext(AppCommandContext, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def type(self) -> MenuType:
+    def type(self) -> typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]:
         """The type of context menu this context is for."""
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[MenuCommand[typing.Any]], /) -> _T:
+    def set_command(self: _T, _: typing.Optional[MenuCommand[typing.Any, typing.Any]], /) -> _T:
         """Set the command for this context.
 
         Parameters
@@ -2403,6 +2408,9 @@ AnyHooks = Hooks[Context]
 MessageHooks = Hooks[MessageContext]
 """Execution hooks for messages commands."""
 
+MenuHooks = Hooks[MenuContext]
+"""Execution hooks for menu commands."""
+
 SlashHooks = Hooks[SlashContext]
 """Execution hooks for slash commands."""
 
@@ -2591,9 +2599,8 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         self,
         ctx: _AppCommandContextT,
         /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[Hooks[_AppCommandContextT]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -2642,6 +2649,18 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
             The command instance to enable chained calls.
         """
 
+    @abc.abstractmethod
+    async def execute(
+        self,
+        ctx: SlashContext,
+        /,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
+        *,
+        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
+    ) -> None:
+        raise NotImplementedError
+        ...
+
     async def execute_autocomplete(
         self,
         ctx: AutocompleteContext,
@@ -2677,15 +2696,36 @@ class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT
         """Collection of the string option autocompletes."""
 
 
-class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuTypeT]):
+class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSigT, _MenuTypeT]):
     """A contextmenu command."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSig:
+    def callback(self) -> _MenuCommandCallbackSigT:
         """Callback which is called during execution."""
+
+    @property
+    @abc.abstractmethod
+    def types(self) -> collections.Collection[_MenuTypeT]:
+        """Collection of the menu type(s) this is for."""
+
+    @property
+    @abc.abstractmethod
+    def tracked_command(self) -> typing.Optional[hikari.ContextMenuCommand]:
+        """Object of the actual command this object tracks if set."""
+
+    @abc.abstractmethod
+    def build(self) -> hikari.api.ContextMenuCommandBuilder:
+        """Get a builder object for this command.
+
+        Returns
+        -------
+        hikari.api.ContextMenuCommandBuilder
+            A builder object for this command. Use to declare this command on
+            globally or for a specific guild.
+        """
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):
@@ -3006,6 +3046,11 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def menu_commands(self) -> collections.Collection[MenuCommand[typing.Any, typing.Any]]:
+        """Collection of the menu commands in this component."""
+
+    @property
+    @abc.abstractmethod
     def message_commands(self) -> collections.Collection[MessageCommand[typing.Any]]:
         """Collection of the message commands in this component."""
 
@@ -3039,6 +3084,21 @@ class Component(abc.ABC):
         -------
         Self
             The component instance to enable chained calls.
+        """
+
+    @abc.abstractmethod
+    def add_menu_command(self: _T, command: MenuCommand[typing.Any, typing.Any], /) -> _T:
+        """Add a menu command to this component.
+
+        Parameters
+        ----------
+        command : MenuCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
         """
 
     @abc.abstractmethod
@@ -3287,6 +3347,7 @@ class Component(abc.ABC):
             An iterator of the matching slash commands.
         """
 
+    @abc.abstractmethod
     def execute_autocomplete(
         self,
         ctx: AutocompleteContext,
@@ -3295,7 +3356,17 @@ class Component(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def execute_interaction(
+    async def execute_menu(
+        self,
+        ctx: MenuContext,
+        /,
+        *,
+        hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None,
+    ) -> typing.Optional[collections.Awaitable[None]]:
+        ...
+
+    @abc.abstractmethod
+    async def execute_slash(
         self,
         ctx: SlashContext,
         /,

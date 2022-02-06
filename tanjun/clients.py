@@ -2137,6 +2137,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 return
 
     async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
+        # if interaction.type is hikari.CommandType.SLASH:
         ctx = self._make_slash_context(
             client=self,
             injection_client=self,
@@ -2144,6 +2145,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             on_not_found=self._on_slash_not_found,
             default_to_ephemeral=self._defaults_to_ephemeral,
         )
+
+        # elif interaction.type in _COMMAND_MENU_TYPES:
+        #     ctx = context.MenuContext(self, self, interaction, on_not_found=self._on_slash_not_found)
+
+        # else:
+        #     raise RuntimeError(f"Unknown command type {interaction.type}")
+
         hooks = self._get_slash_hooks()
 
         if self._auto_defer_after is not None:
@@ -2155,7 +2163,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     # This is set on each iteration to ensure that any component
                     # state which was set to this isn't propagated to other components.
                     ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if future := await component.execute_interaction(ctx, hooks=hooks):
+                    if future := await component.execute_slash(ctx, hooks=hooks):
                         await future
                         return
 
@@ -2239,7 +2247,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     # This is set on each iteration to ensure that any component
                     # state which was set to this isn't propagated to other components.
                     ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if coro := await component.execute_interaction(ctx, hooks=hooks):
+                    if coro := await component.execute_slash(ctx, hooks=hooks):
                         loop.create_task(coro)
                         return await future
 
@@ -2257,6 +2265,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
         return await future
+
+
+_COMMAND_MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 def _get_loaders(

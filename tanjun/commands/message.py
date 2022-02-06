@@ -178,7 +178,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             Variable positional arguments of other names for the command.
         """
         super().__init__()
-        if not _wrapped_command and isinstance(callback, (abc.MessageCommand, abc.SlashCommand)):
+        if not _wrapped_command and isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
 
         self._callback = injecting.CallbackDescriptor[None](callback)

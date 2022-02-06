@@ -50,8 +50,7 @@ if typing.TYPE_CHECKING:
 
     from hikari import traits as hikari_traits
 
-
-_ValueT = typing.TypeVar("_ValueT", int, float, str)
+    _ValueT = typing.TypeVar("_ValueT", int, float, str)
 
 
 class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):

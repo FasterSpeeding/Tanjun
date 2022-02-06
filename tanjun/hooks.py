@@ -358,6 +358,13 @@ AnyHooks = Hooks[abc.Context]
     This is shorthand for Hooks[tanjun.abc.Context].
 """
 
+MenuHooks = Hooks[abc.MenuContext]
+"""Hooks that can be used with a message context.
+
+.. note::
+    This is shorthand for Hooks[tanjun.abc.MenuContext].
+"""
+
 MessageHooks = Hooks[abc.MessageContext]
 """Hooks that can be used with a message context.
 

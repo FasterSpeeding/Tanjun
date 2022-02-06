@@ -170,6 +170,7 @@ class Component(tanjun_abc.Component):
         "_is_strict",
         "_listeners",
         "_loop",
+        "_menu_commands",
         "_message_commands",
         "_message_hooks",
         "_metadata",
@@ -206,6 +207,7 @@ class Component(tanjun_abc.Component):
         self._is_strict = strict
         self._listeners: dict[type[base_events.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
+        self._menu_commands: dict[str, tanjun_abc.MenuCommand[typing.Any, typing.Any]] = {}
         self._message_commands: list[tanjun_abc.MessageCommand[typing.Any]] = []
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -264,6 +266,11 @@ class Component(tanjun_abc.Component):
     def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._slash_hooks
+
+    @property
+    def menu_commands(self) -> collections.Collection[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        return self._menu_commands.copy().values()
 
     @property
     def message_commands(self) -> collections.Collection[tanjun_abc.MessageCommand[typing.Any]]:
@@ -592,9 +599,10 @@ class Component(tanjun_abc.Component):
         """
         return _with_command(self.add_command, command, copy=copy)
 
-    def add_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
+    def add_menu_command(self: _ComponentT, command: tanjun_abc.MenuCommand[typing.Any, typing.Any], /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
-        if self._slash_commands.get(command.name) == command:
+        name = command.name.casefold()
+        if self._menu_commands.get(name) == command:
             return self
 
         command.bind_component(self)
@@ -602,7 +610,21 @@ class Component(tanjun_abc.Component):
         if self._client:
             command.bind_client(self._client)
 
-        self._slash_commands[command.name.casefold()] = command
+        self._menu_commands[name] = command
+        return self
+
+    def add_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        name = command.name.casefold()
+        if self._slash_commands.get(name) == command:
+            return self
+
+        command.bind_component(self)
+
+        if self._client:
+            command.bind_client(self._client)
+
+        self._slash_commands[name] = command
         return self
 
     def remove_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
@@ -941,7 +963,7 @@ class Component(tanjun_abc.Component):
         if command := self._slash_commands.get(ctx.interaction.command_name):
             return command.execute_autocomplete(ctx)
 
-    async def _execute_interaction(
+    async def _execute_slash(
         self,
         ctx: tanjun_abc.SlashContext,
         command: typing.Optional[tanjun_abc.BaseSlashCommand],
@@ -975,10 +997,19 @@ class Component(tanjun_abc.Component):
 
         return command.execute(ctx, hooks=hooks)
 
+    async def execute_menu(
+        self,
+        ctx: tanjun_abc.MenuContext,
+        /,
+        *,
+        hooks: typing.Optional[collections.MutableSet[tanjun_abc.MenuHooks]] = None,
+    ) -> typing.Optional[collections.Awaitable[None]]:
+        raise NotImplementedError
+
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
     # to the event loop until after this is set.
-    def execute_interaction(
+    def execute_slash(
         self,
         ctx: tanjun_abc.SlashContext,
         /,
@@ -994,7 +1025,7 @@ class Component(tanjun_abc.Component):
             elif self._defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
-        return self._execute_interaction(ctx, command, hooks=hooks)
+        return self._execute_slash(ctx, command, hooks=hooks)
 
     async def execute_message(
         self,

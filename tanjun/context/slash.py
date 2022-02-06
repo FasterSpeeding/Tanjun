@@ -52,9 +52,8 @@ if typing.TYPE_CHECKING:
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
     _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
     _T = typing.TypeVar("_T")
+    _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
-
-_ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
@@ -976,6 +975,11 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
     def options(self) -> collections.Mapping[str, tanjun_abc.SlashOption]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._options.copy()
+
+    @property
+    def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        return hikari.CommandType.SLASH
 
     def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
         # <<inherited docstring from tanjun.abc.SlashContext>>.

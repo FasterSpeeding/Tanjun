@@ -48,11 +48,8 @@ if typing.TYPE_CHECKING:
     from .. import injecting
 
     _T = typing.TypeVar("_T")
-
-
-_MenuContextT = typing.TypeVar("_MenuContextT", bound="MenuContext")
-
-_ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+    _MenuContextT = typing.TypeVar("_MenuContextT", bound="MenuContext")
+    _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 
 class MenuContext(slash.AppCommandContext, abc.MenuContext):
@@ -66,7 +63,7 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
-        command: typing.Optional[abc.MenuCommand[typing.Any]] = None,
+        command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None,
         component: typing.Optional[abc.Component] = None,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
@@ -87,7 +84,7 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         self._target = slash.SlashOption
 
     @property
-    def command(self) -> typing.Optional[abc.MenuCommand[typing.Any]]:
+    def command(self) -> typing.Optional[abc.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         return self._command
 
@@ -114,18 +111,20 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         return next(iter(mapping.values()))
 
     @property
-    def type(self) -> abc.MenuType:
+    def type(self) -> typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         if self._interaction.resolved.users:
-            return abc.MenuType.USER
+            return hikari.CommandType.USER
 
         if self._interaction.resolved.messages:
-            return abc.MenuType.MESSAGE
+            return hikari.CommandType.MESSAGE
 
         raise NotImplementedError
 
-    def set_command(self: _MenuContextT, command: typing.Optional[abc.MenuCommand[typing.Any]], /) -> _MenuContextT:
+    def set_command(
+        self: _MenuContextT, command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]], /
+    ) -> _MenuContextT:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         self._command = command
         return self

@@ -40,6 +40,7 @@ __all__: list[str] = [
     "MessageCommand",
     "MessageCommandGroup",
     "BaseSlashCommand",
+    "MenuCommand",
     "SlashCommand",
     "SlashCommandGroup",
     "with_str_slash_option",
@@ -53,6 +54,7 @@ __all__: list[str] = [
     "with_mentionable_slash_option",
 ]
 
+from .menu import MenuCommand
 from .message import MessageCommand
 from .message import MessageCommandGroup
 from .message import as_message_command

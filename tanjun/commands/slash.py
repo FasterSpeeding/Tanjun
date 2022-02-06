@@ -74,13 +74,11 @@ if typing.TYPE_CHECKING:
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
-
-
-_CallbackishT = typing.Union[
-    abc.CommandCallbackSigT,
-    abc.MessageCommand[abc.CommandCallbackSigT],
-    abc.SlashCommand[abc.CommandCallbackSigT],
-]
+    _CallbackishT = typing.Union[
+        abc.CommandCallbackSigT,
+        abc.MessageCommand[abc.CommandCallbackSigT],
+        abc.SlashCommand[abc.CommandCallbackSigT],
+    ]
 
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
@@ -91,7 +89,7 @@ _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=ab
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
 
 
-def _validate_name(name: str) -> None:
+def validate_name(name: str) -> None:
     if not _SCOMMAND_NAME_REG.fullmatch(name):
         raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
 
@@ -751,7 +749,7 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        _validate_name(name)
+        validate_name(name)
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
@@ -1171,7 +1169,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the description is over 100 characters long.
         """
         super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
-        if not _wrapped_command and isinstance(callback, (abc.MessageCommand, abc.SlashCommand)):
+        if not _wrapped_command and isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
 
         self._always_defer = always_defer
@@ -1266,7 +1264,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        _validate_name(name)
+        validate_name(name)
         if len(description) > 100:
             raise ValueError("The option description cannot be over 100 characters in length")
 
