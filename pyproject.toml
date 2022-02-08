@@ -65,14 +65,14 @@ flake8 = [
 lint = ["codespell==2.1"]
 publish = ["flit==3.6.0"]
 reformat = ["black==22.1", "isort==5.10.1"]
-tests = ["pytest==6.2.5", "pytest-asyncio==0.17.2", "pytest-cov==3"]
+tests = ["pytest==7", "pytest-asyncio==0.17.2", "pytest-cov==3"]
 type_checking = ["pyright==0.0.13"]
 
 [project.urls]
-    homepage = "https://github.com/FasterSpeeding/Tanjun"
-    repository = "https://github.com/FasterSpeeding/Tanjun"
-    documentation = "https://tanjun.cursed.solutions/"
-    changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
+homepage = "https://github.com/FasterSpeeding/Tanjun"
+repository = "https://github.com/FasterSpeeding/Tanjun"
+documentation = "https://tanjun.cursed.solutions/"
+changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
 
 [tool.flit.module]
 name = "tanjun"
