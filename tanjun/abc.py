@@ -1266,7 +1266,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If the option is not a channel and a `default` wasn't provided.
+            If the option is not a channel.
         """
 
     @abc.abstractmethod

@@ -72,7 +72,6 @@ if typing.TYPE_CHECKING:
     import types
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
-    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="tanjun_abc.AppCommandContext")
 
     class _MessageContextMakerProto(typing.Protocol):
         def __call__(
@@ -2218,7 +2217,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return component.execute_slash(ctx)
 
     async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
-        if interaction.type is hikari.CommandType.SLASH:
+        if interaction.command_type is hikari.CommandType.SLASH:
             ctx = self._make_slash_context(
                 client=self,
                 injection_client=self,
@@ -2228,7 +2227,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             hooks = self._get_slash_hooks()
 
-        elif interaction.type in _COMMAND_MENU_TYPES:
+        elif interaction.command_type in _COMMAND_MENU_TYPES:
             ctx = context.MenuContext(
                 client=self,
                 injection_client=self,
@@ -2239,7 +2238,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hooks = self._get_menu_hooks()
 
         else:
-            raise RuntimeError(f"Unknown command type {interaction.type}")
+            raise RuntimeError(f"Unknown command type {interaction.command_type}")
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
@@ -2327,7 +2326,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
         ] = loop.create_future()
 
-        if interaction.type is hikari.CommandType.SLASH:
+        if interaction.command_type is hikari.CommandType.SLASH:
             ctx = self._make_slash_context(
                 client=self,
                 injection_client=self,
@@ -2338,7 +2337,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             hooks = self._get_slash_hooks()
 
-        elif interaction.type in _COMMAND_MENU_TYPES:
+        elif interaction.command_type in _COMMAND_MENU_TYPES:
             ctx = context.MenuContext(
                 client=self,
                 injection_client=self,
@@ -2350,7 +2349,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hooks = self._get_menu_hooks()
 
         else:
-            raise RuntimeError(f"Unknown command type {interaction.type}")
+            raise RuntimeError(f"Unknown command type {interaction.command_type}")
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
