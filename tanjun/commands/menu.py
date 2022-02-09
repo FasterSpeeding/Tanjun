@@ -108,7 +108,7 @@ def as_user_menu(
     return _as_menu(name, hikari.CommandType.USER, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
 
 
-_VALID_TYPES = set((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
+_VALID_TYPES = {hikari.CommandType.MESSAGE, hikari.CommandType.USER}
 
 
 class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
@@ -193,26 +193,20 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
 
     @property
     def type(self) -> _MenuTypeT:
+        # <<inherited docstring from tanjun.abc.MenuCommand>>.
         return self._type
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
+        # <<inherited docstring from tanjun.abc.MenuCommand>>.
         return hikari.impl.ContextMenuCommandBuilder(self._type, self._name).set_default_permission(
             self._default_permission
         )
 
-    def set_tracked_command(self: _MenuCommandT, command: hikari.ContextMenuCommand, /) -> _MenuCommandT:
-        """Set the the global command this should be tracking.
+    def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        if not isinstance(command, hikari.ContextMenuCommand):
+            raise TypeError("Command must be a ContextMenuCommand")
 
-        Parameters
-        ----------
-        command : hikari.SlashCommand
-            object of the global command this should be tracking.
-
-        Returns
-        -------
-        SelfT
-            This command instance for chaining.
-        """
         self._tracked_command = command
         return self
 

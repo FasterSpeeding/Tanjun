@@ -40,7 +40,6 @@ import logging
 import typing
 
 import hikari
-from hikari import snowflakes
 
 from .. import abc as tanjun_abc
 from . import base
@@ -161,20 +160,6 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
     def triggering_prefix(self) -> str:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._triggering_prefix
-
-    @property
-    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
-        # <<inherited docstring from tanjun.abc.MessageContext>>.
-        if not self._client.shards:
-            return None
-
-        if self._message.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._client.shards, self._message.guild_id)
-
-        else:
-            shard_id = 0
-
-        return self._client.shards.shards[shard_id]
 
     def set_command(
         self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]], /

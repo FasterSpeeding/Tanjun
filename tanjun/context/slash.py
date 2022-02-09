@@ -82,7 +82,7 @@ class SlashOption(tanjun_abc.SlashOption):
             raise ValueError("Cannot build a slash option with a value-less API representation")
 
         self._option = option
-        self._resolved = resolved  # TODO: is making resolved optional here sufficient?
+        self._resolved = resolved
 
     @property
     def name(self) -> str:
@@ -337,7 +337,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
     @property
     def expires_at(self) -> datetime.datetime:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         return self.created_at + _INTERACTION_LIFETIME
 
     @property
@@ -347,7 +347,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
     @property
     def has_been_deferred(self) -> bool:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         return self._has_been_deferred
 
     @property
@@ -373,7 +373,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
     @property
     def interaction(self) -> hikari.CommandInteraction:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         return self._interaction
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
@@ -394,7 +394,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         return flags or hikari.MessageFlag.NONE
 
     async def mark_not_found(self) -> None:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         # TODO: assert not finalised?
         if self._on_not_found and not self._marked_not_found:
             self._marked_not_found = True
@@ -422,7 +422,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         return self
 
     def set_ephemeral_default(self: _AppCommandContextT, state: bool, /) -> _AppCommandContextT:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         self._assert_not_final()  # TODO: document not final assertions.
         self._defaults_to_ephemeral = state
         return self
@@ -433,7 +433,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
         ephemeral: bool = False,
     ) -> None:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         if ephemeral:
             flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
 
@@ -548,7 +548,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         if ephemeral:
             flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
 

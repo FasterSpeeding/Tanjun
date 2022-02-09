@@ -42,7 +42,6 @@ from unittest import mock
 
 import hikari
 import pytest
-from hikari import traits
 
 import tanjun
 
@@ -136,27 +135,6 @@ class TestMessageContext:
 
     def test_message_property(self, context: tanjun.context.MessageContext):
         assert context.message is context._message
-
-    def test_shard_property(self, context: tanjun.context.MessageContext):
-        mock_shard = mock.Mock()
-        context._client = mock.Mock(
-            shards=mock.MagicMock(spec=traits.ShardAware, shard_count=5, shards={2: mock_shard})
-        )
-        context._message = mock.Mock(guild_id=123321123312)
-
-        assert context.shard is mock_shard
-
-    def test_shard_property_when_dm(self, context: tanjun.context.MessageContext):
-        mock_shard = mock.Mock()
-        context._client = mock.Mock(shards=mock.Mock(shards={0: mock_shard}))
-        context._message = mock.Mock(guild_id=None)
-
-        assert context.shard is mock_shard
-
-    def test_shard_property_when_no_shards(self, context: tanjun.context.MessageContext):
-        context._client = mock.Mock(shards=None)
-
-        assert context.shard is None
 
     def test_set_command(self, context: tanjun.context.MessageContext):
         mock_command = mock.Mock()

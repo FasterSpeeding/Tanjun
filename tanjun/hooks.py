@@ -32,7 +32,7 @@
 """Standard implementation of Tanjun's command execution hook models."""
 from __future__ import annotations
 
-__all__: list[str] = ["AnyHooks", "Hooks", "MessageHooks", "SlashHooks"]
+__all__: list[str] = ["AnyHooks", "Hooks", "MenuHooks", "MessageHooks", "SlashHooks"]
 
 import asyncio
 import copy

@@ -123,6 +123,7 @@ This should be an asynchronous callable which returns an iterable of strings.
 PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
+_MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 class _LoaderDescriptor(tanjun_abc.ClientLoader):  # Slots mess with functools.update_wrapper
@@ -1013,6 +1014,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             commands, command_ids, application=application, guild=guild, force=force
         )
 
+    @typing.overload
     async def declare_application_command(
         self,
         command: tanjun_abc.BaseSlashCommand,
@@ -1022,39 +1024,84 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.SlashCommand:
-        # <<inherited docstring from tanjun.abc.Client>>.
-        return await self.declare_slash_command(command, command_id, application=application, guild=guild)
+        ...
 
-    async def declare_slash_command(
+    @typing.overload
+    async def declare_application_command(
         self,
-        command: tanjun_abc.BaseSlashCommand,
+        command: tanjun_abc.MenuCommand[typing.Any, typing.Any],
         /,
         command_id: typing.Optional[hikari.Snowflakeish] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.SlashCommand:
+    ) -> hikari.ContextMenuCommand:
+        ...
+
+    @typing.overload
+    async def declare_application_command(
+        self,
+        command: tanjun_abc.AppCommand[typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.PartialCommand:
+        ...
+
+    async def declare_application_command(
+        self,
+        command: tanjun_abc.AppCommand[typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.PartialCommand:
         # <<inherited docstring from tanjun.abc.Client>>.
         builder = command.build()
+        application = application or self._cached_application_id or await self.fetch_rest_application_id()
+
         if command_id:
+            if isinstance(builder, hikari.api.SlashCommandBuilder):
+                description = builder.description
+                options = builder.options
+
+            else:
+                description = hikari.UNDEFINED
+                options = hikari.UNDEFINED
+
             response = await self._rest.edit_application_command(
-                application or self._cached_application_id or await self.fetch_rest_application_id(),
+                application,
                 command_id,
                 guild=guild,
                 name=builder.name,
-                description=builder.description,
-                options=builder.options,
+                description=description,
+                options=options,
             )
-            assert isinstance(response, hikari.SlashCommand)
 
         else:
-            response = await self._rest.create_slash_command(
-                application or self._cached_application_id or await self.fetch_rest_application_id(),
-                guild=guild,
-                name=builder.name,
-                description=builder.description,
-                options=builder.options,
-            )
+            if isinstance(builder, hikari.api.SlashCommandBuilder):
+                response = await self._rest.create_slash_command(
+                    application,
+                    guild=guild,
+                    name=builder.name,
+                    description=builder.description,
+                    options=builder.options,
+                )
+
+            elif isinstance(builder, hikari.api.ContextMenuCommandBuilder):
+                response = await self._rest.create_context_menu_command(
+                    application,
+                    builder.type,
+                    builder.name,
+                    guild=guild,
+                    default_permission=builder.default_permission,
+                )
+
+            else:
+                raise NotImplementedError(f"Unknown command builder type {builder.type}.")
 
         if not guild:
             command.set_tracked_command(response)  # TODO: is this fine?
@@ -1628,13 +1675,21 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @typing.overload
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE]] = None
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE]
+        ] = None,
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
     @typing.overload
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
@@ -1643,7 +1698,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        ] = None,
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
         ...
 
@@ -1651,7 +1708,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        ] = None,
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         if global_only:
@@ -2210,12 +2269,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 await coro
                 return
 
-    @staticmethod
-    def _execute_slash(
-        component: tanjun_abc.Component, ctx: tanjun_abc.SlashContext, /
-    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
-        return component.execute_slash(ctx)
-
     async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
         if interaction.command_type is hikari.CommandType.SLASH:
             ctx = self._make_slash_context(
@@ -2227,7 +2280,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             hooks = self._get_slash_hooks()
 
-        elif interaction.command_type in _COMMAND_MENU_TYPES:
+        elif interaction.command_type in _MENU_TYPES:
             ctx = context.MenuContext(
                 client=self,
                 injection_client=self,
@@ -2245,8 +2298,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         try:
             if not await self.check(ctx):
-                await ctx.mark_not_found()
-                return
+                raise errors.HaltExecution
 
             for component in self._components.values():
                 # This is set on each iteration to ensure that any component
@@ -2337,7 +2389,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             hooks = self._get_slash_hooks()
 
-        elif interaction.command_type in _COMMAND_MENU_TYPES:
+        elif interaction.command_type in _MENU_TYPES:
             ctx = context.MenuContext(
                 client=self,
                 injection_client=self,
@@ -2354,11 +2406,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
-        hooks = self._get_slash_hooks()
         try:
             if not await self.check(ctx):
-                asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
-                return await future
+                raise errors.HaltExecution
 
             for component in self._components.values():
                 # This is set on each iteration to ensure that any component
@@ -2390,9 +2440,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
         return await future
-
-
-_COMMAND_MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 def _get_loaders(
@@ -2445,6 +2492,3 @@ class _WrapLoadError:
     ) -> None:
         if exc and isinstance(exc, Exception) and not isinstance(exc, errors.ModuleMissingLoaders):
             raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception
-
-
-_MENU_TYPES = set((hikari.CommandType.MESSAGE, hikari.CommandType.USER))

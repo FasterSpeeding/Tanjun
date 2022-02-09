@@ -33,6 +33,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AppCommand",
     "ClientLoader",
     "BaseSlashCommandT",
     "CommandCallbackSig",
@@ -45,10 +46,14 @@ __all__: list[str] = [
     "MetaEventSig",
     "MetaEventSigT",
     "AnyHooks",
+    "MenuHooks",
     "MessageHooks",
     "SlashHooks",
     "ExecutableCommand",
     "AutocompleteCallbackSig",
+    "AutocompleteContext",
+    "AppCommandContext",
+    "AutocompleteOption",
     "HookSig",
     "HookSigT",
     "ErrorHookSig",
@@ -56,6 +61,9 @@ __all__: list[str] = [
     "ListenerCallbackSig",
     "ListenerCallbackSigT",
     "MaybeAwaitableT",
+    "MenuCommand",
+    "MenuCommandCallbackSig",
+    "MenuContext",
     "MessageCommand",
     "MessageCommandT",
     "MessageCommandGroup",
@@ -100,15 +108,23 @@ MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand[typing
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
 _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
+
 AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
+"""Type hint of the callback an autocomplete callback should have.
+
+This will be called when handling autocomplete and should be an asynchronous
+callback which two positional arguments of type `AutocompleteContext` and
+`str | int | float` (with the 2nd argument type being decided by the
+autocomplete type), returns `None` and may use dependency injection.
+"""
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback a `Command` instance will operate on.
 
-This will be called when executing a command and will need to take at least one
+This will be called when executing a command and will need to take one
 positional argument of type `Context` where any other required or optional
-keyword or positional arguments will be based on the parser instance for the
-command if applicable.
+keyword arguments will be based on the parser instance for the command if
+applicable and dependency injection.
 
 .. note::
     This will have to be asynchronous.
@@ -160,7 +176,8 @@ returns `bool` or `None` and may take advantage of dependency injection.
 ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig)
 """Generic equivalent of `ErrorHookSig`."""
 
-ListenerCallbackSig = collections.Callable[..., collections.Awaitable[None]]
+# TODO: use Awaitable here
+ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 """Type hint of a hikari event manager callback.
 
 This is guaranteed one positional arg of type `hikari.Event` regardless
@@ -171,7 +188,7 @@ ListenerCallbackSigT = typing.TypeVar("ListenerCallbackSigT", bound=ListenerCall
 """Generic equivalent of `ListenerCallbackSig`."""
 
 MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
-"""Type hint of a contex menu command callback.
+"""Type hint of a context menu command callback.
 
 This is guaranteed two positiona; arguments of type `tanjun.abc.MenuContext`
 and either `tanjun.abc.User` | `tanjun.abc.InteractionMember` and/or
@@ -179,6 +196,11 @@ and either `tanjun.abc.User` | `tanjun.abc.InteractionMember` and/or
 """
 
 _MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound=MenuCommandCallbackSig)
+
+
+_MenuTypeT = typing.TypeVar(
+    "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
+)
 
 
 class Context(abc.ABC):
@@ -229,11 +251,7 @@ class Context(abc.ABC):
     @property
     @abc.abstractmethod
     def created_at(self) -> datetime.datetime:
-        """When this context was created.
-
-        .. note::
-            This will either refer to a message or integration's creation date.
-        """
+        """When this context was created."""
 
     @property
     @abc.abstractmethod
@@ -278,6 +296,15 @@ class Context(abc.ABC):
     @abc.abstractmethod
     def rest(self) -> hikari.api.RESTClient:
         """Object of the Hikari REST client this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
+        """Shard that triggered the context.
+
+        .. note::
+            This will be `None` if `ctx.shards` is also `None`.
+        """
 
     @property
     @abc.abstractmethod
@@ -958,15 +985,6 @@ class MessageContext(Context, abc.ABC):
     @abc.abstractmethod
     def message(self) -> hikari.Message:
         """Message that triggered the context."""
-
-    @property
-    @abc.abstractmethod
-    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
-        """Shard that triggered the context.
-
-        .. note::
-            This will be `None` if `ctx.shards` is also `None`.
-        """
 
     @property
     @abc.abstractmethod
@@ -1730,11 +1748,6 @@ class AppCommandContext(Context, abc.ABC):
         """
 
 
-_MenuTypeT = typing.TypeVar(
-    "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
-)
-
-
 class MenuContext(AppCommandContext, abc.ABC):
     """Interface of a menu command context."""
 
@@ -1746,9 +1759,9 @@ class MenuContext(AppCommandContext, abc.ABC):
         """Command that was invoked.
 
         .. note::
-            This should always be set during command, command check execution
-            and command hook execution but isn't guaranteed for client callbacks
-            nor component/client checks.
+            This should always be set during command check execution and command
+            hook execution but isn't guaranteed for client callbacks nor
+            component/client checks.
         """
 
     @property
@@ -1848,9 +1861,9 @@ class SlashContext(AppCommandContext, abc.ABC):
         """Command that was invoked.
 
         .. note::
-            This should always be set during command, command check execution
-            and command hook execution but isn't guaranteed for client callbacks
-            nor component/client checks.
+            This should always be set during command check execution and command
+            hook execution but isn't guaranteed for client callbacks nor
+            component/client checks.
         """
 
     @property
@@ -1943,6 +1956,15 @@ class AutocompleteContext:
     @abc.abstractmethod
     def rest(self) -> hikari.api.RESTClient:
         """Object of the Hikari REST client this context's client was initialised with."""
+
+    @property
+    @abc.abstractmethod
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
+        """Shard that triggered the context.
+
+        .. note::
+            This will be `None` if `ctx.shards` is also `None`.
+        """
 
     @property
     @abc.abstractmethod
@@ -2089,10 +2111,21 @@ class AutocompleteContext:
 
         Parameters
         ----------
-        choices : collections.abc.Mapping[str, _T]
+        choices : collections.abc.Mapping[str, str | float | int]
             Mapping of string option names to their values.
-        **kwargs : _T
+
+            The values should match the focused option's relevant type.
+        **kwargs : str | float | int
             Keyword arguments mapping string option names to their values.
+
+            The value should match the focused option's relevant type.
+
+        Raises
+        ------
+        RuntimeError
+            If the context has already had the choices set for it.
+        ValueError
+            If more than 25 choices are passed.
         """
 
 
@@ -2613,6 +2646,21 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     ) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def set_tracked_command(self: _T, command: hikari.PartialCommand, /) -> _T:
+        """Set the global command this tracks.
+
+        Parameters
+        ----------
+        command : hikari.PartialCommand
+            Object of the global command this tracks.
+
+        Returns
+        -------
+        Self
+            The command instance to enable chained calls.
+        """
+
 
 class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
     """Base class for all slash command classes."""
@@ -2647,21 +2695,6 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
     @abc.abstractmethod
     def set_parent(self: _T, _: typing.Optional[SlashCommandGroup], /) -> _T:
         raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_tracked_command(self: _T, command: hikari.SlashCommand, /) -> _T:
-        """Set the global command this tracks.
-
-        Parameters
-        ----------
-        command : hikari.SlashCommand
-            Object of the global command this tracks.
-
-        Returns
-        -------
-        Self
-            The command instance to enable chained calls.
-        """
 
     @abc.abstractmethod
     async def execute(
@@ -3414,7 +3447,27 @@ class Component(abc.ABC):
         ctx: AutocompleteContext,
         /,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        ...
+        """Execute an autocomplete context.
+
+        .. note::
+            Unlike the other execute methods, this shouldn't be expected to
+            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.
+
+        Parameters
+        ----------
+        ctx : AutocompleteContext
+            The context to execute.
+
+        Returns
+        -------
+        collections.abc.Awaitable[None] | None
+            Awaitable used to wait for the command execution to finish.
+
+            This may be awaited or left to run as a background task.
+
+            If this is `None` then the client should carry on its search for a
+            component with a matching autocomplete.
+        """
 
     @abc.abstractmethod
     async def execute_menu(
@@ -3424,7 +3477,36 @@ class Component(abc.ABC):
         *,
         hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        ...
+        """Execute a menu context.
+
+        Parameters
+        ----------
+        ctx : MenuContext
+            The context to execute.
+
+        Other Parameters
+        ----------------
+        hooks : collections.abc.MutableSet[MenuHooks] | None
+            Set of hooks to include in this command execution.
+
+        Returns
+        -------
+        collections.abc.Awaitable[None] | None
+            Awaitable used to wait for the command execution to finish.
+
+            This may be awaited or left to run as a background task.
+
+            If this is `None` then the client should carry on its search for a
+            component with a matching command.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            To end the command's execution with an error response message.
+        tanjun.errors.HaltExecution
+            To indicate that the client should stop searching for commands to
+            execute with the current context.
+        """
 
     @abc.abstractmethod
     async def execute_slash(
@@ -3435,10 +3517,6 @@ class Component(abc.ABC):
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
         """Execute a slash context.
-
-        .. note::
-            Unlike `Component.execute_message`, this shouldn't be expected to
-            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.
 
         Parameters
         ----------
@@ -3459,6 +3537,14 @@ class Component(abc.ABC):
 
             If this is `None` then the client should carry on its search for a
             component with a matching command.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            To end the command's execution with an error response message.
+        tanjun.errors.HaltExecution
+            To indicate that the client should stop searching for commands to
+            execute with the current context.
         """
 
     @abc.abstractmethod
@@ -3766,6 +3852,7 @@ class Client(abc.ABC):
             API representations of the set commands.
         """
 
+    @typing.overload
     @abc.abstractmethod
     async def declare_application_command(
         self,
@@ -3776,23 +3863,46 @@ class Client(abc.ABC):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.SlashCommand:
-        """Deprecated alias of `Client.declare_slash_command`.
+        ...
 
-        .. deprecated:: 0.0.1
-            Use `Client.declare_slash_command` instead.
-        """
-
+    @typing.overload
     @abc.abstractmethod
-    async def declare_slash_command(
+    async def declare_application_command(
         self,
-        command: BaseSlashCommand,
+        command: MenuCommand[typing.Any, typing.Any],
         /,
         command_id: typing.Optional[hikari.Snowflakeish] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.SlashCommand:
-        """
+    ) -> hikari.ContextMenuCommand:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    async def declare_application_command(
+        self,
+        command: AppCommand[typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.PartialCommand:
+        ...
+
+    @abc.abstractmethod
+    async def declare_application_command(
+        self,
+        command: AppCommand[typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.PartialCommand:
+        """Declare a single slash command for a bot.
+
         .. warning::
             Providing `command_id` when updating a command helps avoid any
             permissions set for the command being lose (e.g. when changing the
@@ -3800,7 +3910,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        command : BaseSlashCommand
+        command : AppCommand
             The command to register.
 
         Other Parameters
@@ -3819,7 +3929,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        hikari.SlashCommand
+        hikari.PartialCommand
             API representation of the command that was registered.
         """
 
@@ -4108,7 +4218,7 @@ class Client(abc.ABC):
             The callback to register as a listener.
 
             This callback must be a coroutine function which returns `None` and
-            always takes at least one positional arg of type `hikari.Event`
+            always takes one positional arg of type `hikari.Event`
             regardless of client implementation detail.
 
         Returns
@@ -4185,14 +4295,22 @@ class Client(abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE]] = None
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE]
+        ] = None,
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
@@ -4202,7 +4320,9 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        ] = None,
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         ...
 
@@ -4211,7 +4331,9 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]] = None,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        ] = None,
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         """Iterator over the menu commands registered to this client.
 

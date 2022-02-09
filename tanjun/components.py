@@ -54,7 +54,6 @@ from collections import abc as collections
 
 from . import abc as tanjun_abc
 from . import checks as checks_
-from . import errors
 from . import injecting
 from . import utilities
 
@@ -991,6 +990,7 @@ class Component(tanjun_abc.Component):
         ctx: tanjun_abc.AutocompleteContext,
         /,
     ) -> typing.Optional[collections.Awaitable[None]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if command := self._slash_commands.get(ctx.interaction.command_name):
             return command.execute_autocomplete(ctx)
 
@@ -1003,16 +1003,7 @@ class Component(tanjun_abc.Component):
         hooks: typing.Optional[collections.MutableSet[tanjun_abc.Hooks[_AppCommandContextT]]] = None,
         other_hooks: typing.Optional[tanjun_abc.Hooks[_AppCommandContextT]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        try:
-            if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
-                return None
-
-        except errors.HaltExecution:
-            return asyncio.get_running_loop().create_task(ctx.mark_not_found())
-
-        except errors.CommandError as exc:
-            await ctx.respond(exc.message)
-            asyncio.get_running_loop().create_future().set_result(None)
+        if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
             return None
 
         if self._hooks:

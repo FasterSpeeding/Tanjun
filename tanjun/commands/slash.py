@@ -788,7 +788,7 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
 
     @property
     def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._tracked_command
 
     @property
@@ -798,22 +798,14 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
 
     @property
     def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return hikari.CommandType.SLASH
 
-    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.SlashCommand, /) -> _BaseSlashCommandT:
-        """Set the the global command this should be tracking.
+    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.PartialCommand, /) -> _BaseSlashCommandT:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        if not isinstance(command, hikari.SlashCommand):
+            raise TypeError("The tracked command must be a slash command")
 
-        Parameters
-        ----------
-        command : hikari.SlashCommand
-            object of the global command this should be tracking.
-
-        Returns
-        -------
-        SelfT
-            This command instance for chaining.
-        """
         self._tracked_command = command
         return self
 
@@ -1367,6 +1359,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         Other Parameters
         ----------------
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
         choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None
             The option's choices.
 
@@ -1478,6 +1476,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         Other Parameters
         ----------------
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `int`.
         choices : collections.abc.Mapping[str, int] | None
             The option's choices.
 
@@ -1582,6 +1586,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
             This masks behaviour from Discord where we will either be provided a `float`
             or `int` dependent on what the user provided and defaults to `True`.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `float`.
         choices : collections.abc.Mapping[str, float] | None
             The option's choices.
 
@@ -1996,8 +2006,36 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         )
 
     def set_float_autocomplete(
-        self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
+        self: _SlashCommandT, name: str, callback: typing.Optional[abc.AutocompleteCallbackSig], /
     ) -> _SlashCommandT:
+        """Set the autocomplete callback for a float option.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `float`.
+
+            Passing `None` here will remove the autocomplete callback for the
+            option.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `float`.
+        """
         option = self._builder.get_option(name)
 
         if not option:
@@ -2006,13 +2044,43 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         if option.type is not hikari.OptionType.FLOAT:
             raise TypeError("Option is not a float option")
 
-        option.autocomplete = True
-        self._float_autocompletes[name] = injecting.CallbackDescriptor(callback)
+        if callback:
+            option.autocomplete = True
+            self._float_autocompletes[name] = injecting.CallbackDescriptor(callback)
+
+        elif name in self._float_autocompletes:
+            option.autocomplete = False
+            del self._float_autocompletes[name]
+
         return self
 
     def with_float_autocomplete(
         self, name: str, /
     ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        """Set the autocomplete callback for a float option through a decorator call.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+        Returns
+        -------
+        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+            Decorator callback used to capture the autocomplete callback.
+
+            More information on the autocomplete signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `float`.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `float`.
+        """
+
         def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
             self.set_float_autocomplete(name, callback)
             return callback
@@ -2022,6 +2090,34 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     def set_int_autocomplete(
         self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
     ) -> _SlashCommandT:
+        """Set the autocomplete callback for a string option.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
+
+            Passing `None` here will remove the autocomplete callback for the
+            option.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `str`.
+        """
         option = self._builder.get_option(name)
 
         if not option:
@@ -2037,6 +2133,30 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     def with_int_autocomplete(
         self, name: str, /
     ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        """Set the autocomplete callback for a integer option through a decorator call.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+        Returns
+        -------
+        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+            Decorator callback used to capture the autocomplete callback.
+
+            More information on the autocomplete signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `int`.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `int`.
+        """
+
         def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
             self.set_int_autocomplete(name, callback)
             return callback
@@ -2046,6 +2166,34 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     def set_str_autocomplete(
         self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
     ) -> _SlashCommandT:
+        """Set the autocomplete callback for a str option.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
+
+            Passing `None` here will remove the autocomplete callback for the
+            option.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `str`.
+        """
         option = self._builder.get_option(name)
 
         if not option:
@@ -2061,6 +2209,30 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     def with_str_autocomplete(
         self, name: str, /
     ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        """Set the autocomplete callback for a string option through a decorator call.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+        Returns
+        -------
+        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+            Decorator callback used to capture the autocomplete callback.
+
+            More information on the autocomplete signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `str`.
+        """
+
         def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
             self.set_str_autocomplete(name, callback)
             return callback
@@ -2161,6 +2333,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         /,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         if ctx.focused.type is hikari.OptionType.STRING:
             callback = self._str_autocompletes.get(ctx.focused.name)
 

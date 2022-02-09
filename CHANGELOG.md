@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `defer` methods as a shorthand for including `1 << 6` in the passed flags.
 - Context menu command support.
 - Slash command autocomplete support.
+- `shard` is now a property on all contexts.
 
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - False-positive cache warnings from the standard converters. 
+- Mishandled edge cases for to_color.
 
 ## [2.3.1a1] - 2022-01-27
 ### Added

@@ -43,7 +43,6 @@ import random
 import tempfile
 import textwrap
 import typing
-import warnings
 from collections import abc as collections
 from unittest import mock
 
@@ -355,13 +354,13 @@ class TestClient:
         assert client.voice is None
 
     @pytest.mark.asyncio()
-    async def test_declare_slash_command_when_command_id_provided(self):
+    async def test_declare_application_command_when_command_id_provided(self):
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
         mock_command = mock.Mock()
 
-        result = await client.declare_slash_command(mock_command, 123321, application=54123, guild=65234)
+        result = await client.declare_application_command(mock_command, 123321, application=54123, guild=65234)
 
         assert result is rest.edit_application_command.return_value
         rest.edit_application_command.assert_called_once_with(
@@ -377,14 +376,14 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_declare_slash_command_when_command_id_provided_and_cached_app_id(self):
+    async def test_declare_application_command_when_command_id_provided_and_cached_app_id(self):
         rest = mock.AsyncMock()
         rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
         client = tanjun.Client(rest)
         client._cached_application_id = hikari.Snowflake(54123123)
         mock_command = mock.Mock()
 
-        result = await client.declare_slash_command(mock_command, 123321, guild=65234)
+        result = await client.declare_application_command(mock_command, 123321, guild=65234)
 
         assert result is rest.edit_application_command.return_value
         rest.edit_application_command.assert_called_once_with(
@@ -400,7 +399,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_declare_slash_command_when_command_id_provided_fetchs_app_id(self):
+    async def test_declare_application_command_when_command_id_provided_fetchs_app_id(self):
         fetch_rest_application_id_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -411,7 +410,7 @@ class TestClient:
         client = StubClient(rest)
         mock_command = mock.Mock()
 
-        result = await client.declare_slash_command(mock_command, 123321, guild=65234)
+        result = await client.declare_application_command(mock_command, 123321, guild=65234)
 
         assert result is rest.edit_application_command.return_value
         rest.edit_application_command.assert_called_once_with(
@@ -424,83 +423,79 @@ class TestClient:
         )
         fetch_rest_application_id_.assert_called_once_with()
         rest.create_slash_command.assert_not_called()
-        mock_command.build.assert_called_once_with()
-        mock_command.set_tracked_command.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_declare_slash_command(self):
-        rest = mock.AsyncMock()
-        client = tanjun.Client(rest)
-        mock_command = mock.Mock()
-
-        result = await client.declare_slash_command(mock_command, application=54123, guild=65234)
-
-        assert result is rest.create_slash_command.return_value
-        rest.create_slash_command.assert_called_once_with(
-            54123,
-            guild=65234,
-            name=mock_command.build.return_value.name,
-            description=mock_command.build.return_value.description,
-            options=mock_command.build.return_value.options,
-        )
-        rest.edit_application_command.assert_not_called()
-        mock_command.build.assert_called_once_with()
-        mock_command.set_tracked_command.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_declare_slash_command_when_cached_app_id(self):
-        rest = mock.AsyncMock()
-        client = tanjun.Client(rest)
-        client._cached_application_id = hikari.Snowflake(54123123)
-        mock_command = mock.Mock()
-
-        result = await client.declare_slash_command(mock_command, guild=65234)
-
-        assert result is rest.create_slash_command.return_value
-        rest.create_slash_command.assert_called_once_with(
-            54123123,
-            guild=65234,
-            name=mock_command.build.return_value.name,
-            description=mock_command.build.return_value.description,
-            options=mock_command.build.return_value.options,
-        )
-        rest.edit_application_command.assert_not_called()
-        mock_command.build.assert_called_once_with()
-        mock_command.set_tracked_command.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_declare_slash_command_fetchs_app_id(self):
-        fetch_rest_application_id_ = mock.AsyncMock()
-
-        class StubClient(tanjun.Client):
-            fetch_rest_application_id = fetch_rest_application_id_
-
-        rest = mock.AsyncMock()
-        client = StubClient(rest)
-        mock_command = mock.Mock()
-
-        result = await client.declare_slash_command(mock_command, guild=65234)
-
-        assert result is rest.create_slash_command.return_value
-        rest.create_slash_command.assert_called_once_with(
-            fetch_rest_application_id_.return_value,
-            guild=65234,
-            name=mock_command.build.return_value.name,
-            description=mock_command.build.return_value.description,
-            options=mock_command.build.return_value.options,
-        )
-        fetch_rest_application_id_.assert_called_once_with()
-        rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_declare_application_command(self):
-        raise NotImplementedError
+        rest = mock.AsyncMock()
+        client = tanjun.Client(rest)
+        mock_command = mock.Mock()
+
+        result = await client.declare_application_command(mock_command, application=54123, guild=65234)
+
+        assert result is rest.create_slash_command.return_value
+        rest.create_slash_command.assert_called_once_with(
+            54123,
+            guild=65234,
+            name=mock_command.build.return_value.name,
+            description=mock_command.build.return_value.description,
+            options=mock_command.build.return_value.options,
+        )
+        rest.edit_application_command.assert_not_called()
+        mock_command.build.assert_called_once_with()
+        mock_command.set_tracked_command.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_declare_application_command_when_cached_app_id(self):
+        rest = mock.AsyncMock()
+        client = tanjun.Client(rest)
+        client._cached_application_id = hikari.Snowflake(54123123)
+        mock_command = mock.Mock()
+
+        result = await client.declare_application_command(mock_command, guild=65234)
+
+        assert result is rest.create_slash_command.return_value
+        rest.create_slash_command.assert_called_once_with(
+            54123123,
+            guild=65234,
+            name=mock_command.build.return_value.name,
+            description=mock_command.build.return_value.description,
+            options=mock_command.build.return_value.options,
+        )
+        rest.edit_application_command.assert_not_called()
+        mock_command.build.assert_called_once_with()
+        mock_command.set_tracked_command.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_declare_application_command_fetchs_app_id(self):
+        fetch_rest_application_id_ = mock.AsyncMock()
+
+        class StubClient(tanjun.Client):
+            fetch_rest_application_id = fetch_rest_application_id_
+
+        rest = mock.AsyncMock()
+        client = StubClient(rest)
+        mock_command = mock.Mock()
+
+        result = await client.declare_application_command(mock_command, guild=65234)
+
+        assert result is rest.create_slash_command.return_value
+        rest.create_slash_command.assert_called_once_with(
+            fetch_rest_application_id_.return_value,
+            guild=65234,
+            name=mock_command.build.return_value.name,
+            description=mock_command.build.return_value.description,
+            options=mock_command.build.return_value.options,
+        )
+        fetch_rest_application_id_.assert_called_once_with()
+        rest.edit_application_command.assert_not_called()
+        mock_command.build.assert_called_once_with()
+        mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_declare_slash_commands(self):
+    async def test_declare_application_commands(self):
         ...
 
     @pytest.mark.skip(reason="TODO")

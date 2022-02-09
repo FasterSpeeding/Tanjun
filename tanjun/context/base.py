@@ -37,6 +37,7 @@ __all__: list[str] = []
 import typing
 
 import hikari
+from hikari import snowflakes
 
 from .. import abc as tanjun_abc
 from .. import injecting
@@ -99,6 +100,20 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
     def rest(self) -> hikari.api.RESTClient:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.rest
+
+    @property
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
+        # <<inherited docstring from tanjun.abc.Context>>.
+        if not self._client.shards:
+            return None
+
+        if self.guild_id is not None:
+            shard_id = snowflakes.calculate_shard_id(self._client.shards, self.guild_id)
+
+        else:
+            shard_id = 0
+
+        return self._client.shards.shards[shard_id]
 
     @property
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
