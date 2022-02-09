@@ -558,6 +558,29 @@ def test_with_own_permission_check(command: mock.Mock):
         own_permission_check.assert_called_once_with(5412312, halt_execution=True, error_message="hi")
 
 
+def test_with_has_any_role_check(command: mock.Mock):
+    with mock.patch.object(tanjun.checks, "HasAnyRoleCheck") as any_role_check:
+        assert (
+            tanjun.checks.with_any_role_check(
+                [
+                    "Admin",
+                ],
+                halt_execution=True,
+                error_message="hi",
+            )(command)
+            is command
+        )
+
+        command.add_check.assert_called_once_with(any_role_check.return_value)
+        any_role_check.assert_called_once_with(
+            [
+                "Admin",
+            ],
+            halt_execution=True,
+            error_message="hi",
+        )
+
+
 def test_with_check(command: mock.Mock):
     mock_check = mock.Mock()
 
