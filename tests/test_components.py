@@ -183,22 +183,39 @@ class TestComponent:
         assert result is component
         assert component.metadata[key] is value
 
-    def test_set_slash_hooks(self):
+    def test_set_hooks(self):
         mock_hooks = mock.Mock()
         component = tanjun.Component()
 
-        result = component.set_slash_hooks(mock_hooks)
+        result = component.set_hooks(mock_hooks)
 
         assert result is component
-        assert component.slash_hooks is mock_hooks
+        assert component.hooks is mock_hooks
 
-    def test_set_slash_hooks_when_None(self):
-        component = tanjun.Component().set_slash_hooks(mock.Mock())
+    def test_set_hooks_when_None(self):
+        component = tanjun.Component().set_hooks(mock.Mock())
 
-        result = component.set_slash_hooks(None)
+        result = component.set_hooks(None)
 
         assert result is component
-        assert component.slash_hooks is None
+        assert component.hooks is None
+
+    def test_set_menu_hooks(self):
+        mock_hooks = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.set_menu_hooks(mock_hooks)
+
+        assert result is component
+        assert component.menu_hooks is mock_hooks
+
+    def test_set_menu_hooks_when_None(self):
+        component = tanjun.Component().set_menu_hooks(mock.Mock())
+
+        result = component.set_menu_hooks(None)
+
+        assert result is component
+        assert component.menu_hooks is None
 
     def test_set_message_hooks(self):
         mock_hooks = mock.Mock()
@@ -217,22 +234,22 @@ class TestComponent:
         assert result is component
         assert component.message_hooks is None
 
-    def test_set_hooks(self):
+    def test_set_slash_hooks(self):
         mock_hooks = mock.Mock()
         component = tanjun.Component()
 
-        result = component.set_hooks(mock_hooks)
+        result = component.set_slash_hooks(mock_hooks)
 
         assert result is component
-        assert component.hooks is mock_hooks
+        assert component.slash_hooks is mock_hooks
 
-    def test_set_hooks_when_None(self):
-        component = tanjun.Component().set_hooks(mock.Mock())
+    def test_set_slash_hooks_when_None(self):
+        component = tanjun.Component().set_slash_hooks(mock.Mock())
 
-        result = component.set_hooks(None)
+        result = component.set_slash_hooks(None)
 
         assert result is component
-        assert component.hooks is None
+        assert component.slash_hooks is None
 
     def test_add_check(self):
         mock_check = mock.Mock()

@@ -579,13 +579,13 @@ class TestBaseSlashCommand:
 
     def test_tracked_command_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
-        mock_command = mock.Mock()
+        mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command is mock_command
 
     def test_tracked_command_id_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
-        mock_command = mock.Mock()
+        mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command_id is mock_command.id
 

@@ -825,7 +825,7 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
 
         Returns
         -------
-        SelfT
+        Self
             This command to allow for chaining.
         """
         self._defaults_to_ephemeral = state

@@ -941,6 +941,8 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
 
 class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
+    """Standard implementation of `tanjun.abc.SlashContext`."""
+
     __slots__ = ("_command", "_options")
 
     def __init__(

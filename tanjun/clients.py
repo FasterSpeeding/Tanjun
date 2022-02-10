@@ -73,6 +73,37 @@ if typing.TYPE_CHECKING:
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
+    class _AutocompleteContextMakerProto(typing.Protocol):
+        def __call__(
+            self,
+            client: tanjun_abc.Client,
+            interaction: hikari.AutocompleteInteraction,
+            *,
+            future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
+        ) -> context.AutocompleteContext:
+            raise NotImplementedError
+
+    class _MenuContextMakerProto(typing.Protocol):
+        def __call__(
+            self,
+            client: tanjun_abc.Client,
+            injection_client: injecting.InjectorClient,
+            interaction: hikari.CommandInteraction,
+            *,
+            command: typing.Optional[tanjun_abc.MenuCommand[typing.Any, typing.Any]] = None,
+            component: typing.Optional[tanjun_abc.Component] = None,
+            default_to_ephemeral: bool = False,
+            future: typing.Optional[
+                asyncio.Future[
+                    typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+                ]
+            ] = None,
+            on_not_found: typing.Optional[
+                collections.Callable[[context.slash.AppCommandContext], collections.Awaitable[None]]
+            ] = None,
+        ) -> context.MenuContext:
+            raise NotImplementedError
+
     class _MessageContextMakerProto(typing.Protocol):
         def __call__(
             self,
@@ -425,6 +456,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_client_callbacks",
         "_components",
         "_defaults_to_ephemeral",
+        "_make_autocomplete_context",
+        "_make_menu_context",
         "_make_message_context",
         "_make_slash_context",
         "_events",
@@ -575,6 +608,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._client_callbacks: dict[str, list[injecting.CallbackDescriptor[None]]] = {}
         self._components: dict[str, tanjun_abc.Component] = {}
         self._defaults_to_ephemeral: bool = False
+        self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
+        self._make_menu_context: _MenuContextMakerProto = context.MenuContext
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
@@ -1213,7 +1248,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        SelfT
+        Self
             This component to enable method chaining.
         """
         self._defaults_to_ephemeral = state
@@ -1266,6 +1301,64 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._accepts = accepts
         return self
 
+    def set_autocomplete_ctx_maker(
+        self: _ClientT, maker: _AutocompleteContextMakerProto = context.AutocompleteContext, /
+    ) -> _ClientT:
+        """Set the autocomplete context maker to use when creating contexts.
+
+        .. warning::
+            The caller must return an instance of `tanjun.context.AutocompleteContext`
+            rather than just any implementation of the AutocompleteContext abc
+            due to this client relying on implementation detail of
+            `tanjun.context.AutocompleteContext`.
+
+        Parameters
+        ----------
+        maker : _AutocompleteContextMakerProto
+            The autocomplete context maker to use.
+
+            This is a callback which should match the signature of
+            `tanjun.context.AutocompleteContext.__init__` and return
+            an instance of `tanjun.context.AutocompleteContext`.
+
+            This defaults to `tanjun.context.AutocompleteContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._make_autocomplete_context = maker
+        return self
+
+    def set_menu_ctx_maker(self: _ClientT, maker: _MenuContextMakerProto = context.MenuContext, /) -> _ClientT:
+        """Set the autocomplete context maker to use when creating contexts.
+
+        .. warning::
+            The caller must return an instance of `tanjun.context.MenuContext`
+            rather than just any implementation of the MenuContext abc
+            due to this client relying on implementation detail of
+            `tanjun.context.MenuContext`.
+
+        Parameters
+        ----------
+        maker : _MenuContextMakerProto
+            The autocomplete context maker to use.
+
+            This is a callback which should match the signature of
+            `tanjun.context.MenuContext.__init__` and return
+            an instance of `tanjun.context.MenuContext`.
+
+            This defaults to `tanjun.context.MenuContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._make_menu_context = maker
+        return self
+
     def set_message_ctx_maker(self: _ClientT, maker: _MessageContextMakerProto = context.MessageContext, /) -> _ClientT:
         """Set the message context maker to use when creating context for a message.
 
@@ -1285,6 +1378,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             of `tanjun.context.MessageContext`.
 
             This defaults to `tanjun.context.MessageContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
         """
         self._make_message_context = maker
         return self
@@ -1313,6 +1411,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             of `tanjun.context.SlashContext`.
 
             This defaults to `tanjun.context.SlashContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
         """
         self._make_slash_context = maker
         return self
@@ -1667,11 +1770,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def iter_commands(self) -> collections.Iterator[tanjun_abc.ExecutableCommand[tanjun_abc.Context]]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        menu_commands = self.iter_menu_commands()
-        slash_commands = self.iter_slash_commands(global_only=False)
-        yield from self.iter_message_commands()
-        yield from slash_commands
-        yield from menu_commands
+        return itertools.chain(
+            self.iter_menu_commands(global_only=False),
+            self.iter_message_commands(),
+            self.iter_slash_commands(global_only=False),
+        )
 
     @typing.overload
     def iter_menu_commands(
@@ -2270,7 +2373,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         interaction : hikari.CommandInteraction
             The interaction to execute a command based on.
         """
-        ctx = context.AutocompleteContext(self, interaction)
+        ctx = self._make_autocomplete_context(self, interaction)
         for component in self._components.values():
             if coro := component.execute_autocomplete(ctx):
                 await coro
@@ -2295,7 +2398,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hooks = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
-            ctx = context.MenuContext(
+            ctx = self._make_menu_context(
                 client=self,
                 injection_client=self,
                 interaction=interaction,
@@ -2374,7 +2477,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """
         loop = asyncio.get_running_loop()
         future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
-        ctx = context.AutocompleteContext(self, interaction, future=future)
+        ctx = self._make_autocomplete_context(self, interaction, future=future)
 
         for component in self._components.values():
             if coro := component.execute_autocomplete(ctx):
@@ -2415,7 +2518,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hooks = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
-            ctx = context.MenuContext(
+            ctx = self._make_menu_context(
                 client=self,
                 injection_client=self,
                 interaction=interaction,

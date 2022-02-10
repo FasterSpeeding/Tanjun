@@ -176,6 +176,7 @@ class Component(tanjun_abc.Component):
         "_listeners",
         "_loop",
         "_menu_commands",
+        "_menu_hooks",
         "_message_commands",
         "_message_hooks",
         "_metadata",
@@ -213,6 +214,7 @@ class Component(tanjun_abc.Component):
         self._listeners: dict[type[base_events.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._menu_commands: dict[str, tanjun_abc.MenuCommand[typing.Any, typing.Any]] = {}
+        self._menu_hooks: typing.Optional[tanjun_abc.MenuHooks] = None
         self._message_commands: list[tanjun_abc.MessageCommand[typing.Any]] = []
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -244,8 +246,23 @@ class Component(tanjun_abc.Component):
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
-        # <<inherited docstring from tanjun.abc.Component>>.
+        """The general command hooks set for this component, if any."""
         return self._hooks
+
+    @property
+    def menu_hooks(self) -> typing.Optional[tanjun_abc.MenuHooks]:
+        """The menu command hooks set for this component, if any."""
+        return self._menu_hooks
+
+    @property
+    def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
+        """The message command hooks set for this component, if any."""
+        return self._message_hooks
+
+    @property
+    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
+        """The slash command hooks set for this component, if any."""
+        return self._slash_hooks
 
     @property
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
@@ -268,11 +285,6 @@ class Component(tanjun_abc.Component):
         return self._slash_commands.copy().values()
 
     @property
-    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
-        # <<inherited docstring from tanjun.abc.Component>>.
-        return self._slash_hooks
-
-    @property
     def menu_commands(self) -> collections.Collection[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._menu_commands.copy().values()
@@ -281,11 +293,6 @@ class Component(tanjun_abc.Component):
     def message_commands(self) -> collections.Collection[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._message_commands.copy()
-
-    @property
-    def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
-        # <<inherited docstring from tanjun.abc.Component>>.
-        return self._message_hooks
 
     @property
     def needs_injector(self) -> bool:
@@ -420,7 +427,7 @@ class Component(tanjun_abc.Component):
 
         Returns
         -------
-        SelfT
+        Self
             This component to enable method chaining.
         """
         self._defaults_to_ephemeral = state
@@ -431,29 +438,122 @@ class Component(tanjun_abc.Component):
         self._metadata[key] = value
         return self
 
-    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
-        self._slash_hooks = hooks_
-        return self
-
-    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MessageHooks], /) -> _ComponentT:
-        self._message_hooks = hooks_
-        return self
-
     def set_hooks(self: _ComponentT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of all of this component's commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.AnyHooks | None
+            The command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
         self._hooks = hooks
         return self
 
+    def set_menu_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MenuHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of this component's menu commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.MenuHooks | None
+            The menu command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._menu_hooks = hooks_
+        return self
+
+    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MessageHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of this component's message commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.MessageHooks | None
+            The message command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._message_hooks = hooks_
+        return self
+
+    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of this component's slash commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.SlashHooks | None
+            The slash command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._slash_hooks = hooks_
+        return self
+
     def add_check(self: _ComponentT, check: tanjun_abc.CheckSig, /) -> _ComponentT:
+        """Add a command check to this component to be used for all its commands.
+
+        Parameters
+        ----------
+        tanjun.abc.CheckSig
+            The check to add.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
         if check not in self._checks:
             self._checks.append(checks_.InjectableCheck(check))
 
         return self
 
     def remove_check(self: _ComponentT, check: tanjun_abc.CheckSig, /) -> _ComponentT:
+        """Remove a command check from this component.
+
+        Parameters
+        ----------
+        check : tanjun.abc.CheckSig
+            The check to remove.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+
+        Raises
+        ------
+        ValueError
+            If the check is not registered with this component.
+        """
         self._checks.remove(typing.cast("checks_.InjectableCheck", check))
         return self
 
     def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
+        """Add a general command check to this component through a decorator call.
+
+        Parameters
+        ----------
+        check : tanjun.abc.CheckSig
+            The check to add.
+
+        Returns
+        -------
+        tanjun.abc.CheckSig
+            The added check.
+        """
         self.add_check(check)
         return check
 
@@ -463,6 +563,26 @@ class Component(tanjun_abc.Component):
         callback: tanjun_abc.MetaEventSig,
         /,
     ) -> _ComponentT:
+        """Add a client callback.
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+        callback : MetaEventSigT
+            The callback to register.
+
+            This may be sync or async and must return None. The positional and
+            keyword arguments a callback should expect depend on implementation
+            detail around the `name` being subscribed to.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         event_name = event_name.lower()
         try:
             if callback in self._client_callbacks[event_name]:
@@ -480,10 +600,47 @@ class Component(tanjun_abc.Component):
     def get_client_callbacks(
         self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Collection[tanjun_abc.MetaEventSig]:
+        """Get a collection of the callbacks registered for a specific name.
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name to get the callbacks registered for.
+
+            This is case-insensitive.
+
+        Returns
+        -------
+        collections.abc.Collection[MetaEventSig]
+            Collection of the callbacks for the provided name.
+        """
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
     def remove_client_callback(self, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
+        """Remove a client callback.
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+        callback : MetaEventSigT
+            The callback to remove from the client's callbacks.
+
+        Raises
+        ------
+        KeyError
+            If the provided name isn't found.
+        ValueError
+            If the provided callback isn't found.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         event_name = event_name.lower()
         self._client_callbacks[event_name].remove(callback)
         if not self._client_callbacks[event_name]:
@@ -495,6 +652,35 @@ class Component(tanjun_abc.Component):
     def with_client_callback(
         self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
+        """Add a client callback through a decorator call.
+
+        Examples
+        --------
+        ```py
+        client = tanjun.Client.from_rest_bot(bot)
+
+        @client.with_client_callback("closed")
+        async def on_close() -> None:
+            raise NotImplementedError
+        ```
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+
+        Returns
+        -------
+        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]
+            Decorator callback used to register the client callback.
+
+            This may be sync or async and must return None. The positional and
+            keyword arguments a callback should expect depend on implementation
+            detail around the `name` being subscribed to.
+        """
+
         def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
@@ -1042,7 +1228,7 @@ class Component(tanjun_abc.Component):
             elif self._defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
-        return self._execute_app(ctx, command, hooks=hooks)  # other_hooks=self._menu_hooks
+        return self._execute_app(ctx, command, hooks=hooks, other_hooks=self._menu_hooks)
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
