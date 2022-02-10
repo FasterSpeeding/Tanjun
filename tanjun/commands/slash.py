@@ -135,8 +135,8 @@ def slash_command_group(
     * Unlike message command grups, slash command groups cannot
       be callable functions themselves.
     * Under the standard implementation, `is_global` is used to determine whether
-      the command should be bulk set by `tanjun.Client.set_global_commands`
-      or when `set_global_commands` is True
+      the command should be bulk set by `tanjun.Client.declare_global_commands`
+      or when `declare_global_commands` is True
 
     Parameters
     ----------
@@ -199,8 +199,8 @@ def as_slash_command(
 
     .. note::
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.set_global_commands`
-        or when `set_global_commands` is True
+        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        or when `declare_global_commands` is True
 
     .. warning::
         `default_permission` and `is_global` are ignored for commands within
@@ -260,12 +260,13 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], SlashCommand[CommandCallbackSigT]]
+    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
         The decorator callback used to make a `SlashCommand`.
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
-        loading the other command into a component when using `tanjun.Component.load_from_scope`.
+        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
+        will manage loading the other command into a component when using
+        `tanjun.Component.load_from_scope`.
 
     Raises
     ------
@@ -882,8 +883,8 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         .. note::
             Under the standard implementation, `is_global` is used to determine
-            whether the command should be bulk set by `tanjun.Client.set_global_commands`
-            or when `set_global_commands` is True
+            whether the command should be bulk set by `tanjun.Client.declare_global_commands`
+            or when `declare_global_commands` is True
 
         Parameters
         ----------
@@ -1104,8 +1105,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         .. note::
             Under the standard implementation, `is_global` is used to determine whether
-            the command should be bulk set by `tanjun.Client.set_global_commands`
-            or when `set_global_commands` is True
+            the command should be bulk set by `tanjun.Client.declare_global_commands`
+            or when `declare_global_commands` is True
 
         .. warning::
             `default_permission` and `is_global` are ignored for commands within

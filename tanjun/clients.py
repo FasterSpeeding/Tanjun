@@ -2263,6 +2263,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             await ctx.create_initial_response(self._interaction_not_found)
 
     async def on_gateway_autocomplete_create(self, interaction: hikari.AutocompleteInteraction, /) -> None:
+        """Execute command autocomplete based on a received gateway interaction create.
+
+        Parameters
+        ----------
+        interaction : hikari.CommandInteraction
+            The interaction to execute a command based on.
+        """
         ctx = context.AutocompleteContext(self, interaction)
         for component in self._components.values():
             if coro := component.execute_autocomplete(ctx):
@@ -2270,6 +2277,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 return
 
     async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
+        """Execute an app command based on a received gateway interaction create.
+
+        Parameters
+        ----------
+        interaction : hikari.CommandInteraction
+            The interaction to execute a command based on.
+        """
         if interaction.command_type is hikari.CommandType.SLASH:
             ctx = self._make_slash_context(
                 client=self,
@@ -2325,11 +2339,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         await ctx.mark_not_found()
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
-        """Execute a slash command based on Gateway events.
+        """Handle a gateway interaction create event.
 
         .. note::
-            Any event where `event.interaction` is not
-            `hikari.CommandInteraction` will be ignored.
+            This will execute application commands and autocomplete interactions.
 
         Parameters
         ----------
@@ -2347,6 +2360,18 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     async def on_autocomplete_interaction_request(
         self, interaction: hikari.AutocompleteInteraction, /
     ) -> hikari.api.InteractionAutocompleteBuilder:
+        """Execute a command autocomplete based on received REST requests.
+
+        Parameters
+        ----------
+        interaction : hikari.AutocompleteInteraction
+            The interaction to execute autocomplete based on.
+
+        Returns
+        -------
+        hikari.api.InteractionAutocompleteBuilder
+            The initial response to send back to Discord.
+        """
         loop = asyncio.get_running_loop()
         future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
         ctx = context.AutocompleteContext(self, interaction, future=future)
@@ -2361,7 +2386,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     async def on_command_interaction_request(
         self, interaction: hikari.CommandInteraction, /
     ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
-        """Execute a slash command based on received REST requests.
+        """Execute an app command based on received REST requests.
 
         Parameters
         ----------
@@ -2370,7 +2395,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        tanjun.context.ResponseType
+        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder
             The initial response to send back to Discord.
         """
         loop = asyncio.get_running_loop()
