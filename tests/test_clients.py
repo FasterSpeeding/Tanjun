@@ -540,6 +540,7 @@ class TestClient:
             set_slash_not_found = mock_set_slash_not_found
 
         client = Client(mock.Mock())
+        mock_set_slash_not_found.return_value = mock_set_menu_not_found.return_value = client
 
         result = client.set_interaction_not_found(mock_message)
 
