@@ -157,6 +157,7 @@ def build(session: nox.Session) -> None:
 def publish(session: nox.Session, test: bool = False) -> None:
     """Publish this project to pypi."""
     session.install("flit")
+    session.install(".", "--use-feature=in-tree-build")
 
     env: dict[str, str] = {}
 
