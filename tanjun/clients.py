@@ -1236,6 +1236,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         names_to_commands: dict[tuple[hikari.CommandType, str], tanjun_abc.AppCommand[typing.Any]] = {}
         conflicts: set[tuple[hikari.CommandType, str]] = set()
         builders: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
+        message_count = 0
+        slash_count = 0
+        user_count = 0
 
         for command in commands:
             key = (command.type, command.name)
@@ -1245,11 +1248,18 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             builder = command.build()
             command_id = None
-            if builder.type is hikari.CommandType.USER and user_ids:
-                command_id = user_ids.get(command.name)
+            if builder.type is hikari.CommandType.USER:
+                user_count += 1
+                if user_ids:
+                    command_id = user_ids.get(command.name)
 
-            elif builder.type is hikari.CommandType.MESSAGE and message_ids:
-                command_id = message_ids.get(command.name)
+            elif builder.type is hikari.CommandType.MESSAGE:
+                message_count += 1
+                if message_ids:
+                    command_id = message_ids.get(command.name)
+
+            elif builder.type is hikari.CommandType.SLASH:
+                slash_count += 1
 
             if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
@@ -1259,11 +1269,17 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if conflicts:
             raise ValueError(
                 "Couldn't declare commands due to conflicts. The following command names have more than one command "
-                "registered for them " + ", ".join(map(str, conflicts))
+                "registered for them " + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
             )
 
-        if len(builders) > 100:
-            raise ValueError("You can only declare up to 100 top level commands in a guild or globally")
+        if message_count > 5:
+            raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
+
+        if slash_count > 100:
+            raise ValueError("You can only declare up to 100 top level slash commands in a guild or globally")
+
+        if user_count > 5:
+            raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
 
         if not application:
             application = self._cached_application_id or await self.fetch_rest_application_id()
@@ -1275,10 +1291,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if len(registered_commands) == len(builders) and all(
                 _cmp_command(builders.get((c.type, c.name)), c) for c in registered_commands
             ):
-                _LOGGER.info("Skipping bulk declare for %s slash commands since they're already declared", target_type)
+                _LOGGER.info(
+                    "Skipping bulk declare for %s application commands since they're already declared", target_type
+                )
                 return registered_commands
 
-        _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), target_type)
+        _LOGGER.info("Bulk declaring %s %s application commands", len(builders), target_type)
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
         for response in responses:
@@ -1287,9 +1305,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
                 _LOGGER.warning(
-                    "ID mismatch found for %s command %r, expected %s but got %s. "
+                    "ID mismatch found for %s %s command %r, expected %s but got %s. "
                     "This suggests that any previous permissions set for this command will have been lost.",
                     target_type,
+                    response.type,
                     response.name,
                     expected_id,
                     response.id,
@@ -1300,7 +1319,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             _LOGGER.debug(
                 "Declared %s command ids; %s",
                 target_type,
-                ", ".join(f"{response.name}: {response.id}" for response in responses),
+                ", ".join(f"{response.type}-{response.name}: {response.id}" for response in responses),
             )
 
         return responses
