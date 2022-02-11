@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - False-positive cache warnings from the standard converters. 
 - Mishandled edge cases for to_color.
+- Mishandling of greedy arguments as reported by #200
 
 ## [2.3.1a1] - 2022-01-27
 ### Added

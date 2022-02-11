@@ -1675,21 +1675,15 @@ class ShlexParser(AbstractOptionParser):
             min_value=min_value,
             multi=multi,
         )
-
         if self._client:
             argument.bind_client(self._client)
 
         if self._component:
             argument.bind_component(self._component)
 
-        found_final_argument = False
-
-        for argument in self._arguments:
-            if found_final_argument:
-                del self._arguments[-1]
+        for argument_ in self._arguments:
+            if argument_.is_multi or argument_.is_greedy:
                 raise ValueError("Multi or greedy argument must be the last argument")
-
-            found_final_argument = argument.is_multi or argument.is_greedy
 
         self._arguments.append(argument)
         return self
