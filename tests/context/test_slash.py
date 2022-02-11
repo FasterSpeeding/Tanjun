@@ -477,24 +477,24 @@ class TestAppCommandContext:
     def context(
         self, mock_client: mock.Mock, mock_injector_client: mock.Mock
     ) -> tanjun.context.slash.AppCommandContext:
-        return stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock)(
+        return stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
             mock_client, mock_injector_client, mock.AsyncMock(options=None)
         )
 
-    def test_author_property(self, context: tanjun.context.SlashContext):
+    def test_author_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.author is context.interaction.user
 
-    def test_channel_id_property(self, context: tanjun.context.SlashContext):
+    def test_channel_id_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.channel_id is context.interaction.channel_id
 
     def test_client_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):
         assert context.client is mock_client
 
-    def test_created_at_property(self, context: tanjun.context.SlashContext):
+    def test_created_at_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.created_at is context.interaction.created_at
 
     def test_expires_at_property(self):
-        context = tanjun.context.SlashContext(
+        context = stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
             mock.Mock(),
             mock.Mock(),
             mock.Mock(
@@ -504,31 +504,31 @@ class TestAppCommandContext:
 
         assert context.expires_at == datetime.datetime(2021, 11, 15, 5, 57, 6, 445670, tzinfo=datetime.timezone.utc)
 
-    def test_guild_id_property(self, context: tanjun.context.SlashContext):
+    def test_guild_id_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.guild_id is context.interaction.guild_id
 
-    def test_has_been_deferred_property(self, context: tanjun.context.SlashContext):
+    def test_has_been_deferred_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.has_been_deferred is context._has_been_deferred
 
-    def test_has_responded_property(self, context: tanjun.context.SlashContext):
+    def test_has_responded_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.has_responded is context._has_responded
 
-    def test_is_human_property(self, context: tanjun.context.SlashContext):
+    def test_is_human_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.is_human is True
 
-    def test_member_property(self, context: tanjun.context.SlashContext):
+    def test_member_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.member is context.interaction.member
 
-    def test_triggering_name_property(self, context: tanjun.context.SlashContext):
+    def test_triggering_name_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.triggering_name is context.interaction.command_name
 
-    def test_interaction_property(self, context: tanjun.context.SlashContext):
+    def test_interaction_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.interaction is context._interaction
 
     @pytest.mark.asyncio()
     async def test__auto_defer(self, mock_client: mock.Mock):
         defer = mock.AsyncMock()
-        context = stub_class(tanjun.context.SlashContext, defer=defer)(
+        context = stub_class(tanjun.context.slash.AppCommandContext, defer=defer)(
             mock_client, mock.AsyncMock(), mock.Mock(options=None)
         )
 
@@ -538,19 +538,21 @@ class TestAppCommandContext:
             sleep.assert_awaited_once_with(0.1)
             defer.assert_awaited_once_with()
 
-    def test_cancel_defer(self, context: tanjun.context.SlashContext):
+    def test_cancel_defer(self, context: tanjun.context.slash.AppCommandContext):
         context._defer_task = mock.Mock()
 
         context.cancel_defer()
 
         context._defer_task.cancel.assert_called_once_with()
 
-    def test_cancel_defer_when_no_active_task(self, context: tanjun.context.SlashContext):
+    def test_cancel_defer_when_no_active_task(self, context: tanjun.context.slash.AppCommandContext):
         context._defer_task = None
         context.cancel_defer()
 
     @pytest.mark.parametrize(("flags", "result"), [(hikari.UNDEFINED, hikari.MessageFlag.NONE), (6666, 6666)])
-    def test__get_flags(self, context: tanjun.context.SlashContext, flags: hikari.UndefinedOr[int], result: int):
+    def test__get_flags(
+        self, context: tanjun.context.slash.AppCommandContext, flags: hikari.UndefinedOr[int], result: int
+    ):
         context.set_ephemeral_default(False)
 
         assert context._get_flags(flags) == result
@@ -564,45 +566,15 @@ class TestAppCommandContext:
         ],
     )
     def test__get_flags_when_defaulting_to_ephemeral(
-        self, context: tanjun.context.SlashContext, flags: hikari.UndefinedOr[int], result: int
+        self, context: tanjun.context.slash.AppCommandContext, flags: hikari.UndefinedOr[int], result: int
     ):
         context.set_ephemeral_default(True)
 
         assert context._get_flags(flags) == result
 
-    @pytest.mark.asyncio()
-    async def test_mark_not_found(self):
-        on_not_found = mock.AsyncMock()
-        context = tanjun.context.SlashContext(
-            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
-        )
-
-        await context.mark_not_found()
-
-        on_not_found.assert_awaited_once_with(context)
-
-    @pytest.mark.asyncio()
-    async def test_mark_not_found_when_no_callback(self, context: tanjun.context.SlashContext):
-        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
-
-        await context.mark_not_found()
-
-    @pytest.mark.asyncio()
-    async def test_mark_not_found_when_already_marked_as_not_found(self, context: tanjun.context.SlashContext):
-        on_not_found = mock.AsyncMock()
-        context = tanjun.context.SlashContext(
-            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
-        )
-        await context.mark_not_found()
-        on_not_found.reset_mock()
-
-        await context.mark_not_found()
-
-        on_not_found.assert_not_called()
-
     def test_start_defer_timer(self, mock_client: mock.Mock):
         auto_defer = mock.Mock()
-        context = stub_class(tanjun.context.SlashContext, _auto_defer=auto_defer)(
+        context = stub_class(tanjun.context.slash.AppCommandContext, _auto_defer=auto_defer)(
             mock_client,
             mock.AsyncMock(),
             mock.Mock(options=None),
@@ -615,23 +587,23 @@ class TestAppCommandContext:
             create_task.assert_called_once_with(auto_defer.return_value)
             assert context._defer_task is create_task.return_value
 
-    def test_start_defer_timer_when_already_started(self, context: tanjun.context.SlashContext):
+    def test_start_defer_timer_when_already_started(self, context: tanjun.context.slash.AppCommandContext):
         context._defer_task = mock.Mock()
 
         with pytest.raises(RuntimeError):
             context.start_defer_timer(321)
 
-    def test_start_defer_timer_when_finalised(self, context: tanjun.context.SlashContext):
+    def test_start_defer_timer_when_finalised(self, context: tanjun.context.slash.AppCommandContext):
         context.finalise()
 
         with pytest.raises(TypeError):
             context.start_defer_timer(123)
 
-    def test_set_ephemeral_default(self, context: tanjun.context.SlashContext):
+    def test_set_ephemeral_default(self, context: tanjun.context.slash.AppCommandContext):
         assert context.set_ephemeral_default(True) is context
         assert context.defaults_to_ephemeral is True
 
-    def test_set_ephemeral_default_when_finalised(self, context: tanjun.context.SlashContext):
+    def test_set_ephemeral_default_when_finalised(self, context: tanjun.context.slash.AppCommandContext):
         context.finalise()
         with pytest.raises(TypeError):
             context.set_ephemeral_default(True)
@@ -639,15 +611,15 @@ class TestAppCommandContext:
         assert context.defaults_to_ephemeral is False
 
     @pytest.mark.skip(reason="not implemented")
-    async def test_defer_cancels_defer_when_not_in_defer_task(self, context: tanjun.context.SlashContext):
+    async def test_defer_cancels_defer_when_not_in_defer_task(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
-    async def test_defer_doesnt_cancel_defer_when_in_deffer_task(self, context: tanjun.context.SlashContext):
+    async def test_defer_doesnt_cancel_defer_when_in_deffer_task(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.asyncio()
-    async def test__delete_followup_after(self, context: tanjun.context.SlashContext):
+    async def test__delete_followup_after(self, context: tanjun.context.slash.AppCommandContext):
         mock_message = mock.Mock()
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -659,7 +631,9 @@ class TestAppCommandContext:
         context.interaction.delete_message.assert_awaited_once_with(mock_message)
 
     @pytest.mark.asyncio()
-    async def test__delete_followup_after_handles_not_found_error(self, context: tanjun.context.SlashContext):
+    async def test__delete_followup_after_handles_not_found_error(
+        self, context: tanjun.context.slash.AppCommandContext
+    ):
         mock_message = mock.Mock()
         assert isinstance(context.interaction.delete_message, mock.AsyncMock)
         context.interaction.delete_message.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
@@ -673,15 +647,18 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_followup(self, context: tanjun.context.SlashContext):
+    async def test_create_followup(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.asyncio()
-    async def test__delete_initial_response_after(self, context: tanjun.context.SlashContext):
+    async def test__delete_initial_response_after(self, context: tanjun.context.slash.AppCommandContext):
         mock_delete_initial_response = mock.AsyncMock()
-        context = stub_class(tanjun.context.SlashContext, delete_initial_response=mock_delete_initial_response)(
-            mock.Mock(), mock.Mock(), mock.Mock(options=None)
-        )
+        context = stub_class(
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock(),
+            mark_not_found=mock.AsyncMock,
+            delete_initial_response=mock_delete_initial_response,
+        )(mock.Mock(), mock.Mock(), mock.Mock(options=None))
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -690,14 +667,13 @@ class TestAppCommandContext:
             mock_delete_initial_response.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test__delete_initial_response_after_handles_not_found_error(self, context: tanjun.context.SlashContext):
+    async def test__delete_initial_response_after_handles_not_found_error(self):
         mock_delete_initial_response = mock.AsyncMock(
             side_effect=hikari.NotFoundError(url="", headers={}, raw_body=None)
         )
-        assert isinstance(context.interaction.delete_message, mock.AsyncMock)
-        context = stub_class(tanjun.context.SlashContext, delete_initial_response=mock_delete_initial_response)(
-            mock.Mock(), mock.Mock(), mock.Mock(options=None)
-        )
+        context = stub_class(
+            tanjun.context.slash.AppCommandContext, delete_initial_response=mock_delete_initial_response
+        )(mock.Mock(), mock.Mock(), mock.Mock(options=None))
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -707,43 +683,47 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response(self, context: tanjun.context.SlashContext):
+    async def test_create_initial_response(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_for_gateway_interaction(self, context: tanjun.context.SlashContext):
+    async def test_create_initial_response_for_gateway_interaction(
+        self, context: tanjun.context.slash.AppCommandContext
+    ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_for_rest_interaction(self, context: tanjun.context.SlashContext):
+    async def test_create_initial_response_for_rest_interaction(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_already_responded(self, context: tanjun.context.SlashContext):
+    async def test_create_initial_response_when_already_responded(
+        self, context: tanjun.context.slash.AppCommandContext
+    ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_deferred(self, context: tanjun.context.SlashContext):
+    async def test_create_initial_response_when_deferred(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_delete_after(self, context: tanjun.context.SlashContext):
+    async def test_create_initial_response_when_delete_after(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_create_initial_response_when_delete_after_will_have_expired(
-        self, context: tanjun.context.SlashContext
+        self, context: tanjun.context.slash.AppCommandContext
     ):
         ...
 
     @pytest.mark.asyncio()
-    async def test_delete_initial_response(self, context: tanjun.context.SlashContext):
+    async def test_delete_initial_response(self, context: tanjun.context.slash.AppCommandContext):
         assert context.has_responded is False
 
         await context.delete_initial_response()
@@ -753,7 +733,7 @@ class TestAppCommandContext:
         assert context.has_responded is True
 
     @pytest.mark.asyncio()
-    async def test_edit_initial_response(self, context: tanjun.context.SlashContext):
+    async def test_edit_initial_response(self, context: tanjun.context.slash.AppCommandContext):
         assert context.has_responded is False
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -798,7 +778,7 @@ class TestAppCommandContext:
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after(
         self,
-        context: tanjun.context.SlashContext,
+        context: tanjun.context.slash.AppCommandContext,
         mock_client: mock.Mock,
         delete_after: typing.Union[datetime.timedelta, int, float],
     ):
@@ -806,7 +786,10 @@ class TestAppCommandContext:
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
         mock_interaction.edit_initial_response.return_value.flags = hikari.MessageFlag.NONE
         context = stub_class(
-            tanjun.context.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock(),
+            mark_not_found=mock.AsyncMock(),
+            _delete_initial_response_after=mock_delete_initial_response_after,
         )(mock_client, mock.Mock(), mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
@@ -819,7 +802,7 @@ class TestAppCommandContext:
     @pytest.mark.asyncio()
     async def test_edit_initial_response_ignores_delete_after_when_is_ephemeral(
         self,
-        context: tanjun.context.SlashContext,
+        context: tanjun.context.slash.AppCommandContext,
         mock_client: mock.Mock,
         delete_after: typing.Union[datetime.timedelta, int, float],
     ):
@@ -827,7 +810,10 @@ class TestAppCommandContext:
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
         mock_interaction.edit_initial_response.return_value.flags = hikari.MessageFlag.EPHEMERAL
         context = stub_class(
-            tanjun.context.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock(),
+            mark_not_found=mock.AsyncMock(),
+            _delete_initial_response_after=mock_delete_initial_response_after,
         )(mock_client, mock.Mock(), mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
@@ -840,14 +826,17 @@ class TestAppCommandContext:
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after_will_have_expired(
         self,
-        context: tanjun.context.SlashContext,
+        context: tanjun.context.slash.AppCommandContext,
         mock_client: mock.Mock,
         delete_after: typing.Union[datetime.timedelta, int, float],
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
         context = stub_class(
-            tanjun.context.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock(),
+            mark_not_found=mock.AsyncMock(),
+            _delete_initial_response_after=mock_delete_initial_response_after,
         )(mock_client, mock.Mock(), mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
@@ -859,52 +848,54 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_only_initial_response(self, context: tanjun.context.SlashContext):
+    async def test_edit_last_response_when_only_initial_response(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_initial_response_deferred(self, context: tanjun.context.SlashContext):
+    async def test_edit_last_response_when_initial_response_deferred(
+        self, context: tanjun.context.slash.AppCommandContext
+    ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after(
-        self, context: tanjun.context.SlashContext
+        self, context: tanjun.context.slash.AppCommandContext
     ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after_will_have_expired(
-        self, context: tanjun.context.SlashContext
+        self, context: tanjun.context.slash.AppCommandContext
     ):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_multiple_responses(self, context: tanjun.context.SlashContext):
+    async def test_edit_last_response_when_multiple_responses(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_no_previous_response(self, context: tanjun.context.SlashContext):
+    async def test_edit_last_response_when_no_previous_response(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.asyncio()
-    async def test_fetch_initial_response(self, context: tanjun.context.SlashContext):
+    async def test_fetch_initial_response(self, context: tanjun.context.slash.AppCommandContext):
         assert isinstance(context.interaction.fetch_initial_response, mock.AsyncMock)
         assert await context.fetch_initial_response() is context.interaction.fetch_initial_response.return_value
         context.interaction.fetch_initial_response.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_fetch_last_response(self, context: tanjun.context.SlashContext):
+    async def test_fetch_last_response(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_respond(self, context: tanjun.context.SlashContext):
+    async def test_respond(self, context: tanjun.context.slash.AppCommandContext):
         ...
 
 
@@ -1027,6 +1018,36 @@ class TestSlashContext:
 
     def test_type_property(self, context: tanjun.context.SlashContext):
         assert context.type is hikari.CommandType.SLASH
+
+    @pytest.mark.asyncio()
+    async def test_mark_not_found(self):
+        on_not_found = mock.AsyncMock()
+        context = tanjun.context.SlashContext(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
+        )
+
+        await context.mark_not_found()
+
+        on_not_found.assert_awaited_once_with(context)
+
+    @pytest.mark.asyncio()
+    async def test_mark_not_found_when_no_callback(self):
+        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
+
+        await context.mark_not_found()
+
+    @pytest.mark.asyncio()
+    async def test_mark_not_found_when_already_marked_as_not_found(self):
+        on_not_found = mock.AsyncMock()
+        context = tanjun.context.SlashContext(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
+        )
+        await context.mark_not_found()
+        on_not_found.reset_mock()
+
+        await context.mark_not_found()
+
+        on_not_found.assert_not_called()
 
     def test_set_command(self, context: tanjun.context.SlashContext):
         mock_command = mock.Mock()

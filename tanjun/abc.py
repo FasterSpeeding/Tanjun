@@ -3444,7 +3444,7 @@ class Component(abc.ABC):
         self,
         ctx: AutocompleteContext,
         /,
-    ) -> typing.Optional[collections.Awaitable[None]]:
+    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         """Execute an autocomplete context.
 
         .. note::
@@ -3458,7 +3458,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.abc.Awaitable[None] | None
+        collections.abc.Coroutine[typing.Any, typing.Any, None] | None
             Awaitable used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
@@ -3474,7 +3474,7 @@ class Component(abc.ABC):
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None,
-    ) -> typing.Optional[collections.Awaitable[None]]:
+    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         """Execute a menu context.
 
         Parameters
@@ -3489,7 +3489,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.abc.Awaitable[None] | None
+        collections.abc.Coroutine[typing.Any, typing.Any, None] | None
             Awaitable used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
@@ -3513,7 +3513,7 @@ class Component(abc.ABC):
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
-    ) -> typing.Optional[collections.Awaitable[None]]:
+    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         """Execute a slash context.
 
         Parameters
@@ -3528,7 +3528,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.abc.Awaitable[None] | None
+        collections.abc.Coroutine[typing.Any, typing.Any, None] | None
             Awaitable used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
@@ -3646,6 +3646,12 @@ class ClientCallbackNames(str, enum.Enum):
     The first positional argument is the `tanjun.abc.Component` being removed.
     """
 
+    MENU_COMMAND_NOT_FOUND = "menu_command_not_found"
+    """Called when a menu command is not found.
+
+    `tanjun.abc.MenuContext` is provided as the first positional argument.
+    """
+
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
@@ -3655,7 +3661,7 @@ class ClientCallbackNames(str, enum.Enum):
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
     """Called when a slash command is not found.
 
-    `tanjun.abc.MessageContext` is provided as the first positional argument.
+    `tanjun.abc.SlashContext` is provided as the first positional argument.
     """
 
     STARTED = "started"

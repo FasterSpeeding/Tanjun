@@ -1175,7 +1175,7 @@ class Component(tanjun_abc.Component):
         self,
         ctx: tanjun_abc.AutocompleteContext,
         /,
-    ) -> typing.Optional[collections.Awaitable[None]]:
+    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         if command := self._slash_commands.get(ctx.interaction.command_name):
             return command.execute_autocomplete(ctx)
@@ -1188,7 +1188,7 @@ class Component(tanjun_abc.Component):
         *,
         hooks: typing.Optional[collections.MutableSet[tanjun_abc.Hooks[_AppCommandContextT]]] = None,
         other_hooks: typing.Optional[tanjun_abc.Hooks[_AppCommandContextT]] = None,
-    ) -> typing.Optional[collections.Awaitable[None]]:
+    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
             return None
 
@@ -1215,7 +1215,9 @@ class Component(tanjun_abc.Component):
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[tanjun_abc.MenuHooks]] = None,
-    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
+    ) -> collections.Coroutine[
+        typing.Any, typing.Any, typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]
+    ]:
         # <<inherited docstring from tanjun.abc.Component>>.
         command = self._menu_commands.get((ctx.type, ctx.interaction.command_name))
         if command:
@@ -1236,7 +1238,9 @@ class Component(tanjun_abc.Component):
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[tanjun_abc.SlashHooks]] = None,
-    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
+    ) -> collections.Coroutine[
+        typing.Any, typing.Any, typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]
+    ]:
         # <<inherited docstring from tanjun.abc.Component>>.
         command = self._slash_commands.get(ctx.interaction.command_name)
         if command:

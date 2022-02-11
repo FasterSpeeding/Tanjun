@@ -145,6 +145,36 @@ class TestMenuContext:
 
         assert context.type is mock_interaction.command_type
 
+    @pytest.mark.asyncio()
+    async def test_mark_not_found(self):
+        on_not_found = mock.AsyncMock()
+        context = tanjun.context.MenuContext(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
+        )
+
+        await context.mark_not_found()
+
+        on_not_found.assert_awaited_once_with(context)
+
+    @pytest.mark.asyncio()
+    async def test_mark_not_found_when_no_callback(self):
+        context = tanjun.context.MenuContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
+
+        await context.mark_not_found()
+
+    @pytest.mark.asyncio()
+    async def test_mark_not_found_when_already_marked_as_not_found(self):
+        on_not_found = mock.AsyncMock()
+        context = tanjun.context.MenuContext(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
+        )
+        await context.mark_not_found()
+        on_not_found.reset_mock()
+
+        await context.mark_not_found()
+
+        on_not_found.assert_not_called()
+
     def test_set_command(self, context: tanjun.context.MenuContext):
         mock_command = mock.Mock()
 

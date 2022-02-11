@@ -280,8 +280,6 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         "_has_responded",
         "_interaction",
         "_last_response_id",
-        "_marked_not_found",
-        "_on_not_found",
         "_response_future",
         "_response_lock",
     )
@@ -294,7 +292,6 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[AppCommandContext], collections.Awaitable[None]]] = None,
     ) -> None:
         super().__init__(client, injection_client)
         self._defaults_to_ephemeral = default_to_ephemeral
@@ -303,8 +300,6 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         self._has_responded = False
         self._interaction = interaction
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
-        self._marked_not_found = False
-        self._on_not_found = on_not_found
         self._response_future = future
         self._response_lock = asyncio.Lock()
         self._set_type_special_case(tanjun_abc.AppCommandContext, self)
@@ -391,13 +386,6 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
             return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
         return flags or hikari.MessageFlag.NONE
-
-    async def mark_not_found(self) -> None:
-        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
-        # TODO: assert not finalised?
-        if self._on_not_found and not self._marked_not_found:
-            self._marked_not_found = True
-            await self._on_not_found(self)
 
     def start_defer_timer(self: _AppCommandContextT, count_down: typing.Union[int, float], /) -> _AppCommandContextT:
         """Start the auto-deferral timer.
@@ -942,7 +930,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
     """Standard implementation of `tanjun.abc.SlashContext`."""
 
-    __slots__ = ("_command", "_options")
+    __slots__ = ("_command", "_marked_not_found", "_on_not_found", "_options")
 
     def __init__(
         self,
@@ -952,16 +940,15 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[AppCommandContext], collections.Awaitable[None]]] = None,
+        on_not_found: typing.Optional[
+            collections.Callable[[tanjun_abc.SlashContext], collections.Awaitable[None]]
+        ] = None,
     ) -> None:
         super().__init__(
-            client,
-            injection_client,
-            interaction,
-            default_to_ephemeral=default_to_ephemeral,
-            future=future,
-            on_not_found=on_not_found,
+            client, injection_client, interaction, default_to_ephemeral=default_to_ephemeral, future=future
         )
+        self._marked_not_found = False
+        self._on_not_found = on_not_found
 
         self._command: typing.Optional[tanjun_abc.BaseSlashCommand] = None
         if options := flatten_options(interaction.options):
@@ -986,6 +973,13 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
     def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return hikari.CommandType.SLASH
+
+    async def mark_not_found(self) -> None:
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
+        # TODO: assert not finalised?
+        if self._on_not_found and not self._marked_not_found:
+            self._marked_not_found = True
+            await self._on_not_found(self)
 
     def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
