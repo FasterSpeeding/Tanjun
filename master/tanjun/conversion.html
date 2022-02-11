@@ -1726,9 +1726,15 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid color representation&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
 
@@ -2836,9 +2842,15 @@ The value to convert.</li>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid color representation&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
 </pre></div>
@@ -2865,9 +2877,15 @@ The value to convert.</li>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid color representation&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
 </pre></div>

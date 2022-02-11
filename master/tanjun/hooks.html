@@ -106,6 +106,9 @@
 
             </li>
             <li>
+                    <a class="variable" href="#MenuHooks">MenuHooks</a>
+            </li>
+            <li>
                     <a class="variable" href="#MessageHooks">MessageHooks</a>
             </li>
             <li>
@@ -166,7 +169,7 @@
 <span class="sd">&quot;&quot;&quot;Standard implementation of Tanjun&#39;s command execution hook models.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AnyHooks&quot;</span><span class="p">,</span> <span class="s2">&quot;Hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;MessageHooks&quot;</span><span class="p">,</span> <span class="s2">&quot;SlashHooks&quot;</span><span class="p">]</span>
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AnyHooks&quot;</span><span class="p">,</span> <span class="s2">&quot;Hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;MenuHooks&quot;</span><span class="p">,</span> <span class="s2">&quot;MessageHooks&quot;</span><span class="p">,</span> <span class="s2">&quot;SlashHooks&quot;</span><span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">copy</span>
@@ -490,6 +493,13 @@
 
 <span class="sd">.. note::</span>
 <span class="sd">    This is shorthand for Hooks[tanjun.abc.Context].</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">MenuHooks</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Hooks that can be used with a message context.</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">    This is shorthand for Hooks[tanjun.abc.MenuContext].</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">MessageHooks</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">]</span>
@@ -1952,6 +1962,20 @@ synchronous or asynchronous.</p></li>
     
 
                             </div>
+                </section>
+                <section id="MenuHooks">
+                                <div class="attr variable"><a class="headerlink" href="#MenuHooks">#&nbsp;&nbsp</a>
+
+        <span class="name">MenuHooks</span><span class="default_value"> = <a href="#Hooks">tanjun.hooks.Hooks</a>[<a href="abc.html#MenuContext">tanjun.abc.MenuContext</a>]</span>
+    </div>
+
+            <div class="docstring"><p>Hooks that can be used with a message context.</p>
+
+<p><em>Note:</em>
+This is shorthand for Hooks[<a href="abc.html#MenuContext">tanjun.abc.MenuContext</a>].</p>
+</div>
+
+
                 </section>
                 <section id="MessageHooks">
                                 <div class="attr variable"><a class="headerlink" href="#MessageHooks">#&nbsp;&nbsp</a>
