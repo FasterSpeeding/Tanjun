@@ -142,6 +142,20 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         self: _T,
         key: str,
         /,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        *,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        greedy: bool = False,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
@@ -179,20 +193,6 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         greedy: bool = False,
         max_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
         min_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
-        multi: bool = False,
-    ) -> _T:
-        ...
-
-    @typing.overload
-    @abc.abstractmethod
-    def add_argument(
-        self: _T,
-        key: str,
-        /,
-        converters: _MaybeIterable[ConverterSig[typing.Any]],
-        *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
-        greedy: bool = False,
         multi: bool = False,
     ) -> _T:
         ...
@@ -263,6 +263,21 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         name: str,
         /,
         *names: str,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        default: typing.Any,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
@@ -301,21 +316,6 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         max_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
         min_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
-        multi: bool = False,
-    ) -> _T:
-        ...
-
-    @typing.overload
-    @abc.abstractmethod
-    def add_option(
-        self: _T,
-        key: str,
-        name: str,
-        /,
-        *names: str,
-        converters: _MaybeIterable[ConverterSig[typing.Any]],
-        default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
@@ -563,6 +563,18 @@ def _get_or_set_parser(command: tanjun_abc.MessageCommand[typing.Any], /) -> Abs
 def with_argument(
     key: str,
     /,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    greedy: bool = False,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+@typing.overload
+def with_argument(
+    key: str,
+    /,
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
@@ -602,18 +614,6 @@ def with_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
-
-@typing.overload
-def with_argument(
-    key: str,
-    /,
-    converters: _MaybeIterable[ConverterSig[typing.Any]],
-    *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
-    greedy: bool = False,
-    multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
 
 
 def with_argument(
@@ -957,6 +957,19 @@ def with_option(
     name: str,
     /,
     *names: str,
+    converters: _MaybeIterable[ConverterSig[typing.Any]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+@typing.overload
+def with_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
     max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
@@ -997,19 +1010,6 @@ def with_option(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
-
-@typing.overload
-def with_option(
-    key: str,
-    name: str,
-    /,
-    *names: str,
-    converters: _MaybeIterable[ConverterSig[typing.Any]],
-    default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
 
 
 # TODO: add default getter
@@ -1601,6 +1601,19 @@ class ShlexParser(AbstractOptionParser):
         self: _ShlexParserT,
         key: str,
         /,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        *,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        greedy: bool = False,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
@@ -1636,19 +1649,6 @@ class ShlexParser(AbstractOptionParser):
         greedy: bool = False,
         max_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
         min_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
-        multi: bool = False,
-    ) -> _ShlexParserT:
-        ...
-
-    @typing.overload
-    def add_argument(
-        self: _ShlexParserT,
-        key: str,
-        /,
-        converters: _MaybeIterable[ConverterSig[typing.Any]],
-        *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
-        greedy: bool = False,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1695,6 +1695,20 @@ class ShlexParser(AbstractOptionParser):
         name: str,
         /,
         *names: str,
+        converters: _MaybeIterable[ConverterSig[typing.Any]],
+        default: typing.Any,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         max_value: _UndefinedOr[_CmpProto[str]] = UNDEFINED,
@@ -1731,20 +1745,6 @@ class ShlexParser(AbstractOptionParser):
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         max_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
         min_value: _UndefinedOr[_CmpProto[_T]] = UNDEFINED,
-        multi: bool = False,
-    ) -> _ShlexParserT:
-        ...
-
-    @typing.overload
-    def add_option(
-        self: _ShlexParserT,
-        key: str,
-        name: str,
-        /,
-        *names: str,
-        converters: _MaybeIterable[ConverterSig[typing.Any]],
-        default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
