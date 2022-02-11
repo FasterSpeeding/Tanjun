@@ -357,7 +357,31 @@ class TestClient:
     async def test_declare_application_command_when_command_id_provided(self):
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
+        rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
         mock_command = mock.Mock()
+
+        result = await client.declare_application_command(mock_command, 123321, application=54123, guild=65234)
+
+        assert result is rest.edit_application_command.return_value
+        rest.edit_application_command.assert_called_once_with(
+            54123,
+            123321,
+            guild=65234,
+            name=mock_command.build.return_value.name,
+            description=hikari.UNDEFINED,
+            options=hikari.UNDEFINED,
+        )
+        rest.create_slash_command.assert_not_called()
+        mock_command.build.assert_called_once_with()
+        mock_command.set_tracked_command.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_declare_application_command_when_command_id_provided_for_slash_builder(self):
+        rest = mock.AsyncMock()
+        client = tanjun.Client(rest)
+        rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
+        mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
 
         result = await client.declare_application_command(mock_command, 123321, application=54123, guild=65234)
 
@@ -370,16 +394,18 @@ class TestClient:
             description=mock_command.build.return_value.description,
             options=mock_command.build.return_value.options,
         )
-        rest.create_application_command.assert_not_called()
+        rest.create_slash_command.assert_not_called()
         mock_command.build.assert_called_once_with()
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_declare_application_command_when_command_id_provided_and_cached_app_id(self):
         rest = mock.AsyncMock()
+        rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
         client = tanjun.Client(rest)
         client._cached_application_id = hikari.Snowflake(54123123)
         mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
 
         result = await client.declare_application_command(mock_command, 123321, guild=65234)
 
@@ -392,7 +418,7 @@ class TestClient:
             description=mock_command.build.return_value.description,
             options=mock_command.build.return_value.options,
         )
-        rest.create_application_command.assert_not_called()
+        rest.create_slash_command.assert_not_called()
         mock_command.build.assert_called_once_with()
         mock_command.set_tracked_command.assert_not_called()
 
@@ -404,8 +430,10 @@ class TestClient:
             fetch_rest_application_id = fetch_rest_application_id_
 
         rest = mock.AsyncMock()
+        rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
         client = StubClient(rest)
         mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
 
         result = await client.declare_application_command(mock_command, 123321, guild=65234)
 
@@ -419,7 +447,7 @@ class TestClient:
             options=mock_command.build.return_value.options,
         )
         fetch_rest_application_id_.assert_called_once_with()
-        rest.create_application_command.assert_not_called()
+        rest.create_slash_command.assert_not_called()
         mock_command.build.assert_called_once_with()
         mock_command.set_tracked_command.assert_not_called()
 
@@ -428,11 +456,12 @@ class TestClient:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
 
         result = await client.declare_application_command(mock_command, application=54123, guild=65234)
 
-        assert result is rest.create_application_command.return_value
-        rest.create_application_command.assert_called_once_with(
+        assert result is rest.create_slash_command.return_value
+        rest.create_slash_command.assert_called_once_with(
             54123,
             guild=65234,
             name=mock_command.build.return_value.name,
@@ -449,11 +478,12 @@ class TestClient:
         client = tanjun.Client(rest)
         client._cached_application_id = hikari.Snowflake(54123123)
         mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
 
         result = await client.declare_application_command(mock_command, guild=65234)
 
-        assert result is rest.create_application_command.return_value
-        rest.create_application_command.assert_called_once_with(
+        assert result is rest.create_slash_command.return_value
+        rest.create_slash_command.assert_called_once_with(
             54123123,
             guild=65234,
             name=mock_command.build.return_value.name,
@@ -474,11 +504,12 @@ class TestClient:
         rest = mock.AsyncMock()
         client = StubClient(rest)
         mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
 
         result = await client.declare_application_command(mock_command, guild=65234)
 
-        assert result is rest.create_application_command.return_value
-        rest.create_application_command.assert_called_once_with(
+        assert result is rest.create_slash_command.return_value
+        rest.create_slash_command.assert_called_once_with(
             fetch_rest_application_id_.return_value,
             guild=65234,
             name=mock_command.build.return_value.name,
@@ -939,9 +970,13 @@ class TestClient:
         assert client.prefix_getter is mock_getter
 
     def test_iter_commands(self):
-        mock_slash_1 = mock.Mock()
-        mock_slash_2 = mock.Mock()
-        mock_slash_3 = mock.Mock()
+        mock_menu_1 = mock.Mock(is_global=True)
+        mock_menu_2 = mock.Mock(is_global=False)
+        mock_menu_3 = mock.Mock(is_global=False)
+
+        mock_slash_1 = mock.Mock(is_global=False)
+        mock_slash_2 = mock.Mock(is_global=True)
+        mock_slash_3 = mock.Mock(is_global=True)
 
         mock_message_1 = mock.Mock()
         mock_message_2 = mock.Mock()
@@ -949,16 +984,25 @@ class TestClient:
         mock_message_4 = mock.Mock()
         client = (
             tanjun.Client(mock.Mock())
-            .add_component(mock.Mock(message_commands=[mock_message_1], slash_commands=[mock_slash_1]))
-            .add_component(mock.Mock(message_commands=[mock_message_2], slash_commands=[]))
-            .add_component(mock.Mock(message_commands=[mock_message_3], slash_commands=[mock_slash_2, mock_slash_3]))
-            .add_component(mock.Mock(message_commands=[], slash_commands=[]))
-            .add_component(mock.Mock(message_commands=[mock_message_4], slash_commands=[]))
+            .add_component(
+                mock.Mock(menu_commands=[], message_commands=[mock_message_1], slash_commands=[mock_slash_1])
+            )
+            .add_component(mock.Mock(menu_commands=[mock_menu_1], message_commands=[mock_message_2], slash_commands=[]))
+            .add_component(
+                mock.Mock(
+                    menu_commands=[], message_commands=[mock_message_3], slash_commands=[mock_slash_2, mock_slash_3]
+                )
+            )
+            .add_component(mock.Mock(menu_commands=[mock_menu_2, mock_menu_3], message_commands=[], slash_commands=[]))
+            .add_component(mock.Mock(menu_commands=[], message_commands=[mock_message_4], slash_commands=[]))
         )
 
         commands = list(client.iter_commands())
 
         assert commands == [
+            mock_menu_1,
+            mock_menu_2,
+            mock_menu_3,
             mock_message_1,
             mock_message_2,
             mock_message_3,
@@ -967,6 +1011,108 @@ class TestClient:
             mock_slash_2,
             mock_slash_3,
         ]
+
+    def test_iter_menu_commands(self):
+        mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
+        mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
+        mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
+        mock_command_4 = mock.Mock(is_global=True, type=hikari.CommandType.MESSAGE)
+        client = (
+            tanjun.Client(mock.Mock)
+            .add_component(mock.Mock(menu_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(menu_commands=[]))
+            .add_component(mock.Mock(menu_commands=[mock_command_3]))
+            .add_component(mock.Mock(menu_commands=[mock_command_4]))
+        )
+
+        result = list(client.iter_menu_commands())
+
+        assert result == [mock_command_1, mock_command_2, mock_command_3, mock_command_4]
+
+    def test_iter_menu_commands_when_global_only(self):
+        mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
+        mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
+        mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
+        mock_command_4 = mock.Mock(is_global=True, type=hikari.CommandType.MESSAGE)
+        client = (
+            tanjun.Client(mock.Mock)
+            .add_component(mock.Mock(menu_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(menu_commands=[]))
+            .add_component(mock.Mock(menu_commands=[mock_command_3]))
+            .add_component(mock.Mock(menu_commands=[mock_command_4]))
+        )
+
+        result = list(client.iter_menu_commands(global_only=True))
+
+        assert result == [mock_command_1, mock_command_4]
+
+    def test_iter_menu_commands_when_filtering_for_user(self):
+        mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
+        mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
+        mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
+        mock_command_4 = mock.Mock(is_global=True, type=hikari.CommandType.MESSAGE)
+        client = (
+            tanjun.Client(mock.Mock)
+            .add_component(mock.Mock(menu_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(menu_commands=[]))
+            .add_component(mock.Mock(menu_commands=[mock_command_3]))
+            .add_component(mock.Mock(menu_commands=[mock_command_4]))
+        )
+
+        result = list(client.iter_menu_commands(type=hikari.CommandType.USER))
+
+        assert result == [mock_command_1, mock_command_3]
+
+    def test_iter_menu_commands_when_filtering_for_message(self):
+        mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
+        mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
+        mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
+        mock_command_4 = mock.Mock(is_global=True, type=hikari.CommandType.MESSAGE)
+        client = (
+            tanjun.Client(mock.Mock)
+            .add_component(mock.Mock(menu_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(menu_commands=[]))
+            .add_component(mock.Mock(menu_commands=[mock_command_3]))
+            .add_component(mock.Mock(menu_commands=[mock_command_4]))
+        )
+
+        result = list(client.iter_menu_commands(type=hikari.CommandType.MESSAGE))
+
+        assert result == [mock_command_2, mock_command_4]
+
+    def test_iter_menu_commands_when_filtering_for_user_and_global_only(self):
+        mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
+        mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
+        mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
+        mock_command_4 = mock.Mock(is_global=True, type=hikari.CommandType.MESSAGE)
+        client = (
+            tanjun.Client(mock.Mock)
+            .add_component(mock.Mock(menu_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(menu_commands=[]))
+            .add_component(mock.Mock(menu_commands=[mock_command_3]))
+            .add_component(mock.Mock(menu_commands=[mock_command_4]))
+        )
+
+        result = list(client.iter_menu_commands(type=hikari.CommandType.USER, global_only=True))
+
+        assert result == [mock_command_1]
+
+    def test_iter_menu_commands_when_filtering_for_message_and_global_only(self):
+        mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
+        mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
+        mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
+        mock_command_4 = mock.Mock(is_global=True, type=hikari.CommandType.MESSAGE)
+        client = (
+            tanjun.Client(mock.Mock)
+            .add_component(mock.Mock(menu_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(menu_commands=[]))
+            .add_component(mock.Mock(menu_commands=[mock_command_3]))
+            .add_component(mock.Mock(menu_commands=[mock_command_4]))
+        )
+
+        result = list(client.iter_menu_commands(type=hikari.CommandType.MESSAGE, global_only=True))
+
+        assert result == [mock_command_4]
 
     def test_iter_message_commands(self):
         mock_command_1 = mock.Mock()
@@ -1047,6 +1193,14 @@ class TestClient:
     async def test_fetch_rest_application_id(self):
         ...
 
+    def test_set_ephemeral_default(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_ephemeral_default(True)
+
+        assert result is client
+        assert client.defaults_to_ephemeral is True
+
     def test_set_hooks(self):
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
@@ -1064,30 +1218,22 @@ class TestClient:
         assert result is client
         assert client.hooks is None
 
-    def test_set_ephemeral_default(self):
-        client = tanjun.Client(mock.Mock())
-
-        result = client.set_ephemeral_default(True)
-
-        assert result is client
-        assert client.defaults_to_ephemeral is True
-
-    def test_set_slash_hooks(self):
+    def test_set_menu_hooks(self):
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
-        result = client.set_slash_hooks(mock_hooks)
+        result = client.set_menu_hooks(mock_hooks)
 
         assert result is client
-        assert client.slash_hooks is mock_hooks
+        assert client.menu_hooks is mock_hooks
 
-    def test_set_slash_hooks_when_none(self):
-        client = tanjun.Client(mock.Mock()).set_slash_hooks(mock.Mock())
+    def test_set_menu_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_menu_hooks(mock.Mock())
 
-        result = client.set_slash_hooks(None)
+        result = client.set_menu_hooks(None)
 
         assert result is client
-        assert client.slash_hooks is None
+        assert client.menu_hooks is None
 
     def test_set_message_hooks(self):
         mock_hooks = mock.Mock()
@@ -1105,6 +1251,23 @@ class TestClient:
 
         assert result is client
         assert client.message_hooks is None
+
+    def test_set_slash_hooks(self):
+        mock_hooks = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_slash_hooks(mock_hooks)
+
+        assert result is client
+        assert client.slash_hooks is mock_hooks
+
+    def test_set_slash_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_slash_hooks(mock.Mock())
+
+        result = client.set_slash_hooks(None)
+
+        assert result is client
+        assert client.slash_hooks is None
 
     @pytest.fixture()
     def file(self) -> collections.Iterator[typing.IO[str]]:
@@ -2669,6 +2832,7 @@ class TestClient:
             .set_message_hooks(mock.Mock())
             .set_slash_hooks(mock.Mock())
             .set_prefix_getter(mock.AsyncMock())
+            .set_menu_hooks(mock.Mock())
         )
 
     @pytest.mark.asyncio()
@@ -3128,92 +3292,141 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+    async def test_on_gateway_autocomplete_create(self, command_dispatch_client: tanjun.Client):
+        mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_2 = mock.Mock(execute_autocomplete=mock.AsyncMock())
+        mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock())
+        mock_make_ctx = mock.Mock()
+        (
+            command_dispatch_client.set_autocomplete_ctx_maker(mock_make_ctx)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .add_component(mock_component_3)
+        )
+        mock_interaction = mock.Mock()
+
+        result = await command_dispatch_client.on_gateway_autocomplete_create(mock_interaction)
+
+        assert result is None
+        mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_2.execute_autocomplete.assert_awaited_once_with(mock_make_ctx.return_value)
+        mock_component_3.execute_autocomplete.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_autocomplete_create_when_not_found(self, command_dispatch_client: tanjun.Client):
+        mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_make_ctx = mock.Mock()
+        (
+            command_dispatch_client.set_autocomplete_ctx_maker(mock_make_ctx)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .add_component(mock_component_3)
+        )
+        mock_interaction = mock.Mock()
+
+        result = await command_dispatch_client.on_gateway_autocomplete_create(mock_interaction)
+
+        assert result is None
+        mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_3.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_slash_command(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
+        mock_other_ctx_maker = mock.Mock()
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .set_menu_ctx_maker(mock_other_ctx_maker)
+        )
+        mock_component_1.execute_slash.return_value = None
         mock_future = mock.AsyncMock()
-        mock_component_2.execute_interaction.return_value = mock_future()
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        mock_component_2.execute_slash.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = True
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
+        mock_component_1.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
+        mock_component_1.execute_menu.assert_not_called()
+        mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
+        mock_component_2.execute_menu.assert_not_called()
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_other_ctx_maker.assert_not_called()
 
-    @pytest.mark.parametrize("interaction_type", [hikari.MessageInteraction])
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_not_message_interaction(
-        self, command_dispatch_client: tanjun.Client, interaction_type: type[hikari.PartialInteraction]
+    async def test_on_gateway_command_create_for_slash_command_when_ephemeral_default(
+        self, command_dispatch_client: tanjun.Client
     ):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).add_component(mock_component_1).add_component(
-            mock_component_2
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found(None)
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .set_ephemeral_default(True)
         )
-        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
-
-        await command_dispatch_client.on_interaction_create_event(mock.Mock(interaction=mock.Mock(interaction_type)))
-
-        mock_ctx_maker.assert_not_called()
-        mock_component_1.execute_interaction.assert_not_called()
-        mock_component_2.execute_interaction.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_ephemeral_default(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
-        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
-        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            None
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(
-            mock_component_2
-        ).set_ephemeral_default(
-            True
-        )
-        mock_component_1.execute_interaction.return_value = None
+        mock_component_1.execute_slash.return_value = None
         mock_future = mock.AsyncMock()
-        mock_component_2.execute_interaction.return_value = mock_future()
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        mock_component_2.execute_slash.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = True
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=True,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
+        mock_component_1.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
+        mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_future.assert_awaited_once()
@@ -3221,402 +3434,1162 @@ class TestClient:
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_not_auto_deferring(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+    async def test_on_gateway_command_create_for_slash_command_when_not_auto_deferring(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(None).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.return_value = None
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_not_called()
-        mock_component_1.execute_interaction.assert_awaited_once_with(
+        mock_component_1.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
-            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
-        )
-        mock_ctx_maker.return_value.respond.assert_not_called()
-        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_no_hooks(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
-        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
-        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).set_slash_hooks(None).set_hooks(None).add_component(mock_component_1).add_component(
-            mock_component_2
-        )
-        mock_component_1.execute_interaction.return_value = None
-        mock_future = mock.AsyncMock()
-        mock_component_2.execute_interaction.return_value = mock_future()
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
-        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
-        command_dispatch_client.check.return_value = True
-
-        await command_dispatch_client.on_interaction_create_event(mock_event)
-
-        mock_ctx_maker.assert_called_once_with(
-            client=command_dispatch_client,
-            injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
-            default_to_ephemeral=False,
-        )
-        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
-        mock_component_2.execute_interaction.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
-        mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
-        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_only_slash_hooks(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
-        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
-        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).set_hooks(None).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_future = mock.AsyncMock()
-        mock_component_2.execute_interaction.return_value = mock_future()
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
-        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
-        command_dispatch_client.check.return_value = True
-
-        await command_dispatch_client.on_interaction_create_event(mock_event)
-
-        mock_ctx_maker.assert_called_once_with(
-            client=command_dispatch_client,
-            injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
-            default_to_ephemeral=False,
-        )
-        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
-            mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
-        )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
-            mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
-        )
-        mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
-        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
-        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
-        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).set_slash_hooks(None).add_component(mock_component_1).add_component(
-            mock_component_2
-        )
-        mock_component_1.execute_interaction.return_value = None
-        mock_future = mock.AsyncMock()
-        mock_component_2.execute_interaction.return_value = mock_future()
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
-        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
-        command_dispatch_client.check.return_value = True
-
-        await command_dispatch_client.on_interaction_create_event(mock_event)
-
-        mock_ctx_maker.assert_called_once_with(
-            client=command_dispatch_client,
-            injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
-            default_to_ephemeral=False,
-        )
-        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
-            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
-        )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
-            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
-        )
-        mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
-        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_not_found(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
-        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
-        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.return_value = None
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
-        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
-
-        await command_dispatch_client.on_interaction_create_event(mock_event)
-
-        mock_ctx_maker.assert_called_once_with(
-            client=command_dispatch_client,
-            injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
-            default_to_ephemeral=False,
-        )
-        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
-            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
-        )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
+        mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_checks_raise_command_error(
+    async def test_on_gateway_command_create_for_slash_command_when_no_hooks(
         self, command_dispatch_client: tanjun.Client
     ):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.return_value = None
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .set_slash_hooks(None)
+            .set_hooks(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_slash.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_slash.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
+        mock_component_2.execute_slash.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_slash_command_when_only_slash_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .set_hooks(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_slash.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_slash.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
+        )
+        mock_component_2.execute_slash.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_slash_command_when_only_generic_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .set_slash_hooks(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_slash.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_slash.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_component_2.execute_slash.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_slash_command_when_not_found(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_slash.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_component_2.execute_slash.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_slash_command_when_checks_raise_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.side_effect = tanjun.CommandError("3903939")
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_not_called()
-        mock_component_2.execute_interaction.assert_not_called()
+        mock_component_1.execute_slash.assert_not_called()
+        mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.respond.assert_awaited_once_with("3903939")
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_checks_raise_halt_execution(
+    async def test_on_gateway_command_create_for_slash_command_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
     ):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.return_value = None
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.side_effect = tanjun.HaltExecution()
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_not_called()
-        mock_component_2.execute_interaction.assert_not_called()
+        mock_component_1.execute_slash.assert_not_called()
+        mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_component_raises_command_error(
+    async def test_on_gateway_command_create_for_slash_command_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
     ):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.side_effect = tanjun.CommandError("123321")
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.side_effect = tanjun.CommandError("123321")
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = True
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
+        mock_component_1.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
+        mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.respond.assert_awaited_once_with("123321")
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_component_raises_halt_execution(
+    async def test_on_gateway_command_create_for_slash_command_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
     ):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.side_effect = tanjun.HaltExecution
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.side_effect = tanjun.HaltExecution
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = True
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_awaited_once_with(
+        mock_component_1.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_component_2.execute_interaction.assert_awaited_once_with(
+        mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_event_when_checks_fail(self, command_dispatch_client: tanjun.Client):
-        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+    async def test_on_gateway_command_create_for_slash_command_when_checks_fail(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.SlashContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.SLASH,
+            )
+        )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
-        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
-            "Interaction not found"
-        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
-        mock_component_1.execute_interaction.return_value = None
-        mock_component_2.execute_interaction.return_value = None
-        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        (
+            command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_slash.return_value = None
+        mock_component_2.execute_slash.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = False
 
-        await command_dispatch_client.on_interaction_create_event(mock_event)
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
-            interaction=mock_event.interaction,
+            interaction=mock_interaction,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
-        mock_component_1.execute_interaction.assert_not_called()
-        mock_component_2.execute_interaction.assert_not_called()
+        mock_component_1.execute_slash.assert_not_called()
+        mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.USER,
+            )
+        )
+        other_ctx_maker = mock.Mock()
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .set_slash_ctx_maker(other_ctx_maker)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_menu.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.USER)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_1.execute_slash.assert_not_called()
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_slash.assert_not_called()
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        other_ctx_maker.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_ephemeral_default(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.MESSAGE,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found(None)
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .set_ephemeral_default(True)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_menu.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=True,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_not_auto_deferring(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.USER,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.USER)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_not_called()
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_no_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.USER,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .set_menu_hooks(None)
+            .set_hooks(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_menu.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.USER)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
+        mock_component_2.execute_menu.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_only_menu_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.MESSAGE,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .set_hooks(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_menu.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.menu_hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_only_generic_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.USER,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .set_menu_hooks(None)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_component_2.execute_menu.return_value = mock_future()
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.USER)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_not_found(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.USER,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.USER)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_checks_raise_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.MESSAGE,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.side_effect = tanjun.CommandError("3903939")
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_not_called()
+        mock_component_2.execute_menu.assert_not_called()
+        mock_ctx_maker.return_value.respond.assert_awaited_once_with("3903939")
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_checks_raise_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.USER,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2).add_component(mock_component_1).add_component(mock_component_2)
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.USER)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.side_effect = tanjun.HaltExecution()
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_not_called()
+        mock_component_2.execute_menu.assert_not_called()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_component_raises_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.MESSAGE,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.side_effect = tanjun.CommandError("123321")
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_awaited_once_with("123321")
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_component_raises_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.MESSAGE,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.side_effect = tanjun.HaltExecution
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_component_2.execute_menu.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_gateway_command_create_for_menu_command_when_checks_fail(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(
+            return_value=mock.Mock(
+                tanjun.context.MenuContext,
+                respond=mock.AsyncMock(),
+                mark_not_found=mock.AsyncMock(),
+                type=hikari.CommandType.MESSAGE,
+            )
+        )
+        mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
+        mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
+        (
+            command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)
+            .set_interaction_not_found("Interaction not found")
+            .set_auto_defer_after(2.2)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+        )
+        mock_component_1.execute_menu.return_value = None
+        mock_component_2.execute_menu.return_value = None
+        mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
+        assert isinstance(command_dispatch_client.check, mock.AsyncMock)
+        command_dispatch_client.check.return_value = False
+
+        await command_dispatch_client.on_gateway_command_create(mock_interaction)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_interaction,
+            on_not_found=command_dispatch_client._on_slash_not_found,
+            default_to_ephemeral=False,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_component_1.execute_menu.assert_not_called()
+        mock_component_2.execute_menu.assert_not_called()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_for_command_interaction(self, command_dispatch_client: tanjun.Client):
+        mock_event = mock.Mock(
+            interaction=mock.Mock(hikari.CommandInteraction, type=hikari.InteractionType.APPLICATION_COMMAND)
+        )
+        command_dispatch_client.on_gateway_autocomplete_create = mock.AsyncMock()
+        command_dispatch_client.on_gateway_command_create = mock.AsyncMock()
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        command_dispatch_client.on_gateway_command_create.assert_awaited_once_with(mock_event.interaction)
+        command_dispatch_client.on_gateway_autocomplete_create.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_for_autocomplete_interaction(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_event = mock.Mock(
+            interaction=mock.Mock(hikari.AutocompleteInteraction, type=hikari.InteractionType.AUTOCOMPLETE)
+        )
+        command_dispatch_client.on_gateway_autocomplete_create = mock.AsyncMock()
+        command_dispatch_client.on_gateway_command_create = mock.AsyncMock()
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        command_dispatch_client.on_gateway_command_create.assert_not_called()
+        command_dispatch_client.on_gateway_autocomplete_create.assert_awaited_once_with(mock_event.interaction)
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_for_unknown_interaction_type(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.PartialInteraction, type=-1))
+        command_dispatch_client.on_gateway_autocomplete_create = mock.AsyncMock()
+        command_dispatch_client.on_gateway_command_create = mock.AsyncMock()
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        command_dispatch_client.on_gateway_command_create.assert_not_called()
+        command_dispatch_client.on_gateway_autocomplete_create.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_autocomplete_interaction_request(self, command_dispatch_client: tanjun.Client):
+        mock_result = mock.Mock()
+
+        def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+            assert ctx is mock_make_ctx.return_value
+            mock_make_ctx.call_args.kwargs["future"].set_result(mock_result)
+            return mock.AsyncMock()()
+
+        mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(side_effect=execution_callback))
+        mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock())
+        mock_make_ctx = mock.Mock()
+        (
+            command_dispatch_client.set_autocomplete_ctx_maker(mock_make_ctx)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .add_component(mock_component_3)
+        )
+        mock_interaction = mock.Mock()
+
+        result = await command_dispatch_client.on_autocomplete_interaction_request(mock_interaction)
+
+        assert result is mock_result
+        mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_3.execute_autocomplete.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_autocomplete_interaction_request_when_not_found(self, command_dispatch_client: tanjun.Client):
+        mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_make_ctx = mock.Mock()
+        (
+            command_dispatch_client.set_autocomplete_ctx_maker(mock_make_ctx)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .add_component(mock_component_3)
+        )
+        mock_interaction = mock.Mock()
+
+        with pytest.raises(RuntimeError, match="Autocomplete not found for .*"):
+            await command_dispatch_client.on_autocomplete_interaction_request(mock_interaction)
+
+        mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_3.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
 
     # Note, these will likely need to be more integrationy than the above tests to ensure there's no deadlocking
     # behaviour around ctx and its owned future.
     # Interaction create REST request
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_ephemeral_default(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_ephemeral_default(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_not_auto_deferring(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_not_auto_deferring(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_no_hooks(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_no_hooks(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_only_slash_hooks(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_only_slash_hooks(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_not_found(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_not_found(self, command_dispatch_client: tanjun.Client):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_checks_raise_command_error(
+    async def test_on_command_interaction_request_when_checks_raise_command_error(
         self, command_dispatch_client: tanjun.Client
     ):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_checks_raise_halt_execution(
+    async def test_on_command_interaction_request_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
     ):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_component_raises_command_error(
+    async def test_on_command_interaction_request_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
     ):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_component_raises_halt_execution(
+    async def test_on_command_interaction_request_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
     ):
         ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_on_interaction_create_request_when_checks_fail(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_when_checks_fail(self, command_dispatch_client: tanjun.Client):
         ...

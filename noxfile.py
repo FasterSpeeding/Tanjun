@@ -236,7 +236,7 @@ def test(session: nox.Session) -> None:
     """Run this project's tests using pytest."""
     install_requirements(session, ".[tests]", "--use-feature=in-tree-build")
     # TODO: can import-mode be specified in the config.
-    session.run("pytest", "--import-mode", "importlib")
+    session.run("pytest", "-n", "auto", "--import-mode", "importlib")
 
 
 @nox.session(name="test-coverage", reuse_venv=True)
@@ -245,7 +245,9 @@ def test_coverage(session: nox.Session) -> None:
     install_requirements(session, ".[tests]", "--use-feature=in-tree-build")
     # TODO: can import-mode be specified in the config.
     # https://github.com/nedbat/coveragepy/issues/1002
-    session.run("pytest", "--cov=tanjun", "--cov-report", "html:coverage_html", "--cov-report", "xml:coverage.xml")
+    session.run(
+        "pytest", "-n", "auto", "--cov=tanjun", "--cov-report", "html:coverage_html", "--cov-report", "xml:coverage.xml"
+    )
 
 
 def _run_pyright(session: nox.Session, *args: str) -> None:

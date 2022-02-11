@@ -29,3 +29,34 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
+# This leads to too many false-positives around mocks.
+import contextlib
+from unittest import mock
+
+import hikari
+
+import tanjun
+
+
+def test_set_standard_dependencies():
+    mock_client = mock.Mock(tanjun.Client)
+    mock_client.set_type_dependency.return_value = mock_client
+    stack = contextlib.ExitStack()
+    owner_check = stack.enter_context(mock.patch.object(tanjun.dependencies, "Owners"))
+    lazy_constant = stack.enter_context(mock.patch.object(tanjun.dependencies, "LazyConstant"))
+
+    with stack:
+        tanjun.dependencies.set_standard_dependencies(mock_client)
+
+    owner_check.assert_called_once_with()
+    lazy_constant.__getitem__.return_value.assert_called_once_with(tanjun.dependencies.fetch_my_user)
+    lazy_constant.__getitem__.assert_has_calls([mock.call(hikari.OwnUser), mock.call(hikari.OwnUser)])
+    mock_client.set_type_dependency.assert_has_calls(
+        [
+            mock.call(tanjun.dependencies.AbstractOwners, owner_check.return_value),
+            mock.call(lazy_constant.__getitem__.return_value, lazy_constant.__getitem__.return_value.return_value),
+        ]
+    )

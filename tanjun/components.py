@@ -54,17 +54,18 @@ from collections import abc as collections
 
 from . import abc as tanjun_abc
 from . import checks as checks_
-from . import errors
 from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari.events import base_events
+    import hikari
 
     from . import schedules
 
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
     _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
+    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="tanjun_abc.AppCommandContext")
+    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="tanjun_abc.MenuCommand[typing.Any, typing.Any]")
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
@@ -170,6 +171,8 @@ class Component(tanjun_abc.Component):
         "_is_strict",
         "_listeners",
         "_loop",
+        "_menu_commands",
+        "_menu_hooks",
         "_message_commands",
         "_message_hooks",
         "_metadata",
@@ -204,8 +207,10 @@ class Component(tanjun_abc.Component):
         self._defaults_to_ephemeral: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
         self._is_strict = strict
-        self._listeners: dict[type[base_events.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
+        self._listeners: dict[type[hikari.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
+        self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun_abc.MenuCommand[typing.Any, typing.Any]] = {}
+        self._menu_hooks: typing.Optional[tanjun_abc.MenuHooks] = None
         self._message_commands: list[tanjun_abc.MessageCommand[typing.Any]] = []
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -237,8 +242,23 @@ class Component(tanjun_abc.Component):
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
-        # <<inherited docstring from tanjun.abc.Component>>.
+        """The general command hooks set for this component, if any."""
         return self._hooks
+
+    @property
+    def menu_hooks(self) -> typing.Optional[tanjun_abc.MenuHooks]:
+        """The menu command hooks set for this component, if any."""
+        return self._menu_hooks
+
+    @property
+    def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
+        """The message command hooks set for this component, if any."""
+        return self._message_hooks
+
+    @property
+    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
+        """The slash command hooks set for this component, if any."""
+        return self._slash_hooks
 
     @property
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
@@ -261,19 +281,14 @@ class Component(tanjun_abc.Component):
         return self._slash_commands.copy().values()
 
     @property
-    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
+    def menu_commands(self) -> collections.Collection[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        return self._slash_hooks
+        return self._menu_commands.copy().values()
 
     @property
     def message_commands(self) -> collections.Collection[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._message_commands.copy()
-
-    @property
-    def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
-        # <<inherited docstring from tanjun.abc.Component>>.
-        return self._message_hooks
 
     @property
     def needs_injector(self) -> bool:
@@ -283,7 +298,7 @@ class Component(tanjun_abc.Component):
     @property
     def listeners(
         self,
-    ) -> collections.Mapping[type[base_events.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return utilities.CastedView(self._listeners, lambda x: x.copy())
 
@@ -408,7 +423,7 @@ class Component(tanjun_abc.Component):
 
         Returns
         -------
-        SelfT
+        Self
             This component to enable method chaining.
         """
         self._defaults_to_ephemeral = state
@@ -419,29 +434,122 @@ class Component(tanjun_abc.Component):
         self._metadata[key] = value
         return self
 
-    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
-        self._slash_hooks = hooks_
-        return self
-
-    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MessageHooks], /) -> _ComponentT:
-        self._message_hooks = hooks_
-        return self
-
     def set_hooks(self: _ComponentT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of all of this component's commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.AnyHooks | None
+            The command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
         self._hooks = hooks
         return self
 
+    def set_menu_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MenuHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of this component's menu commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.MenuHooks | None
+            The menu command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._menu_hooks = hooks_
+        return self
+
+    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MessageHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of this component's message commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.MessageHooks | None
+            The message command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._message_hooks = hooks_
+        return self
+
+    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
+        """Set hooks to be called during the execution of this component's slash commands.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.SlashHooks | None
+            The slash command hooks to set.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._slash_hooks = hooks_
+        return self
+
     def add_check(self: _ComponentT, check: tanjun_abc.CheckSig, /) -> _ComponentT:
+        """Add a command check to this component to be used for all its commands.
+
+        Parameters
+        ----------
+        tanjun.abc.CheckSig
+            The check to add.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
         if check not in self._checks:
             self._checks.append(checks_.InjectableCheck(check))
 
         return self
 
     def remove_check(self: _ComponentT, check: tanjun_abc.CheckSig, /) -> _ComponentT:
+        """Remove a command check from this component.
+
+        Parameters
+        ----------
+        check : tanjun.abc.CheckSig
+            The check to remove.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+
+        Raises
+        ------
+        ValueError
+            If the check is not registered with this component.
+        """
         self._checks.remove(typing.cast("checks_.InjectableCheck", check))
         return self
 
     def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
+        """Add a general command check to this component through a decorator call.
+
+        Parameters
+        ----------
+        check : tanjun.abc.CheckSig
+            The check to add.
+
+        Returns
+        -------
+        tanjun.abc.CheckSig
+            The added check.
+        """
         self.add_check(check)
         return check
 
@@ -451,6 +559,26 @@ class Component(tanjun_abc.Component):
         callback: tanjun_abc.MetaEventSig,
         /,
     ) -> _ComponentT:
+        """Add a client callback.
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+        callback : MetaEventSigT
+            The callback to register.
+
+            This may be sync or async and must return None. The positional and
+            keyword arguments a callback should expect depend on implementation
+            detail around the `name` being subscribed to.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         event_name = event_name.lower()
         try:
             if callback in self._client_callbacks[event_name]:
@@ -468,10 +596,47 @@ class Component(tanjun_abc.Component):
     def get_client_callbacks(
         self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Collection[tanjun_abc.MetaEventSig]:
+        """Get a collection of the callbacks registered for a specific name.
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name to get the callbacks registered for.
+
+            This is case-insensitive.
+
+        Returns
+        -------
+        collections.abc.Collection[MetaEventSig]
+            Collection of the callbacks for the provided name.
+        """
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
     def remove_client_callback(self, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
+        """Remove a client callback.
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+        callback : MetaEventSigT
+            The callback to remove from the client's callbacks.
+
+        Raises
+        ------
+        KeyError
+            If the provided name isn't found.
+        ValueError
+            If the provided callback isn't found.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         event_name = event_name.lower()
         self._client_callbacks[event_name].remove(callback)
         if not self._client_callbacks[event_name]:
@@ -483,6 +648,35 @@ class Component(tanjun_abc.Component):
     def with_client_callback(
         self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
+        """Add a client callback through a decorator call.
+
+        Examples
+        --------
+        ```py
+        client = tanjun.Client.from_rest_bot(bot)
+
+        @client.with_client_callback("closed")
+        async def on_close() -> None:
+            raise NotImplementedError
+        ```
+
+        Parameters
+        ----------
+        name : str | ClientCallbackNames
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+
+        Returns
+        -------
+        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]
+            Decorator callback used to register the client callback.
+
+            This may be sync or async and must return None. The positional and
+            keyword arguments a callback should expect depend on implementation
+            detail around the `name` being subscribed to.
+        """
+
         def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
@@ -494,7 +688,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand[typing.Any]
+        command : tanjun.abc.ExecutableCommand
             The command to add.
 
         Returns
@@ -508,9 +702,13 @@ class Component(tanjun_abc.Component):
         elif isinstance(command, tanjun_abc.BaseSlashCommand):
             self.add_slash_command(command)
 
+        elif isinstance(command, tanjun_abc.MenuCommand):
+            self.add_menu_command(command)
+
         else:
             raise ValueError(
-                f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
+                "Unexpected object passed, expected a MenuCommand, "
+                f"MessageCommand or BaseSlashCommand but got {type(command)}"
             )
 
         return self
@@ -520,7 +718,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand[typing.Any]
+        command : tanjun.abc.ExecutableCommand
             The command to remove.
 
         Returns
@@ -592,9 +790,10 @@ class Component(tanjun_abc.Component):
         """
         return _with_command(self.add_command, command, copy=copy)
 
-    def add_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
+    def add_menu_command(self: _ComponentT, command: tanjun_abc.MenuCommand[typing.Any, typing.Any], /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
-        if self._slash_commands.get(command.name) == command:
+        key = (command.type, command.name.casefold())
+        if self._menu_commands.get(key) == command:
             return self
 
         command.bind_component(self)
@@ -602,7 +801,46 @@ class Component(tanjun_abc.Component):
         if self._client:
             command.bind_client(self._client)
 
-        self._slash_commands[command.name.casefold()] = command
+        self._menu_commands[key] = command
+        return self
+
+    def remove_menu_command(
+        self: _ComponentT, command: tanjun_abc.MenuCommand[typing.Any, typing.Any], /
+    ) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        try:
+            del self._menu_commands[(command.type, command.name.casefold())]
+        except KeyError:
+            raise ValueError(f"Command {command.name} not found") from None
+
+        return self
+
+    @typing.overload
+    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT:
+        ...
+
+    @typing.overload
+    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
+        ...
+
+    def with_menu_command(
+        self, command: typing.Optional[_MenuCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[_MenuCommandT]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        return _with_command(self.add_menu_command, command, copy=copy)
+
+    def add_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        name = command.name.casefold()
+        if self._slash_commands.get(name) == command:
+            return self
+
+        command.bind_component(self)
+
+        if self._client:
+            command.bind_client(self._client)
+
+        self._slash_commands[name] = command
         return self
 
     def remove_slash_command(self: _ComponentT, command: tanjun_abc.BaseSlashCommand, /) -> _ComponentT:
@@ -700,7 +938,7 @@ class Component(tanjun_abc.Component):
         return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
-        self: _ComponentT, event: type[base_events.Event], listener: tanjun_abc.ListenerCallbackSig, /
+        self: _ComponentT, event: type[hikari.Event], listener: tanjun_abc.ListenerCallbackSig, /
     ) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         try:
@@ -718,7 +956,7 @@ class Component(tanjun_abc.Component):
         return self
 
     def remove_listener(
-        self: _ComponentT, event: type[base_events.Event], listener: tanjun_abc.ListenerCallbackSig, /
+        self: _ComponentT, event: type[hikari.Event], listener: tanjun_abc.ListenerCallbackSig, /
     ) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         self._listeners[event].remove(listener)
@@ -732,7 +970,7 @@ class Component(tanjun_abc.Component):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: type[base_events.Event]
+        self, event_type: type[hikari.Event]
     ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         def decorator(callback: tanjun_abc.ListenerCallbackSigT) -> tanjun_abc.ListenerCallbackSigT:
@@ -933,31 +1171,26 @@ class Component(tanjun_abc.Component):
         if command := self._slash_commands.get(name):
             yield command
 
-    async def _execute_interaction(
+    def execute_autocomplete(
         self,
-        ctx: tanjun_abc.SlashContext,
-        command: typing.Optional[tanjun_abc.BaseSlashCommand],
+        ctx: tanjun_abc.AutocompleteContext,
+        /,
+    ) -> typing.Optional[collections.Awaitable[None]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        if command := self._slash_commands.get(ctx.interaction.command_name):
+            return command.execute_autocomplete(ctx)
+
+    async def _execute_app(
+        self,
+        ctx: _AppCommandContextT,
+        command: typing.Optional[tanjun_abc.AppCommand[_AppCommandContextT]],
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[tanjun_abc.SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[tanjun_abc.Hooks[_AppCommandContextT]]] = None,
+        other_hooks: typing.Optional[tanjun_abc.Hooks[_AppCommandContextT]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        try:
-            if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
-                return None
-
-        except errors.HaltExecution:
-            return asyncio.get_running_loop().create_task(ctx.mark_not_found())
-
-        except errors.CommandError as exc:
-            await ctx.respond(exc.message)
-            asyncio.get_running_loop().create_future().set_result(None)
+        if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
             return None
-
-        if self._slash_hooks:
-            if hooks is None:
-                hooks = set()
-
-            hooks.add(self._slash_hooks)
 
         if self._hooks:
             if hooks is None:
@@ -965,12 +1198,39 @@ class Component(tanjun_abc.Component):
 
             hooks.add(self._hooks)
 
-        return asyncio.get_running_loop().create_task(command.execute(ctx, hooks=hooks))
+        if other_hooks:
+            if hooks is None:
+                hooks = set()
+
+            hooks.add(other_hooks)
+
+        return command.execute(ctx, hooks=hooks)
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
     # to the event loop until after this is set.
-    def execute_interaction(
+    def execute_menu(
+        self,
+        ctx: tanjun_abc.MenuContext,
+        /,
+        *,
+        hooks: typing.Optional[collections.MutableSet[tanjun_abc.MenuHooks]] = None,
+    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        command = self._menu_commands.get((ctx.type, ctx.interaction.command_name))
+        if command:
+            if command.defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(command.defaults_to_ephemeral)
+
+            elif self._defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+
+        return self._execute_app(ctx, command, hooks=hooks, other_hooks=self._menu_hooks)
+
+    # To ensure that ctx.set_ephemeral_default is called as soon as possible if
+    # a match is found the public function is kept sync to avoid yielding
+    # to the event loop until after this is set.
+    def execute_slash(
         self,
         ctx: tanjun_abc.SlashContext,
         /,
@@ -986,7 +1246,7 @@ class Component(tanjun_abc.Component):
             elif self._defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
-        return self._execute_interaction(ctx, command, hooks=hooks)
+        return self._execute_app(ctx, command, hooks=hooks, other_hooks=self._slash_hooks)
 
     async def execute_message(
         self,

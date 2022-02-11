@@ -8,14 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `ephemeral` keyword-argument to `SlashContext`'s `create_initial_response`, `create_follow_up`
   and `defer` methods as a shorthand for including `1 << 6` in the passed flags.
+- Context menu command support.
+- Slash command autocomplete support.
+- `shard` is now a property on all contexts.
 
 ### Changed
 - `ShlexParser` no-longer treats `'` as a quote.
 - Command objects can now be passed directly to `SlashCommand.__init__` and `MessageCommand.__init__`.
 - The search snowflake conversion functions now return lists of snowflakes instead of iterators.
+- `tanjun.components` has been split into a directory of the same name with the structure
+  `tanjun.components.slash`, `tanjun.components.message`, `tanjun.components.base` and
+  `tanjun.components.menu`.
+- `tanjun.commands` has been split into a directory of the same name with the structure
+  `tanjun.commands.slash`, `tanjun.commands.message`, `tanjun.commands.base` and `tanjun.commands.menu`.
+- Bumped the minimum hikari version to `hikari~=2.0.0.dev106`.
 
 ### Fixed
 - False-positive cache warnings from the standard converters. 
+- Mishandled edge cases for to_color.
 
 ## [2.3.1a1] - 2022-01-27
 ### Added

@@ -73,6 +73,35 @@ if typing.TYPE_CHECKING:
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
+    class _AutocompleteContextMakerProto(typing.Protocol):
+        def __call__(
+            self,
+            client: tanjun_abc.Client,
+            interaction: hikari.AutocompleteInteraction,
+            *,
+            future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
+        ) -> context.AutocompleteContext:
+            raise NotImplementedError
+
+    class _MenuContextMakerProto(typing.Protocol):
+        def __call__(
+            self,
+            client: tanjun_abc.Client,
+            injection_client: injecting.InjectorClient,
+            interaction: hikari.CommandInteraction,
+            *,
+            default_to_ephemeral: bool = False,
+            future: typing.Optional[
+                asyncio.Future[
+                    typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+                ]
+            ] = None,
+            on_not_found: typing.Optional[
+                collections.Callable[[context.slash.AppCommandContext], collections.Awaitable[None]]
+            ] = None,
+        ) -> context.MenuContext:
+            raise NotImplementedError
+
     class _MessageContextMakerProto(typing.Protocol):
         def __call__(
             self,
@@ -81,8 +110,6 @@ if typing.TYPE_CHECKING:
             content: str,
             message: hikari.Message,
             *,
-            command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
-            component: typing.Optional[tanjun_abc.Component] = None,
             triggering_name: str = "",
             triggering_prefix: str = "",
         ) -> context.MessageContext:
@@ -95,11 +122,14 @@ if typing.TYPE_CHECKING:
             injection_client: injecting.InjectorClient,
             interaction: hikari.CommandInteraction,
             *,
-            command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
-            component: typing.Optional[tanjun_abc.Component] = None,
             default_to_ephemeral: bool = False,
+            future: typing.Optional[
+                asyncio.Future[
+                    typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+                ]
+            ] = None,
             on_not_found: typing.Optional[
-                collections.Callable[[context.SlashContext], collections.Awaitable[None]]
+                collections.Callable[[context.slash.AppCommandContext], collections.Awaitable[None]]
             ] = None,
         ) -> context.SlashContext:
             raise NotImplementedError
@@ -118,6 +148,7 @@ This should be an asynchronous callable which returns an iterable of strings.
 PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
+_MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 class _LoaderDescriptor(tanjun_abc.ClientLoader):  # Slots mess with functools.update_wrapper
@@ -356,37 +387,50 @@ async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) ->
     await ctx.respond(error.message)
 
 
-def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.Command) -> bool:
-    if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id:
-        return False
-
-    if builder.name != command.name or builder.description != command.description:
+def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.PartialCommand) -> bool:
+    if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id or builder.type != command.type:
         return False
 
     default_perm = builder.default_permission if builder.default_permission is not hikari.UNDEFINED else True
-    command_options = command.options or ()
-    if default_perm is not command.default_permission or len(builder.options) != len(command_options):
+    if default_perm is not command.default_permission:
         return False
 
-    return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
+    if isinstance(command, hikari.SlashCommand):
+        assert isinstance(builder, hikari.api.SlashCommandBuilder)
+        if builder.name != command.name or builder.description != command.description:
+            return False
+
+        command_options = command.options or ()
+        if len(builder.options) != len(command_options):
+            return False
+
+        return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
+
+    return True
 
 
 class _StartDeclarer:
-    __slots__ = ("client", "command_ids", "guild_id")
+    __slots__ = ("client", "command_ids", "guild_id", "message_ids", "user_ids")
 
     def __init__(
         self,
         client: Client,
-        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]],
         guild_id: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]],
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
     ) -> None:
         self.client = client
         self.command_ids = command_ids
         self.guild_id = guild_id
+        self.message_ids = message_ids
+        self.user_ids = user_ids
 
     async def __call__(self) -> None:
         try:
-            await self.client.declare_global_commands(self.command_ids, guild=self.guild_id, force=False)
+            await self.client.declare_global_commands(
+                self.command_ids, message_ids=self.message_ids, user_ids=self.user_ids, guild=self.guild_id, force=False
+            )
         finally:
             self.client.remove_client_callback(ClientCallbackNames.STARTING, self)
 
@@ -412,12 +456,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_client_callbacks",
         "_components",
         "_defaults_to_ephemeral",
+        "_make_autocomplete_context",
+        "_make_menu_context",
         "_make_message_context",
         "_make_slash_context",
         "_events",
         "_grab_mention_prefix",
         "_hooks",
         "_interaction_not_found",
+        "_menu_hooks",
         "_slash_hooks",
         "_is_closing",
         "_listeners",
@@ -449,7 +496,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
     ) -> None:
         """Initialise a Tanjun client.
@@ -509,8 +558,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command]] | None
-            If provided, a mapping of top level command names to IDs of the commands to update.
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand]] | None
+            If provided, a mapping of top level command names to IDs of the
+            existing commands to update.
+
+            This will be used for all application commands but in cases where
+            commands have overlapping names, `message_ids` and `user_ids` will
+            take priority over this for their relevant command type.
 
             This field is complementary to `declare_global_commands` and, while it
             isn't necessarily required, this will in some situations help avoid
@@ -519,6 +573,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
 
         Raises
         ------
@@ -561,12 +621,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._client_callbacks: dict[str, list[injecting.CallbackDescriptor[None]]] = {}
         self._components: dict[str, tanjun_abc.Component] = {}
         self._defaults_to_ephemeral: bool = False
+        self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
+        self._make_menu_context: _MenuContextMakerProto = context.MenuContext
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_not_found: typing.Optional[str] = "Command not found"
+        self._menu_hooks: typing.Optional[tanjun_abc.MenuHooks] = None
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_closing = False
         self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
@@ -588,48 +651,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             events.subscribe(hikari.StartingEvent, self._on_starting_event)
             events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
-
-        if set_global_commands:
-            warnings.warn(
-                "The `set_global_commands` argument is deprecated since v2.1.1a1. "
-                "Use `declare_global_commands` instead.",
-                DeprecationWarning,
-                stacklevel=2 + _stack_level,
-            )
-
-        declare_global_commands = declare_global_commands or set_global_commands
-        command_ids = command_ids or {}
-        if isinstance(declare_global_commands, collections.Sequence):
-            if command_ids and len(declare_global_commands) > 1:
-                raise ValueError(
-                    "Cannot provide specific command_ids while automatically "
-                    "declaring commands marked as 'global' in multiple-guilds on startup"
-                )
-
-            for guild in declare_global_commands:
-                _LOGGER.info("Registering startup command declarer for %s guild", guild)
-                self.add_client_callback(ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, guild))
-
-        elif isinstance(declare_global_commands, bool):
-            if declare_global_commands:
-                _LOGGER.info("Registering startup command declarer for global commands")
-                if not command_ids:
-                    _LOGGER.warning(
-                        "No command IDs passed for startup command declarer, this could lead to previously set "
-                        "command permissions being lost when commands are renamed."
-                    )
-
-                self.add_client_callback(
-                    ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, hikari.UNDEFINED)
-                )
-
-            elif command_ids:
-                raise ValueError("Cannot pass command IDs when not declaring global commands")
-
-        else:
-            self.add_client_callback(
-                ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, declare_global_commands)
-            )
 
         (
             self.set_type_dependency(tanjun_abc.Client, self)
@@ -654,6 +675,76 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
 
         dependencies.set_standard_dependencies(self)
+        self._schedule_startup_registers(
+            set_global_commands,
+            declare_global_commands,
+            command_ids,
+            message_ids=message_ids,
+            user_ids=user_ids,
+            _stack_level=_stack_level,
+        )
+
+    def _schedule_startup_registers(
+        self,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        _stack_level: int = 0,
+    ) -> None:
+
+        if set_global_commands:
+            warnings.warn(
+                "The `set_global_commands` argument is deprecated since v2.1.1a1. "
+                "Use `declare_global_commands` instead.",
+                DeprecationWarning,
+                stacklevel=3 + _stack_level,
+            )
+
+        declare_global_commands = declare_global_commands or set_global_commands
+        if isinstance(declare_global_commands, collections.Sequence):
+            if command_ids and len(declare_global_commands) > 1:
+                raise ValueError(
+                    "Cannot provide specific command_ids while automatically "
+                    "declaring commands marked as 'global' in multiple-guilds on startup"
+                )
+
+            for guild in declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for %s guild", guild)
+                self.add_client_callback(
+                    ClientCallbackNames.STARTING,
+                    _StartDeclarer(self, guild, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids),
+                )
+
+        elif isinstance(declare_global_commands, bool):
+            if declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for global commands")
+                if not command_ids and not message_ids and not user_ids:
+                    _LOGGER.warning(
+                        "No command IDs passed for startup command declarer, this could lead to previously set "
+                        "command permissions being lost when commands are renamed."
+                    )
+
+                self.add_client_callback(
+                    ClientCallbackNames.STARTING,
+                    _StartDeclarer(
+                        self, hikari.UNDEFINED, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
+                    ),
+                )
+
+            elif command_ids:
+                raise ValueError("Cannot pass command IDs when not declaring global commands")
+
+        else:
+            self.add_client_callback(
+                ClientCallbackNames.STARTING,
+                _StartDeclarer(
+                    self, declare_global_commands, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
+                ),
+            )
 
     @classmethod
     def from_gateway_bot(
@@ -667,7 +758,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -714,7 +807,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.Command] | None
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -724,6 +817,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
         """  # noqa: E501 - line too long
         return (
             cls(
@@ -737,6 +836,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 declare_global_commands=declare_global_commands,
                 set_global_commands=set_global_commands,
                 command_ids=command_ids,
+                message_ids=message_ids,
+                user_ids=user_ids,
                 _stack_level=1,
             )
             .set_human_only()
@@ -753,7 +854,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -784,8 +887,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             immediately propagate when set on a specific guild.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.Command] | None
-            If provided, a mapping of top level command names to IDs of the commands to update.
+        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.PartialCommand] | None
+            If provided, a mapping of top level command names to IDs of the
+            existing commands to update.
+
+            This will be used for all application commands but in cases where
+            commands have overlapping names, `message_ids` and `user_ids` will
+            take priority over this for their relevant command type.
 
             This field is complementary to `declare_global_commands` and, while it
             isn't necessarily required, this will in some situations help avoid
@@ -794,6 +902,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
         """  # noqa: E501 - line too long
         return cls(
             rest=bot.rest,
@@ -801,6 +915,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             declare_global_commands=declare_global_commands,
             set_global_commands=set_global_commands,
             command_ids=command_ids,
+            message_ids=message_ids,
+            user_ids=user_ids,
             _stack_level=1,
         ).set_hikari_trait_injectors(bot)
 
@@ -810,8 +926,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def __aexit__(
         self,
-        exc_type: typing.Optional[type[Exception]],
-        exc: typing.Optional[Exception],
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
         exc_traceback: typing.Optional[types.TracebackType],
     ) -> None:
         await self.close()
@@ -868,28 +984,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         )
 
     @property
-    def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
-        """Top level `tanjun.abc.AnyHooks` set for this client.
-
-        These are called during both message and interaction command execution.
-
-        Returns
-        -------
-        tanjun.abc.AnyHooks | None
-            The top level `tanjun.abc.Context` based hooks set for this
-            client if applicable, else `None`.
-        """
-        return self._hooks
-
-    @property
-    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
-        """Top level `tanjun.abc.SlashHooks` set for this client.
-
-        These are only called during interaction command execution.
-        """
-        return self._slash_hooks
-
-    @property
     def is_alive(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._loop is not None
@@ -900,12 +994,36 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._loop
 
     @property
+    def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
+        """Top level `tanjun.abc.AnyHooks` set for this client.
+
+        These are called during both message, menu and slash command execution.
+        """
+        return self._hooks
+
+    @property
+    def menu_hooks(self) -> typing.Optional[tanjun_abc.MenuHooks]:
+        """Top level `tanjun.abc.MenuHooks` set for this client.
+
+        These are only called during menu command execution.
+        """
+        return self._menu_hooks
+
+    @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
         """Top level `tanjun.abc.MessageHooks` set for this client.
 
-        These are only called during both message command execution.
+        These are only called during message command execution.
         """
         return self._message_hooks
+
+    @property
+    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
+        """Top level `tanjun.abc.SlashHooks` set for this client.
+
+        These are only called during slash command execution.
+        """
+        return self._slash_hooks
 
     @property
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
@@ -969,7 +1087,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         """Alias of `Client.declare_global_commands`.
 
         .. deprecated:: v2.1.1a1
@@ -985,24 +1103,29 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def declare_global_commands(
         self,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        commands = (
-            command
-            for command in itertools.chain.from_iterable(
-                component.slash_commands for component in self._components.values()
-            )
-            if command.is_global
+        commands = itertools.chain(
+            self.iter_slash_commands(global_only=True), self.iter_menu_commands(global_only=True)
         )
         return await self.declare_application_commands(
-            commands, command_ids, application=application, guild=guild, force=force
+            commands,
+            command_ids,
+            application=application,
+            guild=guild,
+            message_ids=message_ids,
+            user_ids=user_ids,
+            force=force,
         )
 
+    @typing.overload
     async def declare_application_command(
         self,
         command: tanjun_abc.BaseSlashCommand,
@@ -1011,27 +1134,85 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.Command:
+    ) -> hikari.SlashCommand:
+        ...
+
+    @typing.overload
+    async def declare_application_command(
+        self,
+        command: tanjun_abc.MenuCommand[typing.Any, typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.ContextMenuCommand:
+        ...
+
+    @typing.overload
+    async def declare_application_command(
+        self,
+        command: tanjun_abc.AppCommand[typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.PartialCommand:
+        ...
+
+    async def declare_application_command(
+        self,
+        command: tanjun_abc.AppCommand[typing.Any],
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.PartialCommand:
         # <<inherited docstring from tanjun.abc.Client>>.
         builder = command.build()
+        application = application or self._cached_application_id or await self.fetch_rest_application_id()
+
         if command_id:
+            if isinstance(builder, hikari.api.SlashCommandBuilder):
+                description = builder.description
+                options = builder.options
+
+            else:
+                description = hikari.UNDEFINED
+                options = hikari.UNDEFINED
+
             response = await self._rest.edit_application_command(
-                application or self._cached_application_id or await self.fetch_rest_application_id(),
+                application,
                 command_id,
                 guild=guild,
                 name=builder.name,
-                description=builder.description,
-                options=builder.options,
+                description=description,
+                options=options,
             )
 
         else:
-            response = await self._rest.create_application_command(
-                application or self._cached_application_id or await self.fetch_rest_application_id(),
-                guild=guild,
-                name=builder.name,
-                description=builder.description,
-                options=builder.options,
-            )
+            if isinstance(builder, hikari.api.SlashCommandBuilder):
+                response = await self._rest.create_slash_command(
+                    application,
+                    guild=guild,
+                    name=builder.name,
+                    description=builder.description,
+                    options=builder.options,
+                )
+
+            elif isinstance(builder, hikari.api.ContextMenuCommandBuilder):
+                response = await self._rest.create_context_menu_command(
+                    application,
+                    builder.type,
+                    builder.name,
+                    guild=guild,
+                    default_permission=builder.default_permission,
+                )
+
+            else:
+                raise NotImplementedError(f"Unknown command builder type {builder.type}.")
 
         if not guild:
             command.set_tracked_command(response)  # TODO: is this fine?
@@ -1040,39 +1221,65 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[tanjun_abc.BaseSlashCommand],
+        commands: collections.Iterable[tanjun_abc.AppCommand[typing.Any]],
         /,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
-        names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
-        conflicts: set[str] = set()
-        builders: dict[str, hikari.api.CommandBuilder] = {}
+        names_to_commands: dict[tuple[hikari.CommandType, str], tanjun_abc.AppCommand[typing.Any]] = {}
+        conflicts: set[tuple[hikari.CommandType, str]] = set()
+        builders: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
+        message_count = 0
+        slash_count = 0
+        user_count = 0
 
         for command in commands:
-            names_to_commands[command.name] = command
+            key = (command.type, command.name)
+            names_to_commands[key] = command
             if command.name in builders:
-                conflicts.add(command.name)
+                conflicts.add(key)
 
             builder = command.build()
-            if command_id := command_ids.get(command.name):
+            command_id = None
+            if builder.type is hikari.CommandType.USER:
+                user_count += 1
+                if user_ids:
+                    command_id = user_ids.get(command.name)
+
+            elif builder.type is hikari.CommandType.MESSAGE:
+                message_count += 1
+                if message_ids:
+                    command_id = message_ids.get(command.name)
+
+            elif builder.type is hikari.CommandType.SLASH:
+                slash_count += 1
+
+            if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
 
-            builders[command.name] = builder
+            builders[key] = builder
 
         if conflicts:
             raise ValueError(
                 "Couldn't declare commands due to conflicts. The following command names have more than one command "
-                "registered for them " + ", ".join(conflicts)
+                "registered for them " + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
             )
 
-        if len(builders) > 100:
-            raise ValueError("You can only declare up to 100 top level commands in a guild or globally")
+        if message_count > 5:
+            raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
+
+        if slash_count > 100:
+            raise ValueError("You can only declare up to 100 top level slash commands in a guild or globally")
+
+        if user_count > 5:
+            raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
 
         if not application:
             application = self._cached_application_id or await self.fetch_rest_application_id()
@@ -1082,23 +1289,26 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
             if len(registered_commands) == len(builders) and all(
-                _cmp_command(builders.get(command.name), command) for command in registered_commands
+                _cmp_command(builders.get((c.type, c.name)), c) for c in registered_commands
             ):
-                _LOGGER.info("Skipping bulk declare for %s slash commands since they're already declared", target_type)
+                _LOGGER.info(
+                    "Skipping bulk declare for %s application commands since they're already declared", target_type
+                )
                 return registered_commands
 
-        _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), target_type)
+        _LOGGER.info("Bulk declaring %s %s application commands", len(builders), target_type)
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
         for response in responses:
             if not guild:
-                names_to_commands[response.name].set_tracked_command(response)  # TODO: is this fine?
+                names_to_commands[(response.type, response.name)].set_tracked_command(response)  # TODO: is this fine?
 
             if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
                 _LOGGER.warning(
-                    "ID mismatch found for %s command %r, expected %s but got %s. "
+                    "ID mismatch found for %s %s command %r, expected %s but got %s. "
                     "This suggests that any previous permissions set for this command will have been lost.",
                     target_type,
+                    response.type,
                     response.name,
                     expected_id,
                     response.id,
@@ -1109,7 +1319,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             _LOGGER.debug(
                 "Declared %s command ids; %s",
                 target_type,
-                ", ".join(f"{response.name}: {response.id}" for response in responses),
+                ", ".join(f"{response.type}-{response.name}: {response.id}" for response in responses),
             )
 
         return responses
@@ -1143,7 +1353,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        SelfT
+        Self
             This component to enable method chaining.
         """
         self._defaults_to_ephemeral = state
@@ -1196,6 +1406,64 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._accepts = accepts
         return self
 
+    def set_autocomplete_ctx_maker(
+        self: _ClientT, maker: _AutocompleteContextMakerProto = context.AutocompleteContext, /
+    ) -> _ClientT:
+        """Set the autocomplete context maker to use when creating contexts.
+
+        .. warning::
+            The caller must return an instance of `tanjun.context.AutocompleteContext`
+            rather than just any implementation of the AutocompleteContext abc
+            due to this client relying on implementation detail of
+            `tanjun.context.AutocompleteContext`.
+
+        Parameters
+        ----------
+        maker : _AutocompleteContextMakerProto
+            The autocomplete context maker to use.
+
+            This is a callback which should match the signature of
+            `tanjun.context.AutocompleteContext.__init__` and return
+            an instance of `tanjun.context.AutocompleteContext`.
+
+            This defaults to `tanjun.context.AutocompleteContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._make_autocomplete_context = maker
+        return self
+
+    def set_menu_ctx_maker(self: _ClientT, maker: _MenuContextMakerProto = context.MenuContext, /) -> _ClientT:
+        """Set the autocomplete context maker to use when creating contexts.
+
+        .. warning::
+            The caller must return an instance of `tanjun.context.MenuContext`
+            rather than just any implementation of the MenuContext abc
+            due to this client relying on implementation detail of
+            `tanjun.context.MenuContext`.
+
+        Parameters
+        ----------
+        maker : _MenuContextMakerProto
+            The autocomplete context maker to use.
+
+            This is a callback which should match the signature of
+            `tanjun.context.MenuContext.__init__` and return
+            an instance of `tanjun.context.MenuContext`.
+
+            This defaults to `tanjun.context.MenuContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
+        self._make_menu_context = maker
+        return self
+
     def set_message_ctx_maker(self: _ClientT, maker: _MessageContextMakerProto = context.MessageContext, /) -> _ClientT:
         """Set the message context maker to use when creating context for a message.
 
@@ -1215,6 +1483,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             of `tanjun.context.MessageContext`.
 
             This defaults to `tanjun.context.MessageContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
         """
         self._make_message_context = maker
         return self
@@ -1243,6 +1516,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             of `tanjun.context.SlashContext`.
 
             This defaults to `tanjun.context.SlashContext`.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
         """
         self._make_slash_context = maker
         return self
@@ -1597,9 +1875,62 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def iter_commands(self) -> collections.Iterator[tanjun_abc.ExecutableCommand[tanjun_abc.Context]]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        slash_commands = self.iter_slash_commands(global_only=False)
-        yield from self.iter_message_commands()
-        yield from slash_commands
+        return itertools.chain(
+            self.iter_menu_commands(global_only=False),
+            self.iter_message_commands(),
+            self.iter_slash_commands(global_only=False),
+        )
+
+    @typing.overload
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE]
+        ] = None,
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
+        ...
+
+    @typing.overload
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None,  # noqa: A002 - Shadowing a builtin name.
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
+        ...
+
+    @typing.overload
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        ] = None,
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
+        ...
+
+    def iter_menu_commands(
+        self,
+        *,
+        global_only: bool = False,
+        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
+            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        ] = None,
+    ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        if global_only:
+            return filter(lambda c: c.is_global, self.iter_menu_commands(global_only=False, type=type))
+
+        if type:
+            if type not in _MENU_TYPES:
+                raise ValueError("Command type filter must be USER or MESSAGE")
+
+            return filter(lambda c: c.type == type, self.iter_menu_commands(global_only=global_only, type=None))
+
+        return itertools.chain.from_iterable(component.menu_commands for component in self.components)
 
     def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1642,7 +1973,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self,
         event_manager: hikari.api.EventManager,
         event_type: type[hikari.Event],
-        callback: tanjun_abc.ListenerCallbackSig,
+        callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]],
     ) -> None:
         try:
             event_manager.unsubscribe(event_type, callback)
@@ -1684,6 +2015,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
+            self._server.set_listener(hikari.AutocompleteInteraction, None)
 
         await asyncio.gather(*(component.close() for component in self._components.copy().values()))
 
@@ -1740,7 +2072,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     self._events.subscribe(event_type_, listener.__call__)
 
         if register_listeners and self._server:
-            self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
+            self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
+            self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
 
         self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
@@ -1789,6 +2122,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The client instance to enable chained calls.
         """
         self._hooks = hooks
+        return self
+
+    def set_menu_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.MenuHooks], /) -> _ClientT:
+        """Set the menu command execution hooks for this client.
+
+        The callbacks within this hook will be added to every menu command
+        execution started by this client.
+
+        Parameters
+        ----------
+        hooks : tanjun.abc.MenuHooks | None
+            The menu context specific command execution hooks to set for this
+            client.
+
+            Passing `None` will remove the hooks.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
+        self._menu_hooks = hooks
         return self
 
     def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.SlashHooks], /) -> _ClientT:
@@ -2097,47 +2452,90 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return hooks
 
-    async def _on_slash_not_found(self, ctx: context.SlashContext) -> None:
+    def _get_menu_hooks(self) -> typing.Optional[set[tanjun_abc.MenuHooks]]:
+        hooks: typing.Optional[set[tanjun_abc.MenuHooks]] = None
+        if self._hooks and self._menu_hooks:
+            hooks = {self._hooks, self._menu_hooks}
+
+        elif self._hooks:
+            hooks = {self._hooks}
+
+        elif self._menu_hooks:
+            hooks = {self._menu_hooks}
+
+        return hooks
+
+    async def _on_slash_not_found(self, ctx: context.slash.AppCommandContext) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._interaction_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._interaction_not_found)
 
-    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
-        """Execute a slash command based on Gateway events.
-
-        .. note::
-            Any event where `event.interaction` is not
-            `hikari.CommandInteraction` will be ignored.
+    async def on_gateway_autocomplete_create(self, interaction: hikari.AutocompleteInteraction, /) -> None:
+        """Execute command autocomplete based on a received gateway interaction create.
 
         Parameters
         ----------
-        event : hikari.events.interaction_events.InteractionCreateEvent
-            The event to execute commands based on.
+        interaction : hikari.CommandInteraction
+            The interaction to execute a command based on.
         """
-        if not isinstance(event.interaction, hikari.CommandInteraction):
-            return
+        ctx = self._make_autocomplete_context(self, interaction)
+        for component in self._components.values():
+            if coro := component.execute_autocomplete(ctx):
+                await coro
+                return
 
-        ctx = self._make_slash_context(
-            client=self,
-            injection_client=self,
-            interaction=event.interaction,
-            on_not_found=self._on_slash_not_found,
-            default_to_ephemeral=self._defaults_to_ephemeral,
-        )
-        hooks = self._get_slash_hooks()
+    async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
+        """Execute an app command based on a received gateway interaction create.
+
+        Parameters
+        ----------
+        interaction : hikari.CommandInteraction
+            The interaction to execute a command based on.
+        """
+        if interaction.command_type is hikari.CommandType.SLASH:
+            ctx = self._make_slash_context(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+            )
+            hooks = self._get_slash_hooks()
+
+        elif interaction.command_type in _MENU_TYPES:
+            ctx = self._make_menu_context(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+            )
+            hooks = self._get_menu_hooks()
+
+        else:
+            raise RuntimeError(f"Unknown command type {interaction.command_type}")
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
         try:
-            if await self.check(ctx):
-                for component in self._components.values():
-                    # This is set on each iteration to ensure that any component
-                    # state which was set to this isn't propagated to other components.
-                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if future := await component.execute_interaction(ctx, hooks=hooks):
-                        await future
-                        return
+            if not await self.check(ctx):
+                raise errors.HaltExecution
+
+            for component in self._components.values():
+                # This is set on each iteration to ensure that any component
+                # state which was set to this isn't propagated to other components.
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+                if ctx.type is hikari.CommandType.SLASH:
+                    assert isinstance(ctx, tanjun_abc.SlashContext)
+                    coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun_abc.SlashHooks]", hooks))
+
+                else:
+                    assert isinstance(ctx, tanjun_abc.MenuContext)
+                    coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun_abc.MenuHooks]", hooks))
+
+                if coro:
+                    return await coro
 
         except errors.HaltExecution:
             pass
@@ -2148,8 +2546,55 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         await ctx.mark_not_found()
 
-    async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
-        """Execute a slash command based on received REST requests.
+    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
+        """Handle a gateway interaction create event.
+
+        .. note::
+            This will execute application commands and autocomplete interactions.
+
+        Parameters
+        ----------
+        event : hikari.events.interaction_events.InteractionCreateEvent
+            The event to execute commands based on.
+        """
+        if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
+            assert isinstance(event.interaction, hikari.CommandInteraction)
+            return await self.on_gateway_command_create(event.interaction)
+
+        if event.interaction.type is hikari.InteractionType.AUTOCOMPLETE:
+            assert isinstance(event.interaction, hikari.AutocompleteInteraction)
+            return await self.on_gateway_autocomplete_create(event.interaction)
+
+    async def on_autocomplete_interaction_request(
+        self, interaction: hikari.AutocompleteInteraction, /
+    ) -> hikari.api.InteractionAutocompleteBuilder:
+        """Execute a command autocomplete based on received REST requests.
+
+        Parameters
+        ----------
+        interaction : hikari.AutocompleteInteraction
+            The interaction to execute autocomplete based on.
+
+        Returns
+        -------
+        hikari.api.InteractionAutocompleteBuilder
+            The initial response to send back to Discord.
+        """
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
+        ctx = self._make_autocomplete_context(self, interaction, future=future)
+
+        for component in self._components.values():
+            if coro := component.execute_autocomplete(ctx):
+                loop.create_task(coro)
+                return await future
+
+        raise RuntimeError(f"Autocomplete not found for {interaction!r}")
+
+    async def on_command_interaction_request(
+        self, interaction: hikari.CommandInteraction, /
+    ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
+        """Execute an app command based on received REST requests.
 
         Parameters
         ----------
@@ -2158,29 +2603,61 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        tanjun.context.ResponseType
+        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder
             The initial response to send back to Discord.
         """
-        ctx = self._make_slash_context(
-            client=self,
-            injection_client=self,
-            interaction=interaction,
-            on_not_found=self._on_slash_not_found,
-            default_to_ephemeral=self._defaults_to_ephemeral,
-        )
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[
+            typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+        ] = loop.create_future()
+
+        if interaction.command_type is hikari.CommandType.SLASH:
+            ctx = self._make_slash_context(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+                future=future,
+            )
+            hooks = self._get_slash_hooks()
+
+        elif interaction.command_type in _MENU_TYPES:
+            ctx = self._make_menu_context(
+                client=self,
+                injection_client=self,
+                interaction=interaction,
+                on_not_found=self._on_slash_not_found,
+                default_to_ephemeral=self._defaults_to_ephemeral,
+                future=future,
+            )
+            hooks = self._get_menu_hooks()
+
+        else:
+            raise RuntimeError(f"Unknown command type {interaction.command_type}")
+
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
-        hooks = self._get_slash_hooks()
-        future = ctx.get_response_future()
         try:
-            if await self.check(ctx):
-                for component in self._components.values():
-                    # This is set on each iteration to ensure that any component
-                    # state which was set to this isn't propagated to other components.
-                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                    if await component.execute_interaction(ctx, hooks=hooks):
-                        return await future
+            if not await self.check(ctx):
+                raise errors.HaltExecution
+
+            for component in self._components.values():
+                # This is set on each iteration to ensure that any component
+                # state which was set to this isn't propagated to other components.
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+                if ctx.type is hikari.CommandType.SLASH:
+                    assert isinstance(ctx, tanjun_abc.SlashContext)
+                    coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun_abc.SlashHooks]", hooks))
+
+                else:
+                    assert isinstance(ctx, tanjun_abc.MenuContext)
+                    coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun_abc.MenuHooks]", hooks))
+
+                if coro:
+                    loop.create_task(coro)
+                    return await future
 
         except errors.HaltExecution:
             pass
@@ -2242,9 +2719,9 @@ class _WrapLoadError:
 
     def __exit__(
         self,
-        exc_type: typing.Optional[type[Exception]],
-        exc: typing.Optional[Exception],
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
         exc_tb: typing.Optional[types.TracebackType],
     ) -> None:
-        if exc and not isinstance(exc, errors.ModuleMissingLoaders):
+        if exc and isinstance(exc, Exception) and not isinstance(exc, errors.ModuleMissingLoaders):
             raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception

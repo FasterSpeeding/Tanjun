@@ -1345,27 +1345,36 @@ def test_to_bool_with_invalid_input(value: str):
 
 
 def test_to_color():
-    with mock.patch.object(hikari.Color, "of") as of:
-        result = tanjun.to_color(123)
+    result = tanjun.to_color(123)
 
-        assert result is of.return_value
-        of.assert_called_once_with(123)
+    assert isinstance(result, hikari.Color)
+    assert result == 123
 
 
 def test_to_color_when_str():
-    with mock.patch.object(hikari.Color, "of") as of:
-        result = tanjun.to_color("54 23 12")
+    result = tanjun.to_color("0x333")
 
-        assert result is of.return_value
-        of.assert_called_once_with(54, 23, 12)
+    assert isinstance(result, hikari.Color)
+    assert result == 0x333333
 
 
-def test_to_color_when_str_of_3_digits():
-    with mock.patch.object(hikari.Color, "of") as of:
-        result = tanjun.to_color("0x333")
+def test_to_color_when_str_of_digits():
+    result = tanjun.to_color("123312")
 
-        assert result is of.return_value
-        of.assert_called_once_with("0x333")
+    assert isinstance(result, hikari.Color)
+    assert result == 123312
+
+
+def test_to_color_when_str_of_space_separated_digits():
+    result = tanjun.to_color("54 23 12")
+
+    assert isinstance(result, hikari.Color)
+    assert result == 0x36170C
+
+
+def test_to_color_when_str_of_space_separated_non_digits():
+    with pytest.raises(ValueError, match="Not a valid color representation"):
+        tanjun.to_color("54 23 aye")
 
 
 @pytest.mark.skip(reason="TODO")

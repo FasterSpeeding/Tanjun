@@ -185,7 +185,6 @@ class BasicInjectionContext(AbstractInjectionContext):
         self._special_case_types: dict[type[typing.Any], typing.Any] = {
             AbstractInjectionContext: self,
             BasicInjectionContext: self,
-            type(self): self,
         }
 
     @property

@@ -32,7 +32,7 @@
 """Standard implementation of Tanjun's command execution hook models."""
 from __future__ import annotations
 
-__all__: list[str] = ["AnyHooks", "Hooks", "MessageHooks", "SlashHooks"]
+__all__: list[str] = ["AnyHooks", "Hooks", "MenuHooks", "MessageHooks", "SlashHooks"]
 
 import asyncio
 import copy
@@ -356,6 +356,13 @@ AnyHooks = Hooks[abc.Context]
 
 .. note::
     This is shorthand for Hooks[tanjun.abc.Context].
+"""
+
+MenuHooks = Hooks[abc.MenuContext]
+"""Hooks that can be used with a message context.
+
+.. note::
+    This is shorthand for Hooks[tanjun.abc.MenuContext].
 """
 
 MessageHooks = Hooks[abc.MessageContext]

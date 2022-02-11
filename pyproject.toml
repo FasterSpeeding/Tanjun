@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "hikari-tanjun"
-version = "2.3.2a1"
+version = "2.4.0a1"
 description = "A flexible command framework designed to extend Hikari."
 readme = "README.md"
 requires-python = ">=3.9.0,<3.12"
@@ -28,7 +28,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
-dependencies = ["hikari==2.0.0.dev105"]
+dependencies = ["hikari~=2.0.0.dev106"]
 
 [project.optional-dependencies]
 docs = ["pdoc==9.0.1"]
@@ -65,7 +65,7 @@ flake8 = [
 lint = ["codespell==2.1"]
 publish = ["flit==3.6.0"]
 reformat = ["black==22.1", "isort==5.10.1"]
-tests = ["pytest==7", "pytest-asyncio==0.18.1", "pytest-cov==3"]
+tests = ["pytest==7", "pytest-asyncio==0.18.1", "pytest-cov==3", "pytest-xdist==2.5"]
 type_checking = ["pyright==0.0.13"]
 
 [project.urls]

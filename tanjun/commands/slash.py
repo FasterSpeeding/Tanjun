@@ -33,15 +33,9 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "AnyMessageCommandT",
     "ConverterSig",
-    "as_message_command",
-    "as_message_command_group",
     "as_slash_command",
     "slash_command_group",
-    "MessageCommand",
-    "MessageCommandGroup",
-    "PartialCommand",
     "BaseSlashCommand",
     "SlashCommand",
     "SlashCommandGroup",
@@ -54,6 +48,7 @@ __all__: list[str] = [
     "with_member_slash_option",
     "with_channel_slash_option",
     "with_mentionable_slash_option",
+    "UNDEFINED_DEFAULT",
 ]
 
 import copy
@@ -64,125 +59,38 @@ from collections import abc as collections
 
 import hikari
 
-from . import abc
-from . import checks as checks_
-from . import components
-from . import conversion
-from . import errors
-from . import hooks as hooks_
-from . import injecting
-from . import utilities
+from .. import abc
+from .. import components
+from .. import conversion
+from .. import errors
+from .. import hooks as hooks_
+from .. import injecting
+from .. import utilities
+from . import base
 
 if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
 
-    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
-    _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
-    _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any]")
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
+    _CallbackishT = typing.Union[
+        abc.CommandCallbackSigT,
+        abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
+        abc.MessageCommand[abc.CommandCallbackSigT],
+        abc.SlashCommand[abc.CommandCallbackSigT],
+    ]
 
-
-_CallbackishT = typing.Union[
-    abc.CommandCallbackSigT,
-    abc.MessageCommand[abc.CommandCallbackSigT],
-    abc.SlashCommand[abc.CommandCallbackSigT],
-]
-
-AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
-
-class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractComponentLoader):
-    """Base class for the standard ExecutableCommand implementations."""
-
-    __slots__ = ("_checks", "_component", "_hooks", "_metadata")
-
-    def __init__(self) -> None:
-        self._checks: list[checks_.InjectableCheck] = []
-        self._component: typing.Optional[abc.Component] = None
-        self._hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None
-        self._metadata: dict[typing.Any, typing.Any] = {}
-
-    @property
-    def checks(self) -> collections.Collection[abc.CheckSig]:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        return tuple(check.callback for check in self._checks)
-
-    @property
-    def component(self) -> typing.Optional[abc.Component]:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        return self._component
-
-    @property
-    def hooks(self) -> typing.Optional[abc.Hooks[abc.ContextT]]:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        return self._hooks
-
-    @property
-    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        return self._metadata
-
-    @property
-    def needs_injector(self) -> bool:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        return any(check.needs_injector for check in self._checks)
-
-    def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not _new:
-            self._checks = [check.copy() for check in self._checks]
-            self._hooks = self._hooks.copy() if self._hooks else None
-            self._metadata = self._metadata.copy()
-            return self
-
-        return copy.copy(self).copy(_new=False)
-
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[abc.Hooks[abc.ContextT]], /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._hooks = hooks
-        return self
-
-    def set_metadata(self: _PartialCommandT, key: typing.Any, value: typing.Any, /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._metadata[key] = value
-        return self
-
-    def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if check not in self._checks:
-            self._checks.append(checks_.InjectableCheck(check))
-
-        return self
-
-    def remove_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._checks.remove(typing.cast("checks_.InjectableCheck", check))
-        return self
-
-    def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
-        self.add_check(check)
-        return check
-
-    def bind_client(self: _PartialCommandT, client: abc.Client, /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        return self
-
-    def bind_component(self: _PartialCommandT, component: abc.Component, /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._component = component
-        return self
-
-
+_AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=abc.AutocompleteCallbackSig)
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
 
 
-def _validate_name(name: str) -> None:
+def validate_name(name: str) -> None:
     if not _SCOMMAND_NAME_REG.fullmatch(name):
         raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
 
@@ -227,8 +135,8 @@ def slash_command_group(
     * Unlike message command grups, slash command groups cannot
       be callable functions themselves.
     * Under the standard implementation, `is_global` is used to determine whether
-      the command should be bulk set by `tanjun.Client.set_global_commands`
-      or when `set_global_commands` is True
+      the command should be bulk set by `tanjun.Client.declare_global_commands`
+      or when `declare_global_commands` is True
 
     Parameters
     ----------
@@ -286,13 +194,13 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], SlashCommand[abc.CommandCallbackSigT]]:
+) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], SlashCommand[abc.CommandCallbackSigT]]:
     r"""Build a `SlashCommand` by decorating a function.
 
     .. note::
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.set_global_commands`
-        or when `set_global_commands` is True
+        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        or when `declare_global_commands` is True
 
     .. warning::
         `default_permission` and `is_global` are ignored for commands within
@@ -352,12 +260,13 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], SlashCommand[CommandCallbackSigT]]
+    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
         The decorator callback used to make a `SlashCommand`.
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
-        loading the other command into a component when using `tanjun.Component.load_from_scope`.
+        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
+        will manage loading the other command into a component when using
+        `tanjun.Component.load_from_scope`.
 
     Raises
     ------
@@ -369,7 +278,7 @@ def as_slash_command(
     """
 
     def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
-        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return SlashCommand(
                 callback.callback,
                 name,
@@ -396,7 +305,8 @@ def as_slash_command(
     return decorator
 
 
-_UNDEFINED_DEFAULT = object()
+UNDEFINED_DEFAULT = object()
+"""Singleton used for marking slash command defaults as undefined."""
 
 
 def with_str_slash_option(
@@ -404,9 +314,10 @@ def with_str_slash_option(
     description: str,
     /,
     *,
+    autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
     choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    default: typing.Any = UNDEFINED_DEFAULT,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
@@ -430,9 +341,10 @@ def with_str_slash_option(
     return lambda c: c.add_str_option(
         name,
         description,
-        default=default,
+        autocomplete=autocomplete,
         choices=choices,
         converters=converters,
+        default=default,
         pass_as_kwarg=pass_as_kwarg,
         _stack_level=1,
     )
@@ -443,9 +355,10 @@ def with_int_slash_option(
     description: str,
     /,
     *,
+    autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    default: typing.Any = UNDEFINED_DEFAULT,
     min_value: typing.Optional[int] = None,
     max_value: typing.Optional[int] = None,
     pass_as_kwarg: bool = True,
@@ -471,6 +384,7 @@ def with_int_slash_option(
     return lambda c: c.add_int_option(
         name,
         description,
+        autocomplete=autocomplete,
         default=default,
         choices=choices,
         converters=converters,
@@ -487,9 +401,10 @@ def with_float_slash_option(
     /,
     *,
     always_float: bool = True,
+    autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    default: typing.Any = UNDEFINED_DEFAULT,
     min_value: typing.Optional[float] = None,
     max_value: typing.Optional[float] = None,
     pass_as_kwarg: bool = True,
@@ -516,6 +431,7 @@ def with_float_slash_option(
         name,
         description,
         always_float=always_float,
+        autocomplete=autocomplete,
         default=default,
         choices=choices,
         converters=converters,
@@ -527,7 +443,7 @@ def with_float_slash_option(
 
 
 def with_bool_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a boolean option to a slash command.
 
@@ -551,7 +467,7 @@ def with_bool_slash_option(
 
 
 def with_user_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a user option to a slash command.
 
@@ -580,7 +496,7 @@ def with_user_slash_option(
 
 
 def with_member_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT
+    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
@@ -633,7 +549,7 @@ def with_channel_slash_option(
     /,
     *,
     types: typing.Union[collections.Collection[type[hikari.PartialChannel]], None] = None,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    default: typing.Any = UNDEFINED_DEFAULT,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
@@ -661,7 +577,7 @@ def with_channel_slash_option(
 
 
 def with_role_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a role option to a slash command.
 
@@ -685,7 +601,7 @@ def with_role_slash_option(
 
 
 def with_mentionable_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a mentionable option to a slash command.
 
@@ -730,7 +646,7 @@ class _TrackedOption:
         always_float: bool = False,
         converters: typing.Optional[list[injecting.CallbackDescriptor[typing.Any]]] = None,
         only_member: bool = False,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
     ) -> None:
         self.converters = converters or []
         self.default = default
@@ -763,11 +679,11 @@ class _TrackedOption:
         raise errors.ConversionError(f"Couldn't convert {self.type} '{self.name}'", self.name, errors=exceptions)
 
 
-_CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
+_SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCommandBuilder")
 
 
-class _CommandBuilder(hikari.impl.CommandBuilder):
-    __slots__ = ("_has_been_sorted", "_sort_options")
+class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
+    __slots__ = ("_has_been_sorted", "_options_dict", "_sort_options")
 
     def __init__(
         self,
@@ -778,17 +694,22 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,  # noqa: A002
     ) -> None:
         super().__init__(name, description, id=id)  # type: ignore
+        self._options_dict: dict[str, hikari.CommandOption] = {}
         self._has_been_sorted = True
         self._sort_options = sort_options
 
-    def add_option(self: _CommandBuilderT, option: hikari.CommandOption) -> _CommandBuilderT:
+    def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
         if self._options:
             self._has_been_sorted = False
 
         super().add_option(option)
+        self._options_dict[option.name] = option
         return self
 
-    def sort(self: _CommandBuilderT) -> _CommandBuilderT:
+    def get_option(self, name: str) -> typing.Optional[hikari.CommandOption]:
+        return self._options_dict.get(name)
+
+    def sort(self: _SlashCommandBuilderT) -> _SlashCommandBuilderT:
         if self._sort_options and not self._has_been_sorted:
             required: list[hikari.CommandOption] = []
             not_required: list[hikari.CommandOption] = []
@@ -803,8 +724,11 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
         return self
 
-    def copy(self) -> _CommandBuilder:  # TODO: can we just del _CommandBuilder.__copy__ to go back to the default?
-        builder = _CommandBuilder(self.name, self.description, self._sort_options, id=self.id)
+    # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
+    def copy(
+        self,
+    ) -> _SlashCommandBuilder:
+        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id=self.id)
 
         for option in self._options:
             builder.add_option(option)
@@ -812,7 +736,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         return builder
 
 
-class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
+class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
     """Base class used for the standard slash command implementations."""
 
     __slots__ = ("_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent", "_tracked_command")
@@ -827,7 +751,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        _validate_name(name)
+        validate_name(name)
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
@@ -836,7 +760,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[abc.SlashCommandGroup] = None
-        self._tracked_command: typing.Optional[hikari.Command] = None
+        self._tracked_command: typing.Optional[hikari.SlashCommand] = None
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
@@ -864,8 +788,8 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         return self._parent
 
     @property
-    def tracked_command(self) -> typing.Optional[hikari.Command]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+    def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._tracked_command
 
     @property
@@ -873,19 +797,16 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
-    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.Command, /) -> _BaseSlashCommandT:
-        """Set the the global command this should be tracking.
+    @property
+    def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        return hikari.CommandType.SLASH
 
-        Parameters
-        ----------
-        command : hikari.Command
-            object of the global command this should be tracking.
+    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.PartialCommand, /) -> _BaseSlashCommandT:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        if not isinstance(command, hikari.SlashCommand):
+            raise TypeError("The tracked command must be a slash command")
 
-        Returns
-        -------
-        SelfT
-            This command instance for chaining.
-        """
         self._tracked_command = command
         return self
 
@@ -904,7 +825,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
         Returns
         -------
-        SelfT
+        Self
             This command to allow for chaining.
         """
         self._defaults_to_ephemeral = state
@@ -962,8 +883,8 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         .. note::
             Under the standard implementation, `is_global` is used to determine
-            whether the command should be bulk set by `tanjun.Client.set_global_commands`
-            or when `set_global_commands` is True
+            whether the command should be bulk set by `tanjun.Client.declare_global_commands`
+            or when `declare_global_commands` is True
 
         Parameters
         ----------
@@ -1006,9 +927,11 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
-    def build(self) -> special_endpoints_api.CommandBuilder:
+    def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _CommandBuilder(self._name, self._description, False).set_default_permission(self._default_permission)
+        builder = _SlashCommandBuilder(self._name, self._description, False).set_default_permission(
+            self._default_permission
+        )
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -1127,11 +1050,42 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         await ctx.mark_not_found()
 
+    async def execute_autocomplete(
+        self,
+        ctx: abc.AutocompleteContext,
+        /,
+        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
+    ) -> None:
+        if not option and ctx.interaction.options:
+            option = ctx.interaction.options[0]
+
+        elif option and option.options:
+            option = typing.cast("hikari.AutocompleteInteractionOption", option.options[0])
+
+        else:
+            raise RuntimeError("Missing sub-command option")
+
+        command = self._commands.get(option.name)
+        if not command:
+            raise RuntimeError(f"Sub-command '{option.name}' no found")
+
+        await command.execute_autocomplete(ctx, option=option)
+
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     """Standard implementation of a slash command."""
 
-    __slots__ = ("_always_defer", "_builder", "_callback", "_client", "_tracked_options", "_wrapped_command")
+    __slots__ = (
+        "_always_defer",
+        "_builder",
+        "_callback",
+        "_client",
+        "_float_autocompletes",
+        "_int_autocompletes",
+        "_str_autocompletes",
+        "_tracked_options",
+        "_wrapped_command",
+    )
 
     def __init__(
         self,
@@ -1151,8 +1105,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         .. note::
             Under the standard implementation, `is_global` is used to determine whether
-            the command should be bulk set by `tanjun.Client.set_global_commands`
-            or when `set_global_commands` is True
+            the command should be bulk set by `tanjun.Client.declare_global_commands`
+            or when `declare_global_commands` is True
 
         .. warning::
             `default_permission` and `is_global` are ignored for commands within
@@ -1214,13 +1168,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the description is over 100 characters long.
         """
         super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
-        if not _wrapped_command and isinstance(callback, (abc.MessageCommand, abc.SlashCommand)):
+        if not _wrapped_command and isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
 
         self._always_defer = always_defer
-        self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
+        self._builder = _SlashCommandBuilder(name, description, sort_options).set_default_permission(default_permission)
         self._callback = injecting.CallbackDescriptor[None](callback)
         self._client: typing.Optional[abc.Client] = None
+        self._float_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
+        self._int_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
+        self._str_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
 
@@ -1238,6 +1195,29 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
 
     @property
+    def float_autocompletes(self) -> collections.Mapping[str, abc.AutocompleteCallbackSig]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        return {
+            name: typing.cast(abc.AutocompleteCallbackSig, value.callback)
+            for name, value in self._float_autocompletes.items()
+        }
+
+    @property
+    def int_autocompletes(self) -> collections.Mapping[str, abc.AutocompleteCallbackSig]:
+        return {
+            name: typing.cast(abc.AutocompleteCallbackSig, value.callback)
+            for name, value in self._int_autocompletes.items()
+        }
+
+    @property
+    def str_autocompletes(self) -> collections.Mapping[str, abc.AutocompleteCallbackSig]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        return {
+            name: typing.cast(abc.AutocompleteCallbackSig, value.callback)
+            for name, value in self._str_autocompletes.items()
+        }
+
+    @property
     def needs_injector(self) -> bool:
         return (
             self._callback.needs_injector
@@ -1253,7 +1233,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         return self
 
-    def build(self) -> special_endpoints_api.CommandBuilder:
+    def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._builder.sort().copy()
 
@@ -1270,19 +1250,20 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         /,
         *,
         always_float: bool = False,
+        autocomplete: bool = False,
         channel_types: typing.Optional[collections.Sequence[int]] = None,
         choices: typing.Union[
             collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
         ] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         min_value: typing.Union[int, float, None] = None,
         max_value: typing.Union[int, float, None] = None,
         only_member: bool = False,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        _validate_name(name)
+        validate_name(name)
         if len(description) > 100:
             raise ValueError("The option description cannot be over 100 characters in length")
 
@@ -1322,7 +1303,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         if actual_choices and len(actual_choices) > 25:
             raise ValueError("Slash command options cannot have more than 25 choices")
 
-        required = default is _UNDEFINED_DEFAULT
+        required = default is UNDEFINED_DEFAULT
         self._builder.add_option(
             hikari.CommandOption(
                 type=type_,
@@ -1333,6 +1314,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 channel_types=channel_types,
                 min_value=min_value,
                 max_value=max_value,
+                autocomplete=autocomplete,
             )
         )
         if pass_as_kwarg:
@@ -1352,9 +1334,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
+        autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
         choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
@@ -1377,6 +1360,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         Other Parameters
         ----------------
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
         choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None
             The option's choices.
 
@@ -1443,15 +1432,21 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 else:
                     actual_choices[choice.capitalize()] = choice
 
-        return self._add_option(
+        self._add_option(
             name,
             description,
             hikari.OptionType.STRING,
+            autocomplete=autocomplete is not None,
             choices=actual_choices,
             converters=converters,
             default=default,
             pass_as_kwarg=pass_as_kwarg,
         )
+
+        if autocomplete:
+            self._str_autocompletes[name] = injecting.CallbackDescriptor(autocomplete)
+
+        return self
 
     def add_int_option(
         self: _SlashCommandT,
@@ -1459,9 +1454,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
+        autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
         choices: typing.Optional[collections.Mapping[str, int]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         min_value: typing.Optional[int] = None,
         max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
@@ -1481,6 +1477,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         Other Parameters
         ----------------
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `int`.
         choices : collections.abc.Mapping[str, int] | None
             The option's choices.
 
@@ -1530,10 +1532,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
         """
-        return self._add_option(
+        self._add_option(
             name,
             description,
             hikari.OptionType.INTEGER,
+            autocomplete=autocomplete is not None,
             choices=choices,
             converters=converters,
             default=default,
@@ -1543,6 +1546,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             _stack_level=_stack_level + 1,
         )
 
+        if autocomplete:
+            self._int_autocompletes[name] = injecting.CallbackDescriptor(autocomplete)
+
+        return self
+
     def add_float_option(
         self: _SlashCommandT,
         name: str,
@@ -1550,9 +1558,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         /,
         *,
         always_float: bool = True,
+        autocomplete: typing.Optional[abc.AutocompleteCallbackSig] = None,
         choices: typing.Optional[collections.Mapping[str, float]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         min_value: typing.Optional[float] = None,
         max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
@@ -1578,6 +1587,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
             This masks behaviour from Discord where we will either be provided a `float`
             or `int` dependent on what the user provided and defaults to `True`.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `float`.
         choices : collections.abc.Mapping[str, float] | None
             The option's choices.
 
@@ -1628,10 +1643,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
         """
-        return self._add_option(
+        self._add_option(
             name,
             description,
             hikari.OptionType.FLOAT,
+            autocomplete=autocomplete is not None,
             choices=choices,
             converters=converters,
             default=default,
@@ -1642,13 +1658,18 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             _stack_level=_stack_level + 1,
         )
 
+        if autocomplete:
+            self._float_autocompletes[name] = injecting.CallbackDescriptor(autocomplete)
+
+        return self
+
     def add_bool_option(
         self: _SlashCommandT,
         name: str,
         description: str,
         /,
         *,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a boolean option to a slash command.
@@ -1700,7 +1721,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a user option to a slash command.
@@ -1756,7 +1777,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
     ) -> _SlashCommandT:
         r"""Add a member option to a slash command.
 
@@ -1807,7 +1828,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         types: typing.Optional[collections.Collection[type[hikari.PartialChannel]]] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
@@ -1885,7 +1906,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a role option to a slash command.
@@ -1935,7 +1956,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         description: str,
         /,
         *,
-        default: typing.Any = _UNDEFINED_DEFAULT,
+        default: typing.Any = UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a mentionable option to a slash command.
@@ -1985,11 +2006,245 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
         )
 
+    def set_float_autocomplete(
+        self: _SlashCommandT, name: str, callback: typing.Optional[abc.AutocompleteCallbackSig], /
+    ) -> _SlashCommandT:
+        """Set the autocomplete callback for a float option.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `float`.
+
+            Passing `None` here will remove the autocomplete callback for the
+            option.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `float`.
+        """
+        option = self._builder.get_option(name)
+
+        if not option:
+            raise KeyError("Option not found")
+
+        if option.type is not hikari.OptionType.FLOAT:
+            raise TypeError("Option is not a float option")
+
+        if callback:
+            option.autocomplete = True
+            self._float_autocompletes[name] = injecting.CallbackDescriptor(callback)
+
+        elif name in self._float_autocompletes:
+            option.autocomplete = False
+            del self._float_autocompletes[name]
+
+        return self
+
+    def with_float_autocomplete(
+        self, name: str, /
+    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        """Set the autocomplete callback for a float option through a decorator call.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+        Returns
+        -------
+        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+            Decorator callback used to capture the autocomplete callback.
+
+            More information on the autocomplete signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `float`.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `float`.
+        """
+
+        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+            self.set_float_autocomplete(name, callback)
+            return callback
+
+        return decorator
+
+    def set_int_autocomplete(
+        self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
+    ) -> _SlashCommandT:
+        """Set the autocomplete callback for a string option.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
+
+            Passing `None` here will remove the autocomplete callback for the
+            option.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `str`.
+        """
+        option = self._builder.get_option(name)
+
+        if not option:
+            raise KeyError("Option not found")
+
+        if option.type is not hikari.OptionType.INTEGER:
+            raise TypeError("Option is not a int option")
+
+        option.autocomplete = True
+        self._int_autocompletes[name] = injecting.CallbackDescriptor(callback)
+        return self
+
+    def with_int_autocomplete(
+        self, name: str, /
+    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        """Set the autocomplete callback for a integer option through a decorator call.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+        Returns
+        -------
+        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+            Decorator callback used to capture the autocomplete callback.
+
+            More information on the autocomplete signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `int`.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `int`.
+        """
+
+        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+            self.set_int_autocomplete(name, callback)
+            return callback
+
+        return decorator
+
+    def set_str_autocomplete(
+        self: _SlashCommandT, name: str, callback: abc.AutocompleteCallbackSig, /
+    ) -> _SlashCommandT:
+        """Set the autocomplete callback for a str option.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            The autocomplete callback for the option.
+
+            More information on this callback's signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
+
+            Passing `None` here will remove the autocomplete callback for the
+            option.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `str`.
+        """
+        option = self._builder.get_option(name)
+
+        if not option:
+            raise KeyError("Option not found")
+
+        if option.type is not hikari.OptionType.STRING:
+            raise TypeError("Option is not a str option")
+
+        option.autocomplete = True
+        self._str_autocompletes[name] = injecting.CallbackDescriptor(callback)
+        return self
+
+    def with_str_autocomplete(
+        self, name: str, /
+    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+        """Set the autocomplete callback for a string option through a decorator call.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+        Returns
+        -------
+        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+            Decorator callback used to capture the autocomplete callback.
+
+            More information on the autocomplete signature can be found at
+            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
+            argument should be of type `str`.
+
+        Raises
+        ------
+        KeyError
+            Raises a key error if the option doesn't exist.
+        TypeError
+            Raises a type error if the option isn't of type `str`.
+        """
+
+        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+            self.set_str_autocomplete(name, callback)
+            return callback
+
+        return decorator
+
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
         for tracked_option in self._tracked_options.values():
             if not (option := ctx.options.get(tracked_option.name)):
-                if tracked_option.default is _UNDEFINED_DEFAULT:
+                if tracked_option.default is UNDEFINED_DEFAULT:
                     raise RuntimeError(  # TODO: ConversionError?
                         f"Required option {tracked_option.name} is missing data, are you sure your commands"
                         " are up to date?"
@@ -2073,6 +2328,31 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
+    async def execute_autocomplete(
+        self,
+        ctx: abc.AutocompleteContext,
+        /,
+        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
+    ) -> None:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        if ctx.focused.type is hikari.OptionType.STRING:
+            callback = self._str_autocompletes.get(ctx.focused.name)
+
+        elif ctx.focused.type is hikari.OptionType.FLOAT:
+            callback = self._float_autocompletes.get(ctx.focused.name)
+
+        elif ctx.focused.type is hikari.OptionType.INTEGER:
+            callback = self._int_autocompletes.get(ctx.focused.name)
+
+        else:
+            raise NotImplementedError(f"Autocomplete isn't implemented for '{ctx.focused.type}' option yet.")
+
+        if not callback:
+            raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")
+
+        assert isinstance(ctx, injecting.AbstractInjectionContext)
+        await callback.resolve(ctx, ctx, ctx.focused.value)
+
     def copy(
         self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None
     ) -> _SlashCommandT:
@@ -2082,429 +2362,3 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             return super().copy(_new=_new, parent=parent)
 
         return super().copy(_new=_new, parent=parent)
-
-
-def as_message_command(
-    name: str, /, *names: str
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], MessageCommand[abc.CommandCallbackSigT]]:
-    """Build a message command from a decorated callback.
-
-    Parameters
-    ----------
-    name : str
-        The command name.
-
-    Other Parameters
-    ----------------
-    *names : str
-        Variable positional arguments of other names for the command.
-
-    Returns
-    -------
-    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], MessageCommand[CommandCallbackSigT]]
-        The decorator callback used to make a `MessageCommand`.
-
-        This can either wrap a raw command callback or another callable command instance
-        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
-        loading the other command into a component when using `tanjun.Component.load_from_scope`.
-    """
-
-    def decorator(
-        callback: _CallbackishT[abc.CommandCallbackSigT],
-        /,
-    ) -> MessageCommand[abc.CommandCallbackSigT]:
-        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
-            return MessageCommand(callback.callback, name, *names, _wrapped_command=callback)
-
-        return MessageCommand(callback, name, *names)
-
-    return decorator
-
-
-def as_message_command_group(
-    name: str, /, *names: str, strict: bool = False
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], MessageCommandGroup[abc.CommandCallbackSigT]]:
-    """Build a message command group from a decorated callback.
-
-    Parameters
-    ----------
-    name : str
-        The command name.
-
-    Other Parameters
-    ----------------
-    *names : str
-        Variable positional arguments of other names for the command.
-    strict : bool
-        Whether this command group should only allow commands without spaces in their names.
-
-        This allows for a more optimised command search pattern to be used and
-        enforces that command names are unique to a single command within the group.
-
-    Returns
-    -------
-    collections.abc.Callable[[_CallbackishT[CommandCallbackSigT]], MessageCommand[CommandCallbackSigT]]
-        The decorator callback used to make a `MessageCommandGroup`.
-
-        This can either wrap a raw command callback or another callable command instance
-        (e.g. `SlashCommand`, `MessageCommand`, `MessageCommandGroup`) and will manage
-        loading the other command into a component when using `tanjun.Component.load_from_scope`.
-    """
-
-    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
-        if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)):
-            return MessageCommandGroup(callback.callback, name, *names, strict=strict, _wrapped_command=callback)
-
-        return MessageCommandGroup(callback, name, *names, strict=strict)
-
-    return decorator
-
-
-class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand[abc.CommandCallbackSigT]):
-    """Standard implementation of a message command."""
-
-    __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
-
-    def __init__(
-        self,
-        callback: abc.CommandCallbackSigT,
-        name: str,
-        /,
-        *names: str,
-        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        """Initialise a message command.
-
-        Parameters
-        ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]
-            Callback to execute when the command is invoked.
-
-            This should be an asynchronous callback which takes one positional
-            argument of type `tanjun.abc.MessageContext`, returns `None` and may use
-            dependency injection to access other services.
-        name : str
-            The command name.
-
-        Other Parameters
-        ----------------
-        *names : str
-            Variable positional arguments of other names for the command.
-        """
-        super().__init__()
-        if not _wrapped_command and isinstance(callback, (abc.MessageCommand, abc.SlashCommand)):
-            callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
-
-        self._callback = injecting.CallbackDescriptor[None](callback)
-        self._names = list(dict.fromkeys((name, *names)))
-        self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
-        self._parser: typing.Optional[abc.MessageParser] = None
-        self._wrapped_command = _wrapped_command
-
-    def __repr__(self) -> str:
-        return f"Command <{self._names}>"
-
-    if typing.TYPE_CHECKING:
-        __call__: abc.CommandCallbackSigT
-
-    else:
-
-        async def __call__(self, *args, **kwargs) -> None:
-            await self._callback.callback(*args, **kwargs)
-
-    @property
-    def callback(self) -> abc.CommandCallbackSigT:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
-
-    @property
-    # <<inherited docstring from tanjun.abc.MessageCommand>>.
-    def names(self) -> collections.Collection[str]:
-        return self._names.copy()
-
-    @property
-    def needs_injector(self) -> bool:
-        return self._callback.needs_injector
-
-    @property
-    def parent(self) -> typing.Optional[abc.MessageCommandGroup[typing.Any]]:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return self._parent
-
-    @property
-    def parser(self) -> typing.Optional[abc.MessageParser]:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return self._parser
-
-    def bind_client(self: _MessageCommandT, client: abc.Client, /) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        super().bind_client(client)
-        if self._parser:
-            self._parser.bind_client(client)
-
-        return self
-
-    def bind_component(self: _MessageCommandT, component: abc.Component, /) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        super().bind_component(component)
-        if self._parser:
-            self._parser.bind_component(component)
-
-        return self
-
-    def copy(
-        self: _MessageCommandT,
-        *,
-        parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None,
-        _new: bool = True,
-    ) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        if not _new:
-            self._callback = copy.copy(self._callback)
-            self._names = self._names.copy()
-            self._parent = parent
-            self._parser = self._parser.copy() if self._parser else None
-            return super().copy(_new=_new)
-
-        return super().copy(_new=_new)
-
-    def set_parent(
-        self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup[typing.Any]], /
-    ) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        self._parent = parent
-        return self
-
-    def set_parser(self: _MessageCommandT, parser: typing.Optional[abc.MessageParser], /) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        self._parser = parser
-        return self
-
-    async def check_context(self, ctx: abc.MessageContext, /) -> bool:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        ctx.set_command(self)
-        result = await utilities.gather_checks(ctx, self._checks)
-        ctx.set_command(None)
-        return result
-
-    async def execute(
-        self,
-        ctx: abc.MessageContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
-    ) -> None:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        ctx = ctx.set_command(self)
-        own_hooks = self._hooks or _EMPTY_HOOKS
-        try:
-            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
-
-            if self._parser is not None:
-                kwargs = await self._parser.parse(ctx)
-
-            else:
-                kwargs = _EMPTY_DICT
-
-            await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
-
-        except errors.CommandError as exc:
-            response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
-            await ctx.respond(content=response)
-
-        except errors.HaltExecution:
-            raise
-
-        except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
-                raise
-
-        else:
-            # TODO: how should this be handled around CommandError?
-            await own_hooks.trigger_success(ctx, hooks=hooks)
-
-        finally:
-            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
-
-    def load_into_component(self, component: abc.Component, /) -> None:
-        # <<inherited docstring from tanjun.components.load_into_component>>.
-        if not self._parent:
-            component.add_message_command(self)
-
-        if self._wrapped_command and isinstance(self._wrapped_command, components.AbstractComponentLoader):
-            self._wrapped_command.load_into_component(component)
-
-
-class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup[abc.CommandCallbackSigT]):
-    """Standard implementation of a message command group."""
-
-    __slots__ = ("_commands", "_is_strict", "_names_to_commands")
-
-    def __init__(
-        self,
-        callback: abc.CommandCallbackSigT,
-        name: str,
-        /,
-        *names: str,
-        strict: bool = False,
-        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        """Initialise a message command group.
-
-        Parameters
-        ----------
-        name : str
-            The command name.
-
-        Other Parameters
-        ----------------
-        *names : str
-            Variable positional arguments of other names for the command.
-        strict : bool
-            Whether this command group should only allow commands without spaces in their names.
-
-            This allows for a more optimised command search pattern to be used and
-            enforces that command names are unique to a single command within the group.
-        """
-        super().__init__(callback, name, *names, _wrapped_command=_wrapped_command)
-        self._commands: list[abc.MessageCommand[typing.Any]] = []
-        self._is_strict = strict
-        self._names_to_commands: dict[str, abc.MessageCommand[typing.Any]] = {}
-
-    def __repr__(self) -> str:
-        return f"CommandGroup <{len(self._commands)}: {self._names}>"
-
-    @property
-    def commands(self) -> collections.Collection[abc.MessageCommand[typing.Any]]:
-        # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
-        return self._commands.copy()
-
-    @property
-    def is_strict(self) -> bool:
-        return self._is_strict
-
-    def copy(
-        self: _MessageCommandGroupT,
-        *,
-        parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None,
-        _new: bool = True,
-    ) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        if not _new:
-            commands = {command: command.copy(parent=self) for command in self._commands}
-            self._commands = list(commands.values())
-            self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            return super().copy(parent=parent, _new=_new)
-
-        return super().copy(parent=parent, _new=_new)
-
-    def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand[typing.Any], /) -> _MessageCommandGroupT:
-        """Add a command to this group.
-
-        Parameters
-        ----------
-        command : MessageCommand
-            The command to add.
-
-        Returns
-        -------
-        Self
-            The group instance to enable chained calls.
-
-        Raises
-        ------
-        ValueError
-            If one of the command's names is already registered in a strict
-            command group.
-        """
-        if command in self._commands:
-            return self
-
-        if self._is_strict:
-            if any(" " in name for name in command.names):
-                raise ValueError("Sub-command names may not contain spaces in a strict message command group")
-
-            if name_conflicts := self._names_to_commands.keys() & command.names:
-                raise ValueError(
-                    "Sub-command names must be unique in a strict message command group. "
-                    "The following conflicts were found " + ", ".join(name_conflicts)
-                )
-
-            self._names_to_commands.update((name, command) for name in command.names)
-
-        command.set_parent(self)
-        self._commands.append(command)
-        return self
-
-    def remove_command(
-        self: _MessageCommandGroupT, command: abc.MessageCommand[typing.Any], /
-    ) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
-        self._commands.remove(command)
-        if self._is_strict:
-            for name in command.names:
-                if self._names_to_commands.get(name) == command:
-                    del self._names_to_commands[name]
-
-        command.set_parent(None)
-        return self
-
-    def with_command(self, command: AnyMessageCommandT, /) -> AnyMessageCommandT:
-        self.add_command(command)
-        return command
-
-    def bind_client(self: _MessageCommandGroupT, client: abc.Client, /) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        super().bind_client(client)
-        for command in self._commands:
-            command.bind_client(client)
-
-        return self
-
-    def bind_component(self: _MessageCommandGroupT, component: abc.Component, /) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        super().bind_component(component)
-        for command in self._commands:
-            command.bind_component(component)
-
-        return self
-
-    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand[typing.Any]]]:
-        if self._is_strict:
-            name = content.split(" ")[0]
-            if command := self._names_to_commands.get(name):
-                yield name, command
-            return
-
-        for command in self._commands:
-            if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
-                yield name_, command
-
-    async def execute(
-        self,
-        ctx: abc.MessageContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
-    ) -> None:
-        # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        if ctx.message.content is None:
-            raise ValueError("Cannot execute a command with a content-less message")
-
-        if self._hooks:
-            if hooks is None:
-                hooks = set()
-
-            hooks.add(self._hooks)
-
-        for name, command in self.find_command(ctx.content):
-            if await command.check_context(ctx):
-                content = ctx.content[len(name) :]
-                lstripped_content = content.lstrip()
-                space_len = len(content) - len(lstripped_content)
-                ctx.set_triggering_name(ctx.triggering_name + (" " * space_len) + name)
-                ctx.set_content(lstripped_content)
-                await command.execute(ctx, hooks=hooks)
-                return
-
-        await super().execute(ctx, hooks=hooks)

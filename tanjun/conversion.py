@@ -1385,9 +1385,15 @@ def to_color(argument: _ArgumentT, /) -> hikari.Color:
     if isinstance(argument, str):
         values = argument.split(" ")
         if all(value.isdigit() for value in values):
-            return hikari.Color.of(*map(int, values))
+            if len(values) == 1:
+                return hikari.Color.of(int(values[0]))
 
-        return hikari.Color.of(*values)
+            return hikari.Color.of(list(map(int, values)))
+
+        if len(values) == 1:
+            return hikari.Color.of(values[0])
+
+        raise ValueError("Not a valid color representation")
 
     return hikari.Color.of(argument)
 

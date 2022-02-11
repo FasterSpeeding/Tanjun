@@ -135,8 +135,11 @@ __all__: list[str] = [
     "commands",
     "as_message_command",
     "as_message_command_group",
+    "as_message_menu",
+    "as_user_menu",
     "as_slash_command",
     "slash_command_group",
+    "MenuCommand",
     "MessageCommand",
     "MessageCommandGroup",
     "SlashCommand",
@@ -244,13 +247,16 @@ from .clients import Client
 from .clients import MessageAcceptsEnum
 from .clients import as_loader
 from .clients import as_unloader
+from .commands import MenuCommand
 from .commands import MessageCommand
 from .commands import MessageCommandGroup
 from .commands import SlashCommand
 from .commands import SlashCommandGroup
 from .commands import as_message_command
 from .commands import as_message_command_group
+from .commands import as_message_menu
 from .commands import as_slash_command
+from .commands import as_user_menu
 from .commands import slash_command_group
 from .commands import with_bool_slash_option
 from .commands import with_channel_slash_option
@@ -323,4 +329,4 @@ __email__: typing.Final[str] = "lucina@lmbyrne.dev"
 __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/issues"
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
-__version__: typing.Final[str] = "2.3.2a1"
+__version__: typing.Final[str] = "2.4.0a1"

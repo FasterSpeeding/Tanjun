@@ -44,6 +44,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun.context import base as base_context
 
 
 @pytest.mark.parametrize(
@@ -85,7 +86,7 @@ async def test__get_ctx_target_when_parent_channel_and_cache_result(channel: moc
 async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_channel(channel: mock.Mock, result: int):
     mock_cache = mock.AsyncMock()
     mock_cache.get.return_value = channel
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
     mock_context.get_type_dependency.return_value = mock_cache
 
@@ -109,7 +110,7 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_chan
 async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_none_falls_back_to_rest(
     channel: mock.Mock, result: int
 ):
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
     mock_cache = mock.AsyncMock()
@@ -136,7 +137,7 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_none
 async def test__get_ctx_target_when_parent_channel_and_no_async_cache_falls_back_to_rest(
     channel: mock.Mock, result: int
 ):
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
     mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
@@ -167,7 +168,7 @@ async def test__get_ctx_target_when_top_role():
         mock.Mock(id=4354, position=0),
         mock.Mock(id=4123, position=11),
     ]
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=mock_roles)
     mock_context.member.fetch_roles = mock.AsyncMock()
@@ -181,7 +182,7 @@ async def test__get_ctx_target_when_top_role():
 
 @pytest.mark.asyncio()
 async def test__get_ctx_target_when_top_role_and_async_cache():
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.member.role_ids = [674345, 123876, 7643, 9999999]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_cache = mock.AsyncMock()
@@ -210,7 +211,7 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest_when_async_cache
         mock.Mock(id=111, position=0),
         mock.Mock(id=4123, position=6959),
     ]
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.member.role_ids = [123, 312, 654]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
@@ -235,7 +236,7 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
         mock.Mock(id=111, position=0),
         mock.Mock(id=4123, position=6959),
     ]
-    mock_context = mock.Mock(tanjun.context.BaseContext)
+    mock_context = mock.Mock(base_context.BaseContext)
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
