@@ -1881,21 +1881,15 @@
             <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
             <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span>
         <span class="p">)</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="n">argument</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
             <span class="n">argument</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
 
-        <span class="n">found_final_argument</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">found_final_argument</span><span class="p">:</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">argument_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">argument_</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument_</span><span class="o">.</span><span class="n">is_greedy</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multi or greedy argument must be the last argument&quot;</span><span class="p">)</span>
-
-            <span class="n">found_final_argument</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -3743,21 +3737,15 @@ this parameter (with each entry being converted separately.)</p>
             <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
             <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span>
         <span class="p">)</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="n">argument</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
             <span class="n">argument</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
 
-        <span class="n">found_final_argument</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">found_final_argument</span><span class="p">:</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">argument_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">argument_</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument_</span><span class="o">.</span><span class="n">is_greedy</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multi or greedy argument must be the last argument&quot;</span><span class="p">)</span>
-
-            <span class="n">found_final_argument</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -4021,21 +4009,15 @@ this parameter (with each entry being converted separately.)</p>
             <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
             <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span>
         <span class="p">)</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="n">argument</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
             <span class="n">argument</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
 
-        <span class="n">found_final_argument</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">found_final_argument</span><span class="p">:</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">argument_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">argument_</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument_</span><span class="o">.</span><span class="n">is_greedy</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multi or greedy argument must be the last argument&quot;</span><span class="p">)</span>
-
-            <span class="n">found_final_argument</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
