@@ -7,7 +7,6 @@ on:
 
 jobs:
   publish-docs:
-    needs: verify-version
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +55,6 @@ jobs:
           SKIP_EMPTY_COMMITS: true
 
   publish:
-    needs: verify-version
     runs-on: ubuntu-latest
 
     steps:
