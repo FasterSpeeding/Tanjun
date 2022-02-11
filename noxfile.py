@@ -55,41 +55,6 @@ def _try_find_option(session: nox.Session, name: str, *other_names: str, when_em
             return next(args_iter, when_empty)
 
 
-@nox.session(name="check-versions")
-def check_versions(session: nox.Session) -> None:
-    """Check that the version numbers declared for this project all match up."""
-    import httpx
-
-    # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
-    with httpx.Client() as client:
-        requirements = client.get(
-            "https://gist.githubusercontent.com/FasterSpeeding/139801789f00d15b4aa8ed2598fb524e/raw/requirements.json"
-        ).json()
-
-        # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
-        code = client.get(
-            "https://gist.githubusercontent.com/FasterSpeeding/139801789f00d15b4aa8ed2598fb524e/raw/check_versions.py"
-        ).read()
-
-    session.install(".", "--use-feature=in-tree-build")
-    session.install(*requirements)
-    # This is saved to a temporary file to avoid the source showing up in any of the output.
-
-    # A try, finally is used to delete the file rather than relying on delete=True behaviour
-    # as on Windows the file cannot be accessed by other processes if delete is True.
-    file = tempfile.NamedTemporaryFile(delete=False)
-    try:
-        with file:
-            file.write(code)
-
-        required_version = _try_find_option(session, "--required-version", "-r")
-        args = ["--required-version", required_version] if required_version else []
-        session.run("python", file.name, "-r", "tanjun", *args)
-
-    finally:
-        pathlib.Path(file.name).unlink(missing_ok=False)
-
-
 @nox.session(venv_backend="none")
 def cleanup(session: nox.Session) -> None:
     """Cleanup any temporary files made in this project by its nox tasks."""
