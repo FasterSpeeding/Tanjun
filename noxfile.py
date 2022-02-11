@@ -156,9 +156,6 @@ def build(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def publish(session: nox.Session, test: bool = False) -> None:
     """Publish this project to pypi."""
-    if not _try_find_option(session, "--skip-version-check", when_empty="true"):
-        check_versions(session)
-
     session.install("flit")
 
     env: dict[str, str] = {}
