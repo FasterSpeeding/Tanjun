@@ -480,8 +480,8 @@ class TestComponent:
         with pytest.raises(
             ValueError,
             match=(
-                f"Unexpected object passed, expected a MenuCommand, MessageCommand"
-                " or BaseSlashCommand but got {type(mock_command)}"
+                "Unexpected object passed, expected a MenuCommand, MessageCommand"
+                f" or BaseSlashCommand but got {type(mock_command)}"
             ),
         ):
             component.add_command(mock_command)
