@@ -97,7 +97,7 @@ if typing.TYPE_CHECKING:
                 ]
             ] = None,
             on_not_found: typing.Optional[
-                collections.Callable[[context.slash.AppCommandContext], collections.Awaitable[None]]
+                collections.Callable[[tanjun_abc.MenuContext], collections.Awaitable[None]]
             ] = None,
         ) -> context.MenuContext:
             raise NotImplementedError
@@ -129,7 +129,7 @@ if typing.TYPE_CHECKING:
                 ]
             ] = None,
             on_not_found: typing.Optional[
-                collections.Callable[[context.slash.AppCommandContext], collections.Awaitable[None]]
+                collections.Callable[[tanjun_abc.SlashContext], collections.Awaitable[None]]
             ] = None,
         ) -> context.SlashContext:
             raise NotImplementedError
@@ -463,9 +463,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_events",
         "_grab_mention_prefix",
         "_hooks",
-        "_interaction_not_found",
         "_menu_hooks",
+        "_menu_not_found",
         "_slash_hooks",
+        "_slash_not_found",
         "_is_closing",
         "_listeners",
         "_loop",
@@ -628,9 +629,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
-        self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._menu_hooks: typing.Optional[tanjun_abc.MenuHooks] = None
+        self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
+        self._slash_not_found: typing.Optional[str] = self._menu_not_found
         self._is_closing = False
         self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
@@ -1389,7 +1391,39 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         message : str | None
             The message to respond with when an interaction command isn't found.
         """
-        self._interaction_not_found = message
+        return self.set_menu_not_found(message).set_slash_not_found(message)
+
+    def set_menu_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
+        """Set the response message for when a menu command is not found.
+
+
+        .. warning::
+            Setting this to `None` may lead to unexpected behaviour (especially
+            when the client is still set to auto-defer interactions) and should
+            only be done if you know what you're doing.
+
+        Parameters
+        ----------
+        message : str | None
+            The message to respond with when a menu command isn't found.
+        """
+        self._menu_not_found = message
+        return self
+
+    def set_slash_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
+        """Set the response message for when a slash command is not found.
+
+        .. warning::
+            Setting this to `None` may lead to unexpected behaviour (especially
+            when the client is still set to auto-defer interactions) and should
+            only be done if you know what you're doing.
+
+        Parameters
+        ----------
+        message : str | None
+            The message to respond with when a slash command isn't found.
+        """
+        self._slash_not_found = message
         return self
 
     def set_message_accepts(self: _ClientT, accepts: MessageAcceptsEnum, /) -> _ClientT:
@@ -2465,10 +2499,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return hooks
 
-    async def _on_slash_not_found(self, ctx: context.slash.AppCommandContext) -> None:
+    async def _on_menu_not_found(self, ctx: tanjun_abc.MenuContext) -> None:
+        await self.dispatch_client_callback(ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
+        if self._menu_not_found and not ctx.has_responded:
+            await ctx.create_initial_response(self._menu_not_found)
+
+    async def _on_slash_not_found(self, ctx: tanjun_abc.SlashContext) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
-        if self._interaction_not_found and not ctx.has_responded:
-            await ctx.create_initial_response(self._interaction_not_found)
+        if self._slash_not_found and not ctx.has_responded:
+            await ctx.create_initial_response(self._slash_not_found)
 
     async def on_gateway_autocomplete_create(self, interaction: hikari.AutocompleteInteraction, /) -> None:
         """Execute command autocomplete based on a received gateway interaction create.
@@ -2507,7 +2546,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 client=self,
                 injection_client=self,
                 interaction=interaction,
-                on_not_found=self._on_slash_not_found,
+                on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
             hooks = self._get_menu_hooks()
@@ -2627,7 +2666,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 client=self,
                 injection_client=self,
                 interaction=interaction,
-                on_not_found=self._on_slash_not_found,
+                on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
             )

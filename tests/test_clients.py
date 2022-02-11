@@ -530,6 +530,23 @@ class TestClient:
     def test_set_hikari_trait_injectors(self):
         ...
 
+    def test_set_interaction_not_found(self):
+        mock_set_menu_not_found = mock.Mock()
+        mock_set_slash_not_found = mock.Mock()
+        mock_message = mock.Mock()
+
+        class Client(tanjun.Client):
+            set_menu_not_found = mock_set_menu_not_found
+            set_slash_not_found = mock_set_slash_not_found
+
+        client = Client(mock.Mock())
+
+        result = client.set_interaction_not_found(mock_message)
+
+        assert result is client
+        mock_set_menu_not_found.assert_called_once_with(mock_message)
+        mock_set_slash_not_found.assert_called_once_with(mock_message)
+
     def test_set_metadata(self):
         client = tanjun.Client(mock.Mock())
         key = mock.Mock()
@@ -3247,6 +3264,51 @@ class TestClient:
     # Interaction create event
 
     @pytest.mark.asyncio()
+    async def test__on_menu_not_found(self):
+        dispatch_client_callback_ = mock.AsyncMock()
+
+        class StubClient(tanjun.Client):
+            dispatch_client_callback = dispatch_client_callback_
+
+        client = StubClient(mock.AsyncMock).set_menu_not_found("gay")
+        ctx = mock.AsyncMock(has_responded=False)
+
+        await client._on_menu_not_found(ctx)
+
+        ctx.create_initial_response.assert_awaited_once_with("gay")
+        dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
+
+    @pytest.mark.asyncio()
+    async def test__on_menu_not_found_when_already_responded(self):
+        dispatch_client_callback_ = mock.AsyncMock()
+
+        class StubClient(tanjun.Client):
+            dispatch_client_callback = dispatch_client_callback_
+
+        client = StubClient(mock.AsyncMock).set_menu_not_found("gay")
+        ctx = mock.AsyncMock(has_responded=True)
+
+        await client._on_menu_not_found(ctx)
+
+        ctx.create_initial_response.assert_not_called()
+        dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
+
+    @pytest.mark.asyncio()
+    async def test__on_menu_not_found_when_not_found_messages_disabled(self):
+        dispatch_client_callback_ = mock.AsyncMock()
+
+        class StubClient(tanjun.Client):
+            dispatch_client_callback = dispatch_client_callback_
+
+        client = StubClient(mock.AsyncMock).set_menu_not_found(None)
+        ctx = mock.AsyncMock(has_responded=False)
+
+        await client._on_menu_not_found(ctx)
+
+        ctx.create_initial_response.assert_not_called()
+        dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
+
+    @pytest.mark.asyncio()
     async def test__on_slash_not_found(self):
         dispatch_client_callback_ = mock.AsyncMock()
 
@@ -3919,7 +3981,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -3971,7 +4033,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=True,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4017,7 +4079,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_not_called()
@@ -4066,7 +4128,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4111,7 +4173,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4160,7 +4222,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4206,7 +4268,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4252,7 +4314,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4290,7 +4352,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4332,7 +4394,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4378,7 +4440,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
@@ -4424,7 +4486,7 @@ class TestClient:
             client=command_dispatch_client,
             injection_client=command_dispatch_client,
             interaction=mock_interaction,
-            on_not_found=command_dispatch_client._on_slash_not_found,
+            on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)

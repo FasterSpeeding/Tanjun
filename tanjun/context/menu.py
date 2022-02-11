@@ -60,7 +60,7 @@ _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandTy
 class MenuContext(slash.AppCommandContext, abc.MenuContext):
     """Standard menu command execution context."""
 
-    __slots__ = ("_command",)
+    __slots__ = ("_command", "_marked_not_found", "_on_not_found")
 
     def __init__(
         self,
@@ -70,19 +70,14 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[
-            collections.Callable[[slash.AppCommandContext], collections.Awaitable[None]]
-        ] = None,
+        on_not_found: typing.Optional[collections.Callable[[abc.MenuContext], collections.Awaitable[None]]] = None,
     ) -> None:
         super().__init__(
-            client,
-            injection_client,
-            interaction,
-            default_to_ephemeral=default_to_ephemeral,
-            future=future,
-            on_not_found=on_not_found,
+            client, injection_client, interaction, default_to_ephemeral=default_to_ephemeral, future=future
         )
         self._command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None
+        self._marked_not_found = False
+        self._on_not_found = on_not_found
         self._set_type_special_case(abc.MenuContext, self)._set_type_special_case(MenuContext, self)
 
     @property
@@ -121,6 +116,13 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.command_type in _VALID_TYPES
         return self._interaction.command_type
+
+    async def mark_not_found(self) -> None:
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
+        # TODO: assert not finalised?
+        if self._on_not_found and not self._marked_not_found:
+            self._marked_not_found = True
+            await self._on_not_found(self)
 
     def set_command(
         self: _MenuContextT, command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]], /

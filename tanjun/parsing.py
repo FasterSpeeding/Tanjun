@@ -571,6 +571,7 @@ def with_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
+
 @typing.overload
 def with_argument(
     key: str,
@@ -613,7 +614,6 @@ def with_argument(
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
-
 
 
 def with_argument(
@@ -964,6 +964,7 @@ def with_option(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
+
 @typing.overload
 def with_option(
     key: str,
@@ -1009,7 +1010,6 @@ def with_option(
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
-
 
 
 # TODO: add default getter
