@@ -393,15 +393,44 @@ class TestComponent:
         assert result is mock_callback
         add_client_callback.assert_called_once_with("aye", mock_callback)
 
-    def test_add_command_for_message_command(self):
-        mock_command = mock.Mock(tanjun.abc.MessageCommand)
+    def test_add_command_for_menu_command(self):
+        mock_command = mock.Mock(tanjun.abc.MenuCommand)
         add_slash_command = mock.Mock()
+        add_menu_command = mock.Mock()
         add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update(
-                {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
+                {
+                    "add_menu_command": add_menu_command,
+                    "add_message_command": add_message_command,
+                    "add_slash_command": add_slash_command,
+                }
+            ),
+        )()
+
+        result = component.add_command(mock_command)
+
+        assert result is component
+        add_message_command.assert_not_called()
+        add_menu_command.assert_called_once_with(mock_command)
+        add_slash_command.assert_not_called()
+
+    def test_add_command_for_message_command(self):
+        mock_command = mock.Mock(tanjun.abc.MessageCommand)
+        add_slash_command = mock.Mock()
+        add_menu_command = mock.Mock()
+        add_message_command = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update(
+                {
+                    "add_menu_command": add_menu_command,
+                    "add_message_command": add_message_command,
+                    "add_slash_command": add_slash_command,
+                }
             ),
         )()
 
@@ -410,16 +439,22 @@ class TestComponent:
         assert result is component
         add_message_command.assert_called_once_with(mock_command)
         add_slash_command.assert_not_called()
+        add_menu_command.assert_not_called()
 
     def test_add_command_for_slash_command(self):
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         add_slash_command = mock.Mock()
+        add_menu_command = mock.Mock()
         add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update(
-                {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
+                {
+                    "add_menu_command": add_menu_command,
+                    "add_message_command": add_message_command,
+                    "add_slash_command": add_slash_command,
+                }
             ),
         )()
 
@@ -428,6 +463,7 @@ class TestComponent:
         assert result is component
         add_slash_command.assert_called_once_with(mock_command)
         add_message_command.assert_not_called()
+        add_menu_command.assert_not_called()
 
     def test_add_command_for_unknown_type(self):
         mock_command = mock.Mock()
@@ -443,7 +479,10 @@ class TestComponent:
 
         with pytest.raises(
             ValueError,
-            match=f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(mock_command)}",
+            match=(
+                f"Unexpected object passed, expected a MenuCommand, MessageCommand"
+                " or BaseSlashCommand but got {type(mock_command)}"
+            ),
         ):
             component.add_command(mock_command)
 
@@ -530,6 +569,88 @@ class TestComponent:
 
         assert result is mock_command.copy.return_value
         add_command.assert_called_once_with(mock_command.copy.return_value)
+        mock_command.copy.assert_called_once_with()
+
+    def test_add_menu_command(self):
+        mock_command = mock.Mock(type=hikari.CommandType.USER)
+        mock_command.name = "Ok"
+        mock_other_command = mock.Mock(type=hikari.CommandType.MESSAGE)
+        mock_other_command.name = "Ok"
+        mock_3rd_command = mock.Mock(type=hikari.CommandType.MESSAGE)
+        mock_3rd_command.name = "yeet"
+        mock_old_command = mock.Mock(type=hikari.CommandType.USER)
+        mock_old_command.name = "Ok"
+        component = tanjun.Component().add_menu_command(mock_old_command)
+
+        result = (
+            component.add_menu_command(mock_command)
+            .add_menu_command(mock_other_command)
+            .add_menu_command(mock_3rd_command)
+        )
+
+        assert list(result.menu_commands) == [mock_command, mock_other_command, mock_3rd_command]
+
+    def test_add_menu_command_when_bound_to_a_client(self):
+        mock_command = mock.Mock()
+        mock_command.name = "gay"
+        mock_client = mock.Mock()
+        component = tanjun.Component().bind_client(mock_client)
+
+        result = component.add_menu_command(mock_command)
+
+        assert result is component
+        assert mock_command in component.menu_commands
+        mock_command.bind_component.assert_called_once_with(component)
+        mock_command.bind_client.assert_called_once_with(mock_client)
+
+    def test_remove_menu_command(self):
+        mock_command = mock.Mock(type=hikari.CommandType.USER)
+        mock_command.name = "42231"
+        mock_other_command = mock.Mock(type=hikari.CommandType.MESSAGE)
+        mock_other_command.name = "42231"
+        component = tanjun.Component().add_menu_command(mock_command).add_menu_command(mock_other_command)
+
+        result = component.remove_menu_command(mock_command)
+
+        assert result is component
+        assert mock_command not in component.menu_commands
+        assert mock_other_command in component.menu_commands
+
+    def test_remove_menu_command_when_not_found(self):
+        mock_command = mock.Mock()
+        mock_command.name = "42231"
+
+        with pytest.raises(ValueError, match=".+"):
+            tanjun.Component().remove_menu_command(mock_command)
+
+    def test_with_menu_command(self):
+        mock_command = mock.Mock()
+        add_menu_command = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_menu_command": add_menu_command}),
+        )()
+
+        result = component.with_menu_command(mock_command)
+
+        assert result is mock_command
+        add_menu_command.assert_called_once_with(mock_command)
+        mock_command.copy.assert_not_called()
+
+    def test_with_menu_command_when_copy(self):
+        mock_command = mock.Mock()
+        add_menu_command = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_menu_command": add_menu_command}),
+        )()
+
+        result = component.with_menu_command(copy=True)(mock_command)
+
+        assert result is mock_command.copy.return_value
+        add_menu_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
     def test_add_slash_command(self):
@@ -1103,12 +1224,20 @@ class TestComponent:
         assert list(tanjun.Component().add_slash_command(mock.Mock()).check_slash_name("a")) == []
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_interaction(self):
+    def test_execute_autocomplete(self):
+        ...  # includes _execute_interaction, and _check_context
+
+    @pytest.mark.skip(reason="TODO")
+    def test_execute_menu(self):
         ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
     def test_execute_message(self):
         ...  # Includes _check_message_context and _check_context
+
+    @pytest.mark.skip(reason="TODO")
+    def test_execute_slash(self):
+        ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
     def test__load_from_properties(self):

@@ -196,8 +196,6 @@ and either `tanjun.abc.User` | `tanjun.abc.InteractionMember` and/or
 """
 
 _MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound=MenuCommandCallbackSig)
-
-
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )

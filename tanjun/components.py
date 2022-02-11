@@ -58,7 +58,7 @@ from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari.events import base_events
+    import hikari
 
     from . import schedules
 
@@ -149,10 +149,6 @@ class _ComponentManager(tanjun_abc.ClientLoader):
         return True
 
 
-async def _empty_coro() -> None:
-    return None
-
-
 # TODO: do we want to setup a custom equality and hash here to make it easier to unload components?
 class Component(tanjun_abc.Component):
     """Standard implementation of `tanjun.abc.Component`.
@@ -211,9 +207,9 @@ class Component(tanjun_abc.Component):
         self._defaults_to_ephemeral: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
         self._is_strict = strict
-        self._listeners: dict[type[base_events.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
+        self._listeners: dict[type[hikari.Event], list[tanjun_abc.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
-        self._menu_commands: dict[str, tanjun_abc.MenuCommand[typing.Any, typing.Any]] = {}
+        self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun_abc.MenuCommand[typing.Any, typing.Any]] = {}
         self._menu_hooks: typing.Optional[tanjun_abc.MenuHooks] = None
         self._message_commands: list[tanjun_abc.MessageCommand[typing.Any]] = []
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
@@ -302,7 +298,7 @@ class Component(tanjun_abc.Component):
     @property
     def listeners(
         self,
-    ) -> collections.Mapping[type[base_events.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return utilities.CastedView(self._listeners, lambda x: x.copy())
 
@@ -692,7 +688,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand[typing.Any]
+        command : tanjun.abc.ExecutableCommand
             The command to add.
 
         Returns
@@ -706,9 +702,13 @@ class Component(tanjun_abc.Component):
         elif isinstance(command, tanjun_abc.BaseSlashCommand):
             self.add_slash_command(command)
 
+        elif isinstance(command, tanjun_abc.MenuCommand):
+            self.add_menu_command(command)
+
         else:
             raise ValueError(
-                f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
+                "Unexpected object passed, expected a MenuCommand, "
+                f"MessageCommand or BaseSlashCommand but got {type(command)}"
             )
 
         return self
@@ -718,7 +718,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand[typing.Any]
+        command : tanjun.abc.ExecutableCommand
             The command to remove.
 
         Returns
@@ -792,8 +792,8 @@ class Component(tanjun_abc.Component):
 
     def add_menu_command(self: _ComponentT, command: tanjun_abc.MenuCommand[typing.Any, typing.Any], /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
-        name = command.name.casefold()
-        if self._menu_commands.get(name) == command:
+        key = (command.type, command.name.casefold())
+        if self._menu_commands.get(key) == command:
             return self
 
         command.bind_component(self)
@@ -801,7 +801,7 @@ class Component(tanjun_abc.Component):
         if self._client:
             command.bind_client(self._client)
 
-        self._menu_commands[name] = command
+        self._menu_commands[key] = command
         return self
 
     def remove_menu_command(
@@ -809,7 +809,7 @@ class Component(tanjun_abc.Component):
     ) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         try:
-            del self._menu_commands[command.name.casefold()]
+            del self._menu_commands[(command.type, command.name.casefold())]
         except KeyError:
             raise ValueError(f"Command {command.name} not found") from None
 
@@ -938,7 +938,7 @@ class Component(tanjun_abc.Component):
         return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
-        self: _ComponentT, event: type[base_events.Event], listener: tanjun_abc.ListenerCallbackSig, /
+        self: _ComponentT, event: type[hikari.Event], listener: tanjun_abc.ListenerCallbackSig, /
     ) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         try:
@@ -956,7 +956,7 @@ class Component(tanjun_abc.Component):
         return self
 
     def remove_listener(
-        self: _ComponentT, event: type[base_events.Event], listener: tanjun_abc.ListenerCallbackSig, /
+        self: _ComponentT, event: type[hikari.Event], listener: tanjun_abc.ListenerCallbackSig, /
     ) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         self._listeners[event].remove(listener)
@@ -970,7 +970,7 @@ class Component(tanjun_abc.Component):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: type[base_events.Event]
+        self, event_type: type[hikari.Event]
     ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         def decorator(callback: tanjun_abc.ListenerCallbackSigT) -> tanjun_abc.ListenerCallbackSigT:
@@ -1217,11 +1217,8 @@ class Component(tanjun_abc.Component):
         hooks: typing.Optional[collections.MutableSet[tanjun_abc.MenuHooks]] = None,
     ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        command = self._menu_commands.get(ctx.interaction.command_name)
+        command = self._menu_commands.get((ctx.type, ctx.interaction.command_name))
         if command:
-            if command.type is not ctx.type:
-                return _empty_coro()
-
             if command.defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(command.defaults_to_ephemeral)
 
