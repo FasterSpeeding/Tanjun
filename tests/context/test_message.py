@@ -83,8 +83,6 @@ class TestMessageContext:
             mock_injector_client,
             "hi there",
             mock.AsyncMock(),
-            command=mock.Mock(),
-            component=mock.Mock(),
             triggering_name="bonjour",
             triggering_prefix="bonhoven",
         )
@@ -144,7 +142,6 @@ class TestMessageContext:
         assert context.command is mock_command
         assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
-        assert context.get_type_dependency(type(mock_command)) is mock_command
 
     def test_set_command_when_none(self, context: tanjun.context.MessageContext, mock_injector_client: mock.Mock):
         mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
@@ -166,7 +163,6 @@ class TestMessageContext:
         assert context.command is None
         assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()

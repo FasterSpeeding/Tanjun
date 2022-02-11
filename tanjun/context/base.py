@@ -57,19 +57,13 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         self,
         client: tanjun_abc.Client,
         injection_client: injecting.InjectorClient,
-        *,
-        component: typing.Optional[tanjun_abc.Component] = None,
     ) -> None:
         # injecting.BasicInjectionContext.__init__
         super().__init__(injection_client)
         self._client = client
-        self._component = component
+        self._component: typing.Optional[tanjun_abc.Component] = None
         self._final = False
-        (
-            self._set_type_special_case(tanjun_abc.Context, self)
-            ._set_type_special_case(BaseContext, self)
-            ._set_type_special_case(type(self), self)
-        )
+        self._set_type_special_case(tanjun_abc.Context, self)
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -144,13 +138,10 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         # <<inherited docstring from tanjun.abc.Context>>.
         self._assert_not_final()
         if component:
-            self._set_type_special_case(tanjun_abc.Component, component)._set_type_special_case(
-                type(component), component
-            )
+            self._set_type_special_case(tanjun_abc.Component, component)
 
-        elif component_case := self._special_case_types.get(tanjun_abc.Component):
+        elif self._component:
             self._remove_type_special_case(tanjun_abc.Component)
-            self._remove_type_special_case(type(component_case))
 
         self._component = component
         return self

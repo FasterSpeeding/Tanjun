@@ -34,7 +34,6 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
-import typing
 from unittest import mock
 
 import hikari
@@ -58,16 +57,10 @@ class TestMenuContext:
     ) -> tanjun.context.MenuContext:
         return tanjun.context.MenuContext(mock_client, mock_client, mock_interaction)
 
-    @pytest.mark.parametrize("command", [None, mock.Mock()])
-    def test_command_property(
-        self,
-        mock_client: tanjun.Client,
-        mock_interaction: hikari.CommandInteraction,
-        command: typing.Optional[tanjun.abc.MenuCommand[typing.Any, typing.Any]],
-    ):
-        context = tanjun.context.MenuContext(mock_client, mock_client, mock_interaction, command=command)
+    def test_command_property(self, mock_client: tanjun.Client, mock_interaction: hikari.CommandInteraction):
+        context = tanjun.context.MenuContext(mock_client, mock_client, mock_interaction)
 
-        assert context.command is command
+        assert context.command is None
 
     def test_target_id_property_when_user_menu(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction

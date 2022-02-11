@@ -68,8 +68,6 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
-        command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None,
-        component: typing.Optional[abc.Component] = None,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[
@@ -80,12 +78,12 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
             client,
             injection_client,
             interaction,
-            component=component,
             default_to_ephemeral=default_to_ephemeral,
             future=future,
             on_not_found=on_not_found,
         )
-        self._command = command
+        self._command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None
+        self._set_type_special_case(abc.MenuContext, self)._set_type_special_case(MenuContext, self)
 
     @property
     def command(self) -> typing.Optional[abc.MenuCommand[typing.Any, typing.Any]]:
@@ -128,6 +126,12 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         self: _MenuContextT, command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]], /
     ) -> _MenuContextT:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
+        if command:
+            self._set_type_special_case(abc.MenuCommand, command)
+
+        elif self._command:
+            self._remove_type_special_case(abc.MenuContext)
+
         self._command = command
         return self
 

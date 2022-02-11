@@ -79,16 +79,14 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         content: str,
         message: hikari.Message,
         *,
-        command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
-        component: typing.Optional[tanjun_abc.Component] = None,
         triggering_name: str = "",
         triggering_prefix: str = "",
     ) -> None:
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 
-        super().__init__(client, injection_client, component=component)
-        self._command = command
+        super().__init__(client, injection_client)
+        self._command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None
         self._content = content
         self._initial_response_id: typing.Optional[hikari.Snowflake] = None
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
@@ -166,19 +164,18 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
     ) -> _MessageContextT:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
-        self._command = command
         if command:
-            (
-                self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
-                ._set_type_special_case(tanjun_abc.MessageCommand, command)
-                ._set_type_special_case(type(command), command)
+            # TODO: command group?
+            self._set_type_special_case(tanjun_abc.ExecutableCommand, command)._set_type_special_case(
+                tanjun_abc.MessageCommand, command
             )
 
-        elif command_case := self._special_case_types.get(tanjun_abc.ExecutableCommand):
-            self._remove_type_special_case(tanjun_abc.ExecutableCommand)
-            self._remove_type_special_case(tanjun_abc.MessageCommand)  # TODO: command group?
-            self._remove_type_special_case(type(command_case))
+        elif self._command:
+            self._remove_type_special_case(tanjun_abc.ExecutableCommand)._remove_type_special_case(
+                tanjun_abc.MessageCommand
+            )
 
+        self._command = command
         return self
 
     def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:

@@ -101,7 +101,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
 
         assert focused is not None
         self._focused = focused
-        # TODO: self._set_type_special_case
+        self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(abc.AutocompleteContext, self)
 
     @property
     def author(self) -> hikari.User:

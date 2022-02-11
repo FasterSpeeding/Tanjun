@@ -90,8 +90,6 @@ if typing.TYPE_CHECKING:
             injection_client: injecting.InjectorClient,
             interaction: hikari.CommandInteraction,
             *,
-            command: typing.Optional[tanjun_abc.MenuCommand[typing.Any, typing.Any]] = None,
-            component: typing.Optional[tanjun_abc.Component] = None,
             default_to_ephemeral: bool = False,
             future: typing.Optional[
                 asyncio.Future[
@@ -112,8 +110,6 @@ if typing.TYPE_CHECKING:
             content: str,
             message: hikari.Message,
             *,
-            command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
-            component: typing.Optional[tanjun_abc.Component] = None,
             triggering_name: str = "",
             triggering_prefix: str = "",
         ) -> context.MessageContext:
@@ -126,8 +122,6 @@ if typing.TYPE_CHECKING:
             injection_client: injecting.InjectorClient,
             interaction: hikari.CommandInteraction,
             *,
-            command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
-            component: typing.Optional[tanjun_abc.Component] = None,
             default_to_ephemeral: bool = False,
             future: typing.Optional[
                 asyncio.Future[
@@ -565,7 +559,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand]] | None
-            If provided, a mapping of top level command names to IDs of the commands to update.
+            If provided, a mapping of top level command names to IDs of the
+            existing commands to update.
+
+            This will be used for all application commands but in cases where
+            commands have overlapping names, `message_ids` and `user_ids` will
+            take priority over this for their relevant command type.
 
             This field is complementary to `declare_global_commands` and, while it
             isn't necessarily required, this will in some situations help avoid
@@ -574,6 +573,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
 
         Raises
         ------
@@ -807,6 +812,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
         """  # noqa: E501 - line too long
         return (
             cls(
@@ -872,7 +883,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.PartialCommand] | None
-            If provided, a mapping of top level command names to IDs of the commands to update.
+            If provided, a mapping of top level command names to IDs of the
+            existing commands to update.
+
+            This will be used for all application commands but in cases where
+            commands have overlapping names, `message_ids` and `user_ids` will
+            take priority over this for their relevant command type.
 
             This field is complementary to `declare_global_commands` and, while it
             isn't necessarily required, this will in some situations help avoid
@@ -881,6 +897,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
         """  # noqa: E501 - line too long
         return cls(
             rest=bot.rest,

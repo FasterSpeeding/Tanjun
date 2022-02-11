@@ -3803,6 +3803,8 @@ class Client(abc.ABC):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Set the global application commands for a bot based on the loaded components.
@@ -3823,7 +3825,12 @@ class Client(abc.ABC):
         Other Parameters
         ----------------
         command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
-            If provided, a mapping of top level command names to IDs of the existing commands to update.
+            If provided, a mapping of top level command names to IDs of the
+            existing commands to update.
+
+            This will be used for all application commands but in cases where
+            commands have overlapping names, `message_ids` and `user_ids` will
+            take priority over this for their relevant command type.
         application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
             Object or ID of the application to set the global commands for.
 
@@ -3833,6 +3840,12 @@ class Client(abc.ABC):
             Object or ID of the guild to set the global commands to.
 
             If left as `None` global commands will be set.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
         force : bool
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
@@ -3937,6 +3950,8 @@ class Client(abc.ABC):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Declare a collection of slash commands for a bot.
@@ -3954,7 +3969,12 @@ class Client(abc.ABC):
         Other Parameters
         ----------------
         command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
-            If provided, a mapping of top level command names to IDs of the existing commands to update.
+            If provided, a mapping of top level command names to IDs of the
+            existing commands to update.
+
+            This will be used for all application commands but in cases where
+            commands have overlapping names, `message_ids` and `user_ids` will
+            take priority over this for their relevant command type.
 
             While optional, this can be helpful when updating commands as
             providing the current IDs will prevent changes such as renames from
@@ -3969,6 +3989,12 @@ class Client(abc.ABC):
             Object or ID of the guild to register the commands with.
 
             If left as `None` then the commands will be registered globally.
+        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of message context menu command names to the
+            IDs of existing commands to update.
+        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If provided, a mapping of user context menu command names to the IDs
+            of existing commands to update.
         force : bool
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
