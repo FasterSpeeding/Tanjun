@@ -220,7 +220,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
 
     async def set_choices(
         self,
-        choices: typing.Union[collections.Mapping[str, _ValueT], collections.Iterable[tuple[str, _ValueT]]] = ...,
+        choices: typing.Union[collections.Mapping[str, _ValueT], collections.Iterable[tuple[str, _ValueT]]] = (),
         /,
         **kwargs: _ValueT,
     ) -> None:
@@ -232,6 +232,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
         if len(choices) > 25:
             raise ValueError("Cannot set more than 25 choices")
 
+        self._has_responded = True
         choice_objects = [hikari.CommandChoice(name=name, value=value) for name, value in choices.items()]
 
         if self._future:

@@ -52,6 +52,11 @@ if typing.TYPE_CHECKING:
     _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 
+_VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]] = frozenset(
+    [hikari.CommandType.USER, hikari.CommandType.MESSAGE]
+)
+
+
 class MenuContext(slash.AppCommandContext, abc.MenuContext):
     """Standard menu command execution context."""
 
@@ -102,7 +107,11 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
     def target(self) -> typing.Union[hikari.InteractionMember, hikari.User, hikari.Message]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
-        mapping = self._interaction.resolved.users or self._interaction.resolved.messages
+        mapping = (
+            self._interaction.resolved.members
+            or self._interaction.resolved.users
+            or self._interaction.resolved.messages
+        )
 
         if not mapping:
             raise RuntimeError("Unknown menu type")
@@ -112,14 +121,8 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
     @property
     def type(self) -> typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
-        assert self._interaction.resolved
-        if self._interaction.resolved.users:
-            return hikari.CommandType.USER
-
-        if self._interaction.resolved.messages:
-            return hikari.CommandType.MESSAGE
-
-        raise NotImplementedError
+        assert self._interaction.command_type in _VALID_TYPES
+        return self._interaction.command_type
 
     def set_command(
         self: _MenuContextT, command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]], /
@@ -146,9 +149,9 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
             if default is not ...:
                 return default
 
-            raise LookupError("User isn't in the current guild") from None
+            raise LookupError("User isn't in the current guild")
 
-        raise TypeError("Cannot resolve user message menu context to a member")
+        raise TypeError("Cannot resolve message menu context to a user")
 
     def resolve_to_message(self) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
@@ -161,7 +164,4 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
     def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
-        if self._interaction.resolved.users:
-            return next(iter(self._interaction.resolved.members.values()))
-
-        raise TypeError("Cannot resolve message menu context to a user")
+        return self.resolve_to_member(default=None) or next(iter(self._interaction.resolved.users.values()))

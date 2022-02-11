@@ -23,8 +23,8 @@ per-file-ignores =
     # Doc errors don't matter in the tests
     tests/*.py:         D100, D104
 
-max-complexity =        20
-max-function-length =   130
+max-complexity =        16
+max-function-length =   100
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length =       130
 show_source =           False
@@ -32,4 +32,3 @@ statistics =            False
 
 accept-encodings =      utf-8
 docstring-convention =  numpy
-

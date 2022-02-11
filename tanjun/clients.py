@@ -416,21 +416,27 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
 
 
 class _StartDeclarer:
-    __slots__ = ("client", "command_ids", "guild_id")
+    __slots__ = ("client", "command_ids", "guild_id", "message_ids", "user_ids")
 
     def __init__(
         self,
         client: Client,
-        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]],
         guild_id: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]],
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
     ) -> None:
         self.client = client
         self.command_ids = command_ids
         self.guild_id = guild_id
+        self.message_ids = message_ids
+        self.user_ids = user_ids
 
     async def __call__(self) -> None:
         try:
-            await self.client.declare_global_commands(self.command_ids, guild=self.guild_id, force=False)
+            await self.client.declare_global_commands(
+                self.command_ids, message_ids=self.message_ids, user_ids=self.user_ids, guild=self.guild_id, force=False
+            )
         finally:
             self.client.remove_client_callback(ClientCallbackNames.STARTING, self)
 
@@ -497,6 +503,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
     ) -> None:
         """Initialise a Tanjun client.
@@ -639,48 +647,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             events.subscribe(hikari.StartingEvent, self._on_starting_event)
             events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
 
-        if set_global_commands:
-            warnings.warn(
-                "The `set_global_commands` argument is deprecated since v2.1.1a1. "
-                "Use `declare_global_commands` instead.",
-                DeprecationWarning,
-                stacklevel=2 + _stack_level,
-            )
-
-        declare_global_commands = declare_global_commands or set_global_commands
-        command_ids = command_ids or {}
-        if isinstance(declare_global_commands, collections.Sequence):
-            if command_ids and len(declare_global_commands) > 1:
-                raise ValueError(
-                    "Cannot provide specific command_ids while automatically "
-                    "declaring commands marked as 'global' in multiple-guilds on startup"
-                )
-
-            for guild in declare_global_commands:
-                _LOGGER.info("Registering startup command declarer for %s guild", guild)
-                self.add_client_callback(ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, guild))
-
-        elif isinstance(declare_global_commands, bool):
-            if declare_global_commands:
-                _LOGGER.info("Registering startup command declarer for global commands")
-                if not command_ids:
-                    _LOGGER.warning(
-                        "No command IDs passed for startup command declarer, this could lead to previously set "
-                        "command permissions being lost when commands are renamed."
-                    )
-
-                self.add_client_callback(
-                    ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, hikari.UNDEFINED)
-                )
-
-            elif command_ids:
-                raise ValueError("Cannot pass command IDs when not declaring global commands")
-
-        else:
-            self.add_client_callback(
-                ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, declare_global_commands)
-            )
-
         (
             self.set_type_dependency(tanjun_abc.Client, self)
             .set_type_dependency(Client, self)
@@ -704,6 +670,71 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
 
         dependencies.set_standard_dependencies(self)
+        self._schedule_startup_registers(
+            set_global_commands, declare_global_commands, command_ids, message_ids=message_ids, user_ids=user_ids
+        )
+
+    def _schedule_startup_registers(
+        self,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        _stack_level: int = 0,
+    ) -> None:
+
+        if set_global_commands:
+            warnings.warn(
+                "The `set_global_commands` argument is deprecated since v2.1.1a1. "
+                "Use `declare_global_commands` instead.",
+                DeprecationWarning,
+                stacklevel=3 + _stack_level,
+            )
+
+        declare_global_commands = declare_global_commands or set_global_commands
+        if isinstance(declare_global_commands, collections.Sequence):
+            if command_ids and len(declare_global_commands) > 1:
+                raise ValueError(
+                    "Cannot provide specific command_ids while automatically "
+                    "declaring commands marked as 'global' in multiple-guilds on startup"
+                )
+
+            for guild in declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for %s guild", guild)
+                self.add_client_callback(
+                    ClientCallbackNames.STARTING,
+                    _StartDeclarer(self, guild, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids),
+                )
+
+        elif isinstance(declare_global_commands, bool):
+            if declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for global commands")
+                if not command_ids and not message_ids and not user_ids:
+                    _LOGGER.warning(
+                        "No command IDs passed for startup command declarer, this could lead to previously set "
+                        "command permissions being lost when commands are renamed."
+                    )
+
+                self.add_client_callback(
+                    ClientCallbackNames.STARTING,
+                    _StartDeclarer(
+                        self, hikari.UNDEFINED, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
+                    ),
+                )
+
+            elif command_ids:
+                raise ValueError("Cannot pass command IDs when not declaring global commands")
+
+        else:
+            self.add_client_callback(
+                ClientCallbackNames.STARTING,
+                _StartDeclarer(
+                    self, hikari.UNDEFINED, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
+                ),
+            )
 
     @classmethod
     def from_gateway_bot(
@@ -718,6 +749,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -787,6 +820,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 declare_global_commands=declare_global_commands,
                 set_global_commands=set_global_commands,
                 command_ids=command_ids,
+                message_ids=message_ids,
+                user_ids=user_ids,
                 _stack_level=1,
             )
             .set_human_only()
@@ -804,6 +839,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -851,6 +888,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             declare_global_commands=declare_global_commands,
             set_global_commands=set_global_commands,
             command_ids=command_ids,
+            message_ids=message_ids,
+            user_ids=user_ids,
             _stack_level=1,
         ).set_hikari_trait_injectors(bot)
 
@@ -1039,6 +1078,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1046,7 +1087,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.iter_slash_commands(global_only=True), self.iter_menu_commands(global_only=True)
         )
         return await self.declare_application_commands(
-            commands, command_ids, application=application, guild=guild, force=force
+            commands,
+            command_ids,
+            application=application,
+            guild=guild,
+            message_ids=message_ids,
+            user_ids=user_ids,
+            force=force,
         )
 
     @typing.overload
@@ -1151,6 +1198,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1165,7 +1214,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 conflicts.add(command.name)
 
             builder = command.build()
-            if command_id := command_ids.get(command.name):
+            command_id = None
+            if builder.type is hikari.CommandType.USER and user_ids:
+                command_id = user_ids.get(command.name)
+
+            elif builder.type is hikari.CommandType.MESSAGE and message_ids:
+                command_id = message_ids.get(command.name)
+
+            if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
 
             builders[command.name] = builder

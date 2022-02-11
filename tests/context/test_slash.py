@@ -472,14 +472,15 @@ class TestSlashOption:
             option.resolve_to_user()
 
 
-class TestSlashContext:
+class TestAppCommandContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.context.SlashContext:
-        return tanjun.context.SlashContext(
+    def context(
+        self, mock_client: mock.Mock, mock_injector_client: mock.Mock
+    ) -> tanjun.context.slash.AppCommandContext:
+        return stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock)(
             mock_client,
             mock_injector_client,
             mock.AsyncMock(options=None),
-            command=mock.Mock(),
             component=mock.Mock(),
         )
 
@@ -527,128 +528,8 @@ class TestSlashContext:
     def test_interaction_property(self, context: tanjun.context.SlashContext):
         assert context.interaction is context._interaction
 
-    @pytest.mark.parametrize("raw_options", [None, []])
-    def test_options_property_when_no_options(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
-    ):
-        context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options),
-            command=mock.Mock(),
-            component=mock.Mock(),
-        )
-
-        assert context.options == {}
-
-    def test_options_property_for_top_level_command(self, mock_client: mock.Mock):
-        mock_option_1 = mock.Mock()
-        mock_option_1.name = "hi"
-        mock_option_2 = mock.Mock()
-        mock_option_2.name = "bye"
-        context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
-            command=mock.Mock(),
-            component=mock.Mock(),
-        )
-
-        assert len(context.options) == 2
-        assert context.options["hi"].type is mock_option_1.type
-        assert context.options["hi"].value is mock_option_1.value
-        assert context.options["hi"].name is mock_option_1.name
-        assert isinstance(context.options["hi"], tanjun.context.SlashOption)
-
-        assert context.options["bye"].type is mock_option_2.type
-        assert context.options["bye"].value is mock_option_2.value
-        assert context.options["bye"].name is mock_option_2.name
-        assert isinstance(context.options["bye"], tanjun.context.SlashOption)
-
-    def test_options_property_for_command_group(self, mock_client: mock.Mock):
-        mock_option_1 = mock.Mock()
-        mock_option_1.name = "kachow"
-        mock_option_2 = mock.Mock()
-        mock_option_2.name = "nyaa"
-        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
-        context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
-            command=mock.Mock(),
-            component=mock.Mock(),
-        )
-
-        assert len(context.options) == 2
-        assert context.options["kachow"].type is mock_option_1.type
-        assert context.options["kachow"].value is mock_option_1.value
-        assert context.options["kachow"].name is mock_option_1.name
-        assert isinstance(context.options["kachow"], tanjun.context.SlashOption)
-
-        assert context.options["nyaa"].type is mock_option_2.type
-        assert context.options["nyaa"].value is mock_option_2.value
-        assert context.options["nyaa"].name is mock_option_2.name
-        assert isinstance(context.options["nyaa"], tanjun.context.SlashOption)
-
-    @pytest.mark.parametrize("raw_options", [None, []])
-    def test_options_property_for_command_group_with_no_sub_option(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
-    ):
-        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
-        context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
-            command=mock.Mock(),
-            component=mock.Mock(),
-        )
-
-        assert context.options == {}
-
-    def test_options_property_for_sub_command_group(self, mock_client: mock.Mock):
-        mock_option_1 = mock.Mock()
-        mock_option_1.name = "meow"
-        mock_option_2 = mock.Mock()
-        mock_option_2.name = "nya"
-        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
-        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-        context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
-            command=mock.Mock(),
-            component=mock.Mock(),
-        )
-
-        assert len(context.options) == 2
-        assert context.options["meow"].type is mock_option_1.type
-        assert context.options["meow"].value is mock_option_1.value
-        assert context.options["meow"].name is mock_option_1.name
-        assert isinstance(context.options["meow"], tanjun.context.SlashOption)
-
-        assert context.options["nya"].type is mock_option_2.type
-        assert context.options["nya"].value is mock_option_2.value
-        assert context.options["nya"].name is mock_option_2.name
-        assert isinstance(context.options["nya"], tanjun.context.SlashOption)
-
-    @pytest.mark.parametrize("raw_options", [None, []])
-    def test_options_property_for_sub_command_group_with_no_sub_option(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
-    ):
-        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
-        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-        context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]),
-            command=mock.Mock(),
-            component=mock.Mock(),
-        )
-
-        assert context.options == {}
-
     @pytest.mark.asyncio()
-    async def test__auto_defer_property(self, mock_client: mock.Mock):
+    async def test__auto_defer(self, mock_client: mock.Mock):
         defer = mock.AsyncMock()
         context = stub_class(tanjun.context.SlashContext, defer=defer)(
             mock_client,
@@ -754,50 +635,6 @@ class TestSlashContext:
 
         with pytest.raises(TypeError):
             context.start_defer_timer(123)
-
-    def test_set_command(self, context: tanjun.context.SlashContext):
-        mock_command = mock.Mock()
-
-        assert context.set_command(mock_command) is context
-
-        assert context.command is mock_command
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
-        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is mock_command
-        assert context.get_type_dependency(tanjun.abc.SlashCommand) is mock_command
-        assert context.get_type_dependency(type(mock_command)) is mock_command
-
-    def test_set_command_when_none(self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-        context.set_command(None)
-        context.set_command(None)
-
-        assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
-
-    def test_set_command_when_none_and_previously_set(
-        self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock
-    ):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
-        mock_command = mock.Mock()
-        context.set_command(mock_command)
-        context.set_command(None)
-
-        assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
-
-    def test_set_command_when_finalised(self, context: tanjun.context.SlashContext):
-        context.finalise()
-        mock_command = mock.Mock()
-
-        with pytest.raises(TypeError):
-            context.set_command(mock_command)
-
-        assert context.command is not mock_command
 
     def test_set_ephemeral_default(self, context: tanjun.context.SlashContext):
         assert context.set_ephemeral_default(True) is context
@@ -1078,3 +915,182 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test_respond(self, context: tanjun.context.SlashContext):
         ...
+
+
+class TestSlashContext:
+    @pytest.fixture()
+    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.context.SlashContext:
+        return tanjun.context.SlashContext(
+            mock_client,
+            mock_injector_client,
+            mock.AsyncMock(options=None),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+    @pytest.mark.parametrize("raw_options", [None, []])
+    def test_options_property_when_no_options(
+        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+    ):
+        context = tanjun.context.SlashContext(
+            mock_client,
+            mock.Mock(),
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+        assert context.options == {}
+
+    def test_options_property_for_top_level_command(self, mock_client: mock.Mock):
+        mock_option_1 = mock.Mock()
+        mock_option_1.name = "hi"
+        mock_option_2 = mock.Mock()
+        mock_option_2.name = "bye"
+        context = tanjun.context.SlashContext(
+            mock_client,
+            mock.Mock(),
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+        assert len(context.options) == 2
+        assert context.options["hi"].type is mock_option_1.type
+        assert context.options["hi"].value is mock_option_1.value
+        assert context.options["hi"].name is mock_option_1.name
+        assert isinstance(context.options["hi"], tanjun.context.SlashOption)
+
+        assert context.options["bye"].type is mock_option_2.type
+        assert context.options["bye"].value is mock_option_2.value
+        assert context.options["bye"].name is mock_option_2.name
+        assert isinstance(context.options["bye"], tanjun.context.SlashOption)
+
+    def test_options_property_for_command_group(self, mock_client: mock.Mock):
+        mock_option_1 = mock.Mock()
+        mock_option_1.name = "kachow"
+        mock_option_2 = mock.Mock()
+        mock_option_2.name = "nyaa"
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
+        context = tanjun.context.SlashContext(
+            mock_client,
+            mock.Mock(),
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+        assert len(context.options) == 2
+        assert context.options["kachow"].type is mock_option_1.type
+        assert context.options["kachow"].value is mock_option_1.value
+        assert context.options["kachow"].name is mock_option_1.name
+        assert isinstance(context.options["kachow"], tanjun.context.SlashOption)
+
+        assert context.options["nyaa"].type is mock_option_2.type
+        assert context.options["nyaa"].value is mock_option_2.value
+        assert context.options["nyaa"].name is mock_option_2.name
+        assert isinstance(context.options["nyaa"], tanjun.context.SlashOption)
+
+    @pytest.mark.parametrize("raw_options", [None, []])
+    def test_options_property_for_command_group_with_no_sub_option(
+        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+    ):
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
+        context = tanjun.context.SlashContext(
+            mock_client,
+            mock.Mock(),
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+        assert context.options == {}
+
+    def test_options_property_for_sub_command_group(self, mock_client: mock.Mock):
+        mock_option_1 = mock.Mock()
+        mock_option_1.name = "meow"
+        mock_option_2 = mock.Mock()
+        mock_option_2.name = "nya"
+        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
+        context = tanjun.context.SlashContext(
+            mock_client,
+            mock.Mock(),
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+        assert len(context.options) == 2
+        assert context.options["meow"].type is mock_option_1.type
+        assert context.options["meow"].value is mock_option_1.value
+        assert context.options["meow"].name is mock_option_1.name
+        assert isinstance(context.options["meow"], tanjun.context.SlashOption)
+
+        assert context.options["nya"].type is mock_option_2.type
+        assert context.options["nya"].value is mock_option_2.value
+        assert context.options["nya"].name is mock_option_2.name
+        assert isinstance(context.options["nya"], tanjun.context.SlashOption)
+
+    @pytest.mark.parametrize("raw_options", [None, []])
+    def test_options_property_for_sub_command_group_with_no_sub_option(
+        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+    ):
+        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
+        context = tanjun.context.SlashContext(
+            mock_client,
+            mock.Mock(),
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]),
+            command=mock.Mock(),
+            component=mock.Mock(),
+        )
+
+        assert context.options == {}
+
+    def test_type_property(self, context: tanjun.context.SlashContext):
+        assert context.type is hikari.CommandType.SLASH
+
+    def test_set_command(self, context: tanjun.context.SlashContext):
+        mock_command = mock.Mock()
+
+        assert context.set_command(mock_command) is context
+
+        assert context.command is mock_command
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is mock_command
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is mock_command
+        assert context.get_type_dependency(type(mock_command)) is mock_command
+
+    def test_set_command_when_none(self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        context.set_command(None)
+        context.set_command(None)
+
+        assert context.command is None
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
+
+    def test_set_command_when_none_and_previously_set(
+        self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock
+    ):
+        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_command = mock.Mock()
+        context.set_command(mock_command)
+        context.set_command(None)
+
+        assert context.command is None
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(type(mock_command)) is tanjun.injecting.UNDEFINED
+
+    def test_set_command_when_finalised(self, context: tanjun.context.SlashContext):
+        context.finalise()
+        mock_command = mock.Mock()
+
+        with pytest.raises(TypeError):
+            context.set_command(mock_command)
+
+        assert context.command is not mock_command
