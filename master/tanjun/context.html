@@ -214,6 +214,9 @@
                                 <a class="variable" href="#MenuContext.type">type</a>
                         </li>
                         <li>
+                                <a class="function" href="#MenuContext.mark_not_found">mark_not_found</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#MenuContext.set_command">set_command</a>
                         </li>
                         <li>
@@ -242,6 +245,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#SlashContext.type">type</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashContext.mark_not_found">mark_not_found</a>
                         </li>
                         <li>
                                 <a class="function" href="#SlashContext.set_command">set_command</a>
@@ -2627,7 +2633,7 @@ nature, and will trigger this exception if they occur.</li>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MenuContext</span><span class="p">(</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard menu command execution context.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command&quot;</span><span class="p">,)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command&quot;</span><span class="p">,</span> <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span> <span class="s2">&quot;_on_not_found&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2637,19 +2643,14 @@ nature, and will trigger this exception if they occur.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
-            <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span>
-            <span class="n">injection_client</span><span class="p">,</span>
-            <span class="n">interaction</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
-            <span class="n">on_not_found</span><span class="o">=</span><span class="n">on_not_found</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -2688,6 +2689,13 @@ nature, and will trigger this exception if they occur.</li>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">command_type</span> <span class="ow">in</span> <span class="n">_VALID_TYPES</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">command_type</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
+        <span class="c1"># TODO: assert not finalised?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_MenuContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span>
@@ -2755,7 +2763,7 @@ nature, and will trigger this exception if they occur.</li>
     *,
     default_to_ephemeral: bool = False,
     future: Optional[_asyncio.Future] = None,
-    on_not_found: Optional[collections.abc.Callable[[<a href="#slash.AppCommandContext">tanjun.context.slash.AppCommandContext</a>], collections.abc.Awaitable[None]]] = None
+    on_not_found: Optional[collections.abc.Callable[[<a href="abc.html#MenuContext">tanjun.abc.MenuContext</a>], collections.abc.Awaitable[None]]] = None
 )</span>
     </div>
 
@@ -2769,19 +2777,14 @@ nature, and will trigger this exception if they occur.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
-            <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span>
-            <span class="n">injection_client</span><span class="p">,</span>
-            <span class="n">interaction</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
-            <span class="n">on_not_found</span><span class="o">=</span><span class="n">on_not_found</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
@@ -2843,6 +2846,34 @@ specific command but never during command execution.</p>
     </div>
 
             <div class="docstring"><p>Type of application command this context is for.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.mark_not_found" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.mark_not_found">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">mark_not_found</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
+        <span class="c1"># TODO: assert not finalised?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mark this context as not found.</p>
+
+<p>Dependent on how the client is configured this may lead to a not found
+response message being sent.</p>
 </div>
 
 
@@ -3033,7 +3064,6 @@ user isn't in the current guild.</p>
                 <dd id="MenuContext.triggering_name" class="variable">triggering_name</dd>
                 <dd id="MenuContext.interaction" class="variable">interaction</dd>
                 <dd id="MenuContext.cancel_defer" class="function">cancel_defer</dd>
-                <dd id="MenuContext.mark_not_found" class="function">mark_not_found</dd>
                 <dd id="MenuContext.start_defer_timer" class="function">start_defer_timer</dd>
                 <dd id="MenuContext.set_ephemeral_default" class="function">set_ephemeral_default</dd>
                 <dd id="MenuContext.defer" class="function">defer</dd>
@@ -3089,7 +3119,7 @@ user isn't in the current guild.</p>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashContext</span><span class="p">(</span><span class="n">AppCommandContext</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.SlashContext`.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command&quot;</span><span class="p">,</span> <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span> <span class="s2">&quot;_on_not_found&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3099,16 +3129,15 @@ user isn't in the current guild.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">AppCommandContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
+            <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span>
-            <span class="n">injection_client</span><span class="p">,</span>
-            <span class="n">interaction</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
-            <span class="n">on_not_found</span><span class="o">=</span><span class="n">on_not_found</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">options</span> <span class="o">:=</span> <span class="n">flatten_options</span><span class="p">(</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
@@ -3133,6 +3162,13 @@ user isn't in the current guild.</p>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">SLASH</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
         <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">SLASH</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
+        <span class="c1"># TODO: assert not finalised?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashContext&gt;&gt;.</span>
@@ -3175,7 +3211,7 @@ user isn't in the current guild.</p>
     *,
     default_to_ephemeral: bool = False,
     future: Optional[_asyncio.Future] = None,
-    on_not_found: Optional[collections.abc.Callable[[<a href="#slash.AppCommandContext">tanjun.context.slash.AppCommandContext</a>], collections.abc.Awaitable[None]]] = None
+    on_not_found: Optional[collections.abc.Callable[[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>], collections.abc.Awaitable[None]]] = None
 )</span>
     </div>
 
@@ -3189,16 +3225,15 @@ user isn't in the current guild.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">AppCommandContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
+            <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span>
-            <span class="n">injection_client</span><span class="p">,</span>
-            <span class="n">interaction</span><span class="p">,</span>
-            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
-            <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
-            <span class="n">on_not_found</span><span class="o">=</span><span class="n">on_not_found</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">options</span> <span class="o">:=</span> <span class="n">flatten_options</span><span class="p">(</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">):</span>
@@ -3257,6 +3292,34 @@ specific command but never during command execution.</p>
     </div>
 
             <div class="docstring"><p>Type of application command this context is for.</p>
+</div>
+
+
+                            </div>
+                            <div id="SlashContext.mark_not_found" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashContext.mark_not_found">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">mark_not_found</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
+        <span class="c1"># TODO: assert not finalised?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mark this context as not found.</p>
+
+<p>Dependent on how the client is configured this may lead to a not found
+response message being sent.</p>
 </div>
 
 
@@ -3331,7 +3394,6 @@ The command this context is for.</li>
                 <dd id="SlashContext.triggering_name" class="variable">triggering_name</dd>
                 <dd id="SlashContext.interaction" class="variable">interaction</dd>
                 <dd id="SlashContext.cancel_defer" class="function">cancel_defer</dd>
-                <dd id="SlashContext.mark_not_found" class="function">mark_not_found</dd>
                 <dd id="SlashContext.start_defer_timer" class="function">start_defer_timer</dd>
                 <dd id="SlashContext.set_ephemeral_default" class="function">set_ephemeral_default</dd>
                 <dd id="SlashContext.defer" class="function">defer</dd>

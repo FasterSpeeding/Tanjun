@@ -217,6 +217,9 @@
                                 <a class="variable" href="#ClientCallbackNames.COMPONENT_REMOVED">COMPONENT_REMOVED</a>
                         </li>
                         <li>
+                                <a class="variable" href="#ClientCallbackNames.MENU_COMMAND_NOT_FOUND">MENU_COMMAND_NOT_FOUND</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">MESSAGE_COMMAND_NOT_FOUND</a>
                         </li>
                         <li>
@@ -4466,7 +4469,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">AutocompleteContext</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute an autocomplete context.</span>
 
 <span class="sd">        .. note::</span>
@@ -4480,7 +4483,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -4496,7 +4499,7 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">MenuHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute a menu context.</span>
 
 <span class="sd">        Parameters</span>
@@ -4511,7 +4514,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -4535,7 +4538,7 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash context.</span>
 
 <span class="sd">        Parameters</span>
@@ -4550,7 +4553,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -4668,6 +4671,12 @@
 <span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">MENU_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;menu_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a menu command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MenuContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
 
@@ -4677,7 +4686,7 @@
     <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
 
-<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    `tanjun.abc.SlashContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
@@ -8684,6 +8693,12 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">MENU_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;menu_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a menu command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MenuContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
 
@@ -8693,7 +8708,7 @@ nature, and will trigger this exception if they occur.</li>
     <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
 
-<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    `tanjun.abc.SlashContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
@@ -8777,6 +8792,19 @@ the client is inactive.</p>
 
 
                             </div>
+                            <div id="ClientCallbackNames.MENU_COMMAND_NOT_FOUND" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.MENU_COMMAND_NOT_FOUND">#&nbsp;&nbsp</a>
+
+        <span class="name">MENU_COMMAND_NOT_FOUND</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.MENU_COMMAND_NOT_FOUND">ClientCallbackNames.MENU_COMMAND_NOT_FOUND</a>: &#39;menu_command_not_found&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a menu command is not found.</p>
+
+<p><code><a href="#MenuContext">tanjun.abc.MenuContext</a></code> is provided as the first positional argument.</p>
+</div>
+
+
+                            </div>
                             <div id="ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">#&nbsp;&nbsp</a>
 
@@ -8798,7 +8826,7 @@ the client is inactive.</p>
 
             <div class="docstring"><p>Called when a slash command is not found.</p>
 
-<p><code><a href="#MessageContext">tanjun.abc.MessageContext</a></code> is provided as the first positional argument.</p>
+<p><code><a href="#SlashContext">tanjun.abc.SlashContext</a></code> is provided as the first positional argument.</p>
 </div>
 
 
@@ -16810,7 +16838,7 @@ user.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">AutocompleteContext</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute an autocomplete context.</span>
 
 <span class="sd">        .. note::</span>
@@ -16824,7 +16852,7 @@ user.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -16840,7 +16868,7 @@ user.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">MenuHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute a menu context.</span>
 
 <span class="sd">        Parameters</span>
@@ -16855,7 +16883,7 @@ user.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -16879,7 +16907,7 @@ user.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash context.</span>
 
 <span class="sd">        Parameters</span>
@@ -16894,7 +16922,7 @@ user.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -18024,7 +18052,7 @@ The name to check for command matches.</li>
     self,
     ctx: <a href="#AutocompleteContext">tanjun.abc.AutocompleteContext</a>,
     /
-) -&gt; Optional[collections.abc.Awaitable[None]]</span>:
+) -&gt; Optional[collections.abc.Coroutine[Any, Any, None]]</span>:
     </div>
 
                 <details>
@@ -18034,7 +18062,7 @@ The name to check for command matches.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">AutocompleteContext</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute an autocomplete context.</span>
 
 <span class="sd">        .. note::</span>
@@ -18048,7 +18076,7 @@ The name to check for command matches.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -18076,7 +18104,7 @@ The context to execute.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Coroutine[typing.Any, typing.Any, None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>
@@ -18099,7 +18127,7 @@ component with a matching autocomplete.</p>
     /,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="#Hooks">tanjun.abc.Hooks</a>[<a href="#MenuContext">tanjun.abc.MenuContext</a>]]] = None
-) -&gt; Optional[collections.abc.Awaitable[None]]</span>:
+) -&gt; Optional[collections.abc.Coroutine[Any, Any, None]]</span>:
     </div>
 
                 <details>
@@ -18111,7 +18139,7 @@ component with a matching autocomplete.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">MenuHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute a menu context.</span>
 
 <span class="sd">        Parameters</span>
@@ -18126,7 +18154,7 @@ component with a matching autocomplete.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -18165,7 +18193,7 @@ Set of hooks to include in this command execution.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Coroutine[typing.Any, typing.Any, None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>
@@ -18196,7 +18224,7 @@ execute with the current context.</li>
     /,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="#Hooks">tanjun.abc.Hooks</a>[<a href="#SlashContext">tanjun.abc.SlashContext</a>]]] = None
-) -&gt; Optional[collections.abc.Awaitable[None]]</span>:
+) -&gt; Optional[collections.abc.Coroutine[Any, Any, None]]</span>:
     </div>
 
                 <details>
@@ -18208,7 +18236,7 @@ execute with the current context.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash context.</span>
 
 <span class="sd">        Parameters</span>
@@ -18223,7 +18251,7 @@ execute with the current context.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Awaitable[None] | None</span>
+<span class="sd">        collections.abc.Coroutine[typing.Any, typing.Any, None] | None</span>
 <span class="sd">            Awaitable used to wait for the command execution to finish.</span>
 
 <span class="sd">            This may be awaited or left to run as a background task.</span>
@@ -18262,7 +18290,7 @@ Set of hooks to include in this command execution.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Coroutine[typing.Any, typing.Any, None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>

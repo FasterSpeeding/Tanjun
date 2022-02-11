@@ -1453,7 +1453,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">execute_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
@@ -1466,7 +1466,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">_AppCommandContextT</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">other_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">_AppCommandContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -1493,7 +1493,9 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_commands</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">ctx</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
@@ -1514,7 +1516,9 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
@@ -2743,7 +2747,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">execute_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
@@ -2756,7 +2760,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">_AppCommandContextT</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">other_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">_AppCommandContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -2783,7 +2787,9 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_commands</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">ctx</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
@@ -2804,7 +2810,9 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
@@ -5522,7 +5530,7 @@ The name to check for command matches.</li>
     self,
     ctx: <a href="abc.html#AutocompleteContext">tanjun.abc.AutocompleteContext</a>,
     /
-) -&gt; Optional[collections.abc.Awaitable[None]]</span>:
+) -&gt; Optional[collections.abc.Coroutine[Any, Any, None]]</span>:
     </div>
 
                 <details>
@@ -5531,7 +5539,7 @@ The name to check for command matches.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">execute_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
@@ -5555,7 +5563,7 @@ The context to execute.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Coroutine[typing.Any, typing.Any, None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>
@@ -5577,7 +5585,7 @@ component with a matching autocomplete.</p>
     /,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MenuContext">tanjun.abc.MenuContext</a>]]] = None
-) -&gt; collections.abc.Coroutine[typing.Any, typing.Any, typing.Optional[collections.abc.Awaitable[None]]]</span>:
+) -&gt; collections.abc.Coroutine[typing.Any, typing.Any, typing.Optional[collections.abc.Coroutine[typing.Any, typing.Any, None]]]</span>:
     </div>
 
                 <details>
@@ -5588,7 +5596,9 @@ component with a matching autocomplete.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_commands</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">ctx</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
@@ -5622,7 +5632,7 @@ Set of hooks to include in this command execution.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Coroutine[typing.Any, typing.Any, None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>
@@ -5652,7 +5662,7 @@ execute with the current context.</li>
     /,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]]] = None
-) -&gt; collections.abc.Coroutine[typing.Any, typing.Any, typing.Optional[collections.abc.Awaitable[None]]]</span>:
+) -&gt; collections.abc.Coroutine[typing.Any, typing.Any, typing.Optional[collections.abc.Coroutine[typing.Any, typing.Any, None]]]</span>:
     </div>
 
                 <details>
@@ -5663,7 +5673,9 @@ execute with the current context.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span>
+        <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Component&gt;&gt;.</span>
         <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
@@ -5697,7 +5709,7 @@ Set of hooks to include in this command execution.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Awaitable[None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
+<li><strong>collections.abc.Coroutine[typing.Any, typing.Any, None] | None</strong>: Awaitable used to wait for the command execution to finish.</li>
 </ul>
 
 <p>This may be awaited or left to run as a background task.</p>

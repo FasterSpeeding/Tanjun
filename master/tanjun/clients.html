@@ -139,6 +139,12 @@
                                 <a class="function" href="#Client.set_interaction_not_found">set_interaction_not_found</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.set_menu_not_found">set_menu_not_found</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.set_slash_not_found">set_slash_not_found</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.set_message_accepts">set_message_accepts</a>
                         </li>
                         <li>
@@ -310,6 +316,9 @@
                                 <a class="variable" href="#ClientCallbackNames.COMPONENT_REMOVED">COMPONENT_REMOVED</a>
                         </li>
                         <li>
+                                <a class="variable" href="#ClientCallbackNames.MENU_COMMAND_NOT_FOUND">MENU_COMMAND_NOT_FOUND</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">MESSAGE_COMMAND_NOT_FOUND</a>
                         </li>
                         <li>
@@ -474,7 +483,7 @@
                 <span class="p">]</span>
             <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
-                <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">context</span><span class="o">.</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+                <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
             <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -506,7 +515,7 @@
                 <span class="p">]</span>
             <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
-                <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">context</span><span class="o">.</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+                <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
             <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -840,9 +849,10 @@
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_grab_mention_prefix&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_interaction_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_menu_hooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_menu_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_slash_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_closing&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_loop&quot;</span><span class="p">,</span>
@@ -1005,9 +1015,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">on_parser_error</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_menu_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1766,7 +1777,39 @@
 <span class="sd">        message : str | None</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_menu_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">set_slash_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_menu_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the response message for when a menu command is not found.</span>
+
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str | None</span>
+<span class="sd">            The message to respond with when a menu command isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the response message for when a slash command is not found.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str | None</span>
+<span class="sd">            The message to respond with when a slash command isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_message_accepts</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">accepts</span><span class="p">:</span> <span class="n">MessageAcceptsEnum</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -2842,10 +2885,15 @@
 
         <span class="k">return</span> <span class="n">hooks</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_menu_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">MENU_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_gateway_autocomplete_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">AutocompleteInteraction</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute command autocomplete based on a received gateway interaction create.</span>
@@ -2884,7 +2932,7 @@
                 <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
-                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_menu_not_found</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_menu_hooks</span><span class="p">()</span>
@@ -3004,7 +3052,7 @@
                 <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
-                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_menu_not_found</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
                 <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
             <span class="p">)</span>
@@ -3310,9 +3358,10 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_grab_mention_prefix&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_interaction_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_menu_hooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_menu_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_slash_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_closing&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_loop&quot;</span><span class="p">,</span>
@@ -3475,9 +3524,10 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">on_parser_error</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_menu_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -4236,7 +4286,39 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 <span class="sd">        message : str | None</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_menu_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">set_slash_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_menu_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the response message for when a menu command is not found.</span>
+
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str | None</span>
+<span class="sd">            The message to respond with when a menu command isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the response message for when a slash command is not found.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str | None</span>
+<span class="sd">            The message to respond with when a slash command isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_message_accepts</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">accepts</span><span class="p">:</span> <span class="n">MessageAcceptsEnum</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -5312,10 +5394,15 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
 
         <span class="k">return</span> <span class="n">hooks</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_menu_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">MENU_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_gateway_autocomplete_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">AutocompleteInteraction</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute command autocomplete based on a received gateway interaction create.</span>
@@ -5354,7 +5441,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
                 <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
-                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_menu_not_found</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_menu_hooks</span><span class="p">()</span>
@@ -5474,7 +5561,7 @@ opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
                 <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
-                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_menu_not_found</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
                 <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
             <span class="p">)</span>
@@ -5708,9 +5795,10 @@ by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">on_parser_error</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_menu_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MenuHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -7179,8 +7267,7 @@ The hikari client to set dependency injectors for.</li>
 <span class="sd">        message : str | None</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
-        <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_menu_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">set_slash_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -7197,6 +7284,99 @@ only be done if you know what you're doing.</p>
 <ul>
 <li><strong>message</strong> (str | None):
 The message to respond with when an interaction command isn't found.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_menu_not_found" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_menu_not_found">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_menu_not_found</span><span class="signature">(self: ~_ClientT, message: Optional[str], /) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_menu_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the response message for when a menu command is not found.</span>
+
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str | None</span>
+<span class="sd">            The message to respond with when a menu command isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_not_found</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the response message for when a menu command is not found.</p>
+
+<p><em>Warning:</em>
+Setting this to <code>None</code> may lead to unexpected behaviour (especially
+when the client is still set to auto-defer interactions) and should
+only be done if you know what you're doing.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str | None):
+The message to respond with when a menu command isn't found.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_slash_not_found" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_slash_not_found">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_slash_not_found</span><span class="signature">(self: ~_ClientT, message: Optional[str], /) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the response message for when a slash command is not found.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str | None</span>
+<span class="sd">            The message to respond with when a slash command isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slash_not_found</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the response message for when a slash command is not found.</p>
+
+<p><em>Warning:</em>
+Setting this to <code>None</code> may lead to unexpected behaviour (especially
+when the client is still set to auto-defer interactions) and should
+only be done if you know what you're doing.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str | None):
+The message to respond with when a slash command isn't found.</li>
 </ul>
 </div>
 
@@ -9962,7 +10142,7 @@ The interaction to execute a command based on.</li>
                 <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
-                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_menu_not_found</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_menu_hooks</span><span class="p">()</span>
@@ -10178,7 +10358,7 @@ The interaction to execute autocomplete based on.</li>
                 <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
-                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+                <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_menu_not_found</span><span class="p">,</span>
                 <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
                 <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">,</span>
             <span class="p">)</span>
@@ -10310,6 +10490,12 @@ The interaction to execute a command based on.</li>
 <span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">MENU_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;menu_command_not_found&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a menu command is not found.</span>
+
+<span class="sd">    `tanjun.abc.MenuContext` is provided as the first positional argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
 
@@ -10319,7 +10505,7 @@ The interaction to execute a command based on.</li>
     <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
     <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
 
-<span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
+<span class="sd">    `tanjun.abc.SlashContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
@@ -10401,6 +10587,19 @@ the client is inactive.</p>
 
 
                             </div>
+                            <div id="ClientCallbackNames.MENU_COMMAND_NOT_FOUND" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.MENU_COMMAND_NOT_FOUND">#&nbsp;&nbsp</a>
+
+        <span class="name">MENU_COMMAND_NOT_FOUND</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.MENU_COMMAND_NOT_FOUND">ClientCallbackNames.MENU_COMMAND_NOT_FOUND</a>: &#39;menu_command_not_found&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a menu command is not found.</p>
+
+<p><code><a href="abc.html#MenuContext">tanjun.abc.MenuContext</a></code> is provided as the first positional argument.</p>
+</div>
+
+
+                            </div>
                             <div id="ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">#&nbsp;&nbsp</a>
 
@@ -10422,7 +10621,7 @@ the client is inactive.</p>
 
             <div class="docstring"><p>Called when a slash command is not found.</p>
 
-<p><code><a href="abc.html#MessageContext">tanjun.abc.MessageContext</a></code> is provided as the first positional argument.</p>
+<p><code><a href="abc.html#SlashContext">tanjun.abc.SlashContext</a></code> is provided as the first positional argument.</p>
 </div>
 
 

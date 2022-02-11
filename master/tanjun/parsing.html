@@ -348,6 +348,20 @@
         <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -385,20 +399,6 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="o">...</span>
@@ -469,6 +469,21 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
@@ -507,21 +522,6 @@
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="o">...</span>
@@ -769,6 +769,19 @@
 <span class="k">def</span> <span class="nf">with_argument</span><span class="p">(</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
+    <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
+    <span class="o">...</span>
+
+
+<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+<span class="k">def</span> <span class="nf">with_argument</span><span class="p">(</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -804,19 +817,6 @@
     <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
-    <span class="o">...</span>
-
-
-<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_argument</span><span class="p">(</span>
-    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
@@ -1163,6 +1163,20 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+    <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
+    <span class="o">...</span>
+
+
+<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+<span class="k">def</span> <span class="nf">with_option</span><span class="p">(</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
     <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1199,20 +1213,6 @@
     <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
-    <span class="o">...</span>
-
-
-<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_option</span><span class="p">(</span>
-    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-    <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
@@ -1807,6 +1807,19 @@
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1842,19 +1855,6 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="o">...</span>
@@ -1901,6 +1901,20 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1937,20 +1951,6 @@
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="o">...</span>
@@ -2083,6 +2083,20 @@
         <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2120,20 +2134,6 @@
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="o">...</span>
@@ -2204,6 +2204,21 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2242,21 +2257,6 @@
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_OtherT</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="o">...</span>
@@ -3663,6 +3663,19 @@ this parameter (with each entry being converted separately.)</p>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3698,19 +3711,6 @@ this parameter (with each entry being converted separately.)</p>
         <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="o">...</span>
@@ -3757,6 +3757,20 @@ this parameter (with each entry being converted separately.)</p>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
@@ -3793,20 +3807,6 @@ this parameter (with each entry being converted separately.)</p>
         <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="o">...</span>
