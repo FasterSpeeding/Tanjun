@@ -82,9 +82,6 @@ class TestAutocompleteContext:
     def test_client_property(self, context: tanjun.context.AutocompleteContext, mock_client: tanjun.Client):
         assert context.client is mock_client
 
-    def test_component_property(self, context: tanjun.context.AutocompleteContext):
-        assert context.component
-
     def test_created_at_property(
         self, context: tanjun.context.AutocompleteContext, mock_interaction: hikari.AutocompleteInteraction
     ):

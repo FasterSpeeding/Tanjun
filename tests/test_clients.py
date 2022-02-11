@@ -1193,6 +1193,14 @@ class TestClient:
     async def test_fetch_rest_application_id(self):
         ...
 
+    def test_set_ephemeral_default(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_ephemeral_default(True)
+
+        assert result is client
+        assert client.defaults_to_ephemeral is True
+
     def test_set_hooks(self):
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
@@ -1210,30 +1218,22 @@ class TestClient:
         assert result is client
         assert client.hooks is None
 
-    def test_set_ephemeral_default(self):
-        client = tanjun.Client(mock.Mock())
-
-        result = client.set_ephemeral_default(True)
-
-        assert result is client
-        assert client.defaults_to_ephemeral is True
-
-    def test_set_slash_hooks(self):
+    def test_set_menu_hooks(self):
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
-        result = client.set_slash_hooks(mock_hooks)
+        result = client.set_menu_hooks(mock_hooks)
 
         assert result is client
-        assert client.slash_hooks is mock_hooks
+        assert client.menu_hooks is mock_hooks
 
-    def test_set_slash_hooks_when_none(self):
-        client = tanjun.Client(mock.Mock()).set_slash_hooks(mock.Mock())
+    def test_set_menu_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_menu_hooks(mock.Mock())
 
-        result = client.set_slash_hooks(None)
+        result = client.set_menu_hooks(None)
 
         assert result is client
-        assert client.slash_hooks is None
+        assert client.menu_hooks is None
 
     def test_set_message_hooks(self):
         mock_hooks = mock.Mock()
@@ -1251,6 +1251,23 @@ class TestClient:
 
         assert result is client
         assert client.message_hooks is None
+
+    def test_set_slash_hooks(self):
+        mock_hooks = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_slash_hooks(mock_hooks)
+
+        assert result is client
+        assert client.slash_hooks is mock_hooks
+
+    def test_set_slash_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_slash_hooks(mock.Mock())
+
+        result = client.set_slash_hooks(None)
+
+        assert result is client
+        assert client.slash_hooks is None
 
     @pytest.fixture()
     def file(self) -> collections.Iterator[typing.IO[str]]:

@@ -124,11 +124,6 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
         return self._client
 
     @property
-    def component(self) -> typing.Optional[abc.Component]:
-        # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        raise NotImplementedError
-
-    @property
     def created_at(self) -> datetime.datetime:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._interaction.created_at

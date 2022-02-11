@@ -957,28 +957,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         )
 
     @property
-    def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
-        """Top level `tanjun.abc.AnyHooks` set for this client.
-
-        These are called during both message and interaction command execution.
-
-        Returns
-        -------
-        tanjun.abc.AnyHooks | None
-            The top level `tanjun.abc.Context` based hooks set for this
-            client if applicable, else `None`.
-        """
-        return self._hooks
-
-    @property
-    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
-        """Top level `tanjun.abc.SlashHooks` set for this client.
-
-        These are only called during interaction command execution.
-        """
-        return self._slash_hooks
-
-    @property
     def is_alive(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._loop is not None
@@ -989,12 +967,36 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._loop
 
     @property
+    def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
+        """Top level `tanjun.abc.AnyHooks` set for this client.
+
+        These are called during both message, menu and slash command execution.
+        """
+        return self._hooks
+
+    @property
+    def menu_hooks(self) -> typing.Optional[tanjun_abc.MenuHooks]:
+        """Top level `tanjun.abc.MenuHooks` set for this client.
+
+        These are only called during menu command execution.
+        """
+        return self._menu_hooks
+
+    @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
         """Top level `tanjun.abc.MessageHooks` set for this client.
 
-        These are only called during both message command execution.
+        These are only called during message command execution.
         """
         return self._message_hooks
+
+    @property
+    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
+        """Top level `tanjun.abc.SlashHooks` set for this client.
+
+        These are only called during slash command execution.
+        """
+        return self._slash_hooks
 
     @property
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:

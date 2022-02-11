@@ -1909,11 +1909,6 @@ class AutocompleteContext:
 
     @property
     @abc.abstractmethod
-    def component(self) -> typing.Optional[Component]:
-        """Object of the `Component` this context is bound to."""
-
-    @property
-    @abc.abstractmethod
     def created_at(self) -> datetime.datetime:
         """When this context was created.
 
