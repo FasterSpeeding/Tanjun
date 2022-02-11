@@ -91,12 +91,14 @@ def test_as_slash_command():
     command = tanjun.as_slash_command(
         "a_very",
         "cool name",
+        always_defer=True,
         default_permission=False,
         default_to_ephemeral=True,
         is_global=False,
         sort_options=False,
     )(mock_callback)
 
+    assert command._always_defer is True
     assert command.name == "a_very"
     assert command.description == "cool name"
     assert command.build().default_permission is hikari.UNDEFINED
@@ -113,11 +115,15 @@ def test_as_slash_command():
         tanjun.SlashCommand(mock.Mock(), "e", "a"),
         tanjun.MessageCommand(mock.Mock(), "b"),
         tanjun.MessageCommandGroup(mock.Mock(), "b"),
+        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_slash_command_when_wrapping_command(
     other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+        tanjun.SlashCommand[typing.Any],
+        tanjun.MessageCommand[typing.Any],
+        tanjun.MessageCommandGroup[typing.Any],
+        tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
 
@@ -133,6 +139,7 @@ def test_as_slash_command_with_defaults():
 
     command = tanjun.as_slash_command("a_very", "cool name")(mock_callback)
 
+    assert command._always_defer is False
     assert command.build().default_permission is hikari.UNDEFINED
     assert command.defaults_to_ephemeral is None
     assert command.is_global is True
@@ -635,17 +642,6 @@ class TestBaseSlashCommand:
 
 
 class TestSlashCommandGroup:
-    @pytest.mark.parametrize(
-        "inner_command", [tanjun.SlashCommand(mock.Mock(), "a", "b"), tanjun.MessageCommand(mock.Mock(), "a")]
-    )
-    def test___init___when_command_object(
-        self,
-        inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
-        ],
-    ):
-        assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
-
     def test_commands_property(self):
         mock_command = mock.Mock()
         mock_other_command = mock.Mock()
@@ -850,6 +846,22 @@ class TestSlashCommandGroup:
 
 
 class TestSlashCommand:
+    @pytest.mark.parametrize(
+        "inner_command",
+        [
+            tanjun.SlashCommand(mock.Mock(), "a", "b"),
+            tanjun.MessageCommand(mock.Mock(), "a"),
+            tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "e"),
+        ],
+    )
+    def test___init___when_command_object(
+        self,
+        inner_command: typing.Union[
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+        ],
+    ):
+        assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
+
     @pytest.fixture()
     def command(self) -> tanjun.SlashCommand[typing.Any]:
         return tanjun.SlashCommand(mock.AsyncMock(), "yee", "nsoosos")

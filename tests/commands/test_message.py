@@ -39,6 +39,7 @@ import types
 import typing
 from unittest import mock
 
+import hikari
 import pytest
 
 import tanjun
@@ -74,16 +75,21 @@ def test_as_message_command():
         tanjun.SlashCommand(mock.Mock(), "e", "a"),
         tanjun.MessageCommand(mock.Mock(), "b"),
         tanjun.MessageCommandGroup(mock.Mock(), "b"),
+        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_message_command_when_wrapping_command(
     other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+        tanjun.SlashCommand[typing.Any],
+        tanjun.MessageCommand[typing.Any],
+        tanjun.MessageCommandGroup[typing.Any],
+        tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
     command = tanjun.as_message_command("a", "b")(other_command)
 
     assert command._wrapped_command is other_command
+    assert command.callback is other_command.callback
 
 
 def test_as_message_command_group():
@@ -102,21 +108,31 @@ def test_as_message_command_group():
         tanjun.SlashCommand(mock.Mock(), "e", "a"),
         tanjun.MessageCommand(mock.Mock(), "b"),
         tanjun.MessageCommandGroup(mock.Mock(), "b"),
+        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_message_command_group_when_wrapping_command(
     other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MessageCommandGroup[typing.Any]
+        tanjun.SlashCommand[typing.Any],
+        tanjun.MessageCommand[typing.Any],
+        tanjun.MessageCommandGroup[typing.Any],
+        tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
 
     assert command._wrapped_command is other_command
+    assert command.callback is other_command.callback
 
 
 class TestMessageCommand:
     @pytest.mark.parametrize(
-        "inner_command", [tanjun.SlashCommand(mock.Mock(), "a", "b"), tanjun.MessageCommand(mock.Mock(), "a")]
+        "inner_command",
+        [
+            tanjun.SlashCommand(mock.Mock(), "a", "b"),
+            tanjun.MessageCommand(mock.Mock(), "a"),
+            tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "e"),
+        ],
     )
     def test___init___when_command_object(
         self,
