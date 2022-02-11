@@ -1244,18 +1244,33 @@ class SlashOption(abc.ABC):
     @abc.abstractmethod
     def resolve_value(
         self,
-    ) -> typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
+    ) -> typing.Union[hikari.Attachment, hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
         """Resolve this option to an object value.
 
         Returns
         -------
-        hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User
+        hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User
             The object value of this option.
 
         Raises
         ------
         TypeError
             If the option isn't resolvable.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_attachment(self) -> hikari.Attachment:
+        """Resolve this option to a channel object.
+
+        Returns
+        -------
+        hikari.Attachment
+            The attachment object.
+
+        Raises
+        ------
+        TypeError
+            If the option is not an attachment.
         """
 
     @abc.abstractmethod

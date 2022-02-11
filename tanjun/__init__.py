@@ -187,6 +187,7 @@ __all__: list[str] = [
     "with_all_checks",
     "with_any_checks",
     "with_argument",
+    "with_attachment_slash_option",
     "with_author_permission_check",
     "with_bool_slash_option",
     "with_channel_slash_option",
@@ -247,6 +248,7 @@ from .commands import as_message_menu
 from .commands import as_slash_command
 from .commands import as_user_menu
 from .commands import slash_command_group
+from .commands import with_attachment_slash_option
 from .commands import with_bool_slash_option
 from .commands import with_channel_slash_option
 from .commands import with_float_slash_option

@@ -45,6 +45,7 @@ __all__: list[str] = [
     "as_slash_command",
     "as_user_menu",
     "slash_command_group",
+    "with_attachment_slash_option",
     "with_bool_slash_option",
     "with_channel_slash_option",
     "with_float_slash_option",
@@ -68,6 +69,7 @@ from .slash import SlashCommand
 from .slash import SlashCommandGroup
 from .slash import as_slash_command
 from .slash import slash_command_group
+from .slash import with_attachment_slash_option
 from .slash import with_bool_slash_option
 from .slash import with_channel_slash_option
 from .slash import with_float_slash_option

@@ -159,6 +159,15 @@ class SlashOption(tanjun_abc.SlashOption):
 
         raise TypeError(f"Option type {self._option.type} isn't resolvable")
 
+    def resolve_to_attachment(self) -> hikari.Attachment:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
+        if self._option.type is hikari.OptionType.ATTACHMENT:
+            assert self._option.value is not None
+            assert self._resolved
+            return self._resolved.attachments[hikari.Snowflake(self._option.value)]
+
+        raise TypeError(f"Cannot resolve non-attachment type {self._option.type} to an attachment")
+
     def resolve_to_channel(self) -> hikari.InteractionChannel:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
