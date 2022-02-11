@@ -2614,6 +2614,11 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
         """ID of the actual command this object tracks if set."""
 
+    @property
+    @abc.abstractmethod
+    def type(self) -> hikari.CommandType:
+        """The type of this application command."""
+
     @abc.abstractmethod
     def build(self) -> hikari.api.CommandBuilder:
         """Get a builder object for this command.

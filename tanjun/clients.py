@@ -676,7 +676,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         dependencies.set_standard_dependencies(self)
         self._schedule_startup_registers(
-            set_global_commands, declare_global_commands, command_ids, message_ids=message_ids, user_ids=user_ids
+            set_global_commands,
+            declare_global_commands,
+            command_ids,
+            message_ids=message_ids,
+            user_ids=user_ids,
+            _stack_level=_stack_level,
         )
 
     def _schedule_startup_registers(
@@ -737,7 +742,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.add_client_callback(
                 ClientCallbackNames.STARTING,
                 _StartDeclarer(
-                    self, hikari.UNDEFINED, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
+                    self, declare_global_commands, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
                 ),
             )
 
@@ -1228,14 +1233,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
-        names_to_commands: dict[str, tanjun_abc.AppCommand[typing.Any]] = {}
-        conflicts: set[str] = set()
-        builders: dict[str, hikari.api.CommandBuilder] = {}
+        names_to_commands: dict[tuple[hikari.CommandType, str], tanjun_abc.AppCommand[typing.Any]] = {}
+        conflicts: set[tuple[hikari.CommandType, str]] = set()
+        builders: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
 
         for command in commands:
-            names_to_commands[command.name] = command
+            key = (command.type, command.name)
+            names_to_commands[key] = command
             if command.name in builders:
-                conflicts.add(command.name)
+                conflicts.add(key)
 
             builder = command.build()
             command_id = None
@@ -1248,12 +1254,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
 
-            builders[command.name] = builder
+            builders[key] = builder
 
         if conflicts:
             raise ValueError(
                 "Couldn't declare commands due to conflicts. The following command names have more than one command "
-                "registered for them " + ", ".join(conflicts)
+                "registered for them " + ", ".join(map(str, conflicts))
             )
 
         if len(builders) > 100:
@@ -1267,7 +1273,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
             if len(registered_commands) == len(builders) and all(
-                _cmp_command(builders.get(command.name), command) for command in registered_commands
+                _cmp_command(builders.get((c.type, c.name)), c) for c in registered_commands
             ):
                 _LOGGER.info("Skipping bulk declare for %s slash commands since they're already declared", target_type)
                 return registered_commands
@@ -1277,7 +1283,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         for response in responses:
             if not guild:
-                names_to_commands[response.name].set_tracked_command(response)  # TODO: is this fine?
+                names_to_commands[(response.type, response.name)].set_tracked_command(response)  # TODO: is this fine?
 
             if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
                 _LOGGER.warning(
