@@ -34,43 +34,38 @@ from __future__ import annotations
 
 __all__: list[str] = [
     # __init__.py
-    "set_standard_dependencies",
-    # async_cache.py
-    "async_cache",
+    "AbstractConcurrencyLimiter",
+    "AbstractCooldownManager",
+    "AbstractOwners",
     "AsyncCache",
-    "ChannelBoundCache",
+    "BucketResource",
     "CacheIterator",
     "CacheMissError",
+    "ChannelBoundCache",
+    "ConcurrencyPostExecution",
+    "ConcurrencyPreExecution",
+    "CooldownPreExecution",
     "EntryNotFound",
     "GuildBoundCache",
-    "SingleStoreCache",
+    "InMemoryConcurrencyLimiter",
+    "InMemoryCooldownManager",
+    "LazyConstant",
+    "Owners",
     "SfCache",
     "SfChannelBound",
     "SfGuildBound",
-    # callbacks.py
-    "callbacks",
-    "fetch_my_user",
-    # data.py
-    "data",
+    "SingleStoreCache",
+    "async_cache",
     "cached_inject",
-    "LazyConstant",
+    "callbacks",
+    "data",
+    "fetch_my_user",
     "inject_lc",
-    # limiters.py
     "limiters",
-    "AbstractConcurrencyLimiter",
-    "AbstractCooldownManager",
-    "BucketResource",
-    "ConcurrencyPreExecution",
-    "ConcurrencyPostExecution",
-    "CooldownPreExecution",
-    "InMemoryConcurrencyLimiter",
-    "InMemoryCooldownManager",
+    "owners",
+    "set_standard_dependencies",
     "with_concurrency_limit",
     "with_cooldown",
-    # owners.py
-    "owners",
-    "AbstractOwners",
-    "Owners",
 ]
 
 import hikari

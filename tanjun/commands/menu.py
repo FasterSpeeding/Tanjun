@@ -32,7 +32,7 @@
 """Standard implementation of Tanjun's command objects."""
 from __future__ import annotations
 
-__all__: list[str] = ["as_message_menu", "as_user_menu", "MenuCommand"]
+__all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 

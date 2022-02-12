@@ -39,13 +39,13 @@ __all__: list[str] = [
     "Option",
     "Parameter",
     "ShlexParser",
-    "UndefinedT",
     "UNDEFINED",
+    "UndefinedT",
     "with_argument",
     "with_greedy_argument",
     "with_multi_argument",
-    "with_option",
     "with_multi_option",
+    "with_option",
     "with_parser",
 ]
 

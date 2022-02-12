@@ -32,7 +32,7 @@
 """Interface and interval implementation for a Tanjun based callback scheduler."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractSchedule", "as_interval", "IntervalSchedule"]
+__all__: list[str] = ["AbstractSchedule", "IntervalSchedule", "as_interval"]
 
 import abc
 import asyncio

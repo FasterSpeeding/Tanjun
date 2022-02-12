@@ -192,6 +192,7 @@ def reformat(session: nox.Session) -> None:
     install_requirements(session, ".[reformat]", "--use-feature=in-tree-build")  # include_standard_requirements=False
     session.run("black", *GENERAL_TARGETS)
     session.run("isort", *GENERAL_TARGETS)
+    session.run("sort-all", *map(str, pathlib.Path("./tanjun/").glob("**/*.py")), success_codes=[0, 1])
 
 
 @nox.session(reuse_venv=True)

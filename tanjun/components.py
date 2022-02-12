@@ -33,9 +33,9 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AbstractComponentLoader",
     "CommandT",
     "Component",
-    "AbstractComponentLoader",
     "OnCallbackSig",
     "OnCallbackSigT",
     "WithCommandReturnSig",

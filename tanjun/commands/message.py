@@ -34,10 +34,10 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "ConverterSig",
-    "as_message_command",
-    "as_message_command_group",
     "MessageCommand",
     "MessageCommandGroup",
+    "as_message_command",
+    "as_message_command_group",
 ]
 
 import copy

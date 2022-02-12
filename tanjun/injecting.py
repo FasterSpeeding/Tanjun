@@ -35,19 +35,19 @@ from __future__ import annotations
 __all__: list[str] = [
     "AbstractDescriptor",
     "AbstractInjectionContext",
-    "as_self_injecting",
     "BasicInjectionContext",
     "CallbackDescriptor",
     "CallbackSig",
-    "Undefined",
-    "UNDEFINED",
-    "UndefinedOr",
-    "inject",
-    "injected",
     "Injected",
     "InjectorClient",
     "SelfInjectingCallback",
     "TypeDescriptor",
+    "UNDEFINED",
+    "Undefined",
+    "UndefinedOr",
+    "as_self_injecting",
+    "inject",
+    "injected",
 ]
 
 import abc

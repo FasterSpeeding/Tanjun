@@ -43,9 +43,9 @@ __all__: list[str] = [
     "ModuleMissingLoaders",
     "ModuleStateConflict",
     "NotEnoughArgumentsError",
-    "TooManyArgumentsError",
     "ParserError",
     "TanjunError",
+    "TooManyArgumentsError",
 ]
 
 import typing

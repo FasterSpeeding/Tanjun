@@ -33,7 +33,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "gather_checks",
     "ALL_PERMISSIONS",
     "CastedView",
     "DM_PERMISSIONS",
@@ -41,6 +40,7 @@ __all__: list[str] = [
     "calculate_permissions",
     "fetch_everyone_permissions",
     "fetch_permissions",
+    "gather_checks",
     "match_prefix_names",
 ]
 

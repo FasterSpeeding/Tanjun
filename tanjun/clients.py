@@ -33,13 +33,13 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "as_loader",
-    "as_unloader",
     "Client",
     "ClientCallbackNames",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
     "PrefixGetterSigT",
+    "as_loader",
+    "as_unloader",
 ]
 
 import asyncio
