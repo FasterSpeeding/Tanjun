@@ -14,4 +14,4 @@ repos:
         language: python
         language_version: python3
         args: []
-        additional_dependencies: ["-r nox-requirements.txt"]
+        additional_dependencies: ["-rnox-requirements.txt"]
