@@ -110,7 +110,7 @@ typeCheckingMode = "strict"
 reportMissingModuleSource = "error"
 reportMissingTypeStubs = "error"
 
-reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments 
+reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments
                                                 # which is more annoying than it's worth
 reportUnknownMemberType = "warning"             # This messes with instance checking generic objects
 reportUnknownArgumentType = "warning"           # Pretty much the same as reportUnknownMemberType

@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped the minimum hikari version to `hikari~=2.0.0.dev106`.
 
 ### Fixed
-- False-positive cache warnings from the standard converters. 
+- False-positive cache warnings from the standard converters.
 - Mishandled edge cases for to_color.
 - Mishandling of greedy arguments as reported by #200
 
@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Context.get_channel` no longer raises an assertion error if the cache returns `None`.
 - Schedules are now stopped if they are removed from a component while active.
 - Schedules will no-longer raise a RuntimeError while closing a component if they were stopped before
-  before hand. 
+  before hand.
 
 ## [2.3.0a1] - 2022-01-13
 ### Added
@@ -154,7 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.0a1] - 2021-11-23
 ### Added
 - Upgraded `is_alive` attribute to the Client abstract interface.
-- Upgraded `clear_application_commands`, `declare_global_commands`, `declare_slash_command` and 
+- Upgraded `clear_application_commands`, `declare_global_commands`, `declare_slash_command` and
   `declare_slash_commands` to the Client abstract interface.
 - `Client.dispatch_client_callback` and `ClientCallbackNames` to the abstract interface.
 - Client and Component are now bound to a specific event loop with said loop being exposed by a `loop` property.
@@ -183,7 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.4a1] - 2021-11-15
 ### Added
-- `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let users make a callback self-injecting 
+- `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let users make a callback self-injecting
   by linking it to a client instance. This should make it easier to use Tanjun's dependency injection
   externally.
 - Dependency injection support for hook callbacks.
