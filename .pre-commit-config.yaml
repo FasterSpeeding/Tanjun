@@ -15,6 +15,6 @@ repos:
     hooks:
     - id: isort
   - repo: https://github.com/FasterSpeeding/sort-all
-    rev: v1.1.0
+#     rev: v1.1.0
     hooks:
     - id: sort-all
