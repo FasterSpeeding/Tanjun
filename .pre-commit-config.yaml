@@ -11,8 +11,13 @@ repos:
     -   id: nox-reformat
         name: nox reformat
         description: Reformat code and meta files.
-        entry: nox -s reformat --no-venv
+        entry: nox -s reformat --no-venv -- --skip-install
         language: python
         language_version: python3
-        additional_dependencies: ["flit", "nox==2022.1.7"]
+        additional_dependencies: [
+            "black==22.1",
+            "isort==5.10.1",
+            "nox==2022.1.7",
+            "sort-all @ git+https://github.com/FasterSpeeding/sort-all.git@task/handle-empty"
+        ]
         pass_filenames: false
