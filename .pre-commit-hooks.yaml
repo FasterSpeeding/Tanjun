@@ -1,0 +1,8 @@
+- id: nox-reformat
+  name: nox -s reformat
+  description: Reformat code and meta files.
+  entry: nox -s reformat
+  language: python
+  language_version: python3
+  args: []
+  additional_dependencies: ["-r nox-requirements.txt"]
