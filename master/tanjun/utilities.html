@@ -31,9 +31,6 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="function" href="#gather_checks">gather_checks</a>
-            </li>
-            <li>
                     <a class="variable" href="#ALL_PERMISSIONS">ALL_PERMISSIONS</a>
             </li>
             <li>
@@ -59,6 +56,9 @@
             </li>
             <li>
                     <a class="function" href="#fetch_permissions">fetch_permissions</a>
+            </li>
+            <li>
+                    <a class="function" href="#gather_checks">gather_checks</a>
             </li>
             <li>
                     <a class="function" href="#match_prefix_names">match_prefix_names</a>
@@ -119,7 +119,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;gather_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ALL_PERMISSIONS&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CastedView&quot;</span><span class="p">,</span>
     <span class="s2">&quot;DM_PERMISSIONS&quot;</span><span class="p">,</span>
@@ -127,6 +126,7 @@
     <span class="s2">&quot;calculate_permissions&quot;</span><span class="p">,</span>
     <span class="s2">&quot;fetch_everyone_permissions&quot;</span><span class="p">,</span>
     <span class="s2">&quot;fetch_permissions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gather_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;match_prefix_names&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -563,67 +563,6 @@
         </details>
 
             </section>
-                <section id="gather_checks">
-                            <div class="attr function"><a class="headerlink" href="#gather_checks">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">gather_checks</span><span class="signature">(
-    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
-    checks_: collections.abc.Iterable[<a href="checks.html#InjectableCheck">tanjun.checks.InjectableCheck</a>],
-    /
-) -&gt; bool</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ctx : tanjun.abc.Context</span>
-<span class="sd">        The context to check.</span>
-<span class="sd">    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]</span>
-<span class="sd">        An iterable of injectable checks.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    bool</span>
-<span class="sd">        Whether all the checks passed or not.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
-        <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
-        <span class="c1"># we get this far then it&#39;s True.</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Gather a collection of checks.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
-The context to check.</li>
-<li><strong>checks</strong> (collections.abc.Iterable[<a href="injecting.html#InjectableCheck">tanjun.injecting.InjectableCheck</a>]):
-An iterable of injectable checks.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether all the checks passed or not.</li>
-</ul>
-</div>
-
-
-                </section>
                 <section id="ALL_PERMISSIONS">
                                 <div class="attr variable"><a class="headerlink" href="#ALL_PERMISSIONS">#&nbsp;&nbsp</a>
 
@@ -1184,6 +1123,67 @@ permissions.</li>
 
 <ul>
 <li><strong>hikari.Permissions</strong>: The calculated permissions.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="gather_checks">
+                            <div class="attr function"><a class="headerlink" href="#gather_checks">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">gather_checks</span><span class="signature">(
+    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
+    checks_: collections.abc.Iterable[<a href="checks.html#InjectableCheck">tanjun.checks.InjectableCheck</a>],
+    /
+) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ctx : tanjun.abc.Context</span>
+<span class="sd">        The context to check.</span>
+<span class="sd">    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]</span>
+<span class="sd">        An iterable of injectable checks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Whether all the checks passed or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
+        <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
+        <span class="c1"># we get this far then it&#39;s True.</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Gather a collection of checks.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
+The context to check.</li>
+<li><strong>checks</strong> (collections.abc.Iterable[<a href="injecting.html#InjectableCheck">tanjun.injecting.InjectableCheck</a>]):
+An iterable of injectable checks.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether all the checks passed or not.</li>
 </ul>
 </div>
 

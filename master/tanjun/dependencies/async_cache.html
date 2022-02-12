@@ -43,21 +43,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#ChannelBoundCache">ChannelBoundCache</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#ChannelBoundCache.get_from_channel">get_from_channel</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ChannelBoundCache.iter_for_channel">iter_for_channel</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ChannelBoundCache.iter_all">iter_all</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="class" href="#CacheIterator">CacheIterator</a>
                             <ul class="memberlist">
                         <li>
@@ -69,6 +54,21 @@
             <li>
                     <a class="class" href="#CacheMissError">CacheMissError</a>
                             <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ChannelBoundCache">ChannelBoundCache</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ChannelBoundCache.get_from_channel">get_from_channel</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ChannelBoundCache.iter_for_channel">iter_for_channel</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ChannelBoundCache.iter_all">iter_all</a>
+                        </li>
                 </ul>
 
             </li>
@@ -94,15 +94,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#SingleStoreCache">SingleStoreCache</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#SingleStoreCache.get">get</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="variable" href="#SfCache">SfCache</a>
             </li>
             <li>
@@ -110,6 +101,15 @@
             </li>
             <li>
                     <a class="variable" href="#SfGuildBound">SfGuildBound</a>
+            </li>
+            <li>
+                    <a class="class" href="#SingleStoreCache">SingleStoreCache</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#SingleStoreCache.get">get</a>
+                        </li>
+                </ul>
+
             </li>
     </ul>
 
@@ -225,15 +225,15 @@ registered with the client:</p>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AsyncCache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ChannelBoundCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CacheIterator&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CacheMissError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ChannelBoundCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;EntryNotFound&quot;</span><span class="p">,</span>
     <span class="s2">&quot;GuildBoundCache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SingleStoreCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SfCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SfChannelBound&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SfGuildBound&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SingleStoreCache&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
@@ -794,6 +794,166 @@ For more information on how this is used, see the documentation for
 
                             </div>
                 </section>
+                <section id="CacheIterator">
+                                <div class="attr class">
+        <a class="headerlink" href="#CacheIterator">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">CacheIterator</span><wbr>(<span class="base">hikari.iterators.LazyIterator[~_ValueT]</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CacheIterator</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">LazyIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract interface of a cache resource asynchronous iterator.</span>
+
+<span class="sd">    For more information on how this is used, see the documentation for</span>
+<span class="sd">    `hikari.LazyIterator`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the length of the target resource.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike `CacheIterator.count`, this method will not deplete</span>
+<span class="sd">            the iterator.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The length of the targeted resource.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Abstract interface of a cache resource asynchronous iterator.</p>
+
+<p>For more information on how this is used, see the documentation for
+<code>hikari.LazyIterator</code>.</p>
+</div>
+
+
+                            <div id="CacheIterator.len" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CacheIterator.len">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">len</span><span class="signature">(self) -&gt; int</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the length of the target resource.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike `CacheIterator.count`, this method will not deplete</span>
+<span class="sd">            the iterator.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The length of the targeted resource.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get the length of the target resource.</p>
+
+<p><em>Note:</em>
+Unlike <code><a href="#CacheIterator.count">CacheIterator.count</a></code>, this method will not deplete
+the iterator.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>int</strong>: The length of the targeted resource.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>hikari.iterators.LazyIterator</dt>
+                                <dd id="CacheIterator.chunk" class="function">chunk</dd>
+                <dd id="CacheIterator.map" class="function">map</dd>
+                <dd id="CacheIterator.for_each" class="function">for_each</dd>
+                <dd id="CacheIterator.filter" class="function">filter</dd>
+                <dd id="CacheIterator.take_while" class="function">take_while</dd>
+                <dd id="CacheIterator.take_until" class="function">take_until</dd>
+                <dd id="CacheIterator.skip_while" class="function">skip_while</dd>
+                <dd id="CacheIterator.skip_until" class="function">skip_until</dd>
+                <dd id="CacheIterator.enumerate" class="function">enumerate</dd>
+                <dd id="CacheIterator.limit" class="function">limit</dd>
+                <dd id="CacheIterator.skip" class="function">skip</dd>
+                <dd id="CacheIterator.next" class="function">next</dd>
+                <dd id="CacheIterator.last" class="function">last</dd>
+                <dd id="CacheIterator.reversed" class="function">reversed</dd>
+                <dd id="CacheIterator.sort" class="function">sort</dd>
+                <dd id="CacheIterator.collect" class="function">collect</dd>
+                <dd id="CacheIterator.count" class="function">count</dd>
+                <dd id="CacheIterator.flat_map" class="function">flat_map</dd>
+                <dd id="CacheIterator.awaiting" class="function">awaiting</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="CacheMissError">
+                                <div class="attr class">
+        <a class="headerlink" href="#CacheMissError">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">CacheMissError</span><wbr>(<span class="base"><a href="../errors.html#TanjunError">tanjun.errors.TanjunError</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CacheMissError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">TanjunError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when an entry isn&#39;t found in the cache.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `EntryNotFound` inherits from this error and will only be raised</span>
+<span class="sd">        if the cache knows that the entry doesn&#39;t exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Raised when an entry isn't found in the cache.</p>
+
+<p><em>Note:</em>
+<code><a href="#EntryNotFound">EntryNotFound</a></code> inherits from this error and will only be raised
+if the cache knows that the entry doesn't exist.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="CacheMissError.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="CacheMissError.with_traceback" class="function">with_traceback</dd>
+                <dd id="CacheMissError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
                 <section id="ChannelBoundCache">
                                 <div class="attr class">
         <a class="headerlink" href="#ChannelBoundCache">#&nbsp;&nbsp</a>
@@ -1069,166 +1229,6 @@ For more information on how this is used, see the documentation for
 </div>
 
 
-                            </div>
-                </section>
-                <section id="CacheIterator">
-                                <div class="attr class">
-        <a class="headerlink" href="#CacheIterator">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">CacheIterator</span><wbr>(<span class="base">hikari.iterators.LazyIterator[~_ValueT]</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CacheIterator</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">LazyIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract interface of a cache resource asynchronous iterator.</span>
-
-<span class="sd">    For more information on how this is used, see the documentation for</span>
-<span class="sd">    `hikari.LazyIterator`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the length of the target resource.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            Unlike `CacheIterator.count`, this method will not deplete</span>
-<span class="sd">            the iterator.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        int</span>
-<span class="sd">            The length of the targeted resource.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Abstract interface of a cache resource asynchronous iterator.</p>
-
-<p>For more information on how this is used, see the documentation for
-<code>hikari.LazyIterator</code>.</p>
-</div>
-
-
-                            <div id="CacheIterator.len" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#CacheIterator.len">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">async def</span>
-            <span class="name">len</span><span class="signature">(self) -&gt; int</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the length of the target resource.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            Unlike `CacheIterator.count`, this method will not deplete</span>
-<span class="sd">            the iterator.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        int</span>
-<span class="sd">            The length of the targeted resource.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Get the length of the target resource.</p>
-
-<p><em>Note:</em>
-Unlike <code><a href="#CacheIterator.count">CacheIterator.count</a></code>, this method will not deplete
-the iterator.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>int</strong>: The length of the targeted resource.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>hikari.iterators.LazyIterator</dt>
-                                <dd id="CacheIterator.chunk" class="function">chunk</dd>
-                <dd id="CacheIterator.map" class="function">map</dd>
-                <dd id="CacheIterator.for_each" class="function">for_each</dd>
-                <dd id="CacheIterator.filter" class="function">filter</dd>
-                <dd id="CacheIterator.take_while" class="function">take_while</dd>
-                <dd id="CacheIterator.take_until" class="function">take_until</dd>
-                <dd id="CacheIterator.skip_while" class="function">skip_while</dd>
-                <dd id="CacheIterator.skip_until" class="function">skip_until</dd>
-                <dd id="CacheIterator.enumerate" class="function">enumerate</dd>
-                <dd id="CacheIterator.limit" class="function">limit</dd>
-                <dd id="CacheIterator.skip" class="function">skip</dd>
-                <dd id="CacheIterator.next" class="function">next</dd>
-                <dd id="CacheIterator.last" class="function">last</dd>
-                <dd id="CacheIterator.reversed" class="function">reversed</dd>
-                <dd id="CacheIterator.sort" class="function">sort</dd>
-                <dd id="CacheIterator.collect" class="function">collect</dd>
-                <dd id="CacheIterator.count" class="function">count</dd>
-                <dd id="CacheIterator.flat_map" class="function">flat_map</dd>
-                <dd id="CacheIterator.awaiting" class="function">awaiting</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="CacheMissError">
-                                <div class="attr class">
-        <a class="headerlink" href="#CacheMissError">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">CacheMissError</span><wbr>(<span class="base"><a href="../errors.html#TanjunError">tanjun.errors.TanjunError</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CacheMissError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">TanjunError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raised when an entry isn&#39;t found in the cache.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        `EntryNotFound` inherits from this error and will only be raised</span>
-<span class="sd">        if the cache knows that the entry doesn&#39;t exist.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Raised when an entry isn't found in the cache.</p>
-
-<p><em>Note:</em>
-<code><a href="#EntryNotFound">EntryNotFound</a></code> inherits from this error and will only be raised
-if the cache knows that the entry doesn't exist.</p>
-</div>
-
-
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.Exception</dt>
-                                <dd id="CacheMissError.__init__" class="function">Exception</dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="CacheMissError.with_traceback" class="function">with_traceback</dd>
-                <dd id="CacheMissError.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
                             </div>
                 </section>
                 <section id="EntryNotFound">
@@ -1588,6 +1588,39 @@ For more information on how this is used, see the documentation for
 
                             </div>
                 </section>
+                <section id="SfCache">
+                                <div class="attr variable"><a class="headerlink" href="#SfCache">#&nbsp;&nbsp</a>
+
+        <span class="name">SfCache</span><span class="default_value"> = <a href="#AsyncCache">tanjun.dependencies.async_cache.AsyncCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
+    </div>
+
+            <div class="docstring"><p>Alias of <code><a href="#AsyncCache">AsyncCache</a></code> where the key is a snowflake.</p>
+</div>
+
+
+                </section>
+                <section id="SfChannelBound">
+                                <div class="attr variable"><a class="headerlink" href="#SfChannelBound">#&nbsp;&nbsp</a>
+
+        <span class="name">SfChannelBound</span><span class="default_value"> = <a href="#ChannelBoundCache">tanjun.dependencies.async_cache.ChannelBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
+    </div>
+
+            <div class="docstring"><p>Alias of <code><a href="#ChannelBoundCache">ChannelBoundCache</a></code> where the key is a snowflake.</p>
+</div>
+
+
+                </section>
+                <section id="SfGuildBound">
+                                <div class="attr variable"><a class="headerlink" href="#SfGuildBound">#&nbsp;&nbsp</a>
+
+        <span class="name">SfGuildBound</span><span class="default_value"> = <a href="#GuildBoundCache">tanjun.dependencies.async_cache.GuildBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
+    </div>
+
+            <div class="docstring"><p>Alias of <code><a href="#GuildBoundCache">GuildBoundCache</a></code> where the key is a snowflake.</p>
+</div>
+
+
+                </section>
                 <section id="SingleStoreCache">
                                 <div class="attr class">
         <a class="headerlink" href="#SingleStoreCache">#&nbsp;&nbsp</a>
@@ -1741,39 +1774,6 @@ before <code><a href="#CacheMissError">CacheMissError</a></code> in a try, multi
 
 
                             </div>
-                </section>
-                <section id="SfCache">
-                                <div class="attr variable"><a class="headerlink" href="#SfCache">#&nbsp;&nbsp</a>
-
-        <span class="name">SfCache</span><span class="default_value"> = <a href="#AsyncCache">tanjun.dependencies.async_cache.AsyncCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
-    </div>
-
-            <div class="docstring"><p>Alias of <code><a href="#AsyncCache">AsyncCache</a></code> where the key is a snowflake.</p>
-</div>
-
-
-                </section>
-                <section id="SfChannelBound">
-                                <div class="attr variable"><a class="headerlink" href="#SfChannelBound">#&nbsp;&nbsp</a>
-
-        <span class="name">SfChannelBound</span><span class="default_value"> = <a href="#ChannelBoundCache">tanjun.dependencies.async_cache.ChannelBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
-    </div>
-
-            <div class="docstring"><p>Alias of <code><a href="#ChannelBoundCache">ChannelBoundCache</a></code> where the key is a snowflake.</p>
-</div>
-
-
-                </section>
-                <section id="SfGuildBound">
-                                <div class="attr variable"><a class="headerlink" href="#SfGuildBound">#&nbsp;&nbsp</a>
-
-        <span class="name">SfGuildBound</span><span class="default_value"> = <a href="#GuildBoundCache">tanjun.dependencies.async_cache.GuildBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
-    </div>
-
-            <div class="docstring"><p>Alias of <code><a href="#GuildBoundCache">GuildBoundCache</a></code> where the key is a snowflake.</p>
-</div>
-
-
                 </section>
     </main>
 <script>

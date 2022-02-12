@@ -31,12 +31,6 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
-                    <a class="function" href="#as_loader">as_loader</a>
-            </li>
-            <li>
-                    <a class="function" href="#as_unloader">as_unloader</a>
-            </li>
-            <li>
                     <a class="class" href="#Client">Client</a>
                             <ul class="memberlist">
                         <li>
@@ -363,6 +357,12 @@
             <li>
                     <a class="variable" href="#PrefixGetterSigT">PrefixGetterSigT</a>
             </li>
+            <li>
+                    <a class="function" href="#as_loader">as_loader</a>
+            </li>
+            <li>
+                    <a class="function" href="#as_unloader">as_unloader</a>
+            </li>
     </ul>
 
 
@@ -419,13 +419,13 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;as_loader&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;as_unloader&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ClientCallbackNames&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MessageAcceptsEnum&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PrefixGetterSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PrefixGetterSigT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;as_loader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;as_unloader&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">asyncio</span>
@@ -3155,170 +3155,6 @@
         </details>
 
             </section>
-                <section id="as_loader">
-                            <div class="attr function"><a class="headerlink" href="#as_loader">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">as_loader</span><span class="signature">(
-    callback: Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]],
-    /,
-    *,
-    standard_impl: bool = True
-) -&gt; Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Mark a callback as being used to load Tanjun components from a module.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        This is only necessary if you wish to use `tanjun.Client.load_modules`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.Client], None]]</span>
-<span class="sd">        The callback used to load Tanjun components from a module.</span>
-
-<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
-<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
-<span class="sd">        to initiate and add utilities such as components to the provided client.</span>
-<span class="sd">    standard_impl : bool</span>
-<span class="sd">        Whether this loader should only allow instances of `Client` as opposed</span>
-<span class="sd">        to `tanjun.abc.Client`.</span>
-
-<span class="sd">        Defaults to `True`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[tanjun.abc.Client], None]]</span>
-<span class="sd">        The decorated load callback.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Mark a callback as being used to load Tanjun components from a module.</p>
-
-<p><em>Note:</em>
-This is only necessary if you wish to use <code><a href="../tanjun.html#Client.load_modules">tanjun.Client.load_modules</a></code>.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]):
-The callback used to load Tanjun components from a module.</p>
-
-<p>This should take one argument of type <code><a href="#Client">Client</a></code> (or <code><a href="abc.html#Client">tanjun.abc.Client</a></code>
-if <code>standard_impl</code> is <code>False</code>), return nothing and will be expected
-to initiate and add utilities such as components to the provided client.</p></li>
-<li><p><strong>standard_impl</strong> (bool):
-Whether this loader should only allow instances of <code><a href="#Client">Client</a></code> as opposed
-to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
-
-<p>Defaults to <code>True</code>.</p></li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</strong>: The decorated load callback.</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="as_unloader">
-                            <div class="attr function"><a class="headerlink" href="#as_unloader">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">as_unloader</span><span class="signature">(
-    callback: Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]],
-    /,
-    *,
-    standard_impl: bool = True
-) -&gt; Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Mark a callback as being used to unload a module&#39;s utilities from a client.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        This is the inverse of `as_loader` and is only necessary if you wish</span>
-<span class="sd">        to use the `tanjun.Client.unload_module` or</span>
-<span class="sd">        `tanjun.Client.reload_module`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : collections.abc.Callable[[tanjun.Client], None]]</span>
-<span class="sd">        The callback used to unload Tanjun components from a module.</span>
-
-<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
-<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
-<span class="sd">        to remove utilities such as components from the provided client.</span>
-<span class="sd">    standard_impl : bool</span>
-<span class="sd">        Whether this unloader should only allow instances of `Client` as</span>
-<span class="sd">        opposed to `tanjun.abc.Client`.</span>
-
-<span class="sd">        Defaults to `True`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
-<span class="sd">        The decorated unload callback.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Mark a callback as being used to unload a module's utilities from a client.</p>
-
-<p><em>Note:</em>
-This is the inverse of <code><a href="#as_loader">as_loader</a></code> and is only necessary if you wish
-to use the <code><a href="../tanjun.html#Client.unload_module">tanjun.Client.unload_module</a></code> or
-<code><a href="../tanjun.html#Client.reload_module">tanjun.Client.reload_module</a></code>.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]):
-The callback used to unload Tanjun components from a module.</p>
-
-<p>This should take one argument of type <code><a href="#Client">Client</a></code> (or <code><a href="abc.html#Client">tanjun.abc.Client</a></code>
-if <code>standard_impl</code> is <code>False</code>), return nothing and will be expected
-to remove utilities such as components from the provided client.</p></li>
-<li><p><strong>standard_impl</strong> (bool):
-Whether this unloader should only allow instances of <code><a href="#Client">Client</a></code> as
-opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
-
-<p>Defaults to <code>True</code>.</p></li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]</strong>: The decorated unload callback.</li>
-</ul>
-</div>
-
-
-                </section>
                 <section id="Client">
                                 <div class="attr class">
         <a class="headerlink" href="#Client">#&nbsp;&nbsp</a>
@@ -10937,6 +10773,170 @@ argument will always be a <code><a href="abc.html#MessageContext">tanjun.abc.Mes
     </div>
 
     
+
+                </section>
+                <section id="as_loader">
+                            <div class="attr function"><a class="headerlink" href="#as_loader">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">as_loader</span><span class="signature">(
+    callback: Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]],
+    /,
+    *,
+    standard_impl: bool = True
+) -&gt; Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Mark a callback as being used to load Tanjun components from a module.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This is only necessary if you wish to use `tanjun.Client.load_modules`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.Client], None]]</span>
+<span class="sd">        The callback used to load Tanjun components from a module.</span>
+
+<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
+<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
+<span class="sd">        to initiate and add utilities such as components to the provided client.</span>
+<span class="sd">    standard_impl : bool</span>
+<span class="sd">        Whether this loader should only allow instances of `Client` as opposed</span>
+<span class="sd">        to `tanjun.abc.Client`.</span>
+
+<span class="sd">        Defaults to `True`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.Client], None]]</span>
+<span class="sd">        The decorated load callback.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mark a callback as being used to load Tanjun components from a module.</p>
+
+<p><em>Note:</em>
+This is only necessary if you wish to use <code><a href="../tanjun.html#Client.load_modules">tanjun.Client.load_modules</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]):
+The callback used to load Tanjun components from a module.</p>
+
+<p>This should take one argument of type <code><a href="#Client">Client</a></code> (or <code><a href="abc.html#Client">tanjun.abc.Client</a></code>
+if <code>standard_impl</code> is <code>False</code>), return nothing and will be expected
+to initiate and add utilities such as components to the provided client.</p></li>
+<li><p><strong>standard_impl</strong> (bool):
+Whether this loader should only allow instances of <code><a href="#Client">Client</a></code> as opposed
+to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</strong>: The decorated load callback.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="as_unloader">
+                            <div class="attr function"><a class="headerlink" href="#as_unloader">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">as_unloader</span><span class="signature">(
+    callback: Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]],
+    /,
+    *,
+    standard_impl: bool = True
+) -&gt; Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Mark a callback as being used to unload a module&#39;s utilities from a client.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This is the inverse of `as_loader` and is only necessary if you wish</span>
+<span class="sd">        to use the `tanjun.Client.unload_module` or</span>
+<span class="sd">        `tanjun.Client.reload_module`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.Client], None]]</span>
+<span class="sd">        The callback used to unload Tanjun components from a module.</span>
+
+<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
+<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
+<span class="sd">        to remove utilities such as components from the provided client.</span>
+<span class="sd">    standard_impl : bool</span>
+<span class="sd">        Whether this unloader should only allow instances of `Client` as</span>
+<span class="sd">        opposed to `tanjun.abc.Client`.</span>
+
+<span class="sd">        Defaults to `True`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
+<span class="sd">        The decorated unload callback.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mark a callback as being used to unload a module's utilities from a client.</p>
+
+<p><em>Note:</em>
+This is the inverse of <code><a href="#as_loader">as_loader</a></code> and is only necessary if you wish
+to use the <code><a href="../tanjun.html#Client.unload_module">tanjun.Client.unload_module</a></code> or
+<code><a href="../tanjun.html#Client.reload_module">tanjun.Client.reload_module</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]):
+The callback used to unload Tanjun components from a module.</p>
+
+<p>This should take one argument of type <code><a href="#Client">Client</a></code> (or <code><a href="abc.html#Client">tanjun.abc.Client</a></code>
+if <code>standard_impl</code> is <code>False</code>), return nothing and will be expected
+to remove utilities such as components from the provided client.</p></li>
+<li><p><strong>standard_impl</strong> (bool):
+Whether this unloader should only allow instances of <code><a href="#Client">Client</a></code> as
+opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]</strong>: The decorated unload callback.</li>
+</ul>
+</div>
+
 
                 </section>
     </main>

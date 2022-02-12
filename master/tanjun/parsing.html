@@ -154,6 +154,9 @@
 
             </li>
             <li>
+                    <a class="variable" href="#UNDEFINED">UNDEFINED</a>
+            </li>
+            <li>
                     <a class="class" href="#UndefinedT">UndefinedT</a>
                             <ul class="memberlist">
                         <li>
@@ -161,9 +164,6 @@
                         </li>
                 </ul>
 
-            </li>
-            <li>
-                    <a class="variable" href="#UNDEFINED">UNDEFINED</a>
             </li>
             <li>
                     <a class="function" href="#with_argument">with_argument</a>
@@ -175,10 +175,10 @@
                     <a class="function" href="#with_multi_argument">with_multi_argument</a>
             </li>
             <li>
-                    <a class="function" href="#with_option">with_option</a>
+                    <a class="function" href="#with_multi_option">with_multi_option</a>
             </li>
             <li>
-                    <a class="function" href="#with_multi_option">with_multi_option</a>
+                    <a class="function" href="#with_option">with_option</a>
             </li>
             <li>
                     <a class="function" href="#with_parser">with_parser</a>
@@ -245,13 +245,13 @@
     <span class="s2">&quot;Option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Parameter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ShlexParser&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;UndefinedT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;UNDEFINED&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UndefinedT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_argument&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_greedy_argument&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_multi_argument&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;with_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_multi_option&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_parser&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -4305,6 +4305,17 @@ The message context to parse.</li>
 
                             </div>
                 </section>
+                <section id="UNDEFINED">
+                                <div class="attr variable"><a class="headerlink" href="#UNDEFINED">#&nbsp;&nbsp</a>
+
+        <span class="name">UNDEFINED</span><span class="default_value"> = UNDEFINED</span>
+    </div>
+
+            <div class="docstring"><p>A singleton used to represent an undefined value within parsing logic.</p>
+</div>
+
+
+                </section>
                 <section id="UndefinedT">
                                 <div class="attr class">
         <a class="headerlink" href="#UndefinedT">#&nbsp;&nbsp</a>
@@ -4352,17 +4363,6 @@ The message context to parse.</li>
     
 
                             </div>
-                </section>
-                <section id="UNDEFINED">
-                                <div class="attr variable"><a class="headerlink" href="#UNDEFINED">#&nbsp;&nbsp</a>
-
-        <span class="name">UNDEFINED</span><span class="default_value"> = UNDEFINED</span>
-    </div>
-
-            <div class="docstring"><p>A singleton used to represent an undefined value within parsing logic.</p>
-</div>
-
-
                 </section>
                 <section id="with_argument">
                             <div class="attr function"><a class="headerlink" href="#with_argument">#&nbsp;&nbsp</a>
@@ -4876,6 +4876,194 @@ with the result of them.</p>
 
 
                 </section>
+                <section id="with_multi_option">
+                            <div class="attr function"><a class="headerlink" href="#with_multi_option">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_multi_option</span><span class="signature">(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    default: Any,
+    empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
+    max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
+    min_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_multi_option</span><span class="p">(</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+    <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add an multi-option to a command&#39;s parser through a decorator call.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * A multi option will consume all the values provided for an option and</span>
+<span class="sd">      pass them through to the converters as an array of strings while also</span>
+<span class="sd">      requiring that at least one value is provided for the option unless</span>
+<span class="sd">      a default is set.</span>
+<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
+<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key : str</span>
+<span class="sd">        The string identifier of this option which will be used to pass the</span>
+<span class="sd">        result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">        a keyword argument.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">    default : typing.Any</span>
+<span class="sd">        The default value of this argument, unlike arguments this is required</span>
+<span class="sd">        for options.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    *names : str</span>
+<span class="sd">        Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">    converters : ConverterSig | collections.abc.Iterable[ConverterSig]</span>
+<span class="sd">        The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">        during parsing.</span>
+
+<span class="sd">        If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">        Only the first converter to pass will be used.</span>
+<span class="sd">    empty_value : typing.Any</span>
+<span class="sd">        The value to use if this option is provided without a value. If left as</span>
+<span class="sd">        `UNDEFINED` then this option will error if it&#39;s</span>
+<span class="sd">        provided without a value.</span>
+<span class="sd">    max_value</span>
+<span class="sd">        Assert that the parsed value(s) for this option are less than or equal to this.</span>
+
+<span class="sd">        If any converters are provided then this should be compatible</span>
+<span class="sd">        with the result of them.</span>
+<span class="sd">    min_value</span>
+<span class="sd">        Assert that the parsed value(s) for this option are greater than or equal to this.</span>
+
+<span class="sd">        If any converters are provided then this should be compatible</span>
+<span class="sd">        with the result of them.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:</span>
+<span class="sd">        Decorator function for the message command this option is being added to.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    import tanjun</span>
+
+<span class="sd">    @tanjun.parsing.with_multi_option(&quot;command&quot;, converters=int, default=())</span>
+<span class="sd">    @tanjun.parsing.with_parser</span>
+<span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
+<span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):</span>
+<span class="sd">        ...</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">with_option</span><span class="p">(</span>
+        <span class="n">key</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">,</span>
+        <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+        <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an multi-option to a command's parser through a decorator call.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>A multi option will consume all the values provided for an option and
+pass them through to the converters as an array of strings while also
+requiring that at least one value is provided for the option unless
+a default is set.</li>
+<li>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</li>
+</ul>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</li>
+<li><strong>name</strong> (str):
+The name of this option used for identifying it in the parsed content.</li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, unlike arguments this is required
+for options.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*names</strong> (str):
+Other names of this option used for identifying it in the parsed content.</li>
+<li><p><strong>converters</strong> (ConverterSig | collections.abc.Iterable[ConverterSig]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>empty_value</strong> (typing.Any):
+The value to use if this option is provided without a value. If left as
+<code><a href="#UNDEFINED">UNDEFINED</a></code> then this option will error if it's
+provided without a value.</li>
+<li><strong>max_value</strong>: Assert that the parsed value(s) for this option are less than or equal to this.</li>
+</ul>
+
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+
+<ul>
+<li><strong>min_value</strong>: Assert that the parsed value(s) for this option are greater than or equal to this.</li>
+</ul>
+
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>], <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]:</strong>: Decorator function for the message command this option is being added to.</li>
+</ul>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+    <span class="o">...</span>
+</code></pre></div>
+</div>
+
+
+                </section>
                 <section id="with_option">
                             <div class="attr function"><a class="headerlink" href="#with_option">#&nbsp;&nbsp</a>
 
@@ -5062,194 +5250,6 @@ Defaults to <code>False</code>.</li>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="o">...</span>
-</code></pre></div>
-</div>
-
-
-                </section>
-                <section id="with_multi_option">
-                            <div class="attr function"><a class="headerlink" href="#with_multi_option">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">with_multi_option</span><span class="signature">(
-    key: str,
-    name: str,
-    /,
-    *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
-    default: Any,
-    empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
-    max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
-    min_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED
-) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_multi_option</span><span class="p">(</span>
-    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">converters</span><span class="p">:</span> <span class="n">_MaybeIterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-    <span class="n">empty_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="n">max_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="n">min_value</span><span class="p">:</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">_CmpProto</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">UNDEFINED</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Add an multi-option to a command&#39;s parser through a decorator call.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * A multi option will consume all the values provided for an option and</span>
-<span class="sd">      pass them through to the converters as an array of strings while also</span>
-<span class="sd">      requiring that at least one value is provided for the option unless</span>
-<span class="sd">      a default is set.</span>
-<span class="sd">    * If no parser is explicitly set on the command this is decorating before</span>
-<span class="sd">      this decorator call then this will set `ShlexParser` as the parser.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    key : str</span>
-<span class="sd">        The string identifier of this option which will be used to pass the</span>
-<span class="sd">        result of this argument to the command&#39;s callback during execution as</span>
-<span class="sd">        a keyword argument.</span>
-<span class="sd">    name : str</span>
-<span class="sd">        The name of this option used for identifying it in the parsed content.</span>
-<span class="sd">    default : typing.Any</span>
-<span class="sd">        The default value of this argument, unlike arguments this is required</span>
-<span class="sd">        for options.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    *names : str</span>
-<span class="sd">        Other names of this option used for identifying it in the parsed content.</span>
-<span class="sd">    converters : ConverterSig | collections.abc.Iterable[ConverterSig]</span>
-<span class="sd">        The converter(s) this argument should use to handle values passed to it</span>
-<span class="sd">        during parsing.</span>
-
-<span class="sd">        If no converters are provided then the raw string value will be passed.</span>
-
-<span class="sd">        Only the first converter to pass will be used.</span>
-<span class="sd">    empty_value : typing.Any</span>
-<span class="sd">        The value to use if this option is provided without a value. If left as</span>
-<span class="sd">        `UNDEFINED` then this option will error if it&#39;s</span>
-<span class="sd">        provided without a value.</span>
-<span class="sd">    max_value</span>
-<span class="sd">        Assert that the parsed value(s) for this option are less than or equal to this.</span>
-
-<span class="sd">        If any converters are provided then this should be compatible</span>
-<span class="sd">        with the result of them.</span>
-<span class="sd">    min_value</span>
-<span class="sd">        Assert that the parsed value(s) for this option are greater than or equal to this.</span>
-
-<span class="sd">        If any converters are provided then this should be compatible</span>
-<span class="sd">        with the result of them.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:</span>
-<span class="sd">        Decorator function for the message command this option is being added to.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    ```python</span>
-<span class="sd">    import tanjun</span>
-
-<span class="sd">    @tanjun.parsing.with_multi_option(&quot;command&quot;, converters=int, default=())</span>
-<span class="sd">    @tanjun.parsing.with_parser</span>
-<span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
-<span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):</span>
-<span class="sd">        ...</span>
-<span class="sd">    ```</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">with_option</span><span class="p">(</span>
-        <span class="n">key</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">,</span>
-        <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span>
-        <span class="n">max_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
-        <span class="n">min_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
-        <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Add an multi-option to a command's parser through a decorator call.</p>
-
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>A multi option will consume all the values provided for an option and
-pass them through to the converters as an array of strings while also
-requiring that at least one value is provided for the option unless
-a default is set.</li>
-<li>If no parser is explicitly set on the command this is decorating before
-this decorator call then this will set <code><a href="#ShlexParser">ShlexParser</a></code> as the parser.</li>
-</ul>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>key</strong> (str):
-The string identifier of this option which will be used to pass the
-result of this argument to the command's callback during execution as
-a keyword argument.</li>
-<li><strong>name</strong> (str):
-The name of this option used for identifying it in the parsed content.</li>
-<li><strong>default</strong> (typing.Any):
-The default value of this argument, unlike arguments this is required
-for options.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><strong>*names</strong> (str):
-Other names of this option used for identifying it in the parsed content.</li>
-<li><p><strong>converters</strong> (ConverterSig | collections.abc.Iterable[ConverterSig]):
-The converter(s) this argument should use to handle values passed to it
-during parsing.</p>
-
-<p>If no converters are provided then the raw string value will be passed.</p>
-
-<p>Only the first converter to pass will be used.</p></li>
-<li><strong>empty_value</strong> (typing.Any):
-The value to use if this option is provided without a value. If left as
-<code><a href="#UNDEFINED">UNDEFINED</a></code> then this option will error if it's
-provided without a value.</li>
-<li><strong>max_value</strong>: Assert that the parsed value(s) for this option are less than or equal to this.</li>
-</ul>
-
-<p>If any converters are provided then this should be compatible
-with the result of them.</p>
-
-<ul>
-<li><strong>min_value</strong>: Assert that the parsed value(s) for this option are greater than or equal to this.</li>
-</ul>
-
-<p>If any converters are provided then this should be compatible
-with the result of them.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Callable[[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>], <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]:</strong>: Decorator function for the message command this option is being added to.</li>
-</ul>
-
-<h6 id="examples">Examples</h6>
-
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
     <span class="o">...</span>
 </code></pre></div>
 </div>

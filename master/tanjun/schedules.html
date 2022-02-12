@@ -55,9 +55,6 @@
 
             </li>
             <li>
-                    <a class="function" href="#as_interval">as_interval</a>
-            </li>
-            <li>
                     <a class="class" href="#IntervalSchedule">IntervalSchedule</a>
                             <ul class="memberlist">
                         <li>
@@ -107,6 +104,9 @@
                         </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="function" href="#as_interval">as_interval</a>
             </li>
     </ul>
 
@@ -163,7 +163,7 @@
 <span class="sd">&quot;&quot;&quot;Interface and interval implementation for a Tanjun based callback scheduler.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AbstractSchedule&quot;</span><span class="p">,</span> <span class="s2">&quot;as_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;IntervalSchedule&quot;</span><span class="p">]</span>
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AbstractSchedule&quot;</span><span class="p">,</span> <span class="s2">&quot;IntervalSchedule&quot;</span><span class="p">,</span> <span class="s2">&quot;as_interval&quot;</span><span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">asyncio</span>
@@ -898,110 +898,6 @@ If the current or provided event loop isn't running.</li>
 
 
                             </div>
-                </section>
-                <section id="as_interval">
-                            <div class="attr function"><a class="headerlink" href="#as_interval">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">as_interval</span><span class="signature">(
-    interval: Union[int, float, datetime.timedelta],
-    /,
-    *,
-    fatal_exceptions: collections.abc.Sequence[type[Exception]] = (),
-    ignored_exceptions: collections.abc.Sequence[type[Exception]] = (),
-    max_runs: Optional[int] = None
-) -&gt; collections.abc.Callable[[~_CallbackSigT], <a href="#IntervalSchedule">tanjun.schedules.IntervalSchedule</a>[~_CallbackSigT]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_interval</span><span class="p">(</span>
-    <span class="n">interval</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">],</span>
-    <span class="o">/</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">fatal_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
-    <span class="n">ignored_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
-    <span class="n">max_runs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CallbackSigT</span><span class="p">],</span> <span class="n">IntervalSchedule</span><span class="p">[</span><span class="n">_CallbackSigT</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Decorator to create an schedule.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    interval : int | float | datetime.timedelta</span>
-<span class="sd">        The callback for the schedule.</span>
-
-<span class="sd">        This should be an asynchronous function which takes no positional</span>
-<span class="sd">        arguments, returns `None` and may use dependency injection.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
-<span class="sd">        A sequence of exceptions that will cause the schedule to stop if raised</span>
-<span class="sd">        by the callback, start callback or stop callback.</span>
-
-<span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
-<span class="sd">        A sequence of exceptions that should be ignored if raised by the</span>
-<span class="sd">        callback, start callback or stop callback.</span>
-
-<span class="sd">        Defaults to no exceptions.</span>
-<span class="sd">    max_runs : int | None</span>
-<span class="sd">        The maximum amount of times the schedule runs. Defaults to no maximum.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]</span>
-<span class="sd">        The decorator used to create the schedule.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">callback</span><span class="p">:</span> <span class="n">IntervalSchedule</span><span class="p">(</span>
-        <span class="n">callback</span><span class="p">,</span>
-        <span class="n">interval</span><span class="p">,</span>
-        <span class="n">fatal_exceptions</span><span class="o">=</span><span class="n">fatal_exceptions</span><span class="p">,</span>
-        <span class="n">ignored_exceptions</span><span class="o">=</span><span class="n">ignored_exceptions</span><span class="p">,</span>
-        <span class="n">max_runs</span><span class="o">=</span><span class="n">max_runs</span><span class="p">,</span>
-    <span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Decorator to create an schedule.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><p><strong>interval</strong> (int | float | datetime.timedelta):
-The callback for the schedule.</p>
-
-<p>This should be an asynchronous function which takes no positional
-arguments, returns <code>None</code> and may use dependency injection.</p></li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>fatal_exceptions</strong> (collections.abc.Sequence[type[Exception]]):
-A sequence of exceptions that will cause the schedule to stop if raised
-by the callback, start callback or stop callback.</p>
-
-<p>Defaults to no exceptions.</p></li>
-<li><p><strong>ignored_exceptions</strong> (collections.abc.Sequence[type[Exception]]):
-A sequence of exceptions that should be ignored if raised by the
-callback, start callback or stop callback.</p>
-
-<p>Defaults to no exceptions.</p></li>
-<li><strong>max_runs</strong> (int | None):
-The maximum amount of times the schedule runs. Defaults to no maximum.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.Callable[[_CallbackSigT], <a href="../tanjun.html#scheduling.IntervalSchedule">tanjun.scheduling.IntervalSchedule</a>[_CallbackSigT]]</strong>: The decorator used to create the schedule.</li>
-</ul>
-</div>
-
-
                 </section>
                 <section id="IntervalSchedule">
                                 <div class="attr class">
@@ -1991,6 +1887,110 @@ Types of the exceptions to stop the task on.</li>
 
 
                             </div>
+                </section>
+                <section id="as_interval">
+                            <div class="attr function"><a class="headerlink" href="#as_interval">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">as_interval</span><span class="signature">(
+    interval: Union[int, float, datetime.timedelta],
+    /,
+    *,
+    fatal_exceptions: collections.abc.Sequence[type[Exception]] = (),
+    ignored_exceptions: collections.abc.Sequence[type[Exception]] = (),
+    max_runs: Optional[int] = None
+) -&gt; collections.abc.Callable[[~_CallbackSigT], <a href="#IntervalSchedule">tanjun.schedules.IntervalSchedule</a>[~_CallbackSigT]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_interval</span><span class="p">(</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">fatal_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">ignored_exceptions</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">max_runs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CallbackSigT</span><span class="p">],</span> <span class="n">IntervalSchedule</span><span class="p">[</span><span class="n">_CallbackSigT</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Decorator to create an schedule.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    interval : int | float | datetime.timedelta</span>
+<span class="sd">        The callback for the schedule.</span>
+
+<span class="sd">        This should be an asynchronous function which takes no positional</span>
+<span class="sd">        arguments, returns `None` and may use dependency injection.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    fatal_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">        A sequence of exceptions that will cause the schedule to stop if raised</span>
+<span class="sd">        by the callback, start callback or stop callback.</span>
+
+<span class="sd">        Defaults to no exceptions.</span>
+<span class="sd">    ignored_exceptions : collections.abc.Sequence[type[Exception]]</span>
+<span class="sd">        A sequence of exceptions that should be ignored if raised by the</span>
+<span class="sd">        callback, start callback or stop callback.</span>
+
+<span class="sd">        Defaults to no exceptions.</span>
+<span class="sd">    max_runs : int | None</span>
+<span class="sd">        The maximum amount of times the schedule runs. Defaults to no maximum.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]</span>
+<span class="sd">        The decorator used to create the schedule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">callback</span><span class="p">:</span> <span class="n">IntervalSchedule</span><span class="p">(</span>
+        <span class="n">callback</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">,</span>
+        <span class="n">fatal_exceptions</span><span class="o">=</span><span class="n">fatal_exceptions</span><span class="p">,</span>
+        <span class="n">ignored_exceptions</span><span class="o">=</span><span class="n">ignored_exceptions</span><span class="p">,</span>
+        <span class="n">max_runs</span><span class="o">=</span><span class="n">max_runs</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Decorator to create an schedule.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>interval</strong> (int | float | datetime.timedelta):
+The callback for the schedule.</p>
+
+<p>This should be an asynchronous function which takes no positional
+arguments, returns <code>None</code> and may use dependency injection.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>fatal_exceptions</strong> (collections.abc.Sequence[type[Exception]]):
+A sequence of exceptions that will cause the schedule to stop if raised
+by the callback, start callback or stop callback.</p>
+
+<p>Defaults to no exceptions.</p></li>
+<li><p><strong>ignored_exceptions</strong> (collections.abc.Sequence[type[Exception]]):
+A sequence of exceptions that should be ignored if raised by the
+callback, start callback or stop callback.</p>
+
+<p>Defaults to no exceptions.</p></li>
+<li><strong>max_runs</strong> (int | None):
+The maximum amount of times the schedule runs. Defaults to no maximum.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.Callable[[_CallbackSigT], <a href="../tanjun.html#scheduling.IntervalSchedule">tanjun.scheduling.IntervalSchedule</a>[_CallbackSigT]]</strong>: The decorator used to create the schedule.</li>
+</ul>
+</div>
+
+
                 </section>
     </main>
 <script>

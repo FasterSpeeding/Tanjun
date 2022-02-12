@@ -82,19 +82,19 @@
 
             </li>
             <li>
-                    <a class="class" href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a>
+                    <a class="class" href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#ConcurrencyPreExecution.__init__">ConcurrencyPreExecution</a>
+                                <a class="function" href="#ConcurrencyPostExecution.__init__">ConcurrencyPostExecution</a>
                         </li>
                 </ul>
 
             </li>
             <li>
-                    <a class="class" href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a>
+                    <a class="class" href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#ConcurrencyPostExecution.__init__">ConcurrencyPostExecution</a>
+                                <a class="function" href="#ConcurrencyPreExecution.__init__">ConcurrencyPreExecution</a>
                         </li>
                 </ul>
 
@@ -233,8 +233,8 @@
     <span class="s2">&quot;AbstractConcurrencyLimiter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AbstractCooldownManager&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BucketResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ConcurrencyPreExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ConcurrencyPostExecution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ConcurrencyPreExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CooldownPreExecution&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InMemoryConcurrencyLimiter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InMemoryCooldownManager&quot;</span><span class="p">,</span>
@@ -1774,6 +1774,90 @@ When executed in a DM this will be per-DM.</p>
                                 </dl>
                             </div>
                 </section>
+                <section id="ConcurrencyPostExecution">
+                                <div class="attr class">
+        <a class="headerlink" href="#ConcurrencyPostExecution">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ConcurrencyPostExecution</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConcurrencyPostExecution</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Post-execution hook used to release a bucket concurrency limiter.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`</span>
+<span class="sd">        and `ConcurrencyPostExecution` hooks must be registered for a command scope.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Post-execution hook used to release a bucket concurrency limiter.</p>
+
+<p><em>Note:</em>
+For a concurrency limiter to work properly, both <code><a href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a></code>
+and <code><a href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a></code> hooks must be registered for a command scope.</p>
+</div>
+
+
+                            <div id="ConcurrencyPostExecution.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ConcurrencyPostExecution.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ConcurrencyPostExecution</span><span class="signature">(bucket_id: str, /)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bucket_id : str</span>
+<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise a concurrency post-execution hook.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bucket_id</strong> (str):
+The concurrency limit bucket's ID.</li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="ConcurrencyPreExecution">
                                 <div class="attr class">
         <a class="headerlink" href="#ConcurrencyPreExecution">#&nbsp;&nbsp</a>
@@ -1898,90 +1982,6 @@ The error message to send in response as a command error if this fails
 to acquire the concurrency limit.</p>
 
 <p>Defaults to "This resource is currently busy; please try again later.".</p></li>
-</ul>
-</div>
-
-
-                            </div>
-                </section>
-                <section id="ConcurrencyPostExecution">
-                                <div class="attr class">
-        <a class="headerlink" href="#ConcurrencyPostExecution">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">ConcurrencyPostExecution</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ConcurrencyPostExecution</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Post-execution hook used to release a bucket concurrency limiter.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`</span>
-<span class="sd">        and `ConcurrencyPostExecution` hooks must be registered for a command scope.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_bucket_id&quot;</span><span class="p">,)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        bucket_id : str</span>
-<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Post-execution hook used to release a bucket concurrency limiter.</p>
-
-<p><em>Note:</em>
-For a concurrency limiter to work properly, both <code><a href="#ConcurrencyPreExecution">ConcurrencyPreExecution</a></code>
-and <code><a href="#ConcurrencyPostExecution">ConcurrencyPostExecution</a></code> hooks must be registered for a command scope.</p>
-</div>
-
-
-                            <div id="ConcurrencyPostExecution.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#ConcurrencyPostExecution.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">ConcurrencyPostExecution</span><span class="signature">(bucket_id: str, /)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialise a concurrency post-execution hook.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        bucket_id : str</span>
-<span class="sd">            The concurrency limit bucket&#39;s ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span> <span class="o">=</span> <span class="n">bucket_id</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Initialise a concurrency post-execution hook.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>bucket_id</strong> (str):
-The concurrency limit bucket's ID.</li>
 </ul>
 </div>
 

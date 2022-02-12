@@ -118,6 +118,42 @@
 
             </li>
             <li>
+                    <a class="class" href="#MenuContext">MenuContext</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#MenuContext.__init__">MenuContext</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MenuContext.command">command</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MenuContext.target_id">target_id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MenuContext.target">target</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MenuContext.type">type</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MenuContext.mark_not_found">mark_not_found</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MenuContext.set_command">set_command</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MenuContext.resolve_to_member">resolve_to_member</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MenuContext.resolve_to_message">resolve_to_message</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#MenuContext.resolve_to_user">resolve_to_user</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#MessageContext">MessageContext</a>
                             <ul class="memberlist">
                         <li>
@@ -191,42 +227,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#MessageContext.respond">respond</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#MenuContext">MenuContext</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#MenuContext.__init__">MenuContext</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#MenuContext.command">command</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#MenuContext.target_id">target_id</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#MenuContext.target">target</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#MenuContext.type">type</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#MenuContext.mark_not_found">mark_not_found</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#MenuContext.set_command">set_command</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#MenuContext.resolve_to_member">resolve_to_member</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#MenuContext.resolve_to_message">resolve_to_message</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#MenuContext.resolve_to_user">resolve_to_user</a>
                         </li>
                 </ul>
 
@@ -364,8 +364,8 @@
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AutocompleteContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AutocompleteOption&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MessageContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MenuContext&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MessageContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SlashContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SlashOption&quot;</span><span class="p">,</span>
 <span class="p">]</span>
@@ -1156,6 +1156,492 @@ Keyword arguments mapping string option names to their values.</p>
                 <dd id="AutocompleteOption.resolve_to_mentionable" class="function"><a href="#SlashOption.resolve_to_mentionable">resolve_to_mentionable</a></dd>
                 <dd id="AutocompleteOption.resolve_to_role" class="function"><a href="#SlashOption.resolve_to_role">resolve_to_role</a></dd>
                 <dd id="AutocompleteOption.resolve_to_user" class="function"><a href="#SlashOption.resolve_to_user">resolve_to_user</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="MenuContext">
+                                <div class="attr class">
+        <a class="headerlink" href="#MenuContext">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">MenuContext</span><wbr>(<span class="base">tanjun.context.slash.AppCommandContext</span>, <span class="base"><a href="abc.html#MenuContext">tanjun.abc.MenuContext</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MenuContext</span><span class="p">(</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Standard menu command execution context.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command&quot;</span><span class="p">,</span> <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span> <span class="s2">&quot;_on_not_found&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
+        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
+        <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mapping</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown menu type&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mapping</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown menu type&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">command_type</span> <span class="ow">in</span> <span class="n">_VALID_TYPES</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">command_type</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
+        <span class="c1"># TODO: assert not finalised?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MenuContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MenuContextT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="o">...</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default</span>
+
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;User isn&#39;t in the current guild&quot;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve message menu context to a user&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">resolve_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve user menu context to a message&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Standard menu command execution context.</p>
+</div>
+
+
+                            <div id="MenuContext.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">MenuContext</span><span class="signature">(
+    client: <a href="abc.html#Client">tanjun.abc.Client</a>,
+    injection_client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>,
+    interaction: hikari.interactions.command_interactions.CommandInteraction,
+    *,
+    default_to_ephemeral: bool = False,
+    future: Optional[_asyncio.Future] = None,
+    on_not_found: Optional[collections.abc.Callable[[<a href="abc.html#MenuContext">tanjun.abc.MenuContext</a>], collections.abc.Awaitable[None]]] = None
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
+        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
+        <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise a basic injection context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (InjectorClient):
+The injection client this context is bound to.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.command" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.command">#&nbsp;&nbsp</a>
+
+        <span class="name">command</span><span class="annotation">: Optional[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[Any, Any]]</span>
+    </div>
+
+            <div class="docstring"><p>Object of the command this context is bound to.</p>
+
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.target_id" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.target_id">#&nbsp;&nbsp</a>
+
+        <span class="name">target_id</span><span class="annotation">: hikari.snowflakes.Snowflake</span>
+    </div>
+
+            <div class="docstring"><p>ID of the entity this menu command context targets.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.target" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.target">#&nbsp;&nbsp</a>
+
+        <span class="name">target</span><span class="annotation">: Union[hikari.interactions.base_interactions.InteractionMember, hikari.users.User, hikari.messages.Message]</span>
+    </div>
+
+            <div class="docstring"><p>Object of the entity this menu targets.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.type">#&nbsp;&nbsp</a>
+
+        <span class="name">type</span><span class="annotation">: Literal[&lt;CommandType.USER: 2&gt;, &lt;CommandType.MESSAGE: 3&gt;]</span>
+    </div>
+
+            <div class="docstring"><p>Type of application command this context is for.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.mark_not_found" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.mark_not_found">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">mark_not_found</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
+        <span class="c1"># TODO: assert not finalised?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Mark this context as not found.</p>
+
+<p>Dependent on how the client is configured this may lead to a not found
+response message being sent.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.set_command" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.set_command">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_command</span><span class="signature">(
+    self: ~_MenuContextT,
+    command: Optional[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[Any, Any]],
+    /
+) -&gt; ~_MenuContextT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MenuContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MenuContextT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the command for this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>command</strong> (MenuCommand | None):
+The command this context is for.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.resolve_to_member" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.resolve_to_member">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">resolve_to_member</span><span class="signature">(
+    self,
+    *,
+    default: ~_T = Ellipsis
+) -&gt; Union[hikari.interactions.base_interactions.InteractionMember, ~_T]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="o">...</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default</span>
+
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;User isn&#39;t in the current guild&quot;</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve message menu context to a user&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve a user context menu context to a member object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Member</strong>: The resolved member.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the context is not a user menu context.</li>
+<li><strong>LookupError</strong>: If the member was not found for this user menu context.</li>
+</ul>
+
+<p>This will happen if this was executed in a DM or the target
+user isn't in the current guild.</p>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.resolve_to_message" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.resolve_to_message">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">resolve_to_message</span><span class="signature">(self) -&gt; hikari.messages.Message</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">resolve_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve user menu context to a message&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve a message context menu to a message object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Message</strong>: The resolved message.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeEror</strong></li>
+<li><strong>if the context is not for a message menu.</strong></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="MenuContext.resolve_to_user" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#MenuContext.resolve_to_user">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">resolve_to_user</span><span class="signature">(self) -&gt; Union[hikari.users.User, hikari.guilds.Member]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve a user context menu context to a user object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.User | hikari.Member</strong>: The resolved user.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the context is not a user menu context.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>tanjun.context.slash.AppCommandContext</dt>
+                                <dd id="MenuContext.author" class="variable">author</dd>
+                <dd id="MenuContext.channel_id" class="variable">channel_id</dd>
+                <dd id="MenuContext.client" class="variable">client</dd>
+                <dd id="MenuContext.created_at" class="variable">created_at</dd>
+                <dd id="MenuContext.defaults_to_ephemeral" class="variable">defaults_to_ephemeral</dd>
+                <dd id="MenuContext.expires_at" class="variable">expires_at</dd>
+                <dd id="MenuContext.guild_id" class="variable">guild_id</dd>
+                <dd id="MenuContext.has_been_deferred" class="variable">has_been_deferred</dd>
+                <dd id="MenuContext.has_responded" class="variable">has_responded</dd>
+                <dd id="MenuContext.is_human" class="variable">is_human</dd>
+                <dd id="MenuContext.member" class="variable">member</dd>
+                <dd id="MenuContext.triggering_name" class="variable">triggering_name</dd>
+                <dd id="MenuContext.interaction" class="variable">interaction</dd>
+                <dd id="MenuContext.cancel_defer" class="function">cancel_defer</dd>
+                <dd id="MenuContext.start_defer_timer" class="function">start_defer_timer</dd>
+                <dd id="MenuContext.set_ephemeral_default" class="function">set_ephemeral_default</dd>
+                <dd id="MenuContext.defer" class="function">defer</dd>
+                <dd id="MenuContext.create_followup" class="function">create_followup</dd>
+                <dd id="MenuContext.create_initial_response" class="function">create_initial_response</dd>
+                <dd id="MenuContext.delete_initial_response" class="function">delete_initial_response</dd>
+                <dd id="MenuContext.delete_last_response" class="function">delete_last_response</dd>
+                <dd id="MenuContext.edit_initial_response" class="function">edit_initial_response</dd>
+                <dd id="MenuContext.edit_last_response" class="function">edit_last_response</dd>
+                <dd id="MenuContext.fetch_initial_response" class="function">fetch_initial_response</dd>
+                <dd id="MenuContext.fetch_last_response" class="function">fetch_last_response</dd>
+                <dd id="MenuContext.respond" class="function">respond</dd>
+
+            </div>
+            <div><dt>tanjun.context.base.BaseContext</dt>
+                                <dd id="MenuContext.cache" class="variable">cache</dd>
+                <dd id="MenuContext.component" class="variable">component</dd>
+                <dd id="MenuContext.events" class="variable">events</dd>
+                <dd id="MenuContext.server" class="variable">server</dd>
+                <dd id="MenuContext.rest" class="variable">rest</dd>
+                <dd id="MenuContext.shard" class="variable">shard</dd>
+                <dd id="MenuContext.shards" class="variable">shards</dd>
+                <dd id="MenuContext.voice" class="variable">voice</dd>
+                <dd id="MenuContext.finalise" class="function">finalise</dd>
+                <dd id="MenuContext.set_component" class="function">set_component</dd>
+                <dd id="MenuContext.get_channel" class="function">get_channel</dd>
+                <dd id="MenuContext.get_guild" class="function">get_guild</dd>
+                <dd id="MenuContext.fetch_channel" class="function">fetch_channel</dd>
+                <dd id="MenuContext.fetch_guild" class="function">fetch_guild</dd>
+
+            </div>
+            <div><dt><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></dt>
+                                <dd id="MenuContext.injection_client" class="variable"><a href="injecting.html#BasicInjectionContext.injection_client">injection_client</a></dd>
+                <dd id="MenuContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
+                <dd id="MenuContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
+                <dd id="MenuContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
 
             </div>
                                 </dl>
@@ -2614,492 +3100,6 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="MessageContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
                 <dd id="MessageContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
                 <dd id="MessageContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="MenuContext">
-                                <div class="attr class">
-        <a class="headerlink" href="#MenuContext">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">MenuContext</span><wbr>(<span class="base">tanjun.context.slash.AppCommandContext</span>, <span class="base"><a href="abc.html#MenuContext">tanjun.abc.MenuContext</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MenuContext</span><span class="p">(</span><span class="n">slash</span><span class="o">.</span><span class="n">AppCommandContext</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Standard menu command execution context.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command&quot;</span><span class="p">,</span> <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span> <span class="s2">&quot;_on_not_found&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
-        <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">target_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">mapping</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown menu type&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="n">mapping</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span>
-            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span>
-            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">mapping</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown menu type&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">command_type</span> <span class="ow">in</span> <span class="n">_VALID_TYPES</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">command_type</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
-        <span class="c1"># TODO: assert not finalised?</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MenuContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MenuContextT</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-        <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="o">...</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">default</span>
-
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;User isn&#39;t in the current guild&quot;</span><span class="p">)</span>
-
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve message menu context to a user&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">resolve_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve user menu context to a message&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Standard menu command execution context.</p>
-</div>
-
-
-                            <div id="MenuContext.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MenuContext.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">MenuContext</span><span class="signature">(
-    client: <a href="abc.html#Client">tanjun.abc.Client</a>,
-    injection_client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>,
-    interaction: hikari.interactions.command_interactions.CommandInteraction,
-    *,
-    default_to_ephemeral: bool = False,
-    future: Optional[_asyncio.Future] = None,
-    on_not_found: Optional[collections.abc.Callable[[<a href="abc.html#MenuContext">tanjun.abc.MenuContext</a>], collections.abc.Awaitable[None]]] = None
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
-        <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">MenuContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Initialise a basic injection context.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>client</strong> (InjectorClient):
-The injection client this context is bound to.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.command" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.command">#&nbsp;&nbsp</a>
-
-        <span class="name">command</span><span class="annotation">: Optional[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[Any, Any]]</span>
-    </div>
-
-            <div class="docstring"><p>Object of the command this context is bound to.</p>
-
-<p><em>Note:</em>
-This will only be <code>None</code> before this has been bound to a
-specific command but never during command execution.</p>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.target_id" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.target_id">#&nbsp;&nbsp</a>
-
-        <span class="name">target_id</span><span class="annotation">: hikari.snowflakes.Snowflake</span>
-    </div>
-
-            <div class="docstring"><p>ID of the entity this menu command context targets.</p>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.target" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.target">#&nbsp;&nbsp</a>
-
-        <span class="name">target</span><span class="annotation">: Union[hikari.interactions.base_interactions.InteractionMember, hikari.users.User, hikari.messages.Message]</span>
-    </div>
-
-            <div class="docstring"><p>Object of the entity this menu targets.</p>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.type" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#MenuContext.type">#&nbsp;&nbsp</a>
-
-        <span class="name">type</span><span class="annotation">: Literal[&lt;CommandType.USER: 2&gt;, &lt;CommandType.MESSAGE: 3&gt;]</span>
-    </div>
-
-            <div class="docstring"><p>Type of application command this context is for.</p>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.mark_not_found" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MenuContext.mark_not_found">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">mark_not_found</span><span class="signature">(self) -&gt; None</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.AppCommandContext&gt;&gt;.</span>
-        <span class="c1"># TODO: assert not finalised?</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Mark this context as not found.</p>
-
-<p>Dependent on how the client is configured this may lead to a not found
-response message being sent.</p>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.set_command" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MenuContext.set_command">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">set_command</span><span class="signature">(
-    self: ~_MenuContextT,
-    command: Optional[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[Any, Any]],
-    /
-) -&gt; ~_MenuContextT</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MenuContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]],</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MenuContextT</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_type_special_case</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
-        <span class="k">return</span> <span class="bp">self</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Set the command for this context.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>command</strong> (MenuCommand | None):
-The command this context is for.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.resolve_to_member" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MenuContext.resolve_to_member">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">resolve_to_member</span><span class="signature">(
-    self,
-    *,
-    default: ~_T = Ellipsis
-) -&gt; Union[hikari.interactions.base_interactions.InteractionMember, ~_T]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="o">...</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">default</span>
-
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;User isn&#39;t in the current guild&quot;</span><span class="p">)</span>
-
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve message menu context to a user&quot;</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Resolve a user context menu context to a member object.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Member</strong>: The resolved member.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>TypeError</strong>: If the context is not a user menu context.</li>
-<li><strong>LookupError</strong>: If the member was not found for this user menu context.</li>
-</ul>
-
-<p>This will happen if this was executed in a DM or the target
-user isn't in the current guild.</p>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.resolve_to_message" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MenuContext.resolve_to_message">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">resolve_to_message</span><span class="signature">(self) -&gt; hikari.messages.Message</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">resolve_to_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot resolve user menu context to a message&quot;</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Resolve a message context menu to a message object.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Message</strong>: The resolved message.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>TypeEror</strong></li>
-<li><strong>if the context is not for a message menu.</strong></li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="MenuContext.resolve_to_user" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#MenuContext.resolve_to_user">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">resolve_to_user</span><span class="signature">(self) -&gt; Union[hikari.users.User, hikari.guilds.Member]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuContext&gt;&gt;.</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">resolved</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Resolve a user context menu context to a user object.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.User | hikari.Member</strong>: The resolved user.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>TypeError</strong>: If the context is not a user menu context.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>tanjun.context.slash.AppCommandContext</dt>
-                                <dd id="MenuContext.author" class="variable">author</dd>
-                <dd id="MenuContext.channel_id" class="variable">channel_id</dd>
-                <dd id="MenuContext.client" class="variable">client</dd>
-                <dd id="MenuContext.created_at" class="variable">created_at</dd>
-                <dd id="MenuContext.defaults_to_ephemeral" class="variable">defaults_to_ephemeral</dd>
-                <dd id="MenuContext.expires_at" class="variable">expires_at</dd>
-                <dd id="MenuContext.guild_id" class="variable">guild_id</dd>
-                <dd id="MenuContext.has_been_deferred" class="variable">has_been_deferred</dd>
-                <dd id="MenuContext.has_responded" class="variable">has_responded</dd>
-                <dd id="MenuContext.is_human" class="variable">is_human</dd>
-                <dd id="MenuContext.member" class="variable">member</dd>
-                <dd id="MenuContext.triggering_name" class="variable">triggering_name</dd>
-                <dd id="MenuContext.interaction" class="variable">interaction</dd>
-                <dd id="MenuContext.cancel_defer" class="function">cancel_defer</dd>
-                <dd id="MenuContext.start_defer_timer" class="function">start_defer_timer</dd>
-                <dd id="MenuContext.set_ephemeral_default" class="function">set_ephemeral_default</dd>
-                <dd id="MenuContext.defer" class="function">defer</dd>
-                <dd id="MenuContext.create_followup" class="function">create_followup</dd>
-                <dd id="MenuContext.create_initial_response" class="function">create_initial_response</dd>
-                <dd id="MenuContext.delete_initial_response" class="function">delete_initial_response</dd>
-                <dd id="MenuContext.delete_last_response" class="function">delete_last_response</dd>
-                <dd id="MenuContext.edit_initial_response" class="function">edit_initial_response</dd>
-                <dd id="MenuContext.edit_last_response" class="function">edit_last_response</dd>
-                <dd id="MenuContext.fetch_initial_response" class="function">fetch_initial_response</dd>
-                <dd id="MenuContext.fetch_last_response" class="function">fetch_last_response</dd>
-                <dd id="MenuContext.respond" class="function">respond</dd>
-
-            </div>
-            <div><dt>tanjun.context.base.BaseContext</dt>
-                                <dd id="MenuContext.cache" class="variable">cache</dd>
-                <dd id="MenuContext.component" class="variable">component</dd>
-                <dd id="MenuContext.events" class="variable">events</dd>
-                <dd id="MenuContext.server" class="variable">server</dd>
-                <dd id="MenuContext.rest" class="variable">rest</dd>
-                <dd id="MenuContext.shard" class="variable">shard</dd>
-                <dd id="MenuContext.shards" class="variable">shards</dd>
-                <dd id="MenuContext.voice" class="variable">voice</dd>
-                <dd id="MenuContext.finalise" class="function">finalise</dd>
-                <dd id="MenuContext.set_component" class="function">set_component</dd>
-                <dd id="MenuContext.get_channel" class="function">get_channel</dd>
-                <dd id="MenuContext.get_guild" class="function">get_guild</dd>
-                <dd id="MenuContext.fetch_channel" class="function">fetch_channel</dd>
-                <dd id="MenuContext.fetch_guild" class="function">fetch_guild</dd>
-
-            </div>
-            <div><dt><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></dt>
-                                <dd id="MenuContext.injection_client" class="variable"><a href="injecting.html#BasicInjectionContext.injection_client">injection_client</a></dd>
-                <dd id="MenuContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
-                <dd id="MenuContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
-                <dd id="MenuContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
 
             </div>
                                 </dl>

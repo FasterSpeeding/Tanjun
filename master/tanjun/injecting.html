@@ -67,9 +67,6 @@
 
             </li>
             <li>
-                    <a class="function" href="#as_self_injecting">as_self_injecting</a>
-            </li>
-            <li>
                     <a class="class" href="#BasicInjectionContext">BasicInjectionContext</a>
                             <ul class="memberlist">
                         <li>
@@ -125,27 +122,6 @@
                             <ul class="memberlist">
                 </ul>
 
-            </li>
-            <li>
-                    <a class="class" href="#Undefined">Undefined</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Undefined.__init__">Undefined</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="variable" href="#UNDEFINED">UNDEFINED</a>
-            </li>
-            <li>
-                    <a class="variable" href="#UndefinedOr">UndefinedOr</a>
-            </li>
-            <li>
-                    <a class="function" href="#inject">inject</a>
-            </li>
-            <li>
-                    <a class="function" href="#injected">injected</a>
             </li>
             <li>
                     <a class="class" href="#Injected">Injected</a>
@@ -222,6 +198,30 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="variable" href="#UNDEFINED">UNDEFINED</a>
+            </li>
+            <li>
+                    <a class="class" href="#Undefined">Undefined</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Undefined.__init__">Undefined</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="variable" href="#UndefinedOr">UndefinedOr</a>
+            </li>
+            <li>
+                    <a class="function" href="#as_self_injecting">as_self_injecting</a>
+            </li>
+            <li>
+                    <a class="function" href="#inject">inject</a>
+            </li>
+            <li>
+                    <a class="function" href="#injected">injected</a>
+            </li>
     </ul>
 
 
@@ -280,19 +280,19 @@
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AbstractDescriptor&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AbstractInjectionContext&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;as_self_injecting&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BasicInjectionContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CallbackDescriptor&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CallbackSig&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Undefined&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;UNDEFINED&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;UndefinedOr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;inject&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;injected&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Injected&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InjectorClient&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SelfInjectingCallback&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TypeDescriptor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UNDEFINED&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Undefined&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UndefinedOr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;as_self_injecting&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;injected&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
@@ -1744,85 +1744,6 @@ The associated type.</li>
 
                             </div>
                 </section>
-                <section id="as_self_injecting">
-                            <div class="attr function"><a class="headerlink" href="#as_self_injecting">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">as_self_injecting</span><span class="signature">(
-    injector_client: <a href="#InjectorClient">tanjun.injecting.InjectorClient</a>,
-    /
-) -&gt; collections.abc.Callable[[collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]]], <a href="#SelfInjectingCallback">tanjun.injecting.SelfInjectingCallback</a>[~_T]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_self_injecting</span><span class="p">(</span>
-    <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Make a callback self-inecting by linking it to a client through a decorator call.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    def make_callback(client: tanjun.Client) -&gt; collections.abc.Callable[[], int]:</span>
-<span class="sd">        @tanjun.as_self_injected(client)</span>
-<span class="sd">        async def get_int_value(</span>
-<span class="sd">            redis: redis.Client = tanjun.inject(type=redis.Client)</span>
-<span class="sd">        ) -&gt; int:</span>
-<span class="sd">            return int(await redis.get(&#39;key&#39;))</span>
-
-<span class="sd">        return get_int_value</span>
-<span class="sd">    ```</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    injector_client : InjectorClient</span>
-<span class="sd">        The injection client to use to resolve dependencies.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">SelfInjectingCallback</span><span class="p">(</span><span class="n">injector_client</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">decorator</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Make a callback self-inecting by linking it to a client through a decorator call.</p>
-
-<h6 id="examples">Examples</h6>
-
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">make_callback</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]:</span>
-    <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_self_injected</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_int_value</span><span class="p">(</span>
-        <span class="n">redis</span><span class="p">:</span> <span class="n">redis</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">redis</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">get_int_value</span>
-</code></pre></div>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>injector_client</strong> (InjectorClient):
-The injection client to use to resolve dependencies.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</strong></li>
-</ul>
-</div>
-
-
-                </section>
                 <section id="BasicInjectionContext">
                                 <div class="attr class">
         <a class="headerlink" href="#BasicInjectionContext">#&nbsp;&nbsp</a>
@@ -2728,225 +2649,6 @@ injection being available for the callback's keyword arguments but dynamically
 returning either an awaitable or raw value may lead to errors.</p>
 
 <p>Dependent on the context positional arguments may also be proivded.</p>
-</div>
-
-
-                </section>
-                <section id="Undefined">
-                                <div class="attr class">
-        <a class="headerlink" href="#Undefined">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">Undefined</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Undefined</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class/type of `UNDEFINED`.&quot;&quot;&quot;</span>
-
-    <span class="n">__instance</span><span class="p">:</span> <span class="n">Undefined</span>
-
-    <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Undefined</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span>
-
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span> <span class="o">=</span> <span class="n">new</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Class/type of <code><a href="#UNDEFINED">UNDEFINED</a></code>.</p>
-</div>
-
-
-                            <div id="Undefined.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Undefined.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Undefined</span><span class="signature">()</span>
-    </div>
-
-        
-    
-
-                            </div>
-                </section>
-                <section id="UNDEFINED">
-                                <div class="attr variable"><a class="headerlink" href="#UNDEFINED">#&nbsp;&nbsp</a>
-
-        <span class="name">UNDEFINED</span><span class="annotation">: Final[<a href="#Undefined">tanjun.injecting.Undefined</a>]</span><span class="default_value"> = &lt;<a href="#Undefined">tanjun.injecting.Undefined</a> object&gt;</span>
-    </div>
-
-            <div class="docstring"><p>Singleton value used within dependency injection to indicate that a value is undefined.</p>
-</div>
-
-
-                </section>
-                <section id="UndefinedOr">
-                                <div class="attr variable"><a class="headerlink" href="#UndefinedOr">#&nbsp;&nbsp</a>
-
-        <span class="name">UndefinedOr</span><span class="default_value"> = typing.Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>
-    </div>
-
-            <div class="docstring"><p>Type-hint generic union used to indicate that a value may be undefined or <code>_T</code>.</p>
-</div>
-
-
-                </section>
-                <section id="inject">
-                            <div class="attr function"><a class="headerlink" href="#inject">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">inject</span><span class="signature">(
-    *,
-    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
-    type: Optional[type[~_T]] = None
-) -&gt; <a href="#Injected">tanjun.injecting.Injected</a>[~_T]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inject</span><span class="p">(</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
-
-<span class="sd">    This should be assigned to an arugment&#39;s default value.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    @tanjun.as_slash_command(&quot;name&quot;, &quot;description&quot;)</span>
-<span class="sd">    async def command_callback(</span>
-<span class="sd">        ctx: tanjun.abc.Context,</span>
-<span class="sd">        # Here we take advantage of scope based special casing which allows</span>
-<span class="sd">        # us to inject the `Component` type.</span>
-<span class="sd">        injected_type: tanjun.abc.Component = tanjun.inject(type=tanjun.abc.Component)</span>
-<span class="sd">        # Here we inject an out-of-scope callback which itself is taking</span>
-<span class="sd">        # advantage of type injection.</span>
-<span class="sd">        callback_result: ResultT = tanjun.inject(callback=injected_callback)</span>
-<span class="sd">    ) -&gt; None:</span>
-<span class="sd">        raise NotImplementedError</span>
-<span class="sd">    ```</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : CallbackSig[_T] | None</span>
-<span class="sd">        The callback to use to resolve the dependency.</span>
-
-<span class="sd">        If this callback has no type dependencies then this will still work</span>
-<span class="sd">        without an injection context but this can be overridden using</span>
-<span class="sd">        `InjectionClient.set_callback_override`.</span>
-<span class="sd">    type : type[_T] | None</span>
-<span class="sd">        The type of the dependency to resolve.</span>
-
-<span class="sd">        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
-<span class="sd">        is passed for `type` then each type in the union will be tried</span>
-<span class="sd">        separately after the litarl union type is tried, allowing for resolving</span>
-<span class="sd">        `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
-
-<span class="sd">        If a union has `None` as one of its types (including `Optional[T]`)</span>
-<span class="sd">        then `None` will be passed for the parameter if none of the types could</span>
-<span class="sd">        be resolved using the linked client.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If both `callback` and `type` are specified or if neither is specified.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Injected</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Decare a keyword-argument as requiring an injected dependency.</p>
-
-<p>This should be assigned to an arugment's default value.</p>
-
-<h6 id="examples">Examples</h6>
-
-<div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command_callback</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="c1"># Here we take advantage of scope based special casing which allows</span>
-    <span class="c1"># us to inject the `Component` type.</span>
-    <span class="n">injected_type</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">)</span>
-    <span class="c1"># Here we inject an out-of-scope callback which itself is taking</span>
-    <span class="c1"># advantage of type injection.</span>
-    <span class="n">callback_result</span><span class="p">:</span> <span class="n">ResultT</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">injected_callback</span><span class="p">)</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</code></pre></div>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><p><strong>callback</strong> (CallbackSig[_T] | None):
-The callback to use to resolve the dependency.</p>
-
-<p>If this callback has no type dependencies then this will still work
-without an injection context but this can be overridden using
-<code>InjectionClient.set_callback_override</code>.</p></li>
-<li><p><strong>type</strong> (type[_T] | None):
-The type of the dependency to resolve.</p>
-
-<p>If a union (e.g. <code>typing.Union[A, B]</code>, <code>A | B</code>, <code>typing.Optional[A]</code>)
-is passed for <code>type</code> then each type in the union will be tried
-separately after the litarl union type is tried, allowing for resolving
-<code>A | B</code> to the value set by <code>set_type_dependency(B, ...)</code>.</p>
-
-<p>If a union has <code>None</code> as one of its types (including <code>Optional[T]</code>)
-then <code>None</code> will be passed for the parameter if none of the types could
-be resolved using the linked client.</p></li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>ValueError</strong>: If both <code>callback</code> and <code>type</code> are specified or if neither is specified.</li>
-</ul>
-</div>
-
-
-                </section>
-                <section id="injected">
-                            <div class="attr function"><a class="headerlink" href="#injected">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">injected</span><span class="signature">(
-    *,
-    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
-    type: Optional[type[~_T]] = None
-) -&gt; <a href="#Injected">tanjun.injecting.Injected</a>[~_T]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">injected</span><span class="p">(</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Alias of `inject`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Alias of <code><a href="#inject">inject</a></code>.</p>
 </div>
 
 
@@ -4131,6 +3833,304 @@ type dependency this descriptor needs.</li>
 
 
                             </div>
+                </section>
+                <section id="UNDEFINED">
+                                <div class="attr variable"><a class="headerlink" href="#UNDEFINED">#&nbsp;&nbsp</a>
+
+        <span class="name">UNDEFINED</span><span class="annotation">: Final[<a href="#Undefined">tanjun.injecting.Undefined</a>]</span><span class="default_value"> = &lt;<a href="#Undefined">tanjun.injecting.Undefined</a> object&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Singleton value used within dependency injection to indicate that a value is undefined.</p>
+</div>
+
+
+                </section>
+                <section id="Undefined">
+                                <div class="attr class">
+        <a class="headerlink" href="#Undefined">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">Undefined</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Undefined</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class/type of `UNDEFINED`.&quot;&quot;&quot;</span>
+
+    <span class="n">__instance</span><span class="p">:</span> <span class="n">Undefined</span>
+
+    <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Undefined</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span> <span class="o">=</span> <span class="n">new</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Class/type of <code><a href="#UNDEFINED">UNDEFINED</a></code>.</p>
+</div>
+
+
+                            <div id="Undefined.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Undefined.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">Undefined</span><span class="signature">()</span>
+    </div>
+
+        
+    
+
+                            </div>
+                </section>
+                <section id="UndefinedOr">
+                                <div class="attr variable"><a class="headerlink" href="#UndefinedOr">#&nbsp;&nbsp</a>
+
+        <span class="name">UndefinedOr</span><span class="default_value"> = typing.Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>
+    </div>
+
+            <div class="docstring"><p>Type-hint generic union used to indicate that a value may be undefined or <code>_T</code>.</p>
+</div>
+
+
+                </section>
+                <section id="as_self_injecting">
+                            <div class="attr function"><a class="headerlink" href="#as_self_injecting">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">as_self_injecting</span><span class="signature">(
+    injector_client: <a href="#InjectorClient">tanjun.injecting.InjectorClient</a>,
+    /
+) -&gt; collections.abc.Callable[[collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]]], <a href="#SelfInjectingCallback">tanjun.injecting.SelfInjectingCallback</a>[~_T]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_self_injecting</span><span class="p">(</span>
+    <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Make a callback self-inecting by linking it to a client through a decorator call.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    def make_callback(client: tanjun.Client) -&gt; collections.abc.Callable[[], int]:</span>
+<span class="sd">        @tanjun.as_self_injected(client)</span>
+<span class="sd">        async def get_int_value(</span>
+<span class="sd">            redis: redis.Client = tanjun.inject(type=redis.Client)</span>
+<span class="sd">        ) -&gt; int:</span>
+<span class="sd">            return int(await redis.get(&#39;key&#39;))</span>
+
+<span class="sd">        return get_int_value</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    injector_client : InjectorClient</span>
+<span class="sd">        The injection client to use to resolve dependencies.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">SelfInjectingCallback</span><span class="p">(</span><span class="n">injector_client</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Make a callback self-inecting by linking it to a client through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">make_callback</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_self_injected</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_int_value</span><span class="p">(</span>
+        <span class="n">redis</span><span class="p">:</span> <span class="n">redis</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">redis</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">get_int_value</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>injector_client</strong> (InjectorClient):
+The injection client to use to resolve dependencies.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</strong></li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="inject">
+                            <div class="attr function"><a class="headerlink" href="#inject">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">inject</span><span class="signature">(
+    *,
+    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
+    type: Optional[type[~_T]] = None
+) -&gt; <a href="#Injected">tanjun.injecting.Injected</a>[~_T]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inject</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
+
+<span class="sd">    This should be assigned to an arugment&#39;s default value.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @tanjun.as_slash_command(&quot;name&quot;, &quot;description&quot;)</span>
+<span class="sd">    async def command_callback(</span>
+<span class="sd">        ctx: tanjun.abc.Context,</span>
+<span class="sd">        # Here we take advantage of scope based special casing which allows</span>
+<span class="sd">        # us to inject the `Component` type.</span>
+<span class="sd">        injected_type: tanjun.abc.Component = tanjun.inject(type=tanjun.abc.Component)</span>
+<span class="sd">        # Here we inject an out-of-scope callback which itself is taking</span>
+<span class="sd">        # advantage of type injection.</span>
+<span class="sd">        callback_result: ResultT = tanjun.inject(callback=injected_callback)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : CallbackSig[_T] | None</span>
+<span class="sd">        The callback to use to resolve the dependency.</span>
+
+<span class="sd">        If this callback has no type dependencies then this will still work</span>
+<span class="sd">        without an injection context but this can be overridden using</span>
+<span class="sd">        `InjectionClient.set_callback_override`.</span>
+<span class="sd">    type : type[_T] | None</span>
+<span class="sd">        The type of the dependency to resolve.</span>
+
+<span class="sd">        If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)</span>
+<span class="sd">        is passed for `type` then each type in the union will be tried</span>
+<span class="sd">        separately after the litarl union type is tried, allowing for resolving</span>
+<span class="sd">        `A | B` to the value set by `set_type_dependency(B, ...)`.</span>
+
+<span class="sd">        If a union has `None` as one of its types (including `Optional[T]`)</span>
+<span class="sd">        then `None` will be passed for the parameter if none of the types could</span>
+<span class="sd">        be resolved using the linked client.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If both `callback` and `type` are specified or if neither is specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Injected</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Decare a keyword-argument as requiring an injected dependency.</p>
+
+<p>This should be assigned to an arugment's default value.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command_callback</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="c1"># Here we take advantage of scope based special casing which allows</span>
+    <span class="c1"># us to inject the `Component` type.</span>
+    <span class="n">injected_type</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">)</span>
+    <span class="c1"># Here we inject an out-of-scope callback which itself is taking</span>
+    <span class="c1"># advantage of type injection.</span>
+    <span class="n">callback_result</span><span class="p">:</span> <span class="n">ResultT</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">injected_callback</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (CallbackSig[_T] | None):
+The callback to use to resolve the dependency.</p>
+
+<p>If this callback has no type dependencies then this will still work
+without an injection context but this can be overridden using
+<code>InjectionClient.set_callback_override</code>.</p></li>
+<li><p><strong>type</strong> (type[_T] | None):
+The type of the dependency to resolve.</p>
+
+<p>If a union (e.g. <code>typing.Union[A, B]</code>, <code>A | B</code>, <code>typing.Optional[A]</code>)
+is passed for <code>type</code> then each type in the union will be tried
+separately after the litarl union type is tried, allowing for resolving
+<code>A | B</code> to the value set by <code>set_type_dependency(B, ...)</code>.</p>
+
+<p>If a union has <code>None</code> as one of its types (including <code>Optional[T]</code>)
+then <code>None</code> will be passed for the parameter if none of the types could
+be resolved using the linked client.</p></li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If both <code>callback</code> and <code>type</code> are specified or if neither is specified.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="injected">
+                            <div class="attr function"><a class="headerlink" href="#injected">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">injected</span><span class="signature">(
+    *,
+    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
+    type: Optional[type[~_T]] = None
+) -&gt; <a href="#Injected">tanjun.injecting.Injected</a>[~_T]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">injected</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Alias of `inject`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Alias of <code><a href="#inject">inject</a></code>.</p>
+</div>
+
+
                 </section>
     </main>
 <script>
