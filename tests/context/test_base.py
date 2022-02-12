@@ -37,9 +37,9 @@
 import types
 import typing
 from unittest import mock
-import pytest
 
 import hikari
+import pytest
 from hikari import traits
 
 import tanjun
@@ -47,14 +47,13 @@ from tanjun.context import base as base_context
 
 _T = typing.TypeVar("_T")
 
+
 def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
     namespace["__slots__"] = ()
 
     for name in getattr(cls, "__abstractmethods__", None) or ():
         if name not in namespace:
-            namespace[name] = mock.MagicMock(
-
-            )
+            namespace[name] = mock.MagicMock()
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
