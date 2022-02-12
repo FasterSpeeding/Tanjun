@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: requirements-txt-fixer
+    - id: trailing-whitespace
+  - repo: https://github.com/psf/black
+    rev: 22.1.0
+    hooks:
+    - id: black
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+    - id: isort
+  - repo: https://github.com/aio-libs/sort-all
+    rev: fca69e5540cdf52f5c597e310b739f2300e17a3e
+    hooks:
+    - id: sort-all

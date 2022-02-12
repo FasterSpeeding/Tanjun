@@ -46,7 +46,7 @@ While you aren't required to update the changelog as a contributor, a reference 
 can be found [here](https://keepachangelog.com/en/1.0.0/).
 
 It should be noted that not all changes will be included in the changelog (since some are just not significant enough)
-and it comes down to a maintainer's discretion as to what is included. 
+and it comes down to a maintainer's discretion as to what is included.
 
 ### Tests
 

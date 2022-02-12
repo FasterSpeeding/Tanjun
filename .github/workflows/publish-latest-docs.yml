@@ -50,4 +50,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: "Master docs: (${{github.sha}})"
           SKIP_EMPTY_COMMITS: true
-

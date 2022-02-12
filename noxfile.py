@@ -42,8 +42,11 @@ PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3
 
 
 def install_requirements(session: nox.Session, *other_requirements: str) -> None:
-    session.install("--upgrade", "wheel")
-    session.install("--upgrade", *other_requirements)
+    # --no-install --no-venv leads to it trying to install in the global venv
+    # as --no-install only skips "reused" venvs and global is not considered reused.
+    if not _try_find_option(session, "--skip-install", when_empty="True"):
+        session.install("--upgrade", "wheel")
+        session.install("--upgrade", *other_requirements)
 
 
 def _try_find_option(session: nox.Session, name: str, *other_names: str, when_empty: str | None = None) -> str | None:
@@ -148,7 +151,7 @@ def spell_check(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def build(session: nox.Session) -> None:
     """Build this project using flit."""
-    session.install("flit")
+    install_requirements(session, "flit")
     session.log("Starting build")
     session.run("flit", "build")
 
@@ -156,8 +159,8 @@ def build(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def publish(session: nox.Session, test: bool = False) -> None:
     """Publish this project to pypi."""
-    session.install("flit")
-    session.install(".", "--use-feature=in-tree-build")
+    install_requirements(session, "flit")
+    install_requirements(session, ".", "--use-feature=in-tree-build")
 
     env: dict[str, str] = {}
 
@@ -257,7 +260,7 @@ def check_dependencies(session: nox.Session) -> None:
             "https://gist.githubusercontent.com/FasterSpeeding/13e3d871f872fa09cf7bdc4144d62b2b/raw/check_dependency.py"
         ).read()
 
-    session.install(*requirements)
+    install_requirements(session, *requirements)
     # This is saved to a temporary file to avoid the source showing up in any of the output.
 
     # A try, finally is used to delete the file rather than relying on delete=True behaviour
