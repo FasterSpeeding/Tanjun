@@ -14,7 +14,7 @@ repos:
     rev: "5.10.1"
     hooks:
     - id: isort
-  - repo: https://github.com/FasterSpeeding/sort-all@task/handle-empty
+  - repo: https://github.com/FasterSpeeding/sort-all
     rev: "v1.1"
     hooks:
     - id: sort-all
