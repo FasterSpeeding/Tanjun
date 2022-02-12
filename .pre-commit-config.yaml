@@ -15,6 +15,6 @@ repos:
     hooks:
     - id: isort
   - repo: https://github.com/aio-libs/sort-all
-    rev: b95f8b69200093a8c0d2565f7ff1aaffe55ffe9f
+    rev: fca69e5540cdf52f5c597e310b739f2300e17a3e
     hooks:
     - id: sort-all
