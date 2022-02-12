@@ -8,10 +8,10 @@ repos:
 -   repo: local
     hooks:
     -   id: nox-reformat
-        name: nox -s reformat
+        name: nox -s reformat --no-install --no-venv
         description: Reformat code and meta files.
         entry: nox -s reformat
         language: python
         language_version: python3
-        additional_dependencies: ["nox"]
+        additional_dependencies: ["nox", ".[reformat]", "--use-feature=in-tree-build"]
         pass_filenames: false
