@@ -13,5 +13,5 @@ repos:
         entry: nox -s reformat --no-venv -- --skip-install
         language: python
         language_version: python3
-        additional_dependencies: [".[reformat]", "--use-feature=in-tree-build", "nox"]
+        additional_dependencies: [".[ttt]", "--use-feature=in-tree-build", "nox"]
         pass_filenames: false
