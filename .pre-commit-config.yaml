@@ -14,5 +14,5 @@ repos:
         entry: nox -s reformat --no-venv
         language: python
         language_version: python3
-        additional_dependencies: ["nox==2022.1.7"]
+        additional_dependencies: ["flit", "nox==2022.1.7"]
         pass_filenames: false
