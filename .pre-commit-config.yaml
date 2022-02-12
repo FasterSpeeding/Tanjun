@@ -7,14 +7,14 @@ repos:
     - id: requirements-txt-fixer
     - id: trailing-whitespace
   - repo: https://github.com/psf/black
-    rev: "22.1"
+    rev: 22.1.0
     hooks:
     - id: black
   - repo: https://github.com/PyCQA/isort
-    rev: "5.10.1"
+    rev: 5.10.1
     hooks:
     - id: isort
   - repo: https://github.com/FasterSpeeding/sort-all
-    rev: "v1.1.0"
+    rev: v1.1.0
     hooks:
     - id: sort-all
