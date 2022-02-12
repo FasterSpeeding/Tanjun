@@ -14,7 +14,7 @@ repos:
     rev: 5.10.1
     hooks:
     - id: isort
-  - repo: https://github.com/FasterSpeeding/sort-all
-#     rev: v1.1.0
+  - repo: https://github.com/aio-libs/sort-all
+    rev: b95f8b69200093a8c0d2565f7ff1aaffe55ffe9f
     hooks:
     - id: sort-all

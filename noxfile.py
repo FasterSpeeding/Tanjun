@@ -192,7 +192,6 @@ def test_publish(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
-    session.virtualenv
     install_requirements(session, ".[reformat]", "--use-feature=in-tree-build")  # include_standard_requirements=False
     session.run("black", *GENERAL_TARGETS)
     session.run("isort", *GENERAL_TARGETS)
