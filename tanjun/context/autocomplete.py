@@ -49,8 +49,6 @@ if typing.TYPE_CHECKING:
     import datetime
     from collections import abc as collections
 
-    from hikari import traits as hikari_traits
-
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
 
 
@@ -173,7 +171,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
         return self._client.shards.shards[shard_id]
 
     @property
-    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client.shards
 

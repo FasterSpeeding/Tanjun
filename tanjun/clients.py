@@ -489,7 +489,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cache: typing.Optional[hikari.api.Cache] = None,
         events: typing.Optional[hikari.api.EventManager] = None,
         server: typing.Optional[hikari.api.InteractionServer] = None,
-        shards: typing.Optional[hikari_traits.ShardAware] = None,
+        shards: typing.Optional[hikari.ShardAware] = None,
         voice: typing.Optional[hikari.api.VoiceComponent] = None,
         event_managed: bool = False,
         mention_prefix: bool = False,
@@ -671,7 +671,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.set_type_dependency(hikari.api.InteractionServer, server).set_type_dependency(type(server), server)
 
         if shards:
-            self.set_type_dependency(hikari_traits.ShardAware, shards).set_type_dependency(type(shards), shards)
+            self.set_type_dependency(hikari.ShardAware, shards).set_type_dependency(type(shards), shards)
 
         if voice:
             self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
@@ -751,7 +751,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @classmethod
     def from_gateway_bot(
         cls,
-        bot: hikari_traits.GatewayBotAware,
+        bot: hikari.GatewayBotAware,
         /,
         *,
         event_managed: bool = True,
@@ -849,7 +849,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @classmethod
     def from_rest_bot(
         cls,
-        bot: hikari_traits.RESTBotAware,
+        bot: hikari.RESTBotAware,
         /,
         *,
         declare_global_commands: typing.Union[
@@ -1056,7 +1056,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._server
 
     @property
-    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._shards
 
@@ -1361,7 +1361,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._defaults_to_ephemeral = state
         return self
 
-    def set_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
+    def set_hikari_trait_injectors(self: _ClientT, bot: hikari.RESTAware, /) -> _ClientT:
         """Set type based dependency injection based on the hikari traits found in `bot`.
 
         This is a short hand for calling `Client.add_type_dependency` for all
@@ -1369,7 +1369,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        bot : hikari_traits.RESTAware
+        bot : hikari.RESTAware
             The hikari client to set dependency injectors for.
         """
         for _, member in inspect.getmembers(hikari_traits):

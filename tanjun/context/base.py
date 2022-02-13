@@ -43,8 +43,6 @@ from .. import abc as tanjun_abc
 from .. import injecting
 
 if typing.TYPE_CHECKING:
-    from hikari import traits as hikari_traits
-
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
 
 
@@ -110,7 +108,7 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         return self._client.shards.shards[shard_id]
 
     @property
-    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.shards
 

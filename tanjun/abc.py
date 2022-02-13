@@ -89,8 +89,6 @@ if typing.TYPE_CHECKING:
     import datetime
     import pathlib
 
-    from hikari import traits as hikari_traits
-
 
 _T = typing.TypeVar("_T")
 
@@ -306,7 +304,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
@@ -1961,7 +1959,7 @@ class AutocompleteContext:
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
@@ -3771,7 +3769,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         """Object of the Hikari shard manager this client was initialised with."""
 
     @property
