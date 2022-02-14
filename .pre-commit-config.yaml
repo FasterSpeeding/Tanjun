@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.1.0
     hooks:
     - id: check-yaml
     - id: end-of-file-fixer
@@ -15,6 +15,6 @@ repos:
     hooks:
     - id: isort
   - repo: https://github.com/aio-libs/sort-all
-    rev: fca69e5540cdf52f5c597e310b739f2300e17a3e
+    rev: v1.2.0
     hooks:
     - id: sort-all
