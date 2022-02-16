@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.9.0,<3.12"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
-keywords= ["hikari"]
+keywords = ["hikari"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
@@ -138,4 +138,4 @@ warn_redundant_casts = false
 
 # compatibility with pyright
 allow_redefinition = true
-disable_error_code = ["return"]
+disable_error_code = ["return-value"]
