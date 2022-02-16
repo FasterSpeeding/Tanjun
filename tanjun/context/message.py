@@ -47,8 +47,6 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    from .. import injecting
-
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
 
 _LOGGER = logging.getLogger("hikari.tanjun.context")
@@ -75,7 +73,6 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
     def __init__(
         self,
         client: tanjun_abc.Client,
-        injection_client: injecting.InjectorClient,
         content: str,
         message: hikari.Message,
         *,
@@ -85,7 +82,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 
-        super().__init__(client, injection_client)
+        super().__init__(client)
         self._command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None
         self._content = content
         self._initial_response_id: typing.Optional[hikari.Snowflake] = None

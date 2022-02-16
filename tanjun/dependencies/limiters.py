@@ -54,12 +54,12 @@ import time
 import typing
 from collections import abc as collections
 
+import alluka
 import hikari
 
 from .. import abc as tanjun_abc
 from .. import errors
 from .. import hooks
-from .. import injecting
 from . import async_cache
 from . import owners
 
@@ -218,8 +218,6 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if cached_channel := ctx.get_channel():
             return cached_channel.parent_id or ctx.guild_id
 
-        # TODO: upgrade this to the standard interface
-        assert isinstance(ctx, injecting.AbstractInjectionContext)
         channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildChannel])
         if channel_cache and (channel_ := await channel_cache.get(ctx.channel_id, default=None)):
             return channel_.parent_id or ctx.guild_id
@@ -252,8 +250,6 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
 
         roles = ctx.member.get_roles()
         try_rest = not roles
-        # TODO: upgrade this to the standard interface
-        assert isinstance(ctx, injecting.AbstractInjectionContext)
         if try_rest and (role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role])):
             try:
                 roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
@@ -506,7 +502,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             for bucket in self._buckets.values():
                 bucket.cleanup()
 
-    def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+    def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         """Add this cooldown manager to a tanjun client.
 
         .. note::
@@ -519,8 +515,6 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The client to add this cooldown manager to.
         """
         client.set_type_dependency(AbstractCooldownManager, self)
-        # TODO: the injection client should be upgraded to the abstract Client.
-        assert isinstance(client, tanjun_abc.Client)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
         if client.is_alive:
@@ -700,8 +694,8 @@ class CooldownPreExecution:
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
-        owner_check: typing.Optional[owners.AbstractOwners] = injecting.inject(
+        cooldowns: AbstractCooldownManager = alluka.inject(type=AbstractCooldownManager),
+        owner_check: typing.Optional[owners.AbstractOwners] = alluka.inject(
             type=typing.Optional[owners.AbstractOwners]
         ),
     ) -> None:
@@ -840,7 +834,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             for bucket in self._buckets.values():
                 bucket.cleanup()
 
-    def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+    def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         """Add this concurrency manager to a tanjun client.
 
         .. note::
@@ -853,8 +847,6 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The client to add this concurrency manager to.
         """
         client.set_type_dependency(AbstractConcurrencyLimiter, self)
-        # TODO: the injection client should be upgraded to the abstract Client.
-        assert isinstance(client, tanjun_abc.Client)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
         if client.is_alive:
@@ -1015,7 +1007,7 @@ class ConcurrencyPreExecution:
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        limiter: AbstractConcurrencyLimiter = injecting.inject(type=AbstractConcurrencyLimiter),
+        limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
             raise errors.CommandError(self._error_message)
@@ -1044,7 +1036,7 @@ class ConcurrencyPostExecution:
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        limiter: AbstractConcurrencyLimiter = injecting.inject(type=AbstractConcurrencyLimiter),
+        limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         await limiter.release(self._bucket_id, ctx)
 

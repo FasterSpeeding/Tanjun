@@ -47,8 +47,6 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    from .. import injecting
-
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
     _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
     _T = typing.TypeVar("_T")
@@ -287,13 +285,12 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
     def __init__(
         self,
         client: tanjun_abc.Client,
-        injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
     ) -> None:
-        super().__init__(client, injection_client)
+        super().__init__(client)
         self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._has_been_deferred = False
@@ -935,7 +932,6 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
     def __init__(
         self,
         client: tanjun_abc.Client,
-        injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
         default_to_ephemeral: bool = False,
@@ -944,9 +940,7 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
             collections.Callable[[tanjun_abc.SlashContext], collections.Awaitable[None]]
         ] = None,
     ) -> None:
-        super().__init__(
-            client, injection_client, interaction, default_to_ephemeral=default_to_ephemeral, future=future
-        )
+        super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
         self._marked_not_found = False
         self._on_not_found = on_not_found
 

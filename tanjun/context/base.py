@@ -36,28 +36,23 @@ __all__: list[str] = []
 
 import typing
 
+import alluka
 import hikari
 from hikari import snowflakes
 
 from .. import abc as tanjun_abc
-from .. import injecting
 
 if typing.TYPE_CHECKING:
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
 
 
-class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
+class BaseContext(alluka.BasicContext, tanjun_abc.Context):
     """Base class for all standard context implementations."""
 
     __slots__ = ("_client", "_component", "_final")
 
-    def __init__(
-        self,
-        client: tanjun_abc.Client,
-        injection_client: injecting.InjectorClient,
-    ) -> None:
-        # injecting.BasicInjectionContext.__init__
-        super().__init__(injection_client)
+    def __init__(self, client: tanjun_abc.Client) -> None:
+        super().__init__(client.injector)
         self._client = client
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._final = False

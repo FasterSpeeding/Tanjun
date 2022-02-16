@@ -83,12 +83,14 @@ import typing
 from collections import abc as collections
 
 import hikari
+from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
     import pathlib
 
+    _ClientT = typing.TypeVar("_ClientT")
 
 _T = typing.TypeVar("_T")
 
@@ -199,7 +201,7 @@ _MenuTypeT = typing.TypeVar(
 )
 
 
-class Context(abc.ABC):
+class Context(alluka.Context):
     """Interface for the context of a command execution."""
 
     __slots__ = ()
@@ -1878,7 +1880,7 @@ class SlashContext(AppCommandContext, abc.ABC):
         """
 
 
-class AutocompleteContext:
+class AutocompleteContext(alluka.Context):
     """Interface of an autocomplete context."""
 
     __slots__ = ()
@@ -3722,6 +3724,11 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def injector(self) -> alluka.Client:
+        """The attached alluka dependency injection client."""
+
+    @property
+    @abc.abstractmethod
     def is_alive(self) -> bool:
         """Whether this client is alive."""
 
@@ -4616,6 +4623,112 @@ class Client(abc.ABC):
 
         For more information on the behaviour of this method see the
         documentation for `Client.reload_modules`.
+        """
+
+    @abc.abstractmethod
+    def set_type_dependency(self: _ClientT, type_: type[_T], value: _T, /) -> _ClientT:
+        """Set a callback to be called to resolve a injected type.
+
+        Parameters
+        ----------
+        type_: type[_T]
+            The type of the dependency to add an implementation for.
+        value: _T
+            The value of the dependency.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+        """
+
+    @abc.abstractmethod
+    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.Undefined]:
+        """Get the implementation for an injected type.
+
+        Parameters
+        ----------
+        type_: type[_T]
+            The associated type.
+
+        Returns
+        -------
+        _T | Undefined
+            The resolved type if found, else `Undefined`.
+        """
+
+    @abc.abstractmethod
+    def remove_type_dependency(self: _ClientT, type_: type[typing.Any], /) -> _ClientT:
+        """Remove a type dependency.
+
+        Parameters
+        ----------
+        type_: type
+            The associated type.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+
+        Raises
+        ------
+        KeyError
+            If `type` is not registered.
+        """
+
+    @abc.abstractmethod
+    def set_callback_override(
+        self: _ClientT, callback: alluka.CallbackSig[_T], override: alluka.CallbackSig[_T], /
+    ) -> _ClientT:
+        """Override a specific injected callback.
+
+        Parameters
+        ----------
+        callback: alluka.abc.CallbackSig[_T]
+            The injected callback to override.
+        override: alluka.abc.CallbackSig[_T]
+            The callback to use instead.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+        """
+
+    @abc.abstractmethod
+    def get_callback_override(self, callback: alluka.CallbackSig[_T], /) -> typing.Optional[alluka.CallbackSig[_T]]:
+        """Get the override for a specific injected callback.
+
+        Parameters
+        ----------
+        callback: CallbackSig[_T]
+            The injected callback to get the override for.
+
+        Returns
+        -------
+        CallbackSig[_T] | None
+            The override if found, else `None`.
+        """
+
+    @abc.abstractmethod
+    def remove_callback_override(self: _ClientT, callback: alluka.CallbackSig[_T], /) -> _ClientT:
+        """Remove a callback override.
+
+        Parameters
+        ----------
+        callback: alluka.abc.CallbackSig
+            The injected callback to remove the override for.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+
+        Raises
+        ------
+        KeyError
+            If no override is found for the callback.
         """
 
 

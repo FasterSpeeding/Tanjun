@@ -60,11 +60,11 @@ __all__: list[str] = [
 import typing
 from collections import abc as collections
 
+import alluka
 import hikari
 
 from . import dependencies
 from . import errors
-from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -98,16 +98,6 @@ def foo_command(self, ctx: Context) -> None:
     raise NotImplemented
 ```
 """
-
-
-class InjectableCheck(injecting.CallbackDescriptor[bool]):
-    __slots__ = ()
-
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        if result := await self.resolve_with_command_context(ctx, ctx):
-            return result
-
-        raise errors.FailedCheck
 
 
 def _optional_kwargs(
@@ -177,7 +167,7 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        dependency: dependencies.AbstractOwners = injecting.inject(type=dependencies.AbstractOwners),
+        dependency: dependencies.AbstractOwners = alluka.inject(type=dependencies.AbstractOwners),
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
@@ -252,7 +242,7 @@ class NsfwCheck(_Check):
         self,
         ctx: tanjun_abc.Context,
         /,
-        channel_cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
+        channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
     ) -> bool:
         return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
@@ -295,7 +285,7 @@ class SfwCheck(_Check):
         self,
         ctx: tanjun_abc.Context,
         /,
-        channel_cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
+        channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
     ) -> bool:
         return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
@@ -881,12 +871,12 @@ def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[CommandT]
 class _AllChecks(_Check):
     __slots__ = ("_checks",)
 
-    def __init__(self, checks: list[injecting.CallbackDescriptor[bool]]) -> None:
+    def __init__(self, checks: list[tanjun_abc.CheckSig]) -> None:
         self._checks = checks
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
-            if not await check.resolve_with_command_context(ctx, ctx):
+            if not await ctx.execute_async(check, ctx):
                 return False
 
         return True
@@ -914,9 +904,7 @@ def all_checks(
     collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
-    checks_ = [injecting.CallbackDescriptor(check)]
-    checks_.extend(map(injecting.CallbackDescriptor[bool], checks))
-    return _AllChecks(checks_)
+    return _AllChecks([check, *checks])
 
 
 def with_all_checks(
@@ -949,7 +937,7 @@ class _AnyChecks(_Check):
 
     def __init__(
         self,
-        checks: list[injecting.CallbackDescriptor[bool]],
+        checks: list[tanjun_abc.CheckSig],
         suppress: tuple[type[Exception], ...],
         error_message: typing.Optional[str],
         halt_execution: bool,
@@ -962,7 +950,7 @@ class _AnyChecks(_Check):
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
             try:
-                if await check.resolve_with_command_context(ctx, ctx):
+                if await ctx.execute_async(check, ctx):
                     return True
 
             except errors.FailedCheck:
@@ -1020,9 +1008,7 @@ def any_checks(
     collections.Callable[[CommandT], CommandT]
         A decorator which adds the generated check to a command.
     """
-    checks_ = [injecting.CallbackDescriptor(check)]
-    checks_.extend(map(injecting.CallbackDescriptor[bool], checks))
-    return _AnyChecks(checks_, suppress, error_message, halt_execution)
+    return _AnyChecks([check, *checks], suppress, error_message, halt_execution)
 
 
 def with_any_checks(

@@ -53,8 +53,6 @@ import typing
 from collections import abc as collections
 
 from . import abc as tanjun_abc
-from . import checks as checks_
-from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -201,7 +199,7 @@ class Component(tanjun_abc.Component):
             When this is `True`, message command names will not be allowed to contain
             spaces and will have to be unique to one command within the component.
         """
-        self._checks: list[checks_.InjectableCheck] = []
+        self._checks: list[tanjun_abc.CheckSig] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._client_callbacks: dict[str, list[tanjun_abc.MetaEventSig]] = {}
         self._defaults_to_ephemeral: typing.Optional[bool] = None
@@ -216,8 +214,8 @@ class Component(tanjun_abc.Component):
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or base64.b64encode(random.randbytes(32)).decode()
         self._names_to_commands: dict[str, tanjun_abc.MessageCommand[typing.Any]] = {}
-        self._on_close: list[injecting.CallbackDescriptor[None]] = []
-        self._on_open: list[injecting.CallbackDescriptor[None]] = []
+        self._on_close: list[OnCallbackSig] = []
+        self._on_open: list[OnCallbackSig] = []
         self._schedules: list[schedules.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
@@ -228,7 +226,7 @@ class Component(tanjun_abc.Component):
     @property
     def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
         """Collection of the checks being run against every command execution in this component."""
-        return tuple(check.callback for check in self._checks)
+        return self._checks.copy()
 
     @property
     def client(self) -> typing.Optional[tanjun_abc.Client]:
@@ -291,11 +289,6 @@ class Component(tanjun_abc.Component):
         return self._message_commands.copy()
 
     @property
-    def needs_injector(self) -> bool:
-        """Whether any of the checks in this component require dependency injection."""
-        return any(check.needs_injector for check in self._checks)
-
-    @property
     def listeners(
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
@@ -310,7 +303,7 @@ class Component(tanjun_abc.Component):
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         if not _new:
-            self._checks = [check.copy() for check in self._checks]
+            self._checks = [copy.copy(check) for check in self._checks]
             self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
             self._hooks = self._hooks.copy() if self._hooks else None
             self._listeners = {
@@ -512,7 +505,7 @@ class Component(tanjun_abc.Component):
             This component to enable method chaining.
         """
         if check not in self._checks:
-            self._checks.append(checks_.InjectableCheck(check))
+            self._checks.append(check)
 
         return self
 
@@ -534,7 +527,7 @@ class Component(tanjun_abc.Component):
         ValueError
             If the check is not registered with this component.
         """
-        self._checks.remove(typing.cast("checks_.InjectableCheck", check))
+        self._checks.remove(check)
         return self
 
     def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
@@ -1000,7 +993,7 @@ class Component(tanjun_abc.Component):
         Self
             The component object to enable call chaining.
         """
-        self._on_close.append(injecting.CallbackDescriptor(callback))
+        self._on_close.append(callback)
         return self
 
     def with_on_close(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
@@ -1048,7 +1041,7 @@ class Component(tanjun_abc.Component):
         Self
             The component object to enable call chaining.
         """
-        self._on_open.append(injecting.CallbackDescriptor(callback))
+        self._on_open.append(callback)
         return self
 
     def with_on_open(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
@@ -1303,9 +1296,7 @@ class Component(tanjun_abc.Component):
             The component itself for chaining.
         """
         if self._client and self._loop:
-            # TODO: upgrade this to the standard interface
-            assert isinstance(self._client, injecting.InjectorClient)
-            schedule.start(self._client, loop=self._loop)
+            schedule.start(self._client.injector, loop=self._loop)
 
         self._schedules.append(schedule)
         return self
@@ -1373,11 +1364,7 @@ class Component(tanjun_abc.Component):
                 schedule.stop()
 
         self._loop = None
-        # TODO: upgrade this to the standard interface
-        assert isinstance(self._client, injecting.InjectorClient)
-        await asyncio.gather(
-            *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
-        )
+        await asyncio.gather(*(self._client.injector.execute_async(callback) for callback in self._on_close))
         if unbind:
             self.unbind_client(self._client)
 
@@ -1390,14 +1377,10 @@ class Component(tanjun_abc.Component):
             raise RuntimeError("Client isn't bound yet")
 
         self._loop = asyncio.get_running_loop()
-        # TODO: upgrade this to the standard interface
-        assert isinstance(self._client, injecting.InjectorClient)
-        await asyncio.gather(
-            *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_open)
-        )
+        await asyncio.gather(*(self._client.injector.execute_async(callback) for callback in self._on_open))
 
         for schedule in self._schedules:
-            schedule.start(self._client, loop=self._loop)
+            schedule.start(self._client.injector, loop=self._loop)
 
     def make_loader(self, *, copy: bool = True) -> tanjun_abc.ClientLoader:
         """Make a loader/unloader for this component.

@@ -26,7 +26,10 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
-dependencies = ["hikari~=2.0.0.dev106"]
+dependencies = [
+    "alluka @ git+https://github.com/FasterSpeeding/Alluka.git@36c2647bd7f49d3ba960a31239e37638a078431f",
+    "hikari~=2.0.0.dev106",
+]
 dynamic = ["description", "version"]
 
 [project.optional-dependencies]
@@ -104,7 +107,7 @@ profile = "black"
 force_single_line = true
 
 [tool.pyright]
-include = ["examples", "tanjun", "noxfile.py", "tests"]
+include = ["examples", "tanjun", "noxfile.py"]  # , "tests"]
 
 pythonVersion = "3.9"
 typeCheckingMode = "strict"

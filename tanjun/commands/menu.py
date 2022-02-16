@@ -40,7 +40,6 @@ from .. import abc
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
-from .. import injecting
 from .. import utilities
 from . import base
 
@@ -342,7 +341,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = callback
         self._default_permission = default_permission
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_global = is_global
@@ -352,10 +351,18 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         self._type = type_
         self._wrapped_command = _wrapped_command
 
+    if typing.TYPE_CHECKING:  # TODO: test coverage
+        __call__: _MenuCommandCallbackSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._callback(*args, **kwargs)
+
     @property
     def callback(self) -> _MenuCommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return typing.cast("_MenuCommandCallbackSigT", self._callback.callback)
+        return self._callback
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
@@ -457,7 +464,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             else:
                 value = ctx.resolve_to_message()
 
-            await self._callback.resolve_with_command_context(ctx, ctx, value)
+            await ctx.execute_async(self._callback, ctx, value)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)

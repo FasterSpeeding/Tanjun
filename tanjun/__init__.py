@@ -99,7 +99,6 @@ that cover making a bot from scratch through to advanced concepts like Dependenc
 from __future__ import annotations
 
 __all__: list[str] = [
-    # __init__.py
     "AnyHooks",
     "BucketResource",
     "Client",
@@ -216,6 +215,8 @@ __all__: list[str] = [
 
 import typing
 
+from alluka import inject
+
 from . import abc
 from . import context
 from . import utilities
@@ -297,8 +298,6 @@ from .hooks import Hooks
 from .hooks import MessageHooks
 from .hooks import SlashHooks
 from .injecting import as_self_injecting
-from .injecting import inject
-from .injecting import injected
 from .parsing import ShlexParser
 from .parsing import with_argument
 from .parsing import with_greedy_argument
@@ -318,3 +317,7 @@ __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
 __version__: typing.Final[str] = "2.4.1a1"
+
+
+injected = inject
+"""Alias of `alluka.inject`."""

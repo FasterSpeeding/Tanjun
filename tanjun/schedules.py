@@ -40,8 +40,9 @@ import copy
 import datetime
 import typing
 
+from alluka import abc as alluka
+
 from . import components
-from . import injecting
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -99,14 +100,12 @@ class AbstractSchedule(abc.ABC):
         """
 
     @abc.abstractmethod
-    def start(
-        self, client: injecting.InjectorClient, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None
-    ) -> None:
+    def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         """Start the schedule.
 
         Parameters
         ----------
-        tanjun.injecting.InjectorClient
+        alluka.abc.Client
             The injector client calls should be resolved with.
 
         Other Parameters
@@ -243,19 +242,19 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         else:
             self._interval: datetime.timedelta = datetime.timedelta(seconds=interval)
 
-        self._callback = injecting.CallbackDescriptor[None](callback)
+        self._callback = callback
         self._fatal_exceptions = tuple(fatal_exceptions)
         self._ignored_exceptions = tuple(ignored_exceptions)
         self._iteration_count: int = 0
         self._max_runs = max_runs
-        self._stop_callback: typing.Optional[injecting.CallbackDescriptor[None]] = None
-        self._start_callback: typing.Optional[injecting.CallbackDescriptor[None]] = None
+        self._stop_callback: typing.Optional[_CallbackSig] = None
+        self._start_callback: typing.Optional[_CallbackSig] = None
         self._task: typing.Optional[asyncio.Task[None]] = None
 
     @property
     def callback(self) -> _CallbackSigT:
         # <<inherited docstring from IntervalSchedule>>.
-        return typing.cast(_CallbackSigT, self._callback.callback)
+        return self._callback
 
     @property
     def interval(self) -> datetime.timedelta:
@@ -305,7 +304,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Self
             The schedule instance to enable chained calls.
         """
-        self._start_callback = injecting.CallbackDescriptor(callback)
+        self._start_callback = callback
         return self
 
     def set_stop_callback(self: _IntervalScheduleT, callback: _CallbackSig, /) -> _IntervalScheduleT:
@@ -321,12 +320,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Self
             The schedule instance to enable chained calls.
         """
-        self._stop_callback = injecting.CallbackDescriptor(callback)
+        self._stop_callback = callback
         return self
 
-    async def _execute(self, client: injecting.InjectorClient, /) -> None:
+    async def _execute(self, client: alluka.Client, /) -> None:
         try:
-            await self._callback.resolve(injecting.BasicInjectionContext(client))
+            await client.execute_async(self._callback)
 
         except self._fatal_exceptions:
             self.stop()
@@ -335,12 +334,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         except self._ignored_exceptions:
             pass
 
-    async def _loop(self, client: injecting.InjectorClient, /) -> None:
+    async def _loop(self, client: alluka.Client, /) -> None:
         event_loop = asyncio.get_running_loop()
         try:
             if self._start_callback:
                 try:
-                    await self._start_callback.resolve(injecting.BasicInjectionContext(client))
+                    await client.execute_async(self._start_callback)
 
                 except self._ignored_exceptions:
                     pass
@@ -354,14 +353,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             self._task = None
             if self._stop_callback:
                 try:
-                    await self._stop_callback.resolve(injecting.BasicInjectionContext(client))
+                    await client.execute_async(self._stop_callback)
 
                 except self._ignored_exceptions:
                     pass
 
-    def start(
-        self, client: injecting.InjectorClient, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None
-    ) -> None:
+    def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
             raise RuntimeError("Cannot start an active schedule")

@@ -50,6 +50,8 @@ __all__: list[str] = [
 
 import typing
 
+import alluka
+
 if typing.TYPE_CHECKING:
     import pathlib
     from collections import abc as collections
@@ -71,23 +73,8 @@ class HaltExecution(TanjunError):
     __slots__ = ()
 
 
-class MissingDependencyError(TanjunError):
-    """Error raised when a dependency couldn't be found."""
-
-    __slots__ = ("message",)
-
-    message: str
-    """The error's message."""
-
-    def __init__(self, message: str) -> None:
-        """Initialise a missing dependency error.
-
-        Parameters
-        ----------
-        message : str
-            The error message.
-        """
-        self.message = message
+MissingDependencyError = alluka.MissingDependencyError
+"""Type alias of `alluka.MissingDependencyError`."""
 
 
 class CommandError(TanjunError):

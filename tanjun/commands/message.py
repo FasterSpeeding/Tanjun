@@ -48,7 +48,6 @@ from .. import abc
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
-from .. import injecting
 from .. import utilities
 from . import base
 
@@ -228,7 +227,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             callback = callback.callback
 
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = callback
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
         self._parser: typing.Optional[abc.MessageParser] = None
@@ -243,21 +242,17 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
     else:
 
         async def __call__(self, *args, **kwargs) -> None:
-            await self._callback.callback(*args, **kwargs)
+            await self._callback(*args, **kwargs)
 
     @property
     def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
+        return self._callback
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
     def names(self) -> collections.Collection[str]:
         return self._names.copy()
-
-    @property
-    def needs_injector(self) -> bool:
-        return self._callback.needs_injector
 
     @property
     def parent(self) -> typing.Optional[abc.MessageCommandGroup[typing.Any]]:
@@ -339,7 +334,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             else:
                 kwargs = _EMPTY_DICT
 
-            await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
+            await ctx.execute_async(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
