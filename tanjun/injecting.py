@@ -58,6 +58,8 @@ import typing
 
 import alluka
 
+from . import abc as tanjun_abc
+
 _T = typing.TypeVar("_T")
 CallbackSig = alluka.abc.CallbackSig[_T]
 """Type-hint of a injector callback.
@@ -93,69 +95,13 @@ BasicInjectionContext = alluka.abc.Context
 """Basic implementation of a `AbstractInjectionContext`."""
 
 
-class SelfInjectingCallback(typing.Generic[_T]):
-    """Class used to make a callback self-injecting by linking it to a client.
-
-    Examples
-    --------
-    ```py
-    async def callback(database: Database = tanjun.inject(type=Database)) -> None:
-        await database.do_something()
-
-    ...
-
-    client = tanjun.Client.from_gateway_bot(bot)
-    injecting_callback = tanjun.SelfInjectingCallback(callback, client)
-    await injecting_callback()
-    ```
-    """
-
-    __slots__ = ("_callback", "_client")
-
-    def __init__(self, injector_client: alluka.abc.Client, callback: CallbackSig[_T], /) -> None:
-        """Initialise a self injecting callback.
-
-        Parameters
-        ----------
-        injector : InjectorClient
-            The injection client to use to resolve dependencies.
-        callback : CallbackSig[_T]
-            The callback to make self-injecting.
-
-        Raises
-        ------
-        ValueError
-            If `callback` has any injected arguments which can only be passed
-            positionally.
-        """
-        self._callback = callback
-        self._client = injector_client
-
-    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
-        """Call this callback with the provided arguments + injected arguments.
-
-        Parameters
-        ----------
-        *args : typing.Any
-            The positional arguments to pass to the callback.
-        **kwargs : typing.Any
-            The keyword arguments to pass to the callback.
-
-        Returns
-        -------
-        _T
-            The callback's result.
-        """
-        return await self._client.execute_async(*args, **kwargs)
-
-    @property
-    def callback(self) -> CallbackSig[_T]:
-        return self._callback
+SelfInjectingCallback = alluka.SelfInjecting
+"""Class used to make a callback self-injecting by linking it to a client."""
 
 
 def as_self_injecting(
-    injector_client: alluka.abc.Client, /
-) -> collections.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]:
+    client: tanjun_abc.Client, /
+) -> collections.Callable[[CallbackSig[_T]], alluka.SelfInjecting[_T]]:
     """Make a callback self-inecting by linking it to a client through a decorator call.
 
     Examples
@@ -173,16 +119,17 @@ def as_self_injecting(
 
     Parameters
     ----------
-    injector_client : InjectorClient
-        The injection client to use to resolve dependencies.
+    client : tanjun.abc.Client
+        The client to use to resolve dependencies.
 
     Returns
     -------
-    collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]
+    collections.abc.Callable[[CallbackSig[_T]], alluka.SelfInjecting[_T]]
+        Decorator callback that returns a self-injecting callback.
     """
 
-    def decorator(callback: CallbackSig[_T], /) -> SelfInjectingCallback[_T]:
-        return SelfInjectingCallback(injector_client, callback)
+    def decorator(callback: CallbackSig[_T], /) -> alluka.SelfInjecting[_T]:
+        return alluka.SelfInjecting(client.injector, callback)
 
     return decorator
 
