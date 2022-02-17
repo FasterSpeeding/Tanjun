@@ -95,13 +95,13 @@ BasicInjectionContext = alluka.abc.Context
 """Basic implementation of a `AbstractInjectionContext`."""
 
 
-SelfInjectingCallback = alluka.SelfInjecting
+SelfInjectingCallback = alluka.AsyncSelfInjecting
 """Class used to make a callback self-injecting by linking it to a client."""
 
 
 def as_self_injecting(
     client: tanjun_abc.Client, /
-) -> collections.Callable[[CallbackSig[_T]], alluka.SelfInjecting[_T]]:
+) -> collections.Callable[[CallbackSig[_T]], alluka.AsyncSelfInjecting[_T]]:
     """Make a callback self-inecting by linking it to a client through a decorator call.
 
     Examples
@@ -124,12 +124,12 @@ def as_self_injecting(
 
     Returns
     -------
-    collections.abc.Callable[[CallbackSig[_T]], alluka.SelfInjecting[_T]]
+    collections.abc.Callable[[CallbackSig[_T]], alluka.AsyncSelfInjecting[_T]]
         Decorator callback that returns a self-injecting callback.
     """
 
-    def decorator(callback: CallbackSig[_T], /) -> alluka.SelfInjecting[_T]:
-        return alluka.SelfInjecting(client.injector, callback)
+    def decorator(callback: CallbackSig[_T], /) -> alluka.AsyncSelfInjecting[_T]:
+        return alluka.AsyncSelfInjecting(client.injector, callback)
 
     return decorator
 

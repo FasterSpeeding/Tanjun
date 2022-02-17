@@ -1043,7 +1043,7 @@ class Client(tanjun_abc.Client):
 
         For more information on this callback's signature see `PrefixGetter`.
         """
-        return typing.cast(PrefixGetterSig, self._prefix_getter.callback) if self._prefix_getter else None
+        return self._prefix_getter
 
     @property
     def prefixes(self) -> collections.Collection[str]:
