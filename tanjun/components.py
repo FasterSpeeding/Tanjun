@@ -792,7 +792,7 @@ class Component(tanjun_abc.Component):
 
     def add_menu_command(self: _ComponentT, command: tanjun_abc.MenuCommand[typing.Any, typing.Any], /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
-        key = (command.type, command.name.casefold())
+        key = (command.type, command.name)
         if self._menu_commands.get(key) == command:
             return self
 
@@ -809,7 +809,7 @@ class Component(tanjun_abc.Component):
     ) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
         try:
-            del self._menu_commands[(command.type, command.name.casefold())]
+            del self._menu_commands[(command.type, command.name)]
         except KeyError:
             raise ValueError(f"Command {command.name} not found") from None
 
