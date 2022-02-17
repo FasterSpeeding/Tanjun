@@ -289,7 +289,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
     ) -> None:
         super().__init__()
         if not name or len(name) > 32:
-            raise ValueError(f"Command name must be between 1-32 characters in length")
+            raise ValueError("Command name must be between 1-32 characters in length")
 
         if type_ not in _VALID_TYPES:
             raise ValueError("Command type must be message or user")
