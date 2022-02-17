@@ -35,7 +35,6 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
-import re
 import typing
 from unittest import mock
 
@@ -157,21 +156,20 @@ def test_as_user_menu_when_wrapping_command(
     assert isinstance(command, tanjun.MenuCommand)
 
 
-_INVALID_NAMES = ["a" * 33, "", "'#'#42123"]
-
-
 class TestMenuCommand:
-    @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test__init__with_invalid_name(self, name: str):
+    def test__init__when_name_too_long(self):
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match="Command name must be between 1-32 characters in length",
         ):
-            tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, name)
+            tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "x" * 33)
 
-    def test__init__when_name_isnt_lowercase(self):
-        with pytest.raises(ValueError, match="Invalid name provided, 'EAttststs' must be lowercase"):
-            tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "EAttststs")
+    def test__init__when_no_name(self):
+        with pytest.raises(
+            ValueError,
+            match="Command name must be between 1-32 characters in length",
+        ):
+            tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "")
 
     @pytest.mark.parametrize(
         "inner_command",
