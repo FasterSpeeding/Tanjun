@@ -90,7 +90,7 @@ _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=ab
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
 
 
-def validate_name(name: str) -> None:
+def _validate_name(name: str) -> None:
     if not _SCOMMAND_NAME_REG.fullmatch(name):
         raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
 
@@ -751,7 +751,7 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        validate_name(name)
+        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
@@ -1263,7 +1263,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        validate_name(name)
+        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The option description cannot be over 100 characters in length")
 

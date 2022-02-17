@@ -43,7 +43,6 @@ from .. import hooks as hooks_
 from .. import injecting
 from .. import utilities
 from . import base
-from . import slash
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -289,7 +288,8 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         super().__init__()
-        slash.validate_name(name)
+        if not name or len(name) > 32:
+            raise ValueError(f"Command name must be between 1-32 characters in length")
 
         if type_ not in _VALID_TYPES:
             raise ValueError("Command type must be message or user")
