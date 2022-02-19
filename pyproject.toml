@@ -30,7 +30,7 @@ dependencies = ["hikari~=2.0.0.dev106"]
 dynamic = ["description", "version"]
 
 [project.optional-dependencies]
-docs = ["pdoc==9.0.1"]
+docs = ["pdoc==10.0.1"]
 flake8 = [
     "flake8==4.0.1",
 
