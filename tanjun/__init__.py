@@ -308,7 +308,7 @@ from .schedules import as_interval
 
 __author__: typing.Final[str] = "Faster Speeding"
 __ci__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/actions"
-__copyright__: typing.Final[str] = "© 2020-2021 Faster Speeding"
+__copyright__: typing.Final[str] = "© 2020-2022 Faster Speeding"
 __coverage__: typing.Final[str] = "https://codeclimate.com/github/FasterSpeeding/Tanjun"
 __docs__: typing.Final[str] = "https://tanjun.cursed.solutions/"
 __email__: typing.Final[str] = "lucina@lmbyrne.dev"
