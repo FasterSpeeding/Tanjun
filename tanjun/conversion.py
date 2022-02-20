@@ -39,6 +39,7 @@ __all__: list[str] = [
     "ToInvite",
     "ToInviteWithMetadata",
     "ToMember",
+    "ToMessage",
     "ToPresence",
     "ToRole",
     "ToUser",
@@ -46,6 +47,7 @@ __all__: list[str] = [
     "from_datetime",
     "parse_channel_id",
     "parse_emoji_id",
+    "parse_message_id",
     "parse_role_id",
     "parse_snowflake",
     "parse_user_id",
@@ -64,6 +66,7 @@ __all__: list[str] = [
     "to_invite",
     "to_invite_with_metadata",
     "to_member",
+    "to_message",
     "to_presence",
     "to_role",
     "to_snowflake",
@@ -824,6 +827,68 @@ class ToUser(BaseConverter[hikari.User]):
 UserConverter = ToUser
 """Deprecated alias of `ToUser`."""
 
+
+_MessageCacheT = typing.Optional[async_cache.SfCache[hikari.Message]]
+
+
+class ToMessage(BaseConverter[hikari.Message]):
+    """Standard converter for messages.
+
+    For a standard instance of this see `to_message`.
+    """
+
+    __slots__ = ()
+
+    @property
+    def async_caches(self) -> collections.Sequence[typing.Any]:
+        # <<inherited docstring from BaseConverter>>.
+        return (_MessageCacheT,)
+
+    @property
+    def cache_components(self) -> hikari.CacheComponents:
+        # <<inherited docstring from BaseConverter>>.
+        return hikari.CacheComponents.MESSAGES
+
+    @property
+    def intents(self) -> hikari.Intents:
+        # <<inherited docstring from BaseConverter>>.
+        return hikari.Intents.GUILD_MESSAGES | hikari.Intents.DM_MESSAGES
+
+    @property
+    def requires_cache(self) -> bool:
+        # <<inherited docstring from BaseConverter>>.
+        return False
+
+    async def __call__(
+        self,
+        argument: _ArgumentT,
+        /,
+        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
+        cache: _MessageCacheT = injecting.inject(type=_MessageCacheT),
+    ) -> hikari.Message:
+        channel_id, message_id = parse_message_id(argument)
+        if ctx.cache and (message := ctx.cache.get_message(message_id)):
+            return message
+
+        if cache:
+            try:
+                return await cache.get(message_id)
+
+            except async_cache.EntryNotFound:
+                raise ValueError("Couldn't find message") from None
+
+            except async_cache.CacheMissError:
+                pass
+
+        try:
+            return await ctx.rest.fetch_message(channel_id or ctx.channel_id, message_id)
+
+        except hikari.NotFoundError:
+            pass
+
+        raise ValueError("Couldn't find message")
+
+
 _VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
 
 
@@ -1186,6 +1251,65 @@ list[hikari.Snowflake]
     List of the user IDs in the string.
 """
 
+_MESSAGE_LINK_REGEX = re.compile(r"(\d+|@me)/(\d+)/(\d+)")
+
+
+def parse_message_id(
+    value: _ArgumentT,
+    /,
+    *,
+    message: str = "No valid message link or ID found",
+) -> typing.Tuple[typing.Optional[hikari.Snowflake], hikari.Snowflake]:
+    """Parse a user ID from a string or int value.
+
+    Parameters
+    ----------
+    value: str | int
+        The value to parse (this argument can only be passed positionally).
+
+    Other Parameters
+    ----------------
+    message: str
+        The error message to raise if the value cannot be parsed.
+
+    Returns
+    -------
+    tuple[hikari.Snowflake | None, hikari.Snowflake]
+        The parsed channel and message IDs.
+
+    Raises
+    ------
+    ValueError
+        If the value cannot be parsed.
+    """
+    channel_id: typing.Optional[hikari.Snowflake] = None
+    message_id: typing.Optional[hikari.Snowflake] = None
+
+    if isinstance(value, str):
+        if value.isdigit():
+            message_id = hikari.Snowflake(value)
+
+        else:
+            capture = next(_MESSAGE_LINK_REGEX.finditer(value), None)
+            if capture:
+                channel_id = hikari.Snowflake(capture[2])
+                message_id = hikari.Snowflake(capture[3])
+
+    else:
+        try:
+            # Technically passing a float here is invalid (typing wise)
+            # but we handle that by catching TypeError
+            message_id = hikari.Snowflake(operator.index(typing.cast(int, value)))
+
+        except (TypeError, ValueError):
+            pass
+
+    # We should also range check the provided ID.
+    if message_id is not None and _range_check(message_id):
+        return channel_id, message_id
+
+    raise ValueError(message) from None
+
 
 def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
@@ -1457,6 +1581,9 @@ to_snowflake: typing.Final[collections.Callable[[_ArgumentT], hikari.Snowflake]]
 
 to_user: typing.Final[ToUser] = ToUser()
 """Convert user input to a `hikari.User` object."""
+
+to_message: typing.Final[ToMessage] = ToMessage()
+"""Convert user input to a `hikari.Message` object."""
 
 to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
 """Convert user input to a cached `hikari.VoiceState`."""
