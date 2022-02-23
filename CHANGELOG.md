@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Coroutine` is now used instead of `Awaitable` for callback signature return types to account
   for refactors made to DI logic in Alluka.
-- The dependency injection implementation has been moved to <https://github.com/FasterSpeeding/Alluka> 
+- The dependency injection implementation has been moved to <https://github.com/FasterSpeeding/Alluka>
   and any new DI features may be indicated there rather than on Tanjun's (Note, DI is still supported)
   changelog.
 - Callbacks with invalid dependency injection declarations (are declaring a positional-only argument
