@@ -60,12 +60,15 @@ def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float,
     return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
-_SnowflakeOptions = {
-    hikari.OptionType.USER,
-    hikari.OptionType.MENTIONABLE,
-    hikari.OptionType.ROLE,
-    hikari.OptionType.CHANNEL,
-}
+_SnowflakeOptions = frozenset(
+    [
+        hikari.OptionType.ATTACHMENT,
+        hikari.OptionType.USER,
+        hikari.OptionType.MENTIONABLE,
+        hikari.OptionType.ROLE,
+        hikari.OptionType.CHANNEL,
+    ]
+)
 
 
 class SlashOption(tanjun_abc.SlashOption):
@@ -143,7 +146,7 @@ class SlashOption(tanjun_abc.SlashOption):
 
     def resolve_value(
         self,
-    ) -> typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
+    ) -> typing.Union[hikari.Attachment, hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.CHANNEL:
             return self.resolve_to_channel()
@@ -153,6 +156,9 @@ class SlashOption(tanjun_abc.SlashOption):
 
         if self._option.type is hikari.OptionType.USER:
             return self.resolve_to_user()
+
+        if self._option.type is hikari.OptionType.ATTACHMENT:
+            return self.resolve_to_attachment()
 
         if self._option.type is hikari.OptionType.MENTIONABLE:
             return self.resolve_to_mentionable()

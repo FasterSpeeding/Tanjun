@@ -145,6 +145,36 @@ def test_as_slash_command_with_defaults():
     assert isinstance(command, tanjun.SlashCommand)
 
 
+def test_with_attachment_slash_option():
+    mock_command = mock.MagicMock()
+
+    result = tanjun.with_attachment_slash_option(
+        "meow_meow",
+        "nyaa_nyaa",
+        default="h",
+        pass_as_kwarg=False,
+    )(mock_command)
+
+    assert result is mock_command.add_attachment_option.return_value
+    mock_command.add_attachment_option.assert_called_once_with(
+        "meow_meow",
+        "nyaa_nyaa",
+        default="h",
+        pass_as_kwarg=False,
+    )
+
+
+def test_with_attachment_slash_option_with_defaults():
+    mock_command = mock.MagicMock()
+
+    result = tanjun.with_attachment_slash_option("meow", "nyaa")(mock_command)
+
+    assert result is mock_command.add_attachment_option.return_value
+    mock_command.add_attachment_option.assert_called_once_with(
+        "meow", "nyaa", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+    )
+
+
 def test_with_str_slash_option():
     mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
@@ -878,6 +908,60 @@ class TestSlashCommand:
             load_into_component.assert_called_once_with(mock_component)
 
         mock_other_command.load_into_component.assert_called_once_with(mock_component)
+
+    def test_add_attachment_option(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_attachment_option("me", "ow", default="no attached")
+
+        option = command.build().options[0]
+        assert option.name == "me"
+        assert option.description == "ow"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.CHANNATTACHMENTEL
+        assert option.choices is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.ATTACHMENT
+        assert tracked.default == "no attached"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_attachment_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_attachment_option("nya", "aaaa")
+
+        option = command.build().options[0]
+        assert option.name == "nya"
+        assert option.description == "aaaa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.ATTACHMENT
+        assert option.choices is None
+        assert option.channel_types is None
+        assert option.min_value is None
+        assert option.max_value is None
+        assert option.channel_types is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.ATTACHMENT
+        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_attachment_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_attachment_option("me", "how", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "me"
+        assert option.description == "how"
+        assert option.type is hikari.OptionType.ATTACHMENT
+        assert option.name not in command._tracked_options
 
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
