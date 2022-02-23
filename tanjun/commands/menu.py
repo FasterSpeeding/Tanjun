@@ -351,7 +351,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         self._type = type_
         self._wrapped_command = _wrapped_command
 
-    if typing.TYPE_CHECKING:  # TODO: test coverage
+    if typing.TYPE_CHECKING:
         __call__: _MenuCommandCallbackSigT
 
     else:

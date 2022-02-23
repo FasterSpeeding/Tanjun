@@ -36,6 +36,7 @@
 # This leads to too many false-positives around mocks.
 
 import typing
+from collections import abc as collections
 from unittest import mock
 
 import hikari
@@ -184,6 +185,15 @@ class TestMenuCommand:
         ],
     ):
         assert tanjun.MenuCommand(inner_command, hikari.CommandType.MESSAGE, "woow").callback is inner_command.callback
+
+    @pytest.mark.asyncio()
+    async def test_call_dunder_method(self):
+        mock_callback: typing.Any = mock.AsyncMock()
+        command = tanjun.MenuCommand(mock_callback, hikari.CommandType.MESSAGE, "a")
+
+        await command(123, 321, "ea", b=32)
+
+        mock_callback.assert_awaited_once_with(123, 321, "ea", b=32)
 
     def test_callback_property(self):
         mock_callback = mock.Mock()
