@@ -1307,7 +1307,7 @@ class TestComponent:
         mock_schedule_2 = mock.Mock(is_alive=True)
         mock_closed_schedule = mock.Mock(is_alive=False)
         mock_client = mock.Mock()
-        mock_client.injector.call_with_di_async = mock.AsyncMock()
+        mock_client.injector.call_with_async_di = mock.AsyncMock()
         mock_unbind = mock.Mock()
         component: tanjun.Component = (
             types.new_class(
@@ -1324,7 +1324,7 @@ class TestComponent:
 
         await component.close()
 
-        mock_client.injector.call_with_di_async.assert_has_awaits(
+        mock_client.injector.call_with_async_di.assert_has_awaits(
             [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
         mock_schedule_1.stop.assert_called_once_with()
@@ -1340,7 +1340,7 @@ class TestComponent:
         mock_schedule_1 = mock.Mock()
         mock_schedule_2 = mock.Mock()
         mock_client = mock.Mock()
-        mock_client.injector.call_with_di_async = mock.AsyncMock()
+        mock_client.injector.call_with_async_di = mock.AsyncMock()
         mock_unbind = mock.Mock()
         component: tanjun.Component = (
             types.new_class(
@@ -1356,7 +1356,7 @@ class TestComponent:
 
         await component.close(unbind=True)
 
-        mock_client.injector.call_with_di_async.assert_has_awaits(
+        mock_client.injector.call_with_async_di.assert_has_awaits(
             [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
         mock_schedule_1.stop.assert_called_once_with()
@@ -1378,7 +1378,7 @@ class TestComponent:
         mock_schedule_1 = mock.Mock()
         mock_schedule_2 = mock.Mock()
         mock_client = mock.Mock()
-        mock_client.injector.call_with_di_async = mock.AsyncMock()
+        mock_client.injector.call_with_async_di = mock.AsyncMock()
         component = (
             tanjun.Component()
             .bind_client(mock_client)
@@ -1393,7 +1393,7 @@ class TestComponent:
 
         get_running_loop.assert_called_once_with()
         assert component.loop is get_running_loop.return_value
-        mock_client.injector.call_with_di_async.assert_has_awaits(
+        mock_client.injector.call_with_async_di.assert_has_awaits(
             [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
         mock_schedule_1.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)

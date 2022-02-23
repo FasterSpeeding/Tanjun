@@ -459,7 +459,7 @@ class Test_TrackedOption:
         mock_converter_1 = mock.Mock()
         mock_converter_2 = mock.Mock()
         mock_context = mock.Mock(base_context.BaseContext)
-        mock_context.call_with_di_async = mock.AsyncMock(side_effect=[exc_1, exc_2])
+        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[exc_1, exc_2])
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="no", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
@@ -471,7 +471,7 @@ class Test_TrackedOption:
         assert exc_info.value.parameter == "no"
         assert exc_info.value.message == "Couldn't convert FLOAT 'no'"
         assert exc_info.value.errors == (exc_1, exc_2)
-        mock_context.call_with_di_async.assert_has_calls(
+        mock_context.call_with_async_di.assert_has_calls(
             [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]
         )
 
@@ -482,7 +482,7 @@ class Test_TrackedOption:
         mock_converter_3 = mock.Mock()
         mock_result = mock.Mock()
         mock_context = mock.Mock(base_context.BaseContext)
-        mock_context.call_with_di_async = mock.AsyncMock(side_effect=[ValueError(), mock_result])
+        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[ValueError(), mock_result])
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="no",
@@ -493,7 +493,7 @@ class Test_TrackedOption:
         result = await option.convert(mock_context, mock_value)
 
         assert result is mock_result
-        mock_context.call_with_di_async.assert_has_awaits(
+        mock_context.call_with_async_di.assert_has_awaits(
             [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]
         )
 

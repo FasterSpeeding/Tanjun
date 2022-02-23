@@ -464,7 +464,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             else:
                 value = ctx.resolve_to_message()
 
-            await ctx.call_with_di_async(self._callback, ctx, value)
+            await ctx.call_with_async_di(self._callback, ctx, value)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)

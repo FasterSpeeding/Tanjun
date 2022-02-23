@@ -158,7 +158,7 @@ class TestIntervalSchedule:
 
         await interval._execute(mock_client)
 
-        mock_client.call_with_di_async.assert_awaited_once_with(mock_callback)
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -166,7 +166,7 @@ class TestIntervalSchedule:
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
         error = KeyError("hihihiih")
-        mock_client.call_with_di_async.side_effect = error
+        mock_client.call_with_async_di.side_effect = error
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -179,7 +179,7 @@ class TestIntervalSchedule:
 
         assert exc_info.value is error
 
-        mock_client.call_with_di_async.assert_awaited_once_with(mock_callback)
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_called_once_with()
 
     @pytest.mark.asyncio()
@@ -187,7 +187,7 @@ class TestIntervalSchedule:
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
         error = IndexError("hihihiih")
-        mock_client.call_with_di_async.side_effect = error
+        mock_client.call_with_async_di.side_effect = error
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -197,7 +197,7 @@ class TestIntervalSchedule:
 
         await interval._execute(mock_client)
 
-        mock_client.call_with_di_async.assert_awaited_once_with(mock_callback)
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -205,7 +205,7 @@ class TestIntervalSchedule:
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
         error = ValueError("hihihiih")
-        mock_client.call_with_di_async.side_effect = error
+        mock_client.call_with_async_di.side_effect = error
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -218,7 +218,7 @@ class TestIntervalSchedule:
 
         assert exc_info.value is error
 
-        mock_client.call_with_di_async.assert_awaited_once_with(mock_callback)
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -287,7 +287,7 @@ class TestIntervalSchedule:
     async def test__loop_and_start_and_stop_callbacks_set(self):
         mock_client = mock.Mock()
         mock_client.get_callback_override.return_value = None
-        mock_client.call_with_di_async = mock.AsyncMock()
+        mock_client.call_with_async_di = mock.AsyncMock()
         mock_start = mock.Mock()
         mock_stop = mock.Mock()
         mock_result_1 = mock.Mock()
@@ -328,7 +328,7 @@ class TestIntervalSchedule:
     async def test__loop_and_start_raises(self, fatal_exceptions: list[type[Exception]]):
         error = KeyError()
         mock_client = mock.Mock()
-        mock_client.call_with_di_async = mock.AsyncMock(side_effect=[error, None])
+        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[error, None])
         mock_client.get_callback_override.return_value = None
         mock_start = mock.Mock()
         mock_stop = mock.Mock()
@@ -353,7 +353,7 @@ class TestIntervalSchedule:
 
             assert exc_info.value is error
 
-        mock_client.call_with_di_async.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
+        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_not_called()
         sleep.assert_not_called()
         assert interval._task is None
@@ -361,7 +361,7 @@ class TestIntervalSchedule:
     @pytest.mark.asyncio()
     async def test__loop_and_start_raises_ignored(self):
         mock_client = mock.Mock()
-        mock_client.call_with_di_async = mock.AsyncMock(side_effect=[KeyError(), None])
+        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[KeyError(), None])
         mock_client.get_callback_override.return_value = None
         mock_start = mock.Mock()
         mock_stop = mock.Mock()
@@ -385,7 +385,7 @@ class TestIntervalSchedule:
         with stack:
             await interval._loop(mock_client)
 
-        mock_client.call_with_di_async.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
+        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_called_once_with(mock_client)
         get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
         sleep.assert_awaited_once_with(123.0)
@@ -396,7 +396,7 @@ class TestIntervalSchedule:
         error = RuntimeError()
         mock_client = mock.Mock()
         mock_client.get_callback_override.return_value = None
-        mock_client.call_with_di_async = mock.AsyncMock(side_effect=[None, error])
+        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[None, error])
         mock_start = mock.Mock()
         mock_stop = mock.Mock()
         mock_execute = mock.Mock()
@@ -420,7 +420,7 @@ class TestIntervalSchedule:
             await interval._loop(mock_client)
 
         assert exc_info.value is error
-        mock_client.call_with_di_async.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
+        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_called_once_with(mock_client)
         get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
         sleep.assert_awaited_once_with(123.0)
@@ -430,7 +430,7 @@ class TestIntervalSchedule:
     async def test__loop_and_stop_raises_ignored(self):
         mock_client = mock.Mock()
         mock_client.get_callback_override.return_value = None
-        mock_client.call_with_di_async = mock.AsyncMock(side_effect=[None, LookupError()])
+        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[None, LookupError()])
         mock_start = mock.Mock()
         mock_stop = mock.Mock()
         mock_execute = mock.Mock()
@@ -453,7 +453,7 @@ class TestIntervalSchedule:
         with stack:
             await interval._loop(mock_client)
 
-        mock_client.call_with_di_async.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
+        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_called_once_with(mock_client)
         get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
         sleep.assert_awaited_once_with(123.0)

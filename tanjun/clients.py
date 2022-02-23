@@ -372,7 +372,7 @@ async def _wrap_client_callback(
     args: tuple[str, ...],
 ) -> None:
     try:
-        await client.injector.call_with_di_async(callback, *args)
+        await client.injector.call_with_async_di(callback, *args)
 
     except Exception as exc:
         _LOGGER.error("Client callback raised exception", exc_info=exc)
@@ -2009,7 +2009,7 @@ class Client(tanjun_abc.Client):
 
     async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
-            for prefix in await ctx.call_with_di_async(self._prefix_getter, ctx):
+            for prefix in await ctx.call_with_async_di(self._prefix_getter, ctx):
                 if ctx.content.startswith(prefix):
                     return prefix
 

@@ -1361,7 +1361,7 @@ class Component(tanjun_abc.Component):
                 schedule.stop()
 
         self._loop = None
-        await asyncio.gather(*(self._client.injector.call_with_di_async(callback) for callback in self._on_close))
+        await asyncio.gather(*(self._client.injector.call_with_async_di(callback) for callback in self._on_close))
         if unbind:
             self.unbind_client(self._client)
 
@@ -1374,7 +1374,7 @@ class Component(tanjun_abc.Component):
             raise RuntimeError("Client isn't bound yet")
 
         self._loop = asyncio.get_running_loop()
-        await asyncio.gather(*(self._client.injector.call_with_di_async(callback) for callback in self._on_open))
+        await asyncio.gather(*(self._client.injector.call_with_async_di(callback) for callback in self._on_open))
 
         for schedule in self._schedules:
             schedule.start(self._client.injector, loop=self._loop)

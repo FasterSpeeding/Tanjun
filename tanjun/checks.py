@@ -835,7 +835,7 @@ class _AllChecks(_Check):
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
-            if not await ctx.call_with_di_async(check, ctx):
+            if not await ctx.call_with_async_di(check, ctx):
                 return False
 
         return True
@@ -909,7 +909,7 @@ class _AnyChecks(_Check):
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
             try:
-                if await ctx.call_with_di_async(check, ctx):
+                if await ctx.call_with_async_di(check, ctx):
                     return True
 
             except errors.FailedCheck:

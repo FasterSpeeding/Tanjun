@@ -166,7 +166,7 @@ def make_lc_resolver(
             if (value := constant.get_value()) is not None:
                 return value
 
-            result = await ctx.call_with_di_async(constant.callback)
+            result = await ctx.call_with_async_di(constant.callback)
             constant.set_value(result)
             return result
 
@@ -269,7 +269,7 @@ class _CacheCallback(typing.Generic[_T]):
                 assert not isinstance(self._result, alluka.abc.Undefined)
                 return self._result
 
-            self._result = await ctx.call_with_di_async(self._callback, *args)
+            self._result = await ctx.call_with_async_di(self._callback, *args)
             self._last_called = time.monotonic()
             # This is set to None afterwards to ensure that it isn't persisted between loops.
             self._lock = None

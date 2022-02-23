@@ -325,7 +325,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.call_with_di_async(self._callback, ctx, **kwargs)
+            await ctx.call_with_async_di(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."

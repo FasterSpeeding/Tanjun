@@ -630,12 +630,12 @@ class TestClient:
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
         mock_context = mock.Mock()
-        mock_context.call_with_di_async = mock.AsyncMock(return_value=True)
+        mock_context.call_with_async_di = mock.AsyncMock(return_value=True)
         client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
 
         assert await client.check(mock_context) is True
 
-        mock_context.call_with_di_async.assert_has_awaits(
+        mock_context.call_with_async_di.assert_has_awaits(
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
@@ -649,12 +649,12 @@ class TestClient:
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
         mock_context = mock.Mock()
-        mock_context.call_with_di_async = mock.AsyncMock(side_effect=[True, True, False])
+        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[True, True, False])
         client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
 
         assert await client.check(mock_context) is False
 
-        mock_context.call_with_di_async.assert_has_awaits(
+        mock_context.call_with_async_di.assert_has_awaits(
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
@@ -669,7 +669,7 @@ class TestClient:
         mock_check_3 = mock.Mock()
         mocK_exception = Exception("test")
         mock_context = mock.Mock()
-        mock_context.call_with_di_async = mock.AsyncMock(side_effect=[True, mocK_exception, False])
+        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[True, mocK_exception, False])
         client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
 
         with pytest.raises(Exception, match="test") as exc:
@@ -677,7 +677,7 @@ class TestClient:
 
         assert exc.value is mocK_exception
 
-        mock_context.call_with_di_async.assert_has_awaits(
+        mock_context.call_with_async_di.assert_has_awaits(
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
@@ -691,12 +691,12 @@ class TestClient:
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
         mock_context = mock.Mock()
-        mock_context.call_with_di_async = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck(), False])
+        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck(), False])
         client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
 
         assert await client.check(mock_context) is False
 
-        mock_context.call_with_di_async.assert_has_awaits(
+        mock_context.call_with_async_di.assert_has_awaits(
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
@@ -2906,7 +2906,7 @@ class TestClient:
     async def test_on_message_create_event_when_prefix_getter(self, command_dispatch_client: tanjun.Client):
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
-        ctx_maker.return_value.call_with_di_async = mock.AsyncMock(return_value=["sex", "!"])
+        ctx_maker.return_value.call_with_async_di = mock.AsyncMock(return_value=["sex", "!"])
         prefix_getter = mock.Mock()
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
@@ -2931,7 +2931,7 @@ class TestClient:
         mock_component_2.execute_message.assert_not_called()
         ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
-        ctx_maker.return_value.call_with_di_async.assert_awaited_once_with(prefix_getter, ctx_maker.return_value)
+        ctx_maker.return_value.call_with_async_di.assert_awaited_once_with(prefix_getter, ctx_maker.return_value)
 
     @pytest.mark.asyncio()
     async def test_on_message_create_event_when_no_message_content(self, command_dispatch_client: tanjun.Client):
@@ -2972,7 +2972,7 @@ class TestClient:
         self, command_dispatch_client: tanjun.Client
     ):
         ctx_maker = mock.Mock(return_value=mock.Mock(content="42"))
-        ctx_maker.return_value.call_with_di_async = mock.AsyncMock(return_value=["aye", "naye"])
+        ctx_maker.return_value.call_with_async_di = mock.AsyncMock(return_value=["aye", "naye"])
         prefix_getter = mock.Mock()
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
@@ -2988,7 +2988,7 @@ class TestClient:
         mock_component_1.execute_message.assert_not_called()
         mock_component_2.execute_message.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
-        ctx_maker.return_value.call_with_di_async.assert_called_once_with(prefix_getter, ctx_maker.return_value)
+        ctx_maker.return_value.call_with_async_di.assert_called_once_with(prefix_getter, ctx_maker.return_value)
 
     @pytest.mark.asyncio()
     async def test_on_message_create_event_when_only_message_hooks(self, command_dispatch_client: tanjun.Client):

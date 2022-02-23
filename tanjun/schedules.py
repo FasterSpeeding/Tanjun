@@ -325,7 +325,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
     async def _execute(self, client: alluka.Client, /) -> None:
         try:
-            await client.call_with_di_async(self._callback)
+            await client.call_with_async_di(self._callback)
 
         except self._fatal_exceptions:
             self.stop()
@@ -340,7 +340,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         try:
             if self._start_callback:
                 try:
-                    await client.call_with_di_async(self._start_callback)
+                    await client.call_with_async_di(self._start_callback)
 
                 except self._ignored_exceptions:
                     pass
@@ -354,7 +354,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             self._task = None
             if self._stop_callback:
                 try:
-                    await client.call_with_di_async(self._stop_callback)
+                    await client.call_with_async_di(self._stop_callback)
 
                 except self._ignored_exceptions:
                     pass

@@ -1359,7 +1359,7 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                result = await ctx.call_with_di_async(converter, value)
+                result = await ctx.call_with_async_di(converter, value)
 
             except ValueError as exc:
                 sources.append(exc)

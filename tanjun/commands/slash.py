@@ -675,7 +675,7 @@ class _TrackedOption:
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await ctx.call_with_di_async(converter, value)
+                return await ctx.call_with_async_di(converter, value)
 
             except ValueError as exc:
                 exceptions.append(exc)
@@ -2329,7 +2329,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.call_with_di_async(self._callback, ctx, **kwargs)
+            await ctx.call_with_async_di(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
@@ -2371,7 +2371,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         if not callback:
             raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")
 
-        await ctx.call_with_di_async(callback, ctx, ctx.focused.value)
+        await ctx.call_with_async_di(callback, ctx, ctx.focused.value)
 
     def copy(
         self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None

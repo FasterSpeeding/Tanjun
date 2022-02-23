@@ -49,20 +49,20 @@ async def test_gather_checks_handles_no_checks():
     mock_ctx = mock.AsyncMock()
     assert await utilities.gather_checks(mock_ctx, ()) is True
 
-    mock_ctx.call_with_di_async.assert_not_called()
+    mock_ctx.call_with_async_di.assert_not_called()
 
 
 @pytest.mark.asyncio()
 async def test_gather_checks_handles_failed_check():
     mock_ctx = mock.Mock()
-    mock_ctx.call_with_di_async = mock.AsyncMock(side_effect=[True, False, True])
+    mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, False, True])
     check_1 = mock.Mock()
     check_2 = mock.Mock()
     check_3 = mock.Mock()
 
     assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
 
-    mock_ctx.call_with_di_async.assert_has_awaits(
+    mock_ctx.call_with_async_di.assert_has_awaits(
         [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
     )
 
@@ -70,14 +70,14 @@ async def test_gather_checks_handles_failed_check():
 @pytest.mark.asyncio()
 async def test_gather_checks_handles_check_failed_by_raise():
     mock_ctx = mock.Mock()
-    mock_ctx.call_with_di_async = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck, True])
+    mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck, True])
     check_1 = mock.Mock()
     check_2 = mock.Mock()
     check_3 = mock.Mock()
 
     assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
 
-    mock_ctx.call_with_di_async.assert_has_awaits(
+    mock_ctx.call_with_async_di.assert_has_awaits(
         [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
     )
 
@@ -85,14 +85,14 @@ async def test_gather_checks_handles_check_failed_by_raise():
 @pytest.mark.asyncio()
 async def test_gather_checks():
     mock_ctx = mock.Mock()
-    mock_ctx.call_with_di_async = mock.AsyncMock(side_effect=[True, True, True])
+    mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, True, True])
     check_1 = mock.Mock()
     check_2 = mock.Mock()
     check_3 = mock.Mock()
 
     assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is True
 
-    mock_ctx.call_with_di_async.assert_has_awaits(
+    mock_ctx.call_with_async_di.assert_has_awaits(
         [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
     )
 

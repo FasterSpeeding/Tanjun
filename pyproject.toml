@@ -27,7 +27,7 @@ classifiers = [
     "Typing :: Typed"
 ]
 dependencies = [
-    "alluka @ git+https://github.com/FasterSpeeding/Alluka.git@fc708322b6978a71b96f7151e40970f5bc8b8043",
+    "alluka @ git+https://github.com/FasterSpeeding/Alluka.git@54c01e89db6aa94842e3c6339caa173fb8f65426",
     "hikari~=2.0.0.dev106",
 ]
 dynamic = ["description", "version"]

@@ -62,7 +62,7 @@ _ValueT = typing.TypeVar("_ValueT")
 
 
 async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
-    foo = ctx.call_with_di_async(callback, ctx)
+    foo = ctx.call_with_async_di(callback, ctx)
     if result := await foo:
         return result
 
