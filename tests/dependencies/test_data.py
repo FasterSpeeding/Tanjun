@@ -148,9 +148,9 @@ async def test_cache_callback():
             )
         )
 
-    mock_context.call_with_di_async.assert_awaited_once_with(mock_callback, 1)
+    mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, 1)
     assert len(results) == 6
-    assert all(r is mock_context.call_with_di_async.return_value for r in results)
+    assert all(r is mock_context.call_with_async_di.return_value for r in results)
 
 
 @pytest.mark.parametrize("expire_after", [4, 4.0, datetime.timedelta(seconds=4)])
@@ -176,11 +176,11 @@ async def test_cache_callback_when_expired(expire_after: typing.Union[float, int
             )
         )
 
-    mock_first_context.call_with_di_async.assert_awaited_once_with(mock_callback, 0)
-    mock_second_context.call_with_di_async.assert_awaited_once_with(mock_callback, 1)
-    assert first_result is mock_first_context.call_with_di_async.return_value
+    mock_first_context.call_with_async_di.assert_awaited_once_with(mock_callback, 0)
+    mock_second_context.call_with_async_di.assert_awaited_once_with(mock_callback, 1)
+    assert first_result is mock_first_context.call_with_async_di.return_value
     assert len(results) == 6
-    assert all(r is mock_second_context.call_with_di_async.return_value for r in results)
+    assert all(r is mock_second_context.call_with_async_di.return_value for r in results)
 
 
 @pytest.mark.parametrize("expire_after", [15, 15.0, datetime.timedelta(seconds=15)])
@@ -205,10 +205,10 @@ async def test_cache_callback_when_not_expired(expire_after: typing.Union[float,
             )
         )
 
-    mock_context.call_with_di_async.assert_awaited_once_with(mock_callback, 0)
-    assert first_result is mock_context.call_with_di_async.return_value
+    mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, 0)
+    assert first_result is mock_context.call_with_async_di.return_value
     assert len(results) == 6
-    assert all(r is mock_context.call_with_di_async.return_value for r in results)
+    assert all(r is mock_context.call_with_async_di.return_value for r in results)
 
 
 def test_cached_inject():
