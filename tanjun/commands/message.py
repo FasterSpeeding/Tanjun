@@ -32,13 +32,7 @@
 """Standard implementation of Tanjun's command objects."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    "ConverterSig",
-    "MessageCommand",
-    "MessageCommandGroup",
-    "as_message_command",
-    "as_message_command_group",
-]
+__all__: list[str] = ["MessageCommand", "MessageCommandGroup", "as_message_command", "as_message_command_group"]
 
 import copy
 import typing
@@ -52,34 +46,31 @@ from .. import utilities
 from . import base
 
 if typing.TYPE_CHECKING:
+    _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
+    _CommandT = typing.Union[
+        abc.MenuCommand["_CommandCallbackSigT", typing.Any],
+        abc.MessageCommand["_CommandCallbackSigT"],
+        abc.SlashCommand["_CommandCallbackSigT"],
+    ]
+    _CallbackishT = typing.Union[_CommandT["_CommandCallbackSigT"], "_CommandCallbackSigT"]
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
 
-
-_CommandT = typing.Union[
-    abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
-    abc.MessageCommand[abc.CommandCallbackSigT],
-    abc.SlashCommand[abc.CommandCallbackSigT],
-]
-_CallbackishT = typing.Union[_CommandT[abc.CommandCallbackSigT], abc.CommandCallbackSigT]
-
-_AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
-ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
-"""Type hint of a converter used for a slash command option."""
+_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=abc.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
 class _ResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[abc.CommandCallbackSigT], /) -> MessageCommand[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: abc.CommandCallbackSigT, /) -> MessageCommand[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CommandCallbackSigT, /) -> MessageCommand[_CommandCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommand[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
         raise NotImplementedError
 
 
@@ -108,9 +99,9 @@ def as_message_command(name: str, /, *names: str) -> _ResultProto:
     """
 
     def decorator(
-        callback: _CallbackishT[abc.CommandCallbackSigT],
+        callback: _CallbackishT[_CommandCallbackSigT],
         /,
-    ) -> MessageCommand[abc.CommandCallbackSigT]:
+    ) -> MessageCommand[_CommandCallbackSigT]:
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return MessageCommand(callback.callback, name, *names, _wrapped_command=callback)
 
@@ -121,14 +112,14 @@ def as_message_command(name: str, /, *names: str) -> _ResultProto:
 
 class _GroupResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: abc.CommandCallbackSigT, /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CommandCallbackSigT, /) -> MessageCommandGroup[_CommandCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
         raise NotImplementedError
 
 
@@ -161,7 +152,7 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
         `tanjun.Component.load_from_scope`.
     """
 
-    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return MessageCommandGroup(callback.callback, name, *names, strict=strict, _wrapped_command=callback)
 
@@ -170,7 +161,7 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
     return decorator
 
 
-class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand[abc.CommandCallbackSigT]):
+class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand[_CommandCallbackSigT]):
     """Standard implementation of a message command."""
 
     __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
@@ -178,7 +169,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[abc.CommandCallbackSigT],
+        callback: _CommandT[_CommandCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -189,7 +180,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
     @typing.overload
     def __init__(
         self,
-        callback: abc.CommandCallbackSigT,
+        callback: _CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -199,7 +190,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
 
     def __init__(
         self,
-        callback: _CallbackishT[abc.CommandCallbackSigT],
+        callback: _CallbackishT[_CommandCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -237,7 +228,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
         return f"Command <{self._names}>"
 
     if typing.TYPE_CHECKING:
-        __call__: abc.CommandCallbackSigT
+        __call__: _CommandCallbackSigT
 
     else:
 
@@ -245,7 +236,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             await self._callback(*args, **kwargs)
 
     @property
-    def callback(self) -> abc.CommandCallbackSigT:
+    def callback(self) -> _CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._callback
 
@@ -334,7 +325,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.execute_async(self._callback, ctx, **kwargs)
+            await ctx.call_with_di_async(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
@@ -363,7 +354,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             self._wrapped_command.load_into_component(component)
 
 
-class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup[abc.CommandCallbackSigT]):
+class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.MessageCommandGroup[_CommandCallbackSigT]):
     """Standard implementation of a message command group."""
 
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
@@ -371,7 +362,7 @@ class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCo
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[abc.CommandCallbackSigT],
+        callback: _CommandT[_CommandCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -383,7 +374,7 @@ class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCo
     @typing.overload
     def __init__(
         self,
-        callback: abc.CommandCallbackSigT,
+        callback: _CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -394,7 +385,7 @@ class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCo
 
     def __init__(
         self,
-        callback: _CallbackishT[abc.CommandCallbackSigT],
+        callback: _CallbackishT[_CommandCallbackSigT],
         name: str,
         /,
         *names: str,

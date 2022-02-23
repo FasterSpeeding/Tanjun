@@ -41,11 +41,6 @@ import pytest
 import tanjun
 
 
-class TestMissingDependencyError:
-    def test__init__(self):
-        assert tanjun.MissingDependencyError("foo").message == "foo"
-
-
 class TestCommandError:
     def test__init__(self):
         assert tanjun.CommandError("foo").message == "foo"

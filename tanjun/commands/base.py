@@ -42,10 +42,14 @@ from .. import abc
 from .. import components
 
 if typing.TYPE_CHECKING:
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=abc.CheckSig)
     _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any]")
 
 
-class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractComponentLoader):
+_ContextT = typing.TypeVar("_ContextT", bound="abc.Context")
+
+
+class PartialCommand(abc.ExecutableCommand[_ContextT], components.AbstractComponentLoader):
     """Base class for the standard ExecutableCommand implementations."""
 
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
@@ -53,7 +57,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractCom
     def __init__(self) -> None:
         self._checks: list[abc.CheckSig] = []
         self._component: typing.Optional[abc.Component] = None
-        self._hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None
+        self._hooks: typing.Optional[abc.Hooks[_ContextT]] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
 
     @property
@@ -67,7 +71,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractCom
         return self._component
 
     @property
-    def hooks(self) -> typing.Optional[abc.Hooks[abc.ContextT]]:
+    def hooks(self) -> typing.Optional[abc.Hooks[_ContextT]]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._hooks
 
@@ -86,7 +90,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractCom
 
         return copy.copy(self).copy(_new=False)
 
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[abc.Hooks[abc.ContextT]], /) -> _PartialCommandT:
+    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[abc.Hooks[_ContextT]], /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._hooks = hooks
         return self
@@ -108,7 +112,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.AbstractCom
         self._checks.remove(check)
         return self
 
-    def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
+    def with_check(self, check: _CheckSigT, /) -> _CheckSigT:
         self.add_check(check)
         return check
 

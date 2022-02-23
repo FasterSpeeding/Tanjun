@@ -45,8 +45,6 @@ if typing.TYPE_CHECKING:
     import contextlib
     from collections import abc as collections
 
-    from .. import abc as tanjun_abc
-
     _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
 _T = typing.TypeVar("_T")
@@ -76,7 +74,11 @@ class LazyConstant(typing.Generic[_T]):
         self._value: typing.Optional[_T] = None
 
     @property
-    def callback(self) -> collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]:
+    def callback(
+        self,
+    ) -> typing.Union[
+        collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
+    ]:
         """Descriptor of the callback used to get this constant's initial value."""
         return self._callback
 
@@ -129,7 +131,9 @@ class LazyConstant(typing.Generic[_T]):
         return self._lock
 
 
-def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]:
+def make_lc_resolver(
+    type_: type[_T], /
+) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Make an injected callback which resolves a LazyConstant.
 
     Notes
@@ -145,7 +149,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
 
     Returns
     -------
-    collections.abc.Callable[..., collections.abc.Awaitable[_T]]
+    collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, _T]]
         An injected callback used to resolve the LazyConstant.
     """
 
@@ -162,7 +166,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
             if (value := constant.get_value()) is not None:
                 return value
 
-            result = await ctx.execute_async(constant.callback)
+            result = await ctx.call_with_di_async(constant.callback)
             constant.set_value(result)
             return result
 
@@ -265,7 +269,7 @@ class _CacheCallback(typing.Generic[_T]):
                 assert not isinstance(self._result, alluka.abc.Undefined)
                 return self._result
 
-            self._result = await ctx.execute_async(self._callback, *args)
+            self._result = await ctx.call_with_di_async(self._callback, *args)
             self._last_called = time.monotonic()
             # This is set to None afterwards to ensure that it isn't persisted between loops.
             self._lock = None
@@ -274,7 +278,7 @@ class _CacheCallback(typing.Generic[_T]):
 
 def cache_callback(
     callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[int, float, datetime.timedelta, None] = None
-) -> collections.Callable[..., collections.Awaitable[_T]]:
+) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Cache the result of a callback within a dependency injection context.
 
     .. note::
@@ -294,7 +298,7 @@ def cache_callback(
 
     Returns
     -------
-    collections.abc.Callable[..., Awaitable[_T]]
+    collections.abc.Callable[..., collections.abc.Corouting[typing.Any, typing.Any, _T]]
         A callback which will cache the result of the given callback after the
         first call.
 

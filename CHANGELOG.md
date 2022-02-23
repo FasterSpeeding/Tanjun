@@ -5,6 +5,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Alluka's dependency injection interface(s) have been upgraded to the standard Client interface
+  and Context interfaces.
+
+### Changed
+- `Coroutine` is now used instead of `Awaitable` for callback signature return types to account
+  for refactors made to DI logic in Alluka.
+- The dependency injection implementation has been moved to <https://github.com/FasterSpeeding/Alluka> 
+  and any new DI features may be indicated there rather than on Tanjun's (Note, DI is still supported)
+  changelog.
+- Callbacks with invalid dependency injection declarations (are declaring a positional-only argument
+  as needing DI) now won't error until they're called with DI.
+
+### Removed
+- `tanjun.injecting.TypeDescriptor` and `tanjun.injecting.CallbackDescriptor` as these couldn't be
+  kept through the Alluka refactor.  # TODO: maybe make backwards compat classes.
+- `needs_injection` attributes.
+
+### Deprecated
+- `tanjun.injecting` now only consists of deprecated aliases to Alluka types, with the only
+  `tanjun.inject` and `tanjun.injectes` being left as not deprecated for the sake of ease of use.
+
 ### Fixed
 - Relaxed menu command name validation to allow special characters and mixed cases.
 

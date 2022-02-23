@@ -41,7 +41,6 @@ from unittest import mock
 
 import pytest
 
-import tanjun
 from tanjun.commands import base as base_command
 
 _T = typing.TypeVar("_T")
@@ -72,21 +71,6 @@ class TestPartialCommand:
 
     def test_metadata_property(self, command: base_command.PartialCommand[typing.Any]):
         assert command.metadata is command._metadata
-
-    def test_needs_injector_when_any_true(self, command: base_command.PartialCommand[typing.Any]):
-        command._checks = [mock.Mock(needs_injector=False), mock.Mock(needs_injector=True)]
-        assert command.needs_injector is True
-
-    def test_needs_injector_when_all_true(self, command: base_command.PartialCommand[typing.Any]):
-        command._checks = [mock.Mock(needs_injector=True), mock.Mock(needs_injector=True)]
-        assert command.needs_injector is True
-
-    def test_needs_injector_when_all_false(self, command: base_command.PartialCommand[typing.Any]):
-        command._checks = [mock.Mock(needs_injector=False), mock.Mock(needs_injector=False)]
-        assert command.needs_injector is False
-
-    def test_needs_injector_when_empty(self, command: base_command.PartialCommand[typing.Any]):
-        assert command.needs_injector is False
 
     def test_copy(self, command: base_command.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
@@ -122,11 +106,7 @@ class TestPartialCommand:
 
         assert command.add_check(mock_check) is command
 
-        assert len(command._checks) == 1
-        check = next(iter(command._checks))
-        assert isinstance(check, tanjun.checks.InjectableCheck)
-        assert check.callback is mock_check
-        assert command.checks == (mock_check,)
+        assert command.checks == [mock_check]
 
     def test_add_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
@@ -139,12 +119,12 @@ class TestPartialCommand:
         def mock_check() -> bool:
             raise NotImplementedError
 
-        command._checks = [tanjun.checks.InjectableCheck(mock_check)]
+        command.add_check(mock_check)
 
         result = command.remove_check(mock_check)
 
         assert result is command
-        assert command.checks == ()
+        assert command.checks == []
 
     def test_with_check(self, command: base_command.PartialCommand[typing.Any]):
         mock_check = mock.Mock()

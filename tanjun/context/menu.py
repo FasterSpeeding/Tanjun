@@ -32,7 +32,7 @@
 """Standard menu command execution context implementations."""
 from __future__ import annotations
 
-__all__: list[str] = []
+__all__: list[str] = ["MenuContext"]
 
 import typing
 

@@ -57,51 +57,29 @@ import collections.abc as collections
 import typing
 
 import alluka
+from alluka import AsyncSelfInjecting as SelfInjectingCallback
+from alluka import BasicContext as BasicInjectionContext
+from alluka import Client as InjectorClient
+from alluka import Injected
+from alluka import inject
+from alluka import inject as injected
+from alluka.abc import UNDEFINED
+from alluka.abc import CallbackSig
+from alluka.abc import Context as AbstractInjectionContext
+from alluka.abc import Undefined
 
 from . import abc as tanjun_abc
 
 _T = typing.TypeVar("_T")
-CallbackSig = alluka.abc.CallbackSig[_T]
-"""Type-hint of a injector callback.
+_CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])
 
-.. note::
-    Dependency dependency injection is recursively supported, meaning that the
-    keyword arguments for a dependency callback may also ask for dependencies
-    themselves.
-
-This may either be a synchronous or asynchronous function with dependency
-injection being available for the callback's keyword arguments but dynamically
-returning either an awaitable or raw value may lead to errors.
-
-Dependent on the context positional arguments may also be proivded.
-"""
-
-
-Undefined = alluka.abc.Undefined
-"""Class/type of `UNDEFINED`."""
-
-
-UNDEFINED: typing.Final[alluka.abc.Undefined] = alluka.abc.UNDEFINED
-"""Singleton value used within dependency injection to indicate that a value is undefined."""
 UndefinedOr = typing.Union[Undefined, _T]
 """Type-hint generic union used to indicate that a value may be undefined or `_T`."""
 
 
-AbstractInjectionContext = alluka.abc.Context
-"""Abstract interface of an injection context."""
-
-
-BasicInjectionContext = alluka.abc.Context
-"""Basic implementation of a `AbstractInjectionContext`."""
-
-
-SelfInjectingCallback = alluka.AsyncSelfInjecting
-"""Class used to make a callback self-injecting by linking it to a client."""
-
-
 def as_self_injecting(
     client: tanjun_abc.Client, /
-) -> collections.Callable[[CallbackSig[_T]], alluka.AsyncSelfInjecting[_T]]:
+) -> collections.Callable[[_CallbackSigT], alluka.AsyncSelfInjecting[_CallbackSigT]]:
     """Make a callback self-inecting by linking it to a client through a decorator call.
 
     Examples
@@ -124,70 +102,11 @@ def as_self_injecting(
 
     Returns
     -------
-    collections.abc.Callable[[CallbackSig[_T]], alluka.AsyncSelfInjecting[_T]]
+    collections.abc.Callable[[alluka.abc.CallbackSig], alluka.AsyncSelfInjecting]
         Decorator callback that returns a self-injecting callback.
     """
 
-    def decorator(callback: CallbackSig[_T], /) -> alluka.AsyncSelfInjecting[_T]:
+    def decorator(callback: _CallbackSigT, /) -> alluka.AsyncSelfInjecting[_CallbackSigT]:
         return alluka.AsyncSelfInjecting(client.injector, callback)
 
     return decorator
-
-
-Injected = alluka.InjectedDescriptor
-
-
-inject = alluka.inject
-"""Decare a keyword-argument as requiring an injected dependency.
-
-This should be assigned to an arugment's default value.
-
-Examples
---------
-```py
-@tanjun.as_slash_command("name", "description")
-async def command_callback(
-    ctx: tanjun.abc.Context,
-    # Here we take advantage of scope based special casing which allows
-    # us to inject the `Component` type.
-    injected_type: tanjun.abc.Component = tanjun.inject(type=tanjun.abc.Component)
-    # Here we inject an out-of-scope callback which itself is taking
-    # advantage of type injection.
-    callback_result: ResultT = tanjun.inject(callback=injected_callback)
-) -> None:
-    raise NotImplementedError
-```
-
-Parameters
-----------
-callback : CallbackSig[_T] | None
-    The callback to use to resolve the dependency.
-
-    If this callback has no type dependencies then this will still work
-    without an injection context but this can be overridden using
-    `InjectionClient.set_callback_override`.
-type : type[_T] | None
-    The type of the dependency to resolve.
-
-    If a union (e.g. `typing.Union[A, B]`, `A | B`, `typing.Optional[A]`)
-    is passed for `type` then each type in the union will be tried
-    separately after the litarl union type is tried, allowing for resolving
-    `A | B` to the value set by `set_type_dependency(B, ...)`.
-
-    If a union has `None` as one of its types (including `Optional[T]`)
-    then `None` will be passed for the parameter if none of the types could
-    be resolved using the linked client.
-
-Raises
-------
-ValueError
-    If both `callback` and `type` are specified or if neither is specified.
-"""
-
-
-injected = inject
-"""Alias of `inject`."""
-
-
-InjectorClient = alluka.Client
-"""Dependency injection client used by Tanjun's standard implementation."""

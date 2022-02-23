@@ -64,13 +64,11 @@ from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
+    _CommandT = typing.TypeVar("_CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
     _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
     _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
-
-CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
-"""Type variable indicating either `BaseSlashCommand` or `MessageCommand`."""
 
 
 class AbstractCooldownManager(abc.ABC):
@@ -717,7 +715,7 @@ def with_cooldown(
     *,
     error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
     owners_exempt: bool = True,
-) -> collections.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
     .. warning::
@@ -743,11 +741,11 @@ def with_cooldown(
 
     Returns
     -------
-    collections.abc.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
         A decorator that adds a `CooldownPreExecution` hook to the command.
     """
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: _CommandT, /) -> _CommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
@@ -1046,7 +1044,7 @@ def with_concurrency_limit(
     /,
     *,
     error_message: str = "This resource is currently busy; please try again later.",
-) -> collections.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
 
     .. warning::
@@ -1069,11 +1067,11 @@ def with_concurrency_limit(
 
     Returns
     -------
-    collections.abc.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
         A decorator that adds the concurrency limiter hooks to a command.
     """
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: _CommandT, /) -> _CommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()

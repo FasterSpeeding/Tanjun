@@ -63,10 +63,10 @@ from . import errors
 
 if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun_abc.MessageCommand[typing.Any])
+    _OtherT = typing.TypeVar("_OtherT")
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
-    _OtherT = typing.TypeVar("_OtherT")
 
     class _CmpProto(typing.Protocol[_T_contra]):
         def __gt__(self, __other: _T_contra) -> bool:
@@ -79,7 +79,9 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 
-ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
+ConverterSig = typing.Union[
+    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
+]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
@@ -1357,7 +1359,7 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                result = await ctx.execute_async(converter, value)
+                result = await ctx.call_with_di_async(converter, value)
 
             except ValueError as exc:
                 sources.append(exc)

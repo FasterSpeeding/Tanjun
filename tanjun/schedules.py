@@ -49,9 +49,9 @@ if typing.TYPE_CHECKING:
 
     from . import abc as tanjun_abc
 
-    _CallbackSig = collections.Callable[..., collections.Awaitable[None]]
-    _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
+    _CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
     _IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
+    _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
     _T = typing.TypeVar("_T")
 
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound="_CallbackSig")
@@ -277,7 +277,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     else:
 
         async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-            await self._callback.callback(*args, **kwargs)
+            await self._callback(*args, **kwargs)
 
     def copy(self: _IntervalScheduleT) -> _IntervalScheduleT:
         # <<inherited docstring from IntervalSchedule>>.
@@ -325,7 +325,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
     async def _execute(self, client: alluka.Client, /) -> None:
         try:
-            await client.execute_async(self._callback)
+            await client.call_with_di_async(self._callback)
 
         except self._fatal_exceptions:
             self.stop()
@@ -334,12 +334,13 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         except self._ignored_exceptions:
             pass
 
+    # TODO: take alluka.abc.Client lol
     async def _loop(self, client: alluka.Client, /) -> None:
         event_loop = asyncio.get_running_loop()
         try:
             if self._start_callback:
                 try:
-                    await client.execute_async(self._start_callback)
+                    await client.call_with_di_async(self._start_callback)
 
                 except self._ignored_exceptions:
                     pass
@@ -353,7 +354,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             self._task = None
             if self._stop_callback:
                 try:
-                    await client.execute_async(self._stop_callback)
+                    await client.call_with_di_async(self._stop_callback)
 
                 except self._ignored_exceptions:
                     pass

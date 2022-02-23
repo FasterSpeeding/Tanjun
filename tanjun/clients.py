@@ -37,7 +37,6 @@ __all__: list[str] = [
     "ClientCallbackNames",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
-    "PrefixGetterSigT",
     "as_loader",
     "as_unloader",
 ]
@@ -71,7 +70,11 @@ from . import utilities
 if typing.TYPE_CHECKING:
     import types
 
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun_abc.CheckSig)
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun_abc.ListenerCallbackSig)
+    _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun_abc.MetaEventSig)
+    _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
     _T = typing.TypeVar("_T")
 
     class _AutocompleteContextMakerProto(typing.Protocol):
@@ -133,7 +136,7 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
 
-PrefixGetterSig = collections.Callable[..., collections.Awaitable[collections.Iterable[str]]]
+PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
 This should be an asynchronous callable which returns an iterable of strings.
@@ -142,8 +145,6 @@ This should be an asynchronous callable which returns an iterable of strings.
     While dependency injection is supported for this, the first positional
     argument will always be a `tanjun.abc.MessageContext`.
 """
-
-PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -371,7 +372,7 @@ async def _wrap_client_callback(
     args: tuple[str, ...],
 ) -> None:
     try:
-        await client.injector.execute_async(callback, *args)
+        await client.injector.call_with_di_async(callback, *args)
 
     except Exception as exc:
         _LOGGER.error("Client callback raised exception", exc_info=exc)
@@ -491,6 +492,7 @@ class Client(tanjun_abc.Client):
         shards: typing.Optional[hikari.ShardAware] = None,
         voice: typing.Optional[hikari.api.VoiceComponent] = None,
         event_managed: bool = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         declare_global_commands: typing.Union[
@@ -632,9 +634,13 @@ class Client(tanjun_abc.Client):
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._slash_not_found: typing.Optional[str] = self._menu_not_found
-        self._injector = alluka.Client()  # TODO: pass introspect_annotations
+        # TODO: test coverage
+        self._injector = injector or alluka.Client()
         self._is_closing = False
-        self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
+        self._listeners: dict[
+            type[hikari.Event],
+            dict[tanjun_abc.ListenerCallbackSig, injecting.SelfInjectingCallback[tanjun_abc.ListenerCallbackSig]],
+        ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -755,6 +761,7 @@ class Client(tanjun_abc.Client):
         /,
         *,
         event_managed: bool = True,
+        injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
@@ -834,6 +841,7 @@ class Client(tanjun_abc.Client):
                 shards=bot,
                 voice=bot.voice,
                 event_managed=event_managed,
+                injector=injector,
                 mention_prefix=mention_prefix,
                 declare_global_commands=declare_global_commands,
                 set_global_commands=set_global_commands,
@@ -855,6 +863,7 @@ class Client(tanjun_abc.Client):
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
@@ -915,6 +924,7 @@ class Client(tanjun_abc.Client):
             rest=bot.rest,
             server=bot.interaction_server,
             declare_global_commands=declare_global_commands,
+            injector=injector,
             set_global_commands=set_global_commands,
             command_ids=command_ids,
             message_ids=message_ids,
@@ -987,7 +997,7 @@ class Client(tanjun_abc.Client):
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
         return utilities.CastedView(
             self._listeners,
-            lambda x: [typing.cast(tanjun_abc.ListenerCallbackSig, callback.callback) for callback in x],
+            lambda x: [callback.callback for callback in x.values()],
         )
 
     @property
@@ -1628,7 +1638,7 @@ class Client(tanjun_abc.Client):
         self._checks.remove(check)
         return self
 
-    def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
+    def with_check(self, check: _CheckSigT, /) -> _CheckSigT:
         """Add a check to this client through a decorator call.
 
         Parameters
@@ -1756,9 +1766,9 @@ class Client(tanjun_abc.Client):
 
     def with_client_callback(
         self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
-    ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
+    ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
+        def decorator(callback: _MetaEventSigT, /) -> _MetaEventSigT:
             self.add_client_callback(name, callback)
             return callback
 
@@ -1768,15 +1778,15 @@ class Client(tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        injected: injecting.SelfInjectingCallback[None] = injecting.SelfInjectingCallback(self.injector, callback)
+        injected = self.injector.as_async_self_injecting(callback)
         try:
             if callback in self._listeners[event_type]:
                 return self
 
-            self._listeners[event_type].append(injected)
+            self._listeners[event_type][callback] = injected
 
         except KeyError:
-            self._listeners[event_type] = [injected]
+            self._listeners[event_type] = {callback: injected}
 
         if self._loop and self._events:
             self._events.subscribe(event_type, injected.__call__)
@@ -1787,10 +1797,14 @@ class Client(tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        index = self._listeners[event_type].index(typing.cast("injecting.SelfInjectingCallback[None]", callback))
-        registered_callback = self._listeners[event_type].pop(index)
+        callbacks = self._listeners[event_type]
 
-        if not self._listeners[event_type]:
+        try:
+            registered_callback = callbacks.pop(callback)
+        except KeyError:
+            raise ValueError(callback) from None
+
+        if not callbacks:
             del self._listeners[event_type]
 
         if self._loop and self._events:
@@ -1800,9 +1814,9 @@ class Client(tanjun_abc.Client):
 
     def with_listener(
         self, event_type: type[hikari.Event], /
-    ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        def decorator(callback: tanjun_abc.ListenerCallbackSigT, /) -> tanjun_abc.ListenerCallbackSigT:
+        def decorator(callback: _ListenerCallbackSigT, /) -> _ListenerCallbackSigT:
             self.add_listener(event_type, callback)
             return callback
 
@@ -1878,7 +1892,7 @@ class Client(tanjun_abc.Client):
         self._prefix_getter = getter
         return self
 
-    def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
+    def with_prefix_getter(self, getter: _PrefixGetterSigT, /) -> _PrefixGetterSigT:
         """Set the prefix getter callback for this client through decorator call.
 
         Examples
@@ -1903,7 +1917,7 @@ class Client(tanjun_abc.Client):
 
         Returns
         -------
-        PrefixGetterSigT
+        PrefixGetterSig
             The registered callback.
         """
         self.set_prefix_getter(getter)
@@ -1995,7 +2009,7 @@ class Client(tanjun_abc.Client):
 
     async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
-            for prefix in await ctx.execute_async(self._prefix_getter, ctx):
+            for prefix in await ctx.call_with_di_async(self._prefix_getter, ctx):
                 if ctx.content.startswith(prefix):
                     return prefix
 
@@ -2046,7 +2060,7 @@ class Client(tanjun_abc.Client):
             self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             for event_type_, listeners in self._listeners.items():
-                for listener in listeners:
+                for listener in listeners.values():
                     self._try_unsubscribe(self._events, event_type_, listener.__call__)
 
         if deregister_listeners and self._server:
@@ -2104,7 +2118,7 @@ class Client(tanjun_abc.Client):
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             for event_type_, listeners in self._listeners.items():
-                for listener in listeners:
+                for listener in listeners.values():
                     self._events.subscribe(event_type_, listener.__call__)
 
         if register_listeners and self._server:

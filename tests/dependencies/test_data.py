@@ -40,6 +40,7 @@ import time
 import typing
 from unittest import mock
 
+import alluka
 import pytest
 
 import tanjun
@@ -48,10 +49,8 @@ import tanjun
 class TestLazyConstant:
     def test_callback_property(self):
         mock_callback = mock.Mock()
-        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
 
-            assert tanjun.LazyConstant(mock_callback).callback is callback_descriptor.return_value
-            callback_descriptor.assert_called_once_with(mock_callback)
+        assert tanjun.LazyConstant(mock_callback).callback is mock_callback
 
     def test_get_value(self):
         assert tanjun.LazyConstant(mock.Mock()).get_value() is None
@@ -113,7 +112,7 @@ async def test_make_lc_resolver():
 
 def test_inject_lc():
     stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
+    inject = stack.enter_context(mock.patch.object(alluka, "inject"))
     make_lc_resolver = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "make_lc_resolver"))
     mock_type: typing.Any = mock.Mock()
 
@@ -134,13 +133,8 @@ def test_cache_callback_when_invalid_expire_after(expire_after: typing.Union[flo
 @pytest.mark.asyncio()
 async def test_cache_callback():
     mock_callback = mock.Mock()
-    mock_context = mock.Mock()
-    with mock.patch.object(
-        tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
-    ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.data.cache_callback(mock_callback)
-
-        callback_descriptor.assert_called_once_with(mock_callback)
+    mock_context = mock.AsyncMock()
+    cached_callback = tanjun.dependencies.data.cache_callback(mock_callback)
 
     with mock.patch.object(time, "monotonic"):
         results = await asyncio.gather(
@@ -154,27 +148,18 @@ async def test_cache_callback():
             )
         )
 
-    callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context, 1)
+    mock_context.call_with_di_async.assert_awaited_once_with(mock_callback, 1)
     assert len(results) == 6
-    assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
+    assert all(r is mock_context.call_with_di_async.return_value for r in results)
 
 
 @pytest.mark.parametrize("expire_after", [4, 4.0, datetime.timedelta(seconds=4)])
 @pytest.mark.asyncio()
 async def test_cache_callback_when_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
     mock_callback = mock.Mock()
-    mock_first_context = mock.Mock()
-    mock_second_context = mock.Mock()
-    mock_first_result = mock.Mock()
-    mock_second_result = mock.Mock()
-    with mock.patch.object(
-        tanjun.injecting,
-        "CallbackDescriptor",
-        return_value=mock.Mock(resolve=mock.AsyncMock(side_effect=[mock_first_result, mock_second_result])),
-    ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
-
-        callback_descriptor.assert_called_once_with(mock_callback)
+    mock_first_context = mock.AsyncMock()
+    mock_second_context = mock.AsyncMock()
+    cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
 
     with mock.patch.object(time, "monotonic", return_value=123.111):
         first_result = await cached_callback(0, ctx=mock_first_context)
@@ -183,33 +168,27 @@ async def test_cache_callback_when_expired(expire_after: typing.Union[float, int
         results = await asyncio.gather(
             *(
                 cached_callback(1, ctx=mock_second_context),
-                cached_callback(2, ctx=mock.Mock()),
-                cached_callback(3, ctx=mock.Mock()),
-                cached_callback(4, ctx=mock.Mock()),
-                cached_callback(5, ctx=mock.Mock()),
-                cached_callback(6, ctx=mock.Mock()),
+                cached_callback(2, ctx=mock_second_context),
+                cached_callback(3, ctx=mock_second_context),
+                cached_callback(4, ctx=mock_second_context),
+                cached_callback(5, ctx=mock_second_context),
+                cached_callback(6, ctx=mock_second_context),
             )
         )
 
-    callback_descriptor.return_value.resolve.assert_has_awaits(
-        [mock.call(mock_first_context, 0), mock.call(mock_second_context, 1)]
-    )
-    assert first_result is mock_first_result
+    mock_first_context.call_with_di_async.assert_awaited_once_with(mock_callback, 0)
+    mock_second_context.call_with_di_async.assert_awaited_once_with(mock_callback, 1)
+    assert first_result is mock_first_context.call_with_di_async.return_value
     assert len(results) == 6
-    assert all(r is mock_second_result for r in results)
+    assert all(r is mock_second_context.call_with_di_async.return_value for r in results)
 
 
 @pytest.mark.parametrize("expire_after", [15, 15.0, datetime.timedelta(seconds=15)])
 @pytest.mark.asyncio()
 async def test_cache_callback_when_not_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
     mock_callback = mock.Mock()
-    mock_context = mock.Mock()
-    with mock.patch.object(
-        tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
-    ) as callback_descriptor:
-        cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
-
-        callback_descriptor.assert_called_once_with(mock_callback)
+    mock_context = mock.AsyncMock()
+    cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
 
     with mock.patch.object(time, "monotonic", return_value=853.123):
         first_result = await cached_callback(0, ctx=mock_context)
@@ -217,24 +196,24 @@ async def test_cache_callback_when_not_expired(expire_after: typing.Union[float,
     with mock.patch.object(time, "monotonic", return_value=866.123):
         results = await asyncio.gather(
             *(
-                cached_callback(1, ctx=mock.Mock()),
-                cached_callback(2, ctx=mock.Mock()),
-                cached_callback(3, ctx=mock.Mock()),
-                cached_callback(4, ctx=mock.Mock()),
-                cached_callback(5, ctx=mock.Mock()),
-                cached_callback(6, ctx=mock.Mock()),
+                cached_callback(1, ctx=mock_context),
+                cached_callback(2, ctx=mock_context),
+                cached_callback(3, ctx=mock_context),
+                cached_callback(4, ctx=mock_context),
+                cached_callback(5, ctx=mock_context),
+                cached_callback(6, ctx=mock_context),
             )
         )
 
-    callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context, 0)
-    assert first_result is callback_descriptor.return_value.resolve.return_value
+    mock_context.call_with_di_async.assert_awaited_once_with(mock_callback, 0)
+    assert first_result is mock_context.call_with_di_async.return_value
     assert len(results) == 6
-    assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
+    assert all(r is mock_context.call_with_di_async.return_value for r in results)
 
 
 def test_cached_inject():
     stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
+    inject = stack.enter_context(mock.patch.object(alluka, "inject"))
     cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "cache_callback"))
     mock_callback = mock.Mock()
 
@@ -248,7 +227,7 @@ def test_cached_inject():
 
 def test_cached_inject_with_defaults():
     stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
+    inject = stack.enter_context(mock.patch.object(alluka, "inject"))
     cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "cache_callback"))
     mock_callback = mock.Mock()
 

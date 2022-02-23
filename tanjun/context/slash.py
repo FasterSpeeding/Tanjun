@@ -48,9 +48,9 @@ if typing.TYPE_CHECKING:
     from collections import abc as collections
 
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
+    _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
     _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
     _T = typing.TypeVar("_T")
-    _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")

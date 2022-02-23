@@ -32,14 +32,7 @@
 """Standard implementation of Tanjun's "components" used to manage separate features within a client."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    "AbstractComponentLoader",
-    "CommandT",
-    "Component",
-    "OnCallbackSig",
-    "OnCallbackSigT",
-    "WithCommandReturnSig",
-]
+__all__: list[str] = ["AbstractComponentLoader", "Component", "OnCallbackSig"]
 
 import abc
 import asyncio
@@ -60,27 +53,31 @@ if typing.TYPE_CHECKING:
 
     from . import schedules
 
+    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun_abc.AppCommandContext)
+    _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound=tanjun_abc.BaseSlashCommand)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun_abc.CheckSig)
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun_abc.ListenerCallbackSig)
+    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun_abc.MenuCommand[typing.Any, typing.Any])
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun_abc.MessageCommand[typing.Any])
+    _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun_abc.MetaEventSig)
+    _OnCallbackSigT = typing.TypeVar("_OnCallbackSigT", bound="OnCallbackSig")
     _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
-    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="tanjun_abc.AppCommandContext")
-    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="tanjun_abc.MenuCommand[typing.Any, typing.Any]")
 
 
-CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
 _LOGGER = logging.getLogger("hikari.tanjun.components")
-# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list
-WithCommandReturnSig = typing.Union[CommandT, "collections.Callable[[CommandT], CommandT]"]
+_CommandT = typing.TypeVar("_CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
+# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
+_WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
-OnCallbackSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[None]]
+OnCallbackSig = typing.Union[
+    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], collections.Callable[..., None]
+]
 """Type hint of a on_open or on_close component callback.
 
 These support dependency injection, should expect no positional arguments and
 should return `None`.
 """
-
-
-OnCallbackSigT = typing.TypeVar("OnCallbackSigT", bound=OnCallbackSig)
-"""Generic version of `OnCallbackSig`."""
 
 
 class AbstractComponentLoader(abc.ABC):
@@ -100,18 +97,18 @@ class AbstractComponentLoader(abc.ABC):
 
 
 def _with_command(
-    add_command: collections.Callable[[CommandT], Component],
-    maybe_command: typing.Optional[CommandT],
+    add_command: collections.Callable[[_CommandT], Component],
+    maybe_command: typing.Optional[_CommandT],
     /,
     *,
     copy: bool = False,
-) -> WithCommandReturnSig[CommandT]:
+) -> _WithCommandReturnSig[_CommandT]:
     if maybe_command:
         maybe_command = maybe_command.copy() if copy else maybe_command
         add_command(maybe_command)
         return maybe_command
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: _CommandT, /) -> _CommandT:
         command = command.copy() if copy else command
         add_command(command)
         return command
@@ -530,7 +527,7 @@ class Component(tanjun_abc.Component):
         self._checks.remove(check)
         return self
 
-    def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
+    def with_check(self, check: _CheckSigT, /) -> _CheckSigT:
         """Add a general command check to this component through a decorator call.
 
         Parameters
@@ -640,7 +637,7 @@ class Component(tanjun_abc.Component):
 
     def with_client_callback(
         self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
-    ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
+    ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         """Add a client callback through a decorator call.
 
         Examples
@@ -670,7 +667,7 @@ class Component(tanjun_abc.Component):
             detail around the `name` being subscribed to.
         """
 
-        def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
+        def decorator(callback: _MetaEventSigT, /) -> _MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
 
@@ -733,16 +730,16 @@ class Component(tanjun_abc.Component):
         return self
 
     @typing.overload
-    def with_command(self, command: CommandT, /) -> CommandT:
+    def with_command(self, command: _CommandT, /) -> _CommandT:
         ...
 
     @typing.overload
-    def with_command(self, /, *, copy: bool = False) -> collections.Callable[[CommandT], CommandT]:
+    def with_command(self, /, *, copy: bool = False) -> collections.Callable[[_CommandT], _CommandT]:
         ...
 
     def with_command(
-        self, command: typing.Optional[CommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[CommandT]:
+        self, command: typing.Optional[_CommandT] = None, /, *, copy: bool = False
+    ) -> _WithCommandReturnSig[_CommandT]:
         """Add a command to this component through a decorator call.
 
         Examples
@@ -768,7 +765,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command CommandT
+        command: tanjun.abc.ExecutableCommand
             The command to add to this component.
 
         Other Parameters
@@ -778,7 +775,7 @@ class Component(tanjun_abc.Component):
 
         Returns
         -------
-        CommandT
+        tanjun.abc.ExecutableCommand
             The added command.
         """
         return _with_command(self.add_command, command, copy=copy)
@@ -818,7 +815,7 @@ class Component(tanjun_abc.Component):
 
     def with_menu_command(
         self, command: typing.Optional[_MenuCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[_MenuCommandT]:
+    ) -> _WithCommandReturnSig[_MenuCommandT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_menu_command, command, copy=copy)
 
@@ -846,18 +843,18 @@ class Component(tanjun_abc.Component):
         return self
 
     @typing.overload
-    def with_slash_command(self, command: tanjun_abc.BaseSlashCommandT, /) -> tanjun_abc.BaseSlashCommandT:
+    def with_slash_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
         ...
 
     @typing.overload
     def with_slash_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[tanjun_abc.BaseSlashCommandT], tanjun_abc.BaseSlashCommandT]:
+    ) -> collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]:
         ...
 
     def with_slash_command(
-        self, command: typing.Optional[tanjun_abc.BaseSlashCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[tanjun_abc.BaseSlashCommandT]:
+        self, command: typing.Optional[_BaseSlashCommandT] = None, /, *, copy: bool = False
+    ) -> _WithCommandReturnSig[_BaseSlashCommandT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_slash_command, command, copy=copy)
 
@@ -915,18 +912,18 @@ class Component(tanjun_abc.Component):
         return self
 
     @typing.overload
-    def with_message_command(self, command: tanjun_abc.MessageCommandT, /) -> tanjun_abc.MessageCommandT:
+    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
         ...
 
     @typing.overload
     def with_message_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[tanjun_abc.MessageCommandT], tanjun_abc.MessageCommandT]:
+    ) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
         ...
 
     def with_message_command(
-        self, command: typing.Optional[tanjun_abc.MessageCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[tanjun_abc.MessageCommandT]:
+        self, command: typing.Optional[_MessageCommandT] = None, /, *, copy: bool = False
+    ) -> _WithCommandReturnSig[_MessageCommandT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_message_command, command, copy=copy)
 
@@ -964,9 +961,9 @@ class Component(tanjun_abc.Component):
     # TODO: make event optional?
     def with_listener(
         self, event_type: type[hikari.Event]
-    ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        def decorator(callback: tanjun_abc.ListenerCallbackSigT) -> tanjun_abc.ListenerCallbackSigT:
+        def decorator(callback: _ListenerCallbackSigT) -> _ListenerCallbackSigT:
             self.add_listener(event_type, callback)
             return callback
 
@@ -996,7 +993,7 @@ class Component(tanjun_abc.Component):
         self._on_close.append(callback)
         return self
 
-    def with_on_close(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
+    def with_on_close(self, callback: _OnCallbackSigT, /) -> _OnCallbackSigT:
         """Add a close callback to this component through a decorator call.
 
         .. note::
@@ -1044,7 +1041,7 @@ class Component(tanjun_abc.Component):
         self._on_open.append(callback)
         return self
 
-    def with_on_open(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
+    def with_on_open(self, callback: _OnCallbackSigT, /) -> _OnCallbackSigT:
         """Add a open callback to this component through a decorator call.
 
         .. note::
@@ -1364,7 +1361,7 @@ class Component(tanjun_abc.Component):
                 schedule.stop()
 
         self._loop = None
-        await asyncio.gather(*(self._client.injector.execute_async(callback) for callback in self._on_close))
+        await asyncio.gather(*(self._client.injector.call_with_di_async(callback) for callback in self._on_close))
         if unbind:
             self.unbind_client(self._client)
 
@@ -1377,7 +1374,7 @@ class Component(tanjun_abc.Component):
             raise RuntimeError("Client isn't bound yet")
 
         self._loop = asyncio.get_running_loop()
-        await asyncio.gather(*(self._client.injector.execute_async(callback) for callback in self._on_open))
+        await asyncio.gather(*(self._client.injector.call_with_di_async(callback) for callback in self._on_open))
 
         for schedule in self._schedules:
             schedule.start(self._client.injector, loop=self._loop)

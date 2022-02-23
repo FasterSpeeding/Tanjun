@@ -70,23 +70,26 @@ from . import base
 if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
 
+    _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=abc.AutocompleteCallbackSig)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
     _CommandT = typing.Union[
-        abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
-        abc.MessageCommand[abc.CommandCallbackSigT],
-        abc.SlashCommand[abc.CommandCallbackSigT],
+        abc.MenuCommand["_CommandCallbackSigT", typing.Any],
+        abc.MessageCommand["_CommandCallbackSigT"],
+        abc.SlashCommand["_CommandCallbackSigT"],
     ]
-    _CallbackishT = typing.Union[abc.CommandCallbackSigT, _CommandT[abc.CommandCallbackSigT]]
+    _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
 
-ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
-"""Type hint of a converter used for a slash command option."""
+_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
+_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=abc.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
-_AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=abc.AutocompleteCallbackSig)
-_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
+ConverterSig = typing.Union[
+    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]],
+    collections.Callable[..., typing.Any],
+]
 
 
 def _validate_name(name: str) -> None:
@@ -185,14 +188,14 @@ def slash_command_group(
 
 class _ResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: abc.CommandCallbackSigT, /) -> SlashCommand[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CommandCallbackSigT, /) -> SlashCommand[_CommandCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
+    def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         raise NotImplementedError
 
 
@@ -289,7 +292,7 @@ def as_slash_command(
         * If the description is over 100 characters long.
     """
 
-    def decorator(callback: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             return SlashCommand(
                 callback.callback,
@@ -672,7 +675,7 @@ class _TrackedOption:
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await ctx.execute_async(converter, value)
+                return await ctx.call_with_di_async(converter, value)
 
             except ValueError as exc:
                 exceptions.append(exc)
@@ -1007,7 +1010,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         del self._commands[command.name]
         return self
 
-    def with_command(self, command: abc.BaseSlashCommandT, /) -> abc.BaseSlashCommandT:
+    def with_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
         """Add a slash command to this group through a decorator call.
 
         Parameters
@@ -1073,7 +1076,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         await command.execute_autocomplete(ctx, option=option)
 
 
-class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     """Standard implementation of a slash command."""
 
     __slots__ = (
@@ -1091,7 +1094,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[abc.CommandCallbackSigT],
+        callback: _CommandT[_CommandCallbackSigT],
         name: str,
         description: str,
         /,
@@ -1108,7 +1111,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
     @typing.overload
     def __init__(
         self,
-        callback: abc.CommandCallbackSigT,
+        callback: _CommandCallbackSigT,
         name: str,
         description: str,
         /,
@@ -1124,7 +1127,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
     def __init__(
         self,
-        callback: _CallbackishT[abc.CommandCallbackSigT],
+        callback: _CallbackishT[_CommandCallbackSigT],
         name: str,
         description: str,
         /,
@@ -1217,7 +1220,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: abc.CommandCallbackSigT
+        __call__: _CommandCallbackSigT
 
     else:
 
@@ -1225,7 +1228,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             await self._callback(*args, **kwargs)
 
     @property
-    def callback(self) -> abc.CommandCallbackSigT:
+    def callback(self) -> _CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._callback
 
@@ -1293,13 +1296,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
-            converters_ = list(converters)
+            converters = list(converters)
 
         else:
-            converters_ = [converters]
+            converters = [converters]
 
         if self._client:
-            for converter in converters_:
+            for converter in converters:
                 if isinstance(converter, conversion.BaseConverter):
                     converter.check_client(self._client, f"{self._name}'s slash option '{name}'")
 
@@ -1340,7 +1343,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
                 name=name,
                 option_type=type_,
                 always_float=always_float,
-                converters=converters_,
+                converters=converters,
                 default=default,
                 only_member=only_member,
             )
@@ -2326,7 +2329,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.execute_async(self._callback, ctx, **kwargs)
+            await ctx.call_with_di_async(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
@@ -2368,7 +2371,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         if not callback:
             raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")
 
-        await ctx.execute_async(callback, ctx, ctx.focused.value)
+        await ctx.call_with_di_async(callback, ctx, ctx.focused.value)
 
     def copy(
         self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None

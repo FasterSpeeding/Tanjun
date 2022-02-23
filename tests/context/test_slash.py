@@ -40,6 +40,7 @@ import types
 import typing
 from unittest import mock
 
+import alluka
 import hikari
 import pytest
 
@@ -63,11 +64,6 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 @pytest.fixture()
 def mock_client() -> tanjun.abc.Client:
     return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient))
-
-
-@pytest.fixture()
-def mock_injector_client() -> tanjun.injecting.InjectorClient:
-    return mock.MagicMock(tanjun.injecting.InjectorClient)
 
 
 @pytest.fixture()
@@ -474,11 +470,9 @@ class TestSlashOption:
 
 class TestAppCommandContext:
     @pytest.fixture()
-    def context(
-        self, mock_client: mock.Mock, mock_injector_client: mock.Mock
-    ) -> tanjun.context.slash.AppCommandContext:
+    def context(self, mock_client: mock.Mock) -> tanjun.context.slash.AppCommandContext:
         return stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
-            mock_client, mock_injector_client, mock.AsyncMock(options=None)
+            mock_client, mock.AsyncMock(options=None)
         )
 
     def test_author_property(self, context: tanjun.context.slash.AppCommandContext):
@@ -495,7 +489,6 @@ class TestAppCommandContext:
 
     def test_expires_at_property(self):
         context = stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
-            mock.Mock(),
             mock.Mock(),
             mock.Mock(
                 created_at=datetime.datetime(2021, 11, 15, 5, 42, 6, 445670, tzinfo=datetime.timezone.utc), options=None
@@ -528,9 +521,7 @@ class TestAppCommandContext:
     @pytest.mark.asyncio()
     async def test__auto_defer(self, mock_client: mock.Mock):
         defer = mock.AsyncMock()
-        context = stub_class(tanjun.context.slash.AppCommandContext, defer=defer)(
-            mock_client, mock.AsyncMock(), mock.Mock(options=None)
-        )
+        context = stub_class(tanjun.context.slash.AppCommandContext, defer=defer)(mock_client, mock.Mock(options=None))
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._auto_defer(0.1)
@@ -576,7 +567,6 @@ class TestAppCommandContext:
         auto_defer = mock.Mock()
         context = stub_class(tanjun.context.slash.AppCommandContext, _auto_defer=auto_defer)(
             mock_client,
-            mock.AsyncMock(),
             mock.Mock(options=None),
         )
 
@@ -658,7 +648,7 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock,
             delete_initial_response=mock_delete_initial_response,
-        )(mock.Mock(), mock.Mock(), mock.Mock(options=None))
+        )(mock.Mock(), mock.Mock(options=None))
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -673,7 +663,7 @@ class TestAppCommandContext:
         )
         context = stub_class(
             tanjun.context.slash.AppCommandContext, delete_initial_response=mock_delete_initial_response
-        )(mock.Mock(), mock.Mock(), mock.Mock(options=None))
+        )(mock.Mock(), mock.Mock(options=None))
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -790,7 +780,7 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock.Mock(), mock_interaction)
+        )(mock_client, mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
@@ -814,7 +804,7 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock.Mock(), mock_interaction)
+        )(mock_client, mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
@@ -837,7 +827,7 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock.Mock(), mock_interaction)
+        )(mock_client, mock_interaction)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             with pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"):
@@ -901,10 +891,9 @@ class TestAppCommandContext:
 
 class TestSlashContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.context.SlashContext:
+    def context(self, mock_client: mock.Mock) -> tanjun.context.SlashContext:
         return tanjun.context.SlashContext(
             mock_client,
-            mock_injector_client,
             mock.AsyncMock(options=None),
         )
 
@@ -913,9 +902,7 @@ class TestSlashContext:
         self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
     ):
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options),
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         )
 
         assert context.options == {}
@@ -926,9 +913,7 @@ class TestSlashContext:
         mock_option_2 = mock.Mock()
         mock_option_2.name = "bye"
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         )
 
         assert len(context.options) == 2
@@ -949,9 +934,7 @@ class TestSlashContext:
         mock_option_2.name = "nyaa"
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
         )
 
         assert len(context.options) == 2
@@ -971,9 +954,7 @@ class TestSlashContext:
     ):
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
         )
 
         assert context.options == {}
@@ -986,9 +967,7 @@ class TestSlashContext:
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
         )
 
         assert len(context.options) == 2
@@ -1009,9 +988,7 @@ class TestSlashContext:
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(),
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]),
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option])
         )
 
         assert context.options == {}
@@ -1022,9 +999,7 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test_mark_not_found(self):
         on_not_found = mock.AsyncMock()
-        context = tanjun.context.SlashContext(
-            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
-        )
+        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
 
         await context.mark_not_found()
 
@@ -1032,16 +1007,14 @@ class TestSlashContext:
 
     @pytest.mark.asyncio()
     async def test_mark_not_found_when_no_callback(self):
-        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
+        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), on_not_found=None)
 
         await context.mark_not_found()
 
     @pytest.mark.asyncio()
     async def test_mark_not_found_when_already_marked_as_not_found(self):
         on_not_found = mock.AsyncMock()
-        context = tanjun.context.SlashContext(
-            mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found
-        )
+        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
         await context.mark_not_found()
         on_not_found.reset_mock()
 
@@ -1060,30 +1033,30 @@ class TestSlashContext:
         assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is mock_command
         assert context.get_type_dependency(tanjun.abc.SlashCommand) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    def test_set_command_when_none(self, context: tanjun.context.SlashContext):
+        assert isinstance(context.injection_client.get_type_dependency, mock.Mock)
+        context.injection_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         context.set_command(None)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.AppCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.AppCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is alluka.abc.UNDEFINED
 
-    def test_set_command_when_none_and_previously_set(
-        self, context: tanjun.context.SlashContext, mock_injector_client: mock.Mock
-    ):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    def test_set_command_when_none_and_previously_set(self, context: tanjun.context.SlashContext):
+        assert isinstance(context.injection_client.get_type_dependency, mock.Mock)
+        context.injection_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.AppCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.SlashCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.AppCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.SlashCommand) is alluka.abc.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.context.SlashContext):
         context.finalise()

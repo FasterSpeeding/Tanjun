@@ -281,21 +281,17 @@ class TestMenuCommand:
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
         mock_context = mock.Mock()
-        mock_checks = [mock.Mock(), mock.Mock()]
 
-        with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
-            command = (
-                tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.USER, "pat")
-                .add_check(mock_callback)
-                .add_check(mock_other_callback)
-            )
-
-            injectable_check.call_args_list == [mock.call(mock_callback), mock.call(mock_other_callback)]
+        command = (
+            tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.USER, "pat")
+            .add_check(mock_callback)
+            .add_check(mock_other_callback)
+        )
 
         with mock.patch.object(tanjun.utilities, "gather_checks", new=mock.AsyncMock()) as gather_checks:
             result = await command.check_context(mock_context)
 
-            gather_checks.assert_awaited_once_with(mock_context, mock_checks)
+            gather_checks.assert_awaited_once_with(mock_context, [mock_callback, mock_other_callback])
 
         assert result is gather_checks.return_value
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])

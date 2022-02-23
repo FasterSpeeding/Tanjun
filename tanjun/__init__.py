@@ -216,6 +216,7 @@ __all__: list[str] = [
 import typing
 
 from alluka import inject
+from alluka import inject as injected
 
 from . import abc
 from . import context
@@ -317,7 +318,3 @@ __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
 __version__: typing.Final[str] = "2.4.1a1"
-
-
-injected = inject
-"""Alias of `alluka.inject`."""

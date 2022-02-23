@@ -92,6 +92,7 @@ from .dependencies import async_cache
 if typing.TYPE_CHECKING:
     from . import parsing
 
+
 _ArgumentT = typing.Union[str, int, float]
 _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")

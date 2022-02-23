@@ -46,6 +46,13 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+
+    _CommandT = typing.Union[
+        abc.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
+        abc.MessageCommand["_MenuCommandCallbackSigT"],
+        abc.SlashCommand["_MenuCommandCallbackSigT"],
+    ]
+    _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
 
 import hikari
@@ -55,13 +62,6 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-_CommandT = typing.Union[
-    abc.MenuCommand[_MenuCommandCallbackSigT, typing.Any],
-    abc.MessageCommand[_MenuCommandCallbackSigT],
-    abc.SlashCommand[_MenuCommandCallbackSigT],
-]
-_CallbackishT = typing.Union[_MenuCommandCallbackSigT, _CommandT[_MenuCommandCallbackSigT]]
-
 
 def _as_menu(
     name: str,
@@ -464,7 +464,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             else:
                 value = ctx.resolve_to_message()
 
-            await ctx.execute_async(self._callback, ctx, value)
+            await ctx.call_with_di_async(self._callback, ctx, value)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)

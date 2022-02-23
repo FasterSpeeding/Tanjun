@@ -56,14 +56,14 @@ from .dependencies import async_cache
 if typing.TYPE_CHECKING:
     from . import abc
 
-
 _KeyT = typing.TypeVar("_KeyT")
-_ValueT = typing.TypeVar("_ValueT")
 _OtherValueT = typing.TypeVar("_OtherValueT")
+_ValueT = typing.TypeVar("_ValueT")
 
 
-async def _execute_check(callback: abc.CheckSig, ctx: abc.Context, /) -> bool:
-    if result := await ctx.execute_async(callback, ctx):
+async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
+    foo = ctx.call_with_di_async(callback, ctx)
+    if result := await foo:
         return result
 
     raise errors.FailedCheck
@@ -85,7 +85,7 @@ async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[abc.Chec
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*(_execute_check(check, ctx) for check in checks_))
+        await asyncio.gather(*(_execute_check(ctx, check) for check in checks_))
         # InjectableCheck will raise FailedCheck if a false is received so if
         # we get this far then it's True.
         return True
