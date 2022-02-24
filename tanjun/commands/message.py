@@ -57,12 +57,12 @@ if typing.TYPE_CHECKING:
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
 
 
-_CallbackishT = typing.Union[
-    abc.CommandCallbackSigT,
+_CommandT = typing.Union[
     abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
     abc.MessageCommand[abc.CommandCallbackSigT],
     abc.SlashCommand[abc.CommandCallbackSigT],
 ]
+_CallbackishT = typing.Union[_CommandT[abc.CommandCallbackSigT], abc.CommandCallbackSigT]
 
 _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
@@ -71,9 +71,20 @@ _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
-def as_message_command(
-    name: str, /, *names: str
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT],], MessageCommand[abc.CommandCallbackSigT]]:
+class _ResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(self, _: _CommandT[abc.CommandCallbackSigT], /) -> MessageCommand[abc.CommandCallbackSigT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: abc.CommandCallbackSigT, /) -> MessageCommand[abc.CommandCallbackSigT]:
+        ...
+
+    def __call__(self, _: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommand[abc.CommandCallbackSigT]:
+        raise NotImplementedError
+
+
+def as_message_command(name: str, /, *names: str) -> _ResultProto:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -109,9 +120,20 @@ def as_message_command(
     return decorator
 
 
-def as_message_command_group(
-    name: str, /, *names: str, strict: bool = False
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], MessageCommandGroup[abc.CommandCallbackSigT]]:
+class _GroupResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(self, _: _CommandT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: abc.CommandCallbackSigT, /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+        ...
+
+    def __call__(self, _: _CallbackishT[abc.CommandCallbackSigT], /) -> MessageCommandGroup[abc.CommandCallbackSigT]:
+        raise NotImplementedError
+
+
+def as_message_command_group(name: str, /, *names: str, strict: bool = False) -> _GroupResultProto:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -154,9 +176,31 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
 
     __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
+    @typing.overload
+    def __init__(
+        self,
+        callback: _CommandT[abc.CommandCallbackSigT],
+        name: str,
+        /,
+        *names: str,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    @typing.overload
     def __init__(
         self,
         callback: abc.CommandCallbackSigT,
+        name: str,
+        /,
+        *names: str,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        callback: _CallbackishT[abc.CommandCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -181,10 +225,10 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
             Variable positional arguments of other names for the command.
         """
         super().__init__()
-        if not _wrapped_command and isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
-            callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
+            callback = callback.callback
 
-        self._callback = injecting.CallbackDescriptor[None](callback)
+        self._callback = injecting.CallbackDescriptor(callback)
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
         self._parser: typing.Optional[abc.MessageParser] = None
@@ -329,9 +373,33 @@ class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCo
 
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
+    @typing.overload
+    def __init__(
+        self,
+        callback: _CommandT[abc.CommandCallbackSigT],
+        name: str,
+        /,
+        *names: str,
+        strict: bool = False,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    @typing.overload
     def __init__(
         self,
         callback: abc.CommandCallbackSigT,
+        name: str,
+        /,
+        *names: str,
+        strict: bool = False,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        callback: _CallbackishT[abc.CommandCallbackSigT],
         name: str,
         /,
         *names: str,

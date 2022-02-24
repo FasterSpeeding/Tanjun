@@ -74,12 +74,12 @@ if typing.TYPE_CHECKING:
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
-    _CallbackishT = typing.Union[
-        abc.CommandCallbackSigT,
+    _CommandT = typing.Union[
         abc.MenuCommand[abc.CommandCallbackSigT, typing.Any],
         abc.MessageCommand[abc.CommandCallbackSigT],
         abc.SlashCommand[abc.CommandCallbackSigT],
     ]
+    _CallbackishT = typing.Union[abc.CommandCallbackSigT, _CommandT[abc.CommandCallbackSigT]]
 
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
@@ -184,6 +184,19 @@ def slash_command_group(
     )
 
 
+class _ResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(self, _: _CommandT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: abc.CommandCallbackSigT, /) -> SlashCommand[abc.CommandCallbackSigT]:
+        ...
+
+    def __call__(self, _: _CallbackishT[abc.CommandCallbackSigT], /) -> SlashCommand[abc.CommandCallbackSigT]:
+        raise NotImplementedError
+
+
 def as_slash_command(
     name: str,
     description: str,
@@ -194,7 +207,7 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-) -> collections.Callable[[_CallbackishT[abc.CommandCallbackSigT]], SlashCommand[abc.CommandCallbackSigT]]:
+) -> _ResultProto:
     r"""Build a `SlashCommand` by decorating a function.
 
     .. note::
@@ -1087,9 +1100,43 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
         "_wrapped_command",
     )
 
+    @typing.overload
+    def __init__(
+        self,
+        callback: _CommandT[abc.CommandCallbackSigT],
+        name: str,
+        description: str,
+        /,
+        *,
+        always_defer: bool = False,
+        default_permission: bool = True,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        is_global: bool = True,
+        sort_options: bool = True,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    @typing.overload
     def __init__(
         self,
         callback: abc.CommandCallbackSigT,
+        name: str,
+        description: str,
+        /,
+        *,
+        always_defer: bool = False,
+        default_permission: bool = True,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        is_global: bool = True,
+        sort_options: bool = True,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        callback: _CallbackishT[abc.CommandCallbackSigT],
         name: str,
         description: str,
         /,
@@ -1168,12 +1215,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             * If the description is over 100 characters long.
         """
         super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
-        if not _wrapped_command and isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
-            callback = typing.cast(abc.CommandCallbackSigT, callback.callback)
+        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
+            callback = callback.callback
 
         self._always_defer = always_defer
         self._builder = _SlashCommandBuilder(name, description, sort_options).set_default_permission(default_permission)
-        self._callback = injecting.CallbackDescriptor[None](callback)
+        self._callback = injecting.CallbackDescriptor(callback)
         self._client: typing.Optional[abc.Client] = None
         self._float_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}
         self._int_autocompletes: dict[str, injecting.CallbackDescriptor[None]] = {}

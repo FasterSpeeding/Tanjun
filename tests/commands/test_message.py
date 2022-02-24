@@ -72,17 +72,15 @@ def test_as_message_command():
 @pytest.mark.parametrize(
     "other_command",
     [
-        tanjun.SlashCommand(mock.Mock(), "e", "a"),
-        tanjun.MessageCommand(mock.Mock(), "b"),
-        tanjun.MessageCommandGroup(mock.Mock(), "b"),
-        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
+        tanjun.SlashCommand[typing.Any](mock.Mock(), "e", "a"),
+        tanjun.MessageCommand[typing.Any](mock.Mock(), "b"),
+        tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_message_command_when_wrapping_command(
     other_command: typing.Union[
         tanjun.SlashCommand[typing.Any],
         tanjun.MessageCommand[typing.Any],
-        tanjun.MessageCommandGroup[typing.Any],
         tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
@@ -105,17 +103,15 @@ def test_as_message_command_group():
 @pytest.mark.parametrize(
     "other_command",
     [
-        tanjun.SlashCommand(mock.Mock(), "e", "a"),
-        tanjun.MessageCommand(mock.Mock(), "b"),
-        tanjun.MessageCommandGroup(mock.Mock(), "b"),
-        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
+        tanjun.SlashCommand[typing.Any](mock.Mock(), "e", "a"),
+        tanjun.MessageCommand[typing.Any](mock.Mock(), "b"),
+        tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_message_command_group_when_wrapping_command(
     other_command: typing.Union[
         tanjun.SlashCommand[typing.Any],
         tanjun.MessageCommand[typing.Any],
-        tanjun.MessageCommandGroup[typing.Any],
         tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
@@ -129,15 +125,16 @@ class TestMessageCommand:
     @pytest.mark.parametrize(
         "inner_command",
         [
-            tanjun.SlashCommand(mock.Mock(), "a", "b"),
-            tanjun.MessageCommand(mock.Mock(), "a"),
-            tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "e"),
+            tanjun.SlashCommand[typing.Any](mock.Mock(), "a", "b"),
+            tanjun.MessageCommand[typing.Any](mock.Mock(), "a"),
+            tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "e"),
         ],
     )
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.MenuCommand[typing.Any, typing.Any],
         ],
     ):
         assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback
@@ -149,7 +146,7 @@ class TestMessageCommand:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_callback = mock.AsyncMock()
-        command = tanjun.SlashCommand(mock_callback, "yee", "nsoosos")
+        command = tanjun.MessageCommand[typing.Any](mock_callback, "yee", "nsoosos")
 
         await command(65123, "okokok", a="odoosd", gf=435123)  # type: ignore
 
@@ -161,7 +158,7 @@ class TestMessageCommand:
         assert tanjun.MessageCommand(mock_callback, "yee", "nsoosos").callback is mock_callback
 
     def test_names_property(self):
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc")
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
         assert command.names == ["aaaaa", "bbbbb", "ccccc"]
 
@@ -171,19 +168,19 @@ class TestMessageCommand:
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parent(mock_parent)
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parent(mock_parent)
 
         assert command.parent is mock_parent
 
     def test_parser_property(self):
         mock_parser = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
 
         assert command.parser is mock_parser
 
     def test_bind_client(self):
         mock_client = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc")
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
         with mock.patch.object(base_command.PartialCommand, "bind_client") as bind_client:
             command.bind_client(mock_client)
@@ -193,7 +190,7 @@ class TestMessageCommand:
     def test_bind_client_when_has_parser(self):
         mock_client = mock.Mock()
         mock_parser = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
 
         with mock.patch.object(base_command.PartialCommand, "bind_client") as bind_client:
             command.bind_client(mock_client)
@@ -204,7 +201,7 @@ class TestMessageCommand:
 
     def test_bind_component(self):
         mock_component = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc")
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
         with mock.patch.object(base_command.PartialCommand, "bind_component") as bind_component:
             command.bind_component(mock_component)
@@ -214,7 +211,7 @@ class TestMessageCommand:
     def test_bind_component_when_has_parser(self):
         mock_component = mock.Mock()
         mock_parser = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
 
         with mock.patch.object(base_command.PartialCommand, "bind_component") as bind_component:
             command.bind_component(mock_component)
@@ -236,7 +233,7 @@ class TestMessageCommand:
 
         with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
             command = (
-                tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+                tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
                 .add_check(mock_callback)
                 .add_check(mock_other_callback)
             )
@@ -258,7 +255,7 @@ class TestMessageCommand:
 
     def test_load_into_component(self):
         mock_component = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         command.load_into_component(mock_component)
 
@@ -267,7 +264,7 @@ class TestMessageCommand:
     def test_load_into_component_when_wrapped_command_set(self):
         mock_component = mock.Mock()
         mock_other_command = mock.Mock()
-        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         command._wrapped_command = mock_other_command
 
         command.load_into_component(mock_component)
@@ -278,7 +275,7 @@ class TestMessageCommand:
     def test_load_into_component_when_wrapped_command_is_loadable(self):
         mock_component = mock.Mock()
         mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
-        command = tanjun.MessageCommand(mock.Mock(), "yee", "nsoosos")
+        command = tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         command._wrapped_command = mock_other_command
 
         command.load_into_component(mock_component)
@@ -306,7 +303,7 @@ class TestMessageCommandGroup:
 
     def test_add_command(self):
         mock_command = mock.Mock()
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos")
+        command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         result = command_group.add_command(mock_command)
 
@@ -316,7 +313,7 @@ class TestMessageCommandGroup:
 
     def test_add_command_when_already_present(self):
         mock_command = mock.Mock()
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos")
+        command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         result = command_group.add_command(mock_command).add_command(mock_command)
 
@@ -325,7 +322,7 @@ class TestMessageCommandGroup:
 
     def test_add_command_when_strict(self):
         mock_command = mock.Mock(names={"a", "b"})
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos", strict=True)
+        command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
 
         result = command_group.add_command(mock_command)
 
@@ -334,7 +331,7 @@ class TestMessageCommandGroup:
         assert mock_command in command_group.commands
 
     def test_add_command_when_strict_and_space_in_any_name(self):
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos", strict=True)
+        command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
 
         with pytest.raises(
             ValueError, match="Sub-command names may not contain spaces in a strict message command group"
@@ -343,7 +340,7 @@ class TestMessageCommandGroup:
 
     def test_add_command_when_strict_and_conflicts_found(self):
         command_group = (
-            tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos", strict=True)
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
             .add_command(mock.Mock(names={"aaa", "b"}))
             .add_command(mock.Mock(names={"fsa", "dsaasd"}))
         )
@@ -357,7 +354,7 @@ class TestMessageCommandGroup:
 
     def test_remove_command(self):
         mock_command = mock.Mock()
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "a", "b").add_command(mock_command)
+        command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b").add_command(mock_command)
 
         result = command_group.remove_command(mock_command)
 
@@ -368,7 +365,7 @@ class TestMessageCommandGroup:
         mock_command = mock.Mock(names={"abba", "bba", "dadaba"})
         mock_other_command = mock.Mock(names={"dada"})
         command_group = (
-            tanjun.MessageCommandGroup(mock.Mock(), "a", "b", strict=True)
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b", strict=True)
             .add_command(mock_command)
             .add_command(mock_other_command)
         )
@@ -394,7 +391,7 @@ class TestMessageCommandGroup:
         mock_command_2 = mock.Mock()
         mock_command_3 = mock.Mock()
         command = (
-            tanjun.MessageCommandGroup(mock.Mock(), "a", "b")
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b")
             .add_command(mock_command_1)
             .add_command(mock_command_2)
             .add_command(mock_command_3)
@@ -415,7 +412,7 @@ class TestMessageCommandGroup:
         mock_command_2 = mock.Mock()
         mock_command_3 = mock.Mock()
         command = (
-            tanjun.MessageCommandGroup(mock.Mock(), "a", "b")
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b")
             .add_command(mock_command_1)
             .add_command(mock_command_2)
             .add_command(mock_command_3)
@@ -435,7 +432,7 @@ class TestMessageCommandGroup:
         mock_command_1 = mock.Mock(names={"i am", "sexy", "jk", "unless"})
         mock_command_2 = mock.Mock(names={"i", "owo uwu", "no u"})
         command_group = (
-            tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos")
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
             .add_command(mock_command_1)
             .add_command(mock.Mock(names={"ok boomer", "no u"}))
             .add_command(mock_command_2)
@@ -449,7 +446,7 @@ class TestMessageCommandGroup:
     def test_find_command_when_strict(self):
         mock_command_1 = mock.Mock(names={"ok", "no"})
         command_group = (
-            tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos", strict=True)
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
             .add_command(mock_command_1)
             .add_command(mock.Mock(names={"boomer"}))
             .add_command(mock.Mock(names={"go"}))
@@ -461,7 +458,7 @@ class TestMessageCommandGroup:
 
     def test_find_command_when_strict_and_unknown_name(self):
         command_group = (
-            tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos", strict=True)
+            tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
             .add_command(mock.Mock(names={"ok", "no"}))
             .add_command(mock.Mock(names={"boomer"}))
             .add_command(mock.Mock(names={"go"}))
@@ -475,7 +472,7 @@ class TestMessageCommandGroup:
     async def test_execute_no_message_content(self):
         mock_context = mock.Mock()
         mock_context.message.content = None
-        command_group = tanjun.MessageCommandGroup(mock.AsyncMock(), "hi", "nsoosos")
+        command_group = tanjun.MessageCommandGroup[typing.Any](mock.AsyncMock(), "hi", "nsoosos")
 
         with pytest.raises(ValueError, match="Cannot execute a command with a content-less message"):
             await command_group.execute(mock_context)

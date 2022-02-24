@@ -79,17 +79,15 @@ def test_as_message_menu_with_defaults():
 @pytest.mark.parametrize(
     "other_command",
     [
-        tanjun.SlashCommand(mock.Mock(), "e", "a"),
-        tanjun.MessageCommand(mock.Mock(), "b"),
-        tanjun.MessageCommandGroup(mock.Mock(), "b"),
-        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
+        tanjun.SlashCommand[typing.Any](mock.Mock(), "e", "a"),
+        tanjun.MessageCommand[typing.Any](mock.Mock(), "b"),
+        tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_message_menu_when_wrapping_command(
     other_command: typing.Union[
         tanjun.SlashCommand[typing.Any],
         tanjun.MessageCommand[typing.Any],
-        tanjun.MessageCommandGroup[typing.Any],
         tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
@@ -134,17 +132,15 @@ def test_as_user_menu_with_defaults():
 @pytest.mark.parametrize(
     "other_command",
     [
-        tanjun.SlashCommand(mock.Mock(), "e", "a"),
-        tanjun.MessageCommand(mock.Mock(), "b"),
-        tanjun.MessageCommandGroup(mock.Mock(), "b"),
-        tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a"),
+        tanjun.SlashCommand[typing.Any](mock.Mock(), "e", "a"),
+        tanjun.MessageCommand[typing.Any](mock.Mock(), "b"),
+        tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a"),
     ],
 )
 def test_as_user_menu_when_wrapping_command(
     other_command: typing.Union[
         tanjun.SlashCommand[typing.Any],
         tanjun.MessageCommand[typing.Any],
-        tanjun.MessageCommandGroup[typing.Any],
         tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
@@ -174,68 +170,74 @@ class TestMenuCommand:
     @pytest.mark.parametrize(
         "inner_command",
         [
-            tanjun.SlashCommand(mock.Mock(), "a", "b"),
-            tanjun.MessageCommand(mock.Mock(), "a"),
-            tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "e"),
+            tanjun.SlashCommand[typing.Any](mock.Mock(), "a", "b"),
+            tanjun.MessageCommand[typing.Any](mock.Mock(), "a"),
+            tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "e"),
         ],
     )
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.MenuCommand[typing.Any, typing.Any],
         ],
     ):
         assert tanjun.MenuCommand(inner_command, hikari.CommandType.MESSAGE, "woow").callback is inner_command.callback
 
     def test_callback_property(self):
         mock_callback = mock.Mock()
-        command = tanjun.MenuCommand(mock_callback, hikari.CommandType.MESSAGE, "a")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock_callback, hikari.CommandType.MESSAGE, "a")
 
         assert command.callback is mock_callback
 
     def test_defaults_to_ephemeral_property(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a", default_to_ephemeral=True)
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(), hikari.CommandType.MESSAGE, "a", default_to_ephemeral=True
+        )
 
         assert command.defaults_to_ephemeral is True
 
     def test_defaults_to_ephemeral_property_when_unset(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a")
 
         assert command.defaults_to_ephemeral is None
 
     def test_is_global_property(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a", is_global=False)
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(), hikari.CommandType.MESSAGE, "a", is_global=False
+        )
 
         assert command.is_global is False
 
     def test_is_global_property_when_default(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "a")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a")
 
         assert command.is_global is True
 
     def test_name_property(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
 
         assert command.name == "uwu"
 
     def test_tracked_command_property(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
 
         assert command.tracked_command is None
 
     def test_tracked_command_id_property(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
 
         assert command.tracked_command_id is None
 
     @pytest.mark.parametrize("command_type", [hikari.CommandType.MESSAGE, hikari.CommandType.USER])
     def test_type_property(self, command_type: hikari.CommandType):
-        command = tanjun.MenuCommand(mock.Mock(), command_type, "uwu")  # type: ignore
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), command_type, "uwu")  # type: ignore
 
         assert command.type is command_type
 
     def test_build(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.USER, "owo")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.USER, "owo")
 
         builder = command.build()
 
@@ -245,7 +247,9 @@ class TestMenuCommand:
         assert builder.default_permission is True
 
     def test_build_when_all_fields_set(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "pat", default_permission=False)
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(), hikari.CommandType.MESSAGE, "pat", default_permission=False
+        )
 
         builder = command.build()
 
@@ -255,7 +259,7 @@ class TestMenuCommand:
         assert builder.default_permission is False
 
     def test_set_tracked_command(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "pat")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")
         mock_command = mock.Mock(hikari.ContextMenuCommand)
 
         result = command.set_tracked_command(mock_command)
@@ -265,7 +269,7 @@ class TestMenuCommand:
         assert command.tracked_command_id is mock_command.id
 
     def test_set_ephemeral_default(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "pat")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")
 
         result = command.set_ephemeral_default(True)
 
@@ -281,7 +285,7 @@ class TestMenuCommand:
 
         with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
             command = (
-                tanjun.MenuCommand(mock.Mock(), hikari.CommandType.USER, "pat")
+                tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.USER, "pat")
                 .add_check(mock_callback)
                 .add_check(mock_other_callback)
             )
@@ -306,7 +310,7 @@ class TestMenuCommand:
         ...
 
     def test_load_into_component(self):
-        command = tanjun.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "pat")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")
         mock_component = mock.Mock()
 
         command.load_into_component(mock_component)
@@ -315,7 +319,7 @@ class TestMenuCommand:
 
     def test_load_into_component_when_wrapped_command(self):
         mock_other_command = mock.Mock()
-        command = tanjun.MenuCommand(
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
             mock.Mock(), hikari.CommandType.MESSAGE, "pat", _wrapped_command=mock_other_command
         )
         mock_component = mock.Mock()
@@ -327,7 +331,7 @@ class TestMenuCommand:
 
     def test_load_into_component_when_wrapped_command_is_loader(self):
         mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
-        command = tanjun.MenuCommand(
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
             mock.Mock(), hikari.CommandType.MESSAGE, "pat", _wrapped_command=mock_other_command
         )
         mock_component = mock.Mock()

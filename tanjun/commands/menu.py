@@ -56,11 +56,12 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-_CallbackishT = typing.Union[
-    _MenuCommandCallbackSigT,
+_CommandT = typing.Union[
+    abc.MenuCommand[_MenuCommandCallbackSigT, typing.Any],
     abc.MessageCommand[_MenuCommandCallbackSigT],
     abc.SlashCommand[_MenuCommandCallbackSigT],
 ]
+_CallbackishT = typing.Union[_MenuCommandCallbackSigT, _CommandT[_MenuCommandCallbackSigT]]
 
 
 def _as_menu(
@@ -69,7 +70,7 @@ def _as_menu(
     always_defer: bool = False,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> collections.Callable[[_CallbackishT[_MenuCommandCallbackSigT]], MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]]:
+) -> _ResultProto[_MenuTypeT]:
     def decorator(
         callback: _CallbackishT[_MenuCommandCallbackSigT], /
     ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
@@ -96,6 +97,21 @@ def _as_menu(
     return decorator
 
 
+class _ResultProto(typing.Protocol[_MenuTypeT]):
+    @typing.overload
+    def __call__(self, _: _CommandT[_MenuCommandCallbackSigT], /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        ...
+
+    def __call__(
+        self, _: _CallbackishT[_MenuCommandCallbackSigT], /
+    ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        raise NotImplementedError
+
+
 def as_message_menu(
     name: str,
     /,
@@ -103,10 +119,7 @@ def as_message_menu(
     always_defer: bool = False,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> collections.Callable[
-    [_CallbackishT[_MenuCommandCallbackSigT]],
-    MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
-]:
+) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
     r"""Build a message `MenuCommand` by decorating a function.
 
     .. note::
@@ -181,10 +194,7 @@ def as_user_menu(
     always_defer: bool = False,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> collections.Callable[
-    [_CallbackishT[_MenuCommandCallbackSigT]],
-    MenuCommand[_MenuCommandCallbackSigT, typing.Literal[hikari.CommandType.USER]],
-]:
+) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
     r"""Build a user `MenuCommand` by decorating a function.
 
     .. note::
@@ -274,9 +284,43 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         "_wrapped_command",
     )
 
+    @typing.overload
+    def __init__(
+        self,
+        callback: _CommandT[
+            _MenuCommandCallbackSigT,
+        ],
+        type_: _MenuTypeT,
+        name: str,
+        /,
+        *,
+        always_defer: bool = False,
+        default_permission: bool = True,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        is_global: bool = True,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    @typing.overload
     def __init__(
         self,
         callback: _MenuCommandCallbackSigT,
+        type_: _MenuTypeT,
+        name: str,
+        /,
+        *,
+        always_defer: bool = False,
+        default_permission: bool = True,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        is_global: bool = True,
+        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        callback: _CallbackishT[_MenuCommandCallbackSigT],
         type_: _MenuTypeT,
         name: str,
         /,
@@ -295,7 +339,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             raise ValueError("Command type must be message or user")
 
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
-            callback = typing.cast(_MenuCommandCallbackSigT, callback.callback)
+            callback = callback.callback
 
         self._always_defer = always_defer
         self._callback = injecting.CallbackDescriptor(callback)
