@@ -46,7 +46,6 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-
     _CommandT = typing.Union[
         abc.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
         abc.MessageCommand["_MenuCommandCallbackSigT"],
@@ -62,6 +61,7 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
+
 
 def _as_menu(
     name: str,

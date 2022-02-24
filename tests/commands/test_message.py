@@ -227,7 +227,9 @@ class TestMessageCommand:
         mock_context = mock.Mock()
 
         command = (
-            tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos").add_check(mock_callback).add_check(mock_other_callback)
+            tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+            .add_check(mock_callback)
+            .add_check(mock_other_callback)
         )
 
         with mock.patch.object(tanjun.utilities, "gather_checks", new=mock.AsyncMock()) as gather_checks:
