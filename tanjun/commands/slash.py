@@ -1211,7 +1211,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         self._always_defer = always_defer
         self._builder = _SlashCommandBuilder(name, description, sort_options).set_default_permission(default_permission)
-        self._callback = callback
+        self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[abc.Client] = None
         self._float_autocompletes: dict[str, abc.AutocompleteCallbackSig] = {}
         self._int_autocompletes: dict[str, abc.AutocompleteCallbackSig] = {}

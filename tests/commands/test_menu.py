@@ -36,7 +36,6 @@
 # This leads to too many false-positives around mocks.
 
 import typing
-from collections import abc as collections
 from unittest import mock
 
 import hikari

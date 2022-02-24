@@ -64,7 +64,6 @@ from . import context
 from . import dependencies
 from . import errors
 from . import hooks
-from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -639,7 +638,7 @@ class Client(tanjun_abc.Client):
         self._is_closing = False
         self._listeners: dict[
             type[hikari.Event],
-            dict[tanjun_abc.ListenerCallbackSig, injecting.SelfInjectingCallback[tanjun_abc.ListenerCallbackSig]],
+            dict[tanjun_abc.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun_abc.ListenerCallbackSig]],
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None

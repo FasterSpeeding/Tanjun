@@ -218,7 +218,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
         if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
             callback = callback.callback
 
-        self._callback = callback
+        self._callback: _CommandCallbackSigT = callback
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
         self._parser: typing.Optional[abc.MessageParser] = None
