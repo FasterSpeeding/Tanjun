@@ -178,6 +178,7 @@ __all__: list[str] = [
     "to_invite",
     "to_invite_with_metadata",
     "to_member",
+    "to_message",
     "to_presence",
     "to_role",
     "to_snowflake",
@@ -264,6 +265,7 @@ from .conversion import to_guild
 from .conversion import to_invite
 from .conversion import to_invite_with_metadata
 from .conversion import to_member
+from .conversion import to_message
 from .conversion import to_presence
 from .conversion import to_role
 from .conversion import to_snowflake

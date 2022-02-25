@@ -936,6 +936,86 @@ class TestUserConverter:
         mock_cache.get.assert_awaited_once_with(55)
 
 
+class TestMessageConverter:
+    @pytest.mark.asyncio()
+    async def test___call___when_cached(self):
+        mock_context = mock.Mock()
+        mock_cache = mock.AsyncMock()
+
+        result = await tanjun.to_message("123", mock_context, cache=mock_cache)
+
+        assert result is mock_context.cache.get_message.return_value
+        mock_context.cache.get_message.assert_called_once_with(123)
+        mock_context.rest.fetch_message.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_cached(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_message.return_value = None
+        mock_cache = mock.AsyncMock()
+
+        result = await tanjun.to_message("123", mock_context, cache=mock_cache)
+
+        assert result is mock_cache.get.return_value
+        mock_context.cache.get_message.assert_called_once_with(123)
+        mock_context.rest.fetch_message.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(123)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_cached(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_message.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+
+        result = await tanjun.to_message("@me/44/55", mock_context, cache=mock_cache)
+
+        assert result is mock_context.rest.fetch_message.return_value
+        mock_context.cache.get_message.assert_called_once_with(55)
+        mock_context.rest.fetch_message.assert_awaited_once_with(44, 55)
+        mock_cache.get.assert_awaited_once_with(55)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_cacheless(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache = None
+
+        result = await tanjun.to_message("@me/12/34", mock_context, cache=None)
+
+        assert result is mock_context.rest.fetch_message.return_value
+        mock_context.rest.fetch_message.assert_awaited_once_with(12, 34)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_found(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_message.return_value = None
+        mock_context.rest.fetch_message.side_effect = hikari.NotFoundError(url="grey", headers={}, raw_body="")
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+
+        with pytest.raises(ValueError, match="Couldn't find message"):
+            await tanjun.to_message("@me/44/55", mock_context, cache=mock_cache)
+
+        mock_context.cache.get_message.assert_called_once_with(55)
+        mock_context.rest.fetch_message.assert_awaited_once_with(44, 55)
+        mock_cache.get.assert_awaited_once_with(55)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_not_found_in_async_cache(self):
+        mock_context = mock.Mock(rest=mock.AsyncMock())
+        mock_context.cache.get_message.return_value = None
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
+
+        with pytest.raises(ValueError, match="Couldn't find message"):
+            await tanjun.to_message("55", mock_context, cache=mock_cache)
+
+        mock_context.cache.get_message.assert_called_once_with(55)
+        mock_context.rest.fetch_message.assert_not_called()
+        mock_cache.get.assert_awaited_once_with(55)
+
+
 class TestVoiceStateConverter:
     @pytest.mark.asyncio()
     async def test___call__(self):
@@ -1218,6 +1298,19 @@ def test_search_user_ids():
     result = tanjun.conversion.search_user_ids(string)
 
     assert result == [123321, 6743234, 65123, 132321, 3123]
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("43123", (None, 43123)),
+        (1233211, (None, 1233211)),
+        ("https://discord.com/channels/9999/33333/1234321", (33333, 1234321)),
+        ("@me/1234/1234", (1234, 1234)),
+    ],
+)
+def test_parse_message_id(value: typing.Union[int, str], expected: typing.Tuple[typing.Optional[int], int]):
+    assert tanjun.conversion.parse_message_id(value) == expected
 
 
 def test_defragment_url():
