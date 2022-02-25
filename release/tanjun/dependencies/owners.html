@@ -117,7 +117,6 @@
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -211,7 +210,7 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        expire_after : datetime.timedelta | int | float</span>
 <span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
@@ -222,7 +221,7 @@
 
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token or</span>
 <span class="sd">            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
+<span class="sd">        owners : hikari.SnowflakeishSequence[hikari.User] | None</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -244,9 +243,6 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
 
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
@@ -391,7 +387,7 @@ The user to check ownership for.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        expire_after : datetime.timedelta | int | float</span>
 <span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
@@ -402,7 +398,7 @@ The user to check ownership for.</li>
 
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token or</span>
 <span class="sd">            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
+<span class="sd">        owners : hikari.SnowflakeishSequence[hikari.User] | None</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -424,9 +420,6 @@ The user to check ownership for.</li>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
 
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
@@ -479,7 +472,7 @@ is bound to a Bot token or if a type dependency is registered for
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        expire_after : typing.Union[datetime.timedelta, int, float]</span>
+<span class="sd">        expire_after : datetime.timedelta | int | float</span>
 <span class="sd">            The amount of time to cache application owner data for in seconds.</span>
 
 <span class="sd">            This defaults to 5 minutes and is only applicable if `rest` is also</span>
@@ -490,7 +483,7 @@ is bound to a Bot token or if a type dependency is registered for
 
 <span class="sd">            This only works when the bot&#39;s rest client is bound to a Bot token or</span>
 <span class="sd">            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.</span>
-<span class="sd">        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]</span>
+<span class="sd">        owners : hikari.SnowflakeishSequence[hikari.User] | None</span>
 <span class="sd">            Sequence of objects and IDs of the users that are allowed to use the</span>
 <span class="sd">            bot&#39;s owners-only commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -514,7 +507,7 @@ is bound to a Bot token or if a type dependency is registered for
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>expire_after</strong> (typing.Union[datetime.timedelta, int, float]):
+<li><p><strong>expire_after</strong> (datetime.timedelta | int | float):
 The amount of time to cache application owner data for in seconds.</p>
 
 <p>This defaults to 5 minutes and is only applicable if <code>rest</code> is also
@@ -525,7 +518,7 @@ if the user isn't in `owners.</p>
 
 <p>This only works when the bot's rest client is bound to a Bot token or
 if <code><a href="../dependencies.html#SingleStoreCache">tanjun.dependencies.SingleStoreCache</a>[hikari.Application]</code> is available.</p></li>
-<li><strong>owners</strong> (typing.Optional[hikari.SnowflakeishSequence[hikari.User]]):
+<li><strong>owners</strong> (hikari.SnowflakeishSequence[hikari.User] | None):
 Sequence of objects and IDs of the users that are allowed to use the
 bot's owners-only commands.</li>
 </ul>
@@ -549,9 +542,6 @@ bot's owners-only commands.</li>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
 
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>

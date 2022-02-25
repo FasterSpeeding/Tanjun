@@ -90,6 +90,9 @@
                         <li>
                                 <a class="variable" href="#MissingDependencyError.message">message</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#MissingDependencyError.dependency_type">dependency_type</a>
+                        </li>
                 </ul>
 
             </li>
@@ -136,18 +139,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#TooManyArgumentsError">TooManyArgumentsError</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#TooManyArgumentsError.__init__">TooManyArgumentsError</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#TooManyArgumentsError.parameter">parameter</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="class" href="#ParserError">ParserError</a>
                             <ul class="memberlist">
                         <li>
@@ -165,6 +156,18 @@
             <li>
                     <a class="class" href="#TanjunError">TanjunError</a>
                             <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#TooManyArgumentsError">TooManyArgumentsError</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#TooManyArgumentsError.__init__">TooManyArgumentsError</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TooManyArgumentsError.parameter">parameter</a>
+                        </li>
                 </ul>
 
             </li>
@@ -234,12 +237,14 @@
     <span class="s2">&quot;ModuleMissingLoaders&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ModuleStateConflict&quot;</span><span class="p">,</span>
     <span class="s2">&quot;NotEnoughArgumentsError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TooManyArgumentsError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ParserError&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TanjunError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TooManyArgumentsError&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">alluka</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pathlib</span>
@@ -262,23 +267,8 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">MissingDependencyError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when a dependency couldn&#39;t be found.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
-
-    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
-<span class="sd">            The error message.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+<span class="n">MissingDependencyError</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">MissingDependencyError</span>
+<span class="sd">&quot;&quot;&quot;Type alias of `alluka.MissingDependencyError`.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">CommandError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
@@ -363,7 +353,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        message : str</span>
 <span class="sd">            String message for this error.</span>
-<span class="sd">        parameter : typing.Optional[str]</span>
+<span class="sd">        parameter : str | None</span>
 <span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
 <span class="sd">            applicable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -962,33 +952,35 @@ other commands from being tried.</p>
 
         
         <span class="def">class</span>
-        <span class="name">MissingDependencyError</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>):
+        <span class="name">MissingDependencyError</span><wbr>(<span class="base">alluka._errors.AllukaError</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MissingDependencyError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MissingDependencyError</span><span class="p">(</span><span class="n">AllukaError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Error raised when a dependency couldn&#39;t be found.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
 
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">dependency_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="sd">&quot;&quot;&quot;Type of the missing dependency.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dependency_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
+<span class="sd">        message</span>
 <span class="sd">            The error message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_type</span> <span class="o">=</span> <span class="n">dependency_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Error raised when a dependency couldn't be found.</p>
+            <div class="docstring"><p>Type alias of <code>alluka.MissingDependencyError</code>.</p>
 </div>
 
 
@@ -996,19 +988,20 @@ other commands from being tried.</p>
                                         <div class="attr function"><a class="headerlink" href="#MissingDependencyError.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">MissingDependencyError</span><span class="signature">(message: str)</span>
+            <span class="name">MissingDependencyError</span><span class="signature">(message: str, dependency_type: Any, /)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dependency_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
+<span class="sd">        message</span>
 <span class="sd">            The error message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_type</span> <span class="o">=</span> <span class="n">dependency_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
 
@@ -1019,8 +1012,7 @@ other commands from being tried.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>message</strong> (str):
-The error message.</li>
+<li><strong>message</strong>: The error message.</li>
 </ul>
 </div>
 
@@ -1033,6 +1025,17 @@ The error message.</li>
     </div>
 
             <div class="docstring"><p>The error's message.</p>
+</div>
+
+
+                            </div>
+                            <div id="MissingDependencyError.dependency_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MissingDependencyError.dependency_type">#&nbsp;&nbsp</a>
+
+        <span class="name">dependency_type</span><span class="annotation">: Any</span>
+    </div>
+
+            <div class="docstring"><p>Type of the missing dependency.</p>
 </div>
 
 
@@ -1328,6 +1331,187 @@ The parameter this error was raised for.</li>
                                 </dl>
                             </div>
                 </section>
+                <section id="ParserError">
+                                <div class="attr class">
+        <a class="headerlink" href="#ParserError">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ParserError</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>, <span class="base">builtins.ValueError</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ParserError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base error raised by a parser or parameter during parsing.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Expected errors raised by the parser will subclass this error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;parameter&quot;</span><span class="p">)</span>
+
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;String message for this error.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This may be used as a command response message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Name of the this was raised for.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This will be `builtin.None` if it was raised while parsing the provided</span>
+<span class="sd">        message content.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message for this error.</span>
+<span class="sd">        parameter : str | None</span>
+<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
+<span class="sd">            applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Base error raised by a parser or parameter during parsing.</p>
+
+<p><em>Note:</em>
+Expected errors raised by the parser will subclass this error.</p>
+</div>
+
+
+                            <div id="ParserError.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ParserError.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ParserError</span><span class="signature">(message: str, parameter: Optional[str], /)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message : str</span>
+<span class="sd">            String message for this error.</span>
+<span class="sd">        parameter : str | None</span>
+<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
+<span class="sd">            applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Initialise a parser error.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+String message for this error.</li>
+<li><strong>parameter</strong> (str | None):
+Name of the parameter which caused this error, should be <code>None</code> if not
+applicable.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ParserError.message" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ParserError.message">#&nbsp;&nbsp</a>
+
+        <span class="name">message</span><span class="annotation">: str</span>
+    </div>
+
+            <div class="docstring"><p>String message for this error.</p>
+
+<p><em>Note:</em>
+This may be used as a command response message.</p>
+</div>
+
+
+                            </div>
+                            <div id="ParserError.parameter" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ParserError.parameter">#&nbsp;&nbsp</a>
+
+        <span class="name">parameter</span><span class="annotation">: Optional[str]</span>
+    </div>
+
+            <div class="docstring"><p>Name of the this was raised for.</p>
+
+<p><em>Note:</em>
+This will be <code>builtin.None</code> if it was raised while parsing the provided
+message content.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.BaseException</dt>
+                                <dd id="ParserError.with_traceback" class="function">with_traceback</dd>
+                <dd id="ParserError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="TanjunError">
+                                <div class="attr class">
+        <a class="headerlink" href="#TanjunError">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">TanjunError</span><wbr>(<span class="base">builtins.Exception</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TanjunError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The base class for all errors raised by Tanjun.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>The base class for all errors raised by Tanjun.</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="TanjunError.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="TanjunError.with_traceback" class="function">with_traceback</dd>
+                <dd id="TanjunError.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
                 <section id="TooManyArgumentsError">
                                 <div class="attr class">
         <a class="headerlink" href="#TooManyArgumentsError">#&nbsp;&nbsp</a>
@@ -1425,187 +1609,6 @@ The parameter this error was raised for.</li>
             <div><dt>builtins.BaseException</dt>
                                 <dd id="TooManyArgumentsError.with_traceback" class="function">with_traceback</dd>
                 <dd id="TooManyArgumentsError.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="ParserError">
-                                <div class="attr class">
-        <a class="headerlink" href="#ParserError">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">ParserError</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>, <span class="base">builtins.ValueError</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ParserError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base error raised by a parser or parameter during parsing.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        Expected errors raised by the parser will subclass this error.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;parameter&quot;</span><span class="p">)</span>
-
-    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;String message for this error.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        This may be used as a command response message.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="sd">&quot;&quot;&quot;Name of the this was raised for.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        This will be `builtin.None` if it was raised while parsing the provided</span>
-<span class="sd">        message content.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
-<span class="sd">            String message for this error.</span>
-<span class="sd">        parameter : typing.Optional[str]</span>
-<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
-<span class="sd">            applicable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
-
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Base error raised by a parser or parameter during parsing.</p>
-
-<p><em>Note:</em>
-Expected errors raised by the parser will subclass this error.</p>
-</div>
-
-
-                            <div id="ParserError.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#ParserError.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">ParserError</span><span class="signature">(message: str, parameter: Optional[str], /)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialise a parser error.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
-<span class="sd">            String message for this error.</span>
-<span class="sd">        parameter : typing.Optional[str]</span>
-<span class="sd">            Name of the parameter which caused this error, should be `None` if not</span>
-<span class="sd">            applicable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="n">parameter</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Initialise a parser error.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>message</strong> (str):
-String message for this error.</li>
-<li><strong>parameter</strong> (typing.Optional[str]):
-Name of the parameter which caused this error, should be <code>None</code> if not
-applicable.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="ParserError.message" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#ParserError.message">#&nbsp;&nbsp</a>
-
-        <span class="name">message</span><span class="annotation">: str</span>
-    </div>
-
-            <div class="docstring"><p>String message for this error.</p>
-
-<p><em>Note:</em>
-This may be used as a command response message.</p>
-</div>
-
-
-                            </div>
-                            <div id="ParserError.parameter" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#ParserError.parameter">#&nbsp;&nbsp</a>
-
-        <span class="name">parameter</span><span class="annotation">: Optional[str]</span>
-    </div>
-
-            <div class="docstring"><p>Name of the this was raised for.</p>
-
-<p><em>Note:</em>
-This will be <code>builtin.None</code> if it was raised while parsing the provided
-message content.</p>
-</div>
-
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.BaseException</dt>
-                                <dd id="ParserError.with_traceback" class="function">with_traceback</dd>
-                <dd id="ParserError.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="TanjunError">
-                                <div class="attr class">
-        <a class="headerlink" href="#TanjunError">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">TanjunError</span><wbr>(<span class="base">builtins.Exception</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TanjunError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The base class for all errors raised by Tanjun.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>The base class for all errors raised by Tanjun.</p>
-</div>
-
-
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.Exception</dt>
-                                <dd id="TanjunError.__init__" class="function">Exception</dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="TanjunError.with_traceback" class="function">with_traceback</dd>
-                <dd id="TanjunError.args" class="variable">args</dd>
 
             </div>
                                 </dl>

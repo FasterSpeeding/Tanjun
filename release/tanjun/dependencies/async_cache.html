@@ -43,21 +43,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#ChannelBoundCache">ChannelBoundCache</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#ChannelBoundCache.get_from_channel">get_from_channel</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ChannelBoundCache.iter_for_channel">iter_for_channel</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ChannelBoundCache.iter_all">iter_all</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="class" href="#CacheIterator">CacheIterator</a>
                             <ul class="memberlist">
                         <li>
@@ -69,6 +54,21 @@
             <li>
                     <a class="class" href="#CacheMissError">CacheMissError</a>
                             <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ChannelBoundCache">ChannelBoundCache</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ChannelBoundCache.get_from_channel">get_from_channel</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ChannelBoundCache.iter_for_channel">iter_for_channel</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ChannelBoundCache.iter_all">iter_all</a>
+                        </li>
                 </ul>
 
             </li>
@@ -94,15 +94,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#SingleStoreCache">SingleStoreCache</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#SingleStoreCache.get">get</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
                     <a class="variable" href="#SfCache">SfCache</a>
             </li>
             <li>
@@ -110,6 +101,15 @@
             </li>
             <li>
                     <a class="variable" href="#SfGuildBound">SfGuildBound</a>
+            </li>
+            <li>
+                    <a class="class" href="#SingleStoreCache">SingleStoreCache</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#SingleStoreCache.get">get</a>
+                        </li>
+                </ul>
+
             </li>
     </ul>
 
@@ -225,15 +225,15 @@ registered with the client:</p>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AsyncCache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ChannelBoundCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CacheIterator&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CacheMissError&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ChannelBoundCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;EntryNotFound&quot;</span><span class="p">,</span>
     <span class="s2">&quot;GuildBoundCache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SingleStoreCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SfCache&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SfChannelBound&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SfGuildBound&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SingleStoreCache&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
@@ -303,17 +303,28 @@ registered with the client:</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -341,17 +352,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -398,15 +420,19 @@ registered with the client:</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -466,17 +492,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -555,17 +592,28 @@ registered with the client:</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -624,17 +672,28 @@ and <code>hikari.MemberPresence</code> which aren'are only unique per-parent res
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will often be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -654,18 +713,34 @@ and <code>hikari.MemberPresence</code> which aren'are only unique per-parent res
 Unique key of the entry to get; this will often be a snowflake.</li>
 </ul>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -677,268 +752,6 @@ before <code><a href="#CacheMissError">CacheMissError</a></code> in a try, multi
                             </div>
                             <div id="AsyncCache.iter_all" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#AsyncCache.iter_all">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">def</span>
-            <span class="name">iter_all</span><span class="signature">(self) -&gt; <a href="#CacheIterator">tanjun.dependencies.async_cache.CacheIterator</a>[~_ValueT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the globally cached entries for this resource.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CacheIterator[_ValueT]</span>
-<span class="sd">            An asynchronous iterator of the entries cached globally for this resource.</span>
-
-<span class="sd">            .. note::</span>
-<span class="sd">                For more information on how this is used, see the documentation for</span>
-<span class="sd">                `hikari.LazyIterator`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Asynchronously iterate over the globally cached entries for this resource.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>CacheIterator[_ValueT]</strong>: An asynchronous iterator of the entries cached globally for this resource.</li>
-</ul>
-
-<p><em>Note:</em>
-For more information on how this is used, see the documentation for
-<code>hikari.LazyIterator</code>.</p>
-</div>
-
-
-                            </div>
-                </section>
-                <section id="ChannelBoundCache">
-                                <div class="attr class">
-        <a class="headerlink" href="#ChannelBoundCache">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">ChannelBoundCache</span><wbr>(<span class="base">abc.ABC</span>, <span class="base">typing.Generic[~_KeyT, ~_ValueT]</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ChannelBoundCache</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract interface of a cache which stores channel-bound resources.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_from_channel</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">_KeyT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get an entry from this cache for a specific channel by ID.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        channel_id : hikari.Snowflakeish</span>
-<span class="sd">            ID of the channel to get an entry for.</span>
-<span class="sd">        id : hikari.Snowflakeish</span>
-<span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        CacheMissError</span>
-<span class="sd">            If the entry wasn&#39;t found.</span>
-<span class="sd">        EntryNotFound</span>
-<span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
-
-<span class="sd">            .. note::</span>
-<span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
-<span class="sd">                caught as `CacheMissError` and otherwise would need to be</span>
-<span class="sd">                before `CacheMissError` in a try, multiple catch statement.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_for_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the entries entries cached for a channel.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        channel_id : hikari.Snowflakeish</span>
-<span class="sd">            ID of the channel to iterate over the entries cached for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CacheIterator[_ValueT]</span>
-<span class="sd">            An asynchronous iterator of the entries cached for the specified channel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the globally cached entries for this resource.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CacheIterator[_ValueT]</span>
-<span class="sd">            An asynchronous iterator of the entries cached globally for this resource.</span>
-
-<span class="sd">            .. note::</span>
-<span class="sd">                For more information on how this is used, see the documentation for</span>
-<span class="sd">                `hikari.LazyIterator`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Abstract interface of a cache which stores channel-bound resources.</p>
-</div>
-
-
-                            <div id="ChannelBoundCache.get_from_channel" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#ChannelBoundCache.get_from_channel">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">async def</span>
-            <span class="name">get_from_channel</span><span class="signature">(
-    self,
-    channel_id: Union[hikari.snowflakes.Snowflake, int],
-    key: ~_KeyT,
-    /,
-    *,
-    default: ~_DefaultT = Ellipsis
-) -&gt; Union[~_ValueT, ~_DefaultT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_from_channel</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">_KeyT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get an entry from this cache for a specific channel by ID.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        channel_id : hikari.Snowflakeish</span>
-<span class="sd">            ID of the channel to get an entry for.</span>
-<span class="sd">        id : hikari.Snowflakeish</span>
-<span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        CacheMissError</span>
-<span class="sd">            If the entry wasn&#39;t found.</span>
-<span class="sd">        EntryNotFound</span>
-<span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
-
-<span class="sd">            .. note::</span>
-<span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
-<span class="sd">                caught as `CacheMissError` and otherwise would need to be</span>
-<span class="sd">                before `CacheMissError` in a try, multiple catch statement.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Get an entry from this cache for a specific channel by ID.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>channel_id</strong> (hikari.Snowflakeish):
-ID of the channel to get an entry for.</li>
-<li><strong>id</strong> (hikari.Snowflakeish):
-Unique key of the entry to get; this will usually be a snowflake.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
-<li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
-</ul>
-
-<p><em>Note:</em>
-This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
-caught as <code><a href="#CacheMissError">CacheMissError</a></code> and otherwise would need to be
-before <code><a href="#CacheMissError">CacheMissError</a></code> in a try, multiple catch statement.</p>
-</div>
-
-
-                            </div>
-                            <div id="ChannelBoundCache.iter_for_channel" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#ChannelBoundCache.iter_for_channel">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">def</span>
-            <span class="name">iter_for_channel</span><span class="signature">(
-    self,
-    channel_id: Union[hikari.snowflakes.Snowflake, int],
-    /
-) -&gt; <a href="#CacheIterator">tanjun.dependencies.async_cache.CacheIterator</a>[~_ValueT]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">iter_for_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the entries entries cached for a channel.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        channel_id : hikari.Snowflakeish</span>
-<span class="sd">            ID of the channel to iterate over the entries cached for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CacheIterator[_ValueT]</span>
-<span class="sd">            An asynchronous iterator of the entries cached for the specified channel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Asynchronously iterate over the entries entries cached for a channel.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>channel_id</strong> (hikari.Snowflakeish):
-ID of the channel to iterate over the entries cached for.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>CacheIterator[_ValueT]</strong>: An asynchronous iterator of the entries cached for the specified channel.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="ChannelBoundCache.iter_all" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#ChannelBoundCache.iter_all">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@abc.abstractmethod</div>
 
@@ -1141,6 +954,283 @@ if the cache knows that the entry doesn't exist.</p>
                                 </dl>
                             </div>
                 </section>
+                <section id="ChannelBoundCache">
+                                <div class="attr class">
+        <a class="headerlink" href="#ChannelBoundCache">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ChannelBoundCache</span><wbr>(<span class="base">abc.ABC</span>, <span class="base">typing.Generic[~_KeyT, ~_ValueT]</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ChannelBoundCache</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract interface of a cache which stores channel-bound resources.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_from_channel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">_KeyT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get an entry from this cache for a specific channel by ID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        channel_id : hikari.Snowflakeish</span>
+<span class="sd">            ID of the channel to get an entry for.</span>
+<span class="sd">        id : hikari.Snowflakeish</span>
+<span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        CacheMissError</span>
+<span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
+<span class="sd">        EntryNotFound</span>
+<span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
+<span class="sd">                caught as `CacheMissError` and otherwise would need to be</span>
+<span class="sd">                before `CacheMissError` in a try, multiple catch statement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_for_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the entries entries cached for a channel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        channel_id : hikari.Snowflakeish</span>
+<span class="sd">            ID of the channel to iterate over the entries cached for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CacheIterator[_ValueT]</span>
+<span class="sd">            An asynchronous iterator of the entries cached for the specified channel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the globally cached entries for this resource.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CacheIterator[_ValueT]</span>
+<span class="sd">            An asynchronous iterator of the entries cached globally for this resource.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                For more information on how this is used, see the documentation for</span>
+<span class="sd">                `hikari.LazyIterator`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Abstract interface of a cache which stores channel-bound resources.</p>
+</div>
+
+
+                            <div id="ChannelBoundCache.get_from_channel" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ChannelBoundCache.get_from_channel">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">async def</span>
+            <span class="name">get_from_channel</span><span class="signature">(
+    self,
+    channel_id: Union[hikari.snowflakes.Snowflake, int],
+    key: ~_KeyT,
+    /,
+    *,
+    default: ~_DefaultT = Ellipsis
+) -&gt; Union[~_ValueT, ~_DefaultT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_from_channel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">_KeyT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get an entry from this cache for a specific channel by ID.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        channel_id : hikari.Snowflakeish</span>
+<span class="sd">            ID of the channel to get an entry for.</span>
+<span class="sd">        id : hikari.Snowflakeish</span>
+<span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        CacheMissError</span>
+<span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
+<span class="sd">        EntryNotFound</span>
+<span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
+<span class="sd">                caught as `CacheMissError` and otherwise would need to be</span>
+<span class="sd">                before `CacheMissError` in a try, multiple catch statement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get an entry from this cache for a specific channel by ID.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>channel_id</strong> (hikari.Snowflakeish):
+ID of the channel to get an entry for.</li>
+<li><strong>id</strong> (hikari.Snowflakeish):
+Unique key of the entry to get; this will usually be a snowflake.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
+<li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<p><em>Note:</em>
+This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
+caught as <code><a href="#CacheMissError">CacheMissError</a></code> and otherwise would need to be
+before <code><a href="#CacheMissError">CacheMissError</a></code> in a try, multiple catch statement.</p>
+</div>
+
+
+                            </div>
+                            <div id="ChannelBoundCache.iter_for_channel" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ChannelBoundCache.iter_for_channel">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">iter_for_channel</span><span class="signature">(
+    self,
+    channel_id: Union[hikari.snowflakes.Snowflake, int],
+    /
+) -&gt; <a href="#CacheIterator">tanjun.dependencies.async_cache.CacheIterator</a>[~_ValueT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_for_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the entries entries cached for a channel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        channel_id : hikari.Snowflakeish</span>
+<span class="sd">            ID of the channel to iterate over the entries cached for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CacheIterator[_ValueT]</span>
+<span class="sd">            An asynchronous iterator of the entries cached for the specified channel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Asynchronously iterate over the entries entries cached for a channel.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>channel_id</strong> (hikari.Snowflakeish):
+ID of the channel to iterate over the entries cached for.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>CacheIterator[_ValueT]</strong>: An asynchronous iterator of the entries cached for the specified channel.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ChannelBoundCache.iter_all" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ChannelBoundCache.iter_all">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">iter_all</span><span class="signature">(self) -&gt; <a href="#CacheIterator">tanjun.dependencies.async_cache.CacheIterator</a>[~_ValueT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Asynchronously iterate over the globally cached entries for this resource.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CacheIterator[_ValueT]</span>
+<span class="sd">            An asynchronous iterator of the entries cached globally for this resource.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                For more information on how this is used, see the documentation for</span>
+<span class="sd">                `hikari.LazyIterator`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Asynchronously iterate over the globally cached entries for this resource.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>CacheIterator[_ValueT]</strong>: An asynchronous iterator of the entries cached globally for this resource.</li>
+</ul>
+
+<p><em>Note:</em>
+For more information on how this is used, see the documentation for
+<code>hikari.LazyIterator</code>.</p>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="EntryNotFound">
                                 <div class="attr class">
         <a class="headerlink" href="#EntryNotFound">#&nbsp;&nbsp</a>
@@ -1215,17 +1305,28 @@ that the cache is sure that the entry doesn't exist.</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1304,17 +1405,28 @@ that the cache is sure that the entry doesn't exist.</p>
 <span class="sd">        key : _KeyT</span>
 <span class="sd">            Unique key of the entry to get; this will usually be a snowflake.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1336,18 +1448,34 @@ ID of the guild to get an entry for.</li>
 Unique key of the entry to get; this will usually be a snowflake.</li>
 </ul>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1460,6 +1588,39 @@ For more information on how this is used, see the documentation for
 
                             </div>
                 </section>
+                <section id="SfCache">
+                                <div class="attr variable"><a class="headerlink" href="#SfCache">#&nbsp;&nbsp</a>
+
+        <span class="name">SfCache</span><span class="default_value"> = <a href="#AsyncCache">tanjun.dependencies.async_cache.AsyncCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
+    </div>
+
+            <div class="docstring"><p>Alias of <code><a href="#AsyncCache">AsyncCache</a></code> where the key is a snowflake.</p>
+</div>
+
+
+                </section>
+                <section id="SfChannelBound">
+                                <div class="attr variable"><a class="headerlink" href="#SfChannelBound">#&nbsp;&nbsp</a>
+
+        <span class="name">SfChannelBound</span><span class="default_value"> = <a href="#ChannelBoundCache">tanjun.dependencies.async_cache.ChannelBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
+    </div>
+
+            <div class="docstring"><p>Alias of <code><a href="#ChannelBoundCache">ChannelBoundCache</a></code> where the key is a snowflake.</p>
+</div>
+
+
+                </section>
+                <section id="SfGuildBound">
+                                <div class="attr variable"><a class="headerlink" href="#SfGuildBound">#&nbsp;&nbsp</a>
+
+        <span class="name">SfGuildBound</span><span class="default_value"> = <a href="#GuildBoundCache">tanjun.dependencies.async_cache.GuildBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
+    </div>
+
+            <div class="docstring"><p>Alias of <code><a href="#GuildBoundCache">GuildBoundCache</a></code> where the key is a snowflake.</p>
+</div>
+
+
+                </section>
                 <section id="SingleStoreCache">
                                 <div class="attr class">
         <a class="headerlink" href="#SingleStoreCache">#&nbsp;&nbsp</a>
@@ -1484,17 +1645,28 @@ For more information on how this is used, see the documentation for
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1531,17 +1703,28 @@ This is mostly just for the <code>hikari.OwnUser</code> cache store.</p>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_DefaultT</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">,</span> <span class="n">_DefaultT</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get the entry.</span>
 
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : _DefaultT</span>
+<span class="sd">            The default value to return if an entry wasn&#39;t found.</span>
+
+<span class="sd">            If provided then `CacheMissError`/`EntryNotFound` won&#39;t be raised.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ValueT</span>
-<span class="sd">            The found entry.</span>
+<span class="sd">        _ValueT | _DefaultT</span>
+<span class="sd">            The found entry or the default if any was provided.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        CacheMissError</span>
 <span class="sd">            If the entry wasn&#39;t found.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 <span class="sd">        EntryNotFound</span>
 <span class="sd">            If the entry wasn&#39;t found and the the entry definietly doesn&#39;t exist.</span>
+
+<span class="sd">            This won&#39;t be raised if `default` is passed.</span>
 
 <span class="sd">            .. note::</span>
 <span class="sd">                This is a specialisation of `CacheMissError` and thus may be</span>
@@ -1554,18 +1737,34 @@ This is mostly just for the <code>hikari.OwnUser</code> cache store.</p>
 
             <div class="docstring"><p>Get the entry.</p>
 
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>default</strong> (_DefaultT):
+The default value to return if an entry wasn't found.</p>
+
+<p>If provided then <code><a href="#CacheMissError">CacheMissError</a></code>/<code><a href="#EntryNotFound">EntryNotFound</a></code> won't be raised.</p></li>
+</ul>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>_ValueT</strong>: The found entry.</li>
+<li><strong>_ValueT | _DefaultT</strong>: The found entry or the default if any was provided.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>CacheMissError</strong>: If the entry wasn't found.</li>
+</ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
+
+<ul>
 <li><strong>EntryNotFound</strong>: If the entry wasn't found and the the entry definietly doesn't exist.</li>
 </ul>
+
+<p>This won't be raised if <code>default</code> is passed.</p>
 
 <p><em>Note:</em>
 This is a specialisation of <code><a href="#CacheMissError">CacheMissError</a></code> and thus may be
@@ -1575,39 +1774,6 @@ before <code><a href="#CacheMissError">CacheMissError</a></code> in a try, multi
 
 
                             </div>
-                </section>
-                <section id="SfCache">
-                                <div class="attr variable"><a class="headerlink" href="#SfCache">#&nbsp;&nbsp</a>
-
-        <span class="name">SfCache</span><span class="default_value"> = <a href="#AsyncCache">tanjun.dependencies.async_cache.AsyncCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
-    </div>
-
-            <div class="docstring"><p>Alias of <code><a href="#AsyncCache">AsyncCache</a></code> where the key is a snowflake.</p>
-</div>
-
-
-                </section>
-                <section id="SfChannelBound">
-                                <div class="attr variable"><a class="headerlink" href="#SfChannelBound">#&nbsp;&nbsp</a>
-
-        <span class="name">SfChannelBound</span><span class="default_value"> = <a href="#ChannelBoundCache">tanjun.dependencies.async_cache.ChannelBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
-    </div>
-
-            <div class="docstring"><p>Alias of <code><a href="#ChannelBoundCache">ChannelBoundCache</a></code> where the key is a snowflake.</p>
-</div>
-
-
-                </section>
-                <section id="SfGuildBound">
-                                <div class="attr variable"><a class="headerlink" href="#SfGuildBound">#&nbsp;&nbsp</a>
-
-        <span class="name">SfGuildBound</span><span class="default_value"> = <a href="#GuildBoundCache">tanjun.dependencies.async_cache.GuildBoundCache</a>[typing.Union[hikari.snowflakes.Snowflake, int], ~_ValueT]</span>
-    </div>
-
-            <div class="docstring"><p>Alias of <code><a href="#GuildBoundCache">GuildBoundCache</a></code> where the key is a snowflake.</p>
-</div>
-
-
                 </section>
     </main>
 <script>
