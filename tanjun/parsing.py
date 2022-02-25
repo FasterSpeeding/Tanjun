@@ -60,14 +60,13 @@ from collections import abc as collections
 from . import abc as tanjun_abc
 from . import conversion
 from . import errors
-from . import injecting
 
 if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun_abc.MessageCommand[typing.Any])
+    _OtherT = typing.TypeVar("_OtherT")
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
-    _OtherT = typing.TypeVar("_OtherT")
 
     class _CmpProto(typing.Protocol[_T_contra]):
         def __gt__(self, __other: _T_contra) -> bool:
@@ -80,7 +79,9 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 
-ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
+ConverterSig = typing.Union[
+    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
+]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
@@ -1273,7 +1274,7 @@ class Parameter:
         """Initialise a parameter."""
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
-        self._converters: list[injecting.CallbackDescriptor[typing.Any]] = []
+        self._converters: list[ConverterSig[typing.Any]] = []
         self._default = default
         self._is_multi = multi
         self._key = key
@@ -1296,7 +1297,7 @@ class Parameter:
     @property
     def converters(self) -> collections.Sequence[ConverterSig[typing.Any]]:
         """Sequence of the converters registered for this parameter."""
-        return tuple(converter.callback for converter in self._converters)
+        return self._converters.copy()
 
     @property
     def default(self) -> _UndefinedOr[typing.Any]:
@@ -1320,31 +1321,20 @@ class Parameter:
         """The key of this parameter used to pass the result to the command's callback."""
         return self._key
 
-    @property
-    def needs_injector(self) -> bool:
-        """Whether this parameter needs an injector to be used."""
-        # TODO: cache this value?
-        return any(converter.needs_injector for converter in self._converters)
-
     def _add_converter(self, converter: ConverterSig[typing.Any], /) -> None:
         if isinstance(converter, conversion.BaseConverter):
             if self._client:
                 converter.check_client(self._client, f"{self._key} parameter")
 
-        if not isinstance(converter, injecting.CallbackDescriptor):
-            # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
-            converter = conversion.override_type(converter)
-            converter_ = injecting.CallbackDescriptor(converter)
-            self._converters.append(converter_)
-
-        else:
-            self._converters.append(converter)
+        # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
+        converter = conversion.override_type(converter)
+        self._converters.append(converter)
 
     def bind_client(self, client: tanjun_abc.Client, /) -> None:
         self._client = client
         for converter in self._converters:
-            if isinstance(converter.callback, conversion.BaseConverter):
-                converter.callback.check_client(client, f"{self._key} parameter")
+            if isinstance(converter, conversion.BaseConverter):
+                converter.check_client(client, f"{self._key} parameter")
 
     def bind_component(self, component: tanjun_abc.Component, /) -> None:
         self._component = component
@@ -1369,7 +1359,7 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                result = await converter.resolve_with_command_context(ctx, value)
+                result = await ctx.call_with_async_di(converter, value)
 
             except ValueError as exc:
                 sources.append(exc)
@@ -1390,7 +1380,7 @@ class Parameter:
             A copy of the parameter.
         """
         if not _new:
-            self._converters = [converter.copy() for converter in self._converters]
+            self._converters = [copy.copy(converter) for converter in self._converters]
             return self
 
         result = copy.copy(self).copy(_new=False)
@@ -1570,12 +1560,6 @@ class ShlexParser(AbstractOptionParser):
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._options: list[Option] = []  # TODO: maybe switch to dict[str, Option] and assert doesn't already exist
-
-    @property
-    def needs_injector(self) -> bool:
-        """Whether this parser needs an injector to be used."""
-        # TODO: cache this value?
-        return any(parameter.needs_injector for parameter in itertools.chain(self._options, self._arguments))
 
     @property
     def arguments(self) -> collections.Sequence[Argument]:

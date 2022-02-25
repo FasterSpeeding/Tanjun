@@ -54,23 +54,21 @@ import time
 import typing
 from collections import abc as collections
 
+import alluka
 import hikari
 
 from .. import abc as tanjun_abc
 from .. import errors
 from .. import hooks
-from .. import injecting
 from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
+    _CommandT = typing.TypeVar("_CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
     _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
     _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
-
-CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
-"""Type variable indicating either `BaseSlashCommand` or `MessageCommand`."""
 
 
 class AbstractCooldownManager(abc.ABC):
@@ -218,8 +216,6 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
         if cached_channel := ctx.get_channel():
             return cached_channel.parent_id or ctx.guild_id
 
-        # TODO: upgrade this to the standard interface
-        assert isinstance(ctx, injecting.AbstractInjectionContext)
         channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildChannel])
         if channel_cache and (channel_ := await channel_cache.get(ctx.channel_id, default=None)):
             return channel_.parent_id or ctx.guild_id
@@ -252,8 +248,6 @@ async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> 
 
         roles = ctx.member.get_roles()
         try_rest = not roles
-        # TODO: upgrade this to the standard interface
-        assert isinstance(ctx, injecting.AbstractInjectionContext)
         if try_rest and (role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role])):
             try:
                 roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
@@ -506,7 +500,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             for bucket in self._buckets.values():
                 bucket.cleanup()
 
-    def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+    def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         """Add this cooldown manager to a tanjun client.
 
         .. note::
@@ -519,8 +513,6 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The client to add this cooldown manager to.
         """
         client.set_type_dependency(AbstractCooldownManager, self)
-        # TODO: the injection client should be upgraded to the abstract Client.
-        assert isinstance(client, tanjun_abc.Client)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
         if client.is_alive:
@@ -531,6 +523,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
     ) -> typing.Optional[float]:
         # <<inherited docstring from AbstractCooldownManager>>.
+        bucket: typing.Optional[_Cooldown]
         if increment:
             bucket = await self._get_or_default(bucket_id).into_inner(ctx)
             if cooldown := bucket.must_wait_for():
@@ -539,8 +532,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             bucket.increment()
             return None
 
-        if (bucket := self._buckets.get(bucket_id)) and (cooldown := await bucket.try_into_inner(ctx)):
-            return cooldown.must_wait_for()
+        if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
+            return bucket.must_wait_for()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
@@ -700,8 +693,8 @@ class CooldownPreExecution:
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
-        owner_check: typing.Optional[owners.AbstractOwners] = injecting.inject(
+        cooldowns: AbstractCooldownManager = alluka.inject(type=AbstractCooldownManager),
+        owner_check: typing.Optional[owners.AbstractOwners] = alluka.inject(
             type=typing.Optional[owners.AbstractOwners]
         ),
     ) -> None:
@@ -723,7 +716,7 @@ def with_cooldown(
     *,
     error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
     owners_exempt: bool = True,
-) -> collections.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
     .. warning::
@@ -749,11 +742,11 @@ def with_cooldown(
 
     Returns
     -------
-    collections.abc.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
         A decorator that adds a `CooldownPreExecution` hook to the command.
     """
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: _CommandT, /) -> _CommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
@@ -840,7 +833,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             for bucket in self._buckets.values():
                 bucket.cleanup()
 
-    def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+    def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         """Add this concurrency manager to a tanjun client.
 
         .. note::
@@ -853,8 +846,6 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The client to add this concurrency manager to.
         """
         client.set_type_dependency(AbstractConcurrencyLimiter, self)
-        # TODO: the injection client should be upgraded to the abstract Client.
-        assert isinstance(client, tanjun_abc.Client)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
         client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
         if client.is_alive:
@@ -1015,7 +1006,7 @@ class ConcurrencyPreExecution:
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        limiter: AbstractConcurrencyLimiter = injecting.inject(type=AbstractConcurrencyLimiter),
+        limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
             raise errors.CommandError(self._error_message)
@@ -1044,7 +1035,7 @@ class ConcurrencyPostExecution:
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        limiter: AbstractConcurrencyLimiter = injecting.inject(type=AbstractConcurrencyLimiter),
+        limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         await limiter.release(self._bucket_id, ctx)
 
@@ -1054,7 +1045,7 @@ def with_concurrency_limit(
     /,
     *,
     error_message: str = "This resource is currently busy; please try again later.",
-) -> collections.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
 
     .. warning::
@@ -1077,11 +1068,11 @@ def with_concurrency_limit(
 
     Returns
     -------
-    collections.abc.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
         A decorator that adds the concurrency limiter hooks to a command.
     """
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: _CommandT, /) -> _CommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()

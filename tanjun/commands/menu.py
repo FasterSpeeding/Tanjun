@@ -40,13 +40,18 @@ from .. import abc
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
-from .. import injecting
 from .. import utilities
 from . import base
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    _CommandT = typing.Union[
+        abc.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
+        abc.MessageCommand["_MenuCommandCallbackSigT"],
+        abc.SlashCommand["_MenuCommandCallbackSigT"],
+    ]
+    _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
 
 import hikari
@@ -56,12 +61,6 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-_CommandT = typing.Union[
-    abc.MenuCommand[_MenuCommandCallbackSigT, typing.Any],
-    abc.MessageCommand[_MenuCommandCallbackSigT],
-    abc.SlashCommand[_MenuCommandCallbackSigT],
-]
-_CallbackishT = typing.Union[_MenuCommandCallbackSigT, _CommandT[_MenuCommandCallbackSigT]]
 
 
 def _as_menu(
@@ -342,7 +341,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = callback
         self._default_permission = default_permission
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_global = is_global
@@ -352,10 +351,18 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         self._type = type_
         self._wrapped_command = _wrapped_command
 
+    if typing.TYPE_CHECKING:
+        __call__: _MenuCommandCallbackSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._callback(*args, **kwargs)
+
     @property
     def callback(self) -> _MenuCommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return typing.cast("_MenuCommandCallbackSigT", self._callback.callback)
+        return self._callback
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
@@ -452,12 +459,12 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._type is hikari.CommandType.USER:
-                value = ctx.resolve_to_user()
+                value: typing.Union[hikari.Message, hikari.User] = ctx.resolve_to_user()
 
             else:
                 value = ctx.resolve_to_message()
 
-            await self._callback.resolve_with_command_context(ctx, ctx, value)
+            await ctx.call_with_async_di(self._callback, ctx, value)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)

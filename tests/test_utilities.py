@@ -34,7 +34,6 @@
 # This leads to too many false-positives around mocks.
 
 import typing
-from collections import abc as collections
 from unittest import mock
 
 import pytest
@@ -45,41 +44,57 @@ from tanjun import utilities
 _T = typing.TypeVar("_T")
 
 
-def async_iter_mock(*values: _T) -> collections.AsyncIterable[_T]:
-    return mock.Mock(__aiter__=mock.Mock(return_value=mock.Mock(__anext__=mock.AsyncMock(side_effect=values))))
-
-
 @pytest.mark.asyncio()
 async def test_gather_checks_handles_no_checks():
-    assert await utilities.gather_checks(mock.Mock(), ()) is True
+    mock_ctx = mock.AsyncMock()
+    assert await utilities.gather_checks(mock_ctx, ()) is True
+
+    mock_ctx.call_with_async_di.assert_not_called()
 
 
 @pytest.mark.asyncio()
 async def test_gather_checks_handles_failed_check():
-    mock_ctx = mock.Mock(tanjun.abc.Context)
-    check_1 = mock.AsyncMock()
-    check_2 = mock.AsyncMock(side_effect=tanjun.FailedCheck)
-    check_3 = mock.AsyncMock()
+    mock_ctx = mock.Mock()
+    mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, False, True])
+    check_1 = mock.Mock()
+    check_2 = mock.Mock()
+    check_3 = mock.Mock()
 
     assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
 
-    check_1.assert_awaited_once_with(mock_ctx)
-    check_2.assert_awaited_once_with(mock_ctx)
-    check_3.assert_awaited_once_with(mock_ctx)
+    mock_ctx.call_with_async_di.assert_has_awaits(
+        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
+    )
+
+
+@pytest.mark.asyncio()
+async def test_gather_checks_handles_check_failed_by_raise():
+    mock_ctx = mock.Mock()
+    mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck, True])
+    check_1 = mock.Mock()
+    check_2 = mock.Mock()
+    check_3 = mock.Mock()
+
+    assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
+
+    mock_ctx.call_with_async_di.assert_has_awaits(
+        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
+    )
 
 
 @pytest.mark.asyncio()
 async def test_gather_checks():
     mock_ctx = mock.Mock()
-    check_1 = mock.AsyncMock()
-    check_2 = mock.AsyncMock()
-    check_3 = mock.AsyncMock()
+    mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, True, True])
+    check_1 = mock.Mock()
+    check_2 = mock.Mock()
+    check_3 = mock.Mock()
 
     assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is True
 
-    check_1.assert_awaited_once_with(mock_ctx)
-    check_2.assert_awaited_once_with(mock_ctx)
-    check_3.assert_awaited_once_with(mock_ctx)
+    mock_ctx.call_with_async_di.assert_has_awaits(
+        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
+    )
 
 
 @pytest.mark.skip(reason="Not implemented")

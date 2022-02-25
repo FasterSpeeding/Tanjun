@@ -185,6 +185,15 @@ class TestMenuCommand:
     ):
         assert tanjun.MenuCommand(inner_command, hikari.CommandType.MESSAGE, "woow").callback is inner_command.callback
 
+    @pytest.mark.asyncio()
+    async def test_call_dunder_method(self):
+        mock_callback: typing.Any = mock.AsyncMock()
+        command = tanjun.MenuCommand(mock_callback, hikari.CommandType.MESSAGE, "a")
+
+        await command(123, 321, "ea", b=32)
+
+        mock_callback.assert_awaited_once_with(123, 321, "ea", b=32)
+
     def test_callback_property(self):
         mock_callback = mock.Mock()
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock_callback, hikari.CommandType.MESSAGE, "a")
@@ -281,21 +290,17 @@ class TestMenuCommand:
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
         mock_context = mock.Mock()
-        mock_checks = [mock.Mock(), mock.Mock()]
 
-        with mock.patch.object(tanjun.checks, "InjectableCheck", side_effect=mock_checks.copy()) as injectable_check:
-            command = (
-                tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.USER, "pat")
-                .add_check(mock_callback)
-                .add_check(mock_other_callback)
-            )
-
-            injectable_check.call_args_list == [mock.call(mock_callback), mock.call(mock_other_callback)]
+        command = (
+            tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.USER, "pat")
+            .add_check(mock_callback)
+            .add_check(mock_other_callback)
+        )
 
         with mock.patch.object(tanjun.utilities, "gather_checks", new=mock.AsyncMock()) as gather_checks:
             result = await command.check_context(mock_context)
 
-            gather_checks.assert_awaited_once_with(mock_context, mock_checks)
+            gather_checks.assert_awaited_once_with(mock_context, [mock_callback, mock_other_callback])
 
         assert result is gather_checks.return_value
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])

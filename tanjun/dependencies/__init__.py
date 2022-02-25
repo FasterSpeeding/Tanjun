@@ -33,7 +33,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    # __init__.py
     "AbstractConcurrencyLimiter",
     "AbstractCooldownManager",
     "AbstractOwners",
@@ -70,7 +69,7 @@ __all__: list[str] = [
 
 import hikari
 
-from .. import injecting
+from .. import abc
 from .async_cache import AsyncCache
 from .async_cache import CacheIterator
 from .async_cache import CacheMissError
@@ -99,12 +98,12 @@ from .owners import AbstractOwners
 from .owners import Owners
 
 
-def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
+def set_standard_dependencies(client: abc.Client, /) -> None:
     """Set the standard dependencies for Tanjun.
 
     Parameters
     ----------
-    client: tanjun.injecting.InjectorClient
+    client: tanjun.abc.Client
         The injector client to set the standard dependencies on.
     """
     client.set_type_dependency(AbstractOwners, Owners()).set_type_dependency(

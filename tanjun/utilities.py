@@ -51,27 +51,32 @@ from collections import abc as collections
 import hikari
 
 from . import errors
-from . import injecting
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
     from . import abc
-    from . import checks
-
 
 _KeyT = typing.TypeVar("_KeyT")
-_ValueT = typing.TypeVar("_ValueT")
 _OtherValueT = typing.TypeVar("_OtherValueT")
+_ValueT = typing.TypeVar("_ValueT")
 
 
-async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.InjectableCheck], /) -> bool:
+async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
+    foo = ctx.call_with_async_di(callback, ctx)
+    if result := await foo:
+        return result
+
+    raise errors.FailedCheck
+
+
+async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[abc.CheckSig], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
     ctx : tanjun.abc.Context
         The context to check.
-    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]
+    checks : collections.abc.Iterable[tanjun.abc.CheckSig]
         An iterable of injectable checks.
 
     Returns
@@ -80,7 +85,7 @@ async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.I
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*(check(ctx) for check in checks_))
+        await asyncio.gather(*(_execute_check(ctx, check) for check in checks_))
         # InjectableCheck will raise FailedCheck if a false is received so if
         # we get this far then it's True.
         return True
@@ -220,9 +225,6 @@ def calculate_permissions(
 async def _fetch_channel(
     client: abc.Client, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
 ) -> hikari.GuildChannel:
-    # TODO: upgrade injecting stuff to the standard interface
-    assert isinstance(client, injecting.InjectorClient)
-
     if isinstance(channel, hikari.GuildChannel):
         return channel
 
@@ -283,9 +285,6 @@ async def fetch_permissions(
     hikari.Permissions
         The calculated permissions.
     """
-    # TODO: upgrade injecting stuff to the standard interface
-    assert isinstance(client, injecting.InjectorClient)
-
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     guild: typing.Optional[hikari.Guild]
@@ -408,8 +407,6 @@ async def fetch_everyone_permissions(
     hikari.Permissions
         The calculated permissions.
     """
-    # TODO: upgrade injecting stuff to the standard interface
-    assert isinstance(client, injecting.InjectorClient)
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     role = client.cache.get_role(guild_id) if client.cache else None

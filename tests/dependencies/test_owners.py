@@ -39,6 +39,7 @@ import time
 import typing
 from unittest import mock
 
+import alluka
 import hikari
 import pytest
 
@@ -55,7 +56,7 @@ class TestOwners:
     async def test_check_ownership_when_user_in_owner_ids(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
 
         result = await check.check_ownership(mock_client, mock.Mock(id=7634))
 
@@ -67,7 +68,7 @@ class TestOwners:
     async def test_check_ownership_when_not_falling_back_to_application(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634], fallback_to_application=False)
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
 
         result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
 
@@ -176,7 +177,7 @@ class TestOwners:
     async def test_check_ownership_when_token_type_is_not_bot(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         mock_client.rest.token_type = hikari.TokenType.BEARER
 
         result = await check.check_ownership(mock_client, mock.Mock(id=54123123))
@@ -191,7 +192,7 @@ class TestOwners:
     async def test_check_ownership_when_application_owner(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
         mock_client.rest.token_type = hikari.TokenType.BOT
@@ -208,7 +209,7 @@ class TestOwners:
     async def test_check_ownership_when_not_application_owner(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         application = mock.Mock(owner=mock.Mock(id=654234), team=None)
         mock_client.rest.fetch_application = mock.AsyncMock(return_value=application)
         mock_client.rest.token_type = hikari.TokenType.BOT
@@ -225,7 +226,7 @@ class TestOwners:
     async def test_check_ownership_when_application_team_member(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
         )
@@ -244,7 +245,7 @@ class TestOwners:
     async def test_check_ownership_when_not_team_member(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
         )
@@ -263,7 +264,7 @@ class TestOwners:
     async def test_check_ownership_application_caching_behaviour(self):
         check = tanjun.dependencies.Owners(owners=[123, 7634])
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         application = mock.Mock(
             owner=mock.Mock(id=654234), team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()})
         )
@@ -282,7 +283,7 @@ class TestOwners:
     ):
         check = tanjun.dependencies.Owners(expire_after=expire_after)
         mock_client = mock.Mock(tanjun.Client)
-        mock_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+        mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         application_1 = mock.Mock(team=mock.Mock(members={54123: mock.Mock(), 64123: mock.Mock()}))
         application_2 = mock.Mock(team=mock.Mock(members={64123: mock.Mock()}))
         mock_client.rest.fetch_application = mock.AsyncMock(side_effect=[application_1, application_2])

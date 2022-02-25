@@ -32,7 +32,7 @@
 """Standard menu command execution context implementations."""
 from __future__ import annotations
 
-__all__: list[str] = []
+__all__: list[str] = ["MenuContext"]
 
 import typing
 
@@ -44,8 +44,6 @@ from . import slash
 if typing.TYPE_CHECKING:
     import asyncio
     from collections import abc as collections
-
-    from .. import injecting
 
     _T = typing.TypeVar("_T")
     _MenuContextT = typing.TypeVar("_MenuContextT", bound="MenuContext")
@@ -65,16 +63,13 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
     def __init__(
         self,
         client: abc.Client,
-        injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[collections.Callable[[abc.MenuContext], collections.Awaitable[None]]] = None,
     ) -> None:
-        super().__init__(
-            client, injection_client, interaction, default_to_ephemeral=default_to_ephemeral, future=future
-        )
+        super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
         self._command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None
         self._marked_not_found = False
         self._on_not_found = on_not_found

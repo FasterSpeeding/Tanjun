@@ -36,7 +36,6 @@
 # This leads to too many false-positives around mocks.
 
 import asyncio
-import contextlib
 import inspect
 import types
 from unittest import mock
@@ -263,10 +262,7 @@ class TestComponent:
         mock_check = mock.Mock()
         component = tanjun.Component().add_check(mock_check)
 
-        with mock.patch.object(tanjun.checks, "InjectableCheck") as InjectableCheck:
-            result = component.add_check(mock_check)
-
-            InjectableCheck.assert_not_called()
+        result = component.add_check(mock_check)
 
         assert list(component.checks).count(mock_check) == 1
         assert result is component
@@ -987,7 +983,7 @@ class TestComponent:
         result = component.add_on_close(mock_callback)
 
         assert result is component
-        assert component._on_close[0].callback is mock_callback
+        assert list(component._on_close) == [mock_callback]
 
     def test_with_on_close(self):
         mock_add_on_close = mock.Mock()
@@ -1010,7 +1006,7 @@ class TestComponent:
         result = component.add_on_open(mock_callback)
 
         assert result is component
-        assert component._on_open[0].callback is mock_callback
+        assert list(component._on_open) == [mock_callback]
 
     def test_with_on_open(self):
         mock_add_on_open = mock.Mock()
@@ -1265,7 +1261,7 @@ class TestComponent:
 
         assert result is component
         assert component.schedules == [mock_schedule]
-        mock_schedule.start.assert_called_once_with(mock_client, loop=mock_loop)
+        mock_schedule.start.assert_called_once_with(mock_client.injector, loop=mock_loop)
 
     def test_remove_schedule(self):
         mock_schedule = mock.Mock(is_alive=False)
@@ -1305,14 +1301,13 @@ class TestComponent:
 
     @pytest.mark.asyncio()
     async def test_close(self):
-        mock_callback_1 = mock.AsyncMock()
-        mock_callback_2 = mock.AsyncMock()
+        mock_callback_1 = mock.Mock()
+        mock_callback_2 = mock.Mock()
         mock_schedule_1 = mock.Mock(is_alive=True)
         mock_schedule_2 = mock.Mock(is_alive=True)
         mock_closed_schedule = mock.Mock(is_alive=False)
-        mock_ctx_1 = mock.Mock()
-        mock_ctx_2 = mock.Mock()
-        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        mock_client = mock.Mock()
+        mock_client.injector.call_with_async_di = mock.AsyncMock()
         mock_unbind = mock.Mock()
         component: tanjun.Component = (
             types.new_class(
@@ -1322,18 +1317,16 @@ class TestComponent:
             .add_schedule(mock_schedule_1)
             .add_schedule(mock_schedule_2)
             .add_schedule(mock_closed_schedule)
+            .add_on_close(mock_callback_1)
+            .add_on_close(mock_callback_2)
         )
         component._loop = mock.Mock()
-        component._on_close = [mock_callback_1, mock_callback_2]
 
-        with mock.patch.object(
-            tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2]
-        ) as basic_injection_context:
-            await component.close()
+        await component.close()
 
-        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
-        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
-        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        mock_client.injector.call_with_async_di.assert_has_awaits(
+            [mock.call(mock_callback_1), mock.call(mock_callback_2)]
+        )
         mock_schedule_1.stop.assert_called_once_with()
         mock_schedule_2.stop.assert_called_once_with()
         mock_closed_schedule.stop.assert_not_called()
@@ -1342,13 +1335,12 @@ class TestComponent:
 
     @pytest.mark.asyncio()
     async def test_close_when_unbind(self):
-        mock_callback_1 = mock.AsyncMock()
-        mock_callback_2 = mock.AsyncMock()
+        mock_callback_1 = mock.Mock()
+        mock_callback_2 = mock.Mock()
         mock_schedule_1 = mock.Mock()
         mock_schedule_2 = mock.Mock()
-        mock_ctx_1 = mock.Mock()
-        mock_ctx_2 = mock.Mock()
-        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        mock_client = mock.Mock()
+        mock_client.injector.call_with_async_di = mock.AsyncMock()
         mock_unbind = mock.Mock()
         component: tanjun.Component = (
             types.new_class(
@@ -1357,18 +1349,16 @@ class TestComponent:
             .bind_client(mock_client)
             .add_schedule(mock_schedule_1)
             .add_schedule(mock_schedule_2)
+            .add_on_close(mock_callback_1)
+            .add_on_close(mock_callback_2)
         )
         component._loop = mock.Mock()
-        component._on_close = [mock_callback_1, mock_callback_2]
 
-        with mock.patch.object(
-            tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2]
-        ) as basic_injection_context:
-            await component.close(unbind=True)
+        await component.close(unbind=True)
 
-        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
-        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
-        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        mock_client.injector.call_with_async_di.assert_has_awaits(
+            [mock.call(mock_callback_1), mock.call(mock_callback_2)]
+        )
         mock_schedule_1.stop.assert_called_once_with()
         mock_schedule_2.stop.assert_called_once_with()
         mock_unbind.assert_called_once_with(mock_client)
@@ -1383,34 +1373,31 @@ class TestComponent:
 
     @pytest.mark.asyncio()
     async def test_open(self):
-        mock_callback_1 = mock.AsyncMock()
-        mock_callback_2 = mock.AsyncMock()
+        mock_callback_1 = mock.Mock()
+        mock_callback_2 = mock.Mock()
         mock_schedule_1 = mock.Mock()
         mock_schedule_2 = mock.Mock()
-        mock_ctx_1 = mock.Mock()
-        mock_ctx_2 = mock.Mock()
-        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        mock_client = mock.Mock()
+        mock_client.injector.call_with_async_di = mock.AsyncMock()
         component = (
-            tanjun.Component().bind_client(mock_client).add_schedule(mock_schedule_1).add_schedule(mock_schedule_2)
+            tanjun.Component()
+            .bind_client(mock_client)
+            .add_schedule(mock_schedule_1)
+            .add_schedule(mock_schedule_2)
+            .add_on_open(mock_callback_1)
+            .add_on_open(mock_callback_2)
         )
-        component._on_open = [mock_callback_1, mock_callback_2]
 
-        stack = contextlib.ExitStack()
-        basic_injection_context = stack.enter_context(
-            mock.patch.object(tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2])
-        )
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
             await component.open()
 
         get_running_loop.assert_called_once_with()
         assert component.loop is get_running_loop.return_value
-        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
-        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
-        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
-        mock_schedule_1.start.assert_called_once_with(mock_client, loop=get_running_loop.return_value)
-        mock_schedule_2.start.assert_called_once_with(mock_client, loop=get_running_loop.return_value)
+        mock_client.injector.call_with_async_di.assert_has_awaits(
+            [mock.call(mock_callback_1), mock.call(mock_callback_2)]
+        )
+        mock_schedule_1.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)
+        mock_schedule_2.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)
 
     @pytest.mark.asyncio()
     async def test_open_when_already_active(self):

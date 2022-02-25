@@ -39,13 +39,11 @@ import datetime
 import time
 import typing
 
-from .. import injecting
+import alluka
 
 if typing.TYPE_CHECKING:
     import contextlib
     from collections import abc as collections
-
-    from .. import abc as tanjun_abc
 
     _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
@@ -61,7 +59,7 @@ class LazyConstant(typing.Generic[_T]):
 
     __slots__ = ("_callback", "_lock", "_value")
 
-    def __init__(self, callback: collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]], /) -> None:
+    def __init__(self, callback: alluka.abc.CallbackSig[_T], /) -> None:
         """Initiate a new lazy constant.
 
         Parameters
@@ -71,12 +69,16 @@ class LazyConstant(typing.Generic[_T]):
 
             This supports dependency injection and may either be sync or asynchronous.
         """
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = callback
         self._lock: typing.Optional[asyncio.Lock] = None
         self._value: typing.Optional[_T] = None
 
     @property
-    def callback(self) -> injecting.CallbackDescriptor[_T]:
+    def callback(
+        self,
+    ) -> typing.Union[
+        collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
+    ]:
         """Descriptor of the callback used to get this constant's initial value."""
         return self._callback
 
@@ -129,7 +131,9 @@ class LazyConstant(typing.Generic[_T]):
         return self._lock
 
 
-def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]:
+def make_lc_resolver(
+    type_: type[_T], /
+) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Make an injected callback which resolves a LazyConstant.
 
     Notes
@@ -145,14 +149,14 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
 
     Returns
     -------
-    collections.abc.Callable[..., collections.abc.Awaitable[_T]]
+    collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, _T]]
         An injected callback used to resolve the LazyConstant.
     """
 
     async def resolve(
         # LazyConstant gets type arguments at runtime
-        constant: LazyConstant[_T] = injecting.inject(type=LazyConstant[type_]),
-        ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
+        constant: LazyConstant[_T] = alluka.inject(type=LazyConstant[type_]),
+        ctx: alluka.abc.Context = alluka.inject(type=alluka.abc.Context),
     ) -> _T:
         """Resolve a lazy constant."""
         if (value := constant.get_value()) is not None:
@@ -162,7 +166,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
             if (value := constant.get_value()) is not None:
                 return value
 
-            result = await constant.callback.resolve(ctx)
+            result = await ctx.call_with_async_di(constant.callback)
             constant.set_value(result)
             return result
 
@@ -172,7 +176,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
 def inject_lc(type_: type[_T], /) -> _T:
     """Make a LazyConstant injector.
 
-    This acts like `tanjun.injecting.inject` and the result of it
+    This acts like `alluka.inject` and the result of it
     should also be assigned to a parameter's default to be used.
 
     .. note::
@@ -186,7 +190,7 @@ def inject_lc(type_: type[_T], /) -> _T:
 
     Returns
     -------
-    tanjun.injecting.Injected[_T]
+    alluka.InjectedDescriptor[_T]
         Injector used to resolve the LazyConstant.
 
     Example
@@ -212,23 +216,23 @@ def inject_lc(type_: type[_T], /) -> _T:
     )
     ```
     """
-    return injecting.inject(callback=make_lc_resolver(type_))
+    return alluka.inject(callback=make_lc_resolver(type_))
 
 
 class _CacheCallback(typing.Generic[_T]):
-    __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result")
+    __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result", "__weakref__")
 
     def __init__(
         self,
-        callback: injecting.CallbackSig[_T],
+        callback: alluka.abc.CallbackSig[_T],
         /,
         *,
         expire_after: typing.Union[int, float, datetime.timedelta, None],
     ) -> None:
-        self._callback = injecting.CallbackDescriptor(callback)
+        self._callback = callback
         self._last_called: typing.Optional[float] = None
         self._lock: typing.Optional[asyncio.Lock] = None
-        self._result: typing.Union[_T, injecting.Undefined] = injecting.UNDEFINED
+        self._result: typing.Union[_T, alluka.abc.Undefined] = alluka.abc.UNDEFINED
         if expire_after is None:
             pass
         elif isinstance(expire_after, datetime.timedelta):
@@ -251,21 +255,21 @@ class _CacheCallback(typing.Generic[_T]):
         self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
         *args: typing.Any,
-        ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
+        ctx: alluka.abc.Context = alluka.inject(type=alluka.abc.Context),
     ) -> _T:
-        if self._result is not injecting.UNDEFINED and not self._has_expired:
-            assert not isinstance(self._result, injecting.Undefined)
+        if self._result is not alluka.abc.UNDEFINED and not self._has_expired:
+            assert not isinstance(self._result, alluka.abc.Undefined)
             return self._result
 
         if not self._lock:
             self._lock = asyncio.Lock()
 
         async with self._lock:
-            if self._result is not injecting.UNDEFINED and not self._has_expired:
-                assert not isinstance(self._result, injecting.Undefined)
+            if self._result is not alluka.abc.UNDEFINED and not self._has_expired:
+                assert not isinstance(self._result, alluka.abc.Undefined)
                 return self._result
 
-            self._result = await self._callback.resolve(ctx, *args)
+            self._result = await ctx.call_with_async_di(self._callback, *args)
             self._last_called = time.monotonic()
             # This is set to None afterwards to ensure that it isn't persisted between loops.
             self._lock = None
@@ -273,8 +277,8 @@ class _CacheCallback(typing.Generic[_T]):
 
 
 def cache_callback(
-    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Union[int, float, datetime.timedelta, None] = None
-) -> collections.Callable[..., collections.Awaitable[_T]]:
+    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[int, float, datetime.timedelta, None] = None
+) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Cache the result of a callback within a dependency injection context.
 
     .. note::
@@ -294,7 +298,7 @@ def cache_callback(
 
     Returns
     -------
-    collections.abc.Callable[..., Awaitable[_T]]
+    collections.abc.Callable[..., collections.abc.Corouting[typing.Any, typing.Any, _T]]
         A callback which will cache the result of the given callback after the
         first call.
 
@@ -308,11 +312,11 @@ def cache_callback(
 
 
 def cached_inject(
-    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Union[float, int, datetime.timedelta, None] = None
+    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[float, int, datetime.timedelta, None] = None
 ) -> _T:
     """Inject a callback with caching.
 
-    This acts like `tanjun.injecting.inject` and the result of it
+    This acts like `alluka.inject` and the result of it
     should also be assigned to a parameter's default to be used.
 
     Example
@@ -343,7 +347,7 @@ def cached_inject(
 
     Returns
     -------
-    tanjun.injecting.Injected[_T]
+    alluka.InjectedDescriptor[_T]
         Injector used to resolve the cached callback.
 
     Raises
@@ -352,4 +356,4 @@ def cached_inject(
         If expire_after is not a valid value.
         If expire_after is not less than or equal to 0 seconds.
     """
-    return injecting.inject(callback=cache_callback(callback, expire_after=expire_after))
+    return alluka.inject(callback=cache_callback(callback, expire_after=expire_after))

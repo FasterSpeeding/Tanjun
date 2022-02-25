@@ -40,36 +40,27 @@ __all__: list[str] = [
     "AutocompleteContext",
     "AutocompleteOption",
     "BaseSlashCommand",
-    "BaseSlashCommandT",
     "CheckSig",
-    "CheckSigT",
     "Client",
     "ClientCallbackNames",
     "ClientLoader",
     "CommandCallbackSig",
-    "CommandCallbackSigT",
     "Component",
     "Context",
     "ErrorHookSig",
-    "ErrorHookSigT",
     "ExecutableCommand",
     "HookSig",
-    "HookSigT",
     "Hooks",
     "ListenerCallbackSig",
-    "ListenerCallbackSigT",
-    "MaybeAwaitableT",
     "MenuCommand",
     "MenuCommandCallbackSig",
     "MenuContext",
     "MenuHooks",
     "MessageCommand",
     "MessageCommandGroup",
-    "MessageCommandT",
     "MessageContext",
     "MessageHooks",
     "MetaEventSig",
-    "MetaEventSigT",
     "SlashCommand",
     "SlashCommandGroup",
     "SlashContext",
@@ -83,29 +74,35 @@ import typing
 from collections import abc as collections
 
 import hikari
+from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
     import pathlib
 
+    _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
+    _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
+    _ClientT = typing.TypeVar("_ClientT", bound="Client")
+    _ContextT = typing.TypeVar("_ContextT", bound="Context")
+    _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound="ErrorHookSig")
+    _HookSigT = typing.TypeVar("_HookSigT", bound="HookSig")
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound="ListenerCallbackSig")
+    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
+    _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound="MetaEventSig")
 
 _T = typing.TypeVar("_T")
-
-
-MaybeAwaitableT = typing.Union[_T, collections.Awaitable[_T]]
-"""Type hint for a value which may need to be awaited to be resolved."""
-
-ContextT = typing.TypeVar("ContextT", bound="Context")
-ContextT_co = typing.TypeVar("ContextT_co", covariant=True, bound="Context")
-ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
-MetaEventSig = collections.Callable[..., MaybeAwaitableT[None]]
-MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
-BaseSlashCommandT = typing.TypeVar("BaseSlashCommandT", bound="BaseSlashCommand")
-MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand[typing.Any]")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
-_AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
-_MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
+_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="CommandCallbackSig")
+_ContextT_co = typing.TypeVar("_ContextT_co", covariant=True, bound="Context")
+_ContextT_contra = typing.TypeVar("_ContextT_contra", bound="Context", contravariant=True)
+_CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
+_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="MenuCommandCallbackSig")
+_MenuTypeT = typing.TypeVar(
+    "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
+)
+
 
 AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback an autocomplete callback should have.
@@ -114,6 +111,18 @@ This will be called when handling autocomplete and should be an asynchronous
 callback which two positional arguments of type `AutocompleteContext` and
 `str | int | float` (with the 2nd argument type being decided by the
 autocomplete type), returns `None` and may use dependency injection.
+"""
+
+
+CheckSig = typing.Union[collections.Callable[..., _CoroT[bool]], collections.Callable[..., bool]]
+"""Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
+
+This may be registered with a `ExecutableCommand` to add a rule which decides whether
+it should execute for each context passed to it. This should take one positional
+argument of type `Context` and may either be a synchronous or asynchronous
+callback which returns `bool` where returning `False` or
+raising `tanjun.errors.FailedCheck` will indicate that the current context
+shouldn't lead to an execution.
 """
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
@@ -128,36 +137,10 @@ applicable and dependency injection.
     This will have to be asynchronous.
 """
 
-CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=CommandCallbackSig)
-"""Generic equivalent of `CommandCallbackSig`."""
 
-CheckSig = collections.Callable[..., MaybeAwaitableT[bool]]
-"""Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
-
-This may be registered with a `ExecutableCommand` to add a rule which decides whether
-it should execute for each context passed to it. This should take one positional
-argument of type `Context` and may either be a synchronous or asynchronous
-callback which returns `bool` where returning `False` or
-raising `tanjun.errors.FailedCheck` will indicate that the current context
-shouldn't lead to an execution.
-"""
-
-CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
-"""Generic equivalent of `CheckSig`"""
-
-HookSig = collections.Callable[..., MaybeAwaitableT[None]]
-"""Type hint of the callback used as a general command hook.
-
-.. note::
-    This may be asynchronous or synchronous, dependency injection is supported
-    for this callback's keyword arguments and the positional arguments which
-    are passed dependent on the type of hook this is being registered as.
-"""
-
-HookSigT = typing.TypeVar("HookSigT", bound=HookSig)
-"""Generic equivalent of `HookSig`."""
-
-ErrorHookSig = collections.Callable[..., MaybeAwaitableT[typing.Optional[bool]]]
+ErrorHookSig = typing.Union[
+    collections.Callable[..., typing.Optional[bool]], collections.Callable[..., _CoroT[typing.Optional[bool]]]
+]
 """Type hint of the callback used as a unexpected command error hook.
 
 This will be called whenever an unexpected `Exception` is raised during the
@@ -171,10 +154,16 @@ returns `bool` or `None` and may take advantage of dependency injection.
 `False` is returned to indicate that the exception should be re-raised.
 """
 
-ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig)
-"""Generic equivalent of `ErrorHookSig`."""
 
-# TODO: use Awaitable here
+HookSig = typing.Union[collections.Callable[..., None], collections.Callable[..., _CoroT[None]]]
+"""Type hint of the callback used as a general command hook.
+
+.. note::
+    This may be asynchronous or synchronous, dependency injection is supported
+    for this callback's keyword arguments and the positional arguments which
+    are passed dependent on the type of hook this is being registered as.
+"""
+
 ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 """Type hint of a hikari event manager callback.
 
@@ -182,24 +171,25 @@ This is guaranteed one positional arg of type `hikari.Event` regardless
 of implementation and must be a coruotine function which returns `None`.
 """
 
-ListenerCallbackSigT = typing.TypeVar("ListenerCallbackSigT", bound=ListenerCallbackSig)
-"""Generic equivalent of `ListenerCallbackSig`."""
-
 MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of a context menu command callback.
 
-This is guaranteed two positiona; arguments of type `tanjun.abc.MenuContext`
+This is guaranteed two positional; arguments of type `tanjun.abc.MenuContext`
 and either `tanjun.abc.User` | `tanjun.abc.InteractionMember` and/or
 `tanjun.abc.Message` dependent on the type(s) of menu this is.
 """
 
-_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound=MenuCommandCallbackSig)
-_MenuTypeT = typing.TypeVar(
-    "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
-)
+MetaEventSig = typing.Union[collections.Callable[..., _CoroT[None]], collections.Callable[..., None]]
+"""Type hint of a client callback.
+
+The positional arguments this is guaranteed depend on the event name its being
+subscribed to (more information the standard client callbacks can be found at
+`ClientCallbackNames`) and may be either synchronous or asynchronous but must
+return `None`.
+"""
 
 
-class Context(abc.ABC):
+class Context(alluka.Context):
     """Interface for the context of a command execution."""
 
     __slots__ = ()
@@ -236,7 +226,7 @@ class Context(abc.ABC):
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
-    def command(self: ContextT) -> typing.Optional[ExecutableCommand[ContextT]]:
+    def command(self: _ContextT) -> typing.Optional[ExecutableCommand[_ContextT]]:
         """Object of the command this context is bound to.
 
         .. note::
@@ -1878,7 +1868,7 @@ class SlashContext(AppCommandContext, abc.ABC):
         """
 
 
-class AutocompleteContext:
+class AutocompleteContext(alluka.Context):
     """Interface of an autocomplete context."""
 
     __slots__ = ()
@@ -2120,7 +2110,7 @@ class AutocompleteContext:
         """
 
 
-class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
+class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
     """Interface of a collection of callbacks called during set stage of command execution."""
 
     __slots__ = ()
@@ -2142,7 +2132,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.ContextT_contra` and `Exception`) and may be either
+            `tanjun.abc.Context` and `Exception`) and may be either
             synchronous or asynchronous.
 
             Returning `True` indicates that the error should be suppressed,
@@ -2157,7 +2147,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def with_on_error(self, callback: ErrorHookSigT, /) -> ErrorHookSigT:
+    def with_on_error(self, callback: _ErrorHookSigT, /) -> _ErrorHookSigT:
         """Add an error callback to this hook object through a decorator call.
 
         .. note::
@@ -2180,11 +2170,11 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
         Parameters
         ----------
-        callback : ErrorHookSigT
+        callback : ErrorHookSig
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.ContextT_contra` and `Exception`) and may be either
+            `tanjun.abc.Context` and `Exception`) and may be either
             synchronous or asynchronous.
 
             Returning `True` indicates that the error shoul be suppressed,
@@ -2194,7 +2184,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
         Returns
         -------
-        ErrorHookSigT
+        ErrorHookSig
             The hook callback which was added.
         """
 
@@ -2208,7 +2198,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),
+            `tanjun.abc.Context` and `tanjun.errors.ParserError`),
             return `None` and may be either synchronous or asynchronous.
 
             It's worth noting that this unlike general error handlers, this will
@@ -2221,7 +2211,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def with_on_parser_error(self, callback: HookSigT, /) -> HookSigT:
+    def with_on_parser_error(self, callback: _HookSigT, /) -> _HookSigT:
         """Add a parser error callback to this hook object through a decorator call.
 
         Examples
@@ -2236,16 +2226,16 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSigT
+        callback : HookSig
             The parser error callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),
+            `tanjun.abc.Context` and `tanjun.errors.ParserError`),
             return `None` and may be either synchronous or asynchronous.
 
         Returns
         -------
-        HookSigT
+        HookSig
             The callback which was added.
         """
 
@@ -2259,7 +2249,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            `tanjun.abc.Context`), return `None` and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2269,7 +2259,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def with_post_execution(self, callback: HookSigT, /) -> HookSigT:
+    def with_post_execution(self, callback: _HookSigT, /) -> _HookSigT:
         """Add a post-execution callback to this hook object through a decorator call.
 
         Examples
@@ -2284,16 +2274,16 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSigT
+        callback : HookSig
             The post-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            `tanjun.abc.Context`), return `None` and may be either
             synchronous or asynchronous.
 
         Returns
         -------
-        HookSigT
+        HookSig
             The post-execution callback which was seaddedt.
         """
 
@@ -2307,7 +2297,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            `tanjun.abc.Context`), return `None` and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2317,7 +2307,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def with_pre_execution(self, callback: HookSigT, /) -> HookSigT:
+    def with_pre_execution(self, callback: _HookSigT, /) -> _HookSigT:
         """Add a pre-execution callback to this hook object through a decorator call.
 
         Examples
@@ -2332,16 +2322,16 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSigT
+        callback : HookSig
             The pre-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            `tanjun.abc.Context`), return `None` and may be either
             synchronous or asynchronous.
 
         Returns
         -------
-        HookSigT
+        HookSig
             The pre-execution callback which was added.
         """
 
@@ -2355,7 +2345,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            `tanjun.abc.Context`), return `None` and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2365,7 +2355,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def with_on_success(self, callback: HookSigT, /) -> HookSigT:
+    def with_on_success(self, callback: _HookSigT, /) -> _HookSigT:
         """Add a success callback to this hook object through a decorator call.
 
         Examples
@@ -2380,57 +2370,57 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSigT
+        callback : HookSig
             The success callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            `tanjun.abc.Context`), return `None` and may be either
             synchronous or asynchronous.
 
         Returns
         -------
-        HookSigT
+        HookSig
             The success callback which was added.
         """
 
     @abc.abstractmethod
     async def trigger_error(
         self,
-        ctx: ContextT_contra,
+        ctx: _ContextT_contra,
         /,
         exception: Exception,
         *,
-        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> int:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_post_execution(
         self,
-        ctx: ContextT_contra,
+        ctx: _ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
         self,
-        ctx: ContextT_contra,
+        ctx: _ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
         self,
-        ctx: ContextT_contra,
+        ctx: _ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -2448,7 +2438,7 @@ SlashHooks = Hooks[SlashContext]
 """Execution hooks for slash commands."""
 
 
-class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
+class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
     """Base class for all commands that can be executed."""
 
     __slots__ = ()
@@ -2465,7 +2455,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
 
     @property
     @abc.abstractmethod
-    def hooks(self) -> typing.Optional[Hooks[ContextT_co]]:
+    def hooks(self) -> typing.Optional[Hooks[_ContextT_co]]:
         """Hooks that are triggered when the command is executed."""
 
     @property
@@ -2497,12 +2487,12 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
         """
 
     @abc.abstractmethod
-    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT_co]], /) -> _T:
+    def set_hooks(self: _T, _: typing.Optional[Hooks[_ContextT_co]], /) -> _T:
         """Set the hooks that are triggered when the command is executed.
 
         Parameters
         ----------
-        hooks : Hooks[ContextT_co] | None
+        hooks : Hooks[Context] | None
             The hooks that are triggered when the command is executed.
 
         Returns
@@ -2713,14 +2703,14 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         ...
 
 
-class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[_CommandCallbackSigT]):
     """A command that can be executed in a slash context."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSigT:
+    def callback(self) -> _CommandCallbackSigT:
         """Callback which is called during execution."""
 
     @property
@@ -2822,7 +2812,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         """
 
     @abc.abstractmethod
-    def with_command(self, command: BaseSlashCommandT, /) -> BaseSlashCommandT:
+    def with_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
         """Add a command to this group through a decorator call.
 
         Parameters
@@ -2885,14 +2875,14 @@ class MessageParser(abc.ABC):
         """
 
 
-class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[CommandCallbackSigT]):
+class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[_CommandCallbackSigT]):
     """Standard interface of a message command."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSigT:
+    def callback(self) -> _CommandCallbackSigT:
         """Callback which is called during execution.
 
         .. note::
@@ -2971,7 +2961,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         raise NotImplementedError
 
 
-class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.ABC):
+class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
     """Standard interface of a message command group."""
 
     __slots__ = ()
@@ -3021,7 +3011,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.ABC):
         """
 
     @abc.abstractmethod
-    def with_command(self, command: MessageCommandT, /) -> MessageCommandT:
+    def with_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
         """Add a command to this group through a decorator call.
 
         Parameters
@@ -3228,25 +3218,25 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_slash_command(self, command: BaseSlashCommandT, /) -> BaseSlashCommandT:
+    def with_slash_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def with_slash_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
+    ) -> collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]:
         ...
 
     @abc.abstractmethod
     def with_slash_command(
-        self, command: BaseSlashCommandT = ..., /, *, copy: bool = False
-    ) -> typing.Union[BaseSlashCommandT, collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]]:
+        self, command: _BaseSlashCommandT = ..., /, *, copy: bool = False
+    ) -> typing.Union[_BaseSlashCommandT, collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]]:
         """Add a slash command to this component through a decorator call.
 
         Parameters
         ----------
-        command : BaseSlashCommandT
+        command : BaseSlashCommand
             The command to add.
 
         Other Parameters
@@ -3256,7 +3246,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        BaseSlashCommandT
+        BaseSlashCommand
             The added command.
         """
 
@@ -3297,25 +3287,25 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_message_command(self, command: MessageCommandT, /) -> MessageCommandT:
+    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def with_message_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[MessageCommandT], MessageCommandT]:
+    ) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
         ...
 
     @abc.abstractmethod
     def with_message_command(
-        self, command: MessageCommandT = ..., /, *, copy: bool = False
-    ) -> typing.Union[MessageCommandT, collections.Callable[[MessageCommandT], MessageCommandT]]:
+        self, command: _MessageCommandT = ..., /, *, copy: bool = False
+    ) -> typing.Union[_MessageCommandT, collections.Callable[[_MessageCommandT], _MessageCommandT]]:
         """Add a message command to this component through a decorator call.
 
         Parameters
         ----------
-        command : MessageCommandT
+        command : MessageCommand
             The command to add.
 
         Other Parameters
@@ -3325,7 +3315,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        MessageCommandT
+        MessageCommand
             The added command.
         """
 
@@ -3372,7 +3362,7 @@ class Component(abc.ABC):
     @abc.abstractmethod
     def with_listener(
         self, event_type: type[hikari.Event]
-    ) -> collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT,]:
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT,]:
         """Add a listener to this component through a decorator call.
 
         Parameters
@@ -3382,7 +3372,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]
+        collections.abc.Callable[[ListenerCallbackSig], ListenerCallbackSig]
             Decorator callback which takes listener to add.
         """
 
@@ -3719,6 +3709,11 @@ class Client(abc.ABC):
 
         This is used for executing message commands if set.
         """
+
+    @property
+    @abc.abstractmethod
+    def injector(self) -> alluka.Client:
+        """The attached alluka dependency injection client."""
 
     @property
     @abc.abstractmethod
@@ -4121,7 +4116,7 @@ class Client(abc.ABC):
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback : MetaEventSigT
+        callback : MetaEventSig
             The callback to register.
 
             This may be sync or async and must return None. The positional and
@@ -4185,7 +4180,7 @@ class Client(abc.ABC):
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback : MetaEventSigT
+        callback : MetaEventSig
             The callback to remove from the client's callbacks.
 
         Raises
@@ -4204,7 +4199,7 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def with_client_callback(
         self, name: typing.Union[str, ClientCallbackNames], /
-    ) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
+    ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         """Add a client callback through a decorator call.
 
         Examples
@@ -4226,7 +4221,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]
+        collections.abc.Callable[[MetaEventSig], MetaEventSig]
             Decorator callback used to register the client callback.
 
             This may be sync or async and must return None. The positional and
@@ -4282,7 +4277,7 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def with_listener(
         self, event_type: type[hikari.Event], /
-    ) -> collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]:
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         """Add an event listener to this client through a decorator call.
 
         Examples
@@ -4302,7 +4297,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]
+        collections.abc.Callable[[ListenerCallbackSig], ListenerCallbackSig]
             Decorator callback used to register the event callback.
 
             The callback must be a coroutine function which returns `None` and
@@ -4616,6 +4611,112 @@ class Client(abc.ABC):
 
         For more information on the behaviour of this method see the
         documentation for `Client.reload_modules`.
+        """
+
+    @abc.abstractmethod
+    def set_type_dependency(self: _ClientT, type_: type[_T], value: _T, /) -> _ClientT:
+        """Set a callback to be called to resolve a injected type.
+
+        Parameters
+        ----------
+        type_: type[_T]
+            The type of the dependency to add an implementation for.
+        value: _T
+            The value of the dependency.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+        """
+
+    @abc.abstractmethod
+    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.Undefined]:
+        """Get the implementation for an injected type.
+
+        Parameters
+        ----------
+        type_: type[_T]
+            The associated type.
+
+        Returns
+        -------
+        _T | alluka.abc.Undefined
+            The resolved type if found, else `Undefined`.
+        """
+
+    @abc.abstractmethod
+    def remove_type_dependency(self: _ClientT, type_: type[typing.Any], /) -> _ClientT:
+        """Remove a type dependency.
+
+        Parameters
+        ----------
+        type_: type
+            The associated type.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+
+        Raises
+        ------
+        KeyError
+            If `type` is not registered.
+        """
+
+    @abc.abstractmethod
+    def set_callback_override(
+        self: _ClientT, callback: alluka.CallbackSig[_T], override: alluka.CallbackSig[_T], /
+    ) -> _ClientT:
+        """Override a specific injected callback.
+
+        Parameters
+        ----------
+        callback: alluka.abc.CallbackSig[_T]
+            The injected callback to override.
+        override: alluka.abc.CallbackSig[_T]
+            The callback to use instead.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+        """
+
+    @abc.abstractmethod
+    def get_callback_override(self, callback: alluka.CallbackSig[_T], /) -> typing.Optional[alluka.CallbackSig[_T]]:
+        """Get the override for a specific injected callback.
+
+        Parameters
+        ----------
+        callback : alluka.abc.CallbackSig[_T]
+            The injected callback to get the override for.
+
+        Returns
+        -------
+        alluka.abc.CallbackSig[_T] | None
+            The override if found, else `None`.
+        """
+
+    @abc.abstractmethod
+    def remove_callback_override(self: _ClientT, callback: alluka.CallbackSig[_T], /) -> _ClientT:
+        """Remove a callback override.
+
+        Parameters
+        ----------
+        callback: alluka.abc.CallbackSig
+            The injected callback to remove the override for.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+
+        Raises
+        ------
+        KeyError
+            If no override is found for the callback.
         """
 
 

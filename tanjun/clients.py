@@ -37,7 +37,6 @@ __all__: list[str] = [
     "ClientCallbackNames",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
-    "PrefixGetterSigT",
     "as_loader",
     "as_unloader",
 ]
@@ -56,22 +55,26 @@ import typing
 import warnings
 from collections import abc as collections
 
+import alluka
 import hikari
 from hikari import traits as hikari_traits
 
 from . import abc as tanjun_abc
-from . import checks
 from . import context
 from . import dependencies
 from . import errors
 from . import hooks
-from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
     import types
 
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun_abc.CheckSig)
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun_abc.ListenerCallbackSig)
+    _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun_abc.MetaEventSig)
+    _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
+    _T = typing.TypeVar("_T")
 
     class _AutocompleteContextMakerProto(typing.Protocol):
         def __call__(
@@ -87,7 +90,6 @@ if typing.TYPE_CHECKING:
         def __call__(
             self,
             client: tanjun_abc.Client,
-            injection_client: injecting.InjectorClient,
             interaction: hikari.CommandInteraction,
             *,
             default_to_ephemeral: bool = False,
@@ -106,7 +108,6 @@ if typing.TYPE_CHECKING:
         def __call__(
             self,
             client: tanjun_abc.Client,
-            injection_client: injecting.InjectorClient,
             content: str,
             message: hikari.Message,
             *,
@@ -119,7 +120,6 @@ if typing.TYPE_CHECKING:
         def __call__(
             self,
             client: tanjun_abc.Client,
-            injection_client: injecting.InjectorClient,
             interaction: hikari.CommandInteraction,
             *,
             default_to_ephemeral: bool = False,
@@ -135,7 +135,7 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
 
-PrefixGetterSig = collections.Callable[..., collections.Awaitable[collections.Iterable[str]]]
+PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
 This should be an asynchronous callable which returns an iterable of strings.
@@ -144,8 +144,6 @@ This should be an asynchronous callable which returns an iterable of strings.
     While dependency injection is supported for this, the first positional
     argument will always be a `tanjun.abc.MessageContext`.
 """
-
-PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -368,12 +366,12 @@ def _check_human(ctx: tanjun_abc.Context, /) -> bool:
 
 
 async def _wrap_client_callback(
-    callback: injecting.CallbackDescriptor[None],
-    ctx: injecting.AbstractInjectionContext,
+    client: Client,
+    callback: tanjun_abc.MetaEventSig,
     args: tuple[str, ...],
 ) -> None:
     try:
-        await callback.resolve(ctx, *args)
+        await client.injector.call_with_async_di(callback, *args)
 
     except Exception as exc:
         _LOGGER.error("Client callback raised exception", exc_info=exc)
@@ -410,7 +408,7 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
 
 
 class _StartDeclarer:
-    __slots__ = ("client", "command_ids", "guild_id", "message_ids", "user_ids")
+    __slots__ = ("client", "command_ids", "guild_id", "message_ids", "user_ids", "__weakref__")
 
     def __init__(
         self,
@@ -435,12 +433,12 @@ class _StartDeclarer:
             self.client.remove_client_callback(ClientCallbackNames.STARTING, self)
 
 
-class Client(injecting.InjectorClient, tanjun_abc.Client):
+class Client(tanjun_abc.Client):
     """Tanjun's standard `tanjun.abc.Client` implementation.
 
     This implementation supports dependency injection for checks, command
     callbacks, prefix getters and event listeners. For more information on how
-    this works see `tanjun.injecting`.
+    this works see `alluka`.
 
     .. note::
         By default this client includes a parser error handling hook which will
@@ -467,6 +465,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_menu_not_found",
         "_slash_hooks",
         "_slash_not_found",
+        "_injector",
         "_is_closing",
         "_listeners",
         "_loop",
@@ -492,6 +491,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         shards: typing.Optional[hikari.ShardAware] = None,
         voice: typing.Optional[hikari.api.VoiceComponent] = None,
         event_managed: bool = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         declare_global_commands: typing.Union[
@@ -542,6 +542,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and can only be passed as `True` if `event_manager`
             is also provided.
+        injector : alluka.abc.Client | None
+            The alluka client this should use for dependency injection.
+
+            If not provided then the client will initialise its own DI client.
         mention_prefix : bool
             Whether or not mention prefixes should be automatically set when this
             client is first started.
@@ -618,8 +622,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
-        self._checks: list[checks.InjectableCheck] = []
-        self._client_callbacks: dict[str, list[injecting.CallbackDescriptor[None]]] = {}
+        self._checks: list[tanjun_abc.CheckSig] = []
+        self._client_callbacks: dict[str, list[tanjun_abc.MetaEventSig]] = {}
         self._components: dict[str, tanjun_abc.Component] = {}
         self._defaults_to_ephemeral: bool = False
         self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
@@ -633,14 +637,19 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._slash_not_found: typing.Optional[str] = self._menu_not_found
+        # TODO: test coverage
+        self._injector = injector or alluka.Client()
         self._is_closing = False
-        self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
+        self._listeners: dict[
+            type[hikari.Event],
+            dict[tanjun_abc.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun_abc.ListenerCallbackSig]],
+        ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
         self._path_modules: dict[pathlib.Path, types.ModuleType] = {}
-        self._prefix_getter: typing.Optional[injecting.CallbackDescriptor[collections.Iterable[str]]] = None
+        self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: list[str] = []
         self._rest = rest
         self._server = server
@@ -755,6 +764,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         /,
         *,
         event_managed: bool = True,
+        injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
@@ -792,6 +802,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             based on Hikari's lifetime events.
 
             Defaults to `True`.
+        injector : alluka.abc.Client | None
+            The alluka client this should use for dependency injection.
+
+            If not provided then the client will initialise its own DI client.
         mention_prefix : bool
             Whether or not mention prefixes should be automatically set when this
             client is first started.
@@ -834,6 +848,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 shards=bot,
                 voice=bot.voice,
                 event_managed=event_managed,
+                injector=injector,
                 mention_prefix=mention_prefix,
                 declare_global_commands=declare_global_commands,
                 set_global_commands=set_global_commands,
@@ -855,6 +870,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
@@ -887,6 +903,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
+        injector : alluka.abc.Client | None
+            The alluka client this should use for dependency injection.
+
+            If not provided then the client will initialise its own DI client.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.PartialCommand] | None
@@ -915,6 +935,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             rest=bot.rest,
             server=bot.interaction_server,
             declare_global_commands=declare_global_commands,
+            injector=injector,
             set_global_commands=set_global_commands,
             command_ids=command_ids,
             message_ids=message_ids,
@@ -948,9 +969,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._accepts
 
     @property
+    def injector(self) -> alluka.abc.Client:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._injector
+
+    @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return typing.cast("checks.InjectableCheck", _check_human) in self._checks
+        return _check_human in self._checks
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -964,7 +990,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         .. note::
             These may be taking advantage of the standard dependency injection.
         """
-        return tuple(check.callback for check in self._checks)
+        return self._checks.copy()
 
     @property
     def components(self) -> collections.Collection[tanjun_abc.Component]:
@@ -982,7 +1008,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
         return utilities.CastedView(
             self._listeners,
-            lambda x: [typing.cast(tanjun_abc.ListenerCallbackSig, callback.callback) for callback in x],
+            lambda x: [callback.callback for callback in x.values()],
         )
 
     @property
@@ -1038,7 +1064,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         For more information on this callback's signature see `PrefixGetter`.
         """
-        return typing.cast(PrefixGetterSig, self._prefix_getter.callback) if self._prefix_getter else None
+        return self._prefix_getter
 
     @property
     def prefixes(self) -> collections.Collection[str]:
@@ -1178,8 +1204,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if command_id:
             if isinstance(builder, hikari.api.SlashCommandBuilder):
-                description = builder.description
-                options = builder.options
+                description: hikari.UndefinedOr[str] = builder.description
+                options: hikari.UndefinedOr[collections.Sequence[hikari.CommandOption]] = builder.options
 
             else:
                 description = hikari.UNDEFINED
@@ -1245,7 +1271,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         for command in commands:
             key = (command.type, command.name)
             names_to_commands[key] = command
-            if command.name in builders:
+            if key in builders:
                 conflicts.add(key)
 
             builder = command.build()
@@ -1603,7 +1629,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The client instance to enable chained calls.
         """
         if check not in self._checks:
-            self._checks.append(checks.InjectableCheck(check))
+            self._checks.append(check)
 
         return self
 
@@ -1620,10 +1646,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ValueError
             If the check was not previously added.
         """
-        self._checks.remove(typing.cast("checks.InjectableCheck", check))
+        self._checks.remove(check)
         return self
 
-    def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
+    def with_check(self, check: _CheckSigT, /) -> _CheckSigT:
         """Add a check to this client through a decorator call.
 
         Parameters
@@ -1708,15 +1734,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, name: typing.Union[str, tanjun_abc.ClientCallbackNames], callback: tanjun_abc.MetaEventSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        descriptor = injecting.CallbackDescriptor(callback)
         name = name.casefold()
         try:
-            if descriptor in self._client_callbacks[name]:
+            if callback in self._client_callbacks[name]:
                 return self
 
-            self._client_callbacks[name].append(descriptor)
+            self._client_callbacks[name].append(callback)
         except KeyError:
-            self._client_callbacks[name] = [descriptor]
+            self._client_callbacks[name] = [callback]
 
         return self
 
@@ -1726,9 +1751,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         if callbacks := self._client_callbacks.get(name):
-            calls = (
-                _wrap_client_callback(callback, injecting.BasicInjectionContext(self), args) for callback in callbacks
-            )
+            calls = (_wrap_client_callback(self, callback, args) for callback in callbacks)
             await asyncio.gather(*calls)
 
     def get_client_callbacks(
@@ -1737,7 +1760,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         if result := self._client_callbacks.get(name):
-            return tuple(callback.callback for callback in result)
+            return result.copy()
 
         return ()
 
@@ -1746,7 +1769,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
-        self._client_callbacks[name].remove(typing.cast("injecting.CallbackDescriptor[None]", callback))
+        self._client_callbacks[name].remove(callback)
         if not self._client_callbacks[name]:
             del self._client_callbacks[name]
 
@@ -1754,9 +1777,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def with_client_callback(
         self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
-    ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
+    ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
+        def decorator(callback: _MetaEventSigT, /) -> _MetaEventSigT:
             self.add_client_callback(name, callback)
             return callback
 
@@ -1766,15 +1789,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        injected: injecting.SelfInjectingCallback[None] = injecting.SelfInjectingCallback(self, callback)
+        injected = self.injector.as_async_self_injecting(callback)
         try:
             if callback in self._listeners[event_type]:
                 return self
 
-            self._listeners[event_type].append(injected)
+            self._listeners[event_type][callback] = injected
 
         except KeyError:
-            self._listeners[event_type] = [injected]
+            self._listeners[event_type] = {callback: injected}
 
         if self._loop and self._events:
             self._events.subscribe(event_type, injected.__call__)
@@ -1785,10 +1808,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        index = self._listeners[event_type].index(typing.cast("injecting.SelfInjectingCallback[None]", callback))
-        registered_callback = self._listeners[event_type].pop(index)
+        callbacks = self._listeners[event_type]
 
-        if not self._listeners[event_type]:
+        try:
+            registered_callback = callbacks.pop(callback)
+        except KeyError:
+            raise ValueError(callback) from None
+
+        if not callbacks:
             del self._listeners[event_type]
 
         if self._loop and self._events:
@@ -1798,9 +1825,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def with_listener(
         self, event_type: type[hikari.Event], /
-    ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        def decorator(callback: tanjun_abc.ListenerCallbackSigT, /) -> tanjun_abc.ListenerCallbackSigT:
+        def decorator(callback: _ListenerCallbackSigT, /) -> _ListenerCallbackSigT:
             self.add_listener(event_type, callback)
             return callback
 
@@ -1873,10 +1900,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Self
             The client instance to enable chained calls.
         """
-        self._prefix_getter = injecting.CallbackDescriptor(getter) if getter else None
+        self._prefix_getter = getter
         return self
 
-    def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
+    def with_prefix_getter(self, getter: _PrefixGetterSigT, /) -> _PrefixGetterSigT:
         """Set the prefix getter callback for this client through decorator call.
 
         Examples
@@ -1901,7 +1928,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        PrefixGetterSigT
+        PrefixGetterSig
             The registered callback.
         """
         self.set_prefix_getter(getter)
@@ -1993,7 +2020,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
-            for prefix in await self._prefix_getter.resolve_with_command_context(ctx, ctx):
+            for prefix in await ctx.call_with_async_di(self._prefix_getter, ctx):
                 if ctx.content.startswith(prefix):
                     return prefix
 
@@ -2044,7 +2071,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             for event_type_, listeners in self._listeners.items():
-                for listener in listeners:
+                for listener in listeners.values():
                     self._try_unsubscribe(self._events, event_type_, listener.__call__)
 
         if deregister_listeners and self._server:
@@ -2102,7 +2129,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             for event_type_, listeners in self._listeners.items():
-                for listener in listeners:
+                for listener in listeners.values():
                     self._events.subscribe(event_type_, listener.__call__)
 
         if register_listeners and self._server:
@@ -2430,6 +2457,38 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             else:
                 raise RuntimeError("Generator didn't finish")
 
+    def set_type_dependency(self: _ClientT, type_: type[_T], value: _T, /) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        self._injector.set_type_dependency(type_, value)
+        return self
+
+    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.abc.Undefined]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._injector.get_type_dependency(type_)
+
+    def remove_type_dependency(self: _ClientT, type_: type[typing.Any], /) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        self._injector.remove_type_dependency(type_)
+        return self
+
+    def set_callback_override(
+        self: _ClientT, callback: alluka.abc.CallbackSig[_T], override: alluka.abc.CallbackSig[_T], /
+    ) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        self._injector.set_callback_override(callback, override)
+        return self
+
+    def get_callback_override(
+        self, callback: alluka.abc.CallbackSig[_T], /
+    ) -> typing.Optional[alluka.abc.CallbackSig[_T]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._injector.get_callback_override(callback)
+
+    def remove_callback_override(self: _ClientT, callback: alluka.abc.CallbackSig[_T], /) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        self._injector.remove_callback_override(callback)
+        return self
+
     async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
         """Execute a message command based on a gateway event.
 
@@ -2441,9 +2500,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if event.message.content is None:
             return
 
-        ctx = self._make_message_context(
-            client=self, injection_client=self, content=event.message.content, message=event.message
-        )
+        ctx = self._make_message_context(client=self, content=event.message.content, message=event.message)
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -2532,19 +2589,17 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The interaction to execute a command based on.
         """
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx = self._make_slash_context(
+            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
                 client=self,
-                injection_client=self,
                 interaction=interaction,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
-            hooks = self._get_slash_hooks()
+            hooks: typing.Union[set[tanjun_abc.MenuHooks], set[tanjun_abc.SlashHooks], None] = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
                 client=self,
-                injection_client=self,
                 interaction=interaction,
                 on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
@@ -2651,20 +2706,18 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ] = loop.create_future()
 
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx = self._make_slash_context(
+            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
                 client=self,
-                injection_client=self,
                 interaction=interaction,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
             )
-            hooks = self._get_slash_hooks()
+            hooks: typing.Union[set[tanjun_abc.MenuHooks], set[tanjun_abc.SlashHooks], None] = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
                 client=self,
-                injection_client=self,
                 interaction=interaction,
                 on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,

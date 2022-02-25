@@ -40,6 +40,7 @@ import types
 import typing
 from unittest import mock
 
+import alluka
 import hikari
 import pytest
 
@@ -66,21 +67,15 @@ def mock_client() -> tanjun.abc.Client:
 
 
 @pytest.fixture()
-def mock_injector_client() -> tanjun.injecting.InjectorClient:
-    return mock.MagicMock(tanjun.injecting.InjectorClient)
-
-
-@pytest.fixture()
 def mock_component() -> tanjun.abc.Component:
     return mock.MagicMock(tanjun.abc.Component)
 
 
 class TestMessageContext:
     @pytest.fixture()
-    def context(self, mock_client: mock.Mock, mock_injector_client: mock.Mock) -> tanjun.context.MessageContext:
+    def context(self, mock_client: mock.Mock) -> tanjun.context.MessageContext:
         return tanjun.context.MessageContext(
             mock_client,
-            mock_injector_client,
             "hi there",
             mock.AsyncMock(),
             triggering_name="bonjour",
@@ -143,26 +138,26 @@ class TestMessageContext:
         assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.context.MessageContext, mock_injector_client: mock.Mock):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    def test_set_command_when_none(self, context: tanjun.context.MessageContext):
+        assert isinstance(context.client.injector.get_type_dependency, mock.Mock)
+        context.client.injector.get_type_dependency.return_value = alluka.abc.UNDEFINED
         context.set_command(None)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.MessageCommand) is alluka.abc.UNDEFINED
 
-    def test_set_command_when_none_and_previously_set(
-        self, context: tanjun.context.MessageContext, mock_injector_client: mock.Mock
-    ):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    def test_set_command_when_none_and_previously_set(self, context: tanjun.context.MessageContext):
+        assert isinstance(context.client.injector.get_type_dependency, mock.Mock)
+        context.client.injector.get_type_dependency.return_value = alluka.abc.UNDEFINED
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is tanjun.injecting.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.MessageCommand) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is alluka.abc.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.MessageCommand) is alluka.abc.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()
@@ -306,7 +301,7 @@ class TestMessageContext:
     ):
         mock_delete_after = mock.Mock()
         context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock_client, mock.Mock(), "e", mock.AsyncMock()
+            mock_client, "e", mock.AsyncMock()
         )
         context._initial_response_id = hikari.Snowflake(32123)
 
@@ -375,7 +370,7 @@ class TestMessageContext:
     ):
         mock_delete_after = mock.Mock()
         context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock_client, mock.Mock(), "e", mock.AsyncMock()
+            mock_client, "e", mock.AsyncMock()
         )
         context._last_response_id = hikari.Snowflake(32123)
 
@@ -504,7 +499,7 @@ class TestMessageContext:
     async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
         mock_delete_after = mock.Mock()
         context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock.Mock(), mock.Mock(), "e", mock.AsyncMock()
+            mock.Mock(), "e", mock.AsyncMock()
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:

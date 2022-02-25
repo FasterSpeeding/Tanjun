@@ -40,6 +40,7 @@ import time
 import typing
 from unittest import mock
 
+import alluka
 import hikari
 import pytest
 
@@ -140,7 +141,7 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_cache_falls_back
     mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
-    mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
@@ -240,7 +241,7 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
-    mock_context.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
 
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
 

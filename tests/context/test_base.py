@@ -38,6 +38,7 @@ import types
 import typing
 from unittest import mock
 
+import alluka
 import hikari
 import pytest
 from hikari import traits
@@ -66,11 +67,6 @@ def mock_client() -> tanjun.abc.Client:
 
 
 @pytest.fixture()
-def mock_injector_client() -> tanjun.injecting.InjectorClient:
-    return mock.MagicMock(tanjun.injecting.InjectorClient)
-
-
-@pytest.fixture()
 def mock_component() -> tanjun.abc.Component:
     return mock.MagicMock(tanjun.abc.Component)
 
@@ -80,9 +76,8 @@ class TestBaseContext:
     def context(
         self,
         mock_client: mock.Mock,
-        mock_injector_client: tanjun.injecting.InjectorClient,
     ) -> base_context.BaseContext:
-        return stub_class(base_context.BaseContext)(mock_client, mock_injector_client)
+        return stub_class(base_context.BaseContext)(mock_client)
 
     def test_cache_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):
         assert context.cache is mock_client.cache
@@ -102,21 +97,17 @@ class TestBaseContext:
     def test_server_property(self, context: base_context.BaseContext, mock_client: mock.Mock):
         assert context.server is mock_client.server
 
-    def test_shard_property(self, mock_client: mock.Mock, mock_injector_client: tanjun.injecting.InjectorClient):
+    def test_shard_property(self, mock_client: mock.Mock):
         mock_shard = mock.Mock()
         mock_client.shards = mock.MagicMock(spec=traits.ShardAware, shard_count=5, shards={2: mock_shard})
-        context = stub_class(base_context.BaseContext, guild_id=hikari.Snowflake(123321123312))(
-            mock_client, mock_injector_client
-        )
+        context = stub_class(base_context.BaseContext, guild_id=hikari.Snowflake(123321123312))(mock_client)
 
         assert context.shard is mock_shard
 
-    def test_shard_property_when_dm(
-        self, mock_client: mock.Mock, mock_injector_client: tanjun.injecting.InjectorClient
-    ):
+    def test_shard_property_when_dm(self, mock_client: mock.Mock):
         mock_shard = mock.Mock()
         mock_client.shards = mock.Mock(shards={0: mock_shard})
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client, mock_injector_client)
+        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client)
 
         assert context.shard is mock_shard
 
@@ -143,24 +134,24 @@ class TestBaseContext:
         assert context.component is component
         assert context.get_type_dependency(tanjun.abc.Component) is component
 
-    def test_set_component_when_none_and_previously_set(
-        self, context: base_context.BaseContext, mock_injector_client: mock.Mock
-    ):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    def test_set_component_when_none_and_previously_set(self, context: base_context.BaseContext):
+        assert isinstance(context.injection_client.get_type_dependency, mock.Mock)
+        context.injection_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         mock_component = mock.Mock()
         context.set_component(mock_component)
         context.set_component(None)
 
         assert context.component is None
-        assert context.get_type_dependency(tanjun.abc.Component) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.Component) is alluka.abc.UNDEFINED
 
-    def test_set_component_when_none(self, context: base_context.BaseContext, mock_injector_client: mock.Mock):
-        mock_injector_client.get_type_dependency.return_value = tanjun.injecting.UNDEFINED
+    def test_set_component_when_none(self, context: base_context.BaseContext):
+        assert isinstance(context.injection_client.get_type_dependency, mock.Mock)
+        context.injection_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         context.set_component(None)
         context.set_component(None)
 
         assert context.component is None
-        assert context.get_type_dependency(tanjun.abc.Component) is tanjun.injecting.UNDEFINED
+        assert context.get_type_dependency(tanjun.abc.Component) is alluka.abc.UNDEFINED
 
     def test_set_component_when_final(self, context: base_context.BaseContext):
         component = mock.Mock()
@@ -188,7 +179,7 @@ class TestBaseContext:
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
     def test_get_channel_when_cacheless(self):
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock.Mock(cache=None), mock.Mock())
+        context = stub_class(base_context.BaseContext, guild_id=None)(mock.Mock(cache=None))
 
         assert context.get_channel() is None
 
@@ -198,13 +189,13 @@ class TestBaseContext:
         mock_client.cache.get_guild.assert_called_once_with(context.guild_id)
 
     def test_get_guild_when_cacheless(self):
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock.Mock(cache=None), mock.Mock())
+        context = stub_class(base_context.BaseContext, guild_id=None)(mock.Mock(cache=None))
 
         assert context.get_guild() is None
 
     def test_get_guild_when_dm_bound(self):
         mock_client = mock.MagicMock()
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client, mock.Mock())
+        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client)
 
         assert context.get_guild() is None
         mock_client.cache.get_guild.assert_not_called()
@@ -227,7 +218,7 @@ class TestBaseContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_guild_when_dm_bound(self, mock_client: mock.Mock):
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client, mock.Mock())
+        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client)
 
         result = await context.fetch_guild()
 

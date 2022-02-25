@@ -37,11 +37,11 @@ __all__: list[str] = ["AutocompleteContext"]
 
 import typing
 
+import alluka
 import hikari
 from hikari import snowflakes
 
 from .. import abc
-from .. import injecting
 from . import slash
 
 if typing.TYPE_CHECKING:
@@ -68,7 +68,7 @@ class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):
         return self._option.is_focused
 
 
-class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteContext):
+class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
     __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction", "_options")
@@ -80,9 +80,7 @@ class AutocompleteContext(injecting.BasicInjectionContext, abc.AutocompleteConte
         *,
         future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
     ) -> None:
-        # TODO: upgrade injector client to the abc
-        assert isinstance(client, injecting.InjectorClient)
-        super().__init__(client)
+        super().__init__(client.injector)
         self._client = client
         self._future = future
         self._has_responded = False

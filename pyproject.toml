@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
-dependencies = ["hikari~=2.0.0.dev106"]
+dependencies = ["alluka~=0.1", "hikari~=2.0.0.dev106"]
 dynamic = ["description", "version"]
 
 [project.optional-dependencies]

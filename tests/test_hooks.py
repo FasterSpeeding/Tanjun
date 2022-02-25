@@ -226,9 +226,9 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_error_for_parser_error_with_handlers(self):
-        mock_callback = mock.AsyncMock()
+        mock_callback = mock.Mock()
         mock_other_hook = mock.Mock(trigger_error=mock.AsyncMock(return_value=100))
-        mock_context = mock.Mock()
+        mock_context = mock.AsyncMock()
         mock_error = mock.MagicMock(tanjun.ParserError)
 
         result = (
@@ -238,7 +238,7 @@ class TestHooks:
         )
 
         assert result == 200
-        mock_callback.assert_awaited_once_with(mock_context, mock_error)
+        mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, mock_context, mock_error)
         mock_other_hook.trigger_error.assert_awaited_once_with(mock_context, mock_error)
 
     @pytest.mark.asyncio()
@@ -249,9 +249,10 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_error_with_handler(self):
-        mock_callback = mock.AsyncMock(return_value=True)
+        mock_callback = mock.Mock()
         mock_other_hook = mock.Mock(trigger_error=mock.AsyncMock(return_value=2))
-        mock_context = mock.Mock()
+        mock_context = mock.AsyncMock()
+        mock_context.call_with_async_di.return_value = True
         mock_error = mock.Mock()
 
         result = (
@@ -261,7 +262,7 @@ class TestHooks:
         )
 
         assert result == 3
-        mock_callback.assert_awaited_once_with(mock_context, mock_error)
+        mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, mock_context, mock_error)
         mock_other_hook.trigger_error.assert_awaited_once_with(mock_context, mock_error)
 
     @pytest.mark.asyncio()
@@ -272,9 +273,9 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_post_execution_with_handlers(self):
-        mock_callback = mock.AsyncMock()
+        mock_callback = mock.Mock()
         mock_other_hook = mock.Mock(trigger_post_execution=mock.AsyncMock())
-        mock_context = mock.Mock()
+        mock_context = mock.AsyncMock()
 
         (
             await tanjun.AnyHooks()
@@ -282,7 +283,7 @@ class TestHooks:
             .trigger_post_execution(mock_context, hooks={mock_other_hook})
         )
 
-        mock_callback.assert_awaited_once_with(mock_context)
+        mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, mock_context)
         mock_other_hook.trigger_post_execution.assert_awaited_once_with(mock_context)
 
     @pytest.mark.asyncio()
@@ -291,9 +292,9 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_pre_execution_with_handlers(self):
-        mock_callback = mock.AsyncMock()
+        mock_callback = mock.Mock()
         mock_other_hook = mock.Mock(trigger_pre_execution=mock.AsyncMock())
-        mock_context = mock.Mock()
+        mock_context = mock.AsyncMock()
 
         (
             await tanjun.AnyHooks()
@@ -301,7 +302,7 @@ class TestHooks:
             .trigger_pre_execution(mock_context, hooks={mock_other_hook})
         )
 
-        mock_callback.assert_awaited_once_with(mock_context)
+        mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, mock_context)
         mock_other_hook.trigger_pre_execution.assert_awaited_once_with(mock_context)
 
     @pytest.mark.asyncio()
@@ -310,13 +311,13 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_success_with_handlers(self):
-        mock_callback = mock.AsyncMock()
+        mock_callback = mock.Mock()
         mock_other_hook = mock.Mock(trigger_success=mock.AsyncMock())
-        mock_context = mock.Mock()
+        mock_context = mock.AsyncMock()
 
         (await tanjun.AnyHooks().set_on_success(mock_callback).trigger_success(mock_context, hooks={mock_other_hook}))
 
-        mock_callback.assert_awaited_once_with(mock_context)
+        mock_context.call_with_async_di.assert_awaited_once_with(mock_callback, mock_context)
         mock_other_hook.trigger_success.assert_awaited_once_with(mock_context)
 
     @pytest.mark.asyncio()

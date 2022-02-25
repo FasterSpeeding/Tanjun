@@ -43,7 +43,6 @@ import typing
 
 import hikari
 
-from .. import injecting
 from . import async_cache
 
 if typing.TYPE_CHECKING:
@@ -170,9 +169,6 @@ class Owners(AbstractOwners):
 
         if not self._fallback_to_application:
             return False
-
-        # TODO: upgrade the injector stuff to the standard interface
-        assert isinstance(client, injecting.InjectorClient)
 
         application_cache = client.get_type_dependency(_ApplicationCacheT)
         if application_cache and (application := await application_cache.get(default=None)):

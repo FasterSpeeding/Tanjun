@@ -83,14 +83,15 @@ import typing
 import urllib.parse as urlparse
 from collections import abc as collections
 
+import alluka
 import hikari
 
 from . import abc as tanjun_abc
-from . import injecting
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
     from . import parsing
+
 
 _ArgumentT = typing.Union[str, int, float]
 _ValueT = typing.TypeVar("_ValueT")
@@ -184,10 +185,8 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         parent_name : str
             The name of the converter's parent, used for warning messages.
         """
-        # TODO: upgrade this stuff to the standard interface
-        assert isinstance(client, injecting.InjectorClient)
         if not client.cache and any(
-            client.get_type_dependency(cls) is injecting.UNDEFINED for cls in self.async_caches
+            client.get_type_dependency(cls) is alluka.abc.UNDEFINED for cls in self.async_caches
         ):
             if self.requires_cache:
                 _LOGGER.warning(
@@ -261,9 +260,9 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _GuildChannelCacheT = injecting.inject(type=_GuildChannelCacheT),
-        dm_cache: _DmCacheT = injecting.inject(type=_DmCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
+        dm_cache: _DmCacheT = alluka.inject(type=_DmCacheT),
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
@@ -349,8 +348,8 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _EmojiCacheT = injecting.inject(type=_EmojiCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _EmojiCacheT = alluka.inject(type=_EmojiCacheT),
     ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
@@ -416,8 +415,8 @@ class ToGuild(BaseConverter[hikari.Guild]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _GuildCacheT = injecting.inject(type=_GuildCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _GuildCacheT = alluka.inject(type=_GuildCacheT),
     ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
         if ctx.cache and (guild := ctx.cache.get_guild(guild_id)):
@@ -477,8 +476,8 @@ class ToInvite(BaseConverter[hikari.Invite]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _InviteCacheT = injecting.inject(type=_InviteCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _InviteCacheT = alluka.inject(type=_InviteCacheT),
     ) -> hikari.Invite:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
@@ -543,8 +542,8 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: typing.Optional[_InviteCacheT] = injecting.inject(type=_InviteCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: typing.Optional[_InviteCacheT] = alluka.inject(type=_InviteCacheT),
     ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
@@ -600,8 +599,8 @@ class ToMember(BaseConverter[hikari.Member]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _MemberCacheT = injecting.inject(type=_MemberCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _MemberCacheT = alluka.inject(type=_MemberCacheT),
     ) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
@@ -680,8 +679,8 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _PresenceCacheT = injecting.inject(type=_PresenceCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _PresenceCacheT = alluka.inject(type=_PresenceCacheT),
     ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
@@ -734,8 +733,8 @@ class ToRole(BaseConverter[hikari.Role]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _RoleCacheT = injecting.inject(type=_RoleCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _RoleCacheT = alluka.inject(type=_RoleCacheT),
     ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID found")
         if ctx.cache and (role := ctx.cache.get_role(role_id)):
@@ -797,8 +796,8 @@ class ToUser(BaseConverter[hikari.User]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _UserCacheT = injecting.inject(type=_UserCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _UserCacheT = alluka.inject(type=_UserCacheT),
     ) -> hikari.User:
         # TODO: search by name if this is a guild context
         user_id = parse_user_id(argument, message="No valid user mention or ID found")
@@ -863,8 +862,8 @@ class ToMessage(BaseConverter[hikari.Message]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _MessageCacheT = injecting.inject(type=_MessageCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _MessageCacheT = alluka.inject(type=_MessageCacheT),
     ) -> hikari.Message:
         channel_id, message_id = parse_message_id(argument)
         if ctx.cache and (message := ctx.cache.get_message(message_id)):
@@ -927,8 +926,8 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _VoiceStateCacheT = injecting.inject(type=_VoiceStateCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _VoiceStateCacheT = alluka.inject(type=_VoiceStateCacheT),
     ) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
