@@ -334,7 +334,6 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         except self._ignored_exceptions:
             pass
 
-    # TODO: take alluka.abc.Client lol
     async def _loop(self, client: alluka.Client, /) -> None:
         event_loop = asyncio.get_running_loop()
         try:
