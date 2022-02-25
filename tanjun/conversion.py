@@ -1305,6 +1305,9 @@ def parse_message_id(
             pass
 
     # We should also range check the provided ID.
+    if channel_id is not None and not _range_check(channel_id):
+        raise ValueError(message) from None
+
     if message_id is not None and _range_check(message_id):
         return channel_id, message_id
 
