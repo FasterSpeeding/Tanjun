@@ -835,7 +835,7 @@ _MessageCacheT = typing.Optional[async_cache.SfCache[hikari.Message]]
 class ToMessage(BaseConverter[hikari.Message]):
     """Standard converter for messages.
 
-    For a standard instance of this see `to_message`.
+    For a standard instance of this see [to_message][].
     """
 
     __slots__ = ()
@@ -1566,7 +1566,7 @@ to_user: typing.Final[ToUser] = ToUser()
 """Convert user input to a [hikari.User][] object."""
 
 to_message: typing.Final[ToMessage] = ToMessage()
-"""Convert user input to a `hikari.Message` object."""
+"""Convert user input to a [hikari.Message][] object."""
 
 to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
 """Convert user input to a cached [hikari.VoiceState][]."""
