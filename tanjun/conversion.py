@@ -862,8 +862,8 @@ class ToMessage(BaseConverter[hikari.Message]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context),
-        cache: _MessageCacheT = injecting.inject(type=_MessageCacheT),
+        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        cache: _MessageCacheT = alluka.inject(type=_MessageCacheT),
     ) -> hikari.Message:
         channel_id, message_id = parse_message_id(argument)
         if ctx.cache and (message := ctx.cache.get_message(message_id)):
