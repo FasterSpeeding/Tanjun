@@ -1259,7 +1259,7 @@ def parse_message_id(
     /,
     *,
     message: str = "No valid message link or ID found",
-) -> typing.Tuple[typing.Optional[hikari.Snowflake], hikari.Snowflake]:
+) -> tuple[typing.Optional[hikari.Snowflake], hikari.Snowflake]:
     """Parse a user ID from a string or int value.
 
     Parameters
