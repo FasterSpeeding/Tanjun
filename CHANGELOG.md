@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.4.1a1] - 2022-02-25A
+## [2.4.1a1] - 2022-02-25
 ### Added
 - Alluka's dependency injection interface(s) have been upgraded to the standard Client interface
   and Context interfaces.
@@ -517,7 +517,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.1a1...HEAD
+[2.4.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.0a1...v2.4.1a1
 [2.4.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...v2.4.0a1
 [2.3.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...v2.3.1a1
 [2.3.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.2.2a1...v2.3.0a1
