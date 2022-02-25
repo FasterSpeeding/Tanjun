@@ -157,6 +157,27 @@
 
             </li>
             <li>
+                    <a class="class" href="#ToMessage">ToMessage</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ToMessage.__init__">ToMessage</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ToMessage.async_caches">async_caches</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ToMessage.cache_components">cache_components</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ToMessage.intents">intents</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ToMessage.requires_cache">requires_cache</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#ToPresence">ToPresence</a>
                             <ul class="memberlist">
                         <li>
@@ -250,6 +271,9 @@
                     <a class="function" href="#parse_emoji_id">parse_emoji_id</a>
             </li>
             <li>
+                    <a class="function" href="#parse_message_id">parse_message_id</a>
+            </li>
+            <li>
                     <a class="function" href="#parse_role_id">parse_role_id</a>
             </li>
             <li>
@@ -302,6 +326,9 @@
             </li>
             <li>
                     <a class="variable" href="#to_member">to_member</a>
+            </li>
+            <li>
+                    <a class="variable" href="#to_message">to_message</a>
             </li>
             <li>
                     <a class="variable" href="#to_presence">to_presence</a>
@@ -380,6 +407,7 @@
     <span class="s2">&quot;ToInvite&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ToInviteWithMetadata&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ToMember&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ToMessage&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ToPresence&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ToRole&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ToUser&quot;</span><span class="p">,</span>
@@ -387,6 +415,7 @@
     <span class="s2">&quot;from_datetime&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_channel_id&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_emoji_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_message_id&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_role_id&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_snowflake&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_user_id&quot;</span><span class="p">,</span>
@@ -405,6 +434,7 @@
     <span class="s2">&quot;to_invite&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_invite_with_metadata&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_member&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_message&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_presence&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_role&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_snowflake&quot;</span><span class="p">,</span>
@@ -1165,6 +1195,68 @@
 <span class="n">UserConverter</span> <span class="o">=</span> <span class="n">ToUser</span>
 <span class="sd">&quot;&quot;&quot;Deprecated alias of `ToUser`.&quot;&quot;&quot;</span>
 
+
+<span class="n">_MessageCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]]</span>
+
+
+<span class="k">class</span> <span class="nc">ToMessage</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for messages.</span>
+
+<span class="sd">    For a standard instance of this see `to_message`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_MessageCacheT</span><span class="p">,)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">MESSAGES</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_MESSAGES</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">DM_MESSAGES</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_MessageCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_MessageCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
+        <span class="n">channel_id</span><span class="p">,</span> <span class="n">message_id</span> <span class="o">=</span> <span class="n">parse_message_id</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">message</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_message</span><span class="p">(</span><span class="n">message_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">message</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find message&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_message</span><span class="p">(</span><span class="n">channel_id</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find message&quot;</span><span class="p">)</span>
+
+
 <span class="n">_VoiceStateCacheT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfGuildBound</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]]</span>
 
 
@@ -1527,6 +1619,68 @@
 <span class="sd">    List of the user IDs in the string.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="n">_MESSAGE_LINK_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+|@me)/(\d+)/(\d+)&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_message_id</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid message link or ID found&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Parse a user ID from a string or int value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: str | int</span>
+<span class="sd">        The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    message: str</span>
+<span class="sd">        The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[hikari.Snowflake | None, hikari.Snowflake]</span>
+<span class="sd">        The parsed channel and message IDs.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the value cannot be parsed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">channel_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">message_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">message_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">capture</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_MESSAGE_LINK_REGEX</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">capture</span><span class="p">:</span>
+                <span class="n">channel_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">capture</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">message_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">capture</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">message_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># We should also range check the provided ID.</span>
+    <span class="k">if</span> <span class="n">channel_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">channel_id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="n">message_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">message_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">message_id</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
 
 <span class="k">def</span> <span class="nf">_build_url_parser</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">]:</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
@@ -1798,6 +1952,9 @@
 
 <span class="n">to_user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToUser</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToUser</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.User` object.&quot;&quot;&quot;</span>
+
+<span class="n">to_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToMessage</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToMessage</span><span class="p">()</span>
+<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.Message` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_voice_state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ToVoiceState</span><span class="p">]</span> <span class="o">=</span> <span class="n">ToVoiceState</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.VoiceState`.&quot;&quot;&quot;</span>
@@ -2893,6 +3050,172 @@ isn't satisfied and will never fallback to REST requests.</p>
                                 </dl>
                             </div>
                 </section>
+                <section id="ToMessage">
+                                <div class="attr class">
+        <a class="headerlink" href="#ToMessage">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ToMessage</span><wbr>(<span class="base"><a href="#BaseConverter">tanjun.conversion.BaseConverter[hikari.messages.Message]</a></span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ToMessage</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for messages.</span>
+
+<span class="sd">    For a standard instance of this see `to_message`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">async_caches</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_MessageCacheT</span><span class="p">,)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">MESSAGES</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_MESSAGES</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">DM_MESSAGES</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from BaseConverter&gt;&gt;.</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">argument</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="n">_MessageCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_MessageCacheT</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
+        <span class="n">channel_id</span><span class="p">,</span> <span class="n">message_id</span> <span class="o">=</span> <span class="n">parse_message_id</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">message</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_message</span><span class="p">(</span><span class="n">message_id</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">message</span>
+
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">EntryNotFound</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find message&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+            <span class="k">except</span> <span class="n">async_cache</span><span class="o">.</span><span class="n">CacheMissError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_message</span><span class="p">(</span><span class="n">channel_id</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find message&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Standard converter for messages.</p>
+
+<p>For a standard instance of this see <code><a href="#to_message">to_message</a></code>.</p>
+</div>
+
+
+                            <div id="ToMessage.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ToMessage.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">ToMessage</span><span class="signature">()</span>
+    </div>
+
+        
+    
+
+                            </div>
+                            <div id="ToMessage.async_caches" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ToMessage.async_caches">#&nbsp;&nbsp</a>
+
+        <span class="name">async_caches</span><span class="annotation">: collections.abc.Sequence[typing.Any]</span>
+    </div>
+
+            <div class="docstring"><p>Collection of the asynchronous caches that this converter relies on.</p>
+
+<p>This will only be necessary if the suggested intents or cache_components
+aren't enabled for a converter which requires cache.</p>
+</div>
+
+
+                            </div>
+                            <div id="ToMessage.cache_components" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ToMessage.cache_components">#&nbsp;&nbsp</a>
+
+        <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
+    </div>
+
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code>BaseConverter.requires_cache</code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
+
+                            </div>
+                            <div id="ToMessage.intents" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ToMessage.intents">#&nbsp;&nbsp</a>
+
+        <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
+    </div>
+
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code>BaseConverter.cache_components</code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code>BaseConverter.requires_cache</code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+</div>
+
+
+                            </div>
+                            <div id="ToMessage.requires_cache" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ToMessage.requires_cache">#&nbsp;&nbsp</a>
+
+        <span class="name">requires_cache</span><span class="annotation">: bool</span>
+    </div>
+
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code>BaseConverter.intents</code> or <code>BaseConverter.cache_components</code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#BaseConverter">BaseConverter</a></dt>
+                                <dd id="ToMessage.check_client" class="function"><a href="#BaseConverter.check_client">check_client</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
                 <section id="ToPresence">
                                 <div class="attr class">
         <a class="headerlink" href="#ToPresence">#&nbsp;&nbsp</a>
@@ -3837,6 +4160,114 @@ The error message to raise if the value cannot be parsed.</li>
 
 
                 </section>
+                <section id="parse_message_id">
+                            <div class="attr function"><a class="headerlink" href="#parse_message_id">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">parse_message_id</span><span class="signature">(
+    value: Union[str, int, float],
+    /,
+    *,
+    message: str = &#39;No valid message link or ID found&#39;
+) -&gt; tuple[typing.Optional[hikari.snowflakes.Snowflake], hikari.snowflakes.Snowflake]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_message_id</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">_ArgumentT</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid message link or ID found&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Parse a user ID from a string or int value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: str | int</span>
+<span class="sd">        The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    message: str</span>
+<span class="sd">        The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[hikari.Snowflake | None, hikari.Snowflake]</span>
+<span class="sd">        The parsed channel and message IDs.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the value cannot be parsed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">channel_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">message_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">message_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">capture</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_MESSAGE_LINK_REGEX</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">capture</span><span class="p">:</span>
+                <span class="n">channel_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">capture</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">message_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">capture</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Technically passing a float here is invalid (typing wise)</span>
+            <span class="c1"># but we handle that by catching TypeError</span>
+            <span class="n">message_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># We should also range check the provided ID.</span>
+    <span class="k">if</span> <span class="n">channel_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">channel_id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="n">message_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">message_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">message_id</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Parse a user ID from a string or int value.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (str | int):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>tuple[hikari.Snowflake | None, hikari.Snowflake]</strong>: The parsed channel and message IDs.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
+
+                </section>
                 <section id="parse_role_id">
                             <div class="attr function"><a class="headerlink" href="#parse_role_id">#&nbsp;&nbsp</a>
 
@@ -4765,6 +5196,17 @@ or <code>hikari.UnicodeEmoji.parse</code> methods.</p>
     </div>
 
             <div class="docstring"><p>Convert user input to a <code>hikari.Member</code> object.</p>
+</div>
+
+
+                </section>
+                <section id="to_message">
+                                <div class="attr variable"><a class="headerlink" href="#to_message">#&nbsp;&nbsp</a>
+
+        <span class="name">to_message</span><span class="annotation">: Final[<a href="#ToMessage">tanjun.conversion.ToMessage</a>]</span><span class="default_value"> = &lt;<a href="#ToMessage">tanjun.conversion.ToMessage</a> object&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Convert user input to a <code>hikari.Message</code> object.</p>
 </div>
 
 
