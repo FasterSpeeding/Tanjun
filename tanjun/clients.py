@@ -802,6 +802,10 @@ class Client(tanjun_abc.Client):
             based on Hikari's lifetime events.
 
             Defaults to `True`.
+        injector : alluka.abc.Client | None
+            The alluka client this should use for dependency injection.
+
+            If not provided then the client will initialise its own DI client.
         mention_prefix : bool
             Whether or not mention prefixes should be automatically set when this
             client is first started.
@@ -899,6 +903,10 @@ class Client(tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
+        injector : alluka.abc.Client | None
+            The alluka client this should use for dependency injection.
+
+            If not provided then the client will initialise its own DI client.
         set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.PartialCommand] | None

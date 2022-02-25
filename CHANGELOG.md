@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as needing DI) now won't error until they're called with DI.
 
 ### Fixed
+- Duplication detection while checking for commands with overlapping names on declare.
 - Relaxed menu command name validation to allow special characters and mixed cases.
 
 ### Removed
