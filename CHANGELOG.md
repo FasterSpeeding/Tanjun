@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - `tanjun.injecting` now only consists of deprecated aliases to Alluka types, with the only
-  `tanjun.inject` and `tanjun.injectes` being left as not deprecated for the sake of ease of use.
+  `tanjun.inject` and `tanjun.injected` being left as not deprecated for the sake of ease of use.
 
 ### Fixed
 - Relaxed menu command name validation to allow special characters and mixed cases.
