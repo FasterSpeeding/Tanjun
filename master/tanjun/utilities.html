@@ -137,27 +137,32 @@
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.dependencies</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span>
-
 
 <span class="n">_KeyT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_KeyT&quot;</span><span class="p">)</span>
-<span class="n">_ValueT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ValueT&quot;</span><span class="p">)</span>
 <span class="n">_OtherValueT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_OtherValueT&quot;</span><span class="p">)</span>
+<span class="n">_ValueT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ValueT&quot;</span><span class="p">)</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_execute_check</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">foo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ctx : tanjun.abc.Context</span>
 <span class="sd">        The context to check.</span>
-<span class="sd">    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]</span>
+<span class="sd">    checks : collections.abc.Iterable[tanjun.abc.CheckSig]</span>
 <span class="sd">        An iterable of injectable checks.</span>
 
 <span class="sd">    Returns</span>
@@ -166,7 +171,7 @@
 <span class="sd">        Whether all the checks passed or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">_execute_check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
         <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
         <span class="c1"># we get this far then it&#39;s True.</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -306,9 +311,6 @@
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_fetch_channel</span><span class="p">(</span>
     <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">:</span>
-    <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">channel</span>
 
@@ -369,9 +371,6 @@
 <span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-
     <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
     <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
     <span class="n">guild</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]</span>
@@ -494,8 +493,6 @@
 <span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
     <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
     <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
     <span class="n">role</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">guild_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="k">else</span> <span class="kc">None</span>
@@ -922,8 +919,6 @@ guild channel.</li>
 <span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
     <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
     <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
     <span class="n">role</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">guild_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1045,9 +1040,6 @@ permissions on a guild level.</p></li>
 <span class="sd">    hikari.Permissions</span>
 <span class="sd">        The calculated permissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: upgrade injecting stuff to the standard interface</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-
     <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
     <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
     <span class="n">guild</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]</span>
@@ -1135,21 +1127,21 @@ permissions.</li>
             <span class="def">async def</span>
             <span class="name">gather_checks</span><span class="signature">(
     ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
-    checks_: collections.abc.Iterable[<a href="checks.html#InjectableCheck">tanjun.checks.InjectableCheck</a>],
+    checks_: collections.abc.Iterable[typing.Union[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, bool]], collections.abc.Callable[..., bool]]],
     /
 ) -&gt; bool</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ctx : tanjun.abc.Context</span>
 <span class="sd">        The context to check.</span>
-<span class="sd">    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]</span>
+<span class="sd">    checks : collections.abc.Iterable[tanjun.abc.CheckSig]</span>
 <span class="sd">        An iterable of injectable checks.</span>
 
 <span class="sd">    Returns</span>
@@ -1158,7 +1150,7 @@ permissions.</li>
 <span class="sd">        Whether all the checks passed or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">_execute_check</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
         <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
         <span class="c1"># we get this far then it&#39;s True.</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -1176,7 +1168,7 @@ permissions.</li>
 <ul>
 <li><strong>ctx</strong> (<a href="abc.html#Context">tanjun.abc.Context</a>):
 The context to check.</li>
-<li><strong>checks</strong> (collections.abc.Iterable[<a href="injecting.html#InjectableCheck">tanjun.injecting.InjectableCheck</a>]):
+<li><strong>checks</strong> (collections.abc.Iterable[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]):
 An iterable of injectable checks.</li>
 </ul>
 

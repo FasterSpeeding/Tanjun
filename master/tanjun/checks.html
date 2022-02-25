@@ -40,12 +40,6 @@
 
             </li>
             <li>
-                    <a class="variable" href="#CallbackReturnT">CallbackReturnT</a>
-            </li>
-            <li>
-                    <a class="variable" href="#CommandT">CommandT</a>
-            </li>
-            <li>
                     <a class="class" href="#DmCheck">DmCheck</a>
                             <ul class="memberlist">
                         <li>
@@ -193,8 +187,6 @@
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AuthorPermissionCheck&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CallbackReturnT&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CommandT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;DmCheck&quot;</span><span class="p">,</span>
     <span class="s2">&quot;GuildCheck&quot;</span><span class="p">,</span>
     <span class="s2">&quot;NsfwCheck&quot;</span><span class="p">,</span>
@@ -218,59 +210,25 @@
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
+<span class="kn">import</span> <span class="nn">alluka</span>
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dependencies</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 
 
-<span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;tanjun_abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
-<span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list</span>
-<span class="n">CallbackReturnT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[CommandT], CommandT]&quot;</span><span class="p">]</span>
-<span class="sd">&quot;&quot;&quot;Type hint for the return value of decorators which optionally take keyword arguments.</span>
-
-<span class="sd">Examples</span>
-<span class="sd">--------</span>
-<span class="sd">Decorator functions with this as their return type may either be used as a</span>
-<span class="sd">decorator directly without being explicitly called:</span>
-
-<span class="sd">```python</span>
-<span class="sd">@with_dm_check</span>
-<span class="sd">@as_command(&quot;foo&quot;)</span>
-<span class="sd">def foo_command(self, ctx: Context) -&gt; None:</span>
-<span class="sd">    raise NotImplemented</span>
-<span class="sd">```</span>
-
-<span class="sd">Or may be called with the listed other parameters as keyword arguments</span>
-<span class="sd">while decorating a function.</span>
-
-<span class="sd">```python</span>
-<span class="sd">@with_dm_check(halt_execution=True)</span>
-<span class="sd">@as_command(&quot;foo&quot;)</span>
-<span class="sd">def foo_command(self, ctx: Context) -&gt; None:</span>
-<span class="sd">    raise NotImplemented</span>
-<span class="sd">```</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-
-<span class="k">class</span> <span class="nc">InjectableCheck</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span>
+<span class="n">_CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;tanjun_abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
+<span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list</span>
+<span class="n">_CallbackReturnT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[_CommandT], _CommandT]&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_optional_kwargs</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]]:</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]]:</span>
     <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
 
@@ -335,7 +293,7 @@
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">dependency</span><span class="p">:</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">),</span>
+        <span class="n">dependency</span><span class="p">:</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="k">await</span> <span class="n">dependency</span><span class="o">.</span><span class="n">check_ownership</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">))</span>
 
@@ -410,7 +368,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
+        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="k">await</span> <span class="n">_get_is_nsfw</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dm_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">channel_cache</span><span class="o">=</span><span class="n">channel_cache</span><span class="p">))</span>
 
@@ -453,7 +411,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
+        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="ow">not</span> <span class="k">await</span> <span class="n">_get_is_nsfw</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dm_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">channel_cache</span><span class="o">=</span><span class="n">channel_cache</span><span class="p">))</span>
 
@@ -668,29 +626,32 @@
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_dm_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">with_dm_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
     <span class="o">...</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
 <span class="k">def</span> <span class="nf">with_dm_check</span><span class="p">(</span>
     <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in DMs&quot;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
 
 
 <span class="k">def</span> <span class="nf">with_dm_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in DMs&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a DM channel.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -706,44 +667,41 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">DmCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_guild_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">with_guild_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
     <span class="o">...</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
 <span class="k">def</span> <span class="nf">with_guild_check</span><span class="p">(</span>
     <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in guild channels&quot;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
 
 
 <span class="k">def</span> <span class="nf">with_guild_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in guild channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a guild channel.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -759,44 +717,41 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommanmd</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">GuildCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_nsfw_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">with_nsfw_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
     <span class="o">...</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
 <span class="k">def</span> <span class="nf">with_nsfw_check</span><span class="p">(</span>
     <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in NSFW channels&quot;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
 
 
 <span class="k">def</span> <span class="nf">with_nsfw_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in NSFW channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a channel that&#39;s marked as nsfw.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -812,22 +767,16 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">NsfwCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_sfw_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">with_sfw_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
     <span class="o">...</span>
 
 
@@ -836,22 +785,25 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in SFW channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
 
 
 <span class="k">def</span> <span class="nf">with_sfw_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in SFW channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a channel that&#39;s marked as sfw.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -867,22 +819,16 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">SfwCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-<span class="k">def</span> <span class="nf">with_owner_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">with_owner_check</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
     <span class="o">...</span>
 
 
@@ -891,22 +837,25 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Only bot owners can use this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="o">...</span>
 
 
 <span class="k">def</span> <span class="nf">with_owner_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Only bot owners can use this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if it&#39;s being triggered by one of the bot&#39;s owners.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -922,15 +871,9 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">OwnerCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
@@ -941,7 +884,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;You don&#39;t have the permissions required to use this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if the author has certain permissions in the current channel.</span>
 
 <span class="sd">    Parameters</span>
@@ -970,7 +913,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
@@ -983,7 +926,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Bot doesn&#39;t have the permissions required to run this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if we have certain permissions in the current channel.</span>
 
 <span class="sd">    Parameters</span>
@@ -1012,7 +955,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
@@ -1020,7 +963,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a generic check to a command.</span>
 
 <span class="sd">    Parameters</span>
@@ -1030,7 +973,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
@@ -1039,12 +982,12 @@
 <span class="k">class</span> <span class="nc">_AllChecks</span><span class="p">(</span><span class="n">_Check</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_checks&quot;</span><span class="p">,)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="n">checks</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">check</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="kc">True</span>
@@ -1072,16 +1015,14 @@
 <span class="sd">    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>
 <span class="sd">        A check which will pass if all of the provided check callbacks pass.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
-    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">_AllChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_AllChecks</span><span class="p">([</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">])</span>
 
 
 <span class="k">def</span> <span class="nf">with_all_checks</span><span class="p">(</span>
     <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a check which will pass if all the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
@@ -1107,7 +1048,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">]],</span>
+        <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">],</span>
         <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -1120,7 +1061,7 @@
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">check</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+                <span class="k">if</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
                     <span class="k">return</span> <span class="kc">True</span>
 
             <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span><span class="p">:</span>
@@ -1175,12 +1116,10 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A decorator which adds the generated check to a command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
-    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">_AnyChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">,</span> <span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_AnyChecks</span><span class="p">([</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">],</span> <span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">with_any_checks</span><span class="p">(</span>
@@ -1190,7 +1129,7 @@
     <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">),</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if any of the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
@@ -1221,7 +1160,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A decorator which adds the generated check to a command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
@@ -1397,46 +1336,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 
                             </div>
-                </section>
-                <section id="CallbackReturnT">
-                                <div class="attr variable"><a class="headerlink" href="#CallbackReturnT">#&nbsp;&nbsp</a>
-
-        <span class="name">CallbackReturnT</span><span class="default_value"> = typing.Union[~CommandT, ForwardRef(&#39;collections.Callable[[CommandT], CommandT]&#39;)]</span>
-    </div>
-
-            <div class="docstring"><p>Type hint for the return value of decorators which optionally take keyword arguments.</p>
-
-<h6 id="examples">Examples</h6>
-
-<p>Decorator functions with this as their return type may either be used as a
-decorator directly without being explicitly called:</p>
-
-<div class="codehilite"><pre><span></span><code><span class="nd">@with_dm_check</span>
-<span class="nd">@as_command</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">foo_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="bp">NotImplemented</span>
-</code></pre></div>
-
-<p>Or may be called with the listed other parameters as keyword arguments
-while decorating a function.</p>
-
-<div class="codehilite"><pre><span></span><code><span class="nd">@with_dm_check</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nd">@as_command</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">foo_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="bp">NotImplemented</span>
-</code></pre></div>
-</div>
-
-
-                </section>
-                <section id="CommandT">
-                                <div class="attr variable"><a class="headerlink" href="#CommandT">#&nbsp;&nbsp</a>
-
-        <span class="name">CommandT</span><span class="default_value"> = ~CommandT</span>
-    </div>
-
-    
-
                 </section>
                 <section id="DmCheck">
                                 <div class="attr class">
@@ -1733,7 +1632,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
+        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="k">await</span> <span class="n">_get_is_nsfw</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dm_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">channel_cache</span><span class="o">=</span><span class="n">channel_cache</span><span class="p">))</span>
 </pre></div>
@@ -2031,7 +1930,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">dependency</span><span class="p">:</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">),</span>
+        <span class="n">dependency</span><span class="p">:</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="k">await</span> <span class="n">dependency</span><span class="o">.</span><span class="n">check_ownership</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">))</span>
 </pre></div>
@@ -2159,7 +2058,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
+        <span class="n">channel_cache</span><span class="p">:</span> <span class="n">_GuildChannelCacheT</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_GuildChannelCacheT</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="ow">not</span> <span class="k">await</span> <span class="n">_get_is_nsfw</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dm_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">channel_cache</span><span class="o">=</span><span class="n">channel_cache</span><span class="p">))</span>
 </pre></div>
@@ -2244,9 +2143,9 @@ end the execution search when it fails instead of returning <code>False</code>.<
         
             <span class="def">def</span>
             <span class="name">all_checks</span><span class="signature">(
-    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    check: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     /,
-    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]
+    *checks: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]]
 ) -&gt; collections.abc.Callable[[<a href="abc.html#Context">tanjun.abc.Context</a>], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>:
     </div>
 
@@ -2274,9 +2173,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]</span>
 <span class="sd">        A check which will pass if all of the provided check callbacks pass.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
-    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">_AllChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_AllChecks</span><span class="p">([</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">])</span>
 </pre></div>
 
         </details>
@@ -2310,9 +2207,9 @@ Additional check callbacks to combine.</li>
         
             <span class="def">def</span>
             <span class="name">any_checks</span><span class="signature">(
-    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    check: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     /,
-    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    *checks: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     suppress: tuple[type[Exception], ...] = (&lt;class &#39;<a href="errors.html#CommandError">tanjun.errors.CommandError</a>&#39;&gt;, &lt;class &#39;<a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a>&#39;&gt;),
     error_message: Optional[str],
     halt_execution: bool = False
@@ -2359,12 +2256,10 @@ Additional check callbacks to combine.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A decorator which adds the generated check to a command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">checks_</span> <span class="o">=</span> <span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">check</span><span class="p">)]</span>
-    <span class="n">checks_</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">checks</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">_AnyChecks</span><span class="p">(</span><span class="n">checks_</span><span class="p">,</span> <span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_AnyChecks</span><span class="p">([</span><span class="n">check</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">],</span> <span class="n">suppress</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2404,7 +2299,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[[CommandT], CommandT]</strong>: A decorator which adds the generated check to a command.</li>
+<li><strong>collections.Callable[[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>], <a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>]</strong>: A decorator which adds the generated check to a command.</li>
 </ul>
 </div>
 
@@ -2416,10 +2311,10 @@ end the execution search when it fails instead of returning <code>False</code>.<
         
             <span class="def">def</span>
             <span class="name">with_all_checks</span><span class="signature">(
-    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    check: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     /,
-    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+    *checks: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]]
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
@@ -2428,7 +2323,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="n">checks</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a check which will pass if all the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
@@ -2480,13 +2375,13 @@ Additional check callbacks to combine.</li>
         
             <span class="def">def</span>
             <span class="name">with_any_checks</span><span class="signature">(
-    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    check: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     /,
-    *checks: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    *checks: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     suppress: tuple[type[Exception], ...] = (&lt;class &#39;<a href="errors.html#CommandError">tanjun.errors.CommandError</a>&#39;&gt;, &lt;class &#39;<a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a>&#39;&gt;),
     error_message: Optional[str],
     halt_execution: bool = False
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
@@ -2498,7 +2393,7 @@ Additional check callbacks to combine.</li>
     <span class="n">suppress</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">),</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a check which&#39;ll pass if any of the provided checks pass through a decorator call.</span>
 
 <span class="sd">    This ensures that the callbacks are run in the order they were supplied in</span>
@@ -2529,7 +2424,7 @@ Additional check callbacks to combine.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A decorator which adds the generated check to a command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
@@ -2574,7 +2469,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[[CommandT], CommandT]</strong>: A decorator which adds the generated check to a command.</li>
+<li><strong>collections.Callable[[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>], <a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>]</strong>: A decorator which adds the generated check to a command.</li>
 </ul>
 </div>
 
@@ -2590,7 +2485,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     *,
     error_message: Optional[str] = &#34;You don&#39;t have the permissions required to use this command&#34;,
     halt_execution: bool = False
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
@@ -2600,7 +2495,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;You don&#39;t have the permissions required to use this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if the author has certain permissions in the current channel.</span>
 
 <span class="sd">    Parameters</span>
@@ -2629,7 +2524,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
@@ -2674,7 +2569,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A command decorator callback which adds the check.</li>
+<li><strong>collections.abc.Callable[[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>], <a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>]</strong>: A command decorator callback which adds the check.</li>
 </ul>
 </div>
 
@@ -2686,14 +2581,14 @@ a DM context (e.g. can't have any moderation permissions)</li>
         
             <span class="def">def</span>
             <span class="name">with_check</span><span class="signature">(
-    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    check: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, bool]], collections.abc.Callable[..., bool]],
     /
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a generic check to a command.</span>
 
 <span class="sd">    Parameters</span>
@@ -2703,7 +2598,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
@@ -2723,7 +2618,7 @@ The check to add to this command.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A command decorator callback which adds the check.</li>
+<li><strong>collections.abc.Callable[[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>], <a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>]</strong>: A command decorator callback which adds the check.</li>
 </ul>
 </div>
 
@@ -2735,28 +2630,31 @@ The check to add to this command.</li>
         
             <span class="def">def</span>
             <span class="name">with_dm_check</span><span class="signature">(
-    command: Optional[~CommandT] = None,
+    command: Optional[~_CommandT] = None,
     /,
     *,
     error_message: Optional[str] = &#39;Command can only be used in DMs&#39;,
     halt_execution: bool = False
-) -&gt; Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
+) -&gt; Union[~_CommandT, collections.abc.Callable[[~_CommandT], ~_CommandT]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_dm_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in DMs&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a DM channel.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -2772,15 +2670,9 @@ The check to add to this command.</li>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">DmCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
@@ -2790,10 +2682,13 @@ The check to add to this command.</li>
 
             <div class="docstring"><p>Only let a command run in a DM channel.</p>
 
+<p><em>Note:</em>
+<code>error_message</code> takes priority over <code>halt_execution</code>.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (CommandT | None):
+<li><strong>command</strong> (<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a> | None):
 The command to add this check to.</li>
 </ul>
 
@@ -2812,18 +2707,10 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <p>Defaults to <code>False</code>.</p></li>
 </ul>
 
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>error_message takes priority over halt_execution.</li>
-<li>For more information on how this is used with other parameters see
-<code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
-</ul>
-
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>CallbackReturnT[CommandT]</strong>: The command this check was added to.</li>
+<li><strong><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a></strong>: The command this check was added to.</li>
 </ul>
 </div>
 
@@ -2835,28 +2722,31 @@ end the execution search when it fails instead of returning <code>False</code>.<
         
             <span class="def">def</span>
             <span class="name">with_guild_check</span><span class="signature">(
-    command: Optional[~CommandT] = None,
+    command: Optional[~_CommandT] = None,
     /,
     *,
     error_message: Optional[str] = &#39;Command can only be used in guild channels&#39;,
     halt_execution: bool = False
-) -&gt; Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
+) -&gt; Union[~_CommandT, collections.abc.Callable[[~_CommandT], ~_CommandT]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_guild_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in guild channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a guild channel.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -2872,15 +2762,9 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommanmd</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">GuildCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
@@ -2890,10 +2774,13 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
             <div class="docstring"><p>Only let a command run in a guild channel.</p>
 
+<p><em>Note:</em>
+<code>error_message</code> takes priority over <code>halt_execution</code>.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (CommandT | None):
+<li><strong>command</strong> (<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a> | None):
 The command to add this check to.</li>
 </ul>
 
@@ -2912,18 +2799,10 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <p>Defaults to <code>False</code>.</p></li>
 </ul>
 
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>error_message takes priority over halt_execution.</li>
-<li>For more information on how this is used with other parameters see
-<code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
-</ul>
-
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>CallbackReturnT[CommandT]</strong>: The command this check was added to.</li>
+<li><strong><a href="abc.html#ExecutableCommanmd">tanjun.abc.ExecutableCommanmd</a></strong>: The command this check was added to.</li>
 </ul>
 </div>
 
@@ -2935,28 +2814,31 @@ end the execution search when it fails instead of returning <code>False</code>.<
         
             <span class="def">def</span>
             <span class="name">with_nsfw_check</span><span class="signature">(
-    command: Optional[~CommandT] = None,
+    command: Optional[~_CommandT] = None,
     /,
     *,
     error_message: Optional[str] = &#39;Command can only be used in NSFW channels&#39;,
     halt_execution: bool = False
-) -&gt; Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
+) -&gt; Union[~_CommandT, collections.abc.Callable[[~_CommandT], ~_CommandT]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_nsfw_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in NSFW channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a channel that&#39;s marked as nsfw.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -2972,15 +2854,9 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">NsfwCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
@@ -2990,10 +2866,13 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
             <div class="docstring"><p>Only let a command run in a channel that's marked as nsfw.</p>
 
+<p><em>Note:</em>
+<code>error_message</code> takes priority over <code>halt_execution</code>.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (CommandT | None):
+<li><strong>command</strong> (<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a> | None):
 The command to add this check to.</li>
 </ul>
 
@@ -3012,18 +2891,10 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <p>Defaults to <code>False</code>.</p></li>
 </ul>
 
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>error_message takes priority over halt_execution.</li>
-<li>For more information on how this is used with other parameters see
-<code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
-</ul>
-
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>CallbackReturnT[CommandT]</strong>: The command this check was added to.</li>
+<li><strong><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a></strong>: The command this check was added to.</li>
 </ul>
 </div>
 
@@ -3039,7 +2910,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     *,
     error_message: Optional[str] = &#34;Bot doesn&#39;t have the permissions required to run this command&#34;,
     halt_execution: bool = False
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
@@ -3049,7 +2920,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Bot doesn&#39;t have the permissions required to run this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if we have certain permissions in the current channel.</span>
 
 <span class="sd">    Parameters</span>
@@ -3078,7 +2949,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]</span>
 <span class="sd">        A command decorator callback which adds the check.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span>
@@ -3123,7 +2994,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A command decorator callback which adds the check.</li>
+<li><strong>collections.abc.Callable[[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>], <a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>]</strong>: A command decorator callback which adds the check.</li>
 </ul>
 </div>
 
@@ -3135,28 +3006,31 @@ a DM context (e.g. can't have any moderation permissions)</li>
         
             <span class="def">def</span>
             <span class="name">with_owner_check</span><span class="signature">(
-    command: Optional[~CommandT] = None,
+    command: Optional[~_CommandT] = None,
     /,
     *,
     error_message: Optional[str] = &#39;Only bot owners can use this command&#39;,
     halt_execution: bool = False
-) -&gt; Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
+) -&gt; Union[~_CommandT, collections.abc.Callable[[~_CommandT], ~_CommandT]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_owner_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Only bot owners can use this command&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if it&#39;s being triggered by one of the bot&#39;s owners.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -3172,15 +3046,9 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">OwnerCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
@@ -3190,10 +3058,13 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
             <div class="docstring"><p>Only let a command run if it's being triggered by one of the bot's owners.</p>
 
+<p><em>Note:</em>
+<code>error_message</code> takes priority over <code>halt_execution</code>.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (CommandT | None):
+<li><strong>command</strong> (<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a> | None):
 The command to add this check to.</li>
 </ul>
 
@@ -3212,18 +3083,10 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <p>Defaults to <code>False</code>.</p></li>
 </ul>
 
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>error_message takes priority over halt_execution.</li>
-<li>For more information on how this is used with other parameters see
-<code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
-</ul>
-
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>CallbackReturnT[CommandT]</strong>: The command this check was added to.</li>
+<li><strong><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a></strong>: The command this check was added to.</li>
 </ul>
 </div>
 
@@ -3235,28 +3098,31 @@ end the execution search when it fails instead of returning <code>False</code>.<
         
             <span class="def">def</span>
             <span class="name">with_sfw_check</span><span class="signature">(
-    command: Optional[~CommandT] = None,
+    command: Optional[~_CommandT] = None,
     /,
     *,
     error_message: Optional[str] = &#39;Command can only be used in SFW channels&#39;,
     halt_execution: bool = False
-) -&gt; Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
+) -&gt; Union[~_CommandT, collections.abc.Callable[[~_CommandT], ~_CommandT]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_sfw_check</span><span class="p">(</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command can only be used in SFW channels&quot;</span><span class="p">,</span>
     <span class="n">halt_execution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackReturnT</span><span class="p">[</span><span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run in a channel that&#39;s marked as sfw.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        `error_message` takes priority over `halt_execution`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    command : CommandT | None</span>
+<span class="sd">    command : tanjun.abc.ExecutableCommand | None</span>
 <span class="sd">        The command to add this check to.</span>
 
 <span class="sd">    Other Parameters</span>
@@ -3272,15 +3138,9 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    * error_message takes priority over halt_execution.</span>
-<span class="sd">    * For more information on how this is used with other parameters see</span>
-<span class="sd">      `CallbackReturnT`.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    CallbackReturnT[CommandT]</span>
+<span class="sd">    tanjun.abc.ExecutableCommand</span>
 <span class="sd">        The command this check was added to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_optional_kwargs</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">SfwCheck</span><span class="p">(</span><span class="n">halt_execution</span><span class="o">=</span><span class="n">halt_execution</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="n">error_message</span><span class="p">))</span>
@@ -3290,10 +3150,13 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
             <div class="docstring"><p>Only let a command run in a channel that's marked as sfw.</p>
 
+<p><em>Note:</em>
+<code>error_message</code> takes priority over <code>halt_execution</code>.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (CommandT | None):
+<li><strong>command</strong> (<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a> | None):
 The command to add this check to.</li>
 </ul>
 
@@ -3312,18 +3175,10 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <p>Defaults to <code>False</code>.</p></li>
 </ul>
 
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>error_message takes priority over halt_execution.</li>
-<li>For more information on how this is used with other parameters see
-<code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
-</ul>
-
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>CallbackReturnT[CommandT]</strong>: The command this check was added to.</li>
+<li><strong><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a></strong>: The command this check was added to.</li>
 </ul>
 </div>
 

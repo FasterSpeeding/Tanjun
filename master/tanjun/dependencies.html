@@ -391,7 +391,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="c1"># __init__.py</span>
     <span class="s2">&quot;AbstractConcurrencyLimiter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AbstractCooldownManager&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AbstractOwners&quot;</span><span class="p">,</span>
@@ -428,7 +427,7 @@
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">abc</span>
 <span class="kn">from</span> <span class="nn">.async_cache</span> <span class="kn">import</span> <span class="n">AsyncCache</span>
 <span class="kn">from</span> <span class="nn">.async_cache</span> <span class="kn">import</span> <span class="n">CacheIterator</span>
 <span class="kn">from</span> <span class="nn">.async_cache</span> <span class="kn">import</span> <span class="n">CacheMissError</span>
@@ -457,12 +456,12 @@
 <span class="kn">from</span> <span class="nn">.owners</span> <span class="kn">import</span> <span class="n">Owners</span>
 
 
-<span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Set the standard dependencies for Tanjun.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    client: tanjun.injecting.InjectorClient</span>
+<span class="sd">    client: tanjun.abc.Client</span>
 <span class="sd">        The injector client to set the standard dependencies on.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractOwners</span><span class="p">,</span> <span class="n">Owners</span><span class="p">())</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
@@ -1747,7 +1746,7 @@ For more information on how this is used, see the documentation for
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
 </pre></div>
@@ -1846,7 +1845,7 @@ The concurrency limit bucket's ID.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span><span class="p">)</span>
@@ -1980,8 +1979,8 @@ to acquire the concurrency limit.</p>
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">cooldowns</span><span class="p">:</span> <span class="n">AbstractCooldownManager</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractCooldownManager</span><span class="p">),</span>
-        <span class="n">owner_check</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span>
+        <span class="n">cooldowns</span><span class="p">:</span> <span class="n">AbstractCooldownManager</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractCooldownManager</span><span class="p">),</span>
+        <span class="n">owner_check</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span>
         <span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2487,7 +2486,7 @@ For more information on how this is used, see the documentation for
             <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">bucket</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this concurrency manager to a tanjun client.</span>
 
 <span class="sd">        .. note::</span>
@@ -2500,8 +2499,6 @@ For more information on how this is used, see the documentation for
 <span class="sd">            The client to add this concurrency manager to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
@@ -2676,12 +2673,12 @@ limits for a specific bucket:</p>
 
         
             <span class="def">def</span>
-            <span class="name">add_to_client</span><span class="signature">(self, client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+            <span class="name">add_to_client</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this concurrency manager to a tanjun client.</span>
 
 <span class="sd">        .. note::</span>
@@ -2694,8 +2691,6 @@ limits for a specific bucket:</p>
 <span class="sd">            The client to add this concurrency manager to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
@@ -3092,7 +3087,7 @@ if limit is less 0 or negative.</li>
             <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">bucket</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this cooldown manager to a tanjun client.</span>
 
 <span class="sd">        .. note::</span>
@@ -3105,8 +3100,6 @@ if limit is less 0 or negative.</li>
 <span class="sd">            The client to add this cooldown manager to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractCooldownManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
@@ -3117,6 +3110,7 @@ if limit is less 0 or negative.</li>
         <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
+        <span class="n">bucket</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
             <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
@@ -3125,8 +3119,8 @@ if limit is less 0 or negative.</li>
             <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">resource</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">resource</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
@@ -3295,12 +3289,12 @@ specific bucket:</p>
 
         
             <span class="def">def</span>
-            <span class="name">add_to_client</span><span class="signature">(self, client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+            <span class="name">add_to_client</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this cooldown manager to a tanjun client.</span>
 
 <span class="sd">        .. note::</span>
@@ -3313,8 +3307,6 @@ specific bucket:</p>
 <span class="sd">            The client to add this cooldown manager to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractCooldownManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
@@ -3361,6 +3353,7 @@ The client to add this cooldown manager to.</li>
         <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
+        <span class="n">bucket</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
             <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
@@ -3369,8 +3362,8 @@ The client to add this cooldown manager to.</li>
             <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">resource</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">resource</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -3718,7 +3711,7 @@ if limit is less 0 or negative.</li>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initiate a new lazy constant.</span>
 
 <span class="sd">        Parameters</span>
@@ -3728,12 +3721,16 @@ if limit is less 0 or negative.</li>
 
 <span class="sd">            This supports dependency injection and may either be sync or asynchronous.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+        <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">_T</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]</span>
+    <span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Descriptor of the callback used to get this constant&#39;s initial value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
 
@@ -3800,14 +3797,14 @@ To easily resolve this type use <code><a href="#inject_lc">inject_lc</a></code>.
 
         
             <span class="name">LazyConstant</span><span class="signature">(
-    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    callback: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, ~_T]], collections.abc.Callable[..., ~_T]],
     /
 )</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initiate a new lazy constant.</span>
 
 <span class="sd">        Parameters</span>
@@ -3817,7 +3814,7 @@ To easily resolve this type use <code><a href="#inject_lc">inject_lc</a></code>.
 
 <span class="sd">            This supports dependency injection and may either be sync or asynchronous.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
@@ -3841,7 +3838,7 @@ Callback used to resolve this to a constant value.</p>
                             <div id="LazyConstant.callback" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#LazyConstant.callback">#&nbsp;&nbsp</a>
 
-        <span class="name">callback</span><span class="annotation">: <a href="injecting.html#CallbackDescriptor">tanjun.injecting.CallbackDescriptor</a>[~_T]</span>
+        <span class="name">callback</span><span class="annotation">: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, ~_T]], collections.abc.Callable[..., ~_T]]</span>
     </div>
 
             <div class="docstring"><p>Descriptor of the callback used to get this constant's initial value.</p>
@@ -4060,9 +4057,6 @@ been called.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">members</span> <span class="k">if</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span> <span class="k">else</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">application</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">id</span>
@@ -4184,9 +4178,6 @@ bot's owners-only commands.</li>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
 
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
@@ -4853,7 +4844,7 @@ registered with the client:</p>
         
             <span class="def">def</span>
             <span class="name">cached_inject</span><span class="signature">(
-    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    callback: Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, ~_T]], collections.abc.Callable[..., ~_T]],
     /,
     *,
     expire_after: Union[float, int, datetime.timedelta, NoneType] = None
@@ -4863,11 +4854,11 @@ registered with the client:</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
 
-<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    This acts like `alluka.inject` and the result of it</span>
 <span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
 
 <span class="sd">    Example</span>
@@ -4898,7 +4889,7 @@ registered with the client:</p>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">    alluka.InjectedDescriptor[_T]</span>
 <span class="sd">        Injector used to resolve the cached callback.</span>
 
 <span class="sd">    Raises</span>
@@ -4907,14 +4898,14 @@ registered with the client:</p>
 <span class="sd">        If expire_after is not a valid value.</span>
 <span class="sd">        If expire_after is not less than or equal to 0 seconds.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Inject a callback with caching.</p>
 
-<p>This acts like <code><a href="injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
+<p>This acts like <code>alluka.inject</code> and the result of it
 should also be assigned to a parameter's default to be used.</p>
 
 <h6 id="example">Example</h6>
@@ -4950,7 +4941,7 @@ The amount of time to cache the result for in seconds.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong><a href="injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the cached callback.</li>
+<li><strong>alluka.InjectedDescriptor[_T]</strong>: Injector used to resolve the cached callback.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
@@ -5007,18 +4998,18 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="kn">import</span> <span class="nn">typing</span>
 
+<span class="kn">import</span> <span class="nn">alluka</span>
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">abc</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">]]</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
-    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 
@@ -5108,13 +5099,11 @@ If expire_after is not less than or equal to 0 seconds.</li>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
+<span class="kn">import</span> <span class="nn">alluka</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">contextlib</span>
     <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
-
-    <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 
     <span class="n">_LazyConstantT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_LazyConstantT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;LazyConstant[typing.Any]&quot;</span><span class="p">)</span>
 
@@ -5130,7 +5119,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_value&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initiate a new lazy constant.</span>
 
 <span class="sd">        Parameters</span>
@@ -5140,12 +5129,16 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">            This supports dependency injection and may either be sync or asynchronous.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+        <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">_T</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]</span>
+    <span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Descriptor of the callback used to get this constant&#39;s initial value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
 
@@ -5198,7 +5191,9 @@ If expire_after is not less than or equal to 0 seconds.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span>
 
 
-<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span>
+    <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
 
 <span class="sd">    Notes</span>
@@ -5214,14 +5209,14 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., collections.abc.Awaitable[_T]]</span>
+<span class="sd">    collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, _T]]</span>
 <span class="sd">        An injected callback used to resolve the LazyConstant.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
         <span class="c1"># LazyConstant gets type arguments at runtime</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -5231,7 +5226,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
             <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">value</span>
 
-            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">constant</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">constant</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
             <span class="n">constant</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
@@ -5241,7 +5236,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 <span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
 
-<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    This acts like `alluka.inject` and the result of it</span>
 <span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
 
 <span class="sd">    .. note::</span>
@@ -5255,7 +5250,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">    alluka.InjectedDescriptor[_T]</span>
 <span class="sd">        Injector used to resolve the LazyConstant.</span>
 
 <span class="sd">    Example</span>
@@ -5281,23 +5276,23 @@ If expire_after is not less than or equal to 0 seconds.</li>
 <span class="sd">    )</span>
 <span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">_CacheCallback</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_last_called&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_result&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_last_called&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_result&quot;</span><span class="p">,</span> <span class="s2">&quot;__weakref__&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_T</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_T</span><span class="p">,</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Undefined</span><span class="p">]</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">UNDEFINED</span>
         <span class="k">if</span> <span class="n">expire_after</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expire_after</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">):</span>
@@ -5320,21 +5315,21 @@ If expire_after is not less than or equal to 0 seconds.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="c1"># Positional arg(s) may be guaranteed under some contexts so we want to pass those through.</span>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
             <span class="c1"># This is set to None afterwards to ensure that it isn&#39;t persisted between loops.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="kc">None</span>
@@ -5342,8 +5337,8 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 
 <span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
 <span class="sd">    .. note::</span>
@@ -5363,7 +5358,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., Awaitable[_T]]</span>
+<span class="sd">    collections.abc.Callable[..., collections.abc.Corouting[typing.Any, typing.Any, _T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
 
@@ -5377,11 +5372,11 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 
 <span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
 
-<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    This acts like `alluka.inject` and the result of it</span>
 <span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
 
 <span class="sd">    Example</span>
@@ -5412,7 +5407,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">    alluka.InjectedDescriptor[_T]</span>
 <span class="sd">        Injector used to resolve the cached callback.</span>
 
 <span class="sd">    Raises</span>
@@ -5421,7 +5416,7 @@ If expire_after is not less than or equal to 0 seconds.</li>
 <span class="sd">        If expire_after is not a valid value.</span>
 <span class="sd">        If expire_after is not less than or equal to 0 seconds.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -5437,16 +5432,16 @@ If expire_after is not less than or equal to 0 seconds.</li>
         
             <span class="def">async def</span>
             <span class="name">fetch_my_user</span><span class="signature">(
-    client: <a href="abc.html#Client">tanjun.abc.Client</a> = &lt;<a href="injecting.html#Injected">tanjun.injecting.Injected</a> object&gt;,
-    me_cache: Optional[<a href="dependencies/async_cache.html#SingleStoreCache">tanjun.dependencies.async_cache.SingleStoreCache</a>[hikari.users.OwnUser]] = &lt;<a href="injecting.html#Injected">tanjun.injecting.Injected</a> object&gt;
+    client: <a href="abc.html#Client">tanjun.abc.Client</a> = &lt;alluka._types.InjectedDescriptor object&gt;,
+    me_cache: Optional[<a href="dependencies/async_cache.html#SingleStoreCache">tanjun.dependencies.async_cache.SingleStoreCache</a>[hikari.users.OwnUser]] = &lt;alluka._types.InjectedDescriptor object&gt;
 ) -&gt; hikari.users.OwnUser</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
-    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 
@@ -5526,7 +5521,7 @@ client is not bound to a Bot token.</li>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
 
-<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    This acts like `alluka.inject` and the result of it</span>
 <span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
 
 <span class="sd">    .. note::</span>
@@ -5540,7 +5535,7 @@ client is not bound to a Bot token.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">    alluka.InjectedDescriptor[_T]</span>
 <span class="sd">        Injector used to resolve the LazyConstant.</span>
 
 <span class="sd">    Example</span>
@@ -5566,14 +5561,14 @@ client is not bound to a Bot token.</li>
 <span class="sd">    )</span>
 <span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Make a LazyConstant injector.</p>
 
-<p>This acts like <code><a href="injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
+<p>This acts like <code>alluka.inject</code> and the result of it
 should also be assigned to a parameter's default to be used.</p>
 
 <p><em>Note:</em>
@@ -5590,7 +5585,7 @@ The type of the constant to resolve.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong><a href="injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the LazyConstant.</li>
+<li><strong>alluka.InjectedDescriptor[_T]</strong>: Injector used to resolve the LazyConstant.</li>
 </ul>
 
 <h6 id="example">Example</h6>
@@ -5680,23 +5675,21 @@ The type of the constant to resolve.</li>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
+<span class="kn">import</span> <span class="nn">alluka</span>
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">hooks</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">async_cache</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">owners</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="n">_CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;tanjun_abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
     <span class="n">_InMemoryCooldownManagerT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_InMemoryCooldownManagerT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;InMemoryCooldownManager&quot;</span><span class="p">)</span>
     <span class="n">_InMemoryConcurrencyLimiterT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_InMemoryConcurrencyLimiterT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;InMemoryConcurrencyLimiter&quot;</span><span class="p">)</span>
 
 <span class="n">_LOGGER</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun&quot;</span><span class="p">)</span>
-
-<span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;tanjun_abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Type variable indicating either `BaseSlashCommand` or `MessageCommand`.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">AbstractCooldownManager</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -5844,8 +5837,6 @@ The type of the constant to resolve.</li>
         <span class="k">if</span> <span class="n">cached_channel</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_channel</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">cached_channel</span><span class="o">.</span><span class="n">parent_id</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span>
 
-        <span class="c1"># TODO: upgrade this to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">)</span>
         <span class="n">channel_cache</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">channel_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">channel_</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">channel_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">channel_</span><span class="o">.</span><span class="n">parent_id</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span>
@@ -5878,8 +5869,6 @@ The type of the constant to resolve.</li>
 
         <span class="n">roles</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">get_roles</span><span class="p">()</span>
         <span class="n">try_rest</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">roles</span>
-        <span class="c1"># TODO: upgrade this to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">try_rest</span> <span class="ow">and</span> <span class="p">(</span><span class="n">role_cache</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SfCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">])):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">roles</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="k">await</span> <span class="n">_try_get_role</span><span class="p">(</span><span class="n">role_cache</span><span class="p">,</span> <span class="n">role_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">role_id</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">member</span><span class="o">.</span><span class="n">role_ids</span><span class="p">])</span>
@@ -6132,7 +6121,7 @@ The type of the constant to resolve.</li>
             <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">bucket</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this cooldown manager to a tanjun client.</span>
 
 <span class="sd">        .. note::</span>
@@ -6145,8 +6134,6 @@ The type of the constant to resolve.</li>
 <span class="sd">            The client to add this cooldown manager to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractCooldownManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
@@ -6157,6 +6144,7 @@ The type of the constant to resolve.</li>
         <span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
+        <span class="n">bucket</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_Cooldown</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
             <span class="n">bucket</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_default</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">)</span><span class="o">.</span><span class="n">into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cooldown</span> <span class="o">:=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">():</span>
@@ -6165,8 +6153,8 @@ The type of the constant to resolve.</li>
             <span class="n">bucket</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cooldown</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">bucket</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">cooldown</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">resource</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bucket</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">resource</span><span class="o">.</span><span class="n">try_into_inner</span><span class="p">(</span><span class="n">ctx</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">bucket</span><span class="o">.</span><span class="n">must_wait_for</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">increment_cooldown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractCooldownManager&gt;&gt;.</span>
@@ -6326,8 +6314,8 @@ The type of the constant to resolve.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">cooldowns</span><span class="p">:</span> <span class="n">AbstractCooldownManager</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractCooldownManager</span><span class="p">),</span>
-        <span class="n">owner_check</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span>
+        <span class="n">cooldowns</span><span class="p">:</span> <span class="n">AbstractCooldownManager</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractCooldownManager</span><span class="p">),</span>
+        <span class="n">owner_check</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">owners</span><span class="o">.</span><span class="n">AbstractOwners</span><span class="p">]</span>
         <span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -6349,7 +6337,7 @@ The type of the constant to resolve.</li>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
     <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a pre-execution hook used to manage a command&#39;s cooldown through a decorator call.</span>
 
 <span class="sd">    .. warning::</span>
@@ -6375,11 +6363,11 @@ The type of the constant to resolve.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]</span>
 <span class="sd">        A decorator that adds a `CooldownPreExecution` hook to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
         <span class="n">hooks_</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">hooks</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_</span><span class="p">:</span>
             <span class="n">hooks_</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span>
@@ -6466,7 +6454,7 @@ The type of the constant to resolve.</li>
             <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buckets</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">bucket</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_to_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this concurrency manager to a tanjun client.</span>
 
 <span class="sd">        .. note::</span>
@@ -6479,8 +6467,6 @@ The type of the constant to resolve.</li>
 <span class="sd">            The client to add this concurrency manager to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="c1"># TODO: the injection client should be upgraded to the abstract Client.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">)</span>
         <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSING</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
@@ -6641,7 +6627,7 @@ The type of the constant to resolve.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">try_acquire</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_error_message</span><span class="p">)</span>
@@ -6670,7 +6656,7 @@ The type of the constant to resolve.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
+        <span class="n">limiter</span><span class="p">:</span> <span class="n">AbstractConcurrencyLimiter</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractConcurrencyLimiter</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
 
@@ -6680,7 +6666,7 @@ The type of the constant to resolve.</li>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add the hooks used to manage a command&#39;s concurrency limit through a decorator call.</span>
 
 <span class="sd">    .. warning::</span>
@@ -6703,11 +6689,11 @@ The type of the constant to resolve.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]</span>
 <span class="sd">        A decorator that adds the concurrency limiter hooks to a command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
         <span class="n">hooks_</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">hooks</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_</span><span class="p">:</span>
             <span class="n">hooks_</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span>
@@ -6779,7 +6765,6 @@ The type of the constant to resolve.</li>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -6907,9 +6892,6 @@ The type of the constant to resolve.</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">members</span> <span class="k">if</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span> <span class="k">else</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">application</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">id</span>
@@ -6937,17 +6919,17 @@ The type of the constant to resolve.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_standard_dependencies</span><span class="signature">(client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+            <span class="name">set_standard_dependencies</span><span class="signature">(client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_standard_dependencies</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Set the standard dependencies for Tanjun.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    client: tanjun.injecting.InjectorClient</span>
+<span class="sd">    client: tanjun.abc.Client</span>
 <span class="sd">        The injector client to set the standard dependencies on.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">AbstractOwners</span><span class="p">,</span> <span class="n">Owners</span><span class="p">())</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
@@ -6962,7 +6944,7 @@ The type of the constant to resolve.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>client</strong> (<a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>):
+<li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
 The injector client to set the standard dependencies on.</li>
 </ul>
 </div>
@@ -6979,7 +6961,7 @@ The injector client to set the standard dependencies on.</li>
     /,
     *,
     error_message: str = &#39;This resource is currently busy; please try again later.&#39;
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
@@ -6989,7 +6971,7 @@ The injector client to set the standard dependencies on.</li>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;This resource is currently busy; please try again later.&quot;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add the hooks used to manage a command&#39;s concurrency limit through a decorator call.</span>
 
 <span class="sd">    .. warning::</span>
@@ -7012,11 +6994,11 @@ The injector client to set the standard dependencies on.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]</span>
 <span class="sd">        A decorator that adds the concurrency limiter hooks to a command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
         <span class="n">hooks_</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">hooks</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_</span><span class="p">:</span>
             <span class="n">hooks_</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span>
@@ -7059,7 +7041,7 @@ to acquire the concurrency limit.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A decorator that adds the concurrency limiter hooks to a command.</li>
+<li><strong>collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]</strong>: A decorator that adds the concurrency limiter hooks to a command.</li>
 </ul>
 </div>
 
@@ -7076,7 +7058,7 @@ to acquire the concurrency limit.</p>
     *,
     error_message: str = &#39;Please wait {cooldown:0.2f} seconds before using this command again.&#39;,
     owners_exempt: bool = True
-) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
+) -&gt; collections.abc.Callable[[~_CommandT], ~_CommandT]</span>:
     </div>
 
                 <details>
@@ -7087,7 +7069,7 @@ to acquire the concurrency limit.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s2"> seconds before using this command again.&quot;</span><span class="p">,</span>
     <span class="n">owners_exempt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_CommandT</span><span class="p">],</span> <span class="n">_CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a pre-execution hook used to manage a command&#39;s cooldown through a decorator call.</span>
 
 <span class="sd">    .. warning::</span>
@@ -7113,11 +7095,11 @@ to acquire the concurrency limit.</p>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[[CommandT], CommandT]</span>
+<span class="sd">    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]</span>
 <span class="sd">        A decorator that adds a `CooldownPreExecution` hook to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandT</span><span class="p">:</span>
         <span class="n">hooks_</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">hooks</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_</span><span class="p">:</span>
             <span class="n">hooks_</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span>
@@ -7163,7 +7145,7 @@ Whether owners should be exempt from the cooldown.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[[CommandT], CommandT]</strong>: A decorator that adds a <code><a href="#CooldownPreExecution">CooldownPreExecution</a></code> hook to the command.</li>
+<li><strong>collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]</strong>: A decorator that adds a <code><a href="#CooldownPreExecution">CooldownPreExecution</a></code> hook to the command.</li>
 </ul>
 </div>
 

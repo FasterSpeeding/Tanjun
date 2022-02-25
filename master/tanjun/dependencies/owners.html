@@ -117,7 +117,6 @@
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -244,9 +243,6 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
 
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
@@ -425,9 +421,6 @@ The user to check ownership for.</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">members</span> <span class="k">if</span> <span class="n">application</span><span class="o">.</span><span class="n">team</span> <span class="k">else</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">application</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">id</span>
@@ -549,9 +542,6 @@ bot's owners-only commands.</li>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_to_application</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="c1"># TODO: upgrade the injector stuff to the standard interface</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
 
         <span class="n">application_cache</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="n">_ApplicationCacheT</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">application_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">application</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">application_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>

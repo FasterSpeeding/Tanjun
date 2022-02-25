@@ -142,9 +142,6 @@
                                 <a class="variable" href="#MessageCommand.names">names</a>
                         </li>
                         <li>
-                                <a class="variable" href="#MessageCommand.needs_injector">needs_injector</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#MessageCommand.parent">parent</a>
                         </li>
                         <li>
@@ -233,9 +230,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#SlashCommand.str_autocompletes">str_autocompletes</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#SlashCommand.needs_injector">needs_injector</a>
                         </li>
                         <li>
                                 <a class="function" href="#SlashCommand.bind_client">bind_client</a>
@@ -958,7 +952,6 @@ The component this object should be loaded into.</li>
                 <dd id="BaseSlashCommand.component" class="variable">component</dd>
                 <dd id="BaseSlashCommand.hooks" class="variable">hooks</dd>
                 <dd id="BaseSlashCommand.metadata" class="variable">metadata</dd>
-                <dd id="BaseSlashCommand.needs_injector" class="variable">needs_injector</dd>
                 <dd id="BaseSlashCommand.set_hooks" class="function">set_hooks</dd>
                 <dd id="BaseSlashCommand.set_metadata" class="function">set_metadata</dd>
                 <dd id="BaseSlashCommand.add_check" class="function">add_check</dd>
@@ -1063,7 +1056,7 @@ The component this object should be loaded into.</li>
             <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">callback</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="n">is_global</span>
@@ -1073,10 +1066,18 @@ The component this object should be loaded into.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">type_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_command</span> <span class="o">=</span> <span class="n">_wrapped_command</span>
 
+    <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+        <span class="fm">__call__</span><span class="p">:</span> <span class="n">_MenuCommandCallbackSigT</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MenuCommandCallbackSigT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;_MenuCommandCallbackSigT&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
@@ -1173,12 +1174,12 @@ The component this object should be loaded into.</li>
             <span class="k">await</span> <span class="n">own_hooks</span><span class="o">.</span><span class="n">trigger_pre_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">USER</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">resolve_to_user</span><span class="p">()</span>
+                <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">resolve_to_user</span><span class="p">()</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">resolve_to_message</span><span class="p">()</span>
 
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
@@ -1216,7 +1217,7 @@ The component this object should be loaded into.</li>
 
         
             <span class="name">MenuCommand</span><span class="signature">(
-    callback: Union[~_MenuCommandCallbackSigT, <a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[~_MenuCommandCallbackSigT, Any], <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>[~_MenuCommandCallbackSigT], <a href="abc.html#SlashCommand">tanjun.abc.SlashCommand</a>[~_MenuCommandCallbackSigT]],
+    callback: &#39;_CallbackishT[_MenuCommandCallbackSigT]&#39;,
     type_: ~_MenuTypeT,
     name: str,
     /,
@@ -1255,7 +1256,7 @@ The component this object should be loaded into.</li>
             <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">callback</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="n">is_global</span>
@@ -1403,10 +1404,10 @@ globally or for a specific guild.</li>
         
             <span class="def">def</span>
             <span class="name">set_tracked_command</span><span class="signature">(
-    self: ~_MenuCommandT,
+    self: &#39;_MenuCommandT&#39;,
     command: hikari.commands.PartialCommand,
     /
-) -&gt; ~_MenuCommandT</span>:
+) -&gt; &#39;_MenuCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -1445,7 +1446,7 @@ Object of the global command this tracks.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_MenuCommandT, state: Optional[bool], /) -&gt; ~_MenuCommandT</span>:
+            <span class="name">set_ephemeral_default</span><span class="signature">(self: &#39;_MenuCommandT&#39;, state: Optional[bool], /) -&gt; &#39;_MenuCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -1525,11 +1526,11 @@ default for contexts used by this command.</p>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: ~_MenuCommandT,
+    self: &#39;_MenuCommandT&#39;,
     *,
     _new: bool = True,
     parent: Optional[<a href="abc.html#SlashCommandGroup">tanjun.abc.SlashCommandGroup</a>] = None
-) -&gt; ~_MenuCommandT</span>:
+) -&gt; &#39;_MenuCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -1587,12 +1588,12 @@ default for contexts used by this command.</p>
             <span class="k">await</span> <span class="n">own_hooks</span><span class="o">.</span><span class="n">trigger_pre_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandType</span><span class="o">.</span><span class="n">USER</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">resolve_to_user</span><span class="p">()</span>
+                <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">resolve_to_user</span><span class="p">()</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">resolve_to_message</span><span class="p">()</span>
 
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
@@ -1657,7 +1658,6 @@ The component this object should be loaded into.</li>
                 <dd id="MenuCommand.component" class="variable">component</dd>
                 <dd id="MenuCommand.hooks" class="variable">hooks</dd>
                 <dd id="MenuCommand.metadata" class="variable">metadata</dd>
-                <dd id="MenuCommand.needs_injector" class="variable">needs_injector</dd>
                 <dd id="MenuCommand.set_hooks" class="function">set_hooks</dd>
                 <dd id="MenuCommand.set_metadata" class="function">set_metadata</dd>
                 <dd id="MenuCommand.add_check" class="function">add_check</dd>
@@ -1676,12 +1676,12 @@ The component this object should be loaded into.</li>
 
         
         <span class="def">class</span>
-        <span class="name">MessageCommand</span><wbr>(<span class="base">tanjun.commands.base.PartialCommand[tanjun.abc.MessageContext]</span>, <span class="base"><a href="abc.html#MessageCommand">tanjun.abc.MessageCommand[~CommandCallbackSigT]</a></span>):
+        <span class="name">MessageCommand</span><wbr>(<span class="base">tanjun.commands.base.PartialCommand[tanjun.abc.MessageContext]</span>, <span class="base"><a href="abc.html#MessageCommand">tanjun.abc.MessageCommand[~_CommandCallbackSigT]</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommand</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of a message command.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_parser&quot;</span><span class="p">,</span> <span class="s2">&quot;_wrapped_command&quot;</span><span class="p">)</span>
@@ -1689,7 +1689,7 @@ The component this object should be loaded into.</li>
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1700,7 +1700,7 @@ The component this object should be loaded into.</li>
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1710,7 +1710,7 @@ The component this object should be loaded into.</li>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1738,7 +1738,7 @@ The component this object should be loaded into.</li>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)):</span>
             <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">callback</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1748,26 +1748,22 @@ The component this object should be loaded into.</li>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Command &lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
 
     <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-        <span class="fm">__call__</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span>
+        <span class="fm">__call__</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span>
 
     <span class="k">else</span><span class="p">:</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandCallbackSigT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
 
     <span class="nd">@property</span>
     <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">needs_injector</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
@@ -1849,7 +1845,7 @@ The component this object should be loaded into.</li>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_EMPTY_DICT</span>
 
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2000</span> <span class="k">else</span> <span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">[:</span><span class="mi">1997</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
@@ -1889,7 +1885,7 @@ The component this object should be loaded into.</li>
 
         
             <span class="name">MessageCommand</span><span class="signature">(
-    callback: Union[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[~CommandCallbackSigT, Any], <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>[~CommandCallbackSigT], <a href="abc.html#SlashCommand">tanjun.abc.SlashCommand</a>[~CommandCallbackSigT], ~CommandCallbackSigT],
+    callback: &#39;_CallbackishT[_CommandCallbackSigT]&#39;,
     name: str,
     /,
     *names: str,
@@ -1901,7 +1897,7 @@ The component this object should be loaded into.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1929,7 +1925,7 @@ The component this object should be loaded into.</li>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)):</span>
             <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">callback</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1966,7 +1962,7 @@ Variable positional arguments of other names for the command.</li>
                             <div id="MessageCommand.callback" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MessageCommand.callback">#&nbsp;&nbsp</a>
 
-        <span class="name">callback</span><span class="annotation">: ~CommandCallbackSigT</span>
+        <span class="name">callback</span><span class="annotation">: ~_CommandCallbackSigT</span>
     </div>
 
             <div class="docstring"><p>Callback which is called during execution.</p>
@@ -1987,15 +1983,6 @@ matches the message.</p>
             <div class="docstring"><p>Collection of this command's names.</p>
 </div>
 
-
-                            </div>
-                            <div id="MessageCommand.needs_injector" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#MessageCommand.needs_injector">#&nbsp;&nbsp</a>
-
-        <span class="name">needs_injector</span><span class="annotation">: bool</span>
-    </div>
-
-    
 
                             </div>
                             <div id="MessageCommand.parent" class="classattr">
@@ -2026,10 +2013,10 @@ matches the message.</p>
         
             <span class="def">def</span>
             <span class="name">bind_client</span><span class="signature">(
-    self: ~_MessageCommandT,
+    self: &#39;_MessageCommandT&#39;,
     client: <a href="abc.html#Client">tanjun.abc.Client</a>,
     /
-) -&gt; ~_MessageCommandT</span>:
+) -&gt; &#39;_MessageCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -2054,10 +2041,10 @@ matches the message.</p>
         
             <span class="def">def</span>
             <span class="name">bind_component</span><span class="signature">(
-    self: ~_MessageCommandT,
+    self: &#39;_MessageCommandT&#39;,
     component: <a href="abc.html#Component">tanjun.abc.Component</a>,
     /
-) -&gt; ~_MessageCommandT</span>:
+) -&gt; &#39;_MessageCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -2082,11 +2069,11 @@ matches the message.</p>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: ~_MessageCommandT,
+    self: &#39;_MessageCommandT&#39;,
     *,
     parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>[Any]] = None,
     _new: bool = True
-) -&gt; ~_MessageCommandT</span>:
+) -&gt; &#39;_MessageCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -2134,10 +2121,10 @@ The parent of the copy.</li>
         
             <span class="def">def</span>
             <span class="name">set_parent</span><span class="signature">(
-    self: ~_MessageCommandT,
+    self: &#39;_MessageCommandT&#39;,
     parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>[Any]],
     /
-) -&gt; ~_MessageCommandT</span>:
+) -&gt; &#39;_MessageCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -2176,10 +2163,10 @@ The parent of this command.</li>
         
             <span class="def">def</span>
             <span class="name">set_parser</span><span class="signature">(
-    self: ~_MessageCommandT,
+    self: &#39;_MessageCommandT&#39;,
     parser: Optional[<a href="abc.html#MessageParser">tanjun.abc.MessageParser</a>],
     /
-) -&gt; ~_MessageCommandT</span>:
+) -&gt; &#39;_MessageCommandT&#39;</span>:
     </div>
 
                 <details>
@@ -2268,7 +2255,7 @@ The parser to set.</li>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_EMPTY_DICT</span>
 
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">message</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2000</span> <span class="k">else</span> <span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">[:</span><span class="mi">1997</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
@@ -2351,12 +2338,12 @@ The component this object should be loaded into.</li>
 
         
         <span class="def">class</span>
-        <span class="name">MessageCommandGroup</span><wbr>(<span class="base"><a href="#MessageCommand">tanjun.commands.MessageCommand[~CommandCallbackSigT]</a></span>, <span class="base"><a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup[~CommandCallbackSigT]</a></span>):
+        <span class="name">MessageCommandGroup</span><wbr>(<span class="base"><a href="#MessageCommand">tanjun.commands.MessageCommand[~_CommandCallbackSigT]</a></span>, <span class="base"><a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup[~_CommandCallbackSigT]</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of a message command group.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span> <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">)</span>
@@ -2364,7 +2351,7 @@ The component this object should be loaded into.</li>
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2376,7 +2363,7 @@ The component this object should be loaded into.</li>
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2387,7 +2374,7 @@ The component this object should be loaded into.</li>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2566,7 +2553,7 @@ The component this object should be loaded into.</li>
 
         
             <span class="name">MessageCommandGroup</span><span class="signature">(
-    callback: Union[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[~CommandCallbackSigT, Any], <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>[~CommandCallbackSigT], <a href="abc.html#SlashCommand">tanjun.abc.SlashCommand</a>[~CommandCallbackSigT], ~CommandCallbackSigT],
+    callback: &#39;_CallbackishT[_CommandCallbackSigT]&#39;,
     name: str,
     /,
     *names: str,
@@ -2579,7 +2566,7 @@ The component this object should be loaded into.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2664,11 +2651,11 @@ This may include command groups.</p>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: ~_MessageCommandGroupT,
+    self: &#39;_MessageCommandGroupT&#39;,
     *,
     parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>[Any]] = None,
     _new: bool = True
-) -&gt; ~_MessageCommandGroupT</span>:
+) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
     </div>
 
                 <details>
@@ -2715,10 +2702,10 @@ The parent of the copy.</li>
         
             <span class="def">def</span>
             <span class="name">add_command</span><span class="signature">(
-    self: ~_MessageCommandGroupT,
+    self: &#39;_MessageCommandGroupT&#39;,
     command: <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any],
     /
-) -&gt; ~_MessageCommandGroupT</span>:
+) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
     </div>
 
                 <details>
@@ -2795,10 +2782,10 @@ command group.</li>
         
             <span class="def">def</span>
             <span class="name">remove_command</span><span class="signature">(
-    self: ~_MessageCommandGroupT,
+    self: &#39;_MessageCommandGroupT&#39;,
     command: <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>[typing.Any],
     /
-) -&gt; ~_MessageCommandGroupT</span>:
+) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
     </div>
 
                 <details>
@@ -2884,10 +2871,10 @@ The command to add.</li>
         
             <span class="def">def</span>
             <span class="name">bind_client</span><span class="signature">(
-    self: ~_MessageCommandGroupT,
+    self: &#39;_MessageCommandGroupT&#39;,
     client: <a href="abc.html#Client">tanjun.abc.Client</a>,
     /
-) -&gt; ~_MessageCommandGroupT</span>:
+) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
     </div>
 
                 <details>
@@ -2912,10 +2899,10 @@ The command to add.</li>
         
             <span class="def">def</span>
             <span class="name">bind_component</span><span class="signature">(
-    self: ~_MessageCommandGroupT,
+    self: &#39;_MessageCommandGroupT&#39;,
     component: <a href="abc.html#Component">tanjun.abc.Component</a>,
     /
-) -&gt; ~_MessageCommandGroupT</span>:
+) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
     </div>
 
                 <details>
@@ -3022,7 +3009,6 @@ The command to add.</li>
                                     <div><dt><a href="#MessageCommand">MessageCommand</a></dt>
                                 <dd id="MessageCommandGroup.callback" class="variable"><a href="#MessageCommand.callback">callback</a></dd>
                 <dd id="MessageCommandGroup.names" class="variable"><a href="#MessageCommand.names">names</a></dd>
-                <dd id="MessageCommandGroup.needs_injector" class="variable"><a href="#MessageCommand.needs_injector">needs_injector</a></dd>
                 <dd id="MessageCommandGroup.parent" class="variable"><a href="#MessageCommand.parent">parent</a></dd>
                 <dd id="MessageCommandGroup.parser" class="variable"><a href="#MessageCommand.parser">parser</a></dd>
                 <dd id="MessageCommandGroup.set_parent" class="function"><a href="#MessageCommand.set_parent">set_parent</a></dd>
@@ -3052,12 +3038,12 @@ The command to add.</li>
 
         
         <span class="def">class</span>
-        <span class="name">SlashCommand</span><wbr>(<span class="base"><a href="#BaseSlashCommand">tanjun.commands.BaseSlashCommand</a></span>, <span class="base"><a href="abc.html#SlashCommand">tanjun.abc.SlashCommand[~CommandCallbackSigT]</a></span>):
+        <span class="name">SlashCommand</span><wbr>(<span class="base"><a href="#BaseSlashCommand">tanjun.commands.BaseSlashCommand</a></span>, <span class="base"><a href="abc.html#SlashCommand">tanjun.abc.SlashCommand[~_CommandCallbackSigT]</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of a slash command.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
@@ -3075,7 +3061,7 @@ The command to add.</li>
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -3092,7 +3078,7 @@ The command to add.</li>
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -3108,7 +3094,7 @@ The command to add.</li>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -3192,57 +3178,40 @@ The command to add.</li>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_SlashCommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_command</span> <span class="o">=</span> <span class="n">_wrapped_command</span>
 
     <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-        <span class="fm">__call__</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span>
+        <span class="fm">__call__</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span>
 
     <span class="k">else</span><span class="p">:</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CommandCallbackSigT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">float_autocompletes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">int_autocompletes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">str_autocompletes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">needs_injector</span>
-            <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-            <span class="ow">or</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">needs_injector</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
@@ -3294,15 +3263,15 @@ The command to add.</li>
 
         <span class="n">type_</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converters</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
-            <span class="n">converters_</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_convert_to_injectable</span><span class="p">,</span> <span class="n">converters</span><span class="p">))</span>
+            <span class="n">converters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">converters</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">converters_</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_injectable</span><span class="p">(</span><span class="n">converters</span><span class="p">)]</span>
+            <span class="n">converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converters</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters_</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
-                    <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">choices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">actual_choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3341,7 +3310,7 @@ The command to add.</li>
                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">option_type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span>
                 <span class="n">always_float</span><span class="o">=</span><span class="n">always_float</span><span class="p">,</span>
-                <span class="n">converters</span><span class="o">=</span><span class="n">converters_</span><span class="p">,</span>
+                <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span>
                 <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
                 <span class="n">only_member</span><span class="o">=</span><span class="n">only_member</span><span class="p">,</span>
             <span class="p">)</span>
@@ -3463,7 +3432,7 @@ The command to add.</li>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">autocomplete</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">autocomplete</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocomplete</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -3566,7 +3535,7 @@ The command to add.</li>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">autocomplete</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">autocomplete</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocomplete</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -3678,7 +3647,7 @@ The command to add.</li>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">autocomplete</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">autocomplete</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocomplete</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -4066,7 +4035,7 @@ The command to add.</li>
 
         <span class="k">if</span> <span class="n">callback</span><span class="p">:</span>
             <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
 
         <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">:</span>
             <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">False</span>
@@ -4147,7 +4116,7 @@ The command to add.</li>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Option is not a int option&quot;</span><span class="p">)</span>
 
         <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_int_autocomplete</span><span class="p">(</span>
@@ -4223,7 +4192,7 @@ The command to add.</li>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Option is not a str option&quot;</span><span class="p">)</span>
 
         <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_str_autocomplete</span><span class="p">(</span>
@@ -4327,7 +4296,7 @@ The command to add.</li>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_EMPTY_DICT</span>
 
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
@@ -4369,8 +4338,7 @@ The command to add.</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">callback</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No autocomplete callback found for &#39;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">focused</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; option&quot;</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">focused</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">focused</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -4394,7 +4362,7 @@ The command to add.</li>
 
         
             <span class="name">SlashCommand</span><span class="signature">(
-    callback: Union[<a href="abc.html#MenuCommand">tanjun.abc.MenuCommand</a>[~CommandCallbackSigT, Any], <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>[~CommandCallbackSigT], <a href="abc.html#SlashCommand">tanjun.abc.SlashCommand</a>[~CommandCallbackSigT], ~CommandCallbackSigT],
+    callback: &#39;_CallbackishT[_CommandCallbackSigT]&#39;,
     name: str,
     description: str,
     /,
@@ -4412,7 +4380,7 @@ The command to add.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
@@ -4496,11 +4464,11 @@ The command to add.</li>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_always_defer</span> <span class="o">=</span> <span class="n">always_defer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_SlashCommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">:</span> <span class="n">_CommandCallbackSigT</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteCallbackSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapped_command</span> <span class="o">=</span> <span class="n">_wrapped_command</span>
 </pre></div>
@@ -4586,7 +4554,7 @@ ones.</p></li>
                             <div id="SlashCommand.callback" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#SlashCommand.callback">#&nbsp;&nbsp</a>
 
-        <span class="name">callback</span><span class="annotation">: ~CommandCallbackSigT</span>
+        <span class="name">callback</span><span class="annotation">: ~_CommandCallbackSigT</span>
     </div>
 
             <div class="docstring"><p>Callback which is called during execution.</p>
@@ -4625,15 +4593,6 @@ ones.</p></li>
             <div class="docstring"><p>Collection of the string option autocompletes.</p>
 </div>
 
-
-                            </div>
-                            <div id="SlashCommand.needs_injector" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#SlashCommand.needs_injector">#&nbsp;&nbsp</a>
-
-        <span class="name">needs_injector</span><span class="annotation">: bool</span>
-    </div>
-
-    
 
                             </div>
                             <div id="SlashCommand.bind_client" class="classattr">
@@ -4736,7 +4695,7 @@ The component this object should be loaded into.</li>
     *,
     autocomplete: Optional[collections.abc.Callable[..., collections.abc.Awaitable[None]]] = None,
     choices: Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], NoneType] = None,
-    converters: Union[collections.abc.Sequence[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Sequence[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any = &lt;object object&gt;,
     pass_as_kwarg: bool = True,
     _stack_level: int = 0
@@ -4861,7 +4820,7 @@ The component this object should be loaded into.</li>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">autocomplete</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">autocomplete</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocomplete</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -4958,7 +4917,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
     *,
     autocomplete: Optional[collections.abc.Callable[..., collections.abc.Awaitable[None]]] = None,
     choices: Optional[collections.abc.Mapping[str, int]] = None,
-    converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Collection[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any = &lt;object object&gt;,
     min_value: Optional[int] = None,
     max_value: Optional[int] = None,
@@ -5068,7 +5027,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">autocomplete</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">autocomplete</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocomplete</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -5169,7 +5128,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
     always_float: bool = True,
     autocomplete: Optional[collections.abc.Callable[..., collections.abc.Awaitable[None]]] = None,
     choices: Optional[collections.abc.Mapping[str, float]] = None,
-    converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Collection[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any = &lt;object object&gt;,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
@@ -5288,7 +5247,7 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">autocomplete</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">autocomplete</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">autocomplete</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -6227,7 +6186,7 @@ being used.</p></li>
 
         <span class="k">if</span> <span class="n">callback</span><span class="p">:</span>
             <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
 
         <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_float_autocompletes</span><span class="p">:</span>
             <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">False</span>
@@ -6406,7 +6365,7 @@ argument should be of type <code>float</code>.</p>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Option is not a int option&quot;</span><span class="p">)</span>
 
         <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_int_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -6580,7 +6539,7 @@ argument should be of type <code>int</code>.</p>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Option is not a str option&quot;</span><span class="p">)</span>
 
         <span class="n">option</span><span class="o">.</span><span class="n">autocomplete</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_str_autocompletes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -6739,7 +6698,7 @@ argument should be of type <code>str</code>.</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_EMPTY_DICT</span>
 
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
@@ -6802,8 +6761,7 @@ argument should be of type <code>str</code>.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">callback</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No autocomplete callback found for &#39;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">focused</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; option&quot;</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">focused</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">focused</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -7042,7 +7000,7 @@ argument should be of type <code>str</code>.</p>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a slash command to this group through a decorator call.</span>
 
 <span class="sd">        Parameters</span>
@@ -7462,12 +7420,12 @@ Command to remove from this group.</li>
 
         
             <span class="def">def</span>
-            <span class="name">with_command</span><span class="signature">(self, command: ~BaseSlashCommandT, /) -&gt; ~BaseSlashCommandT</span>:
+            <span class="name">with_command</span><span class="signature">(self, command: ~_BaseSlashCommandT, /) -&gt; ~_BaseSlashCommandT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a slash command to this group through a decorator call.</span>
 
 <span class="sd">        Parameters</span>
@@ -7621,7 +7579,6 @@ Command to add to this group.</li>
                 <dd id="SlashCommandGroup.component" class="variable">component</dd>
                 <dd id="SlashCommandGroup.hooks" class="variable">hooks</dd>
                 <dd id="SlashCommandGroup.metadata" class="variable">metadata</dd>
-                <dd id="SlashCommandGroup.needs_injector" class="variable">needs_injector</dd>
                 <dd id="SlashCommandGroup.set_hooks" class="function">set_hooks</dd>
                 <dd id="SlashCommandGroup.set_metadata" class="function">set_metadata</dd>
                 <dd id="SlashCommandGroup.add_check" class="function">add_check</dd>
@@ -7669,9 +7626,9 @@ Command to add to this group.</li>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageCommand</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">MessageCommand</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
 
@@ -7756,7 +7713,7 @@ will manage loading the other command into a component when using
 <span class="sd">        `tanjun.Component.load_from_scope`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageCommandGroup</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">MessageCommandGroup</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span> <span class="n">_wrapped_command</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
 
@@ -8083,7 +8040,7 @@ will manage loading the other command into a component when using
 <span class="sd">        * If the description is over 100 characters long.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CommandCallbackSigT</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackishT</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">_CommandCallbackSigT</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">SlashCommand</span><span class="p">(</span>
                 <span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span>
@@ -8717,7 +8674,7 @@ This will always result in <code>hikari..InteractionChannel</code>.</p>
     always_float: bool = True,
     autocomplete: Optional[collections.abc.Callable[..., collections.abc.Awaitable[None]]] = None,
     choices: Optional[collections.abc.Mapping[str, float]] = None,
-    converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Collection[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any = &lt;object object&gt;,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
@@ -8809,7 +8766,7 @@ This will always result in <code>hikari..InteractionChannel</code>.</p>
     *,
     autocomplete: Optional[collections.abc.Callable[..., collections.abc.Awaitable[None]]] = None,
     choices: Optional[collections.abc.Mapping[str, int]] = None,
-    converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Collection[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any = &lt;object object&gt;,
     min_value: Optional[int] = None,
     max_value: Optional[int] = None,
@@ -9104,7 +9061,7 @@ This may target roles, guild members or users and results in
     *,
     autocomplete: Optional[collections.abc.Callable[..., collections.abc.Awaitable[None]]] = None,
     choices: Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], NoneType] = None,
-    converters: Union[collections.abc.Sequence[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Sequence[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any = &lt;object object&gt;,
     pass_as_kwarg: bool = True
 ) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:

@@ -92,18 +92,18 @@
 
 <span class="kn">import</span> <span class="nn">typing</span>
 
+<span class="kn">import</span> <span class="nn">alluka</span>
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">abc</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">async_cache</span>
 
 <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">async_cache</span><span class="o">.</span><span class="n">SingleStoreCache</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">]]</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
-    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 
@@ -148,16 +148,16 @@
         
             <span class="def">async def</span>
             <span class="name">fetch_my_user</span><span class="signature">(
-    client: <a href="../abc.html#Client">tanjun.abc.Client</a> = &lt;<a href="../injecting.html#Injected">tanjun.injecting.Injected</a> object&gt;,
-    me_cache: Optional[<a href="async_cache.html#SingleStoreCache">tanjun.dependencies.async_cache.SingleStoreCache</a>[hikari.users.OwnUser]] = &lt;<a href="../injecting.html#Injected">tanjun.injecting.Injected</a> object&gt;
+    client: <a href="../abc.html#Client">tanjun.abc.Client</a> = &lt;alluka._types.InjectedDescriptor object&gt;,
+    me_cache: Optional[<a href="async_cache.html#SingleStoreCache">tanjun.dependencies.async_cache.SingleStoreCache</a>[hikari.users.OwnUser]] = &lt;alluka._types.InjectedDescriptor object&gt;
 ) -&gt; hikari.users.OwnUser</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
-    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+    <span class="n">me_cache</span><span class="p">:</span> <span class="n">_OwnUserCache</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 

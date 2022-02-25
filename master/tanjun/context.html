@@ -387,12 +387,12 @@
 
         
         <span class="def">class</span>
-        <span class="name">AutocompleteContext</span><wbr>(<span class="base"><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></span>, <span class="base"><a href="abc.html#AutocompleteContext">tanjun.abc.AutocompleteContext</a></span>):
+        <span class="name">AutocompleteContext</span><wbr>(<span class="base">alluka._client.BasicContext</span>, <span class="base"><a href="abc.html#AutocompleteContext">tanjun.abc.AutocompleteContext</a></span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AutocompleteContext</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AutocompleteContext</span><span class="p">(</span><span class="n">alluka</span><span class="o">.</span><span class="n">BasicContext</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of an autocomplete context.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_focused&quot;</span><span class="p">,</span> <span class="s2">&quot;_future&quot;</span><span class="p">,</span> <span class="s2">&quot;_has_responded&quot;</span><span class="p">,</span> <span class="s2">&quot;_interaction&quot;</span><span class="p">,</span> <span class="s2">&quot;_options&quot;</span><span class="p">)</span>
@@ -404,9 +404,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionAutocompleteBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># TODO: upgrade injector client to the abc</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">injector</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_future</span> <span class="o">=</span> <span class="n">future</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
@@ -586,9 +584,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionAutocompleteBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># TODO: upgrade injector client to the abc</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">injector</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_future</span> <span class="o">=</span> <span class="n">future</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
@@ -615,8 +611,7 @@
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>client</strong> (InjectorClient):
-The injection client this context is bound to.</li>
+<li><strong>client</strong>: The injection client this context is bound to.</li>
 </ul>
 </div>
 
@@ -1059,11 +1054,13 @@ Keyword arguments mapping string option names to their values.</p>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></dt>
-                                <dd id="AutocompleteContext.injection_client" class="variable"><a href="injecting.html#BasicInjectionContext.injection_client">injection_client</a></dd>
-                <dd id="AutocompleteContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
-                <dd id="AutocompleteContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
-                <dd id="AutocompleteContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
+                                    <div><dt>alluka._client.BasicContext</dt>
+                                <dd id="AutocompleteContext.injection_client" class="variable">injection_client</dd>
+                <dd id="AutocompleteContext.cache_result" class="function">cache_result</dd>
+                <dd id="AutocompleteContext.call_with_di" class="function">call_with_di</dd>
+                <dd id="AutocompleteContext.call_with_async_di" class="function">call_with_async_di</dd>
+                <dd id="AutocompleteContext.get_cached_result" class="function">get_cached_result</dd>
+                <dd id="AutocompleteContext.get_type_dependency" class="function">get_type_dependency</dd>
 
             </div>
                                 </dl>
@@ -1180,16 +1177,13 @@ Keyword arguments mapping string option names to their values.</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
@@ -1300,7 +1294,6 @@ Keyword arguments mapping string option names to their values.</p>
         
             <span class="name">MenuContext</span><span class="signature">(
     client: <a href="abc.html#Client">tanjun.abc.Client</a>,
-    injection_client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>,
     interaction: hikari.interactions.command_interactions.CommandInteraction,
     *,
     default_to_ephemeral: bool = False,
@@ -1314,16 +1307,13 @@ Keyword arguments mapping string option names to their values.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">_ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
@@ -1337,8 +1327,7 @@ Keyword arguments mapping string option names to their values.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>client</strong> (InjectorClient):
-The injection client this context is bound to.</li>
+<li><strong>client</strong>: The injection client this context is bound to.</li>
 </ul>
 </div>
 
@@ -1637,11 +1626,13 @@ user isn't in the current guild.</p>
                 <dd id="MenuContext.fetch_guild" class="function">fetch_guild</dd>
 
             </div>
-            <div><dt><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></dt>
-                                <dd id="MenuContext.injection_client" class="variable"><a href="injecting.html#BasicInjectionContext.injection_client">injection_client</a></dd>
-                <dd id="MenuContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
-                <dd id="MenuContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
-                <dd id="MenuContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
+            <div><dt>alluka._client.BasicContext</dt>
+                                <dd id="MenuContext.injection_client" class="variable">injection_client</dd>
+                <dd id="MenuContext.cache_result" class="function">cache_result</dd>
+                <dd id="MenuContext.call_with_di" class="function">call_with_di</dd>
+                <dd id="MenuContext.call_with_async_di" class="function">call_with_async_di</dd>
+                <dd id="MenuContext.get_cached_result" class="function">get_cached_result</dd>
+                <dd id="MenuContext.get_type_dependency" class="function">get_type_dependency</dd>
 
             </div>
                                 </dl>
@@ -1675,7 +1666,6 @@ user isn't in the current guild.</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1685,7 +1675,7 @@ user isn't in the current guild.</p>
         <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot spawn context with a content-less message.&quot;</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">content</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1999,7 +1989,6 @@ user isn't in the current guild.</p>
         
             <span class="name">MessageContext</span><span class="signature">(
     client: <a href="abc.html#Client">tanjun.abc.Client</a>,
-    injection_client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>,
     content: str,
     message: hikari.messages.Message,
     *,
@@ -2013,7 +2002,6 @@ user isn't in the current guild.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -2023,7 +2011,7 @@ user isn't in the current guild.</p>
         <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot spawn context with a content-less message.&quot;</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">content</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2042,8 +2030,7 @@ user isn't in the current guild.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>client</strong> (InjectorClient):
-The injection client this context is bound to.</li>
+<li><strong>client</strong>: The injection client this context is bound to.</li>
 </ul>
 </div>
 
@@ -3095,11 +3082,13 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="MessageContext.fetch_guild" class="function">fetch_guild</dd>
 
             </div>
-            <div><dt><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></dt>
-                                <dd id="MessageContext.injection_client" class="variable"><a href="injecting.html#BasicInjectionContext.injection_client">injection_client</a></dd>
-                <dd id="MessageContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
-                <dd id="MessageContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
-                <dd id="MessageContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
+            <div><dt>alluka._client.BasicContext</dt>
+                                <dd id="MessageContext.injection_client" class="variable">injection_client</dd>
+                <dd id="MessageContext.cache_result" class="function">cache_result</dd>
+                <dd id="MessageContext.call_with_di" class="function">call_with_di</dd>
+                <dd id="MessageContext.call_with_async_di" class="function">call_with_async_di</dd>
+                <dd id="MessageContext.get_cached_result" class="function">get_cached_result</dd>
+                <dd id="MessageContext.get_type_dependency" class="function">get_type_dependency</dd>
 
             </div>
                                 </dl>
@@ -3124,7 +3113,6 @@ nature, and will trigger this exception if they occur.</li>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3133,9 +3121,7 @@ nature, and will trigger this exception if they occur.</li>
             <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
 
@@ -3206,7 +3192,6 @@ nature, and will trigger this exception if they occur.</li>
         
             <span class="name">SlashContext</span><span class="signature">(
     client: <a href="abc.html#Client">tanjun.abc.Client</a>,
-    injection_client: <a href="injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>,
     interaction: hikari.interactions.command_interactions.CommandInteraction,
     *,
     default_to_ephemeral: bool = False,
@@ -3220,7 +3205,6 @@ nature, and will trigger this exception if they occur.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="n">injection_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3229,9 +3213,7 @@ nature, and will trigger this exception if they occur.</li>
             <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="n">future</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
 
@@ -3252,8 +3234,7 @@ nature, and will trigger this exception if they occur.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>client</strong> (InjectorClient):
-The injection client this context is bound to.</li>
+<li><strong>client</strong>: The injection client this context is bound to.</li>
 </ul>
 </div>
 
@@ -3425,11 +3406,13 @@ The command this context is for.</li>
                 <dd id="SlashContext.fetch_guild" class="function">fetch_guild</dd>
 
             </div>
-            <div><dt><a href="injecting.html#BasicInjectionContext">tanjun.injecting.BasicInjectionContext</a></dt>
-                                <dd id="SlashContext.injection_client" class="variable"><a href="injecting.html#BasicInjectionContext.injection_client">injection_client</a></dd>
-                <dd id="SlashContext.cache_result" class="function"><a href="injecting.html#BasicInjectionContext.cache_result">cache_result</a></dd>
-                <dd id="SlashContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
-                <dd id="SlashContext.get_type_dependency" class="function"><a href="injecting.html#BasicInjectionContext.get_type_dependency">get_type_dependency</a></dd>
+            <div><dt>alluka._client.BasicContext</dt>
+                                <dd id="SlashContext.injection_client" class="variable">injection_client</dd>
+                <dd id="SlashContext.cache_result" class="function">cache_result</dd>
+                <dd id="SlashContext.call_with_di" class="function">call_with_di</dd>
+                <dd id="SlashContext.call_with_async_di" class="function">call_with_async_di</dd>
+                <dd id="SlashContext.get_cached_result" class="function">get_cached_result</dd>
+                <dd id="SlashContext.get_type_dependency" class="function">get_type_dependency</dd>
 
             </div>
                                 </dl>

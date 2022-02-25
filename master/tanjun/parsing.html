@@ -61,10 +61,7 @@
 
             </li>
             <li>
-                    <a class="class" href="#ConverterSig">ConverterSig</a>
-                            <ul class="memberlist">
-                </ul>
-
+                    <a class="variable" href="#ConverterSig">ConverterSig</a>
             </li>
             <li>
                     <a class="class" href="#Option">Option</a>
@@ -100,9 +97,6 @@
                                 <a class="variable" href="#Parameter.key">key</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Parameter.needs_injector">needs_injector</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Parameter.bind_client">bind_client</a>
                         </li>
                         <li>
@@ -122,9 +116,6 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#ShlexParser.__init__">ShlexParser</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ShlexParser.needs_injector">needs_injector</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ShlexParser.arguments">arguments</a>
@@ -266,14 +257,13 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conversion</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="n">_CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span>
+    <span class="n">_OtherT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_OtherT&quot;</span><span class="p">)</span>
     <span class="n">_ParameterT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ParameterT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Parameter&quot;</span><span class="p">)</span>
     <span class="n">_ShlexParserT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ShlexParserT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;ShlexParser&quot;</span><span class="p">)</span>
     <span class="n">_T_contra</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T_contra&quot;</span><span class="p">,</span> <span class="n">contravariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">_OtherT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_OtherT&quot;</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">_CmpProto</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">[</span><span class="n">_T_contra</span><span class="p">]):</span>
         <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__other</span><span class="p">:</span> <span class="n">_T_contra</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -286,7 +276,9 @@
 
 <span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
 
-<span class="n">ConverterSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span>
+<span class="n">ConverterSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">_T</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]</span>
+<span class="p">]</span>
 <span class="sd">&quot;&quot;&quot;Type hint of a converter used within a parser instance.</span>
 
 <span class="sd">This must be a callable or asynchronous callable which takes one position</span>
@@ -1479,7 +1471,7 @@
         <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
@@ -1502,7 +1494,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Sequence of the converters registered for this parameter.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
@@ -1526,31 +1518,20 @@
         <span class="sd">&quot;&quot;&quot;The key of this parameter used to pass the result to the command&#39;s callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether this parameter needs an injector to be used.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO: cache this value?</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_add_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
                 <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">):</span>
-            <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
-            <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="n">converter_</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter_</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+        <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
+        <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
@@ -1575,7 +1556,7 @@
         <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">converter</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
@@ -1596,7 +1577,7 @@
 <span class="sd">            A copy of the parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1776,12 +1757,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Option</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># TODO: maybe switch to dict[str, Option] and assert doesn&#39;t already exist</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether this parser needs an injector to be used.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO: cache this value?</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Argument</span><span class="p">]:</span>
@@ -2363,7 +2338,7 @@
     self: ~_T,
     key: str,
     /,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     *,
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     greedy: bool = False,
@@ -2504,7 +2479,7 @@ Whether this argument can be passed multiple times.</li>
     name: str,
     /,
     *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any,
     empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -2753,7 +2728,7 @@ Defaults to <code>False</code>.</li>
     key: str,
     /,
     *,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     greedy: bool = False,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -2895,7 +2870,6 @@ Greedy and multi parameters cannot be used together.</p>
                 <dd id="Argument.default" class="variable"><a href="#Parameter.default">default</a></dd>
                 <dd id="Argument.is_multi" class="variable"><a href="#Parameter.is_multi">is_multi</a></dd>
                 <dd id="Argument.key" class="variable"><a href="#Parameter.key">key</a></dd>
-                <dd id="Argument.needs_injector" class="variable"><a href="#Parameter.needs_injector">needs_injector</a></dd>
                 <dd id="Argument.bind_client" class="function"><a href="#Parameter.bind_client">bind_client</a></dd>
                 <dd id="Argument.bind_component" class="function"><a href="#Parameter.bind_component">bind_component</a></dd>
                 <dd id="Argument.convert" class="function"><a href="#Parameter.convert">convert</a></dd>
@@ -2906,15 +2880,11 @@ Greedy and multi parameters cannot be used together.</p>
                             </div>
                 </section>
                 <section id="ConverterSig">
-                                <div class="attr class">
-        <a class="headerlink" href="#ConverterSig">#&nbsp;&nbsp</a>
+                                <div class="attr variable"><a class="headerlink" href="#ConverterSig">#&nbsp;&nbsp</a>
 
-        
-        <span class="def">class</span>
-        <span class="name">ConverterSig</span>:
+        <span class="name">ConverterSig</span><span class="default_value"> = typing.Union[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, ~_T]], collections.abc.Callable[..., ~_T]]</span>
     </div>
 
-        
             <div class="docstring"><p>Type hint of a converter used within a parser instance.</p>
 
 <p>This must be a callable or asynchronous callable which takes one position
@@ -3037,7 +3007,7 @@ Greedy and multi parameters cannot be used together.</p>
     name: str,
     /,
     *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -3203,7 +3173,6 @@ option.</p>
                 <dd id="Option.default" class="variable"><a href="#Parameter.default">default</a></dd>
                 <dd id="Option.is_multi" class="variable"><a href="#Parameter.is_multi">is_multi</a></dd>
                 <dd id="Option.key" class="variable"><a href="#Parameter.key">key</a></dd>
-                <dd id="Option.needs_injector" class="variable"><a href="#Parameter.needs_injector">needs_injector</a></dd>
                 <dd id="Option.bind_client" class="function"><a href="#Parameter.bind_client">bind_client</a></dd>
                 <dd id="Option.bind_component" class="function"><a href="#Parameter.bind_component">bind_component</a></dd>
                 <dd id="Option.convert" class="function"><a href="#Parameter.convert">convert</a></dd>
@@ -3243,7 +3212,7 @@ option.</p>
         <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
@@ -3266,7 +3235,7 @@ option.</p>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Sequence of the converters registered for this parameter.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
@@ -3290,31 +3259,20 @@ option.</p>
         <span class="sd">&quot;&quot;&quot;The key of this parameter used to pass the result to the command&#39;s callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether this parameter needs an injector to be used.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO: cache this value?</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_add_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
                 <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">):</span>
-            <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
-            <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="n">converter_</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter_</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+        <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
+        <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
@@ -3339,7 +3297,7 @@ option.</p>
         <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">converter</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
@@ -3360,7 +3318,7 @@ option.</p>
 <span class="sd">            A copy of the parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -3381,7 +3339,7 @@ option.</p>
     key: str,
     /,
     *,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
     min_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -3405,7 +3363,7 @@ option.</p>
         <span class="sd">&quot;&quot;&quot;Initialise a parameter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_multi</span> <span class="o">=</span> <span class="n">multi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
@@ -3433,7 +3391,7 @@ option.</p>
                             <div id="Parameter.converters" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Parameter.converters">#&nbsp;&nbsp</a>
 
-        <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[collections.abc.Callable[..., typing.Union[typing.Any, collections.abc.Awaitable[typing.Any]]]]</span>
+        <span class="name">converters</span><span class="annotation">: collections.abc.Sequence[typing.Union[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, typing.Any]], collections.abc.Callable[..., typing.Any]]]</span>
     </div>
 
             <div class="docstring"><p>Sequence of the converters registered for this parameter.</p>
@@ -3479,17 +3437,6 @@ this parameter (with each entry being converted separately.)</p>
 
 
                             </div>
-                            <div id="Parameter.needs_injector" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Parameter.needs_injector">#&nbsp;&nbsp</a>
-
-        <span class="name">needs_injector</span><span class="annotation">: bool</span>
-    </div>
-
-            <div class="docstring"><p>Whether this parameter needs an injector to be used.</p>
-</div>
-
-
-                            </div>
                             <div id="Parameter.bind_client" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Parameter.bind_client">#&nbsp;&nbsp</a>
 
@@ -3503,8 +3450,8 @@ this parameter (with each entry being converted separately.)</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3550,7 +3497,7 @@ this parameter (with each entry being converted separately.)</p>
         <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">converter</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">call_with_async_di</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
@@ -3589,7 +3536,7 @@ this parameter (with each entry being converted separately.)</p>
 <span class="sd">            A copy of the parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -3632,12 +3579,6 @@ this parameter (with each entry being converted separately.)</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Option</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># TODO: maybe switch to dict[str, Option] and assert doesn&#39;t already exist</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether this parser needs an injector to be used.&quot;&quot;&quot;</span>
-        <span class="c1"># TODO: cache this value?</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Argument</span><span class="p">]:</span>
@@ -3900,17 +3841,6 @@ this parameter (with each entry being converted separately.)</p>
 
 
                             </div>
-                            <div id="ShlexParser.needs_injector" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#ShlexParser.needs_injector">#&nbsp;&nbsp</a>
-
-        <span class="name">needs_injector</span><span class="annotation">: bool</span>
-    </div>
-
-            <div class="docstring"><p>Whether this parser needs an injector to be used.</p>
-</div>
-
-
-                            </div>
                             <div id="ShlexParser.arguments" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ShlexParser.arguments">#&nbsp;&nbsp</a>
 
@@ -3975,7 +3905,7 @@ this parameter (with each entry being converted separately.)</p>
     self: ~_ShlexParserT,
     key: str,
     /,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     *,
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     greedy: bool = False,
@@ -4092,7 +4022,7 @@ Whether this argument can be passed multiple times.</li>
     name: str,
     /,
     *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any,
     empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -4372,7 +4302,7 @@ The message context to parse.</li>
             <span class="name">with_argument</span><span class="signature">(
     key: str,
     /,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     *,
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     greedy: bool = False,
@@ -4550,7 +4480,7 @@ Whether this argument can be passed multiple times.</li>
             <span class="name">with_greedy_argument</span><span class="signature">(
     key: str,
     /,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     *,
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -4716,7 +4646,7 @@ with the result of them.</p>
             <span class="name">with_multi_argument</span><span class="signature">(
     key: str,
     /,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     *,
     default: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -4886,7 +4816,7 @@ with the result of them.</p>
     name: str,
     /,
     *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any,
     empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,
@@ -5074,7 +5004,7 @@ with the result of them.</p>
     name: str,
     /,
     *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    converters: Union[collections.abc.Iterable[Union[collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]]], collections.abc.Callable[..., collections.abc.Coroutine[Any, Any, Any]], collections.abc.Callable[..., Any]] = (),
     default: Any,
     empty_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, Any] = UNDEFINED,
     max_value: Union[<a href="#UndefinedT">tanjun.parsing.UndefinedT</a>, <a href="#_CmpProto">tanjun.parsing._CmpProto</a>[Any]] = UNDEFINED,

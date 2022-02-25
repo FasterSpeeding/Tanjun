@@ -90,6 +90,9 @@
                         <li>
                                 <a class="variable" href="#MissingDependencyError.message">message</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#MissingDependencyError.dependency_type">dependency_type</a>
+                        </li>
                 </ul>
 
             </li>
@@ -241,6 +244,8 @@
 
 <span class="kn">import</span> <span class="nn">typing</span>
 
+<span class="kn">import</span> <span class="nn">alluka</span>
+
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pathlib</span>
     <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
@@ -262,23 +267,8 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">MissingDependencyError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Error raised when a dependency couldn&#39;t be found.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
-
-    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
-<span class="sd">            The error message.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+<span class="n">MissingDependencyError</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">MissingDependencyError</span>
+<span class="sd">&quot;&quot;&quot;Type alias of `alluka.MissingDependencyError`.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">CommandError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
@@ -962,33 +952,35 @@ other commands from being tried.</p>
 
         
         <span class="def">class</span>
-        <span class="name">MissingDependencyError</span><wbr>(<span class="base"><a href="#TanjunError">TanjunError</a></span>):
+        <span class="name">MissingDependencyError</span><wbr>(<span class="base">alluka._errors.AllukaError</span>):
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MissingDependencyError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">):</span>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MissingDependencyError</span><span class="p">(</span><span class="n">AllukaError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Error raised when a dependency couldn&#39;t be found.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,)</span>
 
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;The error&#39;s message.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">dependency_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+    <span class="sd">&quot;&quot;&quot;Type of the missing dependency.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dependency_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
+<span class="sd">        message</span>
 <span class="sd">            The error message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_type</span> <span class="o">=</span> <span class="n">dependency_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Error raised when a dependency couldn't be found.</p>
+            <div class="docstring"><p>Type alias of <code>alluka.MissingDependencyError</code>.</p>
 </div>
 
 
@@ -996,19 +988,20 @@ other commands from being tried.</p>
                                         <div class="attr function"><a class="headerlink" href="#MissingDependencyError.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">MissingDependencyError</span><span class="signature">(message: str)</span>
+            <span class="name">MissingDependencyError</span><span class="signature">(message: str, dependency_type: Any, /)</span>
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dependency_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Initialise a missing dependency error.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        message : str</span>
+<span class="sd">        message</span>
 <span class="sd">            The error message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_type</span> <span class="o">=</span> <span class="n">dependency_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 </pre></div>
 
@@ -1019,8 +1012,7 @@ other commands from being tried.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>message</strong> (str):
-The error message.</li>
+<li><strong>message</strong>: The error message.</li>
 </ul>
 </div>
 
@@ -1033,6 +1025,17 @@ The error message.</li>
     </div>
 
             <div class="docstring"><p>The error's message.</p>
+</div>
+
+
+                            </div>
+                            <div id="MissingDependencyError.dependency_type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#MissingDependencyError.dependency_type">#&nbsp;&nbsp</a>
+
+        <span class="name">dependency_type</span><span class="annotation">: Any</span>
+    </div>
+
+            <div class="docstring"><p>Type of the missing dependency.</p>
 </div>
 
 
