@@ -4641,7 +4641,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        _T | Undefined
+        _T | alluka.abc.Undefined
             The resolved type if found, else `Undefined`.
         """
 
@@ -4690,12 +4690,12 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        callback: CallbackSig[_T]
+        callback : alluka.abc.CallbackSig[_T]
             The injected callback to get the override for.
 
         Returns
         -------
-        CallbackSig[_T] | None
+        alluka.abc.CallbackSig[_T] | None
             The override if found, else `None`.
         """
 

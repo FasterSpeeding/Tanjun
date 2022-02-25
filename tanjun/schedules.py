@@ -240,7 +240,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         if isinstance(interval, datetime.timedelta):
             self._interval: datetime.timedelta = interval
         else:
-            self._interval: datetime.timedelta = datetime.timedelta(seconds=interval)
+            self._interval = datetime.timedelta(seconds=interval)
 
         self._callback = callback
         self._fatal_exceptions = tuple(fatal_exceptions)

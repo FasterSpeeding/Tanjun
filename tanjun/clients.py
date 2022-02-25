@@ -542,6 +542,10 @@ class Client(tanjun_abc.Client):
 
             Defaults to `False` and can only be passed as `True` if `event_manager`
             is also provided.
+        injector : alluka.abc.Client | None
+            The alluka client this should use for dependency injection.
+
+            If not provided then the client will initialise its own DI client.
         mention_prefix : bool
             Whether or not mention prefixes should be automatically set when this
             client is first started.
@@ -1192,8 +1196,8 @@ class Client(tanjun_abc.Client):
 
         if command_id:
             if isinstance(builder, hikari.api.SlashCommandBuilder):
-                description = builder.description
-                options = builder.options
+                description: hikari.UndefinedOr[str] = builder.description
+                options: hikari.UndefinedOr[collections.Sequence[hikari.CommandOption]] = builder.options
 
             else:
                 description = hikari.UNDEFINED
@@ -1259,7 +1263,7 @@ class Client(tanjun_abc.Client):
         for command in commands:
             key = (command.type, command.name)
             names_to_commands[key] = command
-            if command.name in builders:
+            if key in builders:
                 conflicts.add(key)
 
             builder = command.build()
@@ -2577,13 +2581,13 @@ class Client(tanjun_abc.Client):
             The interaction to execute a command based on.
         """
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx = self._make_slash_context(
+            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
-            hooks = self._get_slash_hooks()
+            hooks: typing.Union[set[tanjun_abc.MenuHooks], set[tanjun_abc.SlashHooks], None] = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -2694,14 +2698,14 @@ class Client(tanjun_abc.Client):
         ] = loop.create_future()
 
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx = self._make_slash_context(
+            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
             )
-            hooks = self._get_slash_hooks()
+            hooks: typing.Union[set[tanjun_abc.MenuHooks], set[tanjun_abc.SlashHooks], None] = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(

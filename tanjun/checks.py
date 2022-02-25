@@ -495,7 +495,7 @@ def with_dm_check(
     """Only let a command run in a DM channel.
 
     .. note::
-        error_message takes priority over halt_execution.
+        `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
@@ -545,7 +545,7 @@ def with_guild_check(
     """Only let a command run in a guild channel.
 
     .. note::
-        error_message takes priority over halt_execution.
+        `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
@@ -595,7 +595,7 @@ def with_nsfw_check(
     """Only let a command run in a channel that's marked as nsfw.
 
     .. note::
-        error_message takes priority over halt_execution.
+        `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
@@ -647,7 +647,7 @@ def with_sfw_check(
     """Only let a command run in a channel that's marked as sfw.
 
     .. note::
-        error_message takes priority over halt_execution.
+        `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
@@ -699,7 +699,7 @@ def with_owner_check(
     """Only let a command run if it's being triggered by one of the bot's owners.
 
     .. note::
-        error_message takes priority over halt_execution.
+        `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------

@@ -523,6 +523,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
     ) -> typing.Optional[float]:
         # <<inherited docstring from AbstractCooldownManager>>.
+        bucket: typing.Optional[_Cooldown]
         if increment:
             bucket = await self._get_or_default(bucket_id).into_inner(ctx)
             if cooldown := bucket.must_wait_for():
@@ -531,8 +532,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             bucket.increment()
             return None
 
-        if (bucket := self._buckets.get(bucket_id)) and (cooldown := await bucket.try_into_inner(ctx)):
-            return cooldown.must_wait_for()
+        if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
+            return bucket.must_wait_for()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.

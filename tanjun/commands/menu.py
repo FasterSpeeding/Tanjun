@@ -459,7 +459,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._type is hikari.CommandType.USER:
-                value = ctx.resolve_to_user()
+                value: typing.Union[hikari.Message, hikari.User] = ctx.resolve_to_user()
 
             else:
                 value = ctx.resolve_to_message()
