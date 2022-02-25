@@ -61,13 +61,10 @@ from collections import abc as collections
 import alluka
 import hikari
 
+from . import abc as tanjun_abc
 from . import dependencies
 from . import errors
 from . import utilities
-
-if typing.TYPE_CHECKING:
-    from . import abc as tanjun_abc
-
 
 _CommandT = typing.TypeVar("_CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
@@ -84,7 +81,7 @@ def _optional_kwargs(
 
 
 class _Check:
-    __slots__ = ("_error_message", "_halt_execution")
+    __slots__ = ("_error_message", "_halt_execution", "__weakref__")
 
     def __init__(
         self,

@@ -658,7 +658,7 @@ class CooldownPreExecution:
     instead and incrementing the bucket's use counter.
     """
 
-    __slots__ = ("_bucket_id", "_error_message", "_owners_exempt")
+    __slots__ = ("_bucket_id", "_error_message", "_owners_exempt", "__weakref__")
 
     def __init__(
         self,
@@ -976,7 +976,7 @@ class ConcurrencyPreExecution:
         and `ConcurrencyPostExecution` hooks must be registered for a command scope.
     """
 
-    __slots__ = ("_bucket_id", "_error_message")
+    __slots__ = ("_bucket_id", "_error_message", "__weakref__")
 
     def __init__(
         self,
@@ -1020,7 +1020,7 @@ class ConcurrencyPostExecution:
         and `ConcurrencyPostExecution` hooks must be registered for a command scope.
     """
 
-    __slots__ = ("_bucket_id",)
+    __slots__ = ("_bucket_id", "__weakref__")
 
     def __init__(self, bucket_id: str, /) -> None:
         """Initialise a concurrency post-execution hook.
