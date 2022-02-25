@@ -404,7 +404,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
         Parameters
         ----------
-        count_down : int | float
+        count_down
             The number of seconds to wait before automatically deferring the
             interaction.
 
@@ -943,7 +943,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
 
 class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
-    """Standard implementation of `tanjun.abc.SlashContext`."""
+    """Standard implementation of [tanjun.abc.SlashContext][]."""
 
     __slots__ = ("_command", "_marked_not_found", "_on_not_found", "_options")
 

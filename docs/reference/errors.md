@@ -1,0 +1,3 @@
+# tanjun.errors
+
+::: tanjun.errors

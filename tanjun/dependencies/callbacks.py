@@ -51,13 +51,13 @@ async def fetch_my_user(
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.
 
-    .. note::
+    !!! note
         This is used in the standard `LazyConstant[hikari.OwnUser]`
         dependency.
 
     Parameters
     ----------
-    client : tanjun.abc.Client
+    client
         The client to use to fetch the user.
 
     Returns

@@ -76,6 +76,11 @@ from collections import abc as collections
 import hikari
 from alluka import abc as alluka
 
+# TODO: move init docstrings to inits
+# TODO: remove "defaults to sections from docdescriptions?"
+# TODO: REPLACE NOTES SECTIONS
+# TODO: update .. deprecated:: notes
+
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
@@ -108,32 +113,32 @@ AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback an autocomplete callback should have.
 
 This will be called when handling autocomplete and should be an asynchronous
-callback which two positional arguments of type `AutocompleteContext` and
+callback which two positional arguments of type [AutocompleteContext][] and
 `str | int | float` (with the 2nd argument type being decided by the
-autocomplete type), returns `None` and may use dependency injection.
+autocomplete type), returns [None][] and may use dependency injection.
 """
 
 
 CheckSig = typing.Union[collections.Callable[..., _CoroT[bool]], collections.Callable[..., bool]]
-"""Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
+"""Type hint of a general context check used with Tanjun [ExecutableCommand][] classes.
 
-This may be registered with a `ExecutableCommand` to add a rule which decides whether
+This may be registered with a [ExecutableCommand][] to add a rule which decides whether
 it should execute for each context passed to it. This should take one positional
-argument of type `Context` and may either be a synchronous or asynchronous
-callback which returns `bool` where returning `False` or
-raising `tanjun.errors.FailedCheck` will indicate that the current context
+argument of type [Context][] and may either be a synchronous or asynchronous
+callback which returns [bool][] where returning [False][] or
+raising [tanjun.FailedCheck][] will indicate that the current context
 shouldn't lead to an execution.
 """
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
-"""Type hint of the callback a `Command` instance will operate on.
+"""Type hint of the callback a [Command][] instance will operate on.
 
 This will be called when executing a command and will need to take one
-positional argument of type `Context` where any other required or optional
+positional argument of type [Context][] where any other required or optional
 keyword arguments will be based on the parser instance for the command if
 applicable and dependency injection.
 
-.. note::
+!!! note
     This will have to be asynchronous.
 """
 
@@ -143,22 +148,22 @@ ErrorHookSig = typing.Union[
 ]
 """Type hint of the callback used as a unexpected command error hook.
 
-This will be called whenever an unexpected `Exception` is raised during the
-execution stage of a command (not including expected `tanjun.errors.TanjunError`).
+This will be called whenever an unexpected [Exception][] is raised during the
+execution stage of a command (not including expected [tanjun.TanjunError][]).
 
-This should take two positional arguments - of type `tanjun.abc.Context` and
-`Exception` - and may be either a synchronous or asynchronous callback which
-returns `bool` or `None` and may take advantage of dependency injection.
+This should take two positional arguments - of type [Context][] and
+[Exception][] - and may be either a synchronous or asynchronous callback which
+returns [bool][] or [None][] and may take advantage of dependency injection.
 
-`True` is returned to indicate that the exception should be suppressed and
-`False` is returned to indicate that the exception should be re-raised.
+[True][] is returned to indicate that the exception should be suppressed and
+[False][] is returned to indicate that the exception should be re-raised.
 """
 
 
 HookSig = typing.Union[collections.Callable[..., None], collections.Callable[..., _CoroT[None]]]
 """Type hint of the callback used as a general command hook.
 
-.. note::
+!!! note
     This may be asynchronous or synchronous, dependency injection is supported
     for this callback's keyword arguments and the positional arguments which
     are passed dependent on the type of hook this is being registered as.
@@ -167,16 +172,16 @@ HookSig = typing.Union[collections.Callable[..., None], collections.Callable[...
 ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 """Type hint of a hikari event manager callback.
 
-This is guaranteed one positional arg of type `hikari.Event` regardless
-of implementation and must be a coruotine function which returns `None`.
+This is guaranteed one positional arg of type [hikari.Event][hikari.Event]
+regardless of implementation and must be a coruotine function which returns [None][].
 """
 
 MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of a context menu command callback.
 
-This is guaranteed two positional; arguments of type `tanjun.abc.MenuContext`
-and either `tanjun.abc.User` | `tanjun.abc.InteractionMember` and/or
-`tanjun.abc.Message` dependent on the type(s) of menu this is.
+This is guaranteed two positional; arguments of type [MenuContext][]
+and either `hikari.User | hikari.InteractionMember` and/or
+[hikari.Message][] dependent on the type(s) of menu this is.
 """
 
 MetaEventSig = typing.Union[collections.Callable[..., _CoroT[None]], collections.Callable[..., None]]
@@ -184,8 +189,8 @@ MetaEventSig = typing.Union[collections.Callable[..., _CoroT[None]], collections
 
 The positional arguments this is guaranteed depend on the event name its being
 subscribed to (more information the standard client callbacks can be found at
-`ClientCallbackNames`) and may be either synchronous or asynchronous but must
-return `None`.
+[ClientCallbackNames][]) and may be either synchronous or asynchronous but must
+return [None][].
 """
 
 
@@ -212,15 +217,15 @@ class Context(alluka.Context):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun `Client` implementation this context was spawned by."""
+        """Tanjun [Client][] implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        """Object of the `Component` this context is bound to.
+        """Object of the [Component][] this context is bound to.
 
-        .. note::
-            This will only be `None` before this has been bound to a
+        !!! note
+            This will only be [None][] before this has been bound to a
             specific command but never during command execution nor checks.
         """
 
@@ -229,8 +234,8 @@ class Context(alluka.Context):
     def command(self: _ContextT) -> typing.Optional[ExecutableCommand[_ContextT]]:
         """Object of the command this context is bound to.
 
-        .. note::
-            This will only be `None` before this has been bound to a
+        !!! note
+            This will only be [None][] before this has been bound to a
             specific command but never during command execution.
         """
 
@@ -249,7 +254,7 @@ class Context(alluka.Context):
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         """ID of the guild this command was executed in.
 
-        Will be `None` for all DM command executions.
+        Will be [None][] for all DM command executions.
         """
 
     @property
@@ -262,7 +267,7 @@ class Context(alluka.Context):
     def is_human(self) -> bool:
         """Whether this command execution was triggered by a human.
 
-        Will be `False` for bot and webhook triggered commands.
+        Will be [False][] for bot and webhook triggered commands.
         """
 
     @property
@@ -270,7 +275,7 @@ class Context(alluka.Context):
     def member(self) -> typing.Optional[hikari.Member]:
         """Guild member object of this command's author.
 
-        Will be `None` for DM command executions.
+        Will be [None][] for DM command executions.
         """
 
     @property
@@ -288,8 +293,8 @@ class Context(alluka.Context):
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         """Shard that triggered the context.
 
-        .. note::
-            This will be `None` if `ctx.shards` is also `None`.
+        !!! note
+            This will be [None][] if [Context.shards][] is also [None][].
         """
 
     @property
@@ -307,16 +312,16 @@ class Context(alluka.Context):
         """Command name this execution was triggered with."""
 
     @abc.abstractmethod
-    def set_component(self: _T, _: typing.Optional[Component], /) -> _T:
+    def set_component(self: _T, component: typing.Optional[Component], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def fetch_channel(self) -> hikari.TextableChannel:
         """Fetch the channel the context was invoked in.
 
-        .. note::
-            This performs an API call. Consider using `Context.get_channel`
-            if you have `hikari.config.CacheComponents.GUILD_CHANNELS` cache component enabled.
+        !!! note
+            This performs an API call. Consider using [Context.get_channel][]
+            if you have [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
 
         Returns
         -------
@@ -353,15 +358,15 @@ class Context(alluka.Context):
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
         """Fetch the guild the context was invoked in.
 
-        .. note::
-            This performs an API call. Consider using `Context.get_guild`
-            if you have `hikari.config.CacheComponents.GUILDS` cache component enabled.
+        !!! note
+            This performs an API call. Consider using [Context.get_guild][]
+            if you have [hikari.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
         -------
         hikari.Guild | None
             An optional guild the context was invoked in.
-            `None` will be returned if the context was invoked in a DM channel.
+            [None][] will be returned if the context was invoked in a DM channel.
 
         Raises
         ------
@@ -390,14 +395,15 @@ class Context(alluka.Context):
     def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         """Retrieve the channel the context was invoked in from the cache.
 
-        .. note::
-            This method requires the `hikari.config.CacheComponents.GUILD_CHANNELS` cache component.
+        !!! note
+            This method requires the [hikari.config.CacheComponents.GUILD_CHANNELS][]
+            cache component.
 
         Returns
         -------
         hikari.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
-            `None` will be returned if the channel was not found or if it
+            [None][] will be returned if the channel was not found or if it
             is DM channel.
         """
 
@@ -405,14 +411,15 @@ class Context(alluka.Context):
     def get_guild(self) -> typing.Optional[hikari.Guild]:
         """Fetch the guild that the context was invoked in.
 
-        .. note::
-            This method requires `hikari.config.CacheComponents.GUILDS` cache component enabled.
+        !!! note
+            This method requires [hikari.config.CacheComponents.GUILDS][] cache
+            component enabled.
 
         Returns
         -------
         hikari.Guild | None
             An optional guild the context was invoked in.
-            `None` will be returned if the guild was not found.
+            [None][] will be returned if the guild was not found.
         """
 
     @abc.abstractmethod
@@ -460,94 +467,89 @@ class Context(alluka.Context):
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED
+        content
             The content to edit the initial response with.
 
             If provided, the message contents. If
-            `hikari.UNDEFINED`, then nothing will be sent
+            [hikari.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
-            `str`.
+            [str][].
 
-            If this is a `hikari.Embed` and no `embed` nor `embeds` kwarg
+            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a `hikari.Resource`, then the
+            Likewise, if this is a [hikari.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
-
-        Other Parameters
-        ----------------
-        delete_after : datetime.timedelta | float | int | None
+        delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            .. note::
+            !!! note
                 Slash command responses can only be deleted within 14 minutes of the
                 command being received.
 
-            .. note::
+            !!! note
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        attachment : hikari.Resourceish | hikari.UNDEFINED
+        attachment
             A singular attachment to edit the initial response with.
-        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
+        attachments
             A sequence of attachments to edit the initial response with.
-        component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]
+        component
             If provided, builder object of the component to set for this message.
             This component will replace any previously set components and passing
-            `None` will remove all components.
-        components : hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
+            [None][] will remove all components.
+        components
             If provided, a sequence of the component builder objects set for
             this message. These components will replace any previously set
-            components and passing `None` or an empty sequence will
+            components and passing [None][] or an empty sequence will
             remove all components.
-        embed : hikari.Embed | hikari.UNDEFINED
+        embed
             An embed to replace the initial response with.
-        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
+        embeds
             A sequence of embeds to replace the initial response with.
-        replace_attachments : bool
+        replace_attachments
             Whether to replace the attachments of the response or not. Default to `False`.
-        mentions_everyone : bool | hikari.UNDEFINED
+        mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        user_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or `hikari.PartialUser`
+            [hikari.Snowflake][], or [hikari.PartialUser][]
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        role_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialRole` derivatives to enforce mentioning
+            [hikari.Snowflake][], or
+            [hikari.PartialRole][] derivatives to enforce mentioning
             specific roles.
 
         Notes
         -----
         Attachments can be passed as many different things, to aid in
         convenience.
-        * If a `pathlib.PurePath` or `str` to a valid URL, the
+        * If a [pathlib.PurePath][] or [str][] to a valid URL, the
             resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of
-            `hikari.WebResource` such as
-            `hikari.URL`,
-            `hikari.Attachment`,
-            `hikari.Emoji`,
-            `EmbedResource`, etc will also be uploaded this way.
+            sending the message. Subclasses of [hikari.WebResource][]
+            such as [hikari.URL][], [hikari.Attachment][],
+            [hikari.Emoji][], [hikari.EmbedResource][],
+            etc will also be uploaded this way.
             This will use bit-inception, so only a small percentage of the
             resource will remain in memory at any one time, thus aiding in
             scalability.
-        * If a `hikari.Bytes` is passed, or a `str`
+        * If a [hikari.Bytes][] is passed, or a [str][]
             that contains a valid data URI is passed, then this is uploaded
             with a randomized file name if not provided.
-        * If a `hikari.File`, `pathlib.PurePath` or
-            `str` that is an absolute or relative path to a file
+        * If a [hikari.File][], [pathlib.PurePath][] or
+            [str][] that is an absolute or relative path to a file
             on your file system is passed, then this resource is uploaded
             as an attachment using non-blocking code internally and streamed
-            using bit-inception where possible. This depends on the
-            type of `concurrent.futures.Executor` that is being used for
+            using bit-inception where possible. This depends on the type of
+            [concurrent.futures.Executor][] that is being used for
             the application (default is a thread pool which supports this
             behaviour).
 
@@ -618,96 +620,90 @@ class Context(alluka.Context):
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED
+        content
             The content to edit the last response with.
 
             If provided, the message contents. If
-            `hikari.UNDEFINED`, then nothing will be sent
+            [hikari.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
-            `str`.
+            [str][].
 
-            If this is a `hikari.Embed` and no `embed` nor `embeds` kwarg
+            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a `hikari.Resource`, then the
+            Likewise, if this is a [hikari.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
-
-        Other Parameters
-        ----------------
-        delete_after : datetime.timedelta | float | int | None
+        delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            .. note::
+            !!! note
                 Slash command responses can only be deleted within 14 minutes of the
                 command being received.
 
-            .. note::
+            !!! note
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        attachment : hikari.Resourceish | hikari.UNDEFINED
+        attachment
             A singular attachment to edit the last response with.
-        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
+        attachments
             A sequence of attachments to edit the last response with.
-        component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]
+        component
             If provided, builder object of the component to set for this message.
             This component will replace any previously set components and passing
-            `None` will remove all components.
-        components : hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
+            [None][] will remove all components.
+        components
             If provided, a sequence of the component builder objects set for
             this message. These components will replace any previously set
-            components and passing `None` or an empty sequence will
+            components and passing [None][] or an empty sequence will
             remove all components.
-        embed : hikari.Embed | hikari.UNDEFINED
+        embed
             An embed to replace the last response with.
-        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
+        embeds
             A sequence of embeds to replace the last response with.
-        replace_attachments : bool
+        replace_attachments
             Whether to replace the attachments of the response or not. Default to `False`.
-        mentions_everyone : bool | hikari.UNDEFINED
+        mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        user_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or `hikari.PartialUser`
+            [hikari.Snowflake][], or [hikari.PartialUser][]
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        role_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialRole` derivatives to enforce mentioning
-            specific roles.
+            [hikari.Snowflake][], or [hikari.PartialRole][]
+            derivatives to enforce mentioning specific roles.
 
         Notes
         -----
         Attachments can be passed as many different things, to aid in
         convenience.
-        * If a `pathlib.PurePath` or `str` to a valid URL, the
+        * If a [pathlib.PurePath][] or [str][] to a valid URL, the
             resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of
-            `hikari.WebResource` such as
-            `hikari.URL`,
-            `hikari.Attachment`,
-            `hikari.Emoji`,
-            `EmbedResource`, etc will also be uploaded this way.
+            sending the message. Subclasses of [hikari.WebResource][]
+            such as [hikari.URL][], [hikari.Attachment][],
+            [hikari.Emoji][], [hikari.EmbedResource][], etc will
+            also be uploaded this way.
             This will use bit-inception, so only a small percentage of the
             resource will remain in memory at any one time, thus aiding in
             scalability.
-        * If a `hikari.Bytes` is passed, or a `str`
+        * If a [hikari.Bytes][] is passed, or a [str][]
             that contains a valid data URI is passed, then this is uploaded
             with a randomized file name if not provided.
-        * If a `hikari.File`, `pathlib.PurePath` or
-            `str` that is an absolute or relative path to a file
+        * If a [hikari.File][], [pathlib.PurePath] or
+            [str][] that is an absolute or relative path to a file
             on your file system is passed, then this resource is uploaded
             as an attachment using non-blocking code internally and streamed
             using bit-inception where possible. This depends on the
-            type of `concurrent.futures.Executor` that is being used for
+            type of [concurrent.futures.Executor][] that is being used for
             the application (default is a thread pool which supports this
             behaviour).
 
@@ -840,75 +836,71 @@ class Context(alluka.Context):
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED
+        content
             The content to respond with.
 
             If provided, the message contents. If
-            `hikari.UNDEFINED`, then nothing will be sent
+            [hikari.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
-            `str`.
+            [str][].
 
-            If this is a `hikari.Embed` and no `embed` nor `embeds` kwarg
+            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a `hikari.Resource`, then the
+            Likewise, if this is a [hikari.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
-
-        Other Parameters
-        ----------------
-        ensure_result : bool
+        ensure_result
             Ensure that this call will always return a message object.
 
-            If `True` then this will always return `hikari.Message`, otherwise
-            this will return `Optional[hikari.Message]`.
+            If [True][] then this will always return [hikari.Message][],
+            otherwise this will return `hikari.Message | None`.
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
-        delete_after : datetime.timedelta | float | int | None
+        delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            .. note::
+            !!! note
                 Slash command responses can only be deleted within 14 minutes of the
                 command being received.
 
-            .. note::
+            !!! note
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
+        component
             If provided, builder object of the component to include in this response.
-        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
+        components
             If provided, a sequence of the component builder objects to include
             in this response.
-        embed : hikari.Embed | hikari.UNDEFINED
+        embed
             An embed to respond with.
-        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
+        embeds
             A sequence of embeds to respond with.
-        mentions_everyone : bool | hikari.UNDEFINED
+        mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        user_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or `hikari.PartialUser`
+            [hikari.Snowflake][], or [hikari.PartialUser][]
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        role_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialRole` derivatives to enforce mentioning
-            specific roles.
+            [hikari.Snowflake][], or [hikari.PartialRole][]
+            derivatives to enforce mentioning specific roles.
 
         Returns
         -------
         hikari.Message | None
             The message that has been created if it was immedieatly available or
-            `ensure_result` was set to `True`, else `None`.
+            `ensure_result` was set to [True][], else [None][].
 
         Raises
         ------
@@ -956,7 +948,7 @@ class MessageContext(Context, abc.ABC):
     def command(self) -> typing.Optional[MessageCommand[typing.Any]]:
         """Command that was invoked.
 
-        .. note::
+        !!! note
             This is always set during command, command check and parser
             converter execution but isn't guaranteed during client callback
             nor client/component check execution.
@@ -983,15 +975,15 @@ class MessageContext(Context, abc.ABC):
         """Command name that triggered the context."""
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[MessageCommand[typing.Any]], /) -> _T:
+    def set_command(self: _T, command: typing.Optional[MessageCommand[typing.Any]], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_content(self: _T, _: str, /) -> _T:
+    def set_content(self: _T, content: str, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_triggering_name(self: _T, _: str, /) -> _T:
+    def set_triggering_name(self: _T, name: str, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1023,95 +1015,89 @@ class MessageContext(Context, abc.ABC):
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED
+        content
             The content to respond with.
 
             If provided, the message contents. If
-            `hikari.UNDEFINED`, then nothing will be sent
+            [hikari.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
-            `str`.
+            [str][].
 
-            If this is a `hikari.Embed` and no `embed` nor `embeds` kwarg
+            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a `hikari.Resource`, then the
+            Likewise, if this is a [hikari.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
-
-        Other Parameters
-        ----------------
-        ensure_result : bool
+        ensure_result
             Ensure this method call will return a message object.
 
             This does nothing for message command contexts as the result w ill
             always be immedieatly available.
-        delete_after : datetime.timedelta | float | int | None
+        delete_after
             If provided, the seconds after which the response message should be deleted.
-        tts : bool | hikari.UNDEFINED
+        tts
             Whether to respond with tts/text to speech or no.
-        reply : bool | hikari.Snowflakeish | hikari.PartialMessage | hikari.UNDEFINED
+        reply
             Whether to reply instead of sending the content to the context.
 
-            Defaults to `hikari.UNDEFINED`.
-            Passing `True` here indicates a reply to `MessageContext.message`.
-        nonce : str | hikari.UNDEFINED
+            Defaults to [hikari.UNDEFINED][].
+            Passing [True][] here indicates a reply to [MessageContext.message][].
+        nonce
             The nonce that validates that the message was sent.
-        attachment : hikari.Resourceish | hikari.UNDEFINED
+        attachment
             A singular attachment to respond with.
-        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
+        attachments
             A sequence of attachments to respond with.
-        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
+        component
             If provided, builder object of the component to include in this message.
-        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
+        components
             If provided, a sequence of the component builder objects to include
             in this message.
-        embed : hikari.Embed | hikari.UNDEFINED
+        embed
             An embed to respond with.
-        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
+        embeds
             A sequence of embeds to respond with.
-        mentions_everyone : bool | hikari.UNDEFINED
+        mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        user_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or `hikari.PartialUser`
+            [hikari.Snowflake][], or [hikari.PartialUser][]
             derivatives to enforce mentioning specific users.
-        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        role_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialRole` derivatives to enforce mentioning
-            specific roles.
+            [hikari.Snowflake][], or [hikari.PartialRole][]
+            derivatives to enforce mentioning specific roles.
 
         Notes
         -----
         Attachments can be passed as many different things, to aid in
         convenience.
-        * If a `pathlib.PurePath` or `str` to a valid URL, the
+        * If a [pathlib.PurePath][] or [str][] to a valid URL, the
             resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of
-            `hikari.WebResource` such as
-            `hikari.URL`,
-            `hikari.Attachment`,
-            `hikari.Emoji`,
-            `EmbedResource`, etc will also be uploaded this way.
+            sending the message. Subclasses of [hikari.WebResource][] such as
+            [hikari.URL][], [hikari.Attachment][],
+            [hikari.Emoji][], [hikari.EmbedResource][], etc
+            will also be uploaded this way.
             This will use bit-inception, so only a small percentage of the
             resource will remain in memory at any one time, thus aiding in
             scalability.
-        * If a `hikari.Bytes` is passed, or a `str`
+        * If a [hikari.Bytes][] is passed, or a [str][]
             that contains a valid data URI is passed, then this is uploaded
             with a randomized file name if not provided.
-        * If a `hikari.File`, `pathlib.PurePath` or
-            `str` that is an absolute or relative path to a file
+        * If a [hikari.File][], [pathlib.PurePath][] or
+            [str][] that is an absolute or relative path to a file
             on your file system is passed, then this resource is uploaded
             as an attachment using non-blocking code internally and streamed
             using bit-inception where possible. This depends on the
-            type of `concurrent.futures.Executor` that is being used for
+            type of [concurrent.futures.Executor][] that is being used for
             the application (default is a thread pool which supports this
             behaviour).
 
@@ -1179,7 +1165,7 @@ class SlashOption(abc.ABC):
     def value(self) -> typing.Union[str, hikari.Snowflake, int, bool, float]:
         """Value provided for this option.
 
-        .. note::
+        !!! note
             For discord entity option types (user, member, channel and role)
             this will be the entity's ID.
         """
@@ -1191,7 +1177,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If `SlashOption.type` is not BOOLEAN.
+            If [SlashOption.type][] is not BOOLEAN.
         """
 
     @abc.abstractmethod
@@ -1201,7 +1187,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If `SlashOption.type` is not FLOAT.
+            If [SlashOption.type][] is not FLOAT.
         ValueError
             If called on the focused option for an autocomplete interaction
             when it's a malformed (incomplete) float.
@@ -1214,7 +1200,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If `SlashOption.type` is not INTEGER.
+            If [SlashOption.type][] is not INTEGER.
         ValueError
             If called on the focused option for an autocomplete interaction
             when it's a malformed (incomplete) integer.
@@ -1227,7 +1213,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If `SlashOption.type` is not one of CHANNEL, MENTIONABLE, ROLE
+            If [SlashOption.type][] is not one of CHANNEL, MENTIONABLE, ROLE
             or USER.
         """
 
@@ -1238,7 +1224,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If `SlashOption.type` is not STRING.
+            If [SlashOption.type][] is not STRING.
         """
 
     @abc.abstractmethod
@@ -1292,9 +1278,9 @@ class SlashOption(abc.ABC):
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
         """Resolve this option to a member object.
 
-        Other Parameters
-        ----------------
-        default:
+        Parameters
+        ----------
+        default
             The default value to return if this option cannot be resolved.
 
             If this is not provided, this method will raise a `TypeError` if
@@ -1360,10 +1346,10 @@ class SlashOption(abc.ABC):
     def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
         """Resolve this option to a user object.
 
-        .. note::
-            This will resolve to a `hikari.Member` first if the relevant
+        !!! note
+            This will resolve to a [hikari.Member][] first if the relevant
             command was executed within a guild and the option targeted one of
-            the guild's members, otherwise it will resolve to `hikari.User`.
+            the guild's members, otherwise it will resolve to [hikari.User][].
 
             It's also worth noting that hikari.Member inherits from hikari.User
             meaning that the return value of this can always be treated as a
@@ -1404,9 +1390,9 @@ class AppCommandContext(Context, abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether the context is marked as defaulting to ephemeral response.
 
-        This effects calls to `SlashContext.create_followup`,
-        `SlashContext.create_initial_response`, `SlashContext.defer` and
-        `SlashContext.respond` unless the `flags` field is provided for the
+        This effects calls to [SlashContext.create_followup][],
+        [SlashContext.create_initial_response][], [SlashContext.defer][] and
+        [SlashContext.respond][] unless the `flags` field is provided for the
         methods which support it.
         """
 
@@ -1416,7 +1402,7 @@ class AppCommandContext(Context, abc.ABC):
         """When this application command context expires.
 
         After this time is reached, the message/response methods on this
-        context will always raise `hikari.errors.NotFoundError`.
+        context will always raise [hikari.NotFoundError][].
         """
 
     @property
@@ -1424,11 +1410,11 @@ class AppCommandContext(Context, abc.ABC):
     def has_been_deferred(self) -> bool:
         """Whether the initial response for this context has been deferred.
 
-        .. warning::
-            If this is `True` when `SlashContext.has_responded` is `False`
-            then `SlashContext.edit_initial_response` will need to be used
+        !!! warning
+            If this is [True][] when [SlashContext.has_responded][] is [False][]
+            then [SlashContext.edit_initial_response][] will need to be used
             to create the initial response rather than
-            `SlashContext.create_initial_response`.
+            [SlashContext.create_initial_response][].
         """
 
     @property
@@ -1452,10 +1438,10 @@ class AppCommandContext(Context, abc.ABC):
 
         Parameters
         ----------
-        state : bool
+        state
             The new ephemeral default state.
 
-            If this is `True` then all calls to the response creating methods
+            If this is [True][] then all calls to the response creating methods
             on this context will default to being ephemeral.
         """
 
@@ -1468,18 +1454,18 @@ class AppCommandContext(Context, abc.ABC):
     ) -> None:
         """Defer the initial response for this context.
 
-        .. note::
+        !!! note
             The ephemeral state of the first response is decided by whether the
             deferral is ephemeral.
 
-        Other Parameters
-        ----------------
-        ephemeral : bool
+        Parameters
+        ----------
+        ephemeral
             Whether the deferred response should be ephemeral.
 
-            Passing `True` here is a shorthand for including `1 << 64` in the
+            Passing [True][] here is a shorthand for including `1 << 64` in the
             passed flags.
-        flags : hikari.UNDEFINED | int | hikari.MessageFlag
+        flags
             The flags to use for the initial response.
         """
 
@@ -1516,79 +1502,74 @@ class AppCommandContext(Context, abc.ABC):
     ) -> hikari.Message:
         """Create a followup response for this context.
 
-        .. warning::
+        !!! warning
             Calling this on a context which hasn't had an initial response yet
-            will lead to a `hikari.NotFoundError` being raised.
+            will lead to a [hikari.NotFoundError][] being raised.
 
         Parameters
         ----------
-        content : typing.Any | hikari.UNDEFINED
+        content
             If provided, the message contents. If
-            `hikari.UNDEFINED`, then nothing will be sent
+            [hikari.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
-            `str`.
+            [str][].
 
-            If this is a `hikari.Embed` and no `embed` kwarg is
+            If this is a [hikari.Embed][] and no `embed` kwarg is
             provided, then this will instead update the embed. This allows for
             simpler syntax when sending an embed alone.
 
-            Likewise, if this is a `hikari.Resource`, then the
+            Likewise, if this is a [hikari.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
-
-        Other Parameters
-        ----------------
-        delete_after : datetime.timedelta | float | int | None
+        delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            .. note::
+            !!! note
                 Slash command responses can only be deleted within 14 minutes of the
                 command being received.
 
-            .. note::
+            !!! note
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        ephemeral : bool
+        ephemeral
             Whether the deferred response should be ephemeral.
 
-            Passing `True` here is a shorthand for including `1 << 64` in the
+            Passing [True][] here is a shorthand for including `1 << 64` in the
             passed flags.
-        attachment : hikari.Resourceish | hikari.UNDEFINED
+        attachment
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
-        attachments : collections.abc.Sequence[hikari.Resourceish] | hikari.UNDEFINED
+        attachments
             If provided, the message attachments. These can be resources, or
             strings consisting of paths on your computer or URLs.
-        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
+        component
             If provided, builder object of the component to include in this message.
-        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
+        components
             If provided, a sequence of the component builder objects to include
             in this message.
-        embed : hikari.Embed | hikari.UNDEFINED
+        embed
             If provided, the message embed.
-        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
+        embeds
             If provided, the message embeds.
-        mentions_everyone : bool | hikari.UNDEFINED
+        mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool] | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+        user_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialUser` derivatives to enforce mentioning
-            specific users.
-        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
-            If provided, and `True`, all mentions will be parsed.
-            If provided, and `False`, no mentions will be parsed.
+            [hikari.Snowflake][], or [hikari.PartialUser][]
+            derivatives to enforce mentioning specific users.
+        role_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialRole` derivatives to enforce mentioning
-            specific roles.
-        tts : bool | hikari.UNDEFINED
+            [hikari.Snowflake][], or [hikari.PartialRole][]
+            derivatives to enforce mentioning specific roles.
+        tts
             If provided, whether the message will be sent as a TTS message.
-        flags : hikari.UNDEFINED | int | hikari.MessageFlag
+        flags
             The flags to set for this response.
 
             As of writing this can only flag which can be provided is EPHEMERAL,
@@ -1643,76 +1624,89 @@ class AppCommandContext(Context, abc.ABC):
     ) -> None:
         """Create the initial response for this context.
 
-        .. warning::
-            Calling this on a context which already has an initial
-            response will result in this raising a `hikari.NotFoundError`.
+        !!! warning
+            Calling this on a context which already has an initial response
+            will result in this raising a [hikari.NotFoundError][].
             This includes if the REST interaction server has already responded
             to the request and deferrals.
 
-        Other Parameters
-        ----------------
-        delete_after : datetime.timedelta | float | int | None
+        Parameters
+        ----------
+        content
+            The content to edit the last response with.
+
+            If provided, the message contents. If
+            [hikari.UNDEFINED][], then nothing will be sent
+            in the content. Any other value here will be cast to a
+            [str][].
+
+            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            is provided, then this will instead update the embed. This allows
+            for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.Resource][], then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
+        delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            .. note::
+            !!! note
                 Slash command responses can only be deleted within 14 minutes of the
                 command being received.
 
-            .. note::
+            !!! note
                 Since (as of writing) ephemeral responses cannot be deleted by the bot,
                 this is ignored for ephemeral slash command responses.
-        ephemeral : bool
+        ephemeral
             Whether the deferred response should be ephemeral.
 
-            Passing `True` here is a shorthand for including `1 << 64` in the
+            Passing [True][] here is a shorthand for including `1 << 64` in the
             passed flags.
-        content : typing.Any | hikari.UNDEFINED
+        content
             If provided, the message contents. If
-            `hikari.UNDEFINED`, then nothing will be sent
+            [hikari.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             `str`.
 
-            If this is a `hikari.Embed` and no `embed` nor `embeds` kwarg
+            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
-        component : hikari.api.ComponentBuilder | hikari.UNDEFINED
+        component
             If provided, builder object of the component to include in this message.
-        components : collections.abc.Sequence[hikari.api.ComponentBuilder] | hikari.UNDEFINED
+        components
             If provided, a sequence of the component builder objects to include
             in this message.
-        embed : hikari.Embed | hikari.UNDEFINED
+        embed
             If provided, the message embed.
-        embeds : collections.abc.Sequence[hikari.Embed] | hikari.UNDEFINED
+        embeds
             If provided, the message embeds.
-        flags : int | hikari.MessageFlag | hikari.UNDEFINED
+        flags
             If provided, the message flags this response should have.
 
             As of writing the only message flag which can be set here is
-            `hikari.MessageFlag.EPHEMERAL`.
-        tts : bool | hikari.UNDEFINED
+            [hikari.MessageFlag.EPHEMERAL][].
+        tts
             If provided, whether the message will be read out by a screen
             reader using Discord's TTS (text-to-speech) system.
-        mentions_everyone : bool | hikari.UNDEFINED
+        mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
-        user_mentions : hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UNDEFINED
-            If provided, and `True`, all user mentions will be detected.
-            If provided, and `False`, all user mentions will be ignored
+        user_mentions
+            If provided, and [True][], all user mentions will be detected.
+            If provided, and [False][], all user mentions will be ignored
             if appearing in the message body.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialUser` derivatives to enforce mentioning
-            specific users.
-        role_mentions : hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UNDEFINED
-            If provided, and `True`, all role mentions will be detected.
-            If provided, and `False`, all role mentions will be ignored
+            [hikari.Snowflake][], or [hikari.PartialUser][]
+            derivatives to enforce mentioning specific users.
+        role_mentions
+            If provided, and [True][], all role mentions will be detected.
+            If provided, and [False][], all role mentions will be ignored
             if appearing in the message body.
 
             Alternatively this may be a collection of
-            `hikari.Snowflake`, or
-            `hikari.PartialRole` derivatives to enforce mentioning
-            specific roles.
+            [hikari.Snowflake], or [hikari.PartialRole][]
+            derivatives to enforce mentioning specific roles.
 
         Raises
         ------
@@ -1759,7 +1753,7 @@ class MenuContext(AppCommandContext, abc.ABC):
     def command(self) -> typing.Optional[MenuCommand[typing.Any, typing.Any]]:
         """Command that was invoked.
 
-        .. note::
+        !!! note
             This should always be set during command check execution and command
             hook execution but isn't guaranteed for client callbacks nor
             component/client checks.
@@ -1781,12 +1775,12 @@ class MenuContext(AppCommandContext, abc.ABC):
         """The type of context menu this context is for."""
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[MenuCommand[typing.Any, typing.Any]], /) -> _T:
+    def set_command(self: _T, command: typing.Optional[MenuCommand[typing.Any, typing.Any]], /) -> _T:
         """Set the command for this context.
 
         Parameters
         ----------
-        command : MenuCommand | None
+        command
             The command this context is for.
         """
 
@@ -1861,7 +1855,7 @@ class SlashContext(AppCommandContext, abc.ABC):
     def command(self) -> typing.Optional[BaseSlashCommand]:
         """Command that was invoked.
 
-        .. note::
+        !!! note
             This should always be set during command check execution and command
             hook execution but isn't guaranteed for client callbacks nor
             component/client checks.
@@ -1873,12 +1867,12 @@ class SlashContext(AppCommandContext, abc.ABC):
         """Mapping of option names to the values provided for them."""
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
+    def set_command(self: _T, command: typing.Optional[BaseSlashCommand], /) -> _T:
         """Set the command for this context.
 
         Parameters
         ----------
-        command : BaseSlashCommand | None
+        command
             The command this context is for.
         """
 
@@ -1906,14 +1900,14 @@ class AutocompleteContext(alluka.Context):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun `Client` implementation this context was spawned by."""
+        """Tanjun [Client][] implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
     def created_at(self) -> datetime.datetime:
         """When this context was created.
 
-        .. note::
+        !!! note
             This will either refer to a message or integration's creation date.
         """
 
@@ -1932,7 +1926,7 @@ class AutocompleteContext(alluka.Context):
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         """ID of the guild this autocomplete was triggered in.
 
-        Will be `None` for all DM autocomplete executions.
+        Will be [None][] for all DM autocomplete executions.
         """
 
     @property
@@ -1940,7 +1934,7 @@ class AutocompleteContext(alluka.Context):
     def member(self) -> typing.Optional[hikari.Member]:
         """Guild member object of this autocomplete's author.
 
-        Will be `None` for DM autocomplete executions.
+        Will be [None][] for DM autocomplete executions.
         """
 
     @property
@@ -1958,8 +1952,9 @@ class AutocompleteContext(alluka.Context):
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         """Shard that triggered the context.
 
-        .. note::
-            This will be `None` if `ctx.shards` is also `None`.
+        !!! note
+            This will be [None][] if [AutocompleteContext.shards][] is also
+            [None][].
         """
 
     @property
@@ -1990,9 +1985,9 @@ class AutocompleteContext(alluka.Context):
     async def fetch_channel(self) -> hikari.TextableChannel:
         """Fetch the channel the context was invoked in.
 
-        .. note::
-            This performs an API call. Consider using `Context.get_channel`
-            if you have `hikari.config.CacheComponents.GUILD_CHANNELS` cache component enabled.
+        !!! note
+            This performs an API call. Consider using [AutocompleteContext.get_channel][]
+            if you have [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
 
         Returns
         -------
@@ -2029,15 +2024,15 @@ class AutocompleteContext(alluka.Context):
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
         """Fetch the guild the context was invoked in.
 
-        .. note::
-            This performs an API call. Consider using `Context.get_guild`
-            if you have `hikari.config.CacheComponents.GUILDS` cache component enabled.
+        !!! note
+            This performs an API call. Consider using [AutocompleteContext.get_guild][]
+            if you have [hikari.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
         -------
         hikari.Guild | None
             An optional guild the context was invoked in.
-            `None` will be returned if the context was invoked in a DM channel.
+            [None][] will be returned if the context was invoked in a DM channel.
 
         Raises
         ------
@@ -2066,14 +2061,14 @@ class AutocompleteContext(alluka.Context):
     def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         """Retrieve the channel the context was invoked in from the cache.
 
-        .. note::
-            This method requires the `hikari.config.CacheComponents.GUILD_CHANNELS` cache component.
+        !!! note
+            This method requires the [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component.
 
         Returns
         -------
         hikari.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
-            `None` will be returned if the channel was not found or if it
+            [None][] will be returned if the channel was not found or if it
             is DM channel.
         """
 
@@ -2081,14 +2076,14 @@ class AutocompleteContext(alluka.Context):
     def get_guild(self) -> typing.Optional[hikari.Guild]:
         """Fetch the guild that the context was invoked in.
 
-        .. note::
-            This method requires `hikari.config.CacheComponents.GUILDS` cache component enabled.
+        !!! note
+            This method requires [hikari.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
         -------
         hikari.Guild | None
             An optional guild the context was invoked in.
-            `None` will be returned if the guild was not found.
+            [None][] will be returned if the guild was not found.
         """
 
     @abc.abstractmethod
@@ -2102,7 +2097,7 @@ class AutocompleteContext(alluka.Context):
     ) -> None:
         """Set the choices for this autocomplete.
 
-        .. note::
+        !!! note
             Only up to (and including) 25 choices may be set for an autocomplete.
 
         Parameters
@@ -2138,20 +2133,20 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
     def add_on_error(self: _T, callback: ErrorHookSig, /) -> _T:
         """Add an error callback to this hook object.
 
-        .. note::
-            This won't be called for expected `tanjun.TanjunError` derived errors.
+        !!! note
+            This won't be called for expected [tanjun.TanjunError][] derived errors.
 
         Parameters
         ----------
-        callback : ErrorHookSig
+        callback
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.Context` and `Exception`) and may be either
+            [Context][] and [Exception][]) and may be either
             synchronous or asynchronous.
 
-            Returning `True` indicates that the error should be suppressed,
-            `False` that it should be re-raised and `None` that no decision has
+            Returning [True][] indicates that the error should be suppressed,
+            [False][] that it should be re-raised and [None][] that no decision has
             been made. This will be accounted for along with the decisions
             other error hooks make by majority rule.
 
@@ -2165,8 +2160,8 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
     def with_on_error(self, callback: _ErrorHookSigT, /) -> _ErrorHookSigT:
         """Add an error callback to this hook object through a decorator call.
 
-        .. note::
-            This won't be called for expected `tanjun.TanjunError` derived errors.
+        !!! note
+            This won't be called for expected [tanjun.TanjunError][] derived errors.
 
         Examples
         --------
@@ -2189,11 +2184,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.Context` and `Exception`) and may be either
+            [Context][] and [Exception][]) and may be either
             synchronous or asynchronous.
 
-            Returning `True` indicates that the error shoul be suppressed,
-            `False` that it should be re-raised and `None` that no decision
+            Returning [True][] indicates that the error shoul be suppressed,
+            [False][] that it should be re-raised and [None][] that no decision
             has been made. This will be accounted for along with the decisions
             other error hooks make by majority rule.
 
@@ -2209,12 +2204,12 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSig
+        callback
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.Context` and `tanjun.errors.ParserError`),
-            return `None` and may be either synchronous or asynchronous.
+            [Context][] and [tanjun.ParserError][]),
+            return [None][] and may be either synchronous or asynchronous.
 
             It's worth noting that this unlike general error handlers, this will
             always suppress the error.
@@ -2235,7 +2230,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         hooks = AnyHooks()
 
         @hooks.with_on_parser_error
-        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -> None:
+        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
             await ctx.respond(f"You gave invalid input: {error}")
         ```
 
@@ -2245,8 +2240,8 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The parser error callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.Context` and `tanjun.errors.ParserError`),
-            return `None` and may be either synchronous or asynchronous.
+            [Context][] and [tanjun.ParserError][]), return [None][]
+            and may be either synchronous or asynchronous.
 
         Returns
         -------
@@ -2260,12 +2255,12 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSig
+        callback
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
-            synchronous or asynchronous.
+            [Context][]), return [None][] and may be either synchronous or
+            asynchronous.
 
         Returns
         -------
@@ -2293,7 +2288,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The post-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2308,11 +2303,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSig
+        callback
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2341,7 +2336,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The pre-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2356,11 +2351,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSig
+        callback
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2389,7 +2384,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The success callback to add to this hook.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2478,7 +2473,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         """Mutable mapping of metadata set for this command.
 
-        .. note::
+        !!! note
             Any modifications made to this mutable mapping will be preserved by
             the command.
         """
@@ -2502,7 +2497,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def set_hooks(self: _T, _: typing.Optional[Hooks[_ContextT_co]], /) -> _T:
+    def set_hooks(self: _T, hooks: typing.Optional[Hooks[_ContextT_co]], /) -> _T:
         """Set the hooks that are triggered when the command is executed.
 
         Parameters
@@ -2522,7 +2517,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
 
         Parameters
         ----------
-        check : CheckSig
+        check
             The check to add.
 
         Returns
@@ -2537,7 +2532,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
 
         Parameters
         ----------
-        check : CheckSig
+        check
             The check to remove.
 
         Raises
@@ -2557,9 +2552,9 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
 
         Parameters
         ----------
-        key : typing.Any
+        key
             Metadata key to set.
-        value : typing.Any
+        value
             Metadata value to set.
 
         Returns
@@ -2579,9 +2574,9 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether contexts executed by this command should default to ephemeral responses.
 
-        This effects calls to `SlashContext.create_followup`,
-        `SlashContext.create_initial_response`, `SlashContext.defer` and
-        `SlashContext.respond` unless the `flags` field is provided for the
+        This effects calls to [SlashContext.create_followup][],
+        [SlashContext.create_initial_response][], [SlashContext.defer][] and
+        [SlashContext.respond][] unless the `flags` field is provided for the
         methods which support it.
 
         Returns
@@ -2589,7 +2584,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         bool
             Whether calls to this command should default to ephemeral mode.
 
-            If this is `None` then the default from the parent command(s),
+            If this is [None][] then the default from the parent command(s),
             component or client is used.
         """
 
@@ -2598,7 +2593,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     def is_global(self) -> bool:
         """Whether the command should be declared globally or not.
 
-        .. warning::
+        !!! warning
             For commands within command groups the state of this flag
             is inherited regardless of what it's set as on the child command.
         """
@@ -2653,7 +2648,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
         Parameters
         ----------
-        command : hikari.PartialCommand
+        command
             Object of the global command this tracks.
 
         Returns
@@ -2694,7 +2689,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_parent(self: _T, _: typing.Optional[SlashCommandGroup], /) -> _T:
+    def set_parent(self: _T, parent: typing.Optional[SlashCommandGroup], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -2779,8 +2774,8 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSi
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     """Standard interface of a slash command group.
 
-    .. note::
-        Unlike `MessageCommandGroup`, slash command groups do not have
+    !!! note
+        Unlike [MessageCommandGroup][], slash command groups do not have
         their own callback.
     """
 
@@ -2797,7 +2792,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
 
         Parameters
         ----------
-        command : BaseSlashCommand
+        command
             The command to add.
 
         Returns
@@ -2812,7 +2807,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
 
         Parameters
         ----------
-        command : BaseSlashCommand
+        command
             The command to remove.
 
         Raises
@@ -2832,7 +2827,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
 
         Parameters
         ----------
-        command : BaseSlashCommand
+        command
             The command to add.
 
         Returns
@@ -2869,13 +2864,13 @@ class MessageParser(abc.ABC):
     async def parse(self, ctx: MessageContext, /) -> dict[str, typing.Any]:
         """Parse a message context.
 
-        .. warning::
+        !!! warning
             This relies on the prefix and command name(s) having been removed
-            from `tanjun.abc.MessageContext.content`
+            from [MessageContext.content][].
 
         Parameters
         ----------
-        ctx : tanjun.abc.MessageContext
+        ctx
             The message context to parse.
 
         Returns
@@ -2885,7 +2880,7 @@ class MessageParser(abc.ABC):
 
         Raises
         ------
-        tanjun.errors.ParserError
+        tanjun.ParserError
             If the message could not be parsed.
         """
 
@@ -2900,7 +2895,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
     def callback(self) -> _CommandCallbackSigT:
         """Callback which is called during execution.
 
-        .. note::
+        !!! note
             For command groups, this is called when none of the inner-commands
             matches the message.
         """
@@ -2921,12 +2916,12 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """Parser for this command."""
 
     @abc.abstractmethod
-    def set_parent(self: _T, _: typing.Optional[MessageCommandGroup[typing.Any]], /) -> _T:
+    def set_parent(self: _T, parent: typing.Optional[MessageCommandGroup[typing.Any]], /) -> _T:
         """Set the parent of this command.
 
         Parameters
         ----------
-        parent : MessageCommandGroup[typing.Any] | None
+        parent
             The parent of this command.
 
         Returns
@@ -2936,12 +2931,12 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """
 
     @abc.abstractmethod
-    def set_parser(self: _T, _: MessageParser, /) -> _T:
+    def set_parser(self: _T, parser: MessageParser, /) -> _T:
         """Set the for this message command.
 
         Parameters
         ----------
-        parser : MessageParser
+        parser
             The parser to set.
 
         Returns
@@ -2954,9 +2949,9 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
     def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup[typing.Any]] = None) -> _T:
         """Create a copy of this command.
 
-        Other Parameters
-        ----------------
-        parent : MessageCommandGroup[tping.Any] | None
+        Parameters
+        ----------
+        parent
             The parent of the copy.
 
         Returns
@@ -2986,7 +2981,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
     def commands(self) -> collections.Collection[MessageCommand[typing.Any]]:
         """Collection of the commands in this group.
 
-        .. note::
+        !!! note
             This may include command groups.
         """
 
@@ -2996,7 +2991,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
 
         Parameters
         ----------
-        command : MessageCommand
+        command
             The command to add.
 
         Returns
@@ -3011,7 +3006,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
 
         Parameters
         ----------
-        command : MessageCommand
+        command
             The command to remove.
 
         Raises
@@ -3061,16 +3056,16 @@ class Component(abc.ABC):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether slash contexts executed in this component should default to ephemeral responses.
 
-        This effects calls to `SlashContext.create_followup`,
-        `SlashContext.create_initial_response`, `SlashContext.defer` and
-        `SlashContext.respond` unless the `flags` field is provided for the
+        This effects calls to [SlashContext.create_followup][],
+        [SlashContext.create_initial_response][], [SlashContext.defer][] and
+        [SlashContext.respond][] unless the `flags` field is provided for the
         methods which support it.
 
         Notes
         -----
-        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.
+        * This may be overridden by [BaseSlashCommand.defaults_to_ephemeral][].
         * This only effects slash command execution.
-        * If this is `None` then the default from the parent client is used.
+        * If this is [None][] then the default from the parent client is used.
         """
 
     @property
@@ -3083,7 +3078,7 @@ class Component(abc.ABC):
     def name(self) -> str:
         """Component's unique identifier.
 
-        .. note::
+        !!! note
             This will be preserved between copies of a component.
         """
 
@@ -3112,7 +3107,7 @@ class Component(abc.ABC):
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         """Mutable mapping of the metadata set for this component.
 
-        .. note::
+        !!! note
             Any modifications made to this mutable mapping will be preserved by
             the component.
         """
@@ -3123,9 +3118,9 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        key : typing.Any
+        key
             Metadata key to set.
-        value : typing.Any
+        value
             Metadata value to set.
 
         Returns
@@ -3140,7 +3135,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : MenuCommand
+        command
             The command to add.
 
         Returns
@@ -3155,7 +3150,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : MenuCommand
+        command
             Object of the menu command to remove.
 
         Returns
@@ -3184,10 +3179,7 @@ class Component(abc.ABC):
         ----------
         command : MenuCommand
             The command to add.
-
-        Other Parameters
-        ----------------
-        copy : bool
+        copy
             Whether to copy the command before adding it.
 
         Returns
@@ -3202,7 +3194,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : BaseSlashCommand
+        command
             The command to add.
 
         Returns
@@ -3217,7 +3209,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : BaseSlashCommand
+        command
             The command to remove.
 
         Raises
@@ -3253,10 +3245,7 @@ class Component(abc.ABC):
         ----------
         command : BaseSlashCommand
             The command to add.
-
-        Other Parameters
-        ----------------
-        copy : bool
+        copy
             Whether to copy the command before adding it.
 
         Returns
@@ -3271,7 +3260,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : MessageCommand[typing.Any]
+        command
             The command to add.
 
         Returns
@@ -3286,7 +3275,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        command : MessageCommand[typing.Any]
+        command
             The command to remove.
 
         Raises
@@ -3322,10 +3311,7 @@ class Component(abc.ABC):
         ----------
         command : MessageCommand
             The command to add.
-
-        Other Parameters
-        ----------------
-        copy : bool
+        copy
             Whether to copy the command before adding it.
 
         Returns
@@ -3340,9 +3326,9 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        event : type[hikari.Event]
+        event
             The event to listen for.
-        listener : ListenerCallbackSig
+        listener
             The listener to add.
 
         Returns
@@ -3357,9 +3343,9 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        event : type[hikari.Event]
+        event
             The event to listen for.
-        listener : ListenerCallbackSig
+        listener
             The listener to remove.
 
         Raises
@@ -3376,13 +3362,13 @@ class Component(abc.ABC):
     # TODO: make event optional?
     @abc.abstractmethod
     def with_listener(
-        self, event_type: type[hikari.Event]
+        self, event_type: type[hikari.Event], /
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT,]:
         """Add a listener to this component through a decorator call.
 
         Parameters
         ----------
-        event_type : type[hikari.Event]
+        event_type
             The event to listen for.
 
         Returns
@@ -3413,7 +3399,7 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        name : str
+        name
             The name to check for command matches.
 
         Returns
@@ -3427,13 +3413,13 @@ class Component(abc.ABC):
     def check_slash_name(self, name: str, /) -> collections.Iterator[BaseSlashCommand]:
         """Check whether a name matches any of this component's registered slash commands.
 
-        .. note::
+        !!! note
             This won't check for sub-commands and will expect `name` to simply be
             the top level command name.
 
         Parameters
         ----------
-        name : str
+        name
             The name to check for command matches.
 
         Returns
@@ -3450,13 +3436,13 @@ class Component(abc.ABC):
     ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         """Execute an autocomplete context.
 
-        .. note::
+        !!! note
             Unlike the other execute methods, this shouldn't be expected to
-            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.
+            raise [tanjun.HaltExecution][] nor [tanjun.CommandError][].
 
         Parameters
         ----------
-        ctx : AutocompleteContext
+        ctx
             The context to execute.
 
         Returns
@@ -3466,7 +3452,7 @@ class Component(abc.ABC):
 
             This may be awaited or left to run as a background task.
 
-            If this is `None` then the client should carry on its search for a
+            If this is [None][] then the client should carry on its search for a
             component with a matching autocomplete.
         """
 
@@ -3482,12 +3468,9 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        ctx : MenuContext
+        ctx
             The context to execute.
-
-        Other Parameters
-        ----------------
-        hooks : collections.abc.MutableSet[MenuHooks] | None
+        hooks
             Set of hooks to include in this command execution.
 
         Returns
@@ -3497,14 +3480,14 @@ class Component(abc.ABC):
 
             This may be awaited or left to run as a background task.
 
-            If this is `None` then the client should carry on its search for a
+            If this is [None][] then the client should carry on its search for a
             component with a matching command.
 
         Raises
         ------
-        tanjun.errors.CommandError
+        tanjun.CommandError
             To end the command's execution with an error response message.
-        tanjun.errors.HaltExecution
+        tanjun.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3521,12 +3504,9 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        ctx : SlashContext
+        ctx
             The context to execute.
-
-        Other Parameters
-        ----------------
-        hooks : collections.abc.MutableSet[SlashHooks] | None
+        hooks
             Set of hooks to include in this command execution.
 
         Returns
@@ -3536,14 +3516,14 @@ class Component(abc.ABC):
 
             This may be awaited or left to run as a background task.
 
-            If this is `None` then the client should carry on its search for a
+            If this is [None][] then the client should carry on its search for a
             component with a matching command.
 
         Raises
         ------
-        tanjun.errors.CommandError
+        tanjun.CommandError
             To end the command's execution with an error response message.
-        tanjun.errors.HaltExecution
+        tanjun.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3556,12 +3536,9 @@ class Component(abc.ABC):
 
         Parameters
         ----------
-        ctx : MessageContext
+        ctx
             The context to execute.
-
-        Other Parameters
-        ----------------
-        hooks : collections.abc.MutableSet[MessageHooks] | None
+        hooks
             Set of hooks to include in this command execution.
 
         Returns
@@ -3570,14 +3547,14 @@ class Component(abc.ABC):
             Whether a message command was executed in this component with the
             provided context.
 
-            If `False` then the client should carry on its search for a
+            If [False][] then the client should carry on its search for a
             component with a matching command.
 
         Raises
         ------
-        tanjun.errors.CommandError
+        tanjun.CommandError
             To end the command's execution with an error response message.
-        tanjun.errors.HaltExecution
+        tanjun.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3586,12 +3563,12 @@ class Component(abc.ABC):
     async def close(self, *, unbind: bool = False) -> None:
         """Close the component.
 
-        Other Parameters
-        ----------------
-        unbind : bool
+        Parameters
+        ----------
+        unbind
             Whether to unbind from the client after this is closed.
 
-            Defaults to `False`.
+            Defaults to [False][].
 
         Raises
         ------
@@ -3614,7 +3591,7 @@ class Component(abc.ABC):
 class ClientCallbackNames(str, enum.Enum):
     """Enum of the standard client callback names.
 
-    These should be dispatched by all `Client` implementations.
+    These should be dispatched by all [Client][] implementations.
     """
 
     CLOSED = "closed"
@@ -3632,39 +3609,39 @@ class ClientCallbackNames(str, enum.Enum):
     COMPONENT_ADDED = "component_added"
     """Called when a component is added to an active client.
 
-    .. warning::
+    !!! warning
         This event isn't dispatched for components which were registered while
         the client is inactive.
 
-    The first positional argument is the `tanjun.abc.Component` being added.
+    The first positional argument is the [Component][] being added.
     """
 
     COMPONENT_REMOVED = "component_removed"
     """Called when a component is added to an active client.
 
-    .. warning::
+    !!! warning
         This event isn't dispatched for components which were removed while
         the client is inactive.
 
-    The first positional argument is the `tanjun.abc.Component` being removed.
+    The first positional argument is the [Component][] being removed.
     """
 
     MENU_COMMAND_NOT_FOUND = "menu_command_not_found"
     """Called when a menu command is not found.
 
-    `tanjun.abc.MenuContext` is provided as the first positional argument.
+    [MenuContext][] is provided as the first positional argument.
     """
 
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
-    `tanjun.abc.MessageContext` is provided as the first positional argument.
+    [MssageContext][] is provided as the first positional argument.
     """
 
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
     """Called when a slash command is not found.
 
-    `tanjun.abc.SlashContext` is provided as the first positional argument.
+    [SlashContext][] is provided as the first positional argument.
     """
 
     STARTED = "started"
@@ -3704,16 +3681,16 @@ class Client(abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether slash contexts spawned by this client should default to ephemeral responses.
 
-        This effects calls to `SlashContext.create_followup`,
-        `SlashContext.create_initial_response`, `SlashContext.defer` and
-        `SlashContext.respond` unless the `flags` field is provided for the
+        This effects calls to [SlashContext.create_followup][],
+        [SlashContext.create_initial_response][], [SlashContext.defer][] and
+        [SlashContext.respond][] unless the `flags` field is provided for the
         methods which support it.
 
         Notes
         -----
-        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`
-          and `Component.defaults_to_ephemeral`.
-        * This defaults to `False`.
+        * This may be overridden by [BaseSlashCommand.defaults_to_ephemeral][]
+          and [Component.defaults_to_ephemeral][].
+        * This defaults to [False][].
         * This only effects slash command execution.
         """
 
@@ -3750,7 +3727,7 @@ class Client(abc.ABC):
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         """Mutable mapping of the metadata set for this client.
 
-        .. note::
+        !!! note
             Any modifications made to this mutable mapping will be preserved by
             the client.
         """
@@ -3795,22 +3772,22 @@ class Client(abc.ABC):
     ) -> None:
         """Clear the commands declared either globally or for a specific guild.
 
-        .. note::
+        !!! note
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
 
-        Other Parameters
-        ----------------
-        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
+        Parameters
+        ----------
+        application
             The application to clear commands for.
 
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | hikari.UNDEFINED
+            If left as [None][] then this will be inferred from the authorization
+            being used by [Client.rest][].
+        guild
             Object or ID of the guild to clear commands for.
 
-            If left as `None` global commands will be cleared.
+            If left as [None][] global commands will be cleared.
         """
 
     @abc.abstractmethod
@@ -3826,7 +3803,7 @@ class Client(abc.ABC):
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Set the global application commands for a bot based on the loaded components.
 
-        .. warning::
+        !!! warning
             This will overwrite any previously set application commands and
             only targets commands marked as global.
 
@@ -3839,41 +3816,41 @@ class Client(abc.ABC):
           as slash commands may take up to an hour to propagate globally but
           will immediately propagate when set on a specific guild.
 
-        Other Parameters
-        ----------------
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        Parameters
+        ----------
+        command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
 
             This will be used for all application commands but in cases where
             commands have overlapping names, `message_ids` and `user_ids` will
             take priority over this for their relevant command type.
-        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
+        application
             Object or ID of the application to set the global commands for.
 
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None
+            If left as [None][] then this will be inferred from the authorization
+            being used by [Client.rest][].
+        guild
             Object or ID of the guild to set the global commands to.
 
-            If left as `None` global commands will be set.
-        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If left as [None][] global commands will be set.
+        message_ids
             If provided, a mapping of message context menu command names to the
             IDs of existing commands to update.
-        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
-        force : bool
+        force
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
 
-            Defaults to `False`. This default behaviour helps avoid issues with the
+            Defaults to [False][]. This default behaviour helps avoid issues with the
             2 request per minute (per-guild or globally) ratelimit and the other limit
             of only 200 application command creates per day (per guild or globally).
 
         Returns
         -------
-        collections.abc.Sequence[hikari..Command]
+        collections.abc.Sequence[hikari.Command]
             API representations of the set commands.
         """
 
@@ -3928,29 +3905,26 @@ class Client(abc.ABC):
     ) -> hikari.PartialCommand:
         """Declare a single slash command for a bot.
 
-        .. warning::
+        !!! warning
             Providing `command_id` when updating a command helps avoid any
             permissions set for the command being lose (e.g. when changing the
             command's name).
 
         Parameters
         ----------
-        command : AppCommand
+        command
             The command to register.
-
-        Other Parameters
-        ----------------
-        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
+        application
             The application to register the command with.
 
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        command_id : hikari.snowflakes.Snowflakeish | None
+            If left as [None][] then this will be inferred from the authorization
+            being used by [Client.rest][].
+        command_id
             ID of the command to update.
-        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None
+        guild
             Object or ID of the guild to register the command with.
 
-            If left as `None` then the command will be registered globally.
+            If left as [None][] then the command will be registered globally.
 
         Returns
         -------
@@ -3973,19 +3947,16 @@ class Client(abc.ABC):
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Declare a collection of slash commands for a bot.
 
-        .. note::
+        !!! note
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
 
         Parameters
         ----------
-        commands : collections.abc.Iterable[AppCommand]
+        commands
             Iterable of the commands to register.
-
-        Other Parameters
-        ----------------
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
 
@@ -3997,26 +3968,26 @@ class Client(abc.ABC):
             providing the current IDs will prevent changes such as renames from
             leading to other state set for commands (e.g. permissions) from
             being lost.
-        application : hikari.snowflakes.Snowflakeish | hikari.PartialApplication | None
+        application
             The application to register the commands with.
 
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        guild : hikari.snowflakes.Snowflakeish | hikari.PartialGuild | None
+            If left as [None][] then this will be inferred from the authorization
+            being used by [Client.rest][].
+        guild
             Object or ID of the guild to register the commands with.
 
-            If left as `None` then the commands will be registered globally.
-        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+            If left as [None][] then the commands will be registered globally.
+        message_ids
             If provided, a mapping of message context menu command names to the
             IDs of existing commands to update.
-        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
-        force : bool
+        force
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
 
-            Defaults to `False`. This default behaviour helps avoid issues with the
+            Defaults to [False][]. This default behaviour helps avoid issues with the
             2 request per minute (per-guild or globally) ratelimit and the other limit
             of only 200 application command creates per day (per guild or globally).
 
@@ -4039,9 +4010,9 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        key : typing.Any
+        key
             Metadata key to set.
-        value : typing.Any
+        value
             Metadata value to set.
 
         Returns
@@ -4056,7 +4027,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        component: Component
+        component
             The component to move to this client.
 
         Returns
@@ -4071,13 +4042,13 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str
+        name
             Name to get a component by.
 
         Returns
         -------
         Component | None
-            The component instance if found, else `None`.
+            The component instance if found, else [None][].
         """
 
     @abc.abstractmethod
@@ -4089,7 +4060,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        component: Component
+        component
             The component to remove from this client.
 
         Raises
@@ -4112,7 +4083,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name: str
+        name
             Name of the component to remove from this client.
 
         Raises
@@ -4127,16 +4098,16 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback : MetaEventSig
+        callback
             The callback to register.
 
             This may be sync or async and must return None. The positional and
             keyword arguments a callback should expect depend on implementation
-            detail around the `name` being subscribed to.
+            detail around the [name][] being subscribed to.
 
         Returns
         -------
@@ -4152,12 +4123,9 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name of the callback to dispatch.
-
-        Other Parameters
-        ----------------
-        *args : typing.Any
+        *args
             Positional arguments to pass to the callback(s).
 
         Raises
@@ -4174,7 +4142,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name to get the callbacks registered for.
 
             This is case-insensitive.
@@ -4191,11 +4159,11 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback : MetaEventSig
+        callback
             The callback to remove from the client's callbacks.
 
         Raises
@@ -4229,7 +4197,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name this callback is being registered to.
 
             This is case-insensitive.
@@ -4250,13 +4218,13 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        event_type : type[hikari.Event]
+        event_type
             The event type to add a listener for.
-        callback: ListenerCallbackSig
+        callback
             The callback to register as a listener.
 
-            This callback must be a coroutine function which returns `None` and
-            always takes one positional arg of type `hikari.Event`
+            This callback must be a coroutine function which returns [None][]
+            and always takes one positional arg of type [hikari.Event][]
             regardless of client implementation detail.
 
         Returns
@@ -4271,9 +4239,9 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        event_type : type[hikari.Event]
+        event_type
             The event type to remove a listener for.
-        callback: ListenerCallbackSig
+        callback
             The callback to remove.
 
         Raises
@@ -4307,7 +4275,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        event_type : type[hikari.Event]
+        event_type
             The event type to listener for.
 
         Returns
@@ -4315,8 +4283,8 @@ class Client(abc.ABC):
         collections.abc.Callable[[ListenerCallbackSig], ListenerCallbackSig]
             Decorator callback used to register the event callback.
 
-            The callback must be a coroutine function which returns `None` and
-            always takes at least one positional arg of type `hikari.Event`
+            The callback must be a coroutine function which returns [None][] and
+            always takes at least one positional arg of type [hikari.Event][]
             regardless of client implementation detail.
         """
 
@@ -4336,9 +4304,7 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
-            typing.Literal[hikari.CommandType.MESSAGE]
-        ] = None,
+        type: typing.Literal[hikari.CommandType.MESSAGE, None] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
@@ -4348,7 +4314,7 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None,  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Literal[hikari.CommandType.USER, None] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
@@ -4358,8 +4324,8 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
-            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        type: typing.Literal[  # noqa: A002 - Shadowing a builtin name.
+            hikari.CommandType.MESSAGE, hikari.CommandType.USER, None
         ] = None,
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         ...
@@ -4369,17 +4335,17 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
-            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        type: typing.Literal[  # noqa: A002 - Shadowing a builtin name.
+            hikari.CommandType.MESSAGE, hikari.CommandType.USER, None
         ] = None,
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         """Iterator over the menu commands registered to this client.
 
-        Other Parameters
-        ----------------
-        global_only : bool
+        Parameters
+        ----------
+        global_only
             Whether to only iterate over global menu commands.
-        type : typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER] | None
+        type
             Menu command type to filter by.
 
         Returns
@@ -4402,9 +4368,9 @@ class Client(abc.ABC):
     def iter_slash_commands(self, *, global_only: bool = False) -> collections.Iterator[BaseSlashCommand]:
         """Iterate over all the slash commands registered to this client.
 
-        Other Parameters
-        ----------------
-        global_only : bool
+        Parameters
+        ----------
+        global_only
             Whether to only iterate over global slash commands.
 
         Returns
@@ -4417,13 +4383,13 @@ class Client(abc.ABC):
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a message command name is present in the current client.
 
-        .. note::
+        !!! note
             Dependent on implementation this may partial check name against the
             message command's name based on command_name.startswith(name).
 
         Parameters
         ----------
-        name : str
+        name
             The name to match commands against.
 
         Returns
@@ -4436,12 +4402,12 @@ class Client(abc.ABC):
     def check_slash_name(self, name: str, /) -> collections.Iterator[BaseSlashCommand]:
         """Check whether a slash command name is present in the current client.
 
-        .. note::
+        !!! note
             This won't check the commands within command groups.
 
         Parameters
         ----------
-        name : str
+        name
             Name to check against.
 
         Returns
@@ -4454,7 +4420,7 @@ class Client(abc.ABC):
     def load_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Load entities into this client from modules based on present loaders.
 
-        .. note::
+        !!! note
             If an `__all__` is present in the target module then it will be
             used to find loaders.
 
@@ -4476,16 +4442,16 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        *modules : str | pathlib.Path
+        *modules
             Path(s) of the modules to load from.
 
-            When `str` this will be treated as a normal import path which is
+            When [str][] this will be treated as a normal import path which is
             absolute (`"foo.bar.baz"`). It's worth noting that absolute module
             paths may be imported from the current location if the top level
             module is a valid module file or module directory in the current
             working directory.
 
-            When `pathlib.Path` the module will be imported directly from
+            When [pathlib.Path][] the module will be imported directly from
             the given path. In this mode any relative imports in the target
             module will fail to resolve.
 
@@ -4496,14 +4462,14 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.errors.FailedModuleLoad
+        tanjun.FailedModuleLoad
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.
-        tanjun.errors.ModuleStateConflict
+            The source error can be found at [tanjun.FailedModuleLoad.__source__][].
+        tanjun.ModuleStateConflict
             If the module is already loaded.
-        tanjun.errors.ModuleMissingLoaders
+        tanjun.ModuleMissingLoaders
             If no loaders are found in the module.
         ModuleNotFoundError
             If the module is not found.
@@ -4511,27 +4477,27 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of `Client.load_modules`.
+        """Asynchronous variant of [Client.load_modules][].
 
-        Unlike `Client.load_modules`, this method will run blocking code in a
+        Unlike [Client.load_modules][], this method will run blocking code in a
         background thread.
 
         For more information on the behaviour of this method see the
-        documentation for `Client.load_modules`.
+        documentation for [Client.load_modules][].
         """
 
     @abc.abstractmethod
     def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Unload entities from this client based on unloaders in one or more modules.
 
-        .. note::
+        !!! note
             If an `__all__` is present in the target module then it will be
             used to find unloaders.
 
         Examples
         --------
         For this to work the module has to have at least one unloading enabled
-        `tanjun.abc.ClientLoader` present.
+        [ClientLoader][] present.
 
         ```py
         @tanjun.as_unloader
@@ -4548,10 +4514,11 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        *modules: str | pathlib.Path
+        *modules
             Path of one or more modules to unload.
 
-            These should be the same path(s) which were passed to `load_module`.
+            These should be the same path(s) which were passed to
+            [Client.load_module][].
 
         Returns
         -------
@@ -4560,22 +4527,22 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.errors.ModuleStateConflict
+        tanjun.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.errors.ModuleMissingLoaders
+        tanjun.ModuleMissingLoaders
             If no unloaders are found in the module.
-        tanjun.errors.FailedModuleUnload
+        tanjun.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
-            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.
+            error can be found at [tanjun.FailedModuleUnload.__source__][].
         """
 
     @abc.abstractmethod
     def reload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Reload entities in this client based on the loaders in loaded module(s).
 
-        .. note::
+        !!! note
             If an `__all__` is present in the target module then it will be
             used to find loaders and unloaders.
 
@@ -4586,10 +4553,11 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        *modules: str | pathlib.Path
+        *modules
             Paths of one or more module to unload.
 
-            These should be the same paths which were passed to `load_module`.
+            These should be the same paths which were passed to
+            [Client.load_module][].
 
         Returns
         -------
@@ -4598,19 +4566,19 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.errors.FailedModuleLoad
+        tanjun.FailedModuleLoad
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at `tanjun.errors.FailedModuleLoad.__source__`.
-        tanjun.errors.FailedModuleUnload
+            The source error can be found at [tanjun.FailedModuleLoad.__source__][].
+        tanjun.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
-            error can be found at `tanjun.errors.FailedModuleUnload.__source__`.
-        tanjun.errors.ModuleStateConflict
+            error can be found at [tanjun.FailedModuleUnload.__source__][].
+        tanjun.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.errors.ModuleMissingLoaders
+        tanjun.ModuleMissingLoaders
             If no unloaders are found in the current state of the module.
             If no loaders are found in the new state of the module.
         ModuleNotFoundError
@@ -4619,13 +4587,13 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of `Client.reload_modules`.
+        """Asynchronous variant of [Client.reload_modules][].
 
-        Unlike `Client.reload_modules`, this method will run blocking code in a
+        Unlike [Client.reload_modules][], this method will run blocking code in a
         background thread.
 
         For more information on the behaviour of this method see the
-        documentation for `Client.reload_modules`.
+        documentation for [Client.reload_modules][].
         """
 
     @abc.abstractmethod
@@ -4634,9 +4602,9 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        type_: type[_T]
+        type_
             The type of the dependency to add an implementation for.
-        value: _T
+        value
             The value of the dependency.
 
         Returns
@@ -4651,13 +4619,13 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        type_: type[_T]
+        type_
             The associated type.
 
         Returns
         -------
         _T | alluka.abc.Undefined
-            The resolved type if found, else `Undefined`.
+            The resolved type if found, else [Undefined][].
         """
 
     @abc.abstractmethod
@@ -4666,7 +4634,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        type_: type
+        type_
             The associated type.
 
         Returns
@@ -4688,9 +4656,9 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        callback: alluka.abc.CallbackSig[_T]
+        callback
             The injected callback to override.
-        override: alluka.abc.CallbackSig[_T]
+        override
             The callback to use instead.
 
         Returns
@@ -4705,13 +4673,13 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        callback : alluka.abc.CallbackSig[_T]
+        callback
             The injected callback to get the override for.
 
         Returns
         -------
-        alluka.abc.CallbackSig[_T] | None
-            The override if found, else `None`.
+        alluka.abc.CallbackSig | None
+            The override if found, else [None][].
         """
 
     @abc.abstractmethod
@@ -4720,7 +4688,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        callback: alluka.abc.CallbackSig
+        callback
             The injected callback to remove the override for.
 
         Returns
@@ -4756,7 +4724,7 @@ class ClientLoader(abc.ABC):
 
         Parameters
         ----------
-        client : Client
+        client
             The client to load commands and listeners for.
 
         Returns
@@ -4771,7 +4739,7 @@ class ClientLoader(abc.ABC):
 
         Parameters
         ----------
-        client : Client
+        client
             The client to unload commands and listeners from.
 
         Returns

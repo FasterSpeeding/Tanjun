@@ -119,11 +119,11 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
-    r"""Build a message `MenuCommand` by decorating a function.
+    r"""Build a message [MenuCommand][] by decorating a function.
 
-    .. note::
+    !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
     Examples
@@ -138,43 +138,40 @@ def as_message_menu(
 
     Parameters
     ----------
-    name : str
+    name
         The command's name.
 
         This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description : str
+    description
         The command's description.
         This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    always_defer : bool
+    always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
 
-        Defaults to `False`.
+        Defaults to [False][].
 
-        .. note::
+        !!! note
             The ephemeral state of the first response is decided by whether the
             deferral is ephemeral.
-    default_to_ephemeral : bool | None
+    default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
-        If this is left as `None` then the default set on the parent command(s),
+        If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
-    is_global : bool
-        Whether this command is a global command. Defaults to `True`.
+    is_global
+        Whether this command is a global command. Defaults to [True][].
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
-        The decorator callback used to make a `MenuCommand`.
+        The decorator callback used to make a [MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
+        (e.g. [MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]) and
         will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        [tanjun.Component.load_from_scope][].
 
     Raises
     ------
@@ -194,11 +191,11 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
-    r"""Build a user `MenuCommand` by decorating a function.
+    r"""Build a user [MenuCommand][] by decorating a function.
 
-    .. note::
+    !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
     Examples
@@ -215,43 +212,40 @@ def as_user_menu(
 
     Parameters
     ----------
-    name : str
+    name
         The command's name.
 
         This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description : str
+    description
         The command's description.
         This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    always_defer : bool
+    always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
 
-        Defaults to `False`.
+        Defaults to [False][].
 
-        .. note::
+        !!! note
             The ephemeral state of the first response is decided by whether the
             deferral is ephemeral.
-    default_to_ephemeral : bool | None
+    default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
-        If this is left as `None` then the default set on the parent command(s),
+        If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
-    is_global : bool
-        Whether this command is a global command. Defaults to `True`.
+    is_global
+        Whether this command is a global command. Defaults to [True][].
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
-        The decorator callback used to make a `MenuCommand`.
+        The decorator callback used to make a [MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
+        (e.g. [MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]) and
         will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        [tanjun.Component.load_from_scope][].
 
     Raises
     ------
@@ -413,11 +407,11 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
 
         Parameters
         ----------
-        bool | None
+        state
             Whether this command's responses should default to ephemeral.
             This will be overridden by any response calls which specify flags.
 
-            Setting this to `None` will let the default set on the parent
+            Setting this to [None][] will let the default set on the parent
             command(s), component or client propagate and decide the ephemeral
             default for contexts used by this command.
 

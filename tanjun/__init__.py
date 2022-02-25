@@ -34,7 +34,7 @@
 Examples
 --------
 A Tanjun client can be quickly initialised from a Hikari gateway bot through
-`tanjun.Client.from_gateway_bot`, this enables both slash (interaction) and message
+[tanjun.Client.from_gateway_bot][], this enables both slash (interaction) and message
 command execution:
 
 ```py
@@ -77,7 +77,7 @@ bot = hikari.RESTBot("BOT_TOKEN", "Bot")
 client = tanjun.Client.from_rest_bot(bot, declare_global_commands=True)
 
 # This will load components from modules based on loader functions.
-# For more information on this see `tanjun.as_loader`.
+# For more information on this see [tanjun.as_loader][].
 client.load_modules("module.paths")
 
 # Note, unlike a gateway bound bot, the rest bot will not automatically start

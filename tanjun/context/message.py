@@ -192,7 +192,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
 
         Parameters
         ----------
-        triggering_prefix : str
+        triggering_prefix
             The triggering prefix to set.
 
         Returns

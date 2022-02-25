@@ -84,14 +84,11 @@ class AbstractCooldownManager(abc.ABC):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The cooldown bucket to check.
-        ctx : tanjun.abc.Context
+        ctx
             The context of the command.
-
-        Other Parameters
-        ----------------
-        increment : bool
+        increment
             Whether this call should increment the bucket's use counter if
             it isn't depleted.
 
@@ -99,7 +96,7 @@ class AbstractCooldownManager(abc.ABC):
         -------
         float | None
             When this command will next be usable for the provided context
-            if it's in cooldown else `None`.
+            if it's in cooldown else [None][].
         """
 
     @abc.abstractmethod
@@ -108,9 +105,9 @@ class AbstractCooldownManager(abc.ABC):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The cooldown bucket's ID.
-        ctx : tanjun.abc.Context
+        ctx
             The context of the command.
         """
 
@@ -126,9 +123,9 @@ class AbstractConcurrencyLimiter(abc.ABC):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The concurrency bucket to acquire.
-        ctx : tanjun.abc.Context
+        ctx
             The context to acquire this resource lock with.
 
         Returns
@@ -151,7 +148,7 @@ class BucketResource(int, enum.Enum):
     MEMBER = 1
     """A per-guild member resource bucket.
 
-    .. note::
+    !!! note
         When executed in a DM this will be per-DM.
     """
 
@@ -161,7 +158,7 @@ class BucketResource(int, enum.Enum):
     PARENT_CHANNEL = 3
     """A per-parent channel resource bucket.
 
-    .. note::
+    !!! note
         For DM channels this will be per-DM, for guild channels with no parents
         this'll be per-guild.
     """
@@ -169,7 +166,7 @@ class BucketResource(int, enum.Enum):
     # CATEGORY = 4
     # """A per-category resource bucket.
 
-    # .. note::
+    # !!! note
     #     For DM channels this will be per-DM, for guild channels with no parent
     #     category this'll be per-guild.
     # """
@@ -177,7 +174,7 @@ class BucketResource(int, enum.Enum):
     TOP_ROLE = 5
     """A per-highest role resource bucket.
 
-    .. note::
+    !!! note
         When executed in a DM this will be per-DM, with this defaulting to
         targeting the @everyone role if they have no real roles.
     """
@@ -185,7 +182,7 @@ class BucketResource(int, enum.Enum):
     GUILD = 6
     """A per-guild resource bucket.
 
-    .. note::
+    !!! note
         When executed in a DM this will be per-DM.
     """
 
@@ -455,12 +452,12 @@ def _to_bucket(
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
-    """In-memory standard implementation of `AbstractCooldownManager`.
+    """In-memory standard implementation of [AbstractCooldownManager][].
 
     Examples
     --------
-    `InMemoryCooldownManager.set_bucket` may be used to set the cooldown for a
-    specific bucket:
+    [InMemoryCooldownManager.set_bucket][] may be used to set the cooldown for
+    a specific bucket:
 
     ```py
     (
@@ -503,13 +500,13 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         """Add this cooldown manager to a tanjun client.
 
-        .. note::
+        !!! note
             This registers the manager as a type dependency and manages opening
             and closing the manager based on the client's life cycle.
 
         Parameters
         ----------
-        client : tanjun.abc.Client
+        client
             The client to add this cooldown manager to.
         """
         client.set_type_dependency(AbstractCooldownManager, self)
@@ -575,10 +572,10 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The bucket to disable.
 
-            .. note::
+            !!! note
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
 
@@ -606,17 +603,17 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The ID of the bucket to set the cooldown for.
 
-            .. note::
+            !!! note
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
-        resource : tanjun.BucketResource
+        resource
             The type of resource to target for the cooldown.
-        limit : int
+        limit
             The number of uses per cooldown period.
-        reset_after : int | float | datetime.timedelta
+        reset_after
             The cooldown period.
 
         Returns
@@ -672,19 +669,19 @@ class CooldownPreExecution:
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The cooldown bucket's ID.
 
-        Other Parameters
-        ----------------
-        error_message : str
+        Parameters
+        ----------
+        error_message
             The error message to send in response as a command error if the check fails.
 
             Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
-        owners_exempt : bool
+        owners_exempt
             Whether owners should be exempt from the cooldown.
 
-            Defaults to `True`.
+            Defaults to [True][].
         """
         self._bucket_id = bucket_id
         self._error_message = error_message
@@ -719,31 +716,28 @@ def with_cooldown(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
-    .. warning::
-        Cooldowns will only work if there's a setup injected `AbstractCooldownManager`
-        dependency with `InMemoryCooldownManager` being usable as a standard in-memory
+    !!! warning
+        Cooldowns will only work if there's a setup injected [AbstractCooldownManager][]
+        dependency with [InMemoryCooldownManager][] being usable as a standard in-memory
         cooldown manager.
 
     Parameters
     ----------
-    bucket_id : str
+    bucket_id
         The cooldown bucket's ID.
-
-    Other Parameters
-    ----------------
-    error_message : str
+    error_message
         The error message to send in response as a command error if the check fails.
 
         Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
-    owners_exempt : bool
+    owners_exempt
         Whether owners should be exempt from the cooldown.
 
-        Defaults to `True`.
+        Defaults to [True][].
 
     Returns
     -------
     collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
-        A decorator that adds a `CooldownPreExecution` hook to the command.
+        A decorator that adds a [CooldownPreExecution][] hook to the command.
     """
 
     def decorator(command: _CommandT, /) -> _CommandT:
@@ -795,11 +789,11 @@ class _ConcurrencyLimit:
 
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
-    """In-memory standard implementation of `AbstractConcurrencyLimiter`.
+    """In-memory standard implementation of [AbstractConcurrencyLimiter][].
 
     Examples
     --------
-    `InMemoryConcurrencyLimiter.set_bucket` may be used to set the concurrency
+    [InMemoryConcurrencyLimiter.set_bucket][] may be used to set the concurrency
     limits for a specific bucket:
 
     ```py
@@ -836,13 +830,13 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     def add_to_client(self, client: tanjun_abc.Client, /) -> None:
         """Add this concurrency manager to a tanjun client.
 
-        .. note::
+        !!! note
             This registers the manager as a type dependency and manages opening
             and closing the manager based on the client's life cycle.
 
         Parameters
         ----------
-        client : tanjun.abc.Client
+        client
             The client to add this concurrency manager to.
         """
         client.set_type_dependency(AbstractConcurrencyLimiter, self)
@@ -911,10 +905,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The bucket to disable.
 
-            .. note::
+            !!! note
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
 
@@ -936,15 +930,15 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The ID of the bucket to set the concurrency limit for.
 
-            .. note::
+            !!! note
                 "default" is a special bucket which is used as a template
                 for unknown bucket IDs.
-        resource : tanjun.BucketResource
+        resource
             The type of resource to target for the concurrency limit.
-        limit : int
+        limit
             The maximum number of concurrent uses to allow.
 
         Returns
@@ -971,9 +965,9 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 class ConcurrencyPreExecution:
     """Pre-execution hook used to acquire a bucket concurrency limiter.
 
-    .. note::
-        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`
-        and `ConcurrencyPostExecution` hooks must be registered for a command scope.
+    !!! note
+        For a concurrency limiter to work properly, both [ConcurrencyPreExecution][]
+        and [ConcurrencyPostExecution][] hooks must be registered for a command scope.
     """
 
     __slots__ = ("_bucket_id", "_error_message", "__weakref__")
@@ -989,12 +983,9 @@ class ConcurrencyPreExecution:
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The concurrency limit bucket's ID.
-
-        Other Parameters
-        ----------------
-        error_message : str
+        error_message
             The error message to send in response as a command error if this fails
             to acquire the concurrency limit.
 
@@ -1015,9 +1006,9 @@ class ConcurrencyPreExecution:
 class ConcurrencyPostExecution:
     """Post-execution hook used to release a bucket concurrency limiter.
 
-    .. note::
-        For a concurrency limiter to work properly, both `ConcurrencyPreExecution`
-        and `ConcurrencyPostExecution` hooks must be registered for a command scope.
+    !!! note
+        For a concurrency limiter to work properly, both [ConcurrencyPreExecution][]
+        and [ConcurrencyPostExecution][] hooks must be registered for a command scope.
     """
 
     __slots__ = ("_bucket_id", "__weakref__")
@@ -1027,7 +1018,7 @@ class ConcurrencyPostExecution:
 
         Parameters
         ----------
-        bucket_id : str
+        bucket_id
             The concurrency limit bucket's ID.
         """
         self._bucket_id = bucket_id
@@ -1048,19 +1039,16 @@ def with_concurrency_limit(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
 
-    .. warning::
+    !!! warning
         Concurrency limiters will only work if there's a setup injected
-        `AbstractConcurrencyLimiter` dependency with `InMemoryConcurrencyLimiter`
+        [AbstractConcurrencyLimiter][] dependency with [InMemoryConcurrencyLimiter][]
         being usable as a standard in-memory concurrency manager.
 
     Parameters
     ----------
-    bucket_id : str
+    bucket_id
         The concurrency limit bucket's ID.
-
-    Other Parameters
-    ----------------
-    error_message : str
+    error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
 

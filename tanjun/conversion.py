@@ -101,7 +101,7 @@ _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     """Base class for the standard converters.
 
-    .. warning::
+    !!! warning
         Inheriting from this is completely unnecessary and should be avoided
         for people using the library unless they know what they're doing.
 
@@ -138,12 +138,12 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     def cache_components(self) -> hikari.CacheComponents:
         """Cache component(s) the converter takes advantage of.
 
-        .. note::
-            Unless `BaseConverter.requires_cache` is `True`, these cache components
-            aren't necessary but simply avoid the converter from falling back to
-            REST requests.
+        !!! note
+            Unless [BaseConverter.requires_cache][] is [True][], these cache
+            components aren't necessary but simply avoid the converter from
+            falling back to REST requests.
 
-        This will be `hikari.CacheComponents.NONE` if the converter doesn't
+        This will be [hikari.CacheComponents.NONE][] if the converter doesn't
         make cache calls.
         """
 
@@ -152,14 +152,14 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     def intents(self) -> hikari.Intents:
         """Gateway intents this converter takes advantage of.
 
-        .. note::
-            This field is supplementary to `BaseConverter.cache_components` and
-            is used to detect when the relevant component might not actually be
-            being kept up to date or filled by gateway events.
+        !!! note
+            This field is supplementary to [BaseConverter.cache_components][]
+            and is used to detect when the relevant component might not
+            actually be being kept up to date or filled by gateway events.
 
-            Unless `BaseConverter.requires_cache` is `True`, these intents being
-            disabled won't stop this converter from working as it'll still fall
-            back to REST requests.
+            Unless [BaseConverter.requires_cache][] is [True][], these intents
+            being disabled won't stop this converter from working as it'll
+            still fall back to REST requests.
         """
 
     @property
@@ -167,9 +167,10 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     def requires_cache(self) -> bool:
         """Whether this converter relies on the relevant cache stores to work.
 
-        If this is `True` then this converter will not function properly
-        in an environment `BaseConverter.intents` or `BaseConverter.cache_components`
-        isn't satisfied and will never fallback to REST requests.
+        If this is [True][] then this converter will not function properly
+        in an environment [BaseConverter.intents][] or
+        [BaseConverter.cache_components][] isn't satisfied and will never
+        fallback to REST requests.
         """
 
     def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
@@ -180,9 +181,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
         Parameters
         ----------
-        client : tanjun.abc.Client
+        client
             The client to check against.
-        parent_name : str
+        parent_name
             The name of the converter's parent, used for warning messages.
         """
         if not client.cache and any(
@@ -216,7 +217,7 @@ _GuildChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]
 class ToChannel(BaseConverter[hikari.PartialChannel]):
     """Standard converter for channels mentions/IDs.
 
-    For a standard instance of this see `to_channel`.
+    For a standard instance of this see [to_channel][].
     """
 
     __slots__ = ("_include_dms",)
@@ -224,15 +225,15 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
     def __init__(self, *, include_dms: bool = True) -> None:
         """Initialise a to channel converter.
 
-        Other Parameters
-        ----------------
-        include_dms : bool
+        Parameters
+        ----------
+        include_dms
             Whether to include DM channels in the results.
 
             May lead to a lot of extra fallbacks to REST requests if
             the client doesn't have a registered async cache for DMs.
 
-            Defaults to `True`.
+            Defaults to [True][].
         """
         self._include_dms = include_dms
 
@@ -305,7 +306,7 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
 
 
 ChannelConverter = ToChannel
-"""Deprecated alias of `ToChannel`."""
+"""Deprecated alias of [ToChannel][]."""
 
 _EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 
@@ -313,13 +314,14 @@ _EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
     """Standard converter for custom emojis.
 
-    For a standard instance of this see `to_emoji`.
+    For a standard instance of this see [to_emoji][].
 
-    .. note::
-        If you just want to convert inpute to a `hikari.Emoji`, `hikari.CustomEmoji`
-        or `hikari.UnicodeEmoji` without making any cache or REST calls then you
-        can just use the relevant `hikari.Emoji.parse`, `hikari.CustomEmoji.parse`
-        or `hikari.UnicodeEmoji.parse` methods.
+    !!! note
+        If you just want to convert inpute to a [hikari.Emoji][],
+        [hikari.CustomEmoji][] or [hikari.UnicodeEmoji][] without making any
+        cache or REST calls then you can just use the relevant
+        [hikari.Emoji.parse][], [hikari.CustomEmoji.parse][] or
+        [hikari.UnicodeEmoji.parse][] methods.
     """
 
     __slots__ = ()
@@ -377,7 +379,7 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
 
 
 EmojiConverter = ToEmoji
-"""Deprecated alias of `ToEmoji`."""
+"""Deprecated alias of [ToEmoji][]."""
 
 
 _GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
@@ -386,7 +388,7 @@ _GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
 class ToGuild(BaseConverter[hikari.Guild]):
     """Stanard converter for guilds.
 
-    For a standard instance of this see `to_guild`.
+    For a standard instance of this see [to_guild][].
     """
 
     __slots__ = ()
@@ -442,7 +444,7 @@ class ToGuild(BaseConverter[hikari.Guild]):
 
 
 GuildConverter = ToGuild
-"""Deprecated alias of `ToGuild`."""
+"""Deprecated alias of [ToGuild][]."""
 
 _InviteCacheT = typing.Optional[async_cache.AsyncCache[str, hikari.InviteWithMetadata]]
 
@@ -504,16 +506,16 @@ class ToInvite(BaseConverter[hikari.Invite]):
 
 
 InviteConverter = ToInvite
-"""Deprecated alias of `ToInvite`."""
+"""Deprecated alias of [ToInvite][]."""
 
 
 class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
     """Standard converter for invites with metadata.
 
-    For a standard instance of this see `to_invite_with_metadata`.
+    For a standard instance of this see [to_invite_with_metadata][].
 
-    .. note::
-        Unlike `InviteConverter`, this converter is cache dependent.
+    !!! note
+        Unlike [InviteConverter][], this converter is cache dependent.
     """
 
     __slots__ = ()
@@ -558,7 +560,7 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
 
 
 InviteWithMetadataConverter = ToInviteWithMetadata
-"""Deprecated alias of `ToInviteWithMetadata`."""
+"""Deprecated alias of [ToInviteWithMetadata][]."""
 
 
 _MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
@@ -567,7 +569,7 @@ _MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
 class ToMember(BaseConverter[hikari.Member]):
     """Standard converter for guild members.
 
-    For a standard instance of this see `to_member`.
+    For a standard instance of this see [to_member][].
 
     This converter allows both mentions, raw IDs and partial usernames/nicknames
     and only works within a guild context.
@@ -640,7 +642,7 @@ class ToMember(BaseConverter[hikari.Member]):
 
 
 MemberConverter = ToMember
-"""Deprecated alias of `ToMember`."""
+"""Deprecated alias of [ToMember][]."""
 
 _PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence]]
 
@@ -648,7 +650,7 @@ _PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence
 class ToPresence(BaseConverter[hikari.MemberPresence]):
     """Standard converter for presences.
 
-    For a standard instance of this see `to_presence`.
+    For a standard instance of this see [to_presence][].
 
     This converter is cache dependent and only works in a guild context.
     """
@@ -696,7 +698,7 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
 
 
 PresenceConverter = ToPresence
-"""Deprecated alias of `ToPresence`."""
+"""Deprecated alias of [ToPresence][]."""
 
 _RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 
@@ -704,7 +706,7 @@ _RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 class ToRole(BaseConverter[hikari.Role]):
     """Standard converter for guild roles.
 
-    For a standard instance of this see `to_role`.
+    For a standard instance of this see [to_role][].
     """
 
     __slots__ = ()
@@ -759,7 +761,7 @@ class ToRole(BaseConverter[hikari.Role]):
 
 
 RoleConverter = ToRole
-"""Deprecated alias of `ToRole`."""
+"""Deprecated alias of [ToRole][]."""
 
 _UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
 
@@ -767,7 +769,7 @@ _UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
 class ToUser(BaseConverter[hikari.User]):
     """Standard converter for users.
 
-    For a standard instance of this see `to_user`.
+    For a standard instance of this see [to_user][].
     """
 
     __slots__ = ()
@@ -824,7 +826,7 @@ class ToUser(BaseConverter[hikari.User]):
 
 
 UserConverter = ToUser
-"""Deprecated alias of `ToUser`."""
+"""Deprecated alias of [ToUser][]."""
 
 
 _MessageCacheT = typing.Optional[async_cache.SfCache[hikari.Message]]
@@ -894,9 +896,9 @@ _VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
 class ToVoiceState(BaseConverter[hikari.VoiceState]):
     """Standard converter for voice states.
 
-    For a standard instance of this see `to_voice_state`.
+    For a standard instance of this see [to_voice_state][].
 
-    .. note::
+    !!! note
         This converter is cache dependent and only works in a guild context.
     """
 
@@ -944,7 +946,7 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
 
 
 VoiceStateConverter = ToVoiceState
-"""Deprecated alias of `ToVoiceState`."""
+"""Deprecated alias of [ToVoiceState][]."""
 
 
 class _IDMatcherSig(typing.Protocol):
@@ -956,17 +958,14 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
     def parse(value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         """Parse a snowflake from a string or int value.
 
-        .. note::
+        !!! note
             This only allows the relevant entity's mention format if applicable.
 
         Parameters
         ----------
-        value: str | int
+        value
             The value to parse (this argument can only be passed positionally).
-
-        Other Parameters
-        ----------------
-        message: str
+        message
             The error message to raise if the value cannot be parsed.
 
         Returns
@@ -1017,12 +1016,12 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
     def parse(value: _ArgumentT, /) -> list[hikari.Snowflake]:
         """Get the snowflakes in a string.
 
-        .. note::
+        !!! note
             This only allows the relevant entity's mention format if applicable.
 
         Parameters
         ----------
-        value: str | int
+        value
             The value to parse (this argument can only be passed positionally).
 
         Returns
@@ -1061,12 +1060,9 @@ parse_snowflake: _IDMatcherSig = _make_snowflake_parser(_SNOWFLAKE_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
-
-Other Parameters
-----------------
-message: str
+message
     The error message to raise if the value cannot be parsed.
 
 Returns
@@ -1085,7 +1081,7 @@ search_snowflakes: _IDSearcherSig = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1100,12 +1096,9 @@ parse_channel_id: _IDMatcherSig = _make_snowflake_parser(_CHANNEL_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
-
-Other Parameters
-----------------
-message: str
+message
     The error message to raise if the value cannot be parsed.
 
 Returns
@@ -1124,7 +1117,7 @@ search_channel_ids: _IDSearcherSig = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1139,12 +1132,9 @@ parse_emoji_id: _IDMatcherSig = _make_snowflake_parser(_EMOJI_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
-
-Other Parameters
-----------------
-message: str
+message
     The error message to raise if the value cannot be parsed.
 
 Returns
@@ -1163,7 +1153,7 @@ search_emoji_ids: _IDSearcherSig = _make_snowflake_searcher(_EMOJI_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1178,12 +1168,9 @@ parse_role_id: _IDMatcherSig = _make_snowflake_parser(_ROLE_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
-
-Other Parameters
-----------------
-message: str
+message
     The error message to raise if the value cannot be parsed.
 
 Returns
@@ -1202,7 +1189,7 @@ search_role_ids: _IDSearcherSig = _make_snowflake_searcher(_ROLE_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1217,12 +1204,9 @@ parse_user_id: _IDMatcherSig = _make_snowflake_parser(_USER_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
-
-Other Parameters
-----------------
-message: str
+message
     The error message to raise if the value cannot be parsed.
 
 Returns
@@ -1241,7 +1225,7 @@ search_user_ids: _IDSearcherSig = _make_snowflake_searcher(_USER_ID_REGEX)
 
 Parameters
 ----------
-value: str | int
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1315,11 +1299,11 @@ def parse_message_id(
 
 def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
-        """Convert an argument to a `urllib.parse` type.
+        """Convert an argument to a [urllib.parse][] type.
 
         Parameters
         ----------
-        value: str
+        value
             The value to parse (this argument can only be passed positionally).
 
         Returns
@@ -1345,7 +1329,7 @@ defragment_url: collections.Callable[[str], urlparse.DefragResult] = _build_url_
 
 Parameters
 ----------
-value: str
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1364,7 +1348,7 @@ parse_url: collections.Callable[[str], urlparse.ParseResult] = _build_url_parser
 
 Parameters
 ----------
-value: str
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1384,7 +1368,7 @@ split_url: collections.Callable[[str], urlparse.SplitResult] = _build_url_parser
 
 Parameters
 ----------
-value: str
+value
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1409,7 +1393,7 @@ def to_datetime(value: str, /) -> datetime.datetime:
 
     Parameters
     ----------
-    value: str
+    value
         The value to parse.
 
     Returns
@@ -1442,12 +1426,9 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
 
     Parameters
     ----------
-    value: datetime.datetime
+    value
         The datetime to format.
-
-    Other Parameters
-    ----------------
-    style: str
+    style
         The style to use.
 
         The valid styles can be found at
@@ -1483,7 +1464,7 @@ def to_bool(value: str, /) -> bool:
 
     Parameters
     ----------
-    value: str
+    value
         The value to convert.
 
     Returns
@@ -1507,7 +1488,7 @@ def to_bool(value: str, /) -> bool:
 
 
 def to_color(argument: _ArgumentT, /) -> hikari.Color:
-    """Convert user input to a `hikari.colors.Color` object."""
+    """Convert user input to a [hikari.colors.Color][] object."""
     if isinstance(argument, str):
         values = argument.split(" ")
         if all(value.isdigit() for value in values):
@@ -1541,51 +1522,51 @@ def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.Converter
 
 
 to_channel: typing.Final[ToChannel] = ToChannel()
-"""Convert user input to a `hikari.PartialChannel` object."""
+"""Convert user input to a [hikari.PartialChannel][] object."""
 
 to_colour: typing.Final[collections.Callable[[_ArgumentT], hikari.Color]] = to_color
-"""Convert user input to a `hikari.Color` object."""
+"""Convert user input to a [hikari.Color][] object."""
 
 to_emoji: typing.Final[ToEmoji] = ToEmoji()
-"""Convert user input to a cached `hikari.KnownCustomEmoji` object.
+"""Convert user input to a cached [hikari.KnownCustomEmoji][] object.
 
-.. note::
-    If you just want to convert inpute to a `hikari.Emoji`, `hikari.CustomEmoji`
-    or `hikari.UnicodeEmoji` without making any cache or REST calls then you
-    can just use the relevant `hikari.Emoji.parse`, `hikari.CustomEmoji.parse`
-    or `hikari.UnicodeEmoji.parse` methods.
+!!! note
+    If you just want to convert inpute to a [hikari.Emoji][],
+    [hikari.CustomEmoji][] or [hikari.UnicodeEmoji][] without making any cache
+    or REST calls then you can just use the relevant [hikari.Emoji.parse][],
+    [hikari.CustomEmoji.parse][] or [hikari.UnicodeEmoji.parse][] methods.
 """
 
 to_guild: typing.Final[ToGuild] = ToGuild()
-"""Convert user input to a `hikari.Guild` object."""
+"""Convert user input to a [hikari.Guild][] object."""
 
 to_invite: typing.Final[ToInvite] = ToInvite()
-"""Convert user input to a cached `hikari.InviteWithMetadata` object."""
+"""Convert user input to a cached [hikari.InviteWithMetadata][] object."""
 
 to_invite_with_metadata: typing.Final[ToInviteWithMetadata] = ToInviteWithMetadata()
-"""Convert user input to a `hikari.Invite` object."""
+"""Convert user input to a [hikari.Invite][] object."""
 
 to_member: typing.Final[ToMember] = ToMember()
-"""Convert user input to a `hikari.Member` object."""
+"""Convert user input to a [hikari.Member][] object."""
 
 to_presence: typing.Final[ToPresence] = ToPresence()
-"""Convert user input to a cached `hikari.MemberPresence`."""
+"""Convert user input to a cached [hikari.MemberPresence][]."""
 
 to_role: typing.Final[ToRole] = ToRole()
-"""Convert user input to a `hikari.Role` object."""
+"""Convert user input to a [hikari.Role][] object."""
 
 to_snowflake: typing.Final[collections.Callable[[_ArgumentT], hikari.Snowflake]] = parse_snowflake
-"""Convert user input to a `hikari.Snowflake`.
+"""Convert user input to a [hikari.Snowflake][].
 
-.. note::
+!!! note
     This also range validates the input.
 """
 
 to_user: typing.Final[ToUser] = ToUser()
-"""Convert user input to a `hikari.User` object."""
+"""Convert user input to a [hikari.User][] object."""
 
 to_message: typing.Final[ToMessage] = ToMessage()
 """Convert user input to a `hikari.Message` object."""
 
 to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
-"""Convert user input to a cached `hikari.VoiceState`."""
+"""Convert user input to a cached [hikari.VoiceState][]."""

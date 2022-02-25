@@ -140,9 +140,9 @@ PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, ty
 
 This should be an asynchronous callable which returns an iterable of strings.
 
-.. note::
+!!! note
     While dependency injection is supported for this, the first positional
-    argument will always be a `tanjun.abc.MessageContext`.
+    argument will always be a [tanjun.abc.MessageContext][].
 """
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
@@ -245,22 +245,22 @@ def as_loader(
 ) -> typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]]:
     """Mark a callback as being used to load Tanjun components from a module.
 
-    .. note::
-        This is only necessary if you wish to use `tanjun.Client.load_modules`.
+    !!! note
+        This is only necessary if you wish to use [Client.load_modules][].
 
     Parameters
     ----------
-    callback : collections.abc.Callable[[tanjun.abc.Client], None]]
+    callback
         The callback used to load Tanjun components from a module.
 
-        This should take one argument of type `Client` (or `tanjun.abc.Client`
-        if `standard_impl` is `False`), return nothing and will be expected
+        This should take one argument of type [Client][] (or [tanjun.abc.Client][]
+        if `standard_impl` is [False][]), return nothing and will be expected
         to initiate and add utilities such as components to the provided client.
-    standard_impl : bool
-        Whether this loader should only allow instances of `Client` as opposed
-        to `tanjun.abc.Client`.
+    standard_impl
+        Whether this loader should only allow instances of [Client][] as opposed
+        to [tanjun.abc.Client][].
 
-        Defaults to `True`.
+        Defaults to [True][].
 
     Returns
     -------
@@ -292,39 +292,39 @@ def as_unloader(
 ) -> typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]]:
     """Mark a callback as being used to unload a module's utilities from a client.
 
-    .. note::
-        This is the inverse of `as_loader` and is only necessary if you wish
-        to use the `tanjun.Client.unload_module` or
-        `tanjun.Client.reload_module`.
+    !!! note
+        This is the inverse of [as_loader][] and is only necessary if you wish
+        to use the [Client.unload_module][] or
+        [Client.reload_module][].
 
     Parameters
     ----------
-    callback : collections.abc.Callable[[tanjun.Client], None]]
+    callback
         The callback used to unload Tanjun components from a module.
 
-        This should take one argument of type `Client` (or `tanjun.abc.Client`
-        if `standard_impl` is `False`), return nothing and will be expected
+        This should take one argument of type [Client][] (or [tanjun.abc.Client][]
+        if `standard_impl` is [False][]), return nothing and will be expected
         to remove utilities such as components from the provided client.
-    standard_impl : bool
-        Whether this unloader should only allow instances of `Client` as
-        opposed to `tanjun.abc.Client`.
+    standard_impl
+        Whether this unloader should only allow instances of [Client][] as
+        opposed to [tanjun.abc.Client][].
 
-        Defaults to `True`.
+        Defaults to [True][].
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.Client], None]]
+    collections.abc.Callable[[tanjun.abc.Client], None]]
         The decorated unload callback.
     """
     return _UnloaderDescriptor(callback, standard_impl)
 
 
 ClientCallbackNames = tanjun_abc.ClientCallbackNames
-"""Alias of `tanjun.abc.ClientCallbackNames`."""
+"""Alias of [tanjun.abc.ClientCallbackNames][]."""
 
 
 class MessageAcceptsEnum(str, enum.Enum):
-    """The possible configurations for which events `Client` should execute commands based on."""
+    """The possible configurations for which events [Client][] should execute commands based on."""
 
     ALL = "ALL"
     """Set the client to execute commands based on both DM and guild message create events."""
@@ -343,11 +343,11 @@ class MessageAcceptsEnum(str, enum.Enum):
 
         Returns
         -------
-        type[hikari.message_events.MessageCreateEvent] | None
+        type[hikari.events.MessageCreateEvent] | None
             The type object of the MessageCreateEvent class this mode will
             register a listener for.
 
-            This will be `None` if this mode disables listening to
+            This will be [None][] if this mode disables listening to
             message create events.
         """
         return _ACCEPTS_EVENT_TYPE_MAPPING[self]
@@ -380,7 +380,7 @@ async def _wrap_client_callback(
 async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) -> None:
     """Handle message parser errors.
 
-    This is the default message parser error hook included by `Client`.
+    This is the default message parser error hook included by [Client][].
     """
     await ctx.respond(error.message)
 
@@ -434,15 +434,15 @@ class _StartDeclarer:
 
 
 class Client(tanjun_abc.Client):
-    """Tanjun's standard `tanjun.abc.Client` implementation.
+    """Tanjun's standard [tanjun.abc.Client][] implementation.
 
     This implementation supports dependency injection for checks, command
     callbacks, prefix getters and event listeners. For more information on how
-    this works see `alluka`.
+    this works see [alluka][].
 
-    .. note::
+    !!! note
         By default this client includes a parser error handling hook which will
-        by overwritten if you call `Client.set_hooks`.
+        by overwritten if you call [Client.set_hooks][].
     """
 
     __slots__ = (
@@ -507,7 +507,7 @@ class Client(tanjun_abc.Client):
         Notes
         -----
         * For a quicker way to initiate this client around a standard bot aware
-        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
+        client, see [Client.from_gateway_bot][] and [Client.from_rest_bot][].
         * The endpoint used by `declare_global_commands` has a strict ratelimit which,
         as of writing, only allows for 2 requests per minute (with that ratelimit
         either being per-guild if targeting a specific guild otherwise globally).
@@ -519,51 +519,48 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        rest : hikari.api.rest.RestClient
+        rest
             The Hikari REST client this will use.
-
-        Other Parameters
-        ----------------
-        cache : hikari.api.cache.CacheClient
+        cache
             The Hikari cache client this will use if applicable.
-        event_manager : hikari.api.event_manager.EventManagerClient
+        event_manager
             The Hikari event manager client this will use if applicable.
-        server : hikari.api.interaction_server.InteractionServer
+        server
             The Hikari interaction server client this will use if applicable.
-        shards : hikari.traits.ShardAware
+        shards
             The Hikari shard aware client this will use if applicable.
-        voice : hikari.api.voice.VoiceComponent
+        voice
             The Hikari voice component this will use if applicable.
-        event_managed : bool
+        event_managed
             Whether or not this client is managed by the event manager.
 
             An event managed client will be automatically started and closed based
             on Hikari's lifetime events.
 
-            Defaults to `False` and can only be passed as `True` if `event_manager`
-            is also provided.
-        injector : alluka.abc.Client | None
+            Defaults to [False][] and can only be passed as [True][] if
+            `event_manager` is also provided.
+        injector
             The alluka client this should use for dependency injection.
 
             If not provided then the client will initialise its own DI client.
-        mention_prefix : bool
+        mention_prefix
             Whether or not mention prefixes should be automatically set when this
             client is first started.
 
-            Defaults to `False` and it should be noted that this only applies to
+            Defaults to [False][] and it should be noted that this only applies to
             message commands.
-        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool
+        declare_global_commands
             Whether or not to automatically set global slash commands when this
-            client is first started. Defaults to `False`.
+            client is first started. Defaults to [False][].
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
+        set_global_commands
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand]] | None
+        command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
 
@@ -578,10 +575,10 @@ class Client(tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
-        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        message_ids
             If provided, a mapping of message context menu command names to the
             IDs of existing commands to update.
-        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
 
@@ -774,13 +771,13 @@ class Client(tanjun_abc.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
+        """Build a [Client][] from a [hikari.traits.GatewayBotAware][] instance.
 
         Notes
         -----
         * This implicitly defaults the client to human only mode.
         * This sets type dependency injectors for the hikari traits present in
-          `bot` (including `hikari.traits.GatewayBotAware`).
+          `bot` (including [hikari.traits.GatewayBotAware][]).
         * The endpoint used by `declare_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
@@ -788,42 +785,39 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        bot : hikari.traits.GatewayBotAware
+        bot
             The bot client to build from.
 
             This will be used to infer the relevant Hikari clients to use.
-
-        Other Parameters
-        ----------------
-        event_managed : bool
+        event_managed
             Whether or not this client is managed by the event manager.
 
             An event managed client will be automatically started and closed
             based on Hikari's lifetime events.
 
-            Defaults to `True`.
-        injector : alluka.abc.Client | None
+            Defaults to [True][].
+        injector
             The alluka client this should use for dependency injection.
 
             If not provided then the client will initialise its own DI client.
-        mention_prefix : bool
+        mention_prefix
             Whether or not mention prefixes should be automatically set when this
             client is first started.
 
-            Defaults to `False` and it should be noted that this only applies to
+            Defaults to [False][] and it should be noted that this only applies to
             message commands.
-        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool
+        declare_global_commands
             Whether or not to automatically set global slash commands when this
-            client is first started. Defaults to `False`.
+            client is first started. Defaults to [False][].
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
+        set_global_commands
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        command_ids
             If provided, a mapping of top level command names to IDs of the commands to update.
 
             This field is complementary to `declare_global_commands` and, while it
@@ -833,10 +827,10 @@ class Client(tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
-        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        message_ids
             If provided, a mapping of message context menu command names to the
             IDs of existing commands to update.
-        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
         """  # noqa: E501 - line too long
@@ -876,12 +870,12 @@ class Client(tanjun_abc.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
+        """Build a [Client][] from a [hikari.traits.RESTBotAware][] instance.
 
         Notes
         -----
         * This sets type dependency injectors for the hikari traits present in
-          `bot` (including `hikari.traits.RESTBotAware`).
+          `bot` (including [hikari.traits.RESTBotAware][]).
         * The endpoint used by `declare_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
@@ -889,27 +883,24 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        bot : hikari.traits.RESTBotAware
+        bot
             The bot client to build from.
-
-        Other Parameters
-        ----------------
-        declare_global_commands : hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.Snowflakeish | hikari.PartialGuild | bool
+        declare_global_commands
             Whether or not to automatically set global slash commands when this
-            client is first started. Defaults to `False`.
+            client is first started. Defaults to [False][].
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
-        injector : alluka.abc.Client | None
+        injector
             The alluka client this should use for dependency injection.
 
             If not provided then the client will initialise its own DI client.
-        set_global_commands : hikari.Snowflakeish | hikari.PartialGuild | bool
+        set_global_commands
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        command_ids : collections.abc.Mapping[str, hikari.Snowflakeis | hikari.PartialCommand] | None
+        command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
 
@@ -924,10 +915,10 @@ class Client(tanjun_abc.Client):
 
             This currently isn't supported when multiple guild IDs are passed for
             `declare_global_commands`.
-        message_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        message_ids
             If provided, a mapping of message context menu command names to the
             IDs of existing commands to update.
-        user_ids : collections.abc.Mapping[str, hikari.Snowflakeish | hikari.PartialCommand] | None
+        user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
         """  # noqa: E501 - line too long
@@ -985,9 +976,9 @@ class Client(tanjun_abc.Client):
 
     @property
     def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
-        """Collection of the level `tanjun.abc.Context` checks registered to this client.
+        """Collection of the level [tanjun.abc.Context][] checks registered to this client.
 
-        .. note::
+        !!! note
             These may be taking advantage of the standard dependency injection.
         """
         return self._checks.copy()
@@ -1023,7 +1014,7 @@ class Client(tanjun_abc.Client):
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
-        """Top level `tanjun.abc.AnyHooks` set for this client.
+        """Top level [tanjun.abc.AnyHooks][] set for this client.
 
         These are called during both message, menu and slash command execution.
         """
@@ -1031,7 +1022,7 @@ class Client(tanjun_abc.Client):
 
     @property
     def menu_hooks(self) -> typing.Optional[tanjun_abc.MenuHooks]:
-        """Top level `tanjun.abc.MenuHooks` set for this client.
+        """Top level [tanjun.abc.MenuHooks][] set for this client.
 
         These are only called during menu command execution.
         """
@@ -1039,7 +1030,7 @@ class Client(tanjun_abc.Client):
 
     @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
-        """Top level `tanjun.abc.MessageHooks` set for this client.
+        """Top level [tanjun.abc.MessageHooks][] set for this client.
 
         These are only called during message command execution.
         """
@@ -1047,7 +1038,7 @@ class Client(tanjun_abc.Client):
 
     @property
     def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
-        """Top level `tanjun.abc.SlashHooks` set for this client.
+        """Top level [tanjun.abc.SlashHooks][] set for this client.
 
         These are only called during slash command execution.
         """
@@ -1062,7 +1053,7 @@ class Client(tanjun_abc.Client):
     def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
         """Prefix getter method set for this client.
 
-        For more information on this callback's signature see `PrefixGetter`.
+        For more information on this callback's signature see [PrefixGetter][].
         """
         return self._prefix_getter
 
@@ -1116,10 +1107,10 @@ class Client(tanjun_abc.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
-        """Alias of `Client.declare_global_commands`.
+        """Alias of [Client.declare_global_commands][].
 
         .. deprecated:: v2.1.1a1
-            Use `Client.declare_global_commands` instead.
+            Use [Client.declare_global_commands][] instead.
         """
         warnings.warn(
             "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
@@ -1355,13 +1346,13 @@ class Client(tanjun_abc.Client):
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
         """Set when this client should automatically defer execution of commands.
 
-        .. warning::
-            If `time` is set to `None` then automatic deferrals will be disabled.
+        !!! warning
+            If `time` is set to [None][] then automatic deferrals will be disabled.
             This may lead to unexpected behaviour.
 
         Parameters
         ----------
-        time : float | None
+        time
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
@@ -1372,12 +1363,12 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        bool
+        state
             Whether slash command contexts executed in this component should
             should default to ephemeral.
 
             This will be overridden by any response calls which specify flags
-            and defaults to `False`.
+            and defaults to [False][].
 
         Returns
         -------
@@ -1390,12 +1381,12 @@ class Client(tanjun_abc.Client):
     def set_hikari_trait_injectors(self: _ClientT, bot: hikari.RESTAware, /) -> _ClientT:
         """Set type based dependency injection based on the hikari traits found in `bot`.
 
-        This is a short hand for calling `Client.add_type_dependency` for all
+        This is a short hand for calling [Client.add_type_dependency][] for all
         the hikari trait types `bot` is valid for with bot.
 
         Parameters
         ----------
-        bot : hikari.RESTAware
+        bot
             The hikari client to set dependency injectors for.
         """
         for _, member in inspect.getmembers(hikari_traits):
@@ -1407,14 +1398,14 @@ class Client(tanjun_abc.Client):
     def set_interaction_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
         """Set the response message for when an interaction command is not found.
 
-        .. warning::
-            Setting this to `None` may lead to unexpected behaviour (especially
+        !!! warning
+            Setting this to [None][] may lead to unexpected behaviour (especially
             when the client is still set to auto-defer interactions) and should
             only be done if you know what you're doing.
 
         Parameters
         ----------
-        message : str | None
+        message
             The message to respond with when an interaction command isn't found.
         """
         return self.set_menu_not_found(message).set_slash_not_found(message)
@@ -1423,14 +1414,14 @@ class Client(tanjun_abc.Client):
         """Set the response message for when a menu command is not found.
 
 
-        .. warning::
-            Setting this to `None` may lead to unexpected behaviour (especially
+        !!! warning
+            Setting this to [None][] may lead to unexpected behaviour (especially
             when the client is still set to auto-defer interactions) and should
             only be done if you know what you're doing.
 
         Parameters
         ----------
-        message : str | None
+        message
             The message to respond with when a menu command isn't found.
         """
         self._menu_not_found = message
@@ -1439,14 +1430,14 @@ class Client(tanjun_abc.Client):
     def set_slash_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
         """Set the response message for when a slash command is not found.
 
-        .. warning::
-            Setting this to `None` may lead to unexpected behaviour (especially
+        !!! warning
+            Setting this to [None][] may lead to unexpected behaviour (especially
             when the client is still set to auto-defer interactions) and should
             only be done if you know what you're doing.
 
         Parameters
         ----------
-        message : str | None
+        message
             The message to respond with when a slash command isn't found.
         """
         self._slash_not_found = message
@@ -1457,7 +1448,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        accepts : MessageAcceptsEnum
+        accepts
             The type of messages commands should be executed based on.
         """
         if accepts.get_event_type() and not self._events:
@@ -1471,22 +1462,22 @@ class Client(tanjun_abc.Client):
     ) -> _ClientT:
         """Set the autocomplete context maker to use when creating contexts.
 
-        .. warning::
-            The caller must return an instance of `tanjun.context.AutocompleteContext`
+        !!! warning
+            The caller must return an instance of [tanjun.context.AutocompleteContext][]
             rather than just any implementation of the AutocompleteContext abc
             due to this client relying on implementation detail of
-            `tanjun.context.AutocompleteContext`.
+            [tanjun.context.AutocompleteContext][].
 
         Parameters
         ----------
-        maker : _AutocompleteContextMakerProto
+        maker
             The autocomplete context maker to use.
 
             This is a callback which should match the signature of
-            `tanjun.context.AutocompleteContext.__init__` and return
-            an instance of `tanjun.context.AutocompleteContext`.
+            [tanjun.context.AutocompleteContext.__init__][] and return
+            an instance of [tanjun.context.AutocompleteContext][].
 
-            This defaults to `tanjun.context.AutocompleteContext`.
+            This defaults to [tanjun.context.AutocompleteContext][].
 
         Returns
         -------
@@ -1499,22 +1490,22 @@ class Client(tanjun_abc.Client):
     def set_menu_ctx_maker(self: _ClientT, maker: _MenuContextMakerProto = context.MenuContext, /) -> _ClientT:
         """Set the autocomplete context maker to use when creating contexts.
 
-        .. warning::
-            The caller must return an instance of `tanjun.context.MenuContext`
+        !!! warning
+            The caller must return an instance of [tanjun.context.MenuContext][]
             rather than just any implementation of the MenuContext abc
             due to this client relying on implementation detail of
-            `tanjun.context.MenuContext`.
+            [tanjun.context.MenuContext][].
 
         Parameters
         ----------
-        maker : _MenuContextMakerProto
+        maker
             The autocomplete context maker to use.
 
             This is a callback which should match the signature of
-            `tanjun.context.MenuContext.__init__` and return
-            an instance of `tanjun.context.MenuContext`.
+            [tanjun.context.MenuContext.__init__][] and return
+            an instance of [tanjun.context.MenuContext][].
 
-            This defaults to `tanjun.context.MenuContext`.
+            This defaults to [tanjun.context.MenuContext][].
 
         Returns
         -------
@@ -1527,22 +1518,22 @@ class Client(tanjun_abc.Client):
     def set_message_ctx_maker(self: _ClientT, maker: _MessageContextMakerProto = context.MessageContext, /) -> _ClientT:
         """Set the message context maker to use when creating context for a message.
 
-        .. warning::
-            The caller must return an instance of `tanjun.context.MessageContext`
+        !!! warning
+            The caller must return an instance of [tanjun.context.MessageContext][]
             rather than just any implementation of the MessageContext abc due to
             this client relying on implementation detail of
-            `tanjun.context.MessageContext`.
+            [tanjun.context.MessageContext][].
 
         Parameters
         ----------
-        maker : _MessageContextMakerProto
+        maker
             The message context maker to use.
 
             This is a callback which should match the signature of
-            `tanjun.context.MessageContext.__init__` and return an instance
-            of `tanjun.context.MessageContext`.
+            [tanjun.context.MessageContext.__init__][] and return an instance
+            of [tanjun.context.MessageContext][].
 
-            This defaults to `tanjun.context.MessageContext`.
+            This defaults to [tanjun.context.MessageContext][].
 
         Returns
         -------
@@ -1560,22 +1551,22 @@ class Client(tanjun_abc.Client):
     def set_slash_ctx_maker(self: _ClientT, maker: _SlashContextMakerProto = context.SlashContext, /) -> _ClientT:
         """Set the slash context maker to use when creating context for a slash command.
 
-        .. warning::
-            The caller must return an instance of `tanjun.context.SlashContext`
+        !!! warning
+            The caller must return an instance of [tanjun.context.SlashContext][]
             rather than just any implementation of the SlashContext abc due to
             this client relying on implementation detail of
-            `tanjun.context.SlashContext`.
+            [tanjun.context.SlashContext][].
 
         Parameters
         ----------
-        maker : _SlashContextMakerProto
+        maker
             The slash context maker to use.
 
             This is a callback which should match the signature of
-            `tanjun.context.SlashContext.__init__` and return an instance
-            of `tanjun.context.SlashContext`.
+            [tanjun.context.SlashContext.__init__][] and return an instance
+            of [tanjun.context.SlashContext][].
 
-            This defaults to `tanjun.context.SlashContext`.
+            This defaults to [tanjun.context.SlashContext][].
 
         Returns
         -------
@@ -1588,16 +1579,16 @@ class Client(tanjun_abc.Client):
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         """Set whether or not message commands execution should be limited to "human" users.
 
-        .. note::
+        !!! note
             This doesn't apply to interaction commands as these can only be
             triggered by a "human" (normal user account).
 
         Parameters
         ----------
-        value : bool
+        value
             Whether or not message commands execution should be limited to "human" users.
 
-            Passing `True` here will prevent message commands from being executed
+            Passing [True][] here will prevent message commands from being executed
             based on webhook and bot messages.
         """
         if value:
@@ -1618,9 +1609,9 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        check : tanjun.abc.CheckSig
+        check
             The check to add. This may be either synchronous or asynchronous
-            and must take one positional argument of type `tanjun.abc.Context`
+            and must take one positional argument of type [tanjun.abc.Context][]
             with dependency injection being supported for its keyword arguments.
 
         Returns
@@ -1638,7 +1629,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        check : tanjun.abc.CheckSig
+        check
             The check to remove.
 
         Raises
@@ -1656,7 +1647,7 @@ class Client(tanjun_abc.Client):
         ----------
         check : tanjun.abc.CheckSig
             The check to add. This may be either synchronous or asynchronous
-            and must take one positional argument of type `tanjun.abc.Context`
+            and must take one positional argument of type [tanjun.abc.Context][]
             with dependency injection being supported for its keyword arguments.
 
         Returns
@@ -1675,7 +1666,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        component: Component
+        component
             The component to move to this client.
 
         Returns
@@ -1842,7 +1833,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        prefixes : collections.abc.Iterable[str] | str
+        prefixes
             Either a single string or an iterable of strings to be used as
             prefixes.
 
@@ -1865,7 +1856,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        prefix : str
+        prefix
             The prefix to remove.
 
         Raises
@@ -1886,13 +1877,13 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        getter : PrefixGetterSig | None
+        getter
             The callback which'll be used to retrieve prefixes for the guild a
-            message context is from. If `None` is passed here then the callback
+            message context is from. If [None][] is passed here then the callback
             will be unset.
 
             This should be an async callback which one argument of type
-            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.
+            [tanjun.abc.MessageContext][] and returns an iterable of string prefixes.
             Dependency injection is supported for this callback's keyword arguments.
 
         Returns
@@ -1923,7 +1914,7 @@ class Client(tanjun_abc.Client):
             message event is from.
 
             This should be an async callback which one argument of type
-            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.
+            [tanjun.abc.MessageContext][] and returns an iterable of string prefixes.
             Dependency injection is supported for this callback's keyword arguments.
 
         Returns
@@ -1947,9 +1938,7 @@ class Client(tanjun_abc.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
-            typing.Literal[hikari.CommandType.MESSAGE]
-        ] = None,
+        type: typing.Literal[hikari.CommandType.MESSAGE, None] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
@@ -1958,7 +1947,7 @@ class Client(tanjun_abc.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[typing.Literal[hikari.CommandType.USER]] = None,  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Literal[hikari.CommandType.USER, None] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
@@ -1967,8 +1956,8 @@ class Client(tanjun_abc.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
-            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        type: typing.Literal[  # noqa: A002 - Shadowing a builtin name.
+            hikari.CommandType.MESSAGE, hikari.CommandType.USER, None
         ] = None,
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
         ...
@@ -1977,8 +1966,8 @@ class Client(tanjun_abc.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[  # noqa: A002 - Shadowing a builtin name.
-            typing.Literal[hikari.CommandType.MESSAGE, hikari.CommandType.USER]
+        type: typing.Literal[  # noqa: A002 - Shadowing a builtin name.
+            hikari.CommandType.MESSAGE, hikari.CommandType.USER, None
         ] = None,
     ) -> collections.Iterator[tanjun_abc.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -2087,8 +2076,8 @@ class Client(tanjun_abc.Client):
     async def open(self, *, register_listeners: bool = True) -> None:
         """Start the client.
 
-        If `mention_prefix` was passed to `Client.__init__` or
-        `Client.from_gateway_bot` then this function may make a fetch request
+        If `mention_prefix` was passed to [Client.__init__][] or
+        [Client.from_gateway_bot][] then this function may make a fetch request
         to Discord if it cannot get the current user from the cache.
 
         Raises
@@ -2172,10 +2161,10 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun.abc.AnyHooks | None
+        hooks
             The general command execution hooks to set for this client.
 
-            Passing `None` will remove all hooks.
+            Passing [None][] will remove all hooks.
 
         Returns
         -------
@@ -2193,11 +2182,11 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun.abc.MenuHooks | None
+        hooks
             The menu context specific command execution hooks to set for this
             client.
 
-            Passing `None` will remove the hooks.
+            Passing [None][] will remove the hooks.
 
         Returns
         -------
@@ -2215,11 +2204,11 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun.abc.SlashHooks | None
+        hooks
             The slash context specific command execution hooks to set for this
             client.
 
-            Passing `None` will remove the hooks.
+            Passing [None][] will remove the hooks.
 
         Returns
         -------
@@ -2237,11 +2226,11 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        hooks : tanjun.abc.MessageHooks | None
+        hooks
             The message context specific command execution hooks to set for this
             client.
 
-            Passing `None` will remove all hooks.
+            Passing [None][] will remove all hooks.
 
         Returns
         -------
@@ -2493,7 +2482,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        hikari.events.message_events.MessageCreateEvent
+        event
             The event to handle.
         """
         if event.message.content is None:
@@ -2570,7 +2559,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        interaction : hikari.CommandInteraction
+        interaction
             The interaction to execute a command based on.
         """
         ctx = self._make_autocomplete_context(self, interaction)
@@ -2584,7 +2573,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        interaction : hikari.CommandInteraction
+        interaction
             The interaction to execute a command based on.
         """
         if interaction.command_type is hikari.CommandType.SLASH:
@@ -2642,12 +2631,12 @@ class Client(tanjun_abc.Client):
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
 
-        .. note::
+        !!! note
             This will execute application commands and autocomplete interactions.
 
         Parameters
         ----------
-        event : hikari.events.interaction_events.InteractionCreateEvent
+        event
             The event to execute commands based on.
         """
         if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
@@ -2665,7 +2654,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        interaction : hikari.AutocompleteInteraction
+        interaction
             The interaction to execute autocomplete based on.
 
         Returns
@@ -2691,7 +2680,7 @@ class Client(tanjun_abc.Client):
 
         Parameters
         ----------
-        interaction : hikari.CommandInteraction
+        interaction
             The interaction to execute a command based on.
 
         Returns

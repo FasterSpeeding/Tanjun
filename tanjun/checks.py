@@ -102,7 +102,7 @@ class _Check:
 
 
 class OwnerCheck(_Check):
-    """Standard owner check callback registered by `with_owner_check`.
+    """Standard owner check callback registered by [with_owner_check][].
 
     This check will only pass if the author of the command is a bot owner.
     """
@@ -117,21 +117,21 @@ class OwnerCheck(_Check):
     ) -> None:
         """Initialise a owner check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
-        Other Parameters
-        ----------------
-        error_message : str | None
+        Parameters
+        ----------
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Only bot owners can use this command" and setting this to `None`
+            Defaults to "Only bot owners can use this command" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -176,7 +176,7 @@ async def _get_is_nsfw(
 
 
 class NsfwCheck(_Check):
-    """Standard NSFW check callback registered by `with_nsfw_check`.
+    """Standard NSFW check callback registered by [with_nsfw_check][].
 
     This check will only pass if the current channel is NSFW.
     """
@@ -188,24 +188,24 @@ class NsfwCheck(_Check):
         *,
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
-    ) -> None:
+    ) -> None:  # TODO: can we remove the "defaults to" parts from the descriptions?
         """Initialise a NSFW check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
-        Other Parameters
-        ----------------
-        error_message : str | None
+        Parameters
+        ----------
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in NSFW channels" and setting this to `None`
+            Defaults to "Command can only be used in NSFW channels" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -219,7 +219,7 @@ class NsfwCheck(_Check):
 
 
 class SfwCheck(_Check):
-    """Standard SFW check callback registered by `with_sfw_check`.
+    """Standard SFW check callback registered by [with_sfw_check][].
 
     This check will only pass if the current channel is SFW.
     """
@@ -234,21 +234,21 @@ class SfwCheck(_Check):
     ) -> None:
         """Initialise a SFW check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
-        Other Parameters
-        ----------------
-        error_message : str | None
+        Parameters
+        ----------
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in SFW channels" and setting this to `None`
+            Defaults to "Command can only be used in SFW channels" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -262,7 +262,7 @@ class SfwCheck(_Check):
 
 
 class DmCheck(_Check):
-    """Standard DM check callback registered by `with_dm_check`.
+    """Standard DM check callback registered by [with_dm_check][].
 
     This check will only pass if the current channel is a DM channel.
     """
@@ -277,21 +277,21 @@ class DmCheck(_Check):
     ) -> None:
         """Initialise a DM check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
-        Other Parameters
-        ----------------
-        error_message : str | None
+        Parameters
+        ----------
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in DMs" and setting this to `None`
+            Defaults to "Command can only be used in DMs" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False.][]
         """
         super().__init__(error_message, halt_execution)
 
@@ -300,7 +300,7 @@ class DmCheck(_Check):
 
 
 class GuildCheck(_Check):
-    """Standard guild check callback registered by `with_guild_check`.
+    """Standard guild check callback registered by [with_guild_check][].
 
     This check will only pass if the current channel is in a guild.
     """
@@ -315,21 +315,21 @@ class GuildCheck(_Check):
     ) -> None:
         """Initialise a guild check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
-        Other Parameters
-        ----------------
-        error_message : str | None
+        Parameters
+        ----------
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in guild channels" and setting this to `None`
+            Defaults to "Command can only be used in guild channels" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -338,7 +338,7 @@ class GuildCheck(_Check):
 
 
 class AuthorPermissionCheck(_Check):
-    """Standard author permission check callback registered by `with_author_permission_check`.
+    """Standard author permission check callback registered by [with_author_permission_check][].
 
     This check will only pass if the current author has the specified permission.
     """
@@ -355,26 +355,23 @@ class AuthorPermissionCheck(_Check):
     ) -> None:
         """Initialise an author permission check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
         Parameters
         ----------
-        permissions: hikari.Permissions | int
+        permissions
             The permission(s) required for this command to run.
-
-        Other Parameters
-        ----------------
-        error_message : str | None
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "You don't have the permissions required to use this command" and setting this to `None`
+            Defaults to "You don't have the permissions required to use this command" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False][].
         """
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
@@ -402,7 +399,7 @@ class AuthorPermissionCheck(_Check):
 
 
 class OwnPermissionCheck(_Check):
-    """Standard own permission check callback registered by `with_own_permission_check`.
+    """Standard own permission check callback registered by [with_own_permission_check][].
 
     This check will only pass if the current bot user has the specified permission.
     """
@@ -419,26 +416,23 @@ class OwnPermissionCheck(_Check):
     ) -> None:
         """Initialise a own permission check.
 
-        .. note::
+        !!! note
             error_message takes priority over halt_execution.
 
         Parameters
         ----------
-        permissions: hikari.Permissions | int
+        permissions
             The permission(s) required for this command to run.
-
-        Other Parameters
-        ----------------
-        error_message : str | None
+        error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Bot doesn't have the permissions required to run this command" and setting this to `None`
+            Defaults to "Bot doesn't have the permissions required to run this command" and setting this to [None][]
             will disable the error message allowing the command search to continue.
-        halt_execution : bool
-            Whether this check should raise `tanjun.errors.HaltExecution` to
-            end the execution search when it fails instead of returning `False`.
+        halt_execution
+            Whether this check should raise [tanjun.HaltExecution][] to
+            end the execution search when it fails instead of returning [False][].
 
-            Defaults to `False`.
+            Defaults to [False][].
         """
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
@@ -491,26 +485,23 @@ def with_dm_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a DM channel.
 
-    .. note::
+    !!! note
         `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in DMs" and setting this to `None`
+        Defaults to "Command can only be used in DMs" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------
@@ -541,26 +532,23 @@ def with_guild_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a guild channel.
 
-    .. note::
+    !!! note
         `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in guild channels" and setting this to `None`
+        Defaults to "Command can only be used in guild channels" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------
@@ -591,26 +579,23 @@ def with_nsfw_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a channel that's marked as nsfw.
 
-    .. note::
+    !!! note
         `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in NSFW channels" and setting this to `None`
+        Defaults to "Command can only be used in NSFW channels" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------
@@ -643,26 +628,23 @@ def with_sfw_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a channel that's marked as sfw.
 
-    .. note::
+    !!! note
         `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in SFW channels" and setting this to `None`
+        Defaults to "Command can only be used in SFW channels" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------
@@ -695,26 +677,23 @@ def with_owner_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
-    .. note::
+    !!! note
         `error_message` takes priority over `halt_execution`.
 
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Only bot owners can use this command" and setting this to `None`
+        Defaults to "Only bot owners can use this command" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------
@@ -734,21 +713,18 @@ def with_author_permission_check(
 
     Parameters
     ----------
-    permissions: hikari.Permissions | int
+    permissions
         The permission(s) required for this command to run.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "You don't have the permissions required to use this command" and setting this to `None`
+        Defaults to "You don't have the permissions required to use this command" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Notes
     -----
@@ -776,21 +752,18 @@ def with_own_permission_check(
 
     Parameters
     ----------
-    permissions: hikari.Permissions | int
+    permissions
         The permission(s) required for this command to run.
-
-    Other Parameters
-    ----------------
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Bot doesn't have the permissions required to run this command" and setting this to `None`
+        Defaults to "Bot doesn't have the permissions required to run this command" and setting this to [None][]
         will disable the error message allowing the command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Notes
     -----
@@ -813,7 +786,7 @@ def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[_CommandT
 
     Parameters
     ----------
-    check : tanjun.abc.CheckSig
+    check
         The check to add to this command.
 
     Returns
@@ -850,9 +823,9 @@ def all_checks(
 
     Parameters
     ----------
-    check : typing_abc.CheckSig
+    check
         The first check callback to combine.
-    *checks : typing_abc.CheckSig
+    *checks
         Additional check callbacks to combine.
 
     Returns
@@ -875,9 +848,9 @@ def with_all_checks(
 
     Parameters
     ----------
-    check : typing_abc.CheckSig
+    check
         The first check callback to combine.
-    *checks : typing_abc.CheckSig
+    *checks
         Additional check callbacks to combine.
 
     Returns
@@ -889,7 +862,7 @@ def with_all_checks(
 
 
 class _AnyChecks(_Check):
-    __slots__ = ("_checks", "_suppress", "_error_message", "_halt_execution")
+    __slots__ = ("_checks", "_suppress")
 
     def __init__(
         self,
@@ -898,10 +871,9 @@ class _AnyChecks(_Check):
         error_message: typing.Optional[str],
         halt_execution: bool,
     ) -> None:
+        super().__init__(error_message, halt_execution)
         self._checks = checks
         self._suppress = suppress
-        self._error_message = error_message
-        self._halt_execution = halt_execution
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         for check in self._checks:
@@ -938,26 +910,23 @@ def any_checks(
 
     Parameters
     ----------
-    check : typing_abc.CheckSig
+    check
         The first check callback to combine.
-    *checks : typing_abc.CheckSig
+    *checks
         Additional check callbacks to combine.
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
         This takes priority over `halt_execution`.
-
-    Other Parameters
-    ----------------
-    suppress : tuple[type[Exception], ...]
+    suppress
         Tuple of the exceptions to suppress when a check fails.
 
-        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+        Defaults to ([tanjun.CommandError][], [tanjun.HaltExecution][]).
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------
@@ -982,26 +951,23 @@ def with_any_checks(
 
     Parameters
     ----------
-    check : typing_abc.CheckSig
+    check
         The first check callback to combine.
-    *checks : typing_abc.CheckSig
+    *checks
         Additional check callbacks to combine.
-    error_message : str | None
+    error_message
         The error message to send in response as a command error if the check fails.
 
-        This takes priority over `halt_execution`.
-
-    Other Parameters
-    ----------------
-    suppress : tuple[type[Exception], ...]
+        This takes priority over [halt_execution][].
+    suppress
         Tuple of the exceptions to suppress when a check fails.
 
-        Defaults to (`tanjun.errors.CommandError`, `tanjun.errors.HaltExecution`).
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
+        Defaults to ([tanjun.CommandError][], [tanjun.HaltExecution][]).
+    halt_execution
+        Whether this check should raise [tanjun.HaltExecution][] to
+        end the execution search when it fails instead of returning [False][].
 
-        Defaults to `False`.
+        Defaults to [False][].
 
     Returns
     -------

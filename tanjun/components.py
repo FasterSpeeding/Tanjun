@@ -76,12 +76,12 @@ OnCallbackSig = typing.Union[
 """Type hint of a on_open or on_close component callback.
 
 These support dependency injection, should expect no positional arguments and
-should return `None`.
+should return [None][].
 """
 
 
 class AbstractComponentLoader(abc.ABC):
-    """Abstract interface used for loading utility into a standard `Component`."""
+    """Abstract interface used for loading utility into a standard [Component][]."""
 
     __slots__ = ()
 
@@ -91,7 +91,7 @@ class AbstractComponentLoader(abc.ABC):
 
         Parameters
         ----------
-        component : tanjun.abc.Component
+        component
             The component this object should be loaded into.
         """
 
@@ -146,12 +146,12 @@ class _ComponentManager(tanjun_abc.ClientLoader):
 
 # TODO: do we want to setup a custom equality and hash here to make it easier to unload components?
 class Component(tanjun_abc.Component):
-    """Standard implementation of `tanjun.abc.Component`.
+    """Standard implementation of [tanjun.abc.Component][].
 
     This is a collcetion of commands (both message and slash), hooks and listener
     callbacks which can be added to a generic client.
 
-    .. note::
+    !!! note
         This implementation supports dependency injection for its checks,
         command callbacks and listeners when linked to a client which
         supports dependency injection.
@@ -183,17 +183,17 @@ class Component(tanjun_abc.Component):
     def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
         """Initialise a new component.
 
-        Other Parameters
-        ----------------
-        name : str
+        Parameters
+        ----------
+        name
             The component's identifier.
 
             If not provided then this will be a random string.
-        strict : bool
+        strict
             Whether this component should use a stricter (more optimal) approach
             for message command search.
 
-            When this is `True`, message command names will not be allowed to contain
+            When this is [True][], message command names will not be allowed to contain
             spaces and will have to be unique to one command within the component.
         """
         self._checks: list[tanjun_abc.CheckSig] = []
@@ -335,26 +335,26 @@ class Component(tanjun_abc.Component):
 
         Notes
         -----
-        * This will load schedules which support `AbstractComponentLoader`
-          (e.g. `tanjun.schedules.IntervalSchedule`).
+        * This will load schedules which support [AbstractComponentLoader][]
+          (e.g. [tanjun.schedules.IntervalSchedule][]).
         * This will ignore commands which are owned by command groups.
         * This will detect entries from the calling scope which implement
-          `AbstractComponentLoader` unless `scope` is passed but this isn't possible
+          [AbstractComponentLoader][] unless `scope` is passed but this isn't possible
           in a stack-less python implementation; in stack-less environments the
           scope will have to be explicitly passed as `scope`.
 
-        Other Parameters
-        ----------------
-        include_globals: bool
+        Parameters
+        ----------
+        include_globals
             Whether to include global variables (along with local) while
             detecting from the calling scope.
 
-            This defaults to `False`, cannot be `True` when `scope` is provided
-            and will only ever be needed when the local scope is different
-            from the global scope.
-        scope : collections.Mapping[str, typing.Any] | None
-            The scope to detect entries which implement `AbstractComponentLoader`
-            from.
+            This defaults to [False][], cannot be [True][] when `scope` is
+            provided and will only ever be needed when the local scope is
+            different from the global scope.
+        scope
+            The scope to detect entries which implement
+            [AbstractComponentLoader][] from.
 
             This overrides the default usage of stackframe introspection.
 
@@ -403,12 +403,12 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        bool | None
+        state
             Whether slash command contexts executed in this component should
             should default to ephemeral.
             This will be overridden by any response calls which specify flags.
 
-            Setting this to `None` will let the default set on the parent
+            Setting this to [None][] will let the default set on the parent
             client propagate and decide the ephemeral default behaviour.
 
         Returns
@@ -429,7 +429,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        hooks : tanjun.abc.AnyHooks | None
+        hooks
             The command hooks to set.
 
         Returns
@@ -440,12 +440,12 @@ class Component(tanjun_abc.Component):
         self._hooks = hooks
         return self
 
-    def set_menu_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MenuHooks], /) -> _ComponentT:
+    def set_menu_hooks(self: _ComponentT, hooks: typing.Optional[tanjun_abc.MenuHooks], /) -> _ComponentT:
         """Set hooks to be called during the execution of this component's menu commands.
 
         Parameters
         ----------
-        hooks : tanjun.abc.MenuHooks | None
+        hooks
             The menu command hooks to set.
 
         Returns
@@ -453,15 +453,15 @@ class Component(tanjun_abc.Component):
         Self
             This component to enable method chaining.
         """
-        self._menu_hooks = hooks_
+        self._menu_hooks = hooks
         return self
 
-    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.MessageHooks], /) -> _ComponentT:
+    def set_message_hooks(self: _ComponentT, hooks: typing.Optional[tanjun_abc.MessageHooks], /) -> _ComponentT:
         """Set hooks to be called during the execution of this component's message commands.
 
         Parameters
         ----------
-        hooks : tanjun.abc.MessageHooks | None
+        hooks
             The message command hooks to set.
 
         Returns
@@ -469,15 +469,15 @@ class Component(tanjun_abc.Component):
         Self
             This component to enable method chaining.
         """
-        self._message_hooks = hooks_
+        self._message_hooks = hooks
         return self
 
-    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
+    def set_slash_hooks(self: _ComponentT, hooks: typing.Optional[tanjun_abc.SlashHooks], /) -> _ComponentT:
         """Set hooks to be called during the execution of this component's slash commands.
 
         Parameters
         ----------
-        hooks : tanjun.abc.SlashHooks | None
+        hooks
             The slash command hooks to set.
 
         Returns
@@ -485,7 +485,7 @@ class Component(tanjun_abc.Component):
         Self
             This component to enable method chaining.
         """
-        self._slash_hooks = hooks_
+        self._slash_hooks = hooks
         return self
 
     def add_check(self: _ComponentT, check: tanjun_abc.CheckSig, /) -> _ComponentT:
@@ -493,7 +493,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        tanjun.abc.CheckSig
+        check
             The check to add.
 
         Returns
@@ -511,7 +511,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        check : tanjun.abc.CheckSig
+        check
             The check to remove.
 
         Returns
@@ -553,11 +553,11 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback : MetaEventSigT
+        callback
             The callback to register.
 
             This may be sync or async and must return None. The positional and
@@ -590,7 +590,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name to get the callbacks registered for.
 
             This is case-insensitive.
@@ -608,11 +608,11 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback : MetaEventSigT
+        callback
             The callback to remove from the client's callbacks.
 
         Raises
@@ -652,14 +652,14 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        name : str | ClientCallbackNames
+        name
             The name this callback is being registered to.
 
             This is case-insensitive.
 
         Returns
         -------
-        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]
+        collections.abc.Callable[[tanjun.abc.MetaEventSig], tanjun.abc.MetaEventSig]
             Decorator callback used to register the client callback.
 
             This may be sync or async and must return None. The positional and
@@ -678,7 +678,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand
+        command
             The command to add.
 
         Returns
@@ -708,7 +708,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand
+        command
             The command to remove.
 
         Returns
@@ -744,8 +744,8 @@ class Component(tanjun_abc.Component):
 
         Examples
         --------
-        This may be used inconjunction with `tanjun.as_slash_command`
-        and `tanjun.as_message_command`.
+        This may be used inconjunction with [tanjun.as_slash_command][]
+        and [tanjun.as_message_command][].
 
         ```py
         @component.with_command
@@ -767,10 +767,7 @@ class Component(tanjun_abc.Component):
         ----------
         command: tanjun.abc.ExecutableCommand
             The command to add to this component.
-
-        Other Parameters
-        ----------------
-        copy : bool
+        copy
             Whether to copy the command before adding it to this component.
 
         Returns
@@ -863,7 +860,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        command : tanjun.abc.MessageCommand
+        command
             The command to add.
 
         Returns
@@ -960,7 +957,7 @@ class Component(tanjun_abc.Component):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: type[hikari.Event]
+        self, event_type: type[hikari.Event], /
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         def decorator(callback: _ListenerCallbackSigT) -> _ListenerCallbackSigT:
@@ -972,17 +969,17 @@ class Component(tanjun_abc.Component):
     def add_on_close(self: _ComponentT, callback: OnCallbackSig, /) -> _ComponentT:
         """Add a close callback to this component.
 
-        .. note::
+        !!! note
             Unlike the closing and closed client callbacks, this is only
             called for the current component's lifetime and is guaranteed to be
             called regardless of when the component was added to a client.
 
         Parameters
         ----------
-        callback : OnCallbackSig
+        callback
             The close callback to add to this component.
 
-            This should take no positional arguments, return `None` and may
+            This should take no positional arguments, return [None][] and may
             take use injected dependencies.
 
         Returns
@@ -996,7 +993,7 @@ class Component(tanjun_abc.Component):
     def with_on_close(self, callback: _OnCallbackSigT, /) -> _OnCallbackSigT:
         """Add a close callback to this component through a decorator call.
 
-        .. note::
+        !!! note
             Unlike the closing and closed client callbacks, this is only
             called for the current component's lifetime and is guaranteed to be
             called regardless of when the component was added to a client.
@@ -1006,7 +1003,7 @@ class Component(tanjun_abc.Component):
         callback : OnCallbackSig
             The close callback to add to this component.
 
-            This should take no positional arguments, return `None` and may
+            This should take no positional arguments, return [None][] and may
             take use injected dependencies.
 
         Returns
@@ -1020,17 +1017,17 @@ class Component(tanjun_abc.Component):
     def add_on_open(self: _ComponentT, callback: OnCallbackSig, /) -> _ComponentT:
         """Add a open callback to this component.
 
-        .. note::
+        !!! note
             Unlike the starting and started client callbacks, this is only
             called for the current component's lifetime and is guaranteed to be
             called regardless of when the component was added to a client.
 
         Parameters
         ----------
-        callback : OnCallbackSig
+        callback
             The open callback to add to this component.
 
-            This should take no positional arguments, return `None` and may
+            This should take no positional arguments, return [None][] and may
             take use injected dependencies.
 
         Returns
@@ -1044,7 +1041,7 @@ class Component(tanjun_abc.Component):
     def with_on_open(self, callback: _OnCallbackSigT, /) -> _OnCallbackSigT:
         """Add a open callback to this component through a decorator call.
 
-        .. note::
+        !!! note
             Unlike the starting and started client callbacks, this is only
             called for the current component's lifetime and is guaranteed to be
             called regardless of when the component was added to a client.
@@ -1054,7 +1051,7 @@ class Component(tanjun_abc.Component):
         callback : OnCallbackSig
             The open callback to add to this component.
 
-            This should take no positional arguments, return `None` and may
+            This should take no positional arguments, return [None][] and may
             take use injected dependencies.
 
         Returns
@@ -1284,7 +1281,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        schedule : tanjun.schedules.AbstractSchedule
+        schedule
             The schedule to add.
 
         Returns
@@ -1303,7 +1300,7 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        schedule : tanjun.schedules.AbstractSchedule
+        schedule
             The schedule to remove
 
         Returns
@@ -1327,7 +1324,7 @@ class Component(tanjun_abc.Component):
 
         Example
         -------
-        This may be used in conjunction with `tanjun.as_interval`.
+        This may be used in conjunction with [tanjun.as_interval][].
 
         ```py
         @component.with_schedule
@@ -1383,15 +1380,15 @@ class Component(tanjun_abc.Component):
         """Make a loader/unloader for this component.
 
         This enables loading, unloading and reloading of this component into a
-        client by targeting the module using `tanjun.Client.load_modules`,
-        `tanjun.Client.unload_modules` and `tanjun.Client.reload_modules`.
+        client by targeting the module using [tanjun.Client.load_modules][],
+        [tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].
 
-        Other Parameters
-        ----------------
-        copy: bool
+        Parameters
+        ----------
+        copy
             Whether to copy the component before loading it into a client.
 
-            Defaults to `True`.
+            Defaults to [True][].
 
         Returns
         -------
