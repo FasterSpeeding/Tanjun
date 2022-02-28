@@ -6,7 +6,7 @@
 #
 astor==0.8.1
     # via flake8-if-statements
-bandit==1.7.2
+bandit==1.7.3
     # via flake8-bandit
 black==22.1.0
     # via flake8-black
@@ -85,7 +85,7 @@ gitdb==4.0.9
     # via gitpython
 gitpython==3.1.27
     # via bandit
-importlib-metadata==4.11.1
+importlib-metadata==4.11.2
     # via flake8-html
 isort==5.10.1
     # via flake8-isort

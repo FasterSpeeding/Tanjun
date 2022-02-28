@@ -55,7 +55,7 @@ plugins:
           import:
             - https://docs.python.org/3.9/objects.inv
             - https://hikari-py.github.io/hikari/objects.inv
-            # - https://alluka.cursed.solutions/objects.inv
+            - https://alluka.cursed.solutions/objects.inv
             # - https://sake.cursed.solutions/objects.inv
       watch:
         - tanjun

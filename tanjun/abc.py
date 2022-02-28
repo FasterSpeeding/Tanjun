@@ -80,7 +80,8 @@ from alluka import abc as alluka
 # TODO: remove "defaults to sections from docdescriptions?"
 # TODO: REPLACE NOTES SECTIONS
 # TODO: update .. deprecated:: notes
-
+# TODO: deal with return unions
+# TODO: deal with types sections being too w i d e
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
