@@ -115,7 +115,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     this class introduces some niceties around stuff like state warnings.
     """
 
-    __slots__ = ()
+    __slots__ = ("__weakref__",)
     __pdoc__: typing.ClassVar[dict[str, bool]] = {
         "async_cache": False,
         "cache_components": False,
