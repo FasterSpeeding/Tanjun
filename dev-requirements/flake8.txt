@@ -6,7 +6,7 @@
 #
 astor==0.8.1
     # via flake8-if-statements
-bandit==1.7.3
+bandit==1.7.2
     # via flake8-bandit
 black==22.1.0
     # via flake8-black
