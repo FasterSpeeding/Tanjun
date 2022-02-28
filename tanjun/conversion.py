@@ -116,13 +116,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     """
 
     __slots__ = ("__weakref__",)
-    __pdoc__: typing.ClassVar[dict[str, bool]] = {
-        "async_cache": False,
-        "cache_components": False,
-        "intents": False,
-        "requires_cache": False,
-        "__pdoc__": False,
-    }
 
     @property
     @abc.abstractmethod
