@@ -34,7 +34,6 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 import asyncio
-import contextlib
 import datetime
 import time
 import typing
@@ -1226,11 +1225,10 @@ def test_with_cooldown():
 def test_with_cooldown_when_no_set_hooks():
     mock_command = mock.Mock(hooks=None)
 
-    stack = contextlib.ExitStack()
-    mock_pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution"))
-    any_hooks = stack.enter_context(mock.patch.object(tanjun.hooks, "AnyHooks"))
-
-    with stack:
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution,
+        mock.patch.object(tanjun.hooks, "AnyHooks") as any_hooks,
+    ):
         tanjun.with_cooldown("catgirl x catgirl", error_message="pussy cat pussy cat", owners_exempt=False)(
             mock_command
         )
@@ -1678,11 +1676,12 @@ def test_with_concurrency_limit():
     mock_command = mock.Mock()
     mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
     mock_command.hooks.add_post_execution.return_value = mock_command.hooks
-    stack = contextlib.ExitStack()
-    pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution"))
-    post_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution"))
 
-    result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
+    ):
+        result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
 
     assert result is mock_command
     mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
@@ -1693,14 +1692,15 @@ def test_with_concurrency_limit():
 
 def test_with_concurrency_limit_makes_new_hooks():
     mock_command = mock.Mock(hooks=None)
-    stack = contextlib.ExitStack()
-    any_hooks = stack.enter_context(mock.patch.object(tanjun.hooks, "AnyHooks"))
-    pre_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution"))
-    post_execution = stack.enter_context(mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution"))
-    any_hooks.return_value.add_pre_execution.return_value = any_hooks.return_value
-    any_hooks.return_value.add_post_execution.return_value = any_hooks.return_value
+    with (
+        mock.patch.object(tanjun.hooks, "AnyHooks") as any_hooks,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
+    ):
+        any_hooks.return_value.add_pre_execution.return_value = any_hooks.return_value
+        any_hooks.return_value.add_post_execution.return_value = any_hooks.return_value
 
-    result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
+        result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
 
     assert result is mock_command
     any_hooks.assert_called_once_with()

@@ -33,7 +33,6 @@
 # pyright: reportUnknownMemberType=none
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
-import contextlib
 from unittest import mock
 
 import hikari
@@ -44,11 +43,11 @@ import tanjun
 def test_set_standard_dependencies():
     mock_client = mock.Mock(tanjun.Client)
     mock_client.set_type_dependency.return_value = mock_client
-    stack = contextlib.ExitStack()
-    owner_check = stack.enter_context(mock.patch.object(tanjun.dependencies, "Owners"))
-    lazy_constant = stack.enter_context(mock.patch.object(tanjun.dependencies, "LazyConstant"))
 
-    with stack:
+    with (
+        mock.patch.object(tanjun.dependencies, "Owners") as owner_check,
+        mock.patch.object(tanjun.dependencies, "LazyConstant") as lazy_constant,
+    ):
         tanjun.dependencies.set_standard_dependencies(mock_client)
 
     owner_check.assert_called_once_with()

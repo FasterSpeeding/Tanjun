@@ -34,7 +34,6 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 import asyncio
-import contextlib
 import datetime
 import time
 import typing
@@ -111,12 +110,12 @@ async def test_make_lc_resolver():
 
 
 def test_inject_lc():
-    stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(alluka, "inject"))
-    make_lc_resolver = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "make_lc_resolver"))
     mock_type: typing.Any = mock.Mock()
 
-    with stack:
+    with (
+        mock.patch.object(alluka, "inject") as inject,
+        mock.patch.object(tanjun.dependencies.data, "make_lc_resolver") as make_lc_resolver,
+    ):
         result = tanjun.inject_lc(mock_type)
 
     assert result is inject.return_value
@@ -212,12 +211,12 @@ async def test_cache_callback_when_not_expired(expire_after: typing.Union[float,
 
 
 def test_cached_inject():
-    stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(alluka, "inject"))
-    cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "cache_callback"))
     mock_callback = mock.Mock()
 
-    with stack:
+    with (
+        mock.patch.object(alluka, "inject") as inject,
+        mock.patch.object(tanjun.dependencies.data, "cache_callback") as cache_callback,
+    ):
         result = tanjun.cached_inject(mock_callback, expire_after=datetime.timedelta(seconds=15))
 
     assert result is inject.return_value
@@ -226,12 +225,12 @@ def test_cached_inject():
 
 
 def test_cached_inject_with_defaults():
-    stack = contextlib.ExitStack()
-    inject = stack.enter_context(mock.patch.object(alluka, "inject"))
-    cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies.data, "cache_callback"))
     mock_callback = mock.Mock()
 
-    with stack:
+    with (
+        mock.patch.object(alluka, "inject") as inject,
+        mock.patch.object(tanjun.dependencies.data, "cache_callback") as cache_callback,
+    ):
         result = tanjun.cached_inject(mock_callback)
 
     assert result is inject.return_value

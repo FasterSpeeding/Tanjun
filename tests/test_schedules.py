@@ -35,7 +35,6 @@
 # This leads to too many false-positives around mocks.
 
 import asyncio
-import contextlib
 import datetime
 import types
 import typing
@@ -237,14 +236,11 @@ class TestIntervalSchedule:
         )(mock.Mock(), 123, ignored_exceptions=[LookupError])
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(
-            mock.patch.object(asyncio, "sleep", side_effect=[None, None, None, asyncio.CancelledError])
-        )
-        stack.enter_context(pytest.raises(asyncio.CancelledError))
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with (
+            mock.patch.object(asyncio, "sleep", side_effect=[None, None, None, asyncio.CancelledError]) as sleep,
+            pytest.raises(asyncio.CancelledError),
+            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
+        ):
             await interval._loop(mock_client)
 
         mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
@@ -269,11 +265,10 @@ class TestIntervalSchedule:
         )(mock.Mock(), 123, ignored_exceptions=[LookupError], max_runs=3)
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep"))
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with (
+            mock.patch.object(asyncio, "sleep") as sleep,
+            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
+        ):
             await interval._loop(mock_client)
 
         mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
@@ -305,14 +300,11 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(
-            mock.patch.object(asyncio, "sleep", side_effect=[None, None, asyncio.CancelledError])
-        )
-        stack.enter_context(pytest.raises(asyncio.CancelledError))
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with (
+            mock.patch.object(asyncio, "sleep", side_effect=[None, None, asyncio.CancelledError]) as sleep,
+            pytest.raises(asyncio.CancelledError),
+            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
+        ):
             await interval._loop(mock_client)
 
         mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
@@ -344,15 +336,10 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep"))
-        exc_info = stack.enter_context(pytest.raises(KeyError))
-
-        with stack:
+        with mock.patch.object(asyncio, "sleep") as sleep, pytest.raises(KeyError) as exc_info:
             await interval._loop(mock_client)
 
-            assert exc_info.value is error
-
+        assert exc_info.value is error
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_not_called()
         sleep.assert_not_called()
@@ -377,12 +364,11 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError))
-        stack.enter_context(pytest.raises(asyncio.CancelledError))
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with (
+            mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError) as sleep,
+            pytest.raises(asyncio.CancelledError),
+            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
+        ):
             await interval._loop(mock_client)
 
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
@@ -411,12 +397,11 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError))
-        exc_info = stack.enter_context(pytest.raises(RuntimeError))
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with (
+            mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError) as sleep,
+            pytest.raises(RuntimeError) as exc_info,
+            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
+        ):
             await interval._loop(mock_client)
 
         assert exc_info.value is error
@@ -445,12 +430,11 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        stack = contextlib.ExitStack()
-        sleep = stack.enter_context(mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError))
-        stack.enter_context(pytest.raises(asyncio.CancelledError))
-        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
-
-        with stack:
+        with (
+            mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError) as sleep,
+            pytest.raises(asyncio.CancelledError),
+            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
+        ):
             await interval._loop(mock_client)
 
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
