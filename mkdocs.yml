@@ -34,7 +34,7 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
-  - markdown_include.include:
+  - markdown_include.include
 
 plugins:
   - search
@@ -46,7 +46,7 @@ plugins:
             docstring_style: numpy
             inherited_members: true
           rendering:
-            docstring_section_style: table
+            docstring_section_style: spacy
             merge_init_into_class: false
             show_signature_annotations: false
             show_source: false

@@ -163,10 +163,9 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
 
             This won't be raised if `default` is passed.
 
-            !!! note
-                This is a specialisation of [CacheMissError][] and thus may be
-                caught as [CacheMissError][] and otherwise would need to be
-                before [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of [CacheMissError][] and thus may be
+            caught as [CacheMissError][] and otherwise would need to be before
+            [CacheMissError][] in a try, multiple catch statement.
         """
 
 
@@ -209,24 +208,23 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
 
-            !!! note
-                This is a specialisation of [CacheMissError][] and thus may be
-                caught as [CacheMissError][] and otherwise would need to be
-                before [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of [CacheMissError][] and thus may be
+            caught as [CacheMissError][] and otherwise would need to be before
+            [CacheMissError][] in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
     def iter_all(self) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
+        !!! note
+            For more information on how this is used, see the documentation for
+            [hikari.LazyIterator][].
+
         Returns
         -------
         CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
-
-            !!! note
-                For more information on how this is used, see the documentation for
-                [hikari.LazyIterator][].
         """
 
 
@@ -268,10 +266,9 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
 
-            !!! note
-                This is a specialisation of [CacheMissError][] and thus may be
-                caught as [CacheMissError][] and otherwise would need to be
-                before [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of [CacheMissError][] and thus may be
+            caught as [CacheMissError][] and otherwise would need to be before
+            [CacheMissError][] in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
@@ -293,14 +290,14 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     def iter_all(self) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
+        !!! note
+            For more information on how this is used, see the documentation for
+            [hikari.LazyIterator][].
+
         Returns
         -------
         CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
-
-            !!! note
-                For more information on how this is used, see the documentation for
-                [hikari.LazyIterator][].
         """
 
 
@@ -346,15 +343,18 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
 
-            !!! note
-                This is a specialisation of [CacheMissError][] and thus may be
-                caught as [CacheMissError][] and otherwise would need to be
-                before [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of [CacheMissError][] and thus may be
+            caught as [CacheMissError][] and otherwise would need to be before
+            [CacheMissError][] in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
     def iter_for_guild(self, guild_id: hikari.Snowflakeish, /) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the entries entries cached for a guild.
+
+        !!! note
+            For more information on how this is used, see the documentation for
+            [hikari.LazyIterator][].
 
         Parameters
         ----------
@@ -365,24 +365,20 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         -------
         CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached for the specified guild.
-
-            !!! note
-                For more information on how this is used, see the documentation for
-                [hikari.LazyIterator][].
         """
 
     @abc.abstractmethod
     def iter_all(self) -> CacheIterator[_ValueT]:
         """Asynchronously iterate over the globally cached entries for this resource.
 
+        !!! note
+            For more information on how this is used, see the documentation for
+            [hikari.LazyIterator][].
+
         Returns
         -------
         CacheIterator[_ValueT]
             An asynchronous iterator of the entries cached globally for this resource.
-
-            !!! note
-                For more information on how this is used, see the documentation for
-                [hikari.LazyIterator][].
         """
 
 

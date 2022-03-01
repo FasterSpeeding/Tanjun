@@ -570,14 +570,14 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         This will stop the bucket from ever hitting a cooldown and also
         prevents the bucket from defaulting.
 
+        !!! note
+            "default" is a special `bucket_id` which is used as a template for
+            unknown bucket IDs.
+
         Parameters
         ----------
         bucket_id
             The bucket to disable.
-
-            !!! note
-                "default" is a special bucket which is used as a template
-                for unknown bucket IDs.
 
         Returns
         -------
@@ -601,14 +601,14 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ) -> _InMemoryCooldownManagerT:
         """Set the cooldown for a specific bucket.
 
+        !!! note
+            "default" is a special `bucket_id` which is used as a template for
+            unknown bucket IDs.
+
         Parameters
         ----------
         bucket_id
             The ID of the bucket to set the cooldown for.
-
-            !!! note
-                "default" is a special bucket which is used as a template
-                for unknown bucket IDs.
         resource
             The type of resource to target for the cooldown.
         limit
@@ -903,14 +903,14 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         This will stop the bucket from ever hitting a concurrency limit
         and also prevents the bucket from defaulting.
 
+        !!! note
+            "default" is a special `bucket_id` which is used as a template for
+            unknown bucket IDs.
+
         Parameters
         ----------
         bucket_id
             The bucket to disable.
-
-            !!! note
-                "default" is a special bucket which is used as a template
-                for unknown bucket IDs.
 
         Returns
         -------
@@ -928,14 +928,14 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     ) -> _InMemoryConcurrencyLimiterT:
         """Set the concurrency limit for a specific bucket.
 
+        !!! note
+            "default" is a special `bucket_id` which is used as a template for
+            unknown bucket IDs.
+
         Parameters
         ----------
         bucket_id
             The ID of the bucket to set the concurrency limit for.
-
-            !!! note
-                "default" is a special bucket which is used as a template
-                for unknown bucket IDs.
         resource
             The type of resource to target for the concurrency limit.
         limit

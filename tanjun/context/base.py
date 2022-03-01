@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard base implementation for tanjun's command execution contexts."""
+"""Base command context implementation."""
 from __future__ import annotations
 
 __all__: list[str] = []
@@ -47,7 +47,7 @@ if typing.TYPE_CHECKING:
 
 
 class BaseContext(alluka.BasicContext, tanjun_abc.Context):
-    """Base class for all standard context implementations."""
+    """Base class for the standard command context implementations."""
 
     __slots__ = ("_client", "_component", "_final")
 

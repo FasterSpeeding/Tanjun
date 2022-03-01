@@ -466,6 +466,10 @@ class Context(alluka.Context):
     ) -> hikari.Message:
         """Edit the initial response for this context.
 
+        !!! note
+            Since (as of writing) ephemeral responses cannot be deleted by the bot,
+            `delete_after` is ignored for ephemeral slash command responses.
+
         Parameters
         ----------
         content
@@ -486,13 +490,8 @@ class Context(alluka.Context):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            !!! note
-                Slash command responses can only be deleted within 14 minutes of the
-                command being received.
-
-            !!! note
-                Since (as of writing) ephemeral responses cannot be deleted by the bot,
-                this is ignored for ephemeral slash command responses.
+            Slash command responses can only be deleted within 14 minutes of
+            the command being received.
         attachment
             A singular attachment to edit the initial response with.
         attachments
@@ -619,6 +618,10 @@ class Context(alluka.Context):
     ) -> hikari.Message:
         """Edit the last response for this context.
 
+        !!! note
+            Since (as of writing) ephemeral responses cannot be deleted by the bot,
+            `delete_after` is ignored for ephemeral slash command responses.
+
         Parameters
         ----------
         content
@@ -639,13 +642,8 @@ class Context(alluka.Context):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            !!! note
-                Slash command responses can only be deleted within 14 minutes of the
-                command being received.
-
-            !!! note
-                Since (as of writing) ephemeral responses cannot be deleted by the bot,
-                this is ignored for ephemeral slash command responses.
+            Slash command responses can only be deleted within 14 minutes of
+            the command being received.
         attachment
             A singular attachment to edit the last response with.
         attachments
@@ -835,6 +833,10 @@ class Context(alluka.Context):
     ) -> typing.Optional[hikari.Message]:
         """Respond to this context.
 
+        !!! note
+            Since (as of writing) ephemeral responses cannot be deleted by the bot,
+            `delete_after` is ignored for ephemeral slash command responses.
+
         Parameters
         ----------
         content
@@ -863,13 +865,8 @@ class Context(alluka.Context):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            !!! note
-                Slash command responses can only be deleted within 14 minutes of the
-                command being received.
-
-            !!! note
-                Since (as of writing) ephemeral responses cannot be deleted by the bot,
-                this is ignored for ephemeral slash command responses.
+            Slash command responses can only be deleted within 14 minutes of
+            the command being received.
         component
             If provided, builder object of the component to include in this response.
         components
@@ -1507,6 +1504,10 @@ class AppCommandContext(Context, abc.ABC):
             Calling this on a context which hasn't had an initial response yet
             will lead to a [hikari.NotFoundError][] being raised.
 
+        !!! note
+            Since (as of writing) ephemeral responses cannot be deleted by the bot,
+            `delete_after` is ignored for ephemeral slash command responses.
+
         Parameters
         ----------
         content
@@ -1525,13 +1526,9 @@ class AppCommandContext(Context, abc.ABC):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            !!! note
-                Slash command responses can only be deleted within 14 minutes of the
-                command being received.
+            Slash command responses can only be deleted within 14 minutes of the
+            command being received.
 
-            !!! note
-                Since (as of writing) ephemeral responses cannot be deleted by the bot,
-                this is ignored for ephemeral slash command responses.
         ephemeral
             Whether the deferred response should be ephemeral.
 
@@ -1631,6 +1628,10 @@ class AppCommandContext(Context, abc.ABC):
             This includes if the REST interaction server has already responded
             to the request and deferrals.
 
+        !!! note
+            Since (as of writing) ephemeral responses cannot be deleted by the bot,
+            `delete_after` is ignored for ephemeral slash command responses.
+
         Parameters
         ----------
         content
@@ -1651,13 +1652,8 @@ class AppCommandContext(Context, abc.ABC):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            !!! note
-                Slash command responses can only be deleted within 14 minutes of the
-                command being received.
-
-            !!! note
-                Since (as of writing) ephemeral responses cannot be deleted by the bot,
-                this is ignored for ephemeral slash command responses.
+            Slash command responses can only be deleted within 14 minutes of the
+            command being received.
         ephemeral
             Whether the deferred response should be ephemeral.
 

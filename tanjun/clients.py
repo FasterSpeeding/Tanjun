@@ -294,8 +294,7 @@ def as_unloader(
 
     !!! note
         This is the inverse of [as_loader][] and is only necessary if you wish
-        to use the [Client.unload_module][] or
-        [Client.reload_module][].
+        to use the [Client.unload_module][] or [Client.reload_module][].
 
     Parameters
     ----------
@@ -1412,7 +1411,6 @@ class Client(tanjun_abc.Client):
 
     def set_menu_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
         """Set the response message for when a menu command is not found.
-
 
         !!! warning
             Setting this to [None][] may lead to unexpected behaviour (especially

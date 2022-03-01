@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation of Tanjun's command objects."""
+"""Message command implementations."""
 from __future__ import annotations
 
 __all__: list[str] = ["MessageCommand", "MessageCommandGroup", "as_message_command", "as_message_command_group"]

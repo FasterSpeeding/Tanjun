@@ -105,7 +105,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         Inheriting from this is completely unnecessary and should be avoided
         for people using the library unless they know what they're doing.
 
-
     This is detail of the standard implementation and isn't guaranteed to work
     between implementations but will work for implementations which provide
     the standard dependency injection or special cased support for these.

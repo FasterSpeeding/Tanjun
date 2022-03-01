@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation of Tanjun's command objects."""
+"""Slash command implementations."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -220,6 +220,10 @@ def as_slash_command(
         `default_permission` and `is_global` are ignored for commands within
         slash command groups.
 
+    !!! note
+        If you want your first response to be ephemeral while using
+        `always_defer`, you must set `default_to_ephemeral` to `True`.
+
     Examples
     --------
     ```py
@@ -245,10 +249,6 @@ def as_slash_command(
         before being passed to the command's callback.
 
         Defaults to [False][].
-
-        !!! note
-            The ephemeral state of the first response is decided by whether the
-            deferral is ephemeral.
     default_permission
         Whether this command can be accessed without set permissions.
 
@@ -1174,6 +1174,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             `default_permission` and `is_global` are ignored for commands within
             slash command groups.
 
+        !!! note
+            If you want your first response to be ephemeral while using
+            `always_defer`, you must set `default_to_ephemeral` to `True`.
+
         Parameters
         ----------
         callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Awaitable[None]]
@@ -1194,10 +1198,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             before being passed to the command's callback.
 
             Defaults to [False][].
-
-            !!! note
-                The ephemeral state of the first response is decided by whether the
-                deferral is ephemeral.
         default_permission
             Whether this command can be accessed without set permissions.
 
