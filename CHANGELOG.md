@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Add weakref slot to BaseConverter to improve standard converter compatibility with Alluka.
+- Type compatibility with InteractionMessageBuilder when making the initial response as a REST bot.
+- No longer duplicate embeds on slash create initial response for REST bots.
 
 ## [2.4.1a1] - 2022-02-25
 ### Added

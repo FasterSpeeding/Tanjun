@@ -615,11 +615,17 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
             if component:
                 assert not isinstance(component, hikari.UndefinedType)
-                components = (component,)
+                components = [component]
+
+            elif components is hikari.UNDEFINED:
+                components = []
 
             if embed:
                 assert not isinstance(embed, hikari.UndefinedType)
-                embeds = (embed,)
+                embeds = [embed]
+
+            elif embeds is hikari.UNDEFINED:
+                embeds = []
 
             content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
@@ -635,9 +641,6 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
                 user_mentions=user_mentions,  # type: ignore
                 role_mentions=role_mentions,  # type: ignore
             )  # type: ignore
-            if embeds is not hikari.UNDEFINED:
-                for embed in embeds:
-                    result.add_embed(embed)
 
             self._response_future.set_result(result)
 
