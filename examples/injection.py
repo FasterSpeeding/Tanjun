@@ -88,7 +88,7 @@ async def _fetch_cachable_info(
 @component.with_command
 @tanjun.as_slash_command("info", "Command description")
 async def get_info(
-    ctx: tanjun.abc.MessageContext,
+    ctx: tanjun.abc.SlashContext,
     # Here we set _fetch_info as an injected callback.
     #
     # Injected callbacks are callbacks which'll be called before this function is called
