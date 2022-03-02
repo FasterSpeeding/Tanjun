@@ -2693,8 +2693,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
@@ -2703,13 +2702,13 @@
             <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
     <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -2730,7 +2729,7 @@
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_normalize_path</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -2752,7 +2751,7 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">module</span> <span class="o">=</span> <span class="n">modules_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
@@ -2824,7 +2823,7 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -2845,7 +2844,7 @@
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_normalize_path</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -3169,6 +3168,15 @@
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+
+
+<span class="k">def</span> <span class="nf">_normalize_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>  <span class="c1"># TODO: test behaviour around this</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># A home directory couldn&#39;t be resolved, so we&#39;ll just use the path as-is.</span>
+
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">_get_loaders</span><span class="p">(</span>
@@ -5093,8 +5101,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">module_path_abs</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">module_path_abs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ModuleStateConflict</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module at </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> already loaded&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
@@ -5103,13 +5110,13 @@
             <span class="k">with</span> <span class="n">_WrapLoadError</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">FailedModuleLoad</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_call_loaders</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">_get_loaders</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_path</span><span class="p">))</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path_abs</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">[</span><span class="n">module_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
 
     <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -5130,7 +5137,7 @@
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_normalize_path</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -5152,7 +5159,7 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">module</span> <span class="o">=</span> <span class="n">modules_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
@@ -5224,7 +5231,7 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -5245,7 +5252,7 @@
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_normalize_path</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -9663,7 +9670,7 @@ client.</p>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -9758,7 +9765,7 @@ The source error can be found at <code><a href="errors.html#FailedModuleLoad.__s
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_normalize_path</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -9804,7 +9811,7 @@ documentation for <code><a href="#Client.load_modules">Client.load_modules</a></
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">modules_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">module</span> <span class="o">=</span> <span class="n">modules_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
@@ -9886,7 +9893,7 @@ error can be found at <code><a href="errors.html#FailedModuleUnload.__source__">
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="n">_normalize_path</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
@@ -9972,7 +9979,7 @@ If no loaders are found in the new state of the module.</li>
         <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">)</span>
+                <span class="n">module_path</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_normalize_path</span><span class="p">,</span> <span class="n">module_path</span><span class="p">)</span>
 
             <span class="n">generator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reload_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
             <span class="n">load_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
