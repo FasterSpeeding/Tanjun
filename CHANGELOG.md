@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `has_responded` is now only set to `True` for slash command contexts after the
   `create_initial_response` passes, avoiding issues where error logic calling `ctx.respond` after
   a call to `create_initial_response` failed would try to create a followup and 404.
+- Further resolve Paths in module loading logic:
+  * User relative paths (`~`) can now be passed.
+  * It now normalises path (so separators), avoiding the same path but with different separators being registered multiple times.
+  * It now normalises symlinks, avoiding the same module being registered multiple times through different symlinks.
 
 ## [2.4.1a1] - 2022-02-25
 ### Added

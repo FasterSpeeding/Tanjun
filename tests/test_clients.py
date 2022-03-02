@@ -1705,8 +1705,11 @@ class TestClient:
         result = client.load_modules(mock_path, "ok.no.u")
 
         assert result is client
-        mock__load_module.assert_has_calls([mock.call(mock_path.absolute.return_value), mock.call("ok.no.u")])
-        mock_path.absolute.assert_called_once_with()
+        mock__load_module.assert_has_calls(
+            [mock.call(mock_path.expanduser.return_value.resolve.return_value), mock.call("ok.no.u")]
+        )
+        mock_path.expanduser.assert_called_once_with()
+        mock_path.expanduser.return_value.resolve.assert_called_once_with()
         mock_gen_1.__next__.assert_called_once_with()
         mock_gen_1.__next__.return_value.assert_called_once_with()
         mock_gen_1.send.assert_called_once_with(mock_gen_1.__next__.return_value.return_value)
@@ -1768,7 +1771,7 @@ class TestClient:
         get_running_loop.assert_called_once_with()
         get_running_loop.return_value.run_in_executor.assert_has_calls(
             [
-                mock.call(None, mock_path.absolute),
+                mock.call(None, tanjun.clients._normalize_path, mock_path),
                 mock.call(None, mock_gen_1.__next__.return_value),
                 mock.call(None, mock_gen_2.__next__.return_value),
             ]
@@ -1809,7 +1812,7 @@ class TestClient:
         )
         client = tanjun.Client(mock.AsyncMock())
         path = pathlib.Path("aye")
-        client._path_modules[path.absolute()] = old_module
+        client._path_modules[path.resolve()] = old_module
 
         result = client.unload_modules(path)
 
@@ -1817,7 +1820,7 @@ class TestClient:
         old_module.__dunder_loader__.unload.assert_called_once_with(client)
         old_module.unload_module.unload.assert_called_once_with(client)
         priv_unloader.unload.assert_not_called()
-        assert path.absolute() not in client._path_modules
+        assert path.resolve() not in client._path_modules
 
     def test_unload_modules_with_system_path_respects_all(self):
         priv_unload = mock.Mock(tanjun.abc.ClientLoader)
@@ -1834,7 +1837,7 @@ class TestClient:
 
         path = pathlib.Path("ayeeeee")
         client = tanjun.Client(mock.AsyncMock())
-        client._path_modules[path.absolute()] = mock_module
+        client._path_modules[path.resolve()] = mock_module
 
         client.unload_modules(path)
 
@@ -1842,7 +1845,7 @@ class TestClient:
         mock_module.unload_module.unload.assert_called_once_with(client)
         mock_module.load_module.unload.assert_called_once_with(client)
         mock_module.not_in_all.unload.assert_not_called()
-        assert path.absolute() not in client._path_modules
+        assert path.resolve() not in client._path_modules
 
     def test_unload_modules_with_system_path_when_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
@@ -1851,7 +1854,7 @@ class TestClient:
         with pytest.raises(tanjun.ModuleStateConflict):
             client.unload_modules(path)
 
-        assert path.absolute() not in client._path_modules
+        assert path.resolve() not in client._path_modules
 
     def test_unload_modules_with_system_path_when_no_unloaders_found(self):
         mock_module = mock.Mock(
@@ -1862,12 +1865,12 @@ class TestClient:
         )
         client = tanjun.Client(mock.AsyncMock())
         path = pathlib.Path("rewwewew")
-        client._path_modules[path.absolute()] = mock_module
+        client._path_modules[path.resolve()] = mock_module
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
             client.unload_modules(path)
 
-        assert client._path_modules[path.absolute()] is mock_module
+        assert client._path_modules[path.resolve()] is mock_module
 
     def test_unload_modules_with_system_path_when_all_and_no_unloaders_found(self):
         mock_module = mock.Mock(
@@ -1880,12 +1883,12 @@ class TestClient:
         )
         client = tanjun.Client(mock.AsyncMock())
         path = pathlib.Path("./123dsaasd")
-        client._path_modules[path.absolute()] = mock_module
+        client._path_modules[path.resolve()] = mock_module
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
             client.unload_modules(path)
 
-        assert client._path_modules[path.absolute()] is mock_module
+        assert client._path_modules[path.resolve()] is mock_module
 
     def test_unload_modules_with_system_path_when_unloader_raises(self):
         mock_exception = ValueError("aye")
@@ -1900,13 +1903,13 @@ class TestClient:
         )
         client = tanjun.Client(mock.AsyncMock())
         path = pathlib.Path("./yeet")
-        client._path_modules[path.absolute()] = mock_module
+        client._path_modules[path.resolve()] = mock_module
 
         with pytest.raises(tanjun.FailedModuleUnload) as exc_info:
             client.unload_modules(path)
 
         assert exc_info.value.__cause__ is mock_exception
-        assert client._path_modules[path.absolute()] is mock_module
+        assert client._path_modules[path.resolve()] is mock_module
 
     def test_unload_modules_with_python_module_path(self):
         client = tanjun.Client(mock.AsyncMock())
@@ -2685,8 +2688,8 @@ class TestClient:
         )
         client = tanjun.Client(mock.AsyncMock())
         random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
-        client._path_modules[random_path.absolute()] = old_module
-        generator = client._reload_module(random_path.absolute())
+        client._path_modules[random_path.resolve()] = old_module
+        generator = client._reload_module(random_path.resolve())
         next_ = next(generator)
 
         with pytest.raises(ModuleNotFoundError):
@@ -2765,8 +2768,11 @@ class TestClient:
         result = client.reload_modules(mock_path, "ok.no.u")
 
         assert result is client
-        mock__reload_module.assert_has_calls([mock.call(mock_path.absolute.return_value), mock.call("ok.no.u")])
-        mock_path.absolute.assert_called_once_with()
+        mock__reload_module.assert_has_calls(
+            [mock.call(mock_path.expanduser.return_value.resolve.return_value), mock.call("ok.no.u")]
+        )
+        mock_path.expanduser.assert_called_once_with()
+        mock_path.expanduser.return_value.resolve.assert_called_once_with()
         mock_gen_1.__next__.assert_called_once_with()
         mock_gen_1.__next__.return_value.assert_called_once_with()
         mock_gen_1.send.assert_called_once_with(mock_gen_1.__next__.return_value.return_value)
@@ -2827,7 +2833,7 @@ class TestClient:
         get_running_loop.assert_called_once_with()
         get_running_loop.return_value.run_in_executor.assert_has_calls(
             [
-                mock.call(None, mock_path.absolute),
+                mock.call(None, tanjun.clients._normalize_path, mock_path),
                 mock.call(None, mock_gen_1.__next__.return_value),
                 mock.call(None, mock_gen_2.__next__.return_value),
             ]
@@ -4626,3 +4632,24 @@ class TestClient:
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_when_checks_fail(self, command_dispatch_client: tanjun.Client):
         ...
+
+
+def test__normalize_path():
+    mock_path = mock.Mock()
+
+    result = tanjun.clients._normalize_path(mock_path)
+
+    assert result is mock_path.expanduser.return_value.resolve.return_value
+    mock_path.expanduser.assert_called_once_with()
+    mock_path.expanduser.return_value.resolve.assert_called_once_with()
+
+
+def test__normalize_path_when_expanduser_fails():
+    mock_path = mock.Mock()
+    mock_path.expanduser.side_effect = RuntimeError
+
+    result = tanjun.clients._normalize_path(mock_path)
+
+    assert result is mock_path.resolve.return_value
+    mock_path.expanduser.assert_called_once_with()
+    mock_path.resolve.assert_called_once_with()

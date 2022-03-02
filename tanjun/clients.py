@@ -2289,8 +2289,7 @@ class Client(tanjun_abc.Client):
             self._modules[module_path] = module
 
         else:
-            module_path_abs = module_path.absolute()
-            if module_path_abs in self._path_modules:
+            if module_path in self._path_modules:
                 raise errors.ModuleStateConflict(f"Module at {module_path} already loaded", module_path)
 
             _LOGGER.info("Loading from %s", module_path)
@@ -2299,13 +2298,13 @@ class Client(tanjun_abc.Client):
             with _WrapLoadError(errors.FailedModuleLoad):
                 self._call_loaders(module_path, _get_loaders(module, module_path))
 
-            self._path_modules[module_path_abs] = module
+            self._path_modules[module_path] = module
 
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
-                module_path = module_path.absolute()
+                module_path = _normalize_path(module_path)
 
             generator = self._load_module(module_path)
             load_module = next(generator)
@@ -2326,7 +2325,7 @@ class Client(tanjun_abc.Client):
         loop = asyncio.get_running_loop()
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
-                module_path = await loop.run_in_executor(None, module_path.absolute)
+                module_path = await loop.run_in_executor(None, _normalize_path, module_path)
 
             generator = self._load_module(module_path)
             load_module = next(generator)
@@ -2348,7 +2347,7 @@ class Client(tanjun_abc.Client):
 
             else:
                 modules_dict = self._path_modules
-                module_path = module_path.absolute()
+                module_path = _normalize_path(module_path)
 
             module = modules_dict.get(module_path)
             if not module:
@@ -2420,7 +2419,7 @@ class Client(tanjun_abc.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
-                module_path = module_path.absolute()
+                module_path = _normalize_path(module_path)
 
             generator = self._reload_module(module_path)
             load_module = next(generator)
@@ -2441,7 +2440,7 @@ class Client(tanjun_abc.Client):
         loop = asyncio.get_running_loop()
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
-                module_path = await loop.run_in_executor(None, module_path.absolute)
+                module_path = await loop.run_in_executor(None, _normalize_path, module_path)
 
             generator = self._reload_module(module_path)
             load_module = next(generator)
@@ -2765,6 +2764,15 @@ class Client(tanjun_abc.Client):
 
         asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
         return await future
+
+
+def _normalize_path(path: pathlib.Path) -> pathlib.Path:
+    try:  # TODO: test behaviour around this
+        path = path.expanduser()
+    except RuntimeError:
+        pass  # A home directory couldn't be resolved, so we'll just use the path as-is.
+
+    return path.resolve()
 
 
 def _get_loaders(
