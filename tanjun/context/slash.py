@@ -502,8 +502,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         # but the followup endpoint can be used to create the initial response for slash
         # commands or edit in a deferred response and (while this does lead to some
         # unexpected behaviour around deferrals) should be accounted for.
-        if not self._has_responded:
-            self._has_responded = True
+        self._has_responded = True
 
         if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
             asyncio.create_task(self._delete_followup_after(delete_after, message))
@@ -590,7 +589,6 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
             )
 
         self.cancel_defer()
-        self._has_responded = True
         if not self._response_future:
             await self._interaction.create_initial_response(
                 response_type=hikari.ResponseType.MESSAGE_CREATE,
@@ -644,6 +642,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
             self._response_future.set_result(result)
 
+        self._has_responded = True
         if delete_after is not None and not flags & hikari.MessageFlag.EPHEMERAL:
             asyncio.create_task(self._delete_initial_response_after(delete_after))
 
@@ -689,7 +688,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
     async def delete_initial_response(self) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
         await self._interaction.delete_initial_response()
-        # If they defer then delete the initial response then this should be treated as having
+        # If they defer then delete the initial response, this should be treated as having
         # an initial response to allow for followup responses.
         self._has_responded = True
 
@@ -742,6 +741,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
             user_mentions=user_mentions,
             role_mentions=role_mentions,
         )
+        # This will be False if the initial response was deferred with this finishing the referral.
         self._has_responded = True
 
         if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
