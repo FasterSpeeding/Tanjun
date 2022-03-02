@@ -111,13 +111,13 @@ class UndefinedT:
 
 
 UndefinedDefaultT = UndefinedT
-"""Deprecated alias of [UndefinedT][]."""
+"""Deprecated alias of [Undefined][tanjun.parsing.UNDEFINED]."""
 
 UNDEFINED = UndefinedT()
 """A singleton used to represent an undefined value within parsing logic."""
 
 UNDEFINED_DEFAULT = UNDEFINED
-"""Deprecated alias of [UNDEFINED][]."""
+"""Deprecated alias of [UNDEFINED][tanjun.parsing.UNDEFINED]."""
 
 _UndefinedOr = typing.Union[UndefinedT, _T]
 
@@ -230,7 +230,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             Only the first converter to pass will be used.
         default
             The default value of this argument, if left as
-            [UNDEFINED][] then this will have no default.
+            [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -356,8 +356,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             Only the first converter to pass will be used.
         empty_value
             The value to use if this option is provided without a value.
-            If left as [UNDEFINED][] then this option will error if it's
-            provided without a value.
+            If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
+            will error if it's provided without a value.
         max_value
             Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -380,7 +380,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
 
 AbstractParser = AbstractOptionParser
-"""Deprecated alias of [AbstractOptionParser][]."""
+"""Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
 
 
 class _ShlexTokenizer:
@@ -631,7 +631,8 @@ def with_argument(
       will decide where a positional argument is located in a command's
       signature.
     * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set [ShlexParser][] as the parser.
+      this decorator call then this will set
+      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -647,7 +648,7 @@ def with_argument(
         Only the first converter to pass will be used.
     default
         The default value of this argument, if left as
-        [UNDEFINED][] then this will have no default.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
     greedy
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
@@ -768,7 +769,8 @@ def with_greedy_argument(
       will decide where a positional argument is located in a command's
       signature.
     * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set [ShlexParser][] as the parser.
+      this decorator call then this will set
+      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -784,7 +786,7 @@ def with_greedy_argument(
         Only the first converter to pass will be used.
     default
         The default value of this argument, if left as
-        [UNDEFINED][] then this will have no default.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
     max_value
         Assert that the parsed value(s) for this argument are less than or equal to this.
 
@@ -890,7 +892,8 @@ def with_multi_argument(
       will decide where a positional argument is located in a command's
       signature.
     * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set [ShlexParser][] as the parser.
+      this decorator call then this will set
+      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -906,7 +909,7 @@ def with_multi_argument(
         Only the first converter to pass will be used.
     default
         The default value of this argument, if left as
-        [UNDEFINED][] then this will have no default.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
     max_value
         Assert that the parsed value(s) for this argument are less than or equal to this.
 
@@ -1018,7 +1021,8 @@ def with_option(
 
     !!! note
         If no parser is explicitly set on the command this is decorating before
-        this decorator call then this will set [ShlexParser][] as the parser.
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -1042,8 +1046,8 @@ def with_option(
         Only the first converter to pass will be used.
     empty_value
         The value to use if this option is provided without a value. If left as
-        [UNDEFINED][] then this option will error if it's
-        provided without a value.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
+        it's provided without a value.
     max_value
         Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -1170,7 +1174,8 @@ def with_multi_option(
       requiring that at least one value is provided for the option unless
       a default is set.
     * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set [ShlexParser][] as the parser.
+      this decorator call then this will set
+      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -1194,8 +1199,8 @@ def with_multi_option(
         Only the first converter to pass will be used.
     empty_value
         The value to use if this option is provided without a value. If left as
-        [UNDEFINED][] then this option will error if it's
-        provided without a value.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
+        it's provided without a value.
     max_value
         Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -1285,7 +1290,8 @@ class Parameter:
     def default(self) -> _UndefinedOr[typing.Any]:
         """The parameter's default.
 
-        If this is [UNDEFINED][] then this parameter is required.
+        If this is [UNDEFINED][tanjun.parsing.UNDEFINED] then this parameter is
+        required.
         """
         return self._default
 
@@ -1402,7 +1408,8 @@ class Argument(Parameter):
             Only the first converter to pass will be used.
         default
             The default value of this argument, if left as
-            [UNDEFINED][] then this will have no default.
+            [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no
+            default.
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -1481,9 +1488,9 @@ class Option(Parameter):
 
             Only the first converter to pass will be used.
         empty_value
-            The value to use if this option is provided without a value. If left as
-            [UNDEFINED][] then this option will error if it's
-            provided without a value.
+            The value to use if this option is provided without a value.
+            If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
+            will error if it's provided without a value.
         max_value
             Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -1511,8 +1518,8 @@ class Option(Parameter):
     def empty_value(self) -> _UndefinedOr[typing.Any]:
         """The value to return if the option is empty.
 
-        If this is [UNDEFINED][] then a value will be required for the
-        option.
+        If this is [UNDEFINED][tanjun.parsing.UNDEFINED] then a value will be
+        required for the option.
         """
         return self._empty_value
 
@@ -1526,7 +1533,7 @@ class Option(Parameter):
 
 
 class ShlexParser(AbstractOptionParser):
-    """A shlex based [AbstractOptionParser][] implementation."""
+    """A shlex based [AbstractOptionParser][tanjun.parsing.AbstractOptionParser] implementation."""
 
     __slots__ = ("_arguments", "_client", "_component", "_options")
 

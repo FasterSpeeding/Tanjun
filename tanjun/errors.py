@@ -136,7 +136,7 @@ class ParserError(TanjunError, ValueError):
     """Name of the this was raised for.
 
     !!! note
-        This will be [builtin.None][] if it was raised while parsing the
+        This will be [None][] if it was raised while parsing the
         provided message content.
     """
 
@@ -261,7 +261,8 @@ class FailedModuleLoad(TanjunError):
     This may be raised by the module failing to import or by one of
     its loaders erroring.
 
-    This source error can be accessed at [FailedLoad.__cause__][].
+    This source error can be accessed at
+    [FailedModuleLoad.__cause__][tanjun.errors.FailedModuleLoad.__cause__].
     """
 
     __cause__: Exception
@@ -274,7 +275,8 @@ class FailedModuleUnload(TanjunError):
     This may be raised by the module failing to import or by one
     of its unloaders erroring.
 
-    The source error can be accessed at [FailedUnload.__cause__][].
+    The source error can be accessed at
+    [FailedModuleUnload.__cause__][tanjun.errors.FailedModuleUnload.__cause__].
     """
 
     __cause__: Exception

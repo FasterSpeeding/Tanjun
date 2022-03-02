@@ -89,8 +89,9 @@ class CacheMissError(errors.TanjunError):
     """Raised when an entry isn't found in the cache.
 
     !!! note
-        [EntryNotFound][] inherits from this error and will only be raised
-        if the cache knows that the entry doesn't exist.
+        [EntryNotFound][tanjun.dependencies.EntryNotFound] inherits from this
+        error and will only be raised if the cache knows that the entry
+        doesn't exist.
     """
 
 
@@ -98,8 +99,8 @@ class EntryNotFound(CacheMissError):
     """Raised when an entry does not exist.
 
     !!! note
-        This is a specialisation of [CacheMissError][] which indicates
-        that the cache is sure that the entry doesn't exist.
+        This is a specialisation of [CacheMissError][tanjun.dependencies.CacheMissError]
+        which indicates that the cache is sure that the entry doesn't exist.
     """
 
 
@@ -145,7 +146,7 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
         default
             The default value to return if an entry wasn't found.
 
-            If provided then [CacheMissError][]/[EntryNotFound][] won't be raised.
+            If provided then no errors will be raised when no entry is found.
 
         Returns
         -------
@@ -163,9 +164,9 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
 
             This won't be raised if `default` is passed.
 
-            This is a specialisation of [CacheMissError][] and thus may be
-            caught as [CacheMissError][] and otherwise would need to be before
-            [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of `CacheMissError` and thus may be
+            caught as `CacheMissError and otherwise would need to be before
+            `CacheMissError` in a try, multiple catch statement.
         """
 
 
@@ -190,7 +191,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         default
             The default value to return if an entry wasn't found.
 
-            If provided then [CacheMissError][]/[EntryNotFound][] won't be raised.
+            If provided then no errors will be raised when no entry is found.
 
         Returns
         -------
@@ -208,9 +209,9 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
 
-            This is a specialisation of [CacheMissError][] and thus may be
-            caught as [CacheMissError][] and otherwise would need to be before
-            [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of `CacheMissError` and thus may be
+            caught as `CacheMissError and otherwise would need to be before
+            `CacheMissError` in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
@@ -249,6 +250,10 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
             ID of the channel to get an entry for.
         id
             Unique key of the entry to get; this will usually be a snowflake.
+        default
+            The default value to return if an entry wasn't found.
+
+            If provided then no errors will be raised when no entry is found.
 
         Returns
         -------
@@ -266,9 +271,9 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
 
-            This is a specialisation of [CacheMissError][] and thus may be
-            caught as [CacheMissError][] and otherwise would need to be before
-            [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of `CacheMissError` and thus may be
+            caught as `CacheMissError and otherwise would need to be before
+            `CacheMissError` in a try, multiple catch statement.
         """
 
     @abc.abstractmethod
@@ -325,7 +330,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         default
             The default value to return if an entry wasn't found.
 
-            If provided then [CacheMissError][]/[EntryNotFound][] won't be raised.
+            If provided then no errors will be raised when no entry is found.
 
         Returns
         -------
@@ -343,9 +348,9 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
 
-            This is a specialisation of [CacheMissError][] and thus may be
-            caught as [CacheMissError][] and otherwise would need to be before
-            [CacheMissError][] in a try, multiple catch statement.
+            This is a specialisation of `CacheMissError` and thus may be
+            caught as `CacheMissError and otherwise would need to be before
+            `CacheMissError` in a try, multiple catch statement.
         """
 
     @abc.abstractmethod

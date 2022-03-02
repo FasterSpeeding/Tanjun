@@ -452,12 +452,12 @@ def _to_bucket(
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
-    """In-memory standard implementation of [AbstractCooldownManager][].
+    """In-memory standard implementation of [AbstractCooldownManager][tanjun.dependencies.AbstractCooldownManager].
 
     Examples
     --------
-    [InMemoryCooldownManager.set_bucket][] may be used to set the cooldown for
-    a specific bucket:
+    [InMemoryCooldownManager.set_bucket][tanjun.dependencies.InMemoryCooldownManager.set_bucket]
+    may be used to set the cooldown for a specific bucket:
 
     ```py
     (
@@ -717,9 +717,10 @@ def with_cooldown(
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
     !!! warning
-        Cooldowns will only work if there's a setup injected [AbstractCooldownManager][]
-        dependency with [InMemoryCooldownManager][] being usable as a standard in-memory
-        cooldown manager.
+        Cooldowns will only work if there's a setup injected
+        [AbstractCooldownManager][tanjun.dependencies.InMemoryCooldownManager] dependency with
+        [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
+        being usable as a standard in-memory cooldown manager.
 
     Parameters
     ----------
@@ -736,8 +737,9 @@ def with_cooldown(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
-        A decorator that adds a [CooldownPreExecution][] hook to the command.
+    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
+        A decorator that adds a [CooldownPreExecution][tanjun.dependencies.CooldownPreExecution]
+        hook to the command.
     """
 
     def decorator(command: _CommandT, /) -> _CommandT:
@@ -789,12 +791,12 @@ class _ConcurrencyLimit:
 
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
-    """In-memory standard implementation of [AbstractConcurrencyLimiter][].
+    """In-memory standard implementation of [AbstractConcurrencyLimiter][tanjun.dependencies.AbstractConcurrencyLimiter].
 
     Examples
     --------
-    [InMemoryConcurrencyLimiter.set_bucket][] may be used to set the concurrency
-    limits for a specific bucket:
+    [InMemoryConcurrencyLimiter.set_bucket][tanjun.dependencies.InMemoryConcurrencyLimiter.set_bucket]
+    may be used to set the concurrency limits for a specific bucket:
 
     ```py
     (
@@ -966,8 +968,10 @@ class ConcurrencyPreExecution:
     """Pre-execution hook used to acquire a bucket concurrency limiter.
 
     !!! note
-        For a concurrency limiter to work properly, both [ConcurrencyPreExecution][]
-        and [ConcurrencyPostExecution][] hooks must be registered for a command scope.
+        For a concurrency limiter to work properly, both
+        [ConcurrencyPreExecution][tanjun.dependencies.ConcurrencyPreExecution]
+        and [ConcurrencyPostExecution][tanjun.dependencies.ConcurrencyPostExecution]
+        hooks must be registered for a command scope.
     """
 
     __slots__ = ("_bucket_id", "_error_message", "__weakref__")
@@ -1007,8 +1011,10 @@ class ConcurrencyPostExecution:
     """Post-execution hook used to release a bucket concurrency limiter.
 
     !!! note
-        For a concurrency limiter to work properly, both [ConcurrencyPreExecution][]
-        and [ConcurrencyPostExecution][] hooks must be registered for a command scope.
+        For a concurrency limiter to work properly, both
+        [ConcurrencyPreExecution][tanjun.dependencies.ConcurrencyPreExecution]
+        and [ConcurrencyPostExecution][tanjun.dependencies.ConcurrencyPostExecution]
+        hooks must be registered for a command scope.
     """
 
     __slots__ = ("_bucket_id", "__weakref__")
@@ -1041,7 +1047,8 @@ def with_concurrency_limit(
 
     !!! warning
         Concurrency limiters will only work if there's a setup injected
-        [AbstractConcurrencyLimiter][] dependency with [InMemoryConcurrencyLimiter][]
+        [AbstractConcurrencyLimiter][tanjun.dependencies.AbstractConcurrencyLimiter] dependency with
+        [InMemoryConcurrencyLimiter][tanjun.dependencies.InMemoryConcurrencyLimiter]
         being usable as a standard in-memory concurrency manager.
 
     Parameters
@@ -1056,7 +1063,7 @@ def with_concurrency_limit(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun_abc.ExecutableCommand], tanjun_abc.ExecutableCommand]
+    collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator that adds the concurrency limiter hooks to a command.
     """
 

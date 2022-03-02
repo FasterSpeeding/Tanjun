@@ -142,9 +142,6 @@ def as_message_menu(
         The command's name.
 
         This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description
-        The command's description.
-        This should be inclusively between 1-100 characters in length.
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
@@ -216,9 +213,6 @@ def as_user_menu(
         The command's name.
 
         This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description
-        The command's description.
-        This should be inclusively between 1-100 characters in length.
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.

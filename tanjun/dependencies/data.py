@@ -54,7 +54,7 @@ class LazyConstant(typing.Generic[_T]):
     """Injected type used to hold and generate lazy constants.
 
     !!! note
-        To easily resolve this type use [inject_lc][].
+        To easily resolve this type use [inject_lc][tanjun.dependencies.inject_lc].
     """
 
     __slots__ = ("_callback", "_lock", "_value")
@@ -115,8 +115,9 @@ class LazyConstant(typing.Generic[_T]):
         """Acquire this lazy constant as an asynchronous lock.
 
         This is used to ensure that the value is only generated once
-        and should be kept acquired until [LazyConstant.set_value][] has
-        been called.
+        and should be kept acquired until
+        [LazyConstant.set_value][tanjun.dependencies.LazyConstant.set_value]
+        has been called.
 
         Returns
         -------
@@ -138,9 +139,9 @@ def make_lc_resolver(
 
     Notes
     -----
-    * This is internally used by [inject_lc][].
-    * For this to work, a [LazyConstant][] must've been set as a type
-      dependency for the passed `type_`.
+    * This is internally used by [inject_lc][tanjun.dependencies.inject_lc].
+    * For this to work, a [LazyConstant][tanjun.dependencies.LazyConstant]
+      must've been set as a type dependency for the passed `type_`.
 
     Parameters
     ----------
@@ -180,8 +181,8 @@ def inject_lc(type_: type[_T], /) -> _T:
     should also be assigned to a parameter's default to be used.
 
     !!! note
-        For this to work, a [LazyConstant][] must've been set as a type
-        dependency for the passed `type_`.
+        For this to work, a [LazyConstant][tanjun.dependencies.LazyConstant]
+        must've been set as a type dependency for the passed `type_`.
 
     Parameters
     ----------
@@ -282,7 +283,7 @@ def cache_callback(
     """Cache the result of a callback within a dependency injection context.
 
     !!! note
-        This is internally used by [cached_inject][].
+        This is internally used by [cached_inject][tanjun.dependencies.cached_inject].
 
     Parameters
     ----------
@@ -329,6 +330,7 @@ def cached_inject(
         ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)
     ) -> None:
         raise NotImplementedError
+    ```
 
     Parameters
     ----------

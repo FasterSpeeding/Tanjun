@@ -1073,7 +1073,7 @@ search_snowflakes: _IDSearcherSig = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1088,10 +1088,12 @@ parse_channel_id: _IDMatcherSig = _make_snowflake_parser(_CHANNEL_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
-message
+message : str
     The error message to raise if the value cannot be parsed.
+
+    Defaults to "No valid mention or ID found".
 
 Returns
 -------
@@ -1109,7 +1111,7 @@ search_channel_ids: _IDSearcherSig = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1124,10 +1126,12 @@ parse_emoji_id: _IDMatcherSig = _make_snowflake_parser(_EMOJI_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
-message
+message : str
     The error message to raise if the value cannot be parsed.
+
+    Defaults to "No valid mention or ID found".
 
 Returns
 -------
@@ -1145,7 +1149,7 @@ search_emoji_ids: _IDSearcherSig = _make_snowflake_searcher(_EMOJI_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1160,10 +1164,12 @@ parse_role_id: _IDMatcherSig = _make_snowflake_parser(_ROLE_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
-message
+message : str
     The error message to raise if the value cannot be parsed.
+
+    Defaults to "No valid mention or ID found".
 
 Returns
 -------
@@ -1181,7 +1187,7 @@ search_role_ids: _IDSearcherSig = _make_snowflake_searcher(_ROLE_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1196,10 +1202,12 @@ parse_user_id: _IDMatcherSig = _make_snowflake_parser(_USER_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
 message
     The error message to raise if the value cannot be parsed.
+
+    Defaults to "No valid mention or ID found".
 
 Returns
 -------
@@ -1217,7 +1225,7 @@ search_user_ids: _IDSearcherSig = _make_snowflake_searcher(_USER_ID_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1239,12 +1247,9 @@ def parse_message_id(
 
     Parameters
     ----------
-    value: str | int
+    value
         The value to parse (this argument can only be passed positionally).
-
-    Other Parameters
-    ----------------
-    message: str
+    message
         The error message to raise if the value cannot be parsed.
 
     Returns
@@ -1321,7 +1326,7 @@ defragment_url: collections.Callable[[str], urlparse.DefragResult] = _build_url_
 
 Parameters
 ----------
-value
+value : str
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1340,7 +1345,7 @@ parse_url: collections.Callable[[str], urlparse.ParseResult] = _build_url_parser
 
 Parameters
 ----------
-value
+value : str
     The value to parse (this argument can only be passed positionally).
 
 Returns
@@ -1360,7 +1365,7 @@ split_url: collections.Callable[[str], urlparse.SplitResult] = _build_url_parser
 
 Parameters
 ----------
-value
+value : str
     The value to parse (this argument can only be passed positionally).
 
 Returns

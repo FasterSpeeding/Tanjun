@@ -6,7 +6,7 @@
 #
 astor==0.8.1
     # via flake8-if-statements
-bandit==1.7.2
+bandit==1.7.4
     # via flake8-bandit
 black==22.1.0
     # via flake8-black
@@ -85,13 +85,13 @@ gitdb==4.0.9
     # via gitpython
 gitpython==3.1.27
     # via bandit
-importlib-metadata==4.11.2
+importlib-metadata==4.11.3
     # via flake8-html
 isort==5.10.1
     # via flake8-isort
 jinja2==3.0.3
     # via flake8-html
-markupsafe==2.1.0
+markupsafe==2.1.1
     # via jinja2
 mccabe==0.6.1
     # via flake8
@@ -124,7 +124,7 @@ stdlib-list==0.8.0
     # via mr-proper
 stevedore==3.5.0
     # via bandit
-testfixtures==6.18.4
+testfixtures==6.18.5
     # via flake8-isort
 tomli==2.0.1
     # via

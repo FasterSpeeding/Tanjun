@@ -125,7 +125,7 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         !!! note
             This will not be called for [tanjun.ParserError][]s as these
             are generally speaking expected. To handle those see
-            [Hooks.set_on_parser_error][].
+            [Hooks.set_on_parser_error][tanjun.hooks.Hooks.set_on_parser_error].
 
         Parameters
         ----------

@@ -510,7 +510,7 @@ class Client(tanjun_abc.Client):
         * The endpoint used by `declare_global_commands` has a strict ratelimit which,
         as of writing, only allows for 2 requests per minute (with that ratelimit
         either being per-guild if targeting a specific guild otherwise globally).
-        * `event_manager` is necessary for message command dispatch and will also
+        * `events` is necessary for message command dispatch and will also
         be necessary for interaction command dispatch if `server` isn't
         provided.
         * `server` is used for interaction command dispatch if interaction
@@ -522,7 +522,7 @@ class Client(tanjun_abc.Client):
             The Hikari REST client this will use.
         cache
             The Hikari cache client this will use if applicable.
-        event_manager
+        events
             The Hikari event manager client this will use if applicable.
         server
             The Hikari interaction server client this will use if applicable.
@@ -537,7 +537,7 @@ class Client(tanjun_abc.Client):
             on Hikari's lifetime events.
 
             Defaults to [False][] and can only be passed as [True][] if
-            `event_manager` is also provided.
+            `events` is also provided.
         injector
             The alluka client this should use for dependency injection.
 

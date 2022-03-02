@@ -545,7 +545,7 @@ class Component(tanjun_abc.Component):
 
     def add_client_callback(
         self: _ComponentT,
-        event_name: typing.Union[str, tanjun_abc.ClientCallbackNames],
+        name: typing.Union[str, tanjun_abc.ClientCallbackNames],
         callback: tanjun_abc.MetaEventSig,
         /,
     ) -> _ComponentT:
@@ -584,7 +584,7 @@ class Component(tanjun_abc.Component):
         return self
 
     def get_client_callbacks(
-        self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
+        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Collection[tanjun_abc.MetaEventSig]:
         """Get a collection of the callbacks registered for a specific name.
 
@@ -603,7 +603,7 @@ class Component(tanjun_abc.Component):
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
-    def remove_client_callback(self, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
+    def remove_client_callback(self, name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
         """Remove a client callback.
 
         Parameters
@@ -636,7 +636,7 @@ class Component(tanjun_abc.Component):
             self._client.remove_client_callback(event_name, callback)
 
     def with_client_callback(
-        self, event_name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
+        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
     ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         """Add a client callback through a decorator call.
 
