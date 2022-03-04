@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Slash command "attachment" options.
 
 ## [2.4.2a1] - 2022-03-04
 ### Fixed
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Alluka's dependency injection interface(s) have been upgraded to the standard Client interface
   and Context interfaces.
+- Standard message converter.
 
 ### Changed
 - `Coroutine` is now used instead of `Awaitable` for callback signature return types to account
