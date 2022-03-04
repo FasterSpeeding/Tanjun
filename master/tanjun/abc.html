@@ -964,6 +964,9 @@
                                 <a class="function" href="#SlashOption.resolve_value">resolve_value</a>
                         </li>
                         <li>
+                                <a class="function" href="#SlashOption.resolve_to_attachment">resolve_to_attachment</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#SlashOption.resolve_to_channel">resolve_to_channel</a>
                         </li>
                         <li>
@@ -2248,18 +2251,33 @@
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">resolve_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Resolve this option to an object value.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</span>
+<span class="sd">        hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</span>
 <span class="sd">            The object value of this option.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If the option isn&#39;t resolvable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a channel object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Attachment</span>
+<span class="sd">            The attachment object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not an attachment.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -8195,6 +8213,7 @@ Keyword arguments mapping string option names to their values.</p>
                 <dd id="AutocompleteOption.snowflake" class="function"><a href="#SlashOption.snowflake">snowflake</a></dd>
                 <dd id="AutocompleteOption.string" class="function"><a href="#SlashOption.string">string</a></dd>
                 <dd id="AutocompleteOption.resolve_value" class="function"><a href="#SlashOption.resolve_value">resolve_value</a></dd>
+                <dd id="AutocompleteOption.resolve_to_attachment" class="function"><a href="#SlashOption.resolve_to_attachment">resolve_to_attachment</a></dd>
                 <dd id="AutocompleteOption.resolve_to_channel" class="function"><a href="#SlashOption.resolve_to_channel">resolve_to_channel</a></dd>
                 <dd id="AutocompleteOption.resolve_to_member" class="function"><a href="#SlashOption.resolve_to_member">resolve_to_member</a></dd>
                 <dd id="AutocompleteOption.resolve_to_mentionable" class="function"><a href="#SlashOption.resolve_to_mentionable">resolve_to_mentionable</a></dd>
@@ -21443,18 +21462,33 @@ The command this context is for.</li>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">resolve_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Resolve this option to an object value.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</span>
+<span class="sd">        hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</span>
 <span class="sd">            The object value of this option.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If the option isn&#39;t resolvable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a channel object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Attachment</span>
+<span class="sd">            The attachment object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not an attachment.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -21805,7 +21839,7 @@ or USER.</li>
             <span class="def">def</span>
             <span class="name">resolve_value</span><span class="signature">(
     self
-) -&gt; Union[hikari.interactions.command_interactions.InteractionChannel, hikari.interactions.base_interactions.InteractionMember, hikari.guilds.Role, hikari.users.User]</span>:
+) -&gt; Union[hikari.messages.Attachment, hikari.interactions.command_interactions.InteractionChannel, hikari.interactions.base_interactions.InteractionMember, hikari.guilds.Role, hikari.users.User]</span>:
     </div>
 
                 <details>
@@ -21813,12 +21847,12 @@ or USER.</li>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">resolve_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Resolve this option to an object value.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</span>
+<span class="sd">        hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</span>
 <span class="sd">            The object value of this option.</span>
 
 <span class="sd">        Raises</span>
@@ -21835,13 +21869,59 @@ or USER.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</strong>: The object value of this option.</li>
+<li><strong>hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User</strong>: The object value of this option.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
 
 <ul>
 <li><strong>TypeError</strong>: If the option isn't resolvable.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_to_attachment" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_to_attachment">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_to_attachment</span><span class="signature">(self) -&gt; hikari.messages.Attachment</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_attachment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a channel object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Attachment</span>
+<span class="sd">            The attachment object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not an attachment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to a channel object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Attachment</strong>: The attachment object.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the option is not an attachment.</li>
 </ul>
 </div>
 
