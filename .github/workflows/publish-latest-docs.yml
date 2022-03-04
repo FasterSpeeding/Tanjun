@@ -10,13 +10,13 @@ jobs:
 
     steps:
       - name: Fetch and clone the master branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ./master_branch
           ref: master
 
       - name: Fetch and clone the docs branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ./docs_branch
           ref: docs
