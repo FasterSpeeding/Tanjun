@@ -40,6 +40,7 @@ __all__: list[str] = [
     "UNDEFINED_DEFAULT",
     "as_slash_command",
     "slash_command_group",
+    "with_attachment_slash_option",
     "with_bool_slash_option",
     "with_channel_slash_option",
     "with_float_slash_option",
@@ -322,6 +323,37 @@ def as_slash_command(
 
 UNDEFINED_DEFAULT = object()
 """Singleton used for marking slash command defaults as undefined."""
+
+
+def with_attachment_slash_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    pass_as_kwarg: bool = True,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add an attachment option to a slash command.
+
+    For more information on this function's parameters see `SlashCommand.add_attachment_option`.
+
+    Examples
+    --------
+    ```py
+    @with_attachment_slash_option("name", "A name.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.abc.SlashContext, name: hikari.Attachment) -> None:
+        ...
+    ```
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
+    return lambda command: command.add_attachment_option(
+        name, description, default=default, pass_as_kwarg=pass_as_kwarg
+    )
 
 
 def with_str_slash_option(
@@ -1064,7 +1096,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             option = ctx.interaction.options[0]
 
         elif option and option.options:
-            option = typing.cast("hikari.AutocompleteInteractionOption", option.options[0])
+            option = option.options[0]
 
         else:
             raise RuntimeError("Missing sub-command option")
@@ -1348,6 +1380,65 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
                 only_member=only_member,
             )
         return self
+
+    def add_attachment_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        r"""Add an attachment option to the slash command.
+
+        .. note::
+            This will result in options of type `hikari.Attachment`.
+
+        Parameters
+        ----------
+        name : str
+            The option's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used and the `coverters` field will be ignored.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name has uppercase characters.
+            * If the option description is over 100 characters in length.
+            * If the command already has 25 options.
+        """
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.ATTACHMENT,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
+        )
 
     def add_str_option(
         self: _SlashCommandT,
@@ -2262,7 +2353,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         return decorator
 
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
-        keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
+        keyword_args: dict[
+            str, typing.Union[int, float, str, hikari.Attachment, hikari.User, hikari.Role, hikari.InteractionChannel]
+        ] = {}
         for tracked_option in self._tracked_options.values():
             if not (option := ctx.options.get(tracked_option.name)):
                 if tracked_option.default is UNDEFINED_DEFAULT:
@@ -2291,6 +2384,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
             elif option.type is hikari.OptionType.MENTIONABLE:
                 keyword_args[option.name] = option.resolve_to_mentionable()
+
+            elif option.type is hikari.OptionType.ATTACHMENT:
+                keyword_args[option.name] = option.resolve_to_attachment()
 
             else:
                 value = option.value
