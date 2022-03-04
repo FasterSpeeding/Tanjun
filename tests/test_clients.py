@@ -2436,13 +2436,14 @@ class TestClient:
         old_module.loader.unload.assert_called_once_with(client)
         old_priv_loader.load.assert_not_called()
         old_priv_loader.unload.assert_not_called()
-        client._path_modules[path].loader.load.assert_called_once_with(client)
-        client._path_modules[path].loader.unload.assert_not_called()
-        client._path_modules[path].other_loader.load.assert_called_once_with(client)
-        client._path_modules[path].other_loader.unload.assert_not_called()
-        client._path_modules[path]._priv_loader.load.assert_not_called()
-        client._path_modules[path]._priv_loader.unload.assert_not_called()
-        assert client._path_modules[path] is not old_module
+        new_module = client._path_modules[path]
+        assert new_module is not old_module
+        new_module.loader.load.assert_called_once_with(client)
+        new_module.loader.unload.assert_not_called()
+        new_module.other_loader.load.assert_called_once_with(client)
+        new_module.other_loader.unload.assert_not_called()
+        new_module._priv_loader.load.assert_not_called()
+        new_module._priv_loader.unload.assert_not_called()
 
     def test__reload_modules_with_system_path_when_no_unloaders_found(self, file: typing.IO[str]):
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
@@ -2567,13 +2568,13 @@ class TestClient:
         old_priv_loader.load.assert_not_called()
         old_priv_loader.unload.assert_called_once_with(client)
         new_module = client._path_modules[path]
+        assert new_module is not old_module
         new_module.loader.load.assert_called_once_with(client)
         new_module.loader.unload.assert_not_called()
         new_module.other_loader.load.assert_not_called()
         new_module.other_loader.unload.assert_not_called()
         new_module._priv_loader.load.assert_called_once_with(client)
         new_module._priv_loader.unload.assert_not_called()
-        assert client._path_modules[path] is not old_module
 
     def test__reload_modules_with_system_path_when_all_and_no_unloaders_found(self, file: typing.IO[str]):
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
@@ -2688,8 +2689,8 @@ class TestClient:
         )
         client = tanjun.Client(mock.AsyncMock())
         random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
-        client._path_modules[random_path.resolve()] = old_module
-        generator = client._reload_module(random_path.resolve())
+        client._path_modules[random_path] = old_module
+        generator = client._reload_module(random_path)
         next_ = next(generator)
 
         with pytest.raises(ModuleNotFoundError):
@@ -2699,7 +2700,7 @@ class TestClient:
         old_module.loader.unload.assert_not_called()
         old_module.other_loader.load.assert_not_called()
         old_module.other_loader.unload.assert_not_called()
-        assert random_path not in client._path_modules
+        assert random_path in client._path_modules
 
     def test__reload_modules_with_system_path_rolls_back_when_new_module_loader_raises(self, file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
