@@ -396,7 +396,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name).set_default_permission(
+        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name).set_default_permission(  # type: ignore
             self._default_permission
         )
 

@@ -1096,7 +1096,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             option = ctx.interaction.options[0]
 
         elif option and option.options:
-            option = typing.cast("hikari.AutocompleteInteractionOption", option.options[0])
+            option = option.options[0]
 
         else:
             raise RuntimeError("Missing sub-command option")
