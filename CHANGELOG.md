@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.4.2a1] - 2022-03-04
 ### Fixed
 - Add weakref slot to BaseConverter to improve standard converter compatibility with Alluka.
 - Type compatibility with InteractionMessageBuilder when making the initial response as a REST bot.
@@ -528,7 +530,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.1a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.2a1...HEAD
+[2.4.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.1a1...v2.4.2a1
 [2.4.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.0a1...v2.4.1a1
 [2.4.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...v2.4.0a1
 [2.3.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.3.0a1...v2.3.1a1
