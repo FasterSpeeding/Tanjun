@@ -65,8 +65,8 @@ lint = ["codespell==2.1"]
 publish = ["flit==3.7.1"]
 # Remember to also update the vers in .pre-commit-config.yaml when changing reformat dependencies!!!
 reformat = ["black==22.1", "isort==5.10.1", "sort-all==1.2.0"]
-tests = ["pytest==7.0.1", "pytest-asyncio==0.18.1", "pytest-cov==3", "pytest-xdist==2.5"]
-type_checking = ["pyright==1.1.225"]
+tests = ["pytest==7.0.1", "pytest-asyncio==0.18.2", "pytest-cov==3", "pytest-xdist==2.5"]
+type_checking = ["pyright==1.1.226"]
 
 [project.urls]
 homepage = "https://github.com/FasterSpeeding/Tanjun"
