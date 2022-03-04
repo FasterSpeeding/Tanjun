@@ -37,7 +37,7 @@ flake8 = [
     # Flake8 plugins
     # Ref: https://github.com/DmytroLitvinov/awesome-flake8-extensions
 
-    "bandit==0.7.1",                    # flake8-bandit currently fails with later vers
+    "bandit==1.7.2",                    # flake8-bandit currently fails with later vers
     "flake8-bandit==2.1.2",             # runs bandit
     "flake8-black==0.3.2",              # runs black
     "flake8-broken-line==0.4",          # forbey "\" linebreaks
