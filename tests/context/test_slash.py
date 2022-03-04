@@ -509,7 +509,9 @@ class TestSlashOption:
 
         assert result is mock_member
 
-    @pytest.mark.parametrize("option_type", set(hikari.OptionType).difference({hikari.OptionType.USER}))
+    @pytest.mark.parametrize(
+        "option_type", set(hikari.OptionType).difference({hikari.OptionType.USER, hikari.OptionType.MENTIONABLE})
+    )
     def test_resolve_to_user_when_not_user(self, option_type: hikari.OptionType):
         mock_interaction = mock.Mock()
         option = tanjun.context.SlashOption(mock_interaction, mock.Mock(type=option_type, value="33333"))

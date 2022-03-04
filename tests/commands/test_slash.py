@@ -917,7 +917,7 @@ class TestSlashCommand:
         assert option.description == "ow"
         assert option.is_required is False
         assert option.options is None
-        assert option.type is hikari.OptionType.CHANNATTACHMENTEL
+        assert option.type is hikari.OptionType.ATTACHMENT
         assert option.choices is None
         assert option.min_value is None
         assert option.max_value is None

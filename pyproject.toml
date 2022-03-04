@@ -37,6 +37,7 @@ flake8 = [
     # Flake8 plugins
     # Ref: https://github.com/DmytroLitvinov/awesome-flake8-extensions
 
+    "bandit==0.7.1",                    # flake8-bandit currently fails with later vers
     "flake8-bandit==2.1.2",             # runs bandit
     "flake8-black==0.3.2",              # runs black
     "flake8-broken-line==0.4",          # forbey "\" linebreaks
@@ -66,7 +67,7 @@ publish = ["flit==3.7.1"]
 # Remember to also update the vers in .pre-commit-config.yaml when changing reformat dependencies!!!
 reformat = ["black==22.1", "isort==5.10.1", "sort-all==1.2.0"]
 tests = ["pytest==7.0.1", "pytest-asyncio==0.18.2", "pytest-cov==3", "pytest-xdist==2.5"]
-type_checking = ["pyright==1.1.226"]
+type_checking = ["pyright==1.1.225"]
 
 [project.urls]
 homepage = "https://github.com/FasterSpeeding/Tanjun"
