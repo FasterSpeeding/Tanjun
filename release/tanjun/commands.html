@@ -241,6 +241,9 @@
                                 <a class="function" href="#SlashCommand.load_into_component">load_into_component</a>
                         </li>
                         <li>
+                                <a class="function" href="#SlashCommand.add_attachment_option">add_attachment_option</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#SlashCommand.add_str_option">add_str_option</a>
                         </li>
                         <li>
@@ -349,6 +352,9 @@
                     <a class="function" href="#slash_command_group">slash_command_group</a>
             </li>
             <li>
+                    <a class="function" href="#with_attachment_slash_option">with_attachment_slash_option</a>
+            </li>
+            <li>
                     <a class="function" href="#with_bool_slash_option">with_bool_slash_option</a>
             </li>
             <li>
@@ -443,6 +449,7 @@
     <span class="s2">&quot;as_slash_command&quot;</span><span class="p">,</span>
     <span class="s2">&quot;as_user_menu&quot;</span><span class="p">,</span>
     <span class="s2">&quot;slash_command_group&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_attachment_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_bool_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_channel_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_float_slash_option&quot;</span><span class="p">,</span>
@@ -466,6 +473,7 @@
 <span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">SlashCommandGroup</span>
 <span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">as_slash_command</span>
 <span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">slash_command_group</span>
+<span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">with_attachment_slash_option</span>
 <span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">with_bool_slash_option</span>
 <span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">with_channel_slash_option</span>
 <span class="kn">from</span> <span class="nn">.slash</span> <span class="kn">import</span> <span class="n">with_float_slash_option</span>
@@ -1111,7 +1119,7 @@ The component this object should be loaded into.</li>
 
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ContextMenuCommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">ContextMenuCommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">ContextMenuCommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span>
         <span class="p">)</span>
 
@@ -1379,7 +1387,7 @@ is inherited regardless of what it's set as on the child command.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ContextMenuCommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MenuCommand&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">ContextMenuCommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">ContextMenuCommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span>
         <span class="p">)</span>
 </pre></div>
@@ -3316,6 +3324,65 @@ The command to add.</li>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
+    <span class="k">def</span> <span class="nf">add_attachment_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add an attachment option to the slash command.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will result in options of type `hikari.Attachment`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The option&#39;s name.</span>
+
+<span class="sd">            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.</span>
+<span class="sd">        description : str</span>
+<span class="sd">            The option&#39;s description.</span>
+<span class="sd">            This should be inclusively between 1-100 characters in length.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The option&#39;s default value.</span>
+<span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        pass_as_kwarg : bool</span>
+<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
+<span class="sd">            command callback.</span>
+
+<span class="sd">            Defaults to `True`. If `False` is passed here then `default` will</span>
+<span class="sd">            only decide whether the option is required without the actual value</span>
+<span class="sd">            being used and the `coverters` field will be ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[\w-]{1,32}$` (Unicode mode).</span>
+<span class="sd">            * If the option name has uppercase characters.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">ATTACHMENT</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
+        <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">add_str_option</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4229,7 +4296,9 @@ The command to add.</li>
         <span class="k">return</span> <span class="n">decorator</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_process_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="n">keyword_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">keyword_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span>
+            <span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">tracked_option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">option</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">:</span>
@@ -4258,6 +4327,9 @@ The command to add.</li>
 
             <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">:</span>
                 <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">option</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">ATTACHMENT</span><span class="p">:</span>
+                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_attachment</span><span class="p">()</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
@@ -4677,6 +4749,139 @@ globally or for a specific guild.</li>
 <ul>
 <li><strong>component</strong> (<a href="abc.html#Component">tanjun.abc.Component</a>):
 The component this object should be loaded into.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashCommand.add_attachment_option" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashCommand.add_attachment_option">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_attachment_option</span><span class="signature">(
+    self: ~_SlashCommandT,
+    name: str,
+    description: str,
+    /,
+    *,
+    default: Any = &lt;object object&gt;,
+    pass_as_kwarg: bool = True
+) -&gt; ~_SlashCommandT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_attachment_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Add an attachment option to the slash command.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will result in options of type `hikari.Attachment`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The option&#39;s name.</span>
+
+<span class="sd">            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.</span>
+<span class="sd">        description : str</span>
+<span class="sd">            The option&#39;s description.</span>
+<span class="sd">            This should be inclusively between 1-100 characters in length.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The option&#39;s default value.</span>
+<span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        pass_as_kwarg : bool</span>
+<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
+<span class="sd">            command callback.</span>
+
+<span class="sd">            Defaults to `True`. If `False` is passed here then `default` will</span>
+<span class="sd">            only decide whether the option is required without the actual value</span>
+<span class="sd">            being used and the `coverters` field will be ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[\w-]{1,32}$` (Unicode mode).</span>
+<span class="sd">            * If the option name has uppercase characters.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">ATTACHMENT</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an attachment option to the slash command.</p>
+
+<p><em>Note:</em>
+This will result in options of type <code>hikari.Attachment</code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The option's name.</p>
+
+<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p></li>
+<li><strong>description</strong> (str):
+The option's description.
+This should be inclusively between 1-100 characters in length.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>default</strong> (typing.Any):
+The option's default value.
+If this is left as undefined then this option will be required.</li>
+<li><p><strong>pass_as_kwarg</strong> (bool):
+Whether or not to pass this option as a keyword argument to the
+command callback.</p>
+
+<p>Defaults to <code>True</code>. If <code>False</code> is passed here then <code>default</code> will
+only decide whether the option is required without the actual value
+being used and the <code>coverters</code> field will be ignored.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name has uppercase characters.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -7054,7 +7259,7 @@ argument should be of type <code>str</code>.</p>
             <span class="n">option</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">elif</span> <span class="n">option</span> <span class="ow">and</span> <span class="n">option</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-            <span class="n">option</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;hikari.AutocompleteInteractionOption&quot;</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
@@ -7538,7 +7743,7 @@ Command to add to this group.</li>
             <span class="n">option</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">elif</span> <span class="n">option</span> <span class="ow">and</span> <span class="n">option</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-            <span class="n">option</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;hikari.AutocompleteInteractionOption&quot;</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
@@ -8515,6 +8720,77 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul></li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="with_attachment_slash_option">
+                            <div class="attr function"><a class="headerlink" href="#with_attachment_slash_option">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_attachment_slash_option</span><span class="signature">(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: Any = &lt;object object&gt;,
+    pass_as_kwarg: bool = True
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_attachment_slash_option</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add an attachment option to a slash command.</span>
+
+<span class="sd">    For more information on this function&#39;s parameters see `SlashCommand.add_attachment_option`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @with_attachment_slash_option(&quot;name&quot;, &quot;A name.&quot;)</span>
+<span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
+<span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, name: hikari.Attachment) -&gt; None:</span>
+<span class="sd">        ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
+<span class="sd">        Decorator callback which adds the option to the command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">add_attachment_option</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
+    <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an attachment option to a slash command.</p>
+
+<p>For more information on this function's parameters see <code><a href="#SlashCommand.add_attachment_option">SlashCommand.add_attachment_option</a></code>.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@with_attachment_slash_option</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;A name.&quot;</span><span class="p">)</span>
+<span class="nd">@as_slash_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="s2">&quot;A command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</strong>: Decorator callback which adds the option to the command.</li>
 </ul>
 </div>
 
