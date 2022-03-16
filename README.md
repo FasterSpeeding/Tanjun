@@ -16,11 +16,6 @@ For usage see the [documentation](https://tanjun.cursed.solutions/)
 and the [examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples)
 or [tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html).
 
-# Support
-
-Hikari's support guild has a dedicated Tanjun help channel which can accessed using this
-[invite](https://discord.gg/Jx4cNGG).
-
 # Contributing
 
 Before contributing you should read through the
