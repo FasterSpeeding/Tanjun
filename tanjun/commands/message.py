@@ -87,11 +87,11 @@ def as_message_command(name: str, /, *names: str) -> _ResultProto:
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
-        The decorator callback used to make a [MessageCommand][].
+        The decorator callback used to make a [tanjun.MessageCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. [tanjun.MenuCommand][], [MessageCommand][], [tanjun.SlashCommand][]) and
-        will manage loading the other command into a component when using
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
         [tanjun.Component.load_from_scope][].
     """
 
@@ -138,11 +138,11 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
-        The decorator callback used to make a [MessageCommandGroup][].
+        The decorator callback used to make a [tanjun.MessageCommandGroup][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. [tanjun.MenuCommand][], [MessageCommand][], [tanjun.SlashCommand][]) and
-        will manage loading the other command into a component when using
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
         [tanjun.Component.load_from_scope][].
     """
 

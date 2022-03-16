@@ -131,9 +131,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         """Cache component(s) the converter takes advantage of.
 
         !!! note
-            Unless [BaseConverter.requires_cache][] is [True][], these cache
-            components aren't necessary but simply avoid the converter from
-            falling back to REST requests.
+            Unless [tanjun.conversion.BaseConverter.requires_cache][] is [True][],
+            these cache components aren't necessary but simply avoid the converter
+            from falling back to REST requests.
 
         This will be [hikari.CacheComponents.NONE][] if the converter doesn't
         make cache calls.
@@ -145,13 +145,13 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         """Gateway intents this converter takes advantage of.
 
         !!! note
-            This field is supplementary to [BaseConverter.cache_components][]
+            This field is supplementary to [tanjun.conversion.BaseConverter.cache_components][]
             and is used to detect when the relevant component might not
             actually be being kept up to date or filled by gateway events.
 
-            Unless [BaseConverter.requires_cache][] is [True][], these intents
-            being disabled won't stop this converter from working as it'll
-            still fall back to REST requests.
+            Unless [tanjun.conversion.BaseConverter.requires_cache][] is [True][],
+            these intents being disabled won't stop this converter from working as
+            it'll still fall back to REST requests.
         """
 
     @property
@@ -160,9 +160,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         """Whether this converter relies on the relevant cache stores to work.
 
         If this is [True][] then this converter will not function properly
-        in an environment [BaseConverter.intents][] or
-        [BaseConverter.cache_components][] isn't satisfied and will never
-        fallback to REST requests.
+        in an environment [tanjun.conversion.BaseConverter.intents][] or
+        [tanjun.conversion.BaseConverter.cache_components][] isn't satisfied
+        and will never fallback to REST requests.
         """
 
     def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
@@ -209,7 +209,7 @@ _GuildChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]
 class ToChannel(BaseConverter[hikari.PartialChannel]):
     """Standard converter for channels mentions/IDs.
 
-    For a standard instance of this see [to_channel][].
+    For a standard instance of this see [tanjun.conversion.to_channel][].
     """
 
     __slots__ = ("_include_dms",)
@@ -298,7 +298,7 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
 
 
 ChannelConverter = ToChannel
-"""Deprecated alias of [ToChannel][]."""
+"""Deprecated alias of [tanjun.conversion.ToChannel][]."""
 
 _EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 
@@ -306,7 +306,7 @@ _EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
 class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
     """Standard converter for custom emojis.
 
-    For a standard instance of this see [to_emoji][].
+    For a standard instance of this see [tanjun.conversion.to_emoji][].
 
     !!! note
         If you just want to convert inpute to a [hikari.Emoji][],
@@ -371,7 +371,7 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
 
 
 EmojiConverter = ToEmoji
-"""Deprecated alias of [ToEmoji][]."""
+"""Deprecated alias of [tanjun.conversion.ToEmoji][]."""
 
 
 _GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
@@ -380,7 +380,7 @@ _GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
 class ToGuild(BaseConverter[hikari.Guild]):
     """Stanard converter for guilds.
 
-    For a standard instance of this see [to_guild][].
+    For a standard instance of this see [tanjun.conversion.to_guild][].
     """
 
     __slots__ = ()
@@ -436,7 +436,7 @@ class ToGuild(BaseConverter[hikari.Guild]):
 
 
 GuildConverter = ToGuild
-"""Deprecated alias of [ToGuild][]."""
+"""Deprecated alias of [tanjun.conversion.ToGuild][]."""
 
 _InviteCacheT = typing.Optional[async_cache.AsyncCache[str, hikari.InviteWithMetadata]]
 
@@ -498,16 +498,16 @@ class ToInvite(BaseConverter[hikari.Invite]):
 
 
 InviteConverter = ToInvite
-"""Deprecated alias of [ToInvite][]."""
+"""Deprecated alias of [tanjun.conversion.ToInvite][]."""
 
 
 class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
     """Standard converter for invites with metadata.
 
-    For a standard instance of this see [to_invite_with_metadata][].
+    For a standard instance of this see [tanjun.conversion.to_invite_with_metadata][].
 
     !!! note
-        Unlike [InviteConverter][], this converter is cache dependent.
+        Unlike [tanjun.conversion.InviteConverter][], this converter is cache dependent.
     """
 
     __slots__ = ()
@@ -552,7 +552,7 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
 
 
 InviteWithMetadataConverter = ToInviteWithMetadata
-"""Deprecated alias of [ToInviteWithMetadata][]."""
+"""Deprecated alias of [tanjun.conversion.ToInviteWithMetadata][]."""
 
 
 _MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
@@ -561,7 +561,7 @@ _MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
 class ToMember(BaseConverter[hikari.Member]):
     """Standard converter for guild members.
 
-    For a standard instance of this see [to_member][].
+    For a standard instance of this see [tanjun.conversion.to_member][].
 
     This converter allows both mentions, raw IDs and partial usernames/nicknames
     and only works within a guild context.
@@ -634,7 +634,7 @@ class ToMember(BaseConverter[hikari.Member]):
 
 
 MemberConverter = ToMember
-"""Deprecated alias of [ToMember][]."""
+"""Deprecated alias of [tanjun.conversion.ToMember][]."""
 
 _PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence]]
 
@@ -642,7 +642,7 @@ _PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence
 class ToPresence(BaseConverter[hikari.MemberPresence]):
     """Standard converter for presences.
 
-    For a standard instance of this see [to_presence][].
+    For a standard instance of this see [tanjun.conversion.to_presence][].
 
     This converter is cache dependent and only works in a guild context.
     """
@@ -690,7 +690,7 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
 
 
 PresenceConverter = ToPresence
-"""Deprecated alias of [ToPresence][]."""
+"""Deprecated alias of [tanjun.conversion.ToPresence][]."""
 
 _RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 
@@ -698,7 +698,7 @@ _RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
 class ToRole(BaseConverter[hikari.Role]):
     """Standard converter for guild roles.
 
-    For a standard instance of this see [to_role][].
+    For a standard instance of this see [tanjun.conversion.to_role][].
     """
 
     __slots__ = ()
@@ -753,7 +753,7 @@ class ToRole(BaseConverter[hikari.Role]):
 
 
 RoleConverter = ToRole
-"""Deprecated alias of [ToRole][]."""
+"""Deprecated alias of [tanjun.conversion.ToRole][]."""
 
 _UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
 
@@ -761,7 +761,7 @@ _UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
 class ToUser(BaseConverter[hikari.User]):
     """Standard converter for users.
 
-    For a standard instance of this see [to_user][].
+    For a standard instance of this see [tanjun.conversion.to_user][].
     """
 
     __slots__ = ()
@@ -818,7 +818,7 @@ class ToUser(BaseConverter[hikari.User]):
 
 
 UserConverter = ToUser
-"""Deprecated alias of [ToUser][]."""
+"""Deprecated alias of [tanjun.conversion.ToUser][]."""
 
 
 _MessageCacheT = typing.Optional[async_cache.SfCache[hikari.Message]]
@@ -827,7 +827,7 @@ _MessageCacheT = typing.Optional[async_cache.SfCache[hikari.Message]]
 class ToMessage(BaseConverter[hikari.Message]):
     """Standard converter for messages.
 
-    For a standard instance of this see [to_message][].
+    For a standard instance of this see [tanjun.conversion.to_message][].
     """
 
     __slots__ = ()
@@ -888,7 +888,7 @@ _VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
 class ToVoiceState(BaseConverter[hikari.VoiceState]):
     """Standard converter for voice states.
 
-    For a standard instance of this see [to_voice_state][].
+    For a standard instance of this see [tanjun.conversion.to_voice_state][].
 
     !!! note
         This converter is cache dependent and only works in a guild context.
@@ -938,7 +938,7 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
 
 
 VoiceStateConverter = ToVoiceState
-"""Deprecated alias of [ToVoiceState][]."""
+"""Deprecated alias of [tanjun.conversion.ToVoiceState][]."""
 
 
 class _IDMatcherSig(typing.Protocol):
@@ -1052,9 +1052,9 @@ parse_snowflake: _IDMatcherSig = _make_snowflake_parser(_SNOWFLAKE_REGEX)
 
 Parameters
 ----------
-value
+value : str | int | float
     The value to parse (this argument can only be passed positionally).
-message
+message : str
     The error message to raise if the value cannot be parsed.
 
 Returns
@@ -1204,7 +1204,7 @@ Parameters
 ----------
 value : str | int | float
     The value to parse (this argument can only be passed positionally).
-message
+message : str
     The error message to raise if the value cannot be parsed.
 
     Defaults to "No valid mention or ID found".

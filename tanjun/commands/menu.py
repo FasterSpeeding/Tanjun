@@ -119,7 +119,7 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
-    r"""Build a message [MenuCommand][] by decorating a function.
+    r"""Build a message [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
@@ -163,11 +163,11 @@ def as_message_menu(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
-        The decorator callback used to make a [MenuCommand][].
+        The decorator callback used to make a [tanjun.MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. [MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]) and
-        will manage loading the other command into a component when using
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
         [tanjun.Component.load_from_scope][].
 
     Raises
@@ -188,7 +188,7 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
-    r"""Build a user [MenuCommand][] by decorating a function.
+    r"""Build a user [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
@@ -234,11 +234,11 @@ def as_user_menu(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
-        The decorator callback used to make a [MenuCommand][].
+        The decorator callback used to make a [tanjun.MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. [MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]) and
-        will manage loading the other command into a component when using
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
         [tanjun.Component.load_from_scope][].
 
     Raises
@@ -255,7 +255,7 @@ _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
-    """Base class used for the standard slash command implementations."""
+    """Base class used for the standard menu command implementations."""
 
     __slots__ = (
         "_always_defer",

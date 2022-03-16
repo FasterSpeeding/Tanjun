@@ -102,7 +102,7 @@ class _Check:
 
 
 class OwnerCheck(_Check):
-    """Standard owner check callback registered by [with_owner_check][].
+    """Standard owner check callback registered by [tanjun.with_owner_check][].
 
     This check will only pass if the author of the command is a bot owner.
     """
@@ -176,7 +176,7 @@ async def _get_is_nsfw(
 
 
 class NsfwCheck(_Check):
-    """Standard NSFW check callback registered by [with_nsfw_check][].
+    """Standard NSFW check callback registered by [tanjun.with_nsfw_check][].
 
     This check will only pass if the current channel is NSFW.
     """
@@ -219,7 +219,7 @@ class NsfwCheck(_Check):
 
 
 class SfwCheck(_Check):
-    """Standard SFW check callback registered by [with_sfw_check][].
+    """Standard SFW check callback registered by [tanjun.with_sfw_check][].
 
     This check will only pass if the current channel is SFW.
     """
@@ -262,7 +262,7 @@ class SfwCheck(_Check):
 
 
 class DmCheck(_Check):
-    """Standard DM check callback registered by [with_dm_check][].
+    """Standard DM check callback registered by [tanjun.with_dm_check][].
 
     This check will only pass if the current channel is a DM channel.
     """
@@ -291,7 +291,7 @@ class DmCheck(_Check):
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
 
-            Defaults to [False.][]
+            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -300,7 +300,7 @@ class DmCheck(_Check):
 
 
 class GuildCheck(_Check):
-    """Standard guild check callback registered by [with_guild_check][].
+    """Standard guild check callback registered by [tanjun.with_guild_check][].
 
     This check will only pass if the current channel is in a guild.
     """
@@ -338,7 +338,7 @@ class GuildCheck(_Check):
 
 
 class AuthorPermissionCheck(_Check):
-    """Standard author permission check callback registered by [with_author_permission_check][].
+    """Standard author permission check callback registered by [tanjun.with_author_permission_check][].
 
     This check will only pass if the current author has the specified permission.
     """
@@ -399,7 +399,7 @@ class AuthorPermissionCheck(_Check):
 
 
 class OwnPermissionCheck(_Check):
-    """Standard own permission check callback registered by [with_own_permission_check][].
+    """Standard own permission check callback registered by [tanjun.with_own_permission_check][].
 
     This check will only pass if the current bot user has the specified permission.
     """
@@ -958,7 +958,7 @@ def with_any_checks(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        This takes priority over [halt_execution][].
+        This takes priority over `halt_execution`.
     suppress
         Tuple of the exceptions to suppress when a check fails.
 

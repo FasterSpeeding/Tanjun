@@ -209,7 +209,7 @@ def as_slash_command(
     is_global: bool = True,
     sort_options: bool = True,
 ) -> _ResultProto:
-    r"""Build a [SlashCommand][] by decorating a function.
+    r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
@@ -272,11 +272,11 @@ def as_slash_command(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
-        The decorator callback used to make a [SlashCommand][].
+        The decorator callback used to make a [tanjun.SlashCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [SlashCommand][]) and
-        will manage loading the other command into a component when using
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
         [tanjun.Component.load_from_scope][].
 
     Raises
@@ -364,7 +364,8 @@ def with_str_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
 
-    For more information on this function's parameters see [SlashCommand.add_str_option][].
+    For more information on this function's parameters see
+    [tanjun.commands.SlashCommand.add_str_option][].
 
     Examples
     --------
@@ -407,7 +408,8 @@ def with_int_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an integer option to a slash command.
 
-    For information on this function's parameters see [SlashCommand.add_int_option][].
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_int_option][].
 
     Examples
     --------
@@ -453,7 +455,8 @@ def with_float_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a float option to a slash command.
 
-    For information on this function's parameters see [SlashCommand.add_float_option][].
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_float_option][].
 
     Examples
     --------
@@ -489,7 +492,8 @@ def with_bool_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a boolean option to a slash command.
 
-    For information on this function's parameters see [SlashContext.add_bool_option][].
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_bool_option][].
 
     Examples
     --------
@@ -513,7 +517,8 @@ def with_user_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a user option to a slash command.
 
-    For information on this function's parameters see [SlashContext.add_user_option][].
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_user_option][].
 
     !!! note
         This may result in [hikari.InteractionMember][] or
@@ -542,7 +547,8 @@ def with_member_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
-    For information on this function's arguments see [SlashCommand.add_member_option][].
+    For information on this function's arguments see
+    [tanjun.SlashCommand.add_member_option][].
 
     !!! note
         This will always result in [hikari.InteractionMember][].
@@ -596,7 +602,8 @@ def with_channel_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
 
-    For information on this function's parameters see [SlashCommand.add_channel_option][].
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_channel_option][].
 
     !!! note
         This will always result in [hikari.InteractionChannel][].
@@ -623,7 +630,8 @@ def with_role_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a role option to a slash command.
 
-    For information on this function's parameters see [SlashCommand.add_role_option][].
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_role_option][].
 
     Examples
     --------
@@ -647,7 +655,8 @@ def with_mentionable_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a mentionable option to a slash command.
 
-    For information on this function's arguments see [SlashCommand.add_mentionable_option][].
+    For information on this function's arguments see
+    [tanjun.SlashCommand.add_mentionable_option][].
 
     !!! note
         This may target roles, guild members or users and results in
@@ -1474,7 +1483,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         converters
             The option's converters.
 
-            This may be either one or multiple [ConverterSig][] callbacks used to
+            This may be either one or multiple converter callbacks used to
             convert the option's value to the final form.
             If no converters are provided then the raw value will be passed.
 
@@ -1587,7 +1596,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         converters
             The option's converters.
 
-            This may be either one or multiple [ConverterSig][] callbacks used to
+            This may be either one or multiple converter callbacks used to
             convert the option's value to the final form.
             If no converters are provided then the raw value will be passed.
 
@@ -1694,7 +1703,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         converters
             The option's converters.
 
-            This may be either one or multiple [ConverterSig][] callbacks used to
+            This may be either one or multiple converter callbacks used to
             convert the option's value to the final form.
             If no converters are provided then the raw value will be passed.
 

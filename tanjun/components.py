@@ -81,7 +81,7 @@ should return [None][].
 
 
 class AbstractComponentLoader(abc.ABC):
-    """Abstract interface used for loading utility into a standard [Component][]."""
+    """Abstract interface used for loading utility into a standard [tanjun.Component][]."""
 
     __slots__ = ()
 
@@ -335,13 +335,14 @@ class Component(tanjun_abc.Component):
 
         Notes
         -----
-        * This will load schedules which support [AbstractComponentLoader][]
+        * This will load schedules which support [tanjun.components.AbstractComponentLoader][]
           (e.g. [tanjun.schedules.IntervalSchedule][]).
         * This will ignore commands which are owned by command groups.
         * This will detect entries from the calling scope which implement
-          [AbstractComponentLoader][] unless `scope` is passed but this isn't possible
-          in a stack-less python implementation; in stack-less environments the
-          scope will have to be explicitly passed as `scope`.
+          [tanjun.components.AbstractComponentLoader][] unless `scope` is passed
+          but this isn't possible in a stack-less python implementation; in
+          stack-less environments the scope will have to be explicitly passed as
+          `scope`.
 
         Parameters
         ----------
@@ -354,7 +355,7 @@ class Component(tanjun_abc.Component):
             different from the global scope.
         scope
             The scope to detect entries which implement
-            [AbstractComponentLoader][] from.
+            [tanjun.components.AbstractComponentLoader][] from.
 
             This overrides the default usage of stackframe introspection.
 
@@ -569,17 +570,17 @@ class Component(tanjun_abc.Component):
         Self
             The client instance to enable chained calls.
         """
-        event_name = event_name.lower()
+        name = name.lower()
         try:
-            if callback in self._client_callbacks[event_name]:
+            if callback in self._client_callbacks[name]:
                 return self
 
-            self._client_callbacks[event_name].append(callback)
+            self._client_callbacks[name].append(callback)
         except KeyError:
-            self._client_callbacks[event_name] = [callback]
+            self._client_callbacks[name] = [callback]
 
         if self._client:
-            self._client.add_client_callback(event_name, callback)
+            self._client.add_client_callback(name, callback)
 
         return self
 

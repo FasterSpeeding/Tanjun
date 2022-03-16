@@ -69,7 +69,7 @@ async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
     raise errors.FailedCheck
 
 
-async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[abc.CheckSig], /) -> bool:
+async def gather_checks(ctx: abc.Context, checks: collections.Iterable[abc.CheckSig], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
@@ -85,7 +85,7 @@ async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[abc.Chec
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*(_execute_check(ctx, check) for check in checks_))
+        await asyncio.gather(*(_execute_check(ctx, check) for check in checks))
         # InjectableCheck will raise FailedCheck if a false is received so if
         # we get this far then it's True.
         return True

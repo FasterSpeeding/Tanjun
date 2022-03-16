@@ -114,30 +114,30 @@ AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback an autocomplete callback should have.
 
 This will be called when handling autocomplete and should be an asynchronous
-callback which two positional arguments of type [AutocompleteContext][] and
+callback which two positional arguments of type [tanjun.abc.AutocompleteContext][] and
 `str | int | float` (with the 2nd argument type being decided by the
 autocomplete type), returns [None][] and may use dependency injection.
 """
 
 
 CheckSig = typing.Union[collections.Callable[..., _CoroT[bool]], collections.Callable[..., bool]]
-"""Type hint of a general context check used with Tanjun [ExecutableCommand][] classes.
+"""Type hint of a general context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
 
-This may be registered with a [ExecutableCommand][] to add a rule which decides whether
-it should execute for each context passed to it. This should take one positional
-argument of type [Context][] and may either be a synchronous or asynchronous
-callback which returns [bool][] where returning [False][] or
-raising [tanjun.FailedCheck][] will indicate that the current context
-shouldn't lead to an execution.
+This may be registered with a [tanjun.abc.ExecutableCommand][] to add a rule
+which decides whether it should execute for each context passed to it. This
+should take one positional argument of type [tanjun.abc.Context][] and may
+either be a synchronous or asynchronous callback which returns [bool][] where
+returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
+current context shouldn't lead to an execution.
 """
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback a [Command][] instance will operate on.
 
 This will be called when executing a command and will need to take one
-positional argument of type [Context][] where any other required or optional
-keyword arguments will be based on the parser instance for the command if
-applicable and dependency injection.
+positional argument of type [tanjun.abc.Context][] where any other required or
+optional keyword arguments will be based on the parser instance for the command
+if applicable and dependency injection.
 
 !!! note
     This will have to be asynchronous.
@@ -152,7 +152,7 @@ ErrorHookSig = typing.Union[
 This will be called whenever an unexpected [Exception][] is raised during the
 execution stage of a command (not including expected [tanjun.TanjunError][]).
 
-This should take two positional arguments - of type [Context][] and
+This should take two positional arguments - of type [tanjun.abc.Context][] and
 [Exception][] - and may be either a synchronous or asynchronous callback which
 returns [bool][] or [None][] and may take advantage of dependency injection.
 
@@ -180,7 +180,7 @@ regardless of implementation and must be a coruotine function which returns [Non
 MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of a context menu command callback.
 
-This is guaranteed two positional; arguments of type [MenuContext][]
+This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
 and either `hikari.User | hikari.InteractionMember` and/or
 [hikari.Message][] dependent on the type(s) of menu this is.
 """
@@ -190,7 +190,7 @@ MetaEventSig = typing.Union[collections.Callable[..., _CoroT[None]], collections
 
 The positional arguments this is guaranteed depend on the event name its being
 subscribed to (more information the standard client callbacks can be found at
-[ClientCallbackNames][]) and may be either synchronous or asynchronous but must
+[tanjun.abc.ClientCallbackNames][]) and may be either synchronous or asynchronous but must
 return [None][].
 """
 
@@ -218,12 +218,12 @@ class Context(alluka.Context):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun [Client][] implementation this context was spawned by."""
+        """Tanjun [tanjun.abc.Client][] implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        """Object of the [Component][] this context is bound to.
+        """Object of the [tanjun.abc.Component][] this context is bound to.
 
         !!! note
             This will only be [None][] before this has been bound to a
@@ -295,7 +295,7 @@ class Context(alluka.Context):
         """Shard that triggered the context.
 
         !!! note
-            This will be [None][] if [Context.shards][] is also [None][].
+            This will be [None][] if [tanjun.abc.Context.shards][] is also [None][].
         """
 
     @property
@@ -321,7 +321,7 @@ class Context(alluka.Context):
         """Fetch the channel the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [Context.get_channel][]
+            This performs an API call. Consider using [tanjun.abc.Context.get_channel][]
             if you have [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
 
         Returns
@@ -360,7 +360,7 @@ class Context(alluka.Context):
         """Fetch the guild the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [Context.get_guild][]
+            This performs an API call. Consider using [tanjun.abc.Context.get_guild][]
             if you have [hikari.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
@@ -1041,7 +1041,7 @@ class MessageContext(Context, abc.ABC):
             Whether to reply instead of sending the content to the context.
 
             Defaults to [hikari.UNDEFINED][].
-            Passing [True][] here indicates a reply to [MessageContext.message][].
+            Passing [True][] here indicates a reply to [tanjun.abc.MessageContext.message][].
         nonce
             The nonce that validates that the message was sent.
         attachment
@@ -1175,7 +1175,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [SlashOption.type][] is not BOOLEAN.
+            If [tanjun.abc.SlashOption.type][] is not BOOLEAN.
         """
 
     @abc.abstractmethod
@@ -1185,7 +1185,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [SlashOption.type][] is not FLOAT.
+            If [tanjun.abc.SlashOption.type][] is not FLOAT.
         ValueError
             If called on the focused option for an autocomplete interaction
             when it's a malformed (incomplete) float.
@@ -1198,7 +1198,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [SlashOption.type][] is not INTEGER.
+            If [tanjun.abc.SlashOption.type][] is not INTEGER.
         ValueError
             If called on the focused option for an autocomplete interaction
             when it's a malformed (incomplete) integer.
@@ -1211,7 +1211,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [SlashOption.type][] is not one of CHANNEL, MENTIONABLE, ROLE
+            If [tanjun.abc.SlashOption.type][] is not one of CHANNEL, MENTIONABLE, ROLE
             or USER.
         """
 
@@ -1222,7 +1222,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [SlashOption.type][] is not STRING.
+            If [tanjun.abc.SlashOption.type][] is not STRING.
         """
 
     @abc.abstractmethod
@@ -1388,10 +1388,10 @@ class AppCommandContext(Context, abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether the context is marked as defaulting to ephemeral response.
 
-        This effects calls to [SlashContext.create_followup][],
-        [SlashContext.create_initial_response][], [SlashContext.defer][] and
-        [SlashContext.respond][] unless the `flags` field is provided for the
-        methods which support it.
+        This effects calls to [tanjun.abc.SlashContext.create_followup][],
+        [tanjun.abc.SlashContext.create_initial_response][], [tanjun.abc.SlashContext.defer][]
+        and [tanjun.abc.SlashContext.respond][] unless the `flags` field is
+        provided for the methods which support it.
         """
 
     @property
@@ -1409,10 +1409,10 @@ class AppCommandContext(Context, abc.ABC):
         """Whether the initial response for this context has been deferred.
 
         !!! warning
-            If this is [True][] when [SlashContext.has_responded][] is [False][]
-            then [SlashContext.edit_initial_response][] will need to be used
-            to create the initial response rather than
-            [SlashContext.create_initial_response][].
+            If this is [True][] when [tanjun.abc.SlashContext.has_responded][]
+            is [False][] then [tanjun.abc.SlashContext.edit_initial_response][]
+            will need to be used to create the initial response rather than
+            [tanjun.abc.SlashContext.create_initial_response][].
         """
 
     @property
@@ -1897,7 +1897,7 @@ class AutocompleteContext(alluka.Context):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun [Client][] implementation this context was spawned by."""
+        """Tanjun [tanjun.abc.Client][] implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
@@ -1950,7 +1950,7 @@ class AutocompleteContext(alluka.Context):
         """Shard that triggered the context.
 
         !!! note
-            This will be [None][] if [AutocompleteContext.shards][] is also
+            This will be [None][] if [tanjun.abc.AutocompleteContext.shards][] is also
             [None][].
         """
 
@@ -1983,7 +1983,7 @@ class AutocompleteContext(alluka.Context):
         """Fetch the channel the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [AutocompleteContext.get_channel][]
+            This performs an API call. Consider using [tanjun.abc.AutocompleteContext.get_channel][]
             if you have [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
 
         Returns
@@ -2022,7 +2022,7 @@ class AutocompleteContext(alluka.Context):
         """Fetch the guild the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [AutocompleteContext.get_guild][]
+            This performs an API call. Consider using [tanjun.abc.AutocompleteContext.get_guild][]
             if you have [hikari.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
@@ -2139,7 +2139,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [Context][] and [Exception][]) and may be either
+            [tanjun.abc.Context][] and [Exception][]) and may be either
             synchronous or asynchronous.
 
             Returning [True][] indicates that the error should be suppressed,
@@ -2181,7 +2181,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [Context][] and [Exception][]) and may be either
+            [tanjun.abc.Context][] and [Exception][]) and may be either
             synchronous or asynchronous.
 
             Returning [True][] indicates that the error shoul be suppressed,
@@ -2205,7 +2205,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [Context][] and [tanjun.ParserError][]),
+            [tanjun.abc.Context][] and [tanjun.ParserError][]),
             return [None][] and may be either synchronous or asynchronous.
 
             It's worth noting that this unlike general error handlers, this will
@@ -2237,7 +2237,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The parser error callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [Context][] and [tanjun.ParserError][]), return [None][]
+            [tanjun.abc.Context][] and [tanjun.ParserError][]), return [None][]
             and may be either synchronous or asynchronous.
 
         Returns
@@ -2256,8 +2256,8 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [Context][]), return [None][] and may be either synchronous or
-            asynchronous.
+            [tanjun.abc.Context][]), return [None][] and may be either
+            synchronous or asynchronous.
 
         Returns
         -------
@@ -2285,7 +2285,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The post-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [Context][]), return [None][] and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2304,7 +2304,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [Context][]), return [None][] and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2333,7 +2333,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The pre-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [Context][]), return [None][] and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2352,7 +2352,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [Context][]), return [None][] and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2381,7 +2381,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The success callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [Context][]), return [None][] and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2571,10 +2571,10 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether contexts executed by this command should default to ephemeral responses.
 
-        This effects calls to [SlashContext.create_followup][],
-        [SlashContext.create_initial_response][], [SlashContext.defer][] and
-        [SlashContext.respond][] unless the `flags` field is provided for the
-        methods which support it.
+        This effects calls to [tanjun.abc.SlashContext.create_followup][],
+        [tanjun.abc.SlashContext.create_initial_response][],
+        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        unless the `flags` field is provided for the methods which support it.
 
         Returns
         -------
@@ -2772,8 +2772,8 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     """Standard interface of a slash command group.
 
     !!! note
-        Unlike [MessageCommandGroup][], slash command groups do not have
-        their own callback.
+        Unlike [tanjun.abc.MessageCommandGroup][], slash command groups do not
+        have their own callback.
     """
 
     __slots__ = ()
@@ -2863,7 +2863,7 @@ class MessageParser(abc.ABC):
 
         !!! warning
             This relies on the prefix and command name(s) having been removed
-            from [MessageContext.content][].
+            from [tanjun.abc.MessageContext.content][].
 
         Parameters
         ----------
@@ -3053,10 +3053,10 @@ class Component(abc.ABC):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether slash contexts executed in this component should default to ephemeral responses.
 
-        This effects calls to [SlashContext.create_followup][],
-        [SlashContext.create_initial_response][], [SlashContext.defer][] and
-        [SlashContext.respond][] unless the `flags` field is provided for the
-        methods which support it.
+        This effects calls to [tanjun.abc.SlashContext.create_followup][],
+        [tanjun.abc.SlashContext.create_initial_response][],
+        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        unless the `flags` field is provided for the methods which support it.
 
         Notes
         -----
@@ -3588,7 +3588,7 @@ class Component(abc.ABC):
 class ClientCallbackNames(str, enum.Enum):
     """Enum of the standard client callback names.
 
-    These should be dispatched by all [Client][] implementations.
+    These should be dispatched by all [tanjun.abc.Client][] implementations.
     """
 
     CLOSED = "closed"
@@ -3610,7 +3610,7 @@ class ClientCallbackNames(str, enum.Enum):
         This event isn't dispatched for components which were registered while
         the client is inactive.
 
-    The first positional argument is the [Component][] being added.
+    The first positional argument is the [tanjun.abc.Component][] being added.
     """
 
     COMPONENT_REMOVED = "component_removed"
@@ -3620,25 +3620,25 @@ class ClientCallbackNames(str, enum.Enum):
         This event isn't dispatched for components which were removed while
         the client is inactive.
 
-    The first positional argument is the [Component][] being removed.
+    The first positional argument is the [tanjun.abc.Component][] being removed.
     """
 
     MENU_COMMAND_NOT_FOUND = "menu_command_not_found"
     """Called when a menu command is not found.
 
-    [MenuContext][] is provided as the first positional argument.
+    [tanjun.abc.MenuContext][] is provided as the first positional argument.
     """
 
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
-    [MssageContext][] is provided as the first positional argument.
+    [tanjun.abc.MssageContext][] is provided as the first positional argument.
     """
 
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
     """Called when a slash command is not found.
 
-    [SlashContext][] is provided as the first positional argument.
+    [tanjun.abc.SlashContext][] is provided as the first positional argument.
     """
 
     STARTED = "started"
@@ -3678,15 +3678,15 @@ class Client(abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether slash contexts spawned by this client should default to ephemeral responses.
 
-        This effects calls to [SlashContext.create_followup][],
-        [SlashContext.create_initial_response][], [SlashContext.defer][] and
-        [SlashContext.respond][] unless the `flags` field is provided for the
-        methods which support it.
+        This effects calls to [tanjun.abc.SlashContext.create_followup][],
+        [tanjun.abc.SlashContext.create_initial_response][],
+        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        unless the `flags` field is provided for the methods which support it.
 
         Notes
         -----
         * This may be overridden by [BaseSlashCommand.defaults_to_ephemeral][]
-          and [Component.defaults_to_ephemeral][].
+          and [tanjun.abc.Component.defaults_to_ephemeral][].
         * This defaults to [False][].
         * This only effects slash command execution.
         """
@@ -3780,7 +3780,7 @@ class Client(abc.ABC):
             The application to clear commands for.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [Client.rest][].
+            being used by [tanjun.abc.Client.rest][].
         guild
             Object or ID of the guild to clear commands for.
 
@@ -3826,7 +3826,7 @@ class Client(abc.ABC):
             Object or ID of the application to set the global commands for.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [Client.rest][].
+            being used by [tanjun.abc.Client.rest][].
         guild
             Object or ID of the guild to set the global commands to.
 
@@ -3915,7 +3915,7 @@ class Client(abc.ABC):
             The application to register the command with.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [Client.rest][].
+            being used by [tanjun.abc.Client.rest][].
         command_id
             ID of the command to update.
         guild
@@ -3969,7 +3969,7 @@ class Client(abc.ABC):
             The application to register the commands with.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [Client.rest][].
+            being used by [tanjun.abc.Client.rest][].
         guild
             Object or ID of the guild to register the commands with.
 
@@ -4104,7 +4104,7 @@ class Client(abc.ABC):
 
             This may be sync or async and must return None. The positional and
             keyword arguments a callback should expect depend on implementation
-            detail around the [name][] being subscribed to.
+            detail around the `name` being subscribed to.
 
         Returns
         -------
@@ -4474,13 +4474,13 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of [Client.load_modules][].
+        """Asynchronous variant of [tanjun.abc.Client.load_modules][].
 
-        Unlike [Client.load_modules][], this method will run blocking code in a
-        background thread.
+        Unlike [tanjun.abc.Client.load_modules][], this method will run blocking
+        code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [Client.load_modules][].
+        documentation for [tanjun.abc.Client.load_modules][].
         """
 
     @abc.abstractmethod
@@ -4494,7 +4494,7 @@ class Client(abc.ABC):
         Examples
         --------
         For this to work the module has to have at least one unloading enabled
-        [ClientLoader][] present.
+        [tanjun.abc.ClientLoader][] present.
 
         ```py
         @tanjun.as_unloader
@@ -4515,7 +4515,7 @@ class Client(abc.ABC):
             Path of one or more modules to unload.
 
             These should be the same path(s) which were passed to
-            [Client.load_module][].
+            [tanjun.abc.Client.load_module][].
 
         Returns
         -------
@@ -4554,7 +4554,7 @@ class Client(abc.ABC):
             Paths of one or more module to unload.
 
             These should be the same paths which were passed to
-            [Client.load_module][].
+            [tanjun.abc.Client.load_module][].
 
         Returns
         -------
@@ -4584,13 +4584,13 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of [Client.reload_modules][].
+        """Asynchronous variant of [tanjun.abc.Client.reload_modules][].
 
-        Unlike [Client.reload_modules][], this method will run blocking code in a
-        background thread.
+        Unlike [tanjun.abc.Client.reload_modules][], this method will run
+        blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [Client.reload_modules][].
+        documentation for [tanjun.abc.Client.reload_modules][].
         """
 
     @abc.abstractmethod
@@ -4622,7 +4622,7 @@ class Client(abc.ABC):
         Returns
         -------
         _T | alluka.abc.Undefined
-            The resolved type if found, else [Undefined][].
+            The resolved type if found, else [alluka.abc.UNDEFINED][].
         """
 
     @abc.abstractmethod

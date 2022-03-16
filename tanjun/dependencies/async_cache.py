@@ -118,8 +118,8 @@ class CacheIterator(hikari.LazyIterator[_ValueT]):
         """Get the length of the target resource.
 
         !!! note
-            Unlike [CacheIterator.count][], this method will not deplete
-            the iterator.
+            Unlike [tanjun.dependencies.CacheIterator.count][], this method
+            will not deplete the iterator.
 
         Returns
         -------
@@ -230,7 +230,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
 
 SfCache = AsyncCache[hikari.Snowflakeish, _ValueT]
-"""Alias of [AsyncCache][] where the key is a snowflake."""
+"""Alias of [tanjun.dependencies.AsyncCache][] where the key is a snowflake."""
 
 
 class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
@@ -248,7 +248,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
         ----------
         channel_id
             ID of the channel to get an entry for.
-        id
+        key
             Unique key of the entry to get; this will usually be a snowflake.
         default
             The default value to return if an entry wasn't found.
@@ -307,7 +307,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
 
 SfChannelBound = ChannelBoundCache[hikari.Snowflakeish, _ValueT]
-"""Alias of [ChannelBoundCache][] where the key is a snowflake."""
+"""Alias of [tanjun.dependencies.ChannelBoundCache][] where the key is a snowflake."""
 
 
 class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
@@ -388,4 +388,4 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
 
 SfGuildBound = GuildBoundCache[hikari.Snowflakeish, _ValueT]
-"""Alias of [GuildBoundCache][] where the key is a snowflake."""
+"""Alias of [tanjun.dependencies.GuildBoundCache][] where the key is a snowflake."""

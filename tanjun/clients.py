@@ -246,19 +246,20 @@ def as_loader(
     """Mark a callback as being used to load Tanjun components from a module.
 
     !!! note
-        This is only necessary if you wish to use [Client.load_modules][].
+        This is only necessary if you wish to use [tanjun.Client.load_modules][].
 
     Parameters
     ----------
     callback
         The callback used to load Tanjun components from a module.
 
-        This should take one argument of type [Client][] (or [tanjun.abc.Client][]
-        if `standard_impl` is [False][]), return nothing and will be expected
-        to initiate and add utilities such as components to the provided client.
+        This should take one argument of type [tanjun.Client][] (or
+        [tanjun.abc.Client][] if `standard_impl` is [False][]), return nothing
+        and will be expected to initiate and add utilities such as components
+        to the provided client.
     standard_impl
-        Whether this loader should only allow instances of [Client][] as opposed
-        to [tanjun.abc.Client][].
+        Whether this loader should only allow instances of [tanjun.Client][]
+        as opposed to [tanjun.abc.Client][].
 
         Defaults to [True][].
 
@@ -293,20 +294,22 @@ def as_unloader(
     """Mark a callback as being used to unload a module's utilities from a client.
 
     !!! note
-        This is the inverse of [as_loader][] and is only necessary if you wish
-        to use the [Client.unload_module][] or [Client.reload_module][].
+        This is the inverse of [tanjun.as_loader][] and is only necessary if
+        you wish to use the [tanjun.Client.unload_module][] or
+        [tanjun.Client.reload_module][].
 
     Parameters
     ----------
     callback
         The callback used to unload Tanjun components from a module.
 
-        This should take one argument of type [Client][] (or [tanjun.abc.Client][]
-        if `standard_impl` is [False][]), return nothing and will be expected
-        to remove utilities such as components from the provided client.
+        This should take one argument of type [tanjun.Client][] (or
+        [tanjun.abc.Client][] if `standard_impl` is [False][]), return nothing
+        and will be expected to remove utilities such as components from the
+        provided client.
     standard_impl
-        Whether this unloader should only allow instances of [Client][] as
-        opposed to [tanjun.abc.Client][].
+        Whether this unloader should only allow instances of [tanjun.Client][]
+        as opposed to [tanjun.abc.Client][].
 
         Defaults to [True][].
 
@@ -323,7 +326,7 @@ ClientCallbackNames = tanjun_abc.ClientCallbackNames
 
 
 class MessageAcceptsEnum(str, enum.Enum):
-    """The possible configurations for which events [Client][] should execute commands based on."""
+    """The possible configurations for which events [tanjun.Client][] should execute commands based on."""
 
     ALL = "ALL"
     """Set the client to execute commands based on both DM and guild message create events."""
@@ -379,7 +382,7 @@ async def _wrap_client_callback(
 async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) -> None:
     """Handle message parser errors.
 
-    This is the default message parser error hook included by [Client][].
+    This is the default message parser error hook included by [tanjun.Client][].
     """
     await ctx.respond(error.message)
 
@@ -441,7 +444,7 @@ class Client(tanjun_abc.Client):
 
     !!! note
         By default this client includes a parser error handling hook which will
-        by overwritten if you call [Client.set_hooks][].
+        by overwritten if you call [tanjun.Client.set_hooks][].
     """
 
     __slots__ = (
@@ -506,7 +509,7 @@ class Client(tanjun_abc.Client):
         Notes
         -----
         * For a quicker way to initiate this client around a standard bot aware
-        client, see [Client.from_gateway_bot][] and [Client.from_rest_bot][].
+        client, see [tanjun.Client.from_gateway_bot][] and [tanjun.Client.from_rest_bot][].
         * The endpoint used by `declare_global_commands` has a strict ratelimit which,
         as of writing, only allows for 2 requests per minute (with that ratelimit
         either being per-guild if targeting a specific guild otherwise globally).
@@ -770,7 +773,7 @@ class Client(tanjun_abc.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a [Client][] from a [hikari.traits.GatewayBotAware][] instance.
+        """Build a [tanjun.Client][] from a [hikari.traits.GatewayBotAware][] instance.
 
         Notes
         -----
@@ -869,7 +872,7 @@ class Client(tanjun_abc.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a [Client][] from a [hikari.traits.RESTBotAware][] instance.
+        """Build a [tanjun.Client][] from a [hikari.traits.RESTBotAware][] instance.
 
         Notes
         -----
@@ -1052,7 +1055,8 @@ class Client(tanjun_abc.Client):
     def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
         """Prefix getter method set for this client.
 
-        For more information on this callback's signature see [PrefixGetter][].
+        For more information on this callback's signature see
+        [tanjun.clients.PrefixGetterSig][].
         """
         return self._prefix_getter
 
@@ -1106,10 +1110,10 @@ class Client(tanjun_abc.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
-        """Alias of [Client.declare_global_commands][].
+        """Alias of [tanjun.Client.declare_global_commands][].
 
         .. deprecated:: v2.1.1a1
-            Use [Client.declare_global_commands][] instead.
+            Use [tanjun.Client.declare_global_commands][] instead.
         """
         warnings.warn(
             "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
@@ -1380,7 +1384,7 @@ class Client(tanjun_abc.Client):
     def set_hikari_trait_injectors(self: _ClientT, bot: hikari.RESTAware, /) -> _ClientT:
         """Set type based dependency injection based on the hikari traits found in `bot`.
 
-        This is a short hand for calling [Client.add_type_dependency][] for all
+        This is a short hand for calling [tanjun.Client.add_type_dependency][] for all
         the hikari trait types `bot` is valid for with bot.
 
         Parameters
@@ -2074,8 +2078,8 @@ class Client(tanjun_abc.Client):
     async def open(self, *, register_listeners: bool = True) -> None:
         """Start the client.
 
-        If `mention_prefix` was passed to [Client.__init__][] or
-        [Client.from_gateway_bot][] then this function may make a fetch request
+        If `mention_prefix` was passed to [tanjun.Client.__init__][] or
+        [tanjun.Client.from_gateway_bot][] then this function may make a fetch request
         to Discord if it cannot get the current user from the cache.
 
         Raises
