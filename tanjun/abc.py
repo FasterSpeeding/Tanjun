@@ -3632,7 +3632,7 @@ class ClientCallbackNames(str, enum.Enum):
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
-    [tanjun.abc.MssageContext][] is provided as the first positional argument.
+    [tanjun.abc.MessageContext][] is provided as the first positional argument.
     """
 
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"

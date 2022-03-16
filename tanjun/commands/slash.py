@@ -330,7 +330,8 @@ def with_attachment_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an attachment option to a slash command.
 
-    For more information on this function's parameters see `SlashCommand.add_attachment_option`.
+    For more information on this function's parameters see
+    [tanjun.SlashCommand.add_attachment_option][].
 
     Examples
     --------
@@ -1390,29 +1391,29 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add an attachment option to the slash command.
 
-        .. note::
-            This will result in options of type `hikari.Attachment`.
+        !!! note
+            This will result in options of type [hikari.Attachment][].
 
         Parameters
         ----------
-        name : str
+        namex
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
             This should be inclusively between 1-100 characters in length.
 
         Other Parameters
         ----------------
-        default : typing.Any
+        default
             The option's default value.
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
+            Defaults to [True][]. If [False][] is passed here then `default` will
             only decide whether the option is required without the actual value
             being used and the `coverters` field will be ignored.
 
