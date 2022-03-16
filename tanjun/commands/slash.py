@@ -152,8 +152,6 @@ def slash_command_group(
         The description of the command group.
     default_permission
         Whether this command can be accessed without set permissions.
-
-        Defaults to [True][], meaning that users can access the command by default.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -161,7 +159,7 @@ def slash_command_group(
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
     is_global
-        Whether this command is a global command. Defaults to [True][].
+        Whether this command is a global command.
 
     Returns
     -------
@@ -247,12 +245,8 @@ def as_slash_command(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-
-        Defaults to [False][].
     default_permission
         Whether this command can be accessed without set permissions.
-
-        Defaults to [True][], meaning that users can access the command by default.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -260,7 +254,7 @@ def as_slash_command(
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
     is_global
-        Whether this command is a global command. Defaults to `True`.
+        Whether this command is a global command.
     sort_options
         Whether this command should sort its set options based on whether
         they're required.
@@ -937,8 +931,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             The description of the command group.
         default_permission
             Whether this command can be accessed without set permissions.
-
-            Defaults to [True][], meaning that users can access the command by default.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -946,7 +938,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
         is_global
-            Whether this command is a global command. Defaults to [True][].
+            Whether this command is a global command.
 
         Raises
         ------
@@ -1206,12 +1198,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         always_defer
             Whether the contexts this command is executed with should always be deferred
             before being passed to the command's callback.
-
-            Defaults to [False][].
         default_permission
             Whether this command can be accessed without set permissions.
-
-            Defaults to [True][], meaning that users can access the command by default.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -1219,7 +1207,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
         is_global
-            Whether this command is a global command. Defaults to [True][].
+            Whether this command is a global command.
         sort_options
             Whether this command should sort its set options based on whether
             they're required.
@@ -1396,7 +1384,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        namex
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
@@ -1413,9 +1401,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the `coverters` field will be ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            `coverters` field will be ignored.
 
         Returns
         -------
@@ -1496,9 +1484,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the `coverters` field will be ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            `coverters` field will be ignored.
 
         Returns
         -------
@@ -1607,19 +1595,15 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             If this is left as undefined then this option will be required.
         min_value
             The option's (inclusive) minimum value.
-
-            Defaults to no minimum value.
         max_value
             The option's (inclusive) maximum value.
-
-            Defaults to no minimum value.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the `coverters` field will be ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            `coverters` field will be ignored.
 
         Returns
         -------
@@ -1688,7 +1672,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             float (this will happen before it's passed to converters).
 
             This masks behaviour from Discord where we will either be provided a [float][]
-            or [int][] dependent on what the user provided and defaults to [True][].
+            or [int][] dependent on what the user provided.
         autocomplete
             The autocomplete callback for the option.
 
@@ -1714,20 +1698,15 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             If this is left as undefined then this option will be required.
         min_value
             The option's (inclusive) minimum value.
-
-            Defaults to no minimum value.
         max_value
             The option's (inclusive) maximum value.
-
-            Defaults to no minimum value.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the fields `coverters`, and `always_float` will be
-            ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            fields `coverters`, and `always_float` will be ignored.
 
         Returns
         -------
@@ -1792,9 +1771,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -1846,9 +1824,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -1950,9 +1927,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -2017,9 +1993,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -2068,9 +2043,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to [True][]. If [False][] is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------

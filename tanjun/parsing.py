@@ -370,7 +370,6 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
             with the result of them.
         multi
             If this option can be provided multiple times.
-            Defaults to [False][].
 
         Returns
         -------
@@ -1060,7 +1059,6 @@ def with_option(
         with the result of them.
     multi
         If this option can be provided multiple times.
-        Defaults to [False][].
 
     Returns
     -------
@@ -1503,7 +1501,6 @@ class Option(Parameter):
             with the result of them.
         multi
             If this option can be provided multiple times.
-            Defaults to [False][].
         """
         if not name.startswith("-") or not all(n.startswith("-") for n in names):
             raise ValueError("All option names must start with `-`")

@@ -155,15 +155,11 @@ def as_interval(
     fatal_exceptions
         A sequence of exceptions that will cause the schedule to stop if raised
         by the callback, start callback or stop callback.
-
-        Defaults to no exceptions.
     ignored_exceptions
         A sequence of exceptions that should be ignored if raised by the
         callback, start callback or stop callback.
-
-        Defaults to no exceptions.
     max_runs
-        The maximum amount of times the schedule runs. Defaults to no maximum.
+        The maximum amount of times the schedule runs.
 
     Returns
     -------
@@ -218,15 +214,11 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         fatal_exceptions
             A sequence of exceptions that will cause the schedule to stop if raised
             by the callback, start callback or stop callback.
-
-            Defaults to no exceptions.
         ignored_exceptions
             A sequence of exceptions that should be ignored if raised by the
             callback, start callback or stop callback.
-
-            Defaults to no exceptions.
         max_runs
-            The maximum amount of times the schedule runs. Defaults to no maximum.
+            The maximum amount of times the schedule runs.
         """
         if isinstance(interval, datetime.timedelta):
             self._interval: datetime.timedelta = interval

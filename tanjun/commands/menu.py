@@ -126,6 +126,10 @@ def as_message_menu(
         the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
+    !!! note
+        If you want your first response to be ephemeral while using
+        `always_defer`, you must set `default_to_ephemeral` to `True`.
+
     Examples
     --------
     ```py
@@ -145,12 +149,6 @@ def as_message_menu(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-
-        Defaults to [False][].
-
-        !!! note
-            The ephemeral state of the first response is decided by whether the
-            deferral is ephemeral.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -158,7 +156,7 @@ def as_message_menu(
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
     is_global
-        Whether this command is a global command. Defaults to [True][].
+        Whether this command is a global command.
 
     Returns
     -------
@@ -195,6 +193,10 @@ def as_user_menu(
         the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
+    !!! note
+        If you want your first response to be ephemeral while using
+        `always_defer`, you must set `default_to_ephemeral` to `True`.
+
     Examples
     --------
     ```py
@@ -216,12 +218,6 @@ def as_user_menu(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-
-        Defaults to [False][].
-
-        !!! note
-            The ephemeral state of the first response is decided by whether the
-            deferral is ephemeral.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -229,7 +225,7 @@ def as_user_menu(
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
     is_global
-        Whether this command is a global command. Defaults to [True][].
+        Whether this command is a global command.
 
     Returns
     -------

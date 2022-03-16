@@ -139,8 +139,7 @@ class Owners(AbstractOwners):
         expire_after
             The amount of time to cache application owner data for in seconds.
 
-            This defaults to 5 minutes and is only applicable if `rest` is also
-            passed.
+            This is only applicable if `rest` is also passed.
         fallback_to_application
             Whether this check should fallback to checking the application's owners
             if the user isn't in `owners`.

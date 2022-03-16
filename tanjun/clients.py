@@ -261,8 +261,6 @@ def as_loader(
         Whether this loader should only allow instances of [tanjun.Client][]
         as opposed to [tanjun.abc.Client][].
 
-        Defaults to [True][].
-
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.Client], None]]
@@ -310,8 +308,6 @@ def as_unloader(
     standard_impl
         Whether this unloader should only allow instances of [tanjun.Client][]
         as opposed to [tanjun.abc.Client][].
-
-        Defaults to [True][].
 
     Returns
     -------
@@ -539,8 +535,7 @@ class Client(tanjun_abc.Client):
             An event managed client will be automatically started and closed based
             on Hikari's lifetime events.
 
-            Defaults to [False][] and can only be passed as [True][] if
-            `events` is also provided.
+            This can only be passed as [True][] if `events` is also provided.
         injector
             The alluka client this should use for dependency injection.
 
@@ -549,11 +544,10 @@ class Client(tanjun_abc.Client):
             Whether or not mention prefixes should be automatically set when this
             client is first started.
 
-            Defaults to [False][] and it should be noted that this only applies to
-            message commands.
+            It should be noted that this only applies to message commands.
         declare_global_commands
             Whether or not to automatically set global slash commands when this
-            client is first started. Defaults to [False][].
+            client is first started.
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
@@ -796,8 +790,6 @@ class Client(tanjun_abc.Client):
 
             An event managed client will be automatically started and closed
             based on Hikari's lifetime events.
-
-            Defaults to [True][].
         injector
             The alluka client this should use for dependency injection.
 
@@ -806,11 +798,10 @@ class Client(tanjun_abc.Client):
             Whether or not mention prefixes should be automatically set when this
             client is first started.
 
-            Defaults to [False][] and it should be noted that this only applies to
-            message commands.
+            It should be noted that this only applies to message commands.
         declare_global_commands
             Whether or not to automatically set global slash commands when this
-            client is first started. Defaults to [False][].
+            client is first started.
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
@@ -889,7 +880,7 @@ class Client(tanjun_abc.Client):
             The bot client to build from.
         declare_global_commands
             Whether or not to automatically set global slash commands when this
-            client is first started. Defaults to [False][].
+            client is first started.
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
@@ -1364,14 +1355,15 @@ class Client(tanjun_abc.Client):
     def set_ephemeral_default(self: _ClientT, state: bool, /) -> _ClientT:
         """Set whether slash contexts spawned by this client should default to ephemeral responses.
 
+        This defaults to [False][] if not explicitly set.
+
         Parameters
         ----------
         state
             Whether slash command contexts executed in this component should
             should default to ephemeral.
 
-            This will be overridden by any response calls which specify flags
-            and defaults to [False][].
+            This will be overridden by any response calls which specify flags.
 
         Returns
         -------
@@ -1479,8 +1471,6 @@ class Client(tanjun_abc.Client):
             [tanjun.context.AutocompleteContext.__init__][] and return
             an instance of [tanjun.context.AutocompleteContext][].
 
-            This defaults to [tanjun.context.AutocompleteContext][].
-
         Returns
         -------
         Self
@@ -1507,8 +1497,6 @@ class Client(tanjun_abc.Client):
             [tanjun.context.MenuContext.__init__][] and return
             an instance of [tanjun.context.MenuContext][].
 
-            This defaults to [tanjun.context.MenuContext][].
-
         Returns
         -------
         Self
@@ -1534,8 +1522,6 @@ class Client(tanjun_abc.Client):
             This is a callback which should match the signature of
             [tanjun.context.MessageContext.__init__][] and return an instance
             of [tanjun.context.MessageContext][].
-
-            This defaults to [tanjun.context.MessageContext][].
 
         Returns
         -------
@@ -1567,8 +1553,6 @@ class Client(tanjun_abc.Client):
             This is a callback which should match the signature of
             [tanjun.context.SlashContext.__init__][] and return an instance
             of [tanjun.context.SlashContext][].
-
-            This defaults to [tanjun.context.SlashContext][].
 
         Returns
         -------

@@ -224,8 +224,6 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
 
             May lead to a lot of extra fallbacks to REST requests if
             the client doesn't have a registered async cache for DMs.
-
-            Defaults to [True][].
         """
         self._include_dms = include_dms
 
@@ -1093,8 +1091,6 @@ value : str | int | float
 message : str
     The error message to raise if the value cannot be parsed.
 
-    Defaults to "No valid mention or ID found".
-
 Returns
 -------
 hikari.Snowflake
@@ -1429,8 +1425,7 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
         The style to use.
 
         The valid styles can be found at
-        https://discord.com/developers/docs/reference#message-formatting-formats
-        and this defaults to `"f"`.
+        https://discord.com/developers/docs/reference#message-formatting-formats.
 
     Returns
     -------

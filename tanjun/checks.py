@@ -125,13 +125,11 @@ class OwnerCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Only bot owners can use this command" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the
+            command search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -188,7 +186,7 @@ class NsfwCheck(_Check):
         *,
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
-    ) -> None:  # TODO: can we remove the "defaults to" parts from the descriptions?
+    ) -> None:
         """Initialise a NSFW check.
 
         !!! note
@@ -199,13 +197,11 @@ class NsfwCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in NSFW channels" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the command
+            search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -242,13 +238,11 @@ class SfwCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in SFW channels" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the command
+            search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -285,13 +279,11 @@ class DmCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in DMs" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the command
+            search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -323,13 +315,11 @@ class GuildCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Command can only be used in guild channels" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the command
+            search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message, halt_execution)
 
@@ -365,13 +355,11 @@ class AuthorPermissionCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "You don't have the permissions required to use this command" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the command
+            search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
@@ -426,13 +414,11 @@ class OwnPermissionCheck(_Check):
         error_message
             The error message to send in response as a command error if the check fails.
 
-            Defaults to "Bot doesn't have the permissions required to run this command" and setting this to [None][]
-            will disable the error message allowing the command search to continue.
+            Setting this to [None][] will disable the error message allowing the command
+            search to continue.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
-
-            Defaults to [False][].
         """
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
@@ -495,13 +481,11 @@ def with_dm_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in DMs" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------
@@ -542,13 +526,11 @@ def with_guild_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in guild channels" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------
@@ -589,13 +571,11 @@ def with_nsfw_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in NSFW channels" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------
@@ -638,13 +618,11 @@ def with_sfw_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Command can only be used in SFW channels" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------
@@ -687,13 +665,11 @@ def with_owner_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Only bot owners can use this command" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------
@@ -718,13 +694,11 @@ def with_author_permission_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "You don't have the permissions required to use this command" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Notes
     -----
@@ -757,13 +731,11 @@ def with_own_permission_check(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        Defaults to "Bot doesn't have the permissions required to run this command" and setting this to [None][]
-        will disable the error message allowing the command search to continue.
+        Setting this to [None][] will disable the error message allowing the command
+        search to continue.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Notes
     -----
@@ -920,13 +892,9 @@ def any_checks(
         This takes priority over `halt_execution`.
     suppress
         Tuple of the exceptions to suppress when a check fails.
-
-        Defaults to ([tanjun.CommandError][], [tanjun.HaltExecution][]).
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------
@@ -961,13 +929,9 @@ def with_any_checks(
         This takes priority over `halt_execution`.
     suppress
         Tuple of the exceptions to suppress when a check fails.
-
-        Defaults to ([tanjun.CommandError][], [tanjun.HaltExecution][]).
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-        Defaults to [False][].
 
     Returns
     -------

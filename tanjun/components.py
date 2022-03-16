@@ -350,9 +350,8 @@ class Component(tanjun_abc.Component):
             Whether to include global variables (along with local) while
             detecting from the calling scope.
 
-            This defaults to [False][], cannot be [True][] when `scope` is
-            provided and will only ever be needed when the local scope is
-            different from the global scope.
+            This cannot be [True][] when `scope` is provided and will only ever
+            be needed when the local scope is different from the global scope.
         scope
             The scope to detect entries which implement
             [tanjun.components.AbstractComponentLoader][] from.
@@ -1388,8 +1387,6 @@ class Component(tanjun_abc.Component):
         ----------
         copy
             Whether to copy the component before loading it into a client.
-
-            Defaults to [True][].
 
         Returns
         -------

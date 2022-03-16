@@ -676,12 +676,8 @@ class CooldownPreExecution:
         ----------
         error_message
             The error message to send in response as a command error if the check fails.
-
-            Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
         owners_exempt
             Whether owners should be exempt from the cooldown.
-
-            Defaults to [True][].
         """
         self._bucket_id = bucket_id
         self._error_message = error_message
@@ -728,12 +724,8 @@ def with_cooldown(
         The cooldown bucket's ID.
     error_message
         The error message to send in response as a command error if the check fails.
-
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again.".
     owners_exempt
         Whether owners should be exempt from the cooldown.
-
-        Defaults to [True][].
 
     Returns
     -------
@@ -992,8 +984,6 @@ class ConcurrencyPreExecution:
         error_message
             The error message to send in response as a command error if this fails
             to acquire the concurrency limit.
-
-            Defaults to "This resource is currently busy; please try again later.".
         """
         self._bucket_id = bucket_id
         self._error_message = error_message
@@ -1058,8 +1048,6 @@ def with_concurrency_limit(
     error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
-
-        Defaults to "This resource is currently busy; please try again later.".
 
     Returns
     -------

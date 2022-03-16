@@ -77,11 +77,8 @@ import hikari
 from alluka import abc as alluka
 
 # TODO: move init docstrings to inits
-# TODO: remove "defaults to sections from docdescriptions?"
 # TODO: REPLACE NOTES SECTIONS
 # TODO: update .. deprecated:: notes
-# TODO: deal with return unions
-# TODO: deal with types sections being too w i d e
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
@@ -510,7 +507,7 @@ class Context(alluka.Context):
         embeds
             A sequence of embeds to replace the initial response with.
         replace_attachments
-            Whether to replace the attachments of the response or not. Default to `False`.
+            Whether to replace the attachments of the response or not.
         mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
@@ -662,7 +659,7 @@ class Context(alluka.Context):
         embeds
             A sequence of embeds to replace the last response with.
         replace_attachments
-            Whether to replace the attachments of the response or not. Default to `False`.
+            Whether to replace the attachments of the response or not.
         mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
@@ -1040,7 +1037,6 @@ class MessageContext(Context, abc.ABC):
         reply
             Whether to reply instead of sending the content to the context.
 
-            Defaults to [hikari.UNDEFINED][].
             Passing [True][] here indicates a reply to [tanjun.abc.MessageContext.message][].
         nonce
             The nonce that validates that the message was sent.
@@ -3565,8 +3561,6 @@ class Component(abc.ABC):
         unbind
             Whether to unbind from the client after this is closed.
 
-            Defaults to [False][].
-
         Raises
         ------
         RuntimeError
@@ -3841,9 +3835,9 @@ class Client(abc.ABC):
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
 
-            Defaults to [False][]. This default behaviour helps avoid issues with the
-            2 request per minute (per-guild or globally) ratelimit and the other limit
-            of only 200 application command creates per day (per guild or globally).
+            The default behaviour helps avoid issues with the 2 request per
+            minute (per-guild or globally) ratelimit and the other limit of
+            only 200 application command creates per day (per guild or globally).
 
         Returns
         -------
@@ -3984,9 +3978,9 @@ class Client(abc.ABC):
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
 
-            Defaults to [False][]. This default behaviour helps avoid issues with the
-            2 request per minute (per-guild or globally) ratelimit and the other limit
-            of only 200 application command creates per day (per guild or globally).
+            The default behaviour helps avoid issues with the 2 request per
+            minute (per-guild or globally) ratelimit and the other limit of
+            only 200 application command creates per day (per guild or globally).
 
         Returns
         -------
