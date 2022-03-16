@@ -601,8 +601,8 @@ class Component(tanjun_abc.Component):
         collections.abc.Collection[MetaEventSig]
             Collection of the callbacks for the provided name.
         """
-        event_name = event_name.lower()
-        return self._client_callbacks.get(event_name) or ()
+        name = name.lower()
+        return self._client_callbacks.get(name) or ()
 
     def remove_client_callback(self, name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
         """Remove a client callback.
@@ -628,13 +628,13 @@ class Component(tanjun_abc.Component):
         Self
             The client instance to enable chained calls.
         """
-        event_name = event_name.lower()
-        self._client_callbacks[event_name].remove(callback)
-        if not self._client_callbacks[event_name]:
-            del self._client_callbacks[event_name]
+        name = name.lower()
+        self._client_callbacks[name].remove(callback)
+        if not self._client_callbacks[name]:
+            del self._client_callbacks[name]
 
         if self._client:
-            self._client.remove_client_callback(event_name, callback)
+            self._client.remove_client_callback(name, callback)
 
     def with_client_callback(
         self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /
@@ -669,7 +669,7 @@ class Component(tanjun_abc.Component):
         """
 
         def decorator(callback: _MetaEventSigT, /) -> _MetaEventSigT:
-            self.add_client_callback(event_name, callback)
+            self.add_client_callback(name, callback)
             return callback
 
         return decorator
