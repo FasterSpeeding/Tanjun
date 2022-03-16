@@ -120,7 +120,7 @@ class Owners(AbstractOwners):
     !!! warning
         `fallback_to_application` is only possible when the REST client
         is bound to a Bot token or if a type dependency is registered for
-        `tanjun.dependencies.SingleStoreCache[hikari.Application]`.
+        `tanjun.dependencies.SingleStoreCache[hikari.applications.Application]`.
     """
 
     __slots__ = ("_fallback_to_application", "_owner_ids", "_value")
@@ -145,7 +145,7 @@ class Owners(AbstractOwners):
             if the user isn't in `owners`.
 
             This only works when the bot's rest client is bound to a Bot token or
-            if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.
+            if `tanjun.dependencies.SingleStoreCache[hikari.applications.Application]` is available.
         owners
             Sequence of objects and IDs of the users that are allowed to use the
             bot's owners-only commands.

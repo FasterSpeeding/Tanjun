@@ -45,18 +45,18 @@ Tanjun will use the following type dependencies for these interfaces if they are
 registered with the client:
 
 * `AsyncCache[str, hikari.InviteWithMetadata]`
-* `SfCache[hikari.GuildChannel]`
-* `SfCache[hikari.KnownCustomEmoji]`
-* `SfCache[hikari.Guild]`
-* `SfCache[hikari.Role]`
-* `SfCache[hikari.User]`
-* `SfGuildBound[hikari.Member]`
-* `SfGuildBound[hikari.MemberPresence]`
-* `SfGuildBound[hikari.VoiceState]`
-* `SfGuildBound[hikari.Role]`
-* `SingleStoreCache[hikari.OwnUser]`
-* `SingleStoreCache[hikari.Application]`
-* `SingleStoreCache[hikari.AuthorizationApplication]`
+* `SfCache[hikari.channels.GuildChannel]`
+* `SfCache[hikari.emojis.KnownCustomEmoji]`
+* `SfCache[hikari.guilds.Guild]`
+* `SfCache[hikari.guilds.Role]`
+* `SfCache[hikari.users.User]`
+* `SfGuildBound[hikari.guilds.Member]`
+* `SfGuildBound[hikari.presences.MemberPresence]`
+* `SfGuildBound[hikari.voices.VoiceState]`
+* `SfGuildBound[hikari.guilds.Role]`
+* `SingleStoreCache[hikari.users.OwnUser]`
+* `SingleStoreCache[hikari.applications.Application]`
+* `SingleStoreCache[hikari.applications.AuthorizationApplication]`
 """
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ class CacheIterator(hikari.LazyIterator[_ValueT]):
     """Abstract interface of a cache resource asynchronous iterator.
 
     For more information on how this is used, see the documentation for
-    [hikari.LazyIterator][].
+    [hikari.iterators.LazyIterator][].
     """
 
     __slots__ = ()
@@ -132,7 +132,7 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
     """Abstract interface of a cache which stores one resource.
 
     !!! note
-        This is mostly just for the [hikari.OwnUser][] cache store.
+        This is mostly just for the [hikari.users.OwnUser][] cache store.
     """
 
     __slots__ = ()
@@ -174,8 +174,8 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     """Abstract interface of a cache which stores globally identifiable resources.
 
     !!! note
-        This will never be implemented for resources such as [hikari.Member][]
-        and [hikari.MemberPresence][] which are only unique per-parent resource.
+        This will never be implemented for resources such as [hikari.guilds.Member][]
+        and [hikari.presences.MemberPresence][] which are only unique per-parent resource.
     """
 
     __slots__ = ()
@@ -220,7 +220,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.LazyIterator][].
+            [hikari.iterators.LazyIterator][].
 
         Returns
         -------
@@ -297,7 +297,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.LazyIterator][].
+            [hikari.iterators.LazyIterator][].
 
         Returns
         -------
@@ -359,7 +359,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.LazyIterator][].
+            [hikari.iterators.LazyIterator][].
 
         Parameters
         ----------
@@ -378,7 +378,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.LazyIterator][].
+            [hikari.iterators.LazyIterator][].
 
         Returns
         -------

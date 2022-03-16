@@ -129,7 +129,7 @@ current context shouldn't lead to an execution.
 """
 
 CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
-"""Type hint of the callback a [Command][] instance will operate on.
+"""Type hint of the callback a callable [tanjun.abc.ExecutableCommand][] instance will operate on.
 
 This will be called when executing a command and will need to take one
 positional argument of type [tanjun.abc.Context][] where any other required or
@@ -170,7 +170,7 @@ HookSig = typing.Union[collections.Callable[..., None], collections.Callable[...
 ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 """Type hint of a hikari event manager callback.
 
-This is guaranteed one positional arg of type [hikari.Event][hikari.Event]
+This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
 regardless of implementation and must be a coruotine function which returns [None][].
 """
 
@@ -179,7 +179,7 @@ MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 
 This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
 and either `hikari.User | hikari.InteractionMember` and/or
-[hikari.Message][] dependent on the type(s) of menu this is.
+[hikari.messages.Message][] dependent on the type(s) of menu this is.
 """
 
 MetaEventSig = typing.Union[collections.Callable[..., _CoroT[None]], collections.Callable[..., None]]
@@ -473,15 +473,15 @@ class Context(alluka.Context):
             The content to edit the initial response with.
 
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             [str][].
 
-            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.Resource][], then the
+            Likewise, if this is a [hikari.files.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
         delete_after
@@ -515,15 +515,14 @@ class Context(alluka.Context):
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialUser][]
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or
-            [hikari.PartialRole][] derivatives to enforce mentioning
-            specific roles.
+            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            derivatives to enforce mentioning specific roles.
 
         Notes
         -----
@@ -531,17 +530,17 @@ class Context(alluka.Context):
         convenience.
         * If a [pathlib.PurePath][] or [str][] to a valid URL, the
             resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of [hikari.WebResource][]
-            such as [hikari.URL][], [hikari.Attachment][],
-            [hikari.Emoji][], [hikari.EmbedResource][],
+            sending the message. Subclasses of [hikari.files.WebResource][]
+            such as [hikari.files.URL][], [hikari.messages.Attachment][],
+            [hikari.emojis.Emoji][], [hikari.embeds.EmbedResource][],
             etc will also be uploaded this way.
             This will use bit-inception, so only a small percentage of the
             resource will remain in memory at any one time, thus aiding in
             scalability.
-        * If a [hikari.Bytes][] is passed, or a [str][]
+        * If a [hikari.files.Bytes][] is passed, or a [str][]
             that contains a valid data URI is passed, then this is uploaded
             with a randomized file name if not provided.
-        * If a [hikari.File][], [pathlib.PurePath][] or
+        * If a [hikari.files.File][], [pathlib.PurePath][] or
             [str][] that is an absolute or relative path to a file
             on your file system is passed, then this resource is uploaded
             as an attachment using non-blocking code internally and streamed
@@ -625,15 +624,15 @@ class Context(alluka.Context):
             The content to edit the last response with.
 
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             [str][].
 
-            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.Resource][], then the
+            Likewise, if this is a [hikari.files.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
         delete_after
@@ -668,14 +667,14 @@ class Context(alluka.Context):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialUser][]
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialRole][]
+            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
 
         Notes
@@ -684,17 +683,17 @@ class Context(alluka.Context):
         convenience.
         * If a [pathlib.PurePath][] or [str][] to a valid URL, the
             resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of [hikari.WebResource][]
-            such as [hikari.URL][], [hikari.Attachment][],
-            [hikari.Emoji][], [hikari.EmbedResource][], etc will
+            sending the message. Subclasses of [hikari.files.WebResource][]
+            such as [hikari.files.URL][], [hikari.messages.Attachment][],
+            [hikari.emojis.Emoji][], [hikari.embeds.EmbedResource][], etc will
             also be uploaded this way.
             This will use bit-inception, so only a small percentage of the
             resource will remain in memory at any one time, thus aiding in
             scalability.
-        * If a [hikari.Bytes][] is passed, or a [str][]
+        * If a [hikari.files.Bytes][] is passed, or a [str][]
             that contains a valid data URI is passed, then this is uploaded
             with a randomized file name if not provided.
-        * If a [hikari.File][], [pathlib.PurePath] or
+        * If a [hikari.files.File][], [pathlib.PurePath] or
             [str][] that is an absolute or relative path to a file
             on your file system is passed, then this resource is uploaded
             as an attachment using non-blocking code internally and streamed
@@ -840,21 +839,21 @@ class Context(alluka.Context):
             The content to respond with.
 
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             [str][].
 
-            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.Resource][], then the
+            Likewise, if this is a [hikari.files.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
         ensure_result
             Ensure that this call will always return a message object.
 
-            If [True][] then this will always return [hikari.Message][],
+            If [True][] then this will always return [hikari.messages.Message][],
             otherwise this will return `hikari.Message | None`.
 
             It's worth noting that, under certain scenarios within the slash
@@ -881,14 +880,14 @@ class Context(alluka.Context):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialUser][]
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialRole][]
+            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
 
         Returns
@@ -1014,15 +1013,15 @@ class MessageContext(Context, abc.ABC):
             The content to respond with.
 
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             [str][].
 
-            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.Resource][], then the
+            Likewise, if this is a [hikari.files.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
         ensure_result
@@ -1061,13 +1060,13 @@ class MessageContext(Context, abc.ABC):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialUser][]
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialRole][]
+            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
 
         Notes
@@ -1076,17 +1075,17 @@ class MessageContext(Context, abc.ABC):
         convenience.
         * If a [pathlib.PurePath][] or [str][] to a valid URL, the
             resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of [hikari.WebResource][] such as
-            [hikari.URL][], [hikari.Attachment][],
-            [hikari.Emoji][], [hikari.EmbedResource][], etc
+            sending the message. Subclasses of [hikari.files.WebResource][] such as
+            [hikari.files.URL][], [hikari.messages.Attachment][],
+            [hikari.emojis.Emoji][], [hikari.embeds.EmbedResource][], etc
             will also be uploaded this way.
             This will use bit-inception, so only a small percentage of the
             resource will remain in memory at any one time, thus aiding in
             scalability.
-        * If a [hikari.Bytes][] is passed, or a [str][]
+        * If a [hikari.files.Bytes][] is passed, or a [str][]
             that contains a valid data URI is passed, then this is uploaded
             with a randomized file name if not provided.
-        * If a [hikari.File][], [pathlib.PurePath][] or
+        * If a [hikari.files.File][], [pathlib.PurePath][] or
             [str][] that is an absolute or relative path to a file
             on your file system is passed, then this resource is uploaded
             as an attachment using non-blocking code internally and streamed
@@ -1341,9 +1340,9 @@ class SlashOption(abc.ABC):
         """Resolve this option to a user object.
 
         !!! note
-            This will resolve to a [hikari.Member][] first if the relevant
+            This will resolve to a [hikari.guilds.Member][] first if the relevant
             command was executed within a guild and the option targeted one of
-            the guild's members, otherwise it will resolve to [hikari.User][].
+            the guild's members, otherwise it will resolve to [hikari.users.User][].
 
             It's also worth noting that hikari.Member inherits from hikari.User
             meaning that the return value of this can always be treated as a
@@ -1396,7 +1395,7 @@ class AppCommandContext(Context, abc.ABC):
         """When this application command context expires.
 
         After this time is reached, the message/response methods on this
-        context will always raise [hikari.NotFoundError][].
+        context will always raise [hikari.errors.NotFoundError][].
         """
 
     @property
@@ -1498,7 +1497,7 @@ class AppCommandContext(Context, abc.ABC):
 
         !!! warning
             Calling this on a context which hasn't had an initial response yet
-            will lead to a [hikari.NotFoundError][] being raised.
+            will lead to a [hikari.errors.NotFoundError][] being raised.
 
         !!! note
             Since (as of writing) ephemeral responses cannot be deleted by the bot,
@@ -1508,15 +1507,15 @@ class AppCommandContext(Context, abc.ABC):
         ----------
         content
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             [str][].
 
-            If this is a [hikari.Embed][] and no `embed` kwarg is
+            If this is a [hikari.embeds.Embed][] and no `embed` kwarg is
             provided, then this will instead update the embed. This allows for
             simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.Resource][], then the
+            Likewise, if this is a [hikari.files.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
         delete_after
@@ -1553,13 +1552,13 @@ class AppCommandContext(Context, abc.ABC):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialUser][]
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialRole][]
+            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
         tts
             If provided, whether the message will be sent as a TTS message.
@@ -1620,7 +1619,7 @@ class AppCommandContext(Context, abc.ABC):
 
         !!! warning
             Calling this on a context which already has an initial response
-            will result in this raising a [hikari.NotFoundError][].
+            will result in this raising a [hikari.errors.NotFoundError][].
             This includes if the REST interaction server has already responded
             to the request and deferrals.
 
@@ -1634,15 +1633,15 @@ class AppCommandContext(Context, abc.ABC):
             The content to edit the last response with.
 
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             [str][].
 
-            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.Resource][], then the
+            Likewise, if this is a [hikari.files.Resource][], then the
             content is instead treated as an attachment if no `attachment` and
             no `attachments` kwargs are provided.
         delete_after
@@ -1657,11 +1656,11 @@ class AppCommandContext(Context, abc.ABC):
             passed flags.
         content
             If provided, the message contents. If
-            [hikari.UNDEFINED][], then nothing will be sent
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
             in the content. Any other value here will be cast to a
             `str`.
 
-            If this is a [hikari.Embed][] and no `embed` nor `embeds` kwarg
+            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
         component
@@ -1677,7 +1676,7 @@ class AppCommandContext(Context, abc.ABC):
             If provided, the message flags this response should have.
 
             As of writing the only message flag which can be set here is
-            [hikari.MessageFlag.EPHEMERAL][].
+            [hikari.messages.MessageFlag.EPHEMERAL][].
         tts
             If provided, whether the message will be read out by a screen
             reader using Discord's TTS (text-to-speech) system.
@@ -1690,7 +1689,7 @@ class AppCommandContext(Context, abc.ABC):
             if appearing in the message body.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake][], or [hikari.PartialUser][]
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all role mentions will be detected.
@@ -1698,7 +1697,7 @@ class AppCommandContext(Context, abc.ABC):
             if appearing in the message body.
 
             Alternatively this may be a collection of
-            [hikari.Snowflake], or [hikari.PartialRole][]
+            [hikari.snowflakes.Snowflake], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
 
         Raises
@@ -3056,7 +3055,7 @@ class Component(abc.ABC):
 
         Notes
         -----
-        * This may be overridden by [BaseSlashCommand.defaults_to_ephemeral][].
+        * This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][].
         * This only effects slash command execution.
         * If this is [None][] then the default from the parent client is used.
         """
@@ -3679,7 +3678,7 @@ class Client(abc.ABC):
 
         Notes
         -----
-        * This may be overridden by [BaseSlashCommand.defaults_to_ephemeral][]
+        * This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][]
           and [tanjun.abc.Component.defaults_to_ephemeral][].
         * This defaults to [False][].
         * This only effects slash command execution.
@@ -3841,7 +3840,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.abc.Sequence[hikari.Command]
+        collections.abc.Sequence[hikari.commands.PartialCommand]
             API representations of the set commands.
         """
 
@@ -4215,8 +4214,9 @@ class Client(abc.ABC):
             The callback to register as a listener.
 
             This callback must be a coroutine function which returns [None][]
-            and always takes one positional arg of type [hikari.Event][]
-            regardless of client implementation detail.
+            and always takes one positional arg of type
+            [hikari.events.base_events.Event][] regardless of client
+            implementation detail.
 
         Returns
         -------
@@ -4275,8 +4275,9 @@ class Client(abc.ABC):
             Decorator callback used to register the event callback.
 
             The callback must be a coroutine function which returns [None][] and
-            always takes at least one positional arg of type [hikari.Event][]
-            regardless of client implementation detail.
+            always takes at least one positional arg of type
+            [hikari.events.base_events.Event][] regardless of client
+            implementation detail.
         """
 
     @abc.abstractmethod

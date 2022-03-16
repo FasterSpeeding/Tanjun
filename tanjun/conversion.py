@@ -135,7 +135,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             these cache components aren't necessary but simply avoid the converter
             from falling back to REST requests.
 
-        This will be [hikari.CacheComponents.NONE][] if the converter doesn't
+        This will be [hikari.config.CacheComponents.NONE][] if the converter doesn't
         make cache calls.
         """
 
@@ -307,11 +307,11 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
     For a standard instance of this see [tanjun.conversion.to_emoji][].
 
     !!! note
-        If you just want to convert inpute to a [hikari.Emoji][],
-        [hikari.CustomEmoji][] or [hikari.UnicodeEmoji][] without making any
-        cache or REST calls then you can just use the relevant
-        [hikari.Emoji.parse][], [hikari.CustomEmoji.parse][] or
-        [hikari.UnicodeEmoji.parse][] methods.
+        If you just want to convert inpute to a [hikari.emojis.Emoji][],
+        [hikari.emojis.CustomEmoji][] or [hikari.emojis.UnicodeEmoji][] without
+        making any cache or REST calls then you can just use the relevant
+        [hikari.emojis.Emoji.parse][], [hikari.emojis.CustomEmoji.parse][] or
+        [hikari.emojis.UnicodeEmoji.parse][] methods.
     """
 
     __slots__ = ()
@@ -1514,51 +1514,52 @@ def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.Converter
 
 
 to_channel: typing.Final[ToChannel] = ToChannel()
-"""Convert user input to a [hikari.PartialChannel][] object."""
+"""Convert user input to a [hikari.channels.PartialChannel][] object."""
 
 to_colour: typing.Final[collections.Callable[[_ArgumentT], hikari.Color]] = to_color
-"""Convert user input to a [hikari.Color][] object."""
+"""Convert user input to a [hikari.colors.Color][] object."""
 
 to_emoji: typing.Final[ToEmoji] = ToEmoji()
-"""Convert user input to a cached [hikari.KnownCustomEmoji][] object.
+"""Convert user input to a cached [hikari.emojis.KnownCustomEmoji][] object.
 
 !!! note
-    If you just want to convert inpute to a [hikari.Emoji][],
-    [hikari.CustomEmoji][] or [hikari.UnicodeEmoji][] without making any cache
-    or REST calls then you can just use the relevant [hikari.Emoji.parse][],
-    [hikari.CustomEmoji.parse][] or [hikari.UnicodeEmoji.parse][] methods.
+    If you just want to convert inpute to a [hikari.emojis.Emoji][],
+    [hikari.emojis.CustomEmoji][] or [hikari.emojis.UnicodeEmoji][] without
+    making any cache or REST calls then you can just use the relevant
+    [hikari.emojis.Emoji.parse][], [hikari.emojis.CustomEmoji.parse][] or
+    [hikari.emojis.UnicodeEmoji.parse][] methods.
 """
 
 to_guild: typing.Final[ToGuild] = ToGuild()
-"""Convert user input to a [hikari.Guild][] object."""
+"""Convert user input to a [hikari.guilds.Guild][] object."""
 
 to_invite: typing.Final[ToInvite] = ToInvite()
-"""Convert user input to a cached [hikari.InviteWithMetadata][] object."""
+"""Convert user input to a cached [hikari.invites.InviteWithMetadata][] object."""
 
 to_invite_with_metadata: typing.Final[ToInviteWithMetadata] = ToInviteWithMetadata()
-"""Convert user input to a [hikari.Invite][] object."""
+"""Convert user input to a [hikari.invites.Invite][] object."""
 
 to_member: typing.Final[ToMember] = ToMember()
-"""Convert user input to a [hikari.Member][] object."""
+"""Convert user input to a [hikari.guilds.Member][] object."""
 
 to_presence: typing.Final[ToPresence] = ToPresence()
-"""Convert user input to a cached [hikari.MemberPresence][]."""
+"""Convert user input to a cached [hikari.presences.MemberPresence][]."""
 
 to_role: typing.Final[ToRole] = ToRole()
-"""Convert user input to a [hikari.Role][] object."""
+"""Convert user input to a [hikari.guilds.Role][] object."""
 
 to_snowflake: typing.Final[collections.Callable[[_ArgumentT], hikari.Snowflake]] = parse_snowflake
-"""Convert user input to a [hikari.Snowflake][].
+"""Convert user input to a [hikari.snowflakes.Snowflake][].
 
 !!! note
     This also range validates the input.
 """
 
 to_user: typing.Final[ToUser] = ToUser()
-"""Convert user input to a [hikari.User][] object."""
+"""Convert user input to a [hikari.users.User][] object."""
 
 to_message: typing.Final[ToMessage] = ToMessage()
-"""Convert user input to a [hikari.Message][] object."""
+"""Convert user input to a [hikari.messages.Message][] object."""
 
 to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
-"""Convert user input to a cached [hikari.VoiceState][]."""
+"""Convert user input to a cached [hikari.voices.VoiceState][]."""

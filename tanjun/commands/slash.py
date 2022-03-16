@@ -516,7 +516,7 @@ def with_user_slash_option(
     [tanjun.SlashCommand.add_user_option][].
 
     !!! note
-        This may result in [hikari.InteractionMember][] or
+        This may result in [hikari.interactions.base_interactions.InteractionMember][] or
         [hikari.users.User][] if the user isn't in the current guild or if this
         command was executed in a DM channel.
 
@@ -546,7 +546,7 @@ def with_member_slash_option(
     [tanjun.SlashCommand.add_member_option][].
 
     !!! note
-        This will always result in [hikari.InteractionMember][].
+        This will always result in [hikari.interactions.base_interactions.InteractionMember][].
 
     Examples
     --------
@@ -601,7 +601,7 @@ def with_channel_slash_option(
     [tanjun.SlashCommand.add_channel_option][].
 
     !!! note
-        This will always result in [hikari.InteractionChannel][].
+        This will always result in [hikari.interactions.command_interactions.InteractionChannel][].
 
     Examples
     --------
@@ -1380,7 +1380,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         r"""Add an attachment option to the slash command.
 
         !!! note
-            This will result in options of type [hikari.Attachment][].
+            This will result in options of type [hikari.messages.Attachment][].
 
         Parameters
         ----------
@@ -1390,12 +1390,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
 
         Other Parameters
         ----------------
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
@@ -1455,6 +1457,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         autocomplete
             The autocomplete callback for the option.
@@ -1479,6 +1482,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Only the first converter to pass will be used.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
@@ -1569,6 +1573,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         autocomplete
             The autocomplete callback for the option.
@@ -1592,6 +1597,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Only the first converter to pass will be used.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         min_value
             The option's (inclusive) minimum value.
@@ -1666,6 +1672,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         always_float
             If this is set to [True][] then the value will always be converted to a
@@ -1695,6 +1702,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Only the first converter to pass will be used.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         min_value
             The option's (inclusive) minimum value.
@@ -1763,9 +1771,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
@@ -1804,8 +1814,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         r"""Add a user option to a slash command.
 
         !!! note
-            This may result in [hikari.InteractionMember][] or
-            [hikari.User][] if the user isn't in the current guild or if this
+            This may result in [hikari.interactions.base_interactions.InteractionMember][]
+            or [hikari.users.User][] if the user isn't in the current guild or if this
             command was executed in a DM channel.
 
         Parameters
@@ -1816,9 +1826,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
@@ -1855,7 +1867,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         r"""Add a member option to a slash command.
 
         !!! note
-            This will always result in [hikari.InteractionMember][].
+            This will always result in
+            [hikari.interactions.base_interactions.InteractionMember][].
 
         !!! warning
             Unlike the other options, this is an artificial option which adds
@@ -1871,9 +1884,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
 
         Returns
@@ -1905,7 +1920,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         r"""Add a channel option to a slash command.
 
         !!! note
-            This will always result in [hikari.InteractionChannel][].
+            This will always result in
+            [hikari.interactions.command_interactions.InteractionChannel][].
 
         Parameters
         ----------
@@ -1915,9 +1931,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         types
             A collection of the channel classes this option should accept.
@@ -1985,9 +2003,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
@@ -2035,9 +2055,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
         description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
         default
             The option's default value.
+
             If this is left as undefined then this option will be required.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
