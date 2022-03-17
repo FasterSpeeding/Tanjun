@@ -1219,7 +1219,7 @@ class Client(tanjun_abc.Client):
             elif isinstance(builder, hikari.api.ContextMenuCommandBuilder):
                 response = await self._rest.create_context_menu_command(
                     application,
-                    builder.type,
+                    builder.type,  # type: ignore
                     builder.name,
                     guild=guild,
                     default_permission=builder.default_permission,
