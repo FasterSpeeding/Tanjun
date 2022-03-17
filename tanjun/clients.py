@@ -1104,7 +1104,7 @@ class Client(tanjun_abc.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Alias of [tanjun.Client.declare_global_commands][].
 
-        !!! deprecated
+        !!! warning "deprecated"
             Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.
         """
         warnings.warn(

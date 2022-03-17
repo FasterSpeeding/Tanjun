@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """Aliases of the types and implementations used for dependency injection.
 
-!!! deprecated
+!!! warning "deprecated"
     This module consists solely of deprecated aliases to types and functions
     from the separate `alluka` dependency injection library kept for backwards
     compatibility.
