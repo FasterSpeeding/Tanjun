@@ -7,10 +7,8 @@
 click==8.0.4
     # via slotscheck
 codespell==2.1
-    # via -r dev-requirements\lint.in
-colorama==0.4.4
-    # via click
-slotscheck==0.12.1
-    # via -r dev-requirements\lint.in
+    # via -r dev-requirements/lint.in
+slotscheck==0.14.0
+    # via -r dev-requirements/lint.in
 tomli==2.0.1
     # via slotscheck
