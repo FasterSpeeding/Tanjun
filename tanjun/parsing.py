@@ -624,10 +624,10 @@ def with_argument(
     """Add an argument to a message command through a decorator call.
 
     !!! warning
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+        Since order matters for positional arguments, you'll want to keep in
+        mind that decorator execution starts at the decorator closest to the
+        command and goes upwards with this deciding where a positional
+        argument is located in a command's signature.
 
     !!! note
         If no parser is explicitly set on the command this is decorating before
@@ -764,10 +764,10 @@ def with_greedy_argument(
     set.
 
     !!! warning
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+        Since order matters for positional arguments, you'll want to keep in
+        mind that decorator execution starts at the decorator closest to the
+        command and goes upwards with this deciding where a positional
+        argument is located in a command's signature.
 
     !!! note
         If no parser is explicitly set on the command this is decorating before
@@ -889,10 +889,10 @@ def with_multi_argument(
     sequence.
 
     !!! warning
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+        Since order matters for positional arguments, you'll want to keep in
+        mind that decorator execution starts at the decorator closest to the
+        command and goes upwards with this deciding where a positional
+        argument is located in a command's signature.
 
     !!! note
         If no parser is explicitly set on the command this is decorating before
