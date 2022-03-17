@@ -43,6 +43,7 @@ import hikari
 
 from .. import abc as tanjun_abc
 from . import base
+from .. import dependencies
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -316,7 +317,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
     ) -> None:
         super().__init__(client)
         self._defaults_to_ephemeral = default_to_ephemeral
-        self._defer_task: typing.Optional[asyncio.Task[None]] = None
+        self._defer_task: typing.Union[asyncio.Task[None], str, None] = None
         self._has_been_deferred = False
         self._has_responded = False
         self._interaction = interaction
@@ -426,7 +427,12 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         if self._defer_task:
             raise RuntimeError("Defer timer already set")
 
-        self._defer_task = asyncio.create_task(self._auto_defer(count_down))
+        if task_manager := self._client.get_type_dependency(dependencies.AbstractTaskManager):
+            self._defer_task = task_manager.add_task(self._auto_defer, count_down)
+
+        else:
+            self._defer_task = asyncio.create_task(self._auto_defer(count_down))
+
         return self
 
     def set_ephemeral_default(self: _AppCommandContextT, state: bool, /) -> _AppCommandContextT:

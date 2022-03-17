@@ -36,7 +36,9 @@ __all__: list[str] = [
     "AbstractConcurrencyLimiter",
     "AbstractCooldownManager",
     "AbstractOwners",
+    "AbstractTaskManager",
     "AsyncCache",
+    "AsyncioTaskManager",
     "BucketResource",
     "CacheIterator",
     "CacheMissError",
@@ -94,6 +96,8 @@ from .limiters import InMemoryConcurrencyLimiter
 from .limiters import InMemoryCooldownManager
 from .limiters import with_concurrency_limit
 from .limiters import with_cooldown
+from .manager import AbstractTaskManager
+from .manager import AsyncioTaskManager
 from .owners import AbstractOwners
 from .owners import Owners
 
@@ -106,6 +110,8 @@ def set_standard_dependencies(client: abc.Client, /) -> None:
     client
         The injector client to set the standard dependencies on.
     """
-    client.set_type_dependency(AbstractOwners, Owners()).set_type_dependency(
-        LazyConstant[hikari.OwnUser], LazyConstant[hikari.OwnUser](fetch_my_user)
+    (
+        client.set_type_dependency(AbstractOwners, Owners())
+        .set_type_dependency(LazyConstant[hikari.OwnUser], LazyConstant[hikari.OwnUser](fetch_my_user))
+        .set_type_dependency(AbstractTaskManager, AsyncioTaskManager())
     )
