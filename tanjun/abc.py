@@ -3915,6 +3915,7 @@ class Client(abc.ABC):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If conflicting command names are found (multiple commanbds have the same top-level name).
             * If more than 100 top-level commands are passed.
         """

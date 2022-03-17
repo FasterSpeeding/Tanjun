@@ -171,6 +171,7 @@ def slash_command_group(
     ------
     ValueError
         Raises a value error for any of the following reasons:
+
         * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
@@ -278,6 +279,7 @@ def as_slash_command(
     ------
     ValueError
         Raises a value error for any of the following reasons:
+
         * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
@@ -945,6 +947,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
@@ -1221,6 +1224,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
@@ -1417,6 +1421,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1502,6 +1507,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1621,6 +1627,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1726,6 +1733,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1794,6 +1802,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1849,6 +1858,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1901,6 +1911,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1958,6 +1969,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -2026,6 +2038,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -2078,6 +2091,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.

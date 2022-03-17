@@ -584,6 +584,7 @@ class Client(tanjun_abc.Client):
         ------
         ValueError
             Raises for the following reasons:
+
             * If `event_managed` is `True` when `event_manager` is `None`.
             * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.
             * If `command_ids` is passed when `declare_global_commands` is `False`.

@@ -172,6 +172,7 @@ def as_message_menu(
     ------
     ValueError
         Raises a value error for any of the following reasons:
+
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
@@ -241,6 +242,7 @@ def as_user_menu(
     ------
     ValueError
         Raises a value error for any of the following reasons:
+
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
@@ -369,6 +371,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the command name isn't in the length range of 1 to 32.
             * If the command name has uppercase characters.
         """
