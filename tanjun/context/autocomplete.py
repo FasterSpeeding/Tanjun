@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation for tanjun's autocomplete context."""
+"""Autocomplete context implementation."""
 from __future__ import annotations
 
 __all__: list[str] = ["AutocompleteContext"]
@@ -80,6 +80,18 @@ class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
         *,
         future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
     ) -> None:
+        """Initialise an autocomplete context.
+
+        Parameters
+        ----------
+        client
+            The Tanjun client this context is bound to.
+        interaction
+            The autocomplete interaction this context is for.
+        future
+            A future used to set the initial response if this is being called
+            through the REST webhook flow.
+        """
         super().__init__(client.injector)
         self._client = client
         self._future = future

@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation of Tanjun's command objects."""
+"""Slash command implementations."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -112,10 +112,20 @@ def slash_command_group(
 ) -> SlashCommandGroup:
     r"""Create a slash command group.
 
+    !!! note
+        Unlike message command grups, slash command groups cannot
+        be callable functions themselves.
+
+    !!! note
+        Under the standard implementation, `is_global` is used to determine whether
+        the command should be bulk set by [tanjun.Client.declare_global_commandsadd_command
+        or when `declare_global_commands` is True
+
     Examples
     --------
     Sub-commands can be added to the created slash command object through
     the following decorator based approach:
+
     ```python
     help_group = tanjun.slash_command_group("help", "get help")
 
@@ -133,37 +143,24 @@ def slash_command_group(
     component = tanjun.Component().add_slash_command(help_group)
     ```
 
-    Notes
-    -----
-    * Unlike message command grups, slash command groups cannot
-      be callable functions themselves.
-    * Under the standard implementation, `is_global` is used to determine whether
-      the command should be bulk set by `tanjun.Client.declare_global_commands`
-      or when `declare_global_commands` is True
-
     Parameters
     ----------
-    name : str
+    name
         The name of the command group.
 
         This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
-    description : str
+    description
         The description of the command group.
-
-    Other Parameters
-    ----------------
-    default_permission : bool
+    default_permission
         Whether this command can be accessed without set permissions.
-
-        Defaults to `True`, meaning that users can access the command by default.
-    default_to_ephemeral : bool | None
+    default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
-        If this is left as `None` then the default set on the parent command(s),
+        If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
-    is_global : bool
-        Whether this command is a global command. Defaults to `True`.
+    is_global
+        Whether this command is a global command.
 
     Returns
     -------
@@ -174,6 +171,7 @@ def slash_command_group(
     ------
     ValueError
         Raises a value error for any of the following reasons:
+
         * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
@@ -211,16 +209,20 @@ def as_slash_command(
     is_global: bool = True,
     sort_options: bool = True,
 ) -> _ResultProto:
-    r"""Build a `SlashCommand` by decorating a function.
+    r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
-    .. note::
+    !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
-    .. warning::
+    !!! warning
         `default_permission` and `is_global` are ignored for commands within
         slash command groups.
+
+    !!! note
+        If you want your first response to be ephemeral while using
+        `always_defer`, you must set `default_to_ephemeral` to `True`.
 
     Examples
     --------
@@ -235,59 +237,49 @@ def as_slash_command(
 
     Parameters
     ----------
-    name : str
+    name
         The command's name.
 
         This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description : str
+    description
         The command's description.
         This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    always_defer : bool
+    always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-
-        Defaults to `False`.
-
-        .. note::
-            The ephemeral state of the first response is decided by whether the
-            deferral is ephemeral.
-    default_permission : bool
+    default_permission
         Whether this command can be accessed without set permissions.
-
-        Defaults to `True`, meaning that users can access the command by default.
-    default_to_ephemeral : bool | None
+    default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
-        If this is left as `None` then the default set on the parent command(s),
+        If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
-    is_global : bool
-        Whether this command is a global command. Defaults to `True`.
-    sort_options : bool
+    is_global
+        Whether this command is a global command.
+    sort_options
         Whether this command should sort its set options based on whether
         they're required.
 
-        If this is `True` then the options are re-sorted to meet the requirement
+        If this is [True][] then the options are re-sorted to meet the requirement
         from Discord that required command options be listed before optional
         ones.
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
-        The decorator callback used to make a `SlashCommand`.
+        The decorator callback used to make a [tanjun.SlashCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
-        will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
+        [tanjun.Component.load_from_scope][].
 
     Raises
     ------
     ValueError
         Raises a value error for any of the following reasons:
+
         * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
@@ -335,7 +327,8 @@ def with_attachment_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an attachment option to a slash command.
 
-    For more information on this function's parameters see `SlashCommand.add_attachment_option`.
+    For more information on this function's parameters see
+    [tanjun.SlashCommand.add_attachment_option][].
 
     Examples
     --------
@@ -369,7 +362,8 @@ def with_str_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
 
-    For more information on this function's parameters see `SlashCommand.add_str_option`.
+    For more information on this function's parameters see
+    [tanjun.commands.SlashCommand.add_str_option][].
 
     Examples
     --------
@@ -412,7 +406,8 @@ def with_int_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an integer option to a slash command.
 
-    For information on this function's parameters see `SlashCommand.add_int_option`.
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_int_option][].
 
     Examples
     --------
@@ -458,7 +453,8 @@ def with_float_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a float option to a slash command.
 
-    For information on this function's parameters see `SlashCommand.add_float_option`.
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_float_option][].
 
     Examples
     --------
@@ -494,7 +490,8 @@ def with_bool_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a boolean option to a slash command.
 
-    For information on this function's parameters see `SlashContext.add_bool_option`.
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_bool_option][].
 
     Examples
     --------
@@ -518,11 +515,12 @@ def with_user_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a user option to a slash command.
 
-    For information on this function's parameters see `SlashContext.add_user_option`.
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_user_option][].
 
-    .. note::
-        This may result in `hikari.InteractionMember` or
-        `hikari.users.User` if the user isn't in the current guild or if this
+    !!! note
+        This may result in [hikari.interactions.base_interactions.InteractionMember][] or
+        [hikari.users.User][] if the user isn't in the current guild or if this
         command was executed in a DM channel.
 
     Examples
@@ -547,10 +545,11 @@ def with_member_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
-    For information on this function's arguments see `SlashCommand.add_member_option`.
+    For information on this function's arguments see
+    [tanjun.SlashCommand.add_member_option][].
 
-    .. note::
-        This will always result in `hikari.InteractionMember`.
+    !!! note
+        This will always result in [hikari.interactions.base_interactions.InteractionMember][].
 
     Examples
     --------
@@ -601,10 +600,11 @@ def with_channel_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
 
-    For information on this function's parameters see `SlashCommand.add_channel_option`.
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_channel_option][].
 
-    .. note::
-        This will always result in `hikari..InteractionChannel`.
+    !!! note
+        This will always result in [hikari.interactions.command_interactions.InteractionChannel][].
 
     Examples
     --------
@@ -628,7 +628,8 @@ def with_role_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a role option to a slash command.
 
-    For information on this function's parameters see `SlashCommand.add_role_option`.
+    For information on this function's parameters see
+    [tanjun.SlashCommand.add_role_option][].
 
     Examples
     --------
@@ -652,11 +653,12 @@ def with_mentionable_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a mentionable option to a slash command.
 
-    For information on this function's arguments see `SlashCommand.add_mentionable_option`.
+    For information on this function's arguments see
+    [tanjun.SlashCommand.add_mentionable_option][].
 
-    .. note::
+    !!! note
         This may target roles, guild members or users and results in
-        `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
+        `hikari.User | hikari.InteractionMember | hikari.Role`.
 
     Examples
     --------
@@ -851,11 +853,11 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
 
         Parameters
         ----------
-        bool | None
+        state
             Whether this command's responses should default to ephemeral.
             This will be overridden by any response calls which specify flags.
 
-            Setting this to `None` will let the default set on the parent
+            Setting this to [None][] will let the default set on the parent
             command(s), component or client propagate and decide the ephemeral
             default for contexts used by this command.
 
@@ -898,7 +900,7 @@ class BaseSlashCommand(base.PartialCommand[abc.SlashContext], abc.BaseSlashComma
 class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     """Standard implementation of a slash command group.
 
-    .. note::
+    !!! note
         Unlike message command grups, slash command groups cannot
         be callable functions themselves.
     """
@@ -917,39 +919,35 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     ) -> None:
         r"""Initialise a slash command group.
 
-        .. note::
+        !!! note
             Under the standard implementation, `is_global` is used to determine
-            whether the command should be bulk set by `tanjun.Client.declare_global_commands`
+            whether the command should be bulk set by [tanjun.Client.declare_global_commands][]
             or when `declare_global_commands` is True
 
         Parameters
         ----------
-        name : str
+        name
             The name of the command group.
 
             This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
-        description : str
+        description
             The description of the command group.
-
-        Other Parameters
-        ----------------
-        default_permission : bool
+        default_permission
             Whether this command can be accessed without set permissions.
-
-            Defaults to `True`, meaning that users can access the command by default.
-        default_to_ephemeral : bool | None
+        default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
-            If this is left as `None` then the default set on the parent command(s),
+            If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
-        is_global : bool
-            Whether this command is a global command. Defaults to `True`.
+        is_global
+            Whether this command is a global command.
 
         Raises
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
@@ -1000,12 +998,12 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     def add_command(self: _SlashCommandGroupT, command: abc.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Add a slash command to this group.
 
-        .. warning::
+        !!! warning
             Command groups are only supported within top-level groups.
 
         Parameters
         ----------
-        command : tanjun.abc.BaseSlashCommand
+        command
             Command to add to this group.
 
         Returns
@@ -1031,7 +1029,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         Parameters
         ----------
-        command : tanjun.abc.BaseSlashCommand
+        command
             Command to remove from this group.
 
         Returns
@@ -1173,59 +1171,52 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> None:
         r"""Initialise a slash command.
 
-        .. note::
+        !!! note
             Under the standard implementation, `is_global` is used to determine whether
-            the command should be bulk set by `tanjun.Client.declare_global_commands`
+            the command should be bulk set by [tanjun.Client.declare_global_commands][]
             or when `declare_global_commands` is True
 
-        .. warning::
+        !!! warning
             `default_permission` and `is_global` are ignored for commands within
             slash command groups.
 
+        !!! note
+            If you want your first response to be ephemeral while using
+            `always_defer`, you must set `default_to_ephemeral` to `True`.
+
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Coroutine[Any, Any, None]]
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
-            argument of type `tanjun.abc.SlashContext`, returns `None` and may use
+            argument of type [tanjun.abc.SlashContext][], returns `None` and may use
             dependency injection to access other services.
-        name : str
+        name
             The command's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The command's description.
             This should be inclusively between 1-100 characters in length.
-
-        Other Parameters
-        ----------------
-        always_defer : bool
+        always_defer
             Whether the contexts this command is executed with should always be deferred
             before being passed to the command's callback.
-
-            Defaults to `False`.
-
-            .. note::
-                The ephemeral state of the first response is decided by whether the
-                deferral is ephemeral.
-        default_permission : bool
+        default_permission
             Whether this command can be accessed without set permissions.
-
-            Defaults to `True`, meaning that users can access the command by default.
-        default_to_ephemeral : bool | None
+        default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
-            If this is left as `None` then the default set on the parent command(s),
+            If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
-        is_global : bool
-            Whether this command is a global command. Defaults to `True`.
-        sort_options : bool
+        is_global
+            Whether this command is a global command.
+        sort_options
             Whether this command should sort its set options based on whether
             they're required.
 
-            If this is `True` then the options are re-sorted to meet the requirement
+            If this is [True][] then the options are re-sorted to meet the requirement
             from Discord that required command options be listed before optional
             ones.
 
@@ -1233,6 +1224,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
@@ -1392,31 +1384,33 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add an attachment option to the slash command.
 
-        .. note::
-            This will result in options of type `hikari.Attachment`.
+        !!! note
+            This will result in options of type [hikari.messages.Attachment][].
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
+
             This should be inclusively between 1-100 characters in length.
 
         Other Parameters
         ----------------
-        default : typing.Any
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the `coverters` field will be ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            `coverters` field will be ignored.
 
         Returns
         -------
@@ -1427,6 +1421,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1455,54 +1450,53 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add a string option to the slash command.
 
-        .. note::
+        !!! note
             As a shorthand, `choices` also supports passing a list of strings
             rather than a dict of names to values (each string will used as
             both the choice's name and value with the names being capitalised).
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            This should be inclusively between 1-100 characters in length.
+        autocomplete
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `str`.
-        choices : collections.abc.Mapping[str, str] | collections.abc.Sequence[str] | None
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [str][].
+        choices
             The option's choices.
 
             This either a mapping of [option_name, option_value] where both option_name
             and option_value should be strings of up to 100 characters or a sequence
             of strings where the string will be used for both the choice's name and
             value.
-        converters : collections.abc.Sequence[ConverterSig] | ConverterSig
+        converters
             The option's converters.
 
-            This may be either one or multiple `ConverterSig` callbacks used to
+            This may be either one or multiple converter callbacks used to
             convert the option's value to the final form.
             If no converters are provided then the raw value will be passed.
 
             Only the first converter to pass will be used.
-        default : typing.Any
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the `coverters` field will be ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            `coverters` field will be ignored.
 
         Returns
         -------
@@ -1513,6 +1507,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1579,54 +1574,49 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            This should be inclusively between 1-100 characters in length.
+        autocomplete
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `int`.
-        choices : collections.abc.Mapping[str, int] | None
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [int][].
+        choices
             The option's choices.
 
             This is a mapping of [option_name, option_value] where option_name
             should be a string of up to 100 characters and option_value should
             be an integer.
-        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None
+        converters
             The option's converters.
 
-            This may be either one or multiple `ConverterSig` callbacks used to
+            This may be either one or multiple converter callbacks used to
             convert the option's value to the final form.
             If no converters are provided then the raw value will be passed.
 
             Only the first converter to pass will be used.
-        default : typing.Any
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        min_value : int | None
+        min_value
             The option's (inclusive) minimum value.
-
-            Defaults to no minimum value.
-        max_value : int | None
+        max_value
             The option's (inclusive) maximum value.
-
-            Defaults to no minimum value.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the `coverters` field will be ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            `coverters` field will be ignored.
 
         Returns
         -------
@@ -1637,6 +1627,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1683,61 +1674,55 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        always_float : bool
-            If this is set to `True` then the value will always be converted to a
+            This should be inclusively between 1-100 characters in length.
+        always_float
+            If this is set to [True][] then the value will always be converted to a
             float (this will happen before it's passed to converters).
 
-            This masks behaviour from Discord where we will either be provided a `float`
-            or `int` dependent on what the user provided and defaults to `True`.
-        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+            This masks behaviour from Discord where we will either be provided a [float][]
+            or [int][] dependent on what the user provided.
+        autocomplete
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `float`.
-        choices : collections.abc.Mapping[str, float] | None
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [float][].
+        choices
             The option's choices.
 
             This is a mapping of [option_name, option_value] where option_name
             should be a string of up to 100 characters and option_value should
             be a float.
-        converters : collections.abc.Sequence[ConverterSig] | ConverterSig | None
+        converters
             The option's converters.
 
-            This may be either one or multiple `ConverterSig` callbacks used to
+            This may be either one or multiple converter callbacks used to
             convert the option's value to the final form.
             If no converters are provided then the raw value will be passed.
 
             Only the first converter to pass will be used.
-        default : typing.Any
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        min_value : float | None
+        min_value
             The option's (inclusive) minimum value.
-
-            Defaults to no minimum value.
-        max_value : float | None
+        max_value
             The option's (inclusive) maximum value.
-
-            Defaults to no minimum value.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used and the fields `coverters`, and `always_float` will be
-            ignored.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used and the
+            fields `coverters`, and `always_float` will be ignored.
 
         Returns
         -------
@@ -1748,6 +1733,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1788,26 +1774,24 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        default : typing.Any
+            This should be inclusively between 1-100 characters in length.
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -1818,6 +1802,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1838,33 +1823,31 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add a user option to a slash command.
 
-        .. note::
-            This may result in `hikari.InteractionMember` or
-            `hikari.users.User` if the user isn't in the current guild or if this
+        !!! note
+            This may result in [hikari.interactions.base_interactions.InteractionMember][]
+            or [hikari.users.User][] if the user isn't in the current guild or if this
             command was executed in a DM channel.
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        default : typing.Any
+            This should be inclusively between 1-100 characters in length.
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -1875,6 +1858,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1893,29 +1877,29 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add a member option to a slash command.
 
-        .. note::
-            This will always result in `hikari.InteractionMember`.
+        !!! note
+            This will always result in
+            [hikari.interactions.base_interactions.InteractionMember][].
 
-        .. warning::
+        !!! warning
             Unlike the other options, this is an artificial option which adds
             a restraint to the USER option type and therefore cannot have
-            `pass_as_kwarg` set to `False` as this artificial constaint isn't
+            `pass_as_kwarg` set to [False][] as this artificial constaint isn't
             present when its not being passed as a keyword argument.
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        default : typing.Any
+            This should be inclusively between 1-100 characters in length.
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
 
         Returns
@@ -1927,6 +1911,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -1946,35 +1931,34 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add a channel option to a slash command.
 
-        .. note::
-            This will always result in `hikari.InteractionChannel`.
+        !!! note
+            This will always result in
+            [hikari.interactions.command_interactions.InteractionChannel][].
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Parameters
-        ----------
-        default : typing.Any
+            This should be inclusively between 1-100 characters in length.
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        types : collections.abc.Collection[type[hikari.PartialChannel]] | None
+        types
             A collection of the channel classes this option should accept.
 
-            If left as `None` or empty then the option will allow all channel types.
-        pass_as_kwarg : bool
+            If left as [None][] or empty then the option will allow all channel types.
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -1985,6 +1969,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -2025,26 +2010,24 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        default : typing.Any
+            This should be inclusively between 1-100 characters in length.
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -2055,6 +2038,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -2073,32 +2057,30 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
     ) -> _SlashCommandT:
         r"""Add a mentionable option to a slash command.
 
-        .. note::
+        !!! note
             This may target roles, guild members or users and results in
-            `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
+            `hikari.User | hikari.InteractionMember | hikari.Role`.
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
             This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-        description : str
+        description
             The option's description.
-            This should be inclusively between 1-100 characters in length.
 
-        Other Parameters
-        ----------------
-        default : typing.Any
+            This should be inclusively between 1-100 characters in length.
+        default
             The option's default value.
+
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
+        pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
 
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
+            If [False][] is passed here then `default` will only decide whether
+            the option is required without the actual value being used.
 
         Returns
         -------
@@ -2109,6 +2091,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
         ------
         ValueError
             Raises a value error for any of the following reasons:
+
             * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
@@ -2125,16 +2108,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
-        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+        callback
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `float`.
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [float][].
 
-            Passing `None` here will remove the autocomplete callback for the
+            Passing [None][] here will remove the autocomplete callback for the
             option.
 
         Returns
@@ -2174,7 +2157,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
         Returns
@@ -2183,8 +2166,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Decorator callback used to capture the autocomplete callback.
 
             More information on the autocomplete signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `float`.
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [float][].
 
         Raises
         ------
@@ -2207,16 +2190,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
-        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+        callback
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `str`.
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [str][].
 
-            Passing `None` here will remove the autocomplete callback for the
+            Passing [None][] here will remove the autocomplete callback for the
             option.
 
         Returns
@@ -2250,7 +2233,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
         Returns
@@ -2259,8 +2242,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Decorator callback used to capture the autocomplete callback.
 
             More information on the autocomplete signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `int`.
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [int][].
 
         Raises
         ------
@@ -2283,16 +2266,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
-        autocomplete : `tanjun.abc.AutocompleteCallbackSig` | None
+        callback
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `str`.
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [str][].
 
-            Passing `None` here will remove the autocomplete callback for the
+            Passing [None][] here will remove the autocomplete callback for the
             option.
 
         Returns
@@ -2326,7 +2309,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        name : str
+        name
             The option's name.
 
         Returns
@@ -2335,8 +2318,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
             Decorator callback used to capture the autocomplete callback.
 
             More information on the autocomplete signature can be found at
-            `tanjun.abc.AutocompleteCallbackSig` and the 2nd positional
-            argument should be of type `str`.
+            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
+            argument should be of type [str][].
 
         Raises
         ------

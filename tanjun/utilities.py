@@ -69,14 +69,14 @@ async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
     raise errors.FailedCheck
 
 
-async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[abc.CheckSig], /) -> bool:
+async def gather_checks(ctx: abc.Context, checks: collections.Iterable[abc.CheckSig], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
-    ctx : tanjun.abc.Context
+    ctx
         The context to check.
-    checks : collections.abc.Iterable[tanjun.abc.CheckSig]
+    checks
         An iterable of injectable checks.
 
     Returns
@@ -85,7 +85,7 @@ async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[abc.Chec
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*(_execute_check(ctx, check) for check in checks_))
+        await asyncio.gather(*(_execute_check(ctx, check) for check in checks))
         # InjectableCheck will raise FailedCheck if a false is received so if
         # we get this far then it's True.
         return True
@@ -99,9 +99,9 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
 
     Parameters
     ----------
-    content : str
+    content
         The string to match names against.
-    names : collections.abc.Iterable[str]
+    names
         The names to search for.
 
     Returns
@@ -183,20 +183,17 @@ def calculate_permissions(
 
     Parameters
     ----------
-    member : hikari.Member
+    member
         Object of the member to calculate the permissions for.
-    guild : hikari.Guild
+    guild
         Object of the guild to calculate their permissions within.
-    roles : collections.abc.Mapping[hikari.Snowflake, hikari.Role]
+    roles
         Mapping of snowflake IDs to objects of the roles within the target
         guild.
-
-    Other Parameters
-    ----------------
-    channel : hikari.GuildChannel | None
+    channel
         Object of the channel to calculate the member's permissions in.
 
-        If this is left as `None` then this will just calculate their
+        If this is left as [None][] then this will just calculate their
         permissions on a guild level.
 
     Returns
@@ -262,22 +259,19 @@ async def fetch_permissions(
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
-    .. note::
+    !!! note
         This callback will fallback to REST requests if cache lookups fail or
         are not possible.
 
     Parameters
     ----------
-    client : tanjun.abc.Client
+    client
         The Tanjun client to use for lookups.
-    member : hikari.Member
+    member
         The object of the member to calculate the permissions for.
-
-    Other Parameters
-    ----------------
-    channel : hikari.SnowflakeishOr | hikari.GuildChannel | None
+    channel
         The object of ID of the channel to get their permissions in.
-        If left as `None` then this will return their base guild
+        If left as [None][] then this will return their base guild
         permissions.
 
     Returns
@@ -340,15 +334,12 @@ def calculate_everyone_permissions(
 
     Parameters
     ----------
-    everyone_role : hikari.Role
+    everyone_role
         The guild's default @everyone role.
-
-    Other Parameters
-    ----------------
-    channel : hikari.GuildChannel | None
+    channel
         The channel to calculate the permissions for.
 
-        If this is left as `None` then this will just calculate the default
+        If this is left as [None][] then this will just calculate the default
         permissions on a guild level.
 
     Returns
@@ -382,25 +373,21 @@ async def fetch_everyone_permissions(
 ) -> hikari.Permissions:
     """Calculate the permissions a guild's default @everyone role has within a guild or for a specific channel.
 
-    .. note::
+    !!! note
         This callback will fallback to REST requests if cache lookups fail or
         are not possible.
 
     Parameters
     ----------
-    client : tanjun.abc.Client
+    client
         The Tanjun client to use for lookups.
-    guild_id : hikari.Snowflake
+    guild_id
         ID of the guild to calculate the default permissions for.
-
-    Other Parameters
-    ----------------
-    channel : hikari.SnowflakeishOr | hikari.PartialChannel | None
+    channel
         The channel to calculate the permissions for.
 
-        If this is left as `None` then this will just calculate the default
+        If this is left as [None][] then this will just calculate the default
         permissions on a guild level.
-
 
     Returns
     -------

@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard slash command execution context implementations."""
+"""Slash command implementation."""
 from __future__ import annotations
 
 __all__: list[str] = ["SlashContext", "SlashOption"]
@@ -79,6 +79,15 @@ class SlashOption(tanjun_abc.SlashOption):
     def __init__(
         self, resolved: typing.Optional[hikari.ResolvedOptionData], option: hikari.CommandInteractionOption, /
     ):
+        """Initialise a slash option.
+
+        Parameters
+        ----------
+        resolved
+            The resolved option data if applicable.
+        option
+            The raw interaction option.
+        """
         if option.value is None:
             raise ValueError("Cannot build a slash option with a value-less API representation")
 
@@ -404,7 +413,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
         Parameters
         ----------
-        count_down : int | float
+        count_down
             The number of seconds to wait before automatically deferring the
             interaction.
 
@@ -943,7 +952,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
 
 class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
-    """Standard implementation of `tanjun.abc.SlashContext`."""
+    """Standard implementation of [tanjun.abc.SlashContext][]."""
 
     __slots__ = ("_command", "_marked_not_found", "_on_not_found", "_options")
 
@@ -958,6 +967,22 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
             collections.Callable[[tanjun_abc.SlashContext], collections.Awaitable[None]]
         ] = None,
     ) -> None:
+        """Initialise a slash command context.
+
+        Parameters
+        ----------
+        client
+            The Tanjun client this context is bound to.
+        interaction
+            The command interaction this context is for.
+        default_to_ephemeral
+            Whether to default to ephemeral responses.
+        future
+            A future used to set the initial response if this is being called
+            through the REST webhook flow.
+        on_not_found
+            Callback used to indicate no matching command was found.
+        """
         super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
         self._marked_not_found = False
         self._on_not_found = on_not_found

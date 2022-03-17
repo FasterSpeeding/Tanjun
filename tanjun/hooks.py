@@ -52,12 +52,12 @@ _ContextT_contra = typing.TypeVar("_ContextT_contra", bound=abc.Context, contrav
 
 
 class Hooks(abc.Hooks[_ContextT_contra]):
-    """Standard implementation of `tanjun.abc.Hooks` used for command execution.
+    """Standard implementation of [tanjun.abc.Hooks][] used for command execution.
 
-    This will take either `tanjun.abc.Context`, `tanjun.abc.MessageContext`
-    or `tanjun.abc.SlashContext` dependent on what its bound by (generic wise).
+    This will take either [tanjun.abc.Context][], [tanjun.abc.MessageContext][]
+    or [tanjun.abc.SlashContext][] dependent on what its bound by (generic wise).
 
-    .. note::
+    !!! note
         This implementation adds a concept of parser errors which won't be
         dispatched to general "error" hooks and do not share the error
         suppression semantics as they favour to always suppress the error
@@ -83,7 +83,7 @@ class Hooks(abc.Hooks[_ContextT_contra]):
     def add_to_command(self, command: _CommandT, /) -> _CommandT:
         """Add this hook object to a command.
 
-        .. note::
+        !!! note
             This will likely override any previously added hooks.
 
         Examples
@@ -99,12 +99,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 
         Parameters
         ----------
-        command : tanjun.abc.ExecutableCommand[typing.Any]
+        command : tanjun.abc.ExecutableCommand
             The command to add the hooks to.
 
         Returns
         -------
-        tanjun.abc.ExecutableCommand[typing.Any]
+        tanjun.abc.ExecutableCommand
             The command with the hooks added.
         """
         command.set_hooks(self)
@@ -122,23 +122,23 @@ class Hooks(abc.Hooks[_ContextT_contra]):
     def set_on_error(self: _HooksT, callback: typing.Optional[abc.ErrorHookSig], /) -> _HooksT:
         """Set the error callback for this hook object.
 
-        .. note::
-            This will not be called for `tanjun.errors.ParserError`s as these
+        !!! note
+            This will not be called for [tanjun.ParserError][]s as these
             are generally speaking expected. To handle those see
-            `Hooks.set_on_parser_error`.
+            [Hooks.set_on_parser_error][tanjun.hooks.Hooks.set_on_parser_error].
 
         Parameters
         ----------
-        callback : tanjun.abc.ErrorHookSig | None
+        callback
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.Context` and `Exception`) and may be either
+            [tanjun.abc.Context][] and [Exception][]) and may be either
             synchronous or asynchronous.
 
-            Returning `True` indicates that the error should be suppressed,
-            `False` that it should be re-raised and `None` that no decision
+            Returning [True][] indicates that the error should be suppressed,
+            [False][] that it should be re-raised and [None][] that no decision
             has been made. This will be accounted for along with the decisions
             other error hooks make by majority rule.
 
@@ -165,13 +165,13 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig | None
+        callback
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
             This callback should take two positional arguments (of type
-            `tanjun.abc.Context` and `tanjun.errors.ParserError`),
-            return `None` and may be either synchronous or asynchronous.
+            [tanjun.abc.Context][] and [tanjun.ParserError][]),
+            return [None][] and may be either synchronous or asynchronous.
 
             It's worth noting that, unlike general error handlers, this will
             always suppress the error.
@@ -199,12 +199,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig | None
+        callback
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -230,12 +230,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig | None
+        callback
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -261,12 +261,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : HookSig[tanjun.abc.HookSig] | None
+        callback
             The callback to set for this hook. This will remove any previously
             set callbacks.
 
             This callback should take one positional argument (of type
-            `tanjun.abc.Context`), return `None` and may be either
+            [tanjun.abc.Context][]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -352,27 +352,27 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 AnyHooks = Hooks[abc.Context]
 """Hooks that can be used with any context.
 
-.. note::
-    This is shorthand for Hooks[tanjun.abc.Context].
+!!! note
+    This is shorthand for `Hooks[tanjun.abc.Context]`.
 """
 
 MenuHooks = Hooks[abc.MenuContext]
 """Hooks that can be used with a message context.
 
-.. note::
-    This is shorthand for Hooks[tanjun.abc.MenuContext].
+!!! note
+    This is shorthand for `Hooks[tanjun.abc.MenuContext]`.
 """
 
 MessageHooks = Hooks[abc.MessageContext]
 """Hooks that can be used with a message context.
 
-.. note::
-    This is shorthand for Hooks[tanjun.abc.MessageContext].
+!!! note
+    This is shorthand for `Hooks[tanjun.abc.MessageContext]`.
 """
 
 SlashHooks = Hooks[abc.SlashContext]
 """Hooks that can be used with a slash context.
 
-.. note::
-    This is shorthand for Hooks[tanjun.abc.SlashContext].
+!!! note
+    This is shorthand for `Hooks[tanjun.abc.SlashContext]`.
 """

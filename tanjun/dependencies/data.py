@@ -53,8 +53,8 @@ _T = typing.TypeVar("_T")
 class LazyConstant(typing.Generic[_T]):
     """Injected type used to hold and generate lazy constants.
 
-    .. note::
-        To easily resolve this type use `inject_lc`.
+    !!! note
+        To easily resolve this type use [inject_lc][tanjun.dependencies.inject_lc].
     """
 
     __slots__ = ("_callback", "_lock", "_value")
@@ -64,7 +64,7 @@ class LazyConstant(typing.Generic[_T]):
 
         Parameters
         ----------
-        callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitable[_T]]
+        callback
             Callback used to resolve this to a constant value.
 
             This supports dependency injection and may either be sync or asynchronous.
@@ -83,7 +83,7 @@ class LazyConstant(typing.Generic[_T]):
         return self._callback
 
     def get_value(self) -> typing.Optional[_T]:
-        """Get the value of this constant if set, else `None`."""
+        """Get the value of this constant if set, else [None][]."""
         return self._value
 
     def reset(self: _LazyConstantT) -> _LazyConstantT:
@@ -96,7 +96,7 @@ class LazyConstant(typing.Generic[_T]):
 
         Parameters
         ----------
-        value : _T
+        value
             The value to set.
 
         Raises
@@ -115,8 +115,9 @@ class LazyConstant(typing.Generic[_T]):
         """Acquire this lazy constant as an asynchronous lock.
 
         This is used to ensure that the value is only generated once
-        and should be kept acquired until `LazyConstant.set_value` has
-        been called.
+        and should be kept acquired until
+        [LazyConstant.set_value][tanjun.dependencies.LazyConstant.set_value]
+        has been called.
 
         Returns
         -------
@@ -136,15 +137,16 @@ def make_lc_resolver(
 ) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Make an injected callback which resolves a LazyConstant.
 
-    Notes
-    -----
-    * This is internally used by `inject_lc`.
-    * For this to work, a `LazyConstant` must've been set as a type
-      dependency for the passed `type_`.
+    !!! note
+        This is internally used by [inject_lc][tanjun.dependencies.inject_lc].
+
+    !!! note
+        For this to work, a [LazyConstant][tanjun.dependencies.LazyConstant]
+        must've been set as a type dependency for the passed `type_`.
 
     Parameters
     ----------
-    type_ : type[_T]
+    type_
         The type of the constant to resolve.
 
     Returns
@@ -176,16 +178,16 @@ def make_lc_resolver(
 def inject_lc(type_: type[_T], /) -> _T:
     """Make a LazyConstant injector.
 
-    This acts like `alluka.inject` and the result of it
+    This acts like [alluka.inject][] and the result of it
     should also be assigned to a parameter's default to be used.
 
-    .. note::
-        For this to work, a `LazyConstant` must've been set as a type
-        dependency for the passed `type_`.
+    !!! note
+        For this to work, a [LazyConstant][tanjun.dependencies.LazyConstant]
+        must've been set as a type dependency for the passed `type_`.
 
     Parameters
     ----------
-    type_ : type[_T]
+    type_
         The type of the constant to resolve.
 
     Returns
@@ -281,20 +283,17 @@ def cache_callback(
 ) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Cache the result of a callback within a dependency injection context.
 
-    .. note::
-        This is internally used by `cached_inject`.
+    !!! note
+        This is internally used by [cached_inject][tanjun.dependencies.cached_inject].
 
     Parameters
     ----------
-    callback : CallbackSig[_T]
+    callback
         The callback to cache the result of.
-
-    Other Parameters
-    ----------------
-    expire_after : int | float | datetime.timedelta | None
+    expire_after
         The amount of time to cache the result for in seconds.
 
-        Leave this as `None` to cache for the runtime of the application.
+        Leave this as [None][] to cache for the runtime of the application.
 
     Returns
     -------
@@ -316,7 +315,7 @@ def cached_inject(
 ) -> _T:
     """Inject a callback with caching.
 
-    This acts like `alluka.inject` and the result of it
+    This acts like [alluka.inject][] and the result of it
     should also be assigned to a parameter's default to be used.
 
     Example
@@ -332,18 +331,16 @@ def cached_inject(
         ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)
     ) -> None:
         raise NotImplementedError
+    ```
 
     Parameters
     ----------
-    callback : CallbackSig[_T]
+    callback
         The callback to inject.
-
-    Other Parameters
-    ----------------
-    expire_after : int | float | datetime.timedelta | None
+    expire_after
         The amount of time to cache the result for in seconds.
 
-        Leave this as `None` to cache for the runtime of the application.
+        Leave this as [None][] to cache for the runtime of the application.
 
     Returns
     -------

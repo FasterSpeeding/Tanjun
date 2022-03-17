@@ -39,21 +39,21 @@ import asyncio
 import copy
 import datetime
 import typing
+from collections import abc as collections
 
 from alluka import abc as alluka
 
 from . import components
 
 if typing.TYPE_CHECKING:
-    from collections import abc as collections
 
     from . import abc as tanjun_abc
 
-    _CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
     _IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
     _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
     _T = typing.TypeVar("_T")
 
+_CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound="_CallbackSig")
 
 
@@ -68,7 +68,7 @@ class AbstractSchedule(abc.ABC):
         """Return the callback attached to the schedule.
 
         This will be an asynchronous function which takes zero positional
-        arguments, returns `None` and may be relying on dependency injection.
+        arguments, returns [None][] and may be relying on dependency injection.
         """
 
     @property
@@ -105,12 +105,9 @@ class AbstractSchedule(abc.ABC):
 
         Parameters
         ----------
-        alluka.abc.Client
+        client
             The injector client calls should be resolved with.
-
-        Other Parameters
-        ----------------
-        loop : asyncio.AbstractEventLoop | None
+        loop
             The event loop to use. If not provided, the current event loop will
             be used.
 
@@ -150,26 +147,19 @@ def as_interval(
 
     Parameters
     ----------
-    interval : int | float | datetime.timedelta
+    interval
         The callback for the schedule.
 
         This should be an asynchronous function which takes no positional
-        arguments, returns `None` and may use dependency injection.
-
-    Other Parameters
-    ----------------
-    fatal_exceptions : collections.abc.Sequence[type[Exception]]
+        arguments, returns [None][] and may use dependency injection.
+    fatal_exceptions
         A sequence of exceptions that will cause the schedule to stop if raised
         by the callback, start callback or stop callback.
-
-        Defaults to no exceptions.
-    ignored_exceptions : collections.abc.Sequence[type[Exception]]
+    ignored_exceptions
         A sequence of exceptions that should be ignored if raised by the
         callback, start callback or stop callback.
-
-        Defaults to no exceptions.
-    max_runs : int | None
-        The maximum amount of times the schedule runs. Defaults to no maximum.
+    max_runs
+        The maximum amount of times the schedule runs.
 
     Returns
     -------
@@ -214,28 +204,21 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The callback for the schedule.
 
             This should be an asynchronous function which takes no positional
-            arguments, returns `None` and may use dependency injection.
-        interval : datetime.timedelta | int | float
+            arguments, returns [None][] and may use dependency injection.
+        interval
             The interval between calls. Passed as a timedelta, or a number of seconds.
-
-        Other Parameters
-        ----------------
-        fatal_exceptions : collections.abc.Sequence[type[Exception]]
+        fatal_exceptions
             A sequence of exceptions that will cause the schedule to stop if raised
             by the callback, start callback or stop callback.
-
-            Defaults to no exceptions.
-        ignored_exceptions : collections.abc.Sequence[type[Exception]]
+        ignored_exceptions
             A sequence of exceptions that should be ignored if raised by the
             callback, start callback or stop callback.
-
-            Defaults to no exceptions.
-        max_runs : int | None
-            The maximum amount of times the schedule runs. Defaults to no maximum.
+        max_runs
+            The maximum amount of times the schedule runs.
         """
         if isinstance(interval, datetime.timedelta):
             self._interval: datetime.timedelta = interval
@@ -296,7 +279,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : CallbackSig
+        callback
             The callback to set.
 
         Returns
@@ -312,7 +295,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback
             The callback to set.
 
         Returns
@@ -383,12 +366,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The callback to set.
 
         Returns
         -------
-        collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The added callback.
 
         Examples
@@ -414,12 +397,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The callback to set.
 
         Returns
         -------
-        collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The added callback.
 
         Examples
@@ -448,7 +431,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        *exceptions : type[Exception]
+        *exceptions
             Types of the exceptions to ignore.
 
         Returns
@@ -466,7 +449,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        *exceptions : type[Exception]
+        *exceptions
             Types of the exceptions to stop the task on.
 
         Returns

@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation of Tanjun's command objects."""
+"""Message command implementations."""
 from __future__ import annotations
 
 __all__: list[str] = ["MessageCommand", "MessageCommandGroup", "as_message_command", "as_message_command_group"]
@@ -79,23 +79,20 @@ def as_message_command(name: str, /, *names: str) -> _ResultProto:
 
     Parameters
     ----------
-    name : str
+    name
         The command name.
-
-    Other Parameters
-    ----------------
-    *names : str
+    *names
         Variable positional arguments of other names for the command.
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
-        The decorator callback used to make a `MessageCommand`.
+        The decorator callback used to make a [tanjun.MessageCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
-        will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
+        [tanjun.Component.load_from_scope][].
     """
 
     def decorator(
@@ -128,14 +125,11 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
 
     Parameters
     ----------
-    name : str
+    name
         The command name.
-
-    Other Parameters
-    ----------------
-    *names : str
+    *names
         Variable positional arguments of other names for the command.
-    strict : bool
+    strict
         Whether this command group should only allow commands without spaces in their names.
 
         This allows for a more optimised command search pattern to be used and
@@ -144,12 +138,12 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
-        The decorator callback used to make a `MessageCommandGroup`.
+        The decorator callback used to make a [tanjun.MessageCommandGroup][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
-        will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
+        [tanjun.Component.load_from_scope][].
     """
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
@@ -200,18 +194,15 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
-            argument of type `tanjun.abc.MessageContext`, returns `None` and may use
-            dependency injection to access other services.
-        name : str
+            argument of type [tanjun.abc.MessageContext][], returns [None][]
+            and may use dependency injection to access other services.
+        name
             The command name.
-
-        Other Parameters
-        ----------------
-        *names : str
+        *names
             Variable positional arguments of other names for the command.
         """
         super().__init__()
@@ -396,14 +387,17 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.MessageComma
 
         Parameters
         ----------
-        name : str
-            The command name.
+        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
+            Callback to execute when the command is invoked.
 
-        Other Parameters
-        ----------------
-        *names : str
+            This should be an asynchronous callback which takes one positional
+            argument of type [tanjun.abc.MessageContext][], returns [None][]
+            and may use dependency injection to access other services.
+        name
+            The command name.
+        *names
             Variable positional arguments of other names for the command.
-        strict : bool
+        strict
             Whether this command group should only allow commands without spaces in their names.
 
             This allows for a more optimised command search pattern to be used and
@@ -446,7 +440,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.MessageComma
 
         Parameters
         ----------
-        command : MessageCommand
+        command
             The command to add.
 
         Returns

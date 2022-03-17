@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation of Tanjun's command objects."""
+"""Menu command implementations."""
 from __future__ import annotations
 
 __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
@@ -119,12 +119,16 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
-    r"""Build a message `MenuCommand` by decorating a function.
+    """Build a message [tanjun.MenuCommand][] by decorating a function.
 
-    .. note::
+    !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
+
+    !!! note
+        If you want your first response to be ephemeral while using
+        `always_defer`, you must set `default_to_ephemeral` to `True`.
 
     Examples
     --------
@@ -138,49 +142,38 @@ def as_message_menu(
 
     Parameters
     ----------
-    name : str
+    name
         The command's name.
 
-        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description : str
-        The command's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    always_defer : bool
+        This must be between 1 and 32 characters in length.
+    always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-
-        Defaults to `False`.
-
-        .. note::
-            The ephemeral state of the first response is decided by whether the
-            deferral is ephemeral.
-    default_to_ephemeral : bool | None
+    default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
-        If this is left as `None` then the default set on the parent command(s),
+        If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
-    is_global : bool
-        Whether this command is a global command. Defaults to `True`.
+    is_global
+        Whether this command is a global command.
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
-        The decorator callback used to make a `MenuCommand`.
+        The decorator callback used to make a [tanjun.MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
-        will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
+        [tanjun.Component.load_from_scope][].
 
     Raises
     ------
     ValueError
         Raises a value error for any of the following reasons:
-        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+
+        * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
     return _as_menu(name, hikari.CommandType.MESSAGE, always_defer, default_to_ephemeral, is_global)
@@ -194,12 +187,16 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
-    r"""Build a user `MenuCommand` by decorating a function.
+    """Build a user [tanjun.MenuCommand][] by decorating a function.
 
-    .. note::
+    !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by `tanjun.Client.declare_global_commands`
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
+
+    !!! note
+        If you want your first response to be ephemeral while using
+        `always_defer`, you must set `default_to_ephemeral` to `True`.
 
     Examples
     --------
@@ -215,49 +212,38 @@ def as_user_menu(
 
     Parameters
     ----------
-    name : str
+    name
         The command's name.
 
-        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
-    description : str
-        The command's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    always_defer : bool
+        This must be between 1 and 32 characters in length.
+    always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-
-        Defaults to `False`.
-
-        .. note::
-            The ephemeral state of the first response is decided by whether the
-            deferral is ephemeral.
-    default_to_ephemeral : bool | None
+    default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
-        If this is left as `None` then the default set on the parent command(s),
+        If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
-    is_global : bool
-        Whether this command is a global command. Defaults to `True`.
+    is_global
+        Whether this command is a global command.
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
-        The decorator callback used to make a `MenuCommand`.
+        The decorator callback used to make a [tanjun.MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
-        (e.g. `MenuCommand`, `MessageCommand`, `MessageCommandGroup`, `SlashCommand`) and
-        will manage loading the other command into a component when using
-        `tanjun.Component.load_from_scope`.
+        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+        and will manage loading the other command into a component when using
+        [tanjun.Component.load_from_scope][].
 
     Raises
     ------
     ValueError
         Raises a value error for any of the following reasons:
-        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+
+        * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
     return _as_menu(name, hikari.CommandType.USER, always_defer, default_to_ephemeral, is_global)
@@ -267,7 +253,7 @@ _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
 class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
-    """Base class used for the standard slash command implementations."""
+    """Base class used for the standard menu command implementations."""
 
     __slots__ = (
         "_always_defer",
@@ -330,6 +316,65 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         is_global: bool = True,
         _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
     ) -> None:
+        """Initialise a user or message menu command.
+
+        !!! note
+            Under the standard implementation, `is_global` is used to determine whether
+            the command should be bulk set by [tanjun.Client.declare_global_commands][]
+            or when `declare_global_commands` is True
+
+        !!! note
+            If you want your first response to be ephemeral while using
+            `always_defer`, you must set `default_to_ephemeral` to `True`.
+
+        Parameters
+        ----------
+        callback : collections.abc.Callable[[tanjun.abc.MenuContext, ...], collections.abc.Coroutine[Any, ANy, None]]
+            Callback to execute when the command is invoked.
+
+            This should be an asynchronous callback which takes one positional
+            argument of type [tanjun.abc.MenuContext][], returns [None][]
+            and may use dependency injection to access other services.
+
+        type_ : hikari.commands.CommandType
+            The type of menu command this is.
+
+            Only [hikari.commands.CommandType.USER][] and [hikari.commands.CommandType.MESSAGE][]
+            are valid here.
+        name
+            The command's name.
+
+            This must be between 1 and 32 characters in length.
+        always_defer
+            Whether the contexts this command is executed with should always be deferred
+            before being passed to the command's callback.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+        is_global
+            Whether this command is a global command.
+
+        Returns
+        -------
+        collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
+            The decorator callback used to make a [tanjun.MenuCommand][].
+
+            This can either wrap a raw command callback or another callable command instance
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
+            and will manage loading the other command into a component when using
+            [tanjun.Component.load_from_scope][].
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name isn't in the length range of 1 to 32.
+            * If the command name has uppercase characters.
+        """
         super().__init__()
         if not name or len(name) > 32:
             raise ValueError("Command name must be between 1-32 characters in length")
@@ -413,11 +458,11 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
 
         Parameters
         ----------
-        bool | None
+        state
             Whether this command's responses should default to ephemeral.
             This will be overridden by any response calls which specify flags.
 
-            Setting this to `None` will let the default set on the parent
+            Setting this to [None][] will let the default set on the parent
             command(s), component or client propagate and decide the ephemeral
             default for contexts used by this command.
 

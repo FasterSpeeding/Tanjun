@@ -103,7 +103,7 @@ def set_standard_dependencies(client: abc.Client, /) -> None:
 
     Parameters
     ----------
-    client: tanjun.abc.Client
+    client
         The injector client to set the standard dependencies on.
     """
     client.set_type_dependency(AbstractOwners, Owners()).set_type_dependency(

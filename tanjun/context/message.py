@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard message command execution context implementations."""
+"""Message command implementation."""
 from __future__ import annotations
 
 __all__: list[str] = ["MessageContext"]
@@ -79,6 +79,21 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         triggering_name: str = "",
         triggering_prefix: str = "",
     ) -> None:
+        """Initialise a message command context.
+
+        Parameters
+        ----------
+        client
+            The client to use for sending messages.
+        content
+            The content of the message (minus any matched prefix and name).
+        message
+            The message that triggered the command.
+        triggering_name
+            The name of the command that triggered this context.
+        triggering_prefix
+            The prefix that triggered this context.
+        """
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 
@@ -192,7 +207,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
 
         Parameters
         ----------
-        triggering_prefix : str
+        triggering_prefix
             The triggering prefix to set.
 
         Returns

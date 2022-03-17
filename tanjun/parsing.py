@@ -85,7 +85,7 @@ ConverterSig = typing.Union[
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
-`str`, argument and returns the resultant value.
+[str][], argument and returns the resultant value.
 """
 
 _MaybeIterable = typing.Union[collections.Iterable[_T], _T]
@@ -111,13 +111,13 @@ class UndefinedT:
 
 
 UndefinedDefaultT = UndefinedT
-"""Deprecated alias of `UndefinedT`."""
+"""Deprecated alias of [Undefined][tanjun.parsing.UNDEFINED]."""
 
 UNDEFINED = UndefinedT()
 """A singleton used to represent an undefined value within parsing logic."""
 
 UNDEFINED_DEFAULT = UNDEFINED
-"""Deprecated alias of `UNDEFINED`."""
+"""Deprecated alias of [UNDEFINED][tanjun.parsing.UNDEFINED]."""
 
 _UndefinedOr = typing.Union[UndefinedT, _T]
 
@@ -213,28 +213,25 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
     ) -> _T:
         """Add a positional argument type to the parser..
 
-        .. note::
+        !!! note
             Order matters for positional arguments.
 
         Parameters
         ----------
-        key : str
+        key
             The string identifier of this argument (may be used to pass the result
             of this argument to the command's callback during execution).
-
-        Other Parameters
-        ----------------
-        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+        converters
             The converter(s) this argument should use to handle values passed to it
             during parsing.
 
             If no converters are provided then the raw string value will be passed.
 
             Only the first converter to pass will be used.
-        default : typing.Any
+        default
             The default value of this argument, if left as
-            `UNDEFINED` then this will have no default.
-        greedy : bool
+            [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
+        greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
         max_value
@@ -247,7 +244,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
             If any converters are provided then this should be compatible
             with the result of them.
-        multi : bool
+        multi
             Whether this argument can be passed multiple times.
 
         Returns
@@ -339,31 +336,28 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
         Parameters
         ----------
-        key : str
+        key
             The string identifier of this option which will be used to pass the
             result of this option to the command's callback during execution as
             a keyword argument.
-        name : str
+        name
             The name of this option used for identifying it in the parsed content.
-        default : typing.Any
+        *names
+            Other names of this option used for identifying it in the parsed content.
+        default
             The default value of this option, unlike arguments this is required
             for options.
-
-        Other Parameters
-        ----------------
-        *names : str
-            Other names of this option used for identifying it in the parsed content.
-        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+        converters
             The converter(s) this option should use to handle values passed to it
             during parsing.
 
             If no converters are provided then the raw string value will be passed.
 
             Only the first converter to pass will be used.
-        empty_value : typing.Any
+        empty_value
             The value to use if this option is provided without a value.
-            If left as `UNDEFINED` then this option will error if it's
-            provided without a value.
+            If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
+            will error if it's provided without a value.
         max_value
             Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -374,9 +368,8 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
             If any converters are provided then this should be compatible
             with the result of them.
-        multi : bool
+        multi
             If this option can be provided multiple times.
-            Defaults to `False`.
 
         Returns
         -------
@@ -386,7 +379,7 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
 
 
 AbstractParser = AbstractOptionParser
-"""Deprecated alias of `AbstractOptionParser`."""
+"""Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
 
 
 class _ShlexTokenizer:
@@ -630,31 +623,33 @@ def with_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
 
-    Notes
-    -----
-    * Order matters for positional arguments and since decorator execution
-      starts at the decorator closest to the command and goes upwards this
-      will decide where a positional argument is located in a command's
-      signature.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set `ShlexParser` as the parser.
+    !!! warning
+        Since order matters for positional arguments, you'll want to keep in
+        mind that decorator execution starts at the decorator closest to the
+        command and goes upwards with this deciding where a positional
+        argument is located in a command's signature.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
-    key : str
+    key
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's callback during execution).
-    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+    converters
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
         If no converters are provided then the raw string value will be passed.
 
         Only the first converter to pass will be used.
-    default : typing.Any
+    default
         The default value of this argument, if left as
-        `UNDEFINED` then this will have no default.
-    greedy : bool
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
+    greedy
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
     max_value
@@ -667,7 +662,7 @@ def with_argument(
 
         If any converters are provided then this should be compatible
         with the result of them.
-    multi : bool
+    multi
         Whether this argument can be passed multiple times.
 
     Returns
@@ -763,37 +758,37 @@ def with_greedy_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
-    Notes
-    -----
-    * A greedy argument will consume the remaining positional arguments and pass
-      them through to the converters as one joined string while also requiring
-      that at least one more positional argument is remaining unless a
-      default is set.
-    * Order matters for positional arguments and since decorator execution
-      starts at the decorator closest to the command and goes upwards this
-      will decide where a positional argument is located in a command's
-      signature.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set `ShlexParser` as the parser.
+    A greedy argument will consume the remaining positional arguments and pass
+    them through to the converters as one joined string while also requiring
+    that at least one more positional argument is remaining unless a default is
+    set.
+
+    !!! warning
+        Since order matters for positional arguments, you'll want to keep in
+        mind that decorator execution starts at the decorator closest to the
+        command and goes upwards with this deciding where a positional
+        argument is located in a command's signature.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
-    key : str
+    key
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's callback during execution).
-
-    Other Parameters
-    ----------------
-    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+    converters
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
         If no converters are provided then the raw string value will be passed.
 
         Only the first converter to pass will be used.
-    default : typing.Any
+    default
         The default value of this argument, if left as
-        `UNDEFINED` then this will have no default.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
     max_value
         Assert that the parsed value(s) for this argument are less than or equal to this.
 
@@ -887,38 +882,38 @@ def with_multi_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
-    Notes
-    -----
-    * A multi argument will consume the remaining positional arguments and pass
-      them to the converters through multiple calls while also requiring that
-      at least one more positional argument is remaining unless a default is
-      set and passing through the results to the command's callback as a
-      sequence.
-    * Order matters for positional arguments and since decorator execution
-      starts at the decorator closest to the command and goes upwards this
-      will decide where a positional argument is located in a command's
-      signature.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set `ShlexParser` as the parser.
+    A multi argument will consume the remaining positional arguments and pass
+    them to the converters through multiple calls while also requiring that
+    at least one more positional argument is remaining unless a default is
+    set and passing through the results to the command's callback as a
+    sequence.
+
+    !!! warning
+        Since order matters for positional arguments, you'll want to keep in
+        mind that decorator execution starts at the decorator closest to the
+        command and goes upwards with this deciding where a positional
+        argument is located in a command's signature.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
-    key : str
+    key
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's callback during execution).
-
-    Other Parameters
-    ----------------
-    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+    converters
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
         If no converters are provided then the raw string value will be passed.
 
         Only the first converter to pass will be used.
-    default : typing.Any
+    default
         The default value of this argument, if left as
-        `UNDEFINED` then this will have no default.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
     max_value
         Assert that the parsed value(s) for this argument are less than or equal to this.
 
@@ -1028,37 +1023,35 @@ def with_option(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
 
-    .. note::
+    !!! note
         If no parser is explicitly set on the command this is decorating before
-        this decorator call then this will set `ShlexParser` as the parser.
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
-    key : str
+    key
         The string identifier of this option which will be used to pass the
         result of this argument to the command's callback during execution as
         a keyword argument.
-    name : str
+    name
         The name of this option used for identifying it in the parsed content.
-    default : typing.Any
+    *names
+        Other names of this option used for identifying it in the parsed content.
+    default
         The default value of this argument, unlike arguments this is required
         for options.
-
-    Other Parameters
-    ----------------
-    *names : str
-        Other names of this option used for identifying it in the parsed content.
-    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+    converters
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
         If no converters are provided then the raw string value will be passed.
 
         Only the first converter to pass will be used.
-    empty_value : typing.Any
+    empty_value
         The value to use if this option is provided without a value. If left as
-        `UNDEFINED` then this option will error if it's
-        provided without a value.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
+        it's provided without a value.
     max_value
         Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -1069,9 +1062,8 @@ def with_option(
 
         If any converters are provided then this should be compatible
         with the result of them.
-    multi : bool
+    multi
         If this option can be provided multiple times.
-        Defaults to `False`.
 
     Returns
     -------
@@ -1178,42 +1170,40 @@ def with_multi_option(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
-    Notes
-    -----
-    * A multi option will consume all the values provided for an option and
-      pass them through to the converters as an array of strings while also
-      requiring that at least one value is provided for the option unless
-      a default is set.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set `ShlexParser` as the parser.
+    A multi option will consume all the values provided for an option and
+    pass them through to the converters as an array of strings while also
+    requiring that at least one value is provided for the option unless
+    a default is set.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
-    key : str
+    key
         The string identifier of this option which will be used to pass the
         result of this argument to the command's callback during execution as
         a keyword argument.
-    name : str
+    name
         The name of this option used for identifying it in the parsed content.
-    default : typing.Any
+    *names
+        Other names of this option used for identifying it in the parsed content.
+    default
         The default value of this argument, unlike arguments this is required
         for options.
-
-    Other Parameters
-    ----------------
-    *names : str
-        Other names of this option used for identifying it in the parsed content.
-    converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+    converters
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
         If no converters are provided then the raw string value will be passed.
 
         Only the first converter to pass will be used.
-    empty_value : typing.Any
+    empty_value
         The value to use if this option is provided without a value. If left as
-        `UNDEFINED` then this option will error if it's
-        provided without a value.
+        [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
+        it's provided without a value.
     max_value
         Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -1303,7 +1293,8 @@ class Parameter:
     def default(self) -> _UndefinedOr[typing.Any]:
         """The parameter's default.
 
-        If this is `UndefinedT` then this parameter is required.
+        If this is [UNDEFINED][tanjun.parsing.UNDEFINED] then this parameter is
+        required.
         """
         return self._default
 
@@ -1408,23 +1399,21 @@ class Argument(Parameter):
 
         Parameters
         ----------
-        key : str
+        key
             The string identifier of this argument (may be used to pass the result
             of this argument to the command's callback during execution).
-
-        Other Parameters
-        ----------------
-        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+        converters
             The converter(s) this argument should use to handle values passed to it
             during parsing.
 
             If no converters are provided then the raw string value will be passed.
 
             Only the first converter to pass will be used.
-        default : typing.Any
+        default
             The default value of this argument, if left as
-            `UNDEFINED` then this will have no default.
-        greedy : bool
+            [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no
+            default.
+        greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
         max_value
@@ -1437,7 +1426,7 @@ class Argument(Parameter):
 
             If any converters are provided then this should be compatible
             with the result of them.
-        multi : bool
+        multi
             Whether this argument can be passed multiple times.
         """
         if greedy and multi:
@@ -1455,7 +1444,7 @@ class Argument(Parameter):
         Greedy parameters will consume the remaining message content as one
         string (with converters also being passed the whole string).
 
-        .. note::
+        !!! note
             Greedy and multi parameters cannot be used together.
         """
         return self._is_greedy
@@ -1483,31 +1472,28 @@ class Option(Parameter):
 
         Parameters
         ----------
-        key : str
+        key
             The string identifier of this option which will be used to pass the
             result of this argument to the command's callback during execution as
             a keyword argument.
-        name : str
+        name
             The name of this option used for identifying it in the parsed content.
-        default : typing.Any
+        *names
+            Other names of this option used for identifying it in the parsed content.
+        default
             The default value of this argument, unlike arguments this is required
             for options.
-
-        Other Parameters
-        ----------------
-        *names : str
-            Other names of this option used for identifying it in the parsed content.
-        converters : ConverterSig | collections.abc.Iterable[ConverterSig]
+        converters
             The converter(s) this argument should use to handle values passed to it
             during parsing.
 
             If no converters are provided then the raw string value will be passed.
 
             Only the first converter to pass will be used.
-        empty_value : typing.Any
-            The value to use if this option is provided without a value. If left as
-            `UNDEFINED` then this option will error if it's
-            provided without a value.
+        empty_value
+            The value to use if this option is provided without a value.
+            If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
+            will error if it's provided without a value.
         max_value
             Assert that the parsed value(s) for this option are less than or equal to this.
 
@@ -1518,9 +1504,8 @@ class Option(Parameter):
 
             If any converters are provided then this should be compatible
             with the result of them.
-        multi : bool
+        multi
             If this option can be provided multiple times.
-            Defaults to `False`.
         """
         if not name.startswith("-") or not all(n.startswith("-") for n in names):
             raise ValueError("All option names must start with `-`")
@@ -1535,8 +1520,8 @@ class Option(Parameter):
     def empty_value(self) -> _UndefinedOr[typing.Any]:
         """The value to return if the option is empty.
 
-        If this is `UndefinedT` then a value will be required for the
-        option.
+        If this is [UNDEFINED][tanjun.parsing.UNDEFINED] then a value will be
+        required for the option.
         """
         return self._empty_value
 
@@ -1550,7 +1535,7 @@ class Option(Parameter):
 
 
 class ShlexParser(AbstractOptionParser):
-    """A shlex based `AbstractOptionParser` implementation."""
+    """A shlex based [AbstractOptionParser][tanjun.parsing.AbstractOptionParser] implementation."""
 
     __slots__ = ("_arguments", "_client", "_component", "_options")
 
@@ -1807,7 +1792,7 @@ def with_parser(command: _CommandT, /) -> _CommandT:
 
     Parameters
     ----------
-    command : tanjun.abc.MessageCommands
+    command
         The message command to set the parser on.
 
     Returns

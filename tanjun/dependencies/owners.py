@@ -66,9 +66,9 @@ class AbstractOwners(abc.ABC):
 
         Parameters
         ----------
-        client : tanjun.abc.Client
+        client
             The Tanjun client this check is being called by.
-        user : hikari.User
+        user
             The user to check ownership for.
 
         Returns
@@ -117,7 +117,7 @@ _ApplicationCacheT = async_cache.SingleStoreCache[hikari.Application]
 class Owners(AbstractOwners):
     """Default implementation of the owner check interface.
 
-    .. warning::
+    !!! warning
         `fallback_to_application` is only possible when the REST client
         is bound to a Bot token or if a type dependency is registered for
         `tanjun.dependencies.SingleStoreCache[hikari.Application]`.
@@ -134,20 +134,19 @@ class Owners(AbstractOwners):
     ) -> None:
         """Initiate a new owner check dependency.
 
-        Other Parameters
-        ----------------
-        expire_after : datetime.timedelta | int | float
+        Parameters
+        ----------
+        expire_after
             The amount of time to cache application owner data for in seconds.
 
-            This defaults to 5 minutes and is only applicable if `rest` is also
-            passed.
-        fallback_to_application : bool
+            This is only applicable if `rest` is also passed.
+        fallback_to_application
             Whether this check should fallback to checking the application's owners
-            if the user isn't in `owners.
+            if the user isn't in `owners`.
 
             This only works when the bot's rest client is bound to a Bot token or
             if `tanjun.dependencies.SingleStoreCache[hikari.Application]` is available.
-        owners : hikari.SnowflakeishSequence[hikari.User] | None
+        owners
             Sequence of objects and IDs of the users that are allowed to use the
             bot's owners-only commands.
         """
