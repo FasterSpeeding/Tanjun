@@ -773,9 +773,9 @@ class Client(tanjun_abc.Client):
         """Build a [tanjun.Client][] from a [hikari.traits.GatewayBotAware][] instance.
 
         !!! note
-            This implicitly defaults the client to human only mode and sets
-            type dependency injectors for the hikari traits present in
-            `bot` (including [hikari.traits.GatewayBotAware][]).
+            This defaults the client to human only mode and sets type
+            dependency injectors for the hikari traits present in `bot`
+            (including [hikari.traits.GatewayBotAware][]).
 
         Parameters
         ----------
@@ -1104,8 +1104,8 @@ class Client(tanjun_abc.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Alias of [tanjun.Client.declare_global_commands][].
 
-        .. deprecated:: v2.1.1a1
-            Use [tanjun.Client.declare_global_commands][] instead.
+        !!! deprecated
+            Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.
         """
         warnings.warn(
             "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
@@ -2618,8 +2618,7 @@ class Client(tanjun_abc.Client):
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
 
-        !!! note
-            This will execute application commands and autocomplete interactions.
+        This will execute both application command and autocomplete interactions.
 
         Parameters
         ----------

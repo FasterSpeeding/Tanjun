@@ -148,8 +148,7 @@ class BucketResource(int, enum.Enum):
     MEMBER = 1
     """A per-guild member resource bucket.
 
-    !!! note
-        When executed in a DM this will be per-DM.
+    When executed in a DM this will be per-DM.
     """
 
     CHANNEL = 2
@@ -158,9 +157,8 @@ class BucketResource(int, enum.Enum):
     PARENT_CHANNEL = 3
     """A per-parent channel resource bucket.
 
-    !!! note
-        For DM channels this will be per-DM, for guild channels with no parents
-        this'll be per-guild.
+    For DM channels this will be per-DM, for guild channels with no parents
+    this'll be per-guild.
     """
 
     # CATEGORY = 4
@@ -174,16 +172,14 @@ class BucketResource(int, enum.Enum):
     TOP_ROLE = 5
     """A per-highest role resource bucket.
 
-    !!! note
-        When executed in a DM this will be per-DM, with this defaulting to
-        targeting the @everyone role if they have no real roles.
+    When executed in a DM this will be per-DM, with this defaulting to
+    targeting the @everyone role if they have no real roles.
     """
 
     GUILD = 6
     """A per-guild resource bucket.
 
-    !!! note
-        When executed in a DM this will be per-DM.
+    When executed in a DM this will be per-DM.
     """
 
     GLOBAL = 7
