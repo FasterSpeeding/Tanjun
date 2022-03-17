@@ -104,7 +104,7 @@ _MenuTypeT = typing.TypeVar(
 )
 
 
-AutocompleteCallbackSig = collections.Callable[..., collections.Awaitable[None]]
+AutocompleteCallbackSig = collections.Callable[..., _CoroT[None]]
 """Type hint of the callback an autocomplete callback should have.
 
 This will be called when handling autocomplete and should be an asynchronous
@@ -125,7 +125,7 @@ returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
 current context shouldn't lead to an execution.
 """
 
-CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
+CommandCallbackSig = collections.Callable[..., _CoroT[None]]
 """Type hint of the callback a callable [tanjun.abc.ExecutableCommand][] instance will operate on.
 
 This will be called when executing a command and will need to take one
@@ -164,14 +164,14 @@ HookSig = typing.Union[collections.Callable[..., None], collections.Callable[...
     are passed dependent on the type of hook this is being registered as.
 """
 
-ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+ListenerCallbackSig = collections.Callable[..., _CoroT[None]]
 """Type hint of a hikari event manager callback.
 
 This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
 regardless of implementation and must be a coruotine function which returns [None][].
 """
 
-MenuCommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
+MenuCommandCallbackSig = collections.Callable[..., _CoroT[None]]
 """Type hint of a context menu command callback.
 
 This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
@@ -3349,7 +3349,7 @@ class Component(abc.ABC):
         self,
         ctx: AutocompleteContext,
         /,
-    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
+    ) -> typing.Optional[_CoroT[None]]:
         """Execute an autocomplete context.
 
         !!! note
@@ -3364,7 +3364,7 @@ class Component(abc.ABC):
         Returns
         -------
         collections.abc.Coroutine[typing.Any, typing.Any, None] | None
-            Awaitable used to wait for the command execution to finish.
+            Coroutine used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
 
@@ -3379,7 +3379,7 @@ class Component(abc.ABC):
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None,
-    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
+    ) -> typing.Optional[_CoroT[None]]:
         """Execute a menu context.
 
         Parameters
@@ -3392,7 +3392,7 @@ class Component(abc.ABC):
         Returns
         -------
         collections.abc.Coroutine[typing.Any, typing.Any, None] | None
-            Awaitable used to wait for the command execution to finish.
+            Coroutine used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
 
@@ -3415,7 +3415,7 @@ class Component(abc.ABC):
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
-    ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
+    ) -> typing.Optional[_CoroT[None]]:
         """Execute a slash context.
 
         Parameters
@@ -3428,7 +3428,7 @@ class Component(abc.ABC):
         Returns
         -------
         collections.abc.Coroutine[typing.Any, typing.Any, None] | None
-            Awaitable used to wait for the command execution to finish.
+            Coroutine used to wait for the command execution to finish.
 
             This may be awaited or left to run as a background task.
 

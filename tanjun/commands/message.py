@@ -194,7 +194,7 @@ class MessageCommand(base.PartialCommand[abc.MessageContext], abc.MessageCommand
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
@@ -387,7 +387,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.MessageComma
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional

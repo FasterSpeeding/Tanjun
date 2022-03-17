@@ -1186,7 +1186,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Coroutine[Any, Any, None]]
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional

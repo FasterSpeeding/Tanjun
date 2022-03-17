@@ -190,9 +190,6 @@ def calculate_permissions(
     roles
         Mapping of snowflake IDs to objects of the roles within the target
         guild.
-
-    Parameters
-    ----------
     channel
         Object of the channel to calculate the member's permissions in.
 

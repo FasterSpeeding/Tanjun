@@ -204,7 +204,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The callback for the schedule.
 
             This should be an asynchronous function which takes no positional
@@ -366,12 +366,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The callback to set.
 
         Returns
         -------
-        collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The added callback.
 
         Examples
@@ -397,12 +397,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         Parameters
         ----------
-        callback : collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The callback to set.
 
         Returns
         -------
-        collections.abc.Callable[...,  collections.abc.Awaitable[None]]
+        collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
             The added callback.
 
         Examples

@@ -45,18 +45,18 @@ Tanjun will use the following type dependencies for these interfaces if they are
 registered with the client:
 
 * `AsyncCache[str, hikari.InviteWithMetadata]`
-* `SfCache[hikari.channels.GuildChannel]`
-* `SfCache[hikari.emojis.KnownCustomEmoji]`
-* `SfCache[hikari.guilds.Guild]`
-* `SfCache[hikari.guilds.Role]`
-* `SfCache[hikari.users.User]`
-* `SfGuildBound[hikari.guilds.Member]`
-* `SfGuildBound[hikari.presences.MemberPresence]`
-* `SfGuildBound[hikari.voices.VoiceState]`
-* `SfGuildBound[hikari.guilds.Role]`
-* `SingleStoreCache[hikari.users.OwnUser]`
-* `SingleStoreCache[hikari.applications.Application]`
-* `SingleStoreCache[hikari.applications.AuthorizationApplication]`
+* `SfCache[hikari.GuildChannel]`
+* `SfCache[hikari.KnownCustomEmoji]`
+* `SfCache[hikari.Guild]`
+* `SfCache[hikari.Role]`
+* `SfCache[hikari.User]`
+* `SfGuildBound[hikari.Member]`
+* `SfGuildBound[hikari.MemberPresence]`
+* `SfGuildBound[hikari.VoiceState]`
+* `SfGuildBound[hikari.Role]`
+* `SingleStoreCache[hikari.OwnUser]`
+* `SingleStoreCache[hikari.Application]`
+* `SingleStoreCache[hikari.AuthorizationApplication]`
 """
 from __future__ import annotations
 

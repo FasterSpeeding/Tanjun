@@ -329,7 +329,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MenuContext, ...], collections.abc.Awaitable[None]]
+        callback : collections.abc.Callable[[tanjun.abc.MenuContext, ...], collections.abc.Coroutine[Any, ANy, None]]
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional

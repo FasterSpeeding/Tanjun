@@ -164,9 +164,8 @@ class BucketResource(int, enum.Enum):
     # CATEGORY = 4
     # """A per-category resource bucket.
 
-    # !!! note
-    #     For DM channels this will be per-DM, for guild channels with no parent
-    #     category this'll be per-guild.
+    # For DM channels this will be per-DM, for guild channels with no parent
+    # category this'll be per-guild.
     # """
 
     TOP_ROLE = 5
@@ -667,9 +666,6 @@ class CooldownPreExecution:
         ----------
         bucket_id
             The cooldown bucket's ID.
-
-        Parameters
-        ----------
         error_message
             The error message to send in response as a command error if the check fails.
         owners_exempt
