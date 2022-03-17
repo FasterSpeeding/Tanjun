@@ -80,6 +80,18 @@ class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
         *,
         future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
     ) -> None:
+        """Initialise an autocomplete context.
+
+        Parameters
+        ----------
+        client
+            The Tanjun client this context is bound to.
+        interaction
+            The autocomplete interaction this context is for.
+        future
+            A future used to set the initial response if this is being called
+            through the REST webhook flow.
+        """
         super().__init__(client.injector)
         self._client = client
         self._future = future

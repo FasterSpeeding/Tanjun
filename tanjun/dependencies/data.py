@@ -137,11 +137,12 @@ def make_lc_resolver(
 ) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Make an injected callback which resolves a LazyConstant.
 
-    Notes
-    -----
-    * This is internally used by [inject_lc][tanjun.dependencies.inject_lc].
-    * For this to work, a [LazyConstant][tanjun.dependencies.LazyConstant]
-      must've been set as a type dependency for the passed `type_`.
+    !!! note
+        This is internally used by [inject_lc][tanjun.dependencies.inject_lc].
+
+    !!! note
+        For this to work, a [LazyConstant][tanjun.dependencies.LazyConstant]
+        must've been set as a type dependency for the passed `type_`.
 
     Parameters
     ----------

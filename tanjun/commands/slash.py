@@ -112,6 +112,15 @@ def slash_command_group(
 ) -> SlashCommandGroup:
     r"""Create a slash command group.
 
+    !!! note
+        Unlike message command grups, slash command groups cannot
+        be callable functions themselves.
+
+    !!! note
+        Under the standard implementation, `is_global` is used to determine whether
+        the command should be bulk set by [tanjun.Client.declare_global_commandsadd_command
+        or when `declare_global_commands` is True
+
     Examples
     --------
     Sub-commands can be added to the created slash command object through
@@ -133,14 +142,6 @@ def slash_command_group(
 
     component = tanjun.Component().add_slash_command(help_group)
     ```
-
-    Notes
-    -----
-    * Unlike message command grups, slash command groups cannot
-      be callable functions themselves.
-    * Under the standard implementation, `is_global` is used to determine whether
-      the command should be bulk set by [tanjun.Client.declare_global_commandsadd_command
-      or when `declare_global_commands` is True
 
     Parameters
     ----------

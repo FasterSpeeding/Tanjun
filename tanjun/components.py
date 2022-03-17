@@ -333,16 +333,18 @@ class Component(tanjun_abc.Component):
     ) -> _ComponentT:
         """Load entries such as top-level commands into the component from the calling scope.
 
-        Notes
-        -----
-        * This will load schedules which support [tanjun.components.AbstractComponentLoader][]
-          (e.g. [tanjun.schedules.IntervalSchedule][]).
-        * This will ignore commands which are owned by command groups.
-        * This will detect entries from the calling scope which implement
-          [tanjun.components.AbstractComponentLoader][] unless `scope` is passed
-          but this isn't possible in a stack-less python implementation; in
-          stack-less environments the scope will have to be explicitly passed as
-          `scope`.
+        !!! note
+            This will load schedules which support and commands
+            [AbstractComponentLoader][tanjun.components.AbstractComponentLoader]
+            (all standard implementations support this) and will ignore commands
+            which are owned by command groups.
+
+        !!! note
+            This will detect entries from the calling scope which implement
+            [tanjun.components.AbstractComponentLoader][] unless `scope` is passed
+            but this isn't possible in a stack-less python implementation; in
+            stack-less environments the scope will have to be explicitly passed as
+            `scope`.
 
         Parameters
         ----------

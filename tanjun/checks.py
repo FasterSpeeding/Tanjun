@@ -117,9 +117,6 @@ class OwnerCheck(_Check):
     ) -> None:
         """Initialise a owner check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         error_message
@@ -127,6 +124,8 @@ class OwnerCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the
             command search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -189,9 +188,6 @@ class NsfwCheck(_Check):
     ) -> None:
         """Initialise a NSFW check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         error_message
@@ -199,6 +195,8 @@ class NsfwCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -230,9 +228,6 @@ class SfwCheck(_Check):
     ) -> None:
         """Initialise a SFW check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         error_message
@@ -240,6 +235,8 @@ class SfwCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -271,9 +268,6 @@ class DmCheck(_Check):
     ) -> None:
         """Initialise a DM check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         error_message
@@ -281,6 +275,8 @@ class DmCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -307,9 +303,6 @@ class GuildCheck(_Check):
     ) -> None:
         """Initialise a guild check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         error_message
@@ -317,6 +310,8 @@ class GuildCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -345,9 +340,6 @@ class AuthorPermissionCheck(_Check):
     ) -> None:
         """Initialise an author permission check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         permissions
@@ -357,6 +349,8 @@ class AuthorPermissionCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -404,9 +398,6 @@ class OwnPermissionCheck(_Check):
     ) -> None:
         """Initialise a own permission check.
 
-        !!! note
-            error_message takes priority over halt_execution.
-
         Parameters
         ----------
         permissions
@@ -416,6 +407,8 @@ class OwnPermissionCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -471,9 +464,6 @@ def with_dm_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a DM channel.
 
-    !!! note
-        `error_message` takes priority over `halt_execution`.
-
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
@@ -483,6 +473,8 @@ def with_dm_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -516,9 +508,6 @@ def with_guild_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a guild channel.
 
-    !!! note
-        `error_message` takes priority over `halt_execution`.
-
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
@@ -528,6 +517,8 @@ def with_guild_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -561,9 +552,6 @@ def with_nsfw_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a channel that's marked as nsfw.
 
-    !!! note
-        `error_message` takes priority over `halt_execution`.
-
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
@@ -573,6 +561,8 @@ def with_nsfw_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -608,9 +598,6 @@ def with_sfw_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a channel that's marked as sfw.
 
-    !!! note
-        `error_message` takes priority over `halt_execution`.
-
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
@@ -620,6 +607,8 @@ def with_sfw_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -655,9 +644,6 @@ def with_owner_check(
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
-    !!! note
-        `error_message` takes priority over `halt_execution`.
-
     Parameters
     ----------
     command : tanjun.abc.ExecutableCommand | None
@@ -667,6 +653,8 @@ def with_owner_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -687,6 +675,10 @@ def with_author_permission_check(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
 
+    !!! note
+        This will only pass for commands in DMs if `permissions` is valid for
+        a DM context (e.g. can't have any moderation permissions)
+
     Parameters
     ----------
     permissions
@@ -696,15 +688,11 @@ def with_author_permission_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-    Notes
-    -----
-    * error_message takes priority over halt_execution.
-    * This will only pass for commands in DMs if `permissions` is valid for
-      a DM context (e.g. can't have any moderation permissions)
 
     Returns
     -------
@@ -724,6 +712,10 @@ def with_own_permission_check(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
 
+    !!! note
+        This will only pass for commands in DMs if `permissions` is valid for
+        a DM context (e.g. can't have any moderation permissions)
+
     Parameters
     ----------
     permissions
@@ -733,15 +725,11 @@ def with_own_permission_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
-
-    Notes
-    -----
-    * error_message takes priority over halt_execution.
-    * This will only pass for commands in DMs if `permissions` is valid for
-      a DM context (e.g. can't have any moderation permissions)
 
     Returns
     -------

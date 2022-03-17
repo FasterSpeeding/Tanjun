@@ -79,6 +79,21 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         triggering_name: str = "",
         triggering_prefix: str = "",
     ) -> None:
+        """Initialise a message command context.
+
+        Parameters
+        ----------
+        client
+            The client to use for sending messages.
+        content
+            The content of the message (minus any matched prefix and name).
+        message
+            The message that triggered the command.
+        triggering_name
+            The name of the command that triggered this context.
+        triggering_prefix
+            The prefix that triggered this context.
+        """
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 

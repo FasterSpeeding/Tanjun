@@ -76,9 +76,6 @@ from collections import abc as collections
 import hikari
 from alluka import abc as alluka
 
-# TODO: move init docstrings to inits
-# TODO: REPLACE NOTES SECTIONS
-# TODO: update .. deprecated:: notes
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
@@ -524,31 +521,6 @@ class Context(alluka.Context):
             [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
 
-        Notes
-        -----
-        Attachments can be passed as many different things, to aid in
-        convenience.
-        * If a [pathlib.PurePath][] or [str][] to a valid URL, the
-            resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of [hikari.files.WebResource][]
-            such as [hikari.files.URL][], [hikari.messages.Attachment][],
-            [hikari.emojis.Emoji][], [hikari.embeds.EmbedResource][],
-            etc will also be uploaded this way.
-            This will use bit-inception, so only a small percentage of the
-            resource will remain in memory at any one time, thus aiding in
-            scalability.
-        * If a [hikari.files.Bytes][] is passed, or a [str][]
-            that contains a valid data URI is passed, then this is uploaded
-            with a randomized file name if not provided.
-        * If a [hikari.files.File][], [pathlib.PurePath][] or
-            [str][] that is an absolute or relative path to a file
-            on your file system is passed, then this resource is uploaded
-            as an attachment using non-blocking code internally and streamed
-            using bit-inception where possible. This depends on the type of
-            [concurrent.futures.Executor][] that is being used for
-            the application (default is a thread pool which supports this
-            behaviour).
-
         Returns
         -------
         hikari.Message
@@ -676,31 +648,6 @@ class Context(alluka.Context):
             Alternatively this may be a collection of
             [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
-
-        Notes
-        -----
-        Attachments can be passed as many different things, to aid in
-        convenience.
-        * If a [pathlib.PurePath][] or [str][] to a valid URL, the
-            resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of [hikari.files.WebResource][]
-            such as [hikari.files.URL][], [hikari.messages.Attachment][],
-            [hikari.emojis.Emoji][], [hikari.embeds.EmbedResource][], etc will
-            also be uploaded this way.
-            This will use bit-inception, so only a small percentage of the
-            resource will remain in memory at any one time, thus aiding in
-            scalability.
-        * If a [hikari.files.Bytes][] is passed, or a [str][]
-            that contains a valid data URI is passed, then this is uploaded
-            with a randomized file name if not provided.
-        * If a [hikari.files.File][], [pathlib.PurePath] or
-            [str][] that is an absolute or relative path to a file
-            on your file system is passed, then this resource is uploaded
-            as an attachment using non-blocking code internally and streamed
-            using bit-inception where possible. This depends on the
-            type of [concurrent.futures.Executor][] that is being used for
-            the application (default is a thread pool which supports this
-            behaviour).
 
         Returns
         -------
@@ -1068,31 +1015,6 @@ class MessageContext(Context, abc.ABC):
             Alternatively this may be a collection of
             [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
             derivatives to enforce mentioning specific roles.
-
-        Notes
-        -----
-        Attachments can be passed as many different things, to aid in
-        convenience.
-        * If a [pathlib.PurePath][] or [str][] to a valid URL, the
-            resource at the given URL will be streamed to Discord when
-            sending the message. Subclasses of [hikari.files.WebResource][] such as
-            [hikari.files.URL][], [hikari.messages.Attachment][],
-            [hikari.emojis.Emoji][], [hikari.embeds.EmbedResource][], etc
-            will also be uploaded this way.
-            This will use bit-inception, so only a small percentage of the
-            resource will remain in memory at any one time, thus aiding in
-            scalability.
-        * If a [hikari.files.Bytes][] is passed, or a [str][]
-            that contains a valid data URI is passed, then this is uploaded
-            with a randomized file name if not provided.
-        * If a [hikari.files.File][], [pathlib.PurePath][] or
-            [str][] that is an absolute or relative path to a file
-            on your file system is passed, then this resource is uploaded
-            as an attachment using non-blocking code internally and streamed
-            using bit-inception where possible. This depends on the
-            type of [concurrent.futures.Executor][] that is being used for
-            the application (default is a thread pool which supports this
-            behaviour).
 
         Returns
         -------
@@ -3053,11 +2975,12 @@ class Component(abc.ABC):
         [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
         unless the `flags` field is provided for the methods which support it.
 
-        Notes
-        -----
-        * This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][].
-        * This only effects slash command execution.
-        * If this is [None][] then the default from the parent client is used.
+        !!! note
+            This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][]
+            and only effects slash command execution.
+
+        !!! note
+            If this is [None][] then the default from the parent client is used.
         """
 
     @property
@@ -3381,13 +3304,14 @@ class Component(abc.ABC):
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a name matches any of this component's registered message commands.
 
-        Notes
-        -----
-        * This only checks for name matches against the top level command and
-          will not account for sub-commands.
-        * Dependent on implementation detail this may partial check name against
-          command names using name.startswith(command_name), hence why it
-          also returns the name a command was matched by.
+        !!! note
+            This only checks for name matches against the top level command and
+            will not account for sub-commands.
+
+        !!! note
+            Dependent on implementation detail this may partial check name against
+            command names using name.startswith(command_name), hence why it
+            also returns the name a command was matched by.
 
         Parameters
         ----------
@@ -3676,12 +3600,12 @@ class Client(abc.ABC):
         [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
         unless the `flags` field is provided for the methods which support it.
 
-        Notes
-        -----
-        * This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][]
-          and [tanjun.abc.Component.defaults_to_ephemeral][].
-        * This defaults to [False][].
-        * This only effects slash command execution.
+        This defaults to [False][].
+
+        !!! note
+            This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][]
+            and [tanjun.abc.Component.defaults_to_ephemeral][] and only effects
+            slash command execution.
         """
 
     @property
@@ -3797,14 +3721,15 @@ class Client(abc.ABC):
             This will overwrite any previously set application commands and
             only targets commands marked as global.
 
-        Notes
-        -----
-        * The endpoint this uses has a strict ratelimit which, as of writing,
-          only allows for 2 requests per minute (with that ratelimit either
-          being per-guild if targeting a specific guild otherwise globally).
-        * Setting a specific `guild` can be useful for testing/debug purposes
-          as slash commands may take up to an hour to propagate globally but
-          will immediately propagate when set on a specific guild.
+        !!! note
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 requests per minute (with that ratelimit either
+            being per-guild if targeting a specific guild otherwise globally).
+
+        !!! note
+            Setting a specific `guild` can be useful for testing/debug purposes
+            as slash commands may take up to an hour to propagate globally but
+            will immediately propagate when set on a specific guild.
 
         Parameters
         ----------
@@ -4458,7 +4383,7 @@ class Client(abc.ABC):
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__source__][].
+            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
         tanjun.ModuleStateConflict
             If the module is already loaded.
         tanjun.ModuleMissingLoaders
@@ -4527,7 +4452,7 @@ class Client(abc.ABC):
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
-            error can be found at [tanjun.FailedModuleUnload.__source__][].
+            error can be found at [tanjun.FailedModuleUnload.__cause__][].
         """
 
     @abc.abstractmethod
@@ -4562,12 +4487,12 @@ class Client(abc.ABC):
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__source__][].
+            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
         tanjun.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
-            error can be found at [tanjun.FailedModuleUnload.__source__][].
+            error can be found at [tanjun.FailedModuleUnload.__cause__][].
         tanjun.ModuleStateConflict
             If the module hasn't been loaded.
         tanjun.ModuleMissingLoaders

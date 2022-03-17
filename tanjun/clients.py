@@ -502,18 +502,9 @@ class Client(tanjun_abc.Client):
     ) -> None:
         """Initialise a Tanjun client.
 
-        Notes
-        -----
-        * For a quicker way to initiate this client around a standard bot aware
-        client, see [tanjun.Client.from_gateway_bot][] and [tanjun.Client.from_rest_bot][].
-        * The endpoint used by `declare_global_commands` has a strict ratelimit which,
-        as of writing, only allows for 2 requests per minute (with that ratelimit
-        either being per-guild if targeting a specific guild otherwise globally).
-        * `events` is necessary for message command dispatch and will also
-        be necessary for interaction command dispatch if `server` isn't
-        provided.
-        * `server` is used for interaction command dispatch if interaction
-        events aren't being received from the event manager.
+        !!! note
+            For a quicker way to initiate this client around a standard bot aware
+            client, see [tanjun.Client.from_gateway_bot][] and [tanjun.Client.from_rest_bot][].
 
         Parameters
         ----------
@@ -523,8 +514,15 @@ class Client(tanjun_abc.Client):
             The Hikari cache client this will use if applicable.
         events
             The Hikari event manager client this will use if applicable.
+
+            This is necessary for message command dispatch and will also
+            be necessary for interaction command dispatch if `server` isn't
+            provided.
         server
             The Hikari interaction server client this will use if applicable.
+
+            This is used for interaction command dispatch if interaction
+            events aren't being received from the event manager.
         shards
             The Hikari shard aware client this will use if applicable.
         voice
@@ -554,6 +552,10 @@ class Client(tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
+
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 requests per minute (with that ratelimit either
+            being per-guild if targeting a specific guild otherwise globally).
         set_global_commands
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
@@ -769,15 +771,10 @@ class Client(tanjun_abc.Client):
     ) -> Client:
         """Build a [tanjun.Client][] from a [hikari.traits.GatewayBotAware][] instance.
 
-        Notes
-        -----
-        * This implicitly defaults the client to human only mode.
-        * This sets type dependency injectors for the hikari traits present in
-          `bot` (including [hikari.traits.GatewayBotAware][]).
-        * The endpoint used by `declare_global_commands` has a strict ratelimit
-          which, as of writing, only allows for 2 requests per minute (with that
-          ratelimit either being per-guild if targeting a specific guild
-          otherwise globally).
+        !!! note
+            This implicitly defaults the client to human only mode and sets
+            type dependency injectors for the hikari traits present in
+            `bot` (including [hikari.traits.GatewayBotAware][]).
 
         Parameters
         ----------
@@ -808,6 +805,10 @@ class Client(tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
+
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 requests per minute (with that ratelimit either
+            being per-guild if targeting a specific guild otherwise globally).
         set_global_commands
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
@@ -865,14 +866,9 @@ class Client(tanjun_abc.Client):
     ) -> Client:
         """Build a [tanjun.Client][] from a [hikari.traits.RESTBotAware][] instance.
 
-        Notes
-        -----
-        * This sets type dependency injectors for the hikari traits present in
-          `bot` (including [hikari.traits.RESTBotAware][]).
-        * The endpoint used by `declare_global_commands` has a strict ratelimit
-          which, as of writing, only allows for 2 requests per minute (with that
-          ratelimit either being per-guild if targeting a specific guild
-          otherwise globally).
+        !!! note
+            This sets type dependency injectors for the hikari traits present in
+            `bot` (including [hikari.traits.RESTBotAware][]).
 
         Parameters
         ----------
@@ -887,6 +883,10 @@ class Client(tanjun_abc.Client):
             than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
+
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 requests per minute (with that ratelimit either
+            being per-guild if targeting a specific guild otherwise globally).
         injector
             The alluka client this should use for dependency injection.
 

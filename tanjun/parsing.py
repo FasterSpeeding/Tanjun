@@ -623,15 +623,16 @@ def with_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
 
-    Notes
-    -----
-    * Order matters for positional arguments and since decorator execution
-      starts at the decorator closest to the command and goes upwards this
-      will decide where a positional argument is located in a command's
-      signature.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set
-      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
+    !!! warning
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -757,19 +758,21 @@ def with_greedy_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
-    Notes
-    -----
-    * A greedy argument will consume the remaining positional arguments and pass
-      them through to the converters as one joined string while also requiring
-      that at least one more positional argument is remaining unless a
-      default is set.
-    * Order matters for positional arguments and since decorator execution
-      starts at the decorator closest to the command and goes upwards this
-      will decide where a positional argument is located in a command's
-      signature.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set
-      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
+    A greedy argument will consume the remaining positional arguments and pass
+    them through to the converters as one joined string while also requiring
+    that at least one more positional argument is remaining unless a default is
+    set.
+
+    !!! warning
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -879,20 +882,22 @@ def with_multi_argument(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
-    Notes
-    -----
-    * A multi argument will consume the remaining positional arguments and pass
-      them to the converters through multiple calls while also requiring that
-      at least one more positional argument is remaining unless a default is
-      set and passing through the results to the command's callback as a
-      sequence.
-    * Order matters for positional arguments and since decorator execution
-      starts at the decorator closest to the command and goes upwards this
-      will decide where a positional argument is located in a command's
-      signature.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set
-      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
+    A multi argument will consume the remaining positional arguments and pass
+    them to the converters through multiple calls while also requiring that
+    at least one more positional argument is remaining unless a default is
+    set and passing through the results to the command's callback as a
+    sequence.
+
+    !!! warning
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------
@@ -1165,15 +1170,15 @@ def with_multi_option(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
-    Notes
-    -----
-    * A multi option will consume all the values provided for an option and
-      pass them through to the converters as an array of strings while also
-      requiring that at least one value is provided for the option unless
-      a default is set.
-    * If no parser is explicitly set on the command this is decorating before
-      this decorator call then this will set
-      [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
+    A multi option will consume all the values provided for an option and
+    pass them through to the converters as an array of strings while also
+    requiring that at least one value is provided for the option unless
+    a default is set.
+
+    !!! note
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set
+        [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
     Parameters
     ----------

@@ -69,6 +69,22 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[collections.Callable[[abc.MenuContext], collections.Awaitable[None]]] = None,
     ) -> None:
+        """Initialise a menu command context.
+
+        Parameters
+        ----------
+        client
+            The Tanjun client this context is bound to.
+        interaction
+            The command interaction this context is for.
+        future
+            A future used to set the initial response if this is being called
+            through the REST webhook flow.
+        default_to_ephemeral
+            Whether to default to ephemeral responses.
+        on_not_found
+            Callback used to indicate no matching command was found.
+        """
         super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
         self._command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None
         self._marked_not_found = False
