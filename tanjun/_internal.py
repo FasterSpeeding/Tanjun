@@ -32,13 +32,16 @@
 """Internal utility classes and functions used by Tanjun."""
 from __future__ import annotations
 
+__all__: list[str] = ["MessageCommandIndex"]
+
 import copy as copy_
 import typing
 from collections import abc as collections
 
 from . import abc
 
-_COMMAND_TREE_KEY = "comm ands"
+_COMMANDS_KEY = "comm ands"
+_PARENT_KEY = "par ent"
 
 
 class MessageCommandIndex:
@@ -106,22 +109,24 @@ class MessageCommandIndex:
                     "The following conflicts were found " + ", ".join(name_conflicts)
                 )
 
-            self.names_to_commands.update((key, (name, command)) for key, name in zip(names, insensive_names))
+            # Case insensitive keys are used here as a case-insensitive lookup will be made
+            # case-sensitive by a subsequent check against the original name if necessary.
+            self.names_to_commands.update((key, (name, command)) for key, name in zip(insensive_names, names))
 
         else:
             for name in filter(None, command.names):
-                node = self.search_tree
+                node: dict[str, typing.Any] = self.search_tree
                 for chars in filter(None, name.casefold().split()):
                     try:
                         node = node[chars]
 
                     except KeyError:
-                        node[chars] = node = {}
+                        node[chars] = node = {_PARENT_KEY: node}
 
                 try:
-                    node[_COMMAND_TREE_KEY].append((name, command))
+                    node[_COMMANDS_KEY].append((name, command))
                 except KeyError:
-                    node[_COMMAND_TREE_KEY] = [(name, command)]
+                    node[_COMMANDS_KEY] = [(name, command)]
 
         self.commands.append(command)
         return True
@@ -164,6 +169,8 @@ class MessageCommandIndex:
         """
         if self.is_strict:
             name = content.split(" ", 1)[0]
+            # A case-insensitive key is used to allow for both the case-sensitive and case-insensitive
+            # cases to be covered.
             if command := self.names_to_commands.get(name.casefold()):
                 if not case_sensitive or command[0] == name:
                     yield name, command[1]
@@ -183,9 +190,11 @@ class MessageCommandIndex:
         if not segments:
             return
 
-        for index in reversed(range(1, len(segments) + 1)):
-            commands = node.get(_COMMAND_TREE_KEY)
+        # Prioritise longer matches first.
+        for index in range(len(segments), 0, -1):
+            commands = node.get(_COMMANDS_KEY)
             if not commands:
+                node = node[_PARENT_KEY]
                 continue
 
             name = " ".join(segments[:index])
@@ -194,6 +203,8 @@ class MessageCommandIndex:
 
             else:
                 yield from ((name, c) for _, c in commands)
+
+            node = node[_PARENT_KEY]
 
     def remove(self, command: abc.MessageCommand[typing.Any], /) -> None:
         """Remove a command from the index.
@@ -226,20 +237,23 @@ class MessageCommandIndex:
                     nodes.append((chars, node))
 
                 except KeyError:
+                    # The command is not in the index and we want to skip the "else" statement.
                     break
 
             else:
-                last_node = nodes[-1][1]
-                last_node[_COMMAND_TREE_KEY].remove((name, command))
-                if not last_node[_COMMAND_TREE_KEY]:
-                    del last_node[_COMMAND_TREE_KEY]
+                # If it didn't break out of the for chars loop then the command is in the index.
+                node[_COMMANDS_KEY].remove((name, command))  # Remove the command from the last node.
+                if not node[_COMMANDS_KEY]:
+                    del node[_COMMANDS_KEY]
 
-                nodes_iter = reversed(nodes)
-                # Next is used to skip the last node since it has no child.
-                next(nodes_iter)
+                if len(node) > 1:
+                    # If the node is not empty, we're done.
+                    continue
 
-                for (child_char, _), (_, node) in zip(reversed(nodes), nodes_iter):
-                    del node[child_char]
-
-                    if node:
+                # Otherwise, we need to remove the node from the tree.
+                for char, node in reversed(nodes):
+                    parent = node.get(_PARENT_KEY)
+                    if not parent:
                         break
+
+                    del parent[char]
