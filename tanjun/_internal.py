@@ -116,7 +116,7 @@ class MessageCommandIndex:
                         node = node[chars]
 
                     except KeyError:
-                        node = node[chars] = {}
+                        node[chars] = node = {}
 
                 try:
                     node[_COMMAND_TREE_KEY].append((name, command))
@@ -183,7 +183,7 @@ class MessageCommandIndex:
         if not segments:
             return
 
-        for index in reversed(range(1, len(segments))):
+        for index in reversed(range(1, len(segments) + 1)):
             commands = node.get(_COMMAND_TREE_KEY)
             if not commands:
                 continue
@@ -193,7 +193,7 @@ class MessageCommandIndex:
                 yield from ((name, c) for n, c in commands if n == name)
 
             else:
-                yield from ((name, c) for c in commands)
+                yield from ((name, c) for _, c in commands)
 
     def remove(self, command: abc.MessageCommand[typing.Any], /) -> None:
         """Remove a command from the index.

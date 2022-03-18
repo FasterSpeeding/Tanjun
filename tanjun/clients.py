@@ -847,6 +847,7 @@ class Client(tanjun.Client):
         bot: hikari.GatewayBotAware,
         /,
         *,
+        case_sensitive: bool = True,
         event_managed: bool = True,
         injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
@@ -871,6 +872,10 @@ class Client(tanjun.Client):
             The bot client to build from.
 
             This will be used to infer the relevant Hikari clients to use.
+        case_sensitive
+            Whether this client's message commands should be matched case-sensitively.
+
+            This may be overridden by component specific configuration.
         event_managed
             Whether or not this client is managed by the event manager.
 
@@ -922,6 +927,7 @@ class Client(tanjun.Client):
                 events=bot.event_manager,
                 shards=bot,
                 voice=bot.voice,
+                case_sensitive=case_sensitive,
                 event_managed=event_managed,
                 injector=injector,
                 mention_prefix=mention_prefix,

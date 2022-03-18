@@ -575,11 +575,6 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         return self
 
-    def find_command(
-        self, content: str, /, *, case_sensitive: bool = True
-    ) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]:
-        return self._commands.find(content, case_sensitive)
-
     async def execute(
         self,
         ctx: tanjun.MessageContext,
@@ -602,7 +597,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         if case_sensitive is None:
             case_sensitive = ctx.client.is_case_sensitive
 
-        for name, command in self.find_command(ctx.content, case_sensitive=case_sensitive):
+        for name, command in self._commands.find(ctx.content, case_sensitive):
             if await command.check_context(ctx):
                 content = ctx.content[len(name) :]
                 ctx.set_triggering_name(ctx.triggering_name + " " + name)
