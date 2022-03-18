@@ -378,7 +378,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCommandGroup[_CommandCallbackSigT]):
     """Standard implementation of a message command group."""
 
-    __slots__ = ("_commands", "_is_strict", "_names_to_commands")
+    __slots__ = ("_commands",)
 
     @typing.overload
     def __init__(
@@ -439,28 +439,25 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
             Whether to validate that option keys match the command callback's signature.
         """
         super().__init__(callback, name, *names, validate_arg_keys=validate_arg_keys, _wrapped_command=_wrapped_command)
-        self._commands: list[tanjun.MessageCommand[typing.Any]] = []
-        self._is_strict = strict
-        self._names_to_commands: dict[str, tanjun.MessageCommand[typing.Any]] = {}
+        self._commands = _internal.MessageCommandIndex(strict)
 
     def __repr__(self) -> str:
-        return f"CommandGroup <{len(self._commands)}: {self._names}>"
+        return f"CommandGroup <{len(self._commands.commands)}: {self._names}>"
 
     @property
     def commands(self) -> collections.Collection[tanjun.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
-        return self._commands.copy()
+        return self._commands.commands.copy()
 
     @property
     def is_strict(self) -> bool:
-        return self._is_strict
+        return self._commands.is_strict
 
     def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy(parent=parent)
         commands = {command: command.copy(parent=self) for command in self._commands}
         inst._commands = list(commands.values())
-        inst._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
         return inst
 
     def add_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
@@ -482,23 +479,9 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
             If one of the command's names is already registered in a strict
             command group.
         """
-        if command in self._commands:
-            return self
+        if self._commands.add(command):
+            command.set_parent(self)
 
-        if self._is_strict:
-            if any(" " in name for name in command.names):
-                raise ValueError("Sub-command names may not contain spaces in a strict message command group")
-
-            if name_conflicts := self._names_to_commands.keys() & command.names:
-                raise ValueError(
-                    "Sub-command names must be unique in a strict message command group. "
-                    "The following conflicts were found " + ", ".join(name_conflicts)
-                )
-
-            self._names_to_commands.update((name, command) for name in command.names)
-
-        command.set_parent(self)
-        self._commands.append(command)
         return self
 
     def as_sub_command(self, name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
@@ -569,11 +552,6 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     def remove_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         self._commands.remove(command)
-        if self._is_strict:
-            for name in command.names:
-                if self._names_to_commands.get(name) == command:
-                    del self._names_to_commands[name]
-
         command.set_parent(None)
         return self
 
@@ -584,7 +562,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
-        for command in self._commands:
+        for command in self._commands.commands:
             command.bind_client(client)
 
         return self
@@ -592,21 +570,15 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     def bind_component(self, component: tanjun.Component, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
-        for command in self._commands:
+        for command in self._commands.commands:
             command.bind_component(component)
 
         return self
 
-    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]:
-        if self._is_strict:
-            name = content.split(" ")[0]
-            if command := self._names_to_commands.get(name):
-                yield name, command
-            return
-
-        for command in self._commands:
-            if (name_ := _internal.match_prefix_names(content, command.names)) is not None:
-                yield name_, command
+    def find_command(
+        self, content: str, /, *, case_sensitive: bool = True
+    ) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]:
+        return self._commands.find(content, case_sensitive)
 
     async def execute(
         self,
@@ -625,7 +597,12 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
             hooks.add(self._hooks)
 
-        for name, command in self.find_command(ctx.content):
+        assert ctx.component
+        case_sensitive = ctx.component.is_case_sensitive
+        if case_sensitive is None:
+            case_sensitive = ctx.client.is_case_sensitive
+
+        for name, command in self.find_command(ctx.content, case_sensitive=case_sensitive):
             if await command.check_context(ctx):
                 content = ctx.content[len(name) :]
                 ctx.set_triggering_name(ctx.triggering_name + " " + name)

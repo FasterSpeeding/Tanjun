@@ -511,6 +511,7 @@ class Client(tanjun.Client):
         "_auto_defer_after",
         "_cache",
         "_cached_application_id",
+        "_case_sensitive",
         "_checks",
         "_client_callbacks",
         "_components",
@@ -556,6 +557,7 @@ class Client(tanjun.Client):
         server: typing.Optional[hikari.api.InteractionServer] = None,
         shards: typing.Optional[hikari.ShardAware] = None,
         voice: typing.Optional[hikari.api.VoiceComponent] = None,
+        case_sensitive: bool = True,
         event_managed: bool = False,
         injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
@@ -595,6 +597,10 @@ class Client(tanjun.Client):
             The Hikari shard aware client this will use if applicable.
         voice
             The Hikari voice component this will use if applicable.
+        case_sensitive
+            Whether this client's message commands should be matched case-sensitively.
+
+            This may be overridden by component specific configuration.
         event_managed
             Whether or not this client is managed by the event manager.
 
@@ -684,6 +690,7 @@ class Client(tanjun.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
+        self._case_sensitive = case_sensitive
         self._checks: list[tanjun.CheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
@@ -1104,6 +1111,11 @@ class Client(tanjun.Client):
     def is_alive(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._loop is not None
+
+    @property
+    def is_case_sensitive(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._case_sensitive
 
     @property
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
@@ -2140,7 +2152,13 @@ class Client(tanjun.Client):
 
         return itertools.chain.from_iterable(component.slash_commands for component in self.components)
 
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
+    def check_message_name(
+        self,
+        name: str,
+        /,
+        *,
+        case_sensitive: bool = True,
+    ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(
             component.check_message_name(name) for component in self._components.values()

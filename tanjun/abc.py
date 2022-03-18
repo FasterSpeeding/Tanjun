@@ -3099,6 +3099,14 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def is_case_sensitive(self) -> typing.Optional[bool]:
+        """Whether this component should treat message command names case sensitive in search.
+
+        If this is `None` then the client's case sensitivity will be used.
+        """
+
+    @property
+    @abc.abstractmethod
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
         """The asyncio loop this client is bound to if it has been opened."""
 
@@ -3424,7 +3432,12 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
+    def check_message_name(
+        self,
+        name: str,
+        /,
+        case_sensitive: bool = True,
+    ) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a name matches any of this component's registered message commands.
 
         !!! note
@@ -3440,6 +3453,8 @@ class Component(abc.ABC):
         ----------
         name
             The name to check for command matches.
+        case_sensitive
+            Whether to perform a case-sensitive match.
 
         Returns
         -------
@@ -3773,6 +3788,11 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def is_alive(self) -> bool:
         """Whether this client is alive."""
+
+    @property
+    @abc.abstractmethod
+    def is_case_sensitive(self) -> bool:
+        """Whether this client should treat message command names case sensitive in search."""
 
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod
@@ -4448,7 +4468,12 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
+    def check_message_name(
+        self,
+        name: str,
+        /,
+        case_sensitive: bool = True,
+    ) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a message command name is present in the current client.
 
         !!! note
@@ -4459,6 +4484,8 @@ class Client(abc.ABC):
         ----------
         name
             The name to match commands against.
+        case_sensitive
+            Whether to match case sensitively.
 
         Returns
         -------

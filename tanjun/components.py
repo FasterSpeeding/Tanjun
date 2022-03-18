@@ -158,6 +158,7 @@ class Component(tanjun.Component):
     """
 
     __slots__ = (
+        "_case_sensitive",
         "_checks",
         "_client",
         "_client_callbacks",
@@ -165,7 +166,6 @@ class Component(tanjun.Component):
         "_defaults_to_ephemeral",
         "_dms_enabled_for_app_cmds",
         "_hooks",
-        "_is_strict",
         "_listeners",
         "_loop",
         "_menu_commands",
@@ -174,7 +174,6 @@ class Component(tanjun.Component):
         "_message_hooks",
         "_metadata",
         "_name",
-        "_names_to_commands",
         "_on_close",
         "_on_open",
         "_schedules",
@@ -183,11 +182,19 @@ class Component(tanjun.Component):
         "_tasks",
     )
 
-    def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
+    def __init__(
+        self, *, case_sensitive: typing.Optional[bool] = None, name: typing.Optional[str] = None, strict: bool = False
+    ) -> None:
         """Initialise a new component.
 
         Parameters
         ----------
+        case_sensitive
+            Whether this component's message commands should be matched
+            case-sensitively.
+
+            If this is left as [None][] then the client's case-sensitive
+            setting will be used.
         name
             The component's identifier.
 
@@ -199,6 +206,7 @@ class Component(tanjun.Component):
             When this is [True][], message command names will not be allowed to contain
             spaces and will have to be unique to one command within the component.
         """
+        self._case_sensitive = case_sensitive
         self._checks: list[tanjun.CheckSig] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
@@ -206,16 +214,14 @@ class Component(tanjun.Component):
         self._defaults_to_ephemeral: typing.Optional[bool] = None
         self._dms_enabled_for_app_cmds: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun.AnyHooks] = None
-        self._is_strict = strict
         self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
-        self._message_commands: list[tanjun.MessageCommand[typing.Any]] = []
+        self._message_commands = _internal.MessageCommandIndex(strict)
         self._message_hooks: typing.Optional[tanjun.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or str(uuid.uuid4())
-        self._names_to_commands: dict[str, tanjun.MessageCommand[typing.Any]] = {}
         self._on_close: list[OnCallbackSig] = []
         self._on_open: list[OnCallbackSig] = []
         self._schedules: list[schedules_.AbstractSchedule] = []
@@ -225,6 +231,11 @@ class Component(tanjun.Component):
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
+
+    @property
+    def is_case_sensitive(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        return self._case_sensitive
 
     @property
     def checks(self) -> collections.Collection[tanjun.CheckSig]:
@@ -298,7 +309,7 @@ class Component(tanjun.Component):
     @property
     def message_commands(self) -> collections.Collection[tanjun.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        return self._message_commands.copy()
+        return self._message_commands.commands.copy()
 
     @property
     def listeners(
@@ -332,7 +343,6 @@ class Component(tanjun.Component):
         commands = {command: command.copy() for command in self._message_commands}
         inst._message_commands = list(commands.values())
         inst._metadata = self._metadata.copy()
-        inst._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
         inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
         return inst
 
@@ -888,8 +898,7 @@ class Component(tanjun.Component):
 
     def add_slash_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
-        name = command.name.casefold()
-        if self._slash_commands.get(name) == command:
+        if self._slash_commands.get(command.name) == command:
             return self
 
         command.bind_component(self)
@@ -897,13 +906,13 @@ class Component(tanjun.Component):
         if self._client:
             command.bind_client(self._client)
 
-        self._slash_commands[name] = command
+        self._slash_commands[command.name] = command
         return self
 
     def remove_slash_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         try:
-            del self._slash_commands[command.name.casefold()]
+            del self._slash_commands[command.name]
         except KeyError:
             raise ValueError(f"Command {command.name} not found") from None
 
@@ -944,38 +953,17 @@ class Component(tanjun.Component):
             If one of the command's name is already registered in a strict
             component.
         """
-        if command in self._message_commands:
-            return self
+        if self._message_commands.add(command):
+            if self._client:
+                command.bind_client(self._client)
 
-        if self._is_strict:
-            if any(" " in name for name in command.names):
-                raise ValueError("Command name cannot contain spaces for this component implementation")
+            command.bind_component(self)
 
-            if name_conflicts := self._names_to_commands.keys() & command.names:
-                raise ValueError(
-                    "Sub-command names must be unique in a strict component. "
-                    "The following conflicts were found " + ", ".join(name_conflicts)
-                )
-
-            self._names_to_commands.update((name, command) for name in command.names)
-
-        self._message_commands.append(command)
-
-        if self._client:
-            command.bind_client(self._client)
-
-        command.bind_component(self)
         return self
 
     def remove_message_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         self._message_commands.remove(command)
-
-        if self._is_strict:
-            for name in command.names:
-                if self._names_to_commands.get(name) == command:
-                    del self._names_to_commands[name]
-
         return self
 
     @typing.overload
@@ -1136,7 +1124,7 @@ class Component(tanjun.Component):
             raise RuntimeError("Client already set")
 
         self._client = client
-        for message_command in self._message_commands:
+        for message_command in self._message_commands.commands:
             message_command.bind_client(client)
 
         for slash_command in self._slash_commands.values():
@@ -1182,20 +1170,12 @@ class Component(tanjun.Component):
         self, ctx: tanjun.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         ctx.set_component(self)
-
-        if self._is_strict:
-            name = ctx.content.split(" ", 1)[0]
-            command = self._names_to_commands.get(name)
-            if command and await self._check_context(ctx) and await command.check_context(ctx):
-                yield name, command
-
-            else:
-                ctx.set_component(None)
-
-            return
-
         checks_run = False
-        for name, command in self.check_message_name(ctx.content):
+        case_sensitive = self._case_sensitive
+        if case_sensitive is None:
+            case_sensitive = ctx.client.is_case_sensitive
+
+        for name, command in self.check_message_name(ctx.content, case_sensitive=case_sensitive):
             if not checks_run:
                 if not await self._check_context(ctx):
                     return
@@ -1208,18 +1188,14 @@ class Component(tanjun.Component):
         ctx.set_component(None)
 
     def check_message_name(
-        self, content: str, /
+        self,
+        content: str,
+        /,
+        *,
+        case_sensitive: bool = True,
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        if self._is_strict:
-            name = content.split(" ", 1)[0]
-            if command := self._names_to_commands.get(name):
-                yield name, command
-            return
-
-        for command in self._message_commands:
-            if (name_ := _internal.match_prefix_names(content, command.names)) is not None:
-                yield name_, command
+        return self._message_commands.find(content, case_sensitive)
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.Component>>.
