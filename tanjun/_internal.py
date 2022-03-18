@@ -42,6 +42,8 @@ _COMMAND_TREE_KEY = "comm ands"
 
 
 class MessageCommandIndex:
+    """A searchable message command index."""
+
     __slots__ = ("commands", "is_strict", "names_to_commands", "search_tree")
 
     def __init__(
@@ -53,12 +55,42 @@ class MessageCommandIndex:
         names_to_commands: typing.Optional[dict[str, tuple[str, abc.MessageCommand[typing.Any]]]] = None,
         search_tree: typing.Optional[dict[str, typing.Any]] = None,
     ) -> None:
+        """Initialise a message command index.
+
+        Parameters
+        ----------
+        strict
+            Whether the index should be strict about command names.
+
+            Command names must be (case-insensitively) unique in a strict index and
+            must not contain spaces.
+        """
+
         self.commands = commands or []
         self.is_strict = strict
         self.names_to_commands = names_to_commands or {}
         self.search_tree = search_tree or {}
 
     def add(self, command: abc.MessageCommand[typing.Any], /) -> bool:
+        """Add a command to the index.
+
+        Parameters
+        ----------
+        command
+            The command to add.
+
+        Returns
+        -------
+        bool
+            Whether the command was added.
+
+            If this is [False][] then the command was already in the index.
+
+        Raises
+        ------
+        ValueError
+            If the command name is invalid or already in the index.
+        """
         if command in self.commands:
             return False
 
@@ -95,6 +127,13 @@ class MessageCommandIndex:
         return True
 
     def copy(self) -> MessageCommandIndex:
+        """In-place copy the index and its contained commands.
+
+        Returns
+        -------
+        MessageCommandIndex
+            The copied index.
+        """
         commands = {command: command.copy() for command in self.commands}
         memo = {id(command): new_command for command, new_command in commands.items()}
         return MessageCommandIndex(
@@ -109,6 +148,20 @@ class MessageCommandIndex:
     def find(
         self, content: str, case_sensitive: bool, /
     ) -> collections.Iterator[tuple[str, abc.MessageCommand[typing.Any]]]:
+        """Find commands in the index.
+
+        Parameters
+        ----------
+        content
+            The content to search for.
+        case_sensitive
+            Whether the search should be case-sensitive.
+
+        Yields
+        ------
+        tuple[str, abc.MessageCommand[typing.Any]]
+            A tuple of the matching name and command.
+        """
         if self.is_strict:
             name = content.split(" ", 1)[0]
             if command := self.names_to_commands.get(name.casefold()):
@@ -143,6 +196,18 @@ class MessageCommandIndex:
                 yield from ((name, c) for c in commands)
 
     def remove(self, command: abc.MessageCommand[typing.Any], /) -> None:
+        """Remove a command from the index.
+
+        Parameters
+        ----------
+        command
+            The command to remove.
+
+        Raises
+        ------
+        ValueError
+            If the command is not in the index.
+        """
         self.commands.remove(command)
 
         if self.is_strict:
