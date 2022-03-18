@@ -109,7 +109,7 @@ class MessageCommandIndex:
                     "The following conflicts were found " + ", ".join(name_conflicts)
                 )
 
-            # Case insensitive keys are used here as a case-insensitive lookup will be made
+            # Case insensitive keys are used here as a case-insensitive lookup can be made
             # case-sensitive by a subsequent check against the original name if necessary.
             self.names_to_commands.update((key, (name, command)) for key, name in zip(insensive_names, names))
 
