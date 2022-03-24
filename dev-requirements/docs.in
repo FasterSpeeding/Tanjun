@@ -1,5 +1,5 @@
 mkdocs==1.2.3
-mkdocs-material==8.2.5
+mkdocs-material==8.2.6
 mkdocstrings[python]==0.18.1
 # Needed for mkdocstring's reformatting
 # black==22.1.0
