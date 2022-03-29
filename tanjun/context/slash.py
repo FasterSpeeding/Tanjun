@@ -652,6 +652,9 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             elif not attachments:
                 attachments = []
 
+            else:
+                attachments = list(attachments)
+
             if component:
                 assert not isinstance(component, hikari.UndefinedType)
                 components = [component]
@@ -659,12 +662,18 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             elif components is hikari.UNDEFINED:
                 components = []
 
+            else:
+                components = list(components)
+
             if embed:
                 assert not isinstance(embed, hikari.UndefinedType)
                 embeds = [embed]
 
             elif embeds is hikari.UNDEFINED:
                 embeds = []
+
+            else:
+                embeds = list(embeds)
 
             content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
