@@ -945,7 +945,7 @@ class TestClient:
         result = client.add_prefix("lmao")
 
         assert result is client
-        list(client.prefixes).count("lmao") == 1
+        assert list(client.prefixes).count("lmao") == 1
 
     def test_add_prefix_when_iterable(self):
         client = tanjun.Client(mock.Mock())
@@ -1679,7 +1679,7 @@ class TestClient:
             with pytest.raises(tanjun.FailedModuleLoad) as exc_info:
                 generator.send(module)
 
-        exc_info.value.__cause__ is mock_exception
+        assert exc_info.value.__cause__ is mock_exception
 
     def test__load_modules_with_python_module_path_when_already_loaded(self):
         client = tanjun.Client(mock.AsyncMock())

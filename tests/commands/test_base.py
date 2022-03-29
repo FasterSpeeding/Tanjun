@@ -82,7 +82,7 @@ class TestPartialCommand:
         new_command = command.copy()
 
         assert new_command is not command
-        new_command._checks == [mock_check.copy.return_value]
+        assert new_command._checks == [mock_check.copy.return_value]
         assert new_command._hooks is command._hooks.copy.return_value
         assert new_command._metadata is mock_metadata.copy.return_value
 

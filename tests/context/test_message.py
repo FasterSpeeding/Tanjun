@@ -490,7 +490,7 @@ class TestMessageContext:
 
         await context.respond("hi")
 
-        context._initial_response_id == 32123
+        assert context._initial_response_id == 32123
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
     @pytest.mark.asyncio()
