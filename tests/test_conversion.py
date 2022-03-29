@@ -53,20 +53,20 @@ class TestBaseConverter:
     @pytest.mark.parametrize(
         ("obj", "expected"),
         [
-            (tanjun.to_channel, hikari.CacheComponents.GUILD_CHANNELS),
-            (tanjun.to_emoji, hikari.CacheComponents.EMOJIS),
-            (tanjun.to_guild, hikari.CacheComponents.GUILDS),
-            (tanjun.to_invite, hikari.CacheComponents.INVITES),
-            (tanjun.to_invite_with_metadata, hikari.CacheComponents.INVITES),
-            (tanjun.to_member, hikari.CacheComponents.MEMBERS),
-            (tanjun.to_presence, hikari.CacheComponents.PRESENCES),
-            (tanjun.to_role, hikari.CacheComponents.ROLES),
-            (tanjun.to_user, hikari.CacheComponents.NONE),
-            (tanjun.to_voice_state, hikari.CacheComponents.VOICE_STATES),
+            (tanjun.to_channel, hikari.api.CacheComponents.GUILD_CHANNELS),
+            (tanjun.to_emoji, hikari.api.CacheComponents.EMOJIS),
+            (tanjun.to_guild, hikari.api.CacheComponents.GUILDS),
+            (tanjun.to_invite, hikari.api.CacheComponents.INVITES),
+            (tanjun.to_invite_with_metadata, hikari.api.CacheComponents.INVITES),
+            (tanjun.to_member, hikari.api.CacheComponents.MEMBERS),
+            (tanjun.to_presence, hikari.api.CacheComponents.PRESENCES),
+            (tanjun.to_role, hikari.api.CacheComponents.ROLES),
+            (tanjun.to_user, hikari.api.CacheComponents.NONE),
+            (tanjun.to_voice_state, hikari.api.CacheComponents.VOICE_STATES),
         ],
     )
     def test_cache_components_property(
-        self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: hikari.CacheComponents
+        self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: hikari.api.CacheComponents
     ):
         assert obj.cache_components == expected
 

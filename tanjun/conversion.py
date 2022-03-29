@@ -127,7 +127,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         """Cache component(s) the converter takes advantage of.
 
         !!! note
@@ -233,9 +233,9 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
         return (_GuildChannelCacheT, _DmCacheT)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.GUILD_CHANNELS
+        return hikari.api.CacheComponents.GUILD_CHANNELS
 
     @property
     def intents(self) -> hikari.Intents:
@@ -322,9 +322,9 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
         return (_EmojiCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.EMOJIS
+        return hikari.api.CacheComponents.EMOJIS
 
     @property
     def intents(self) -> hikari.Intents:
@@ -389,9 +389,9 @@ class ToGuild(BaseConverter[hikari.Guild]):
         return (_GuildCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.GUILDS
+        return hikari.api.CacheComponents.GUILDS
 
     @property
     def intents(self) -> hikari.Intents:
@@ -450,9 +450,9 @@ class ToInvite(BaseConverter[hikari.Invite]):
         return (_InviteCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.INVITES
+        return hikari.api.CacheComponents.INVITES
 
     @property
     def intents(self) -> hikari.Intents:
@@ -516,9 +516,9 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
         return (_InviteCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.INVITES
+        return hikari.api.CacheComponents.INVITES
 
     @property
     def intents(self) -> hikari.Intents:
@@ -573,9 +573,9 @@ class ToMember(BaseConverter[hikari.Member]):
         return (_MemberCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.MEMBERS
+        return hikari.api.CacheComponents.MEMBERS
 
     @property
     def intents(self) -> hikari.Intents:
@@ -653,9 +653,9 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
         return (_PresenceCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.PRESENCES
+        return hikari.api.CacheComponents.PRESENCES
 
     @property
     def intents(self) -> hikari.Intents:
@@ -707,9 +707,9 @@ class ToRole(BaseConverter[hikari.Role]):
         return (_RoleCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.ROLES
+        return hikari.api.CacheComponents.ROLES
 
     @property
     def intents(self) -> hikari.Intents:
@@ -770,9 +770,9 @@ class ToUser(BaseConverter[hikari.User]):
         return (_UserCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.NONE
+        return hikari.api.CacheComponents.NONE
 
     @property
     def intents(self) -> hikari.Intents:
@@ -836,9 +836,9 @@ class ToMessage(BaseConverter[hikari.Message]):
         return (_MessageCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.MESSAGES
+        return hikari.api.CacheComponents.MESSAGES
 
     @property
     def intents(self) -> hikari.Intents:
@@ -900,9 +900,9 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
         return (_VoiceStateCacheT,)
 
     @property
-    def cache_components(self) -> hikari.CacheComponents:
+    def cache_components(self) -> hikari.api.CacheComponents:
         # <<inherited docstring from BaseConverter>>.
-        return hikari.CacheComponents.VOICE_STATES
+        return hikari.api.CacheComponents.VOICE_STATES
 
     @property
     def intents(self) -> hikari.Intents:

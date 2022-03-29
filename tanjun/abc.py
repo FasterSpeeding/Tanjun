@@ -941,7 +941,6 @@ class MessageContext(Context, abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        nonce: hikari.UndefinedOr[str] = hikari.UNDEFINED,
         reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -984,8 +983,6 @@ class MessageContext(Context, abc.ABC):
             Whether to reply instead of sending the content to the context.
 
             Passing [True][] here indicates a reply to [tanjun.abc.MessageContext.message][].
-        nonce
-            The nonce that validates that the message was sent.
         attachment
             A singular attachment to respond with.
         attachments

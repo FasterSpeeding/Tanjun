@@ -575,7 +575,6 @@ _channel_types: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
     hikari.GroupDMChannel: {hikari.ChannelType.GROUP_DM},
     hikari.GuildCategory: {hikari.ChannelType.GUILD_CATEGORY},
     hikari.GuildNewsChannel: {hikari.ChannelType.GUILD_NEWS},
-    hikari.GuildStoreChannel: {hikari.ChannelType.GUILD_STORE},
     hikari.GuildStageChannel: {hikari.ChannelType.GUILD_STAGE},
 }
 
