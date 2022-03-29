@@ -109,24 +109,30 @@ class MessageCommandIndex:
                     "The following conflicts were found " + ", ".join(name_conflicts)
                 )
 
-            # Case insensitive keys are used here as a case-insensitive lookup can be made
-            # case-sensitive by a subsequent check against the original name if necessary.
+            # Case insensitive keys are used here as a subsequent check against the original
+            # name can be used for case-sensitive lookup.
             self.names_to_commands.update((key, (name, command)) for key, name in zip(insensive_names, names))
 
-        else:
+        else:  # strict indexes avoid using the search tree all together.
             for name in filter(None, command.names):
                 node: dict[str, typing.Any] = self.search_tree
-                for chars in filter(None, name.casefold().split()):
+                # The search tree is kept case-insensitive as a check against the actual name
+                # can be used to ensure case-sensitivity.
+                for chars in name.casefold().split():
                     try:
                         node = node[chars]
 
                     except KeyError:
                         node[chars] = node = {_PARENT_KEY: node}
 
+                # A case-preserved variant of the name is stored alongside the command
+                # for case-sensitive lookup
+                # This is split into a list of words to avoid mult-spaces failing lookup.
+                name_parts = name.split()
                 try:
-                    node[_COMMANDS_KEY].append((name, command))
+                    node[_COMMANDS_KEY].append((name_parts, command))
                 except KeyError:
-                    node[_COMMANDS_KEY] = [(name, command)]
+                    node[_COMMANDS_KEY] = [(name_parts, command)]
 
         self.commands.append(command)
         return True
@@ -175,6 +181,7 @@ class MessageCommandIndex:
                 if not case_sensitive or command[0] == name:
                     yield name, command[1]
 
+            # strict indexes avoid using the search tree all together.
             return
 
         node = self.search_tree
@@ -197,9 +204,10 @@ class MessageCommandIndex:
                 node = node[_PARENT_KEY]
                 continue
 
-            name = " ".join(segments[:index])
+            name_parts = segments[:index]
+            name = " ".join(name_parts)
             if case_sensitive:
-                yield from ((name, c) for n, c in commands if n == name)
+                yield from ((name, c) for n, c in commands if n == name_parts)
 
             else:
                 yield from ((name, c) for _, c in commands)
@@ -226,12 +234,13 @@ class MessageCommandIndex:
                 if (entry := self.names_to_commands.get(name)) and entry[1] == command:
                     del self.names_to_commands[name]
 
+            # strict indexes avoid using the search tree all together.
             return
 
         for name in filter(None, command.names):
             nodes: list[tuple[str, dict[str, typing.Any]]] = []
             node = self.search_tree
-            for chars in filter(None, name.casefold().split()):
+            for chars in name.casefold().split():
                 try:
                     node = node[chars]
                     nodes.append((chars, node))
@@ -241,13 +250,14 @@ class MessageCommandIndex:
                     break
 
             else:
-                # If it didn't break out of the for chars loop then the command is in the index.
-                node[_COMMANDS_KEY].remove((name, command))  # Remove the command from the last node.
+                # If it didn't break out of the for chars loop then the command is in here.
+                name_parts = name.split()
+                node[_COMMANDS_KEY].remove((name_parts, command))  # Remove the command from the last node.
                 if not node[_COMMANDS_KEY]:
                     del node[_COMMANDS_KEY]
 
                 if len(node) > 1:
-                    # If the node is not empty, we're done.
+                    # If the node is not empty then we're done.
                     continue
 
                 # Otherwise, we need to remove the node from the tree.
