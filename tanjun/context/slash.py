@@ -636,44 +636,9 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             )
 
         else:
-            if attachment and attachments:
-                raise ValueError("Only one of attachment or attachments may be passed")
-
-            if component and components:
-                raise ValueError("Only one of component or components may be passed")
-
-            if embed and embeds:
-                raise ValueError("Only one of embed or embeds may be passed")
-
-            if attachment:
-                assert not isinstance(attachment, hikari.UndefinedType)
-                attachments = [attachment]
-
-            elif not attachments:
-                attachments = []
-
-            else:
-                attachments = list(attachments)
-
-            if component:
-                assert not isinstance(component, hikari.UndefinedType)
-                components = [component]
-
-            elif components is hikari.UNDEFINED:
-                components = []
-
-            else:
-                components = list(components)
-
-            if embed:
-                assert not isinstance(embed, hikari.UndefinedType)
-                embeds = [embed]
-
-            elif embeds is hikari.UNDEFINED:
-                embeds = []
-
-            else:
-                embeds = list(embeds)
+            attachments = _to_list(attachment, attachments, "attachment")
+            components = _to_list(component, components, "component")
+            embeds = _to_list(embed, embeds, "embed")
 
             content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
@@ -988,6 +953,21 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
         if ensure_result:
             return await self._interaction.fetch_initial_response()
+
+
+def _to_list(
+    singular: hikari.UndefinedOr[_T], plural: hikari.UndefinedOr[collections.Sequence[_T]], name: str
+) -> list[_T]:
+    if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
+        raise ValueError(f"Only one of {name} or {name}s may be passed")
+
+    if singular:
+        return [singular]
+
+    if plural:
+        return list(plural)
+
+    return []
 
 
 class SlashContext(AppCommandContext, tanjun.SlashContext):
