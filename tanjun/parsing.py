@@ -182,22 +182,6 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
     ) -> _T:
         ...
 
-    @typing.overload
-    @abc.abstractmethod
-    def add_argument(
-        self: _T,
-        key: str,
-        /,
-        converters: _MaybeIterable[ConverterSig[_OtherT]],
-        *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
-        greedy: bool = False,
-        max_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
-        min_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
-        multi: bool = False,
-    ) -> _T:
-        ...
-
     @abc.abstractmethod
     def add_argument(
         self: _T,
@@ -297,23 +281,6 @@ class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         max_value: _UndefinedOr[_CmpProtoT] = UNDEFINED,
         min_value: _UndefinedOr[_CmpProtoT] = UNDEFINED,
-        multi: bool = False,
-    ) -> _T:
-        ...
-
-    @typing.overload
-    @abc.abstractmethod
-    def add_option(
-        self: _T,
-        key: str,
-        name: str,
-        /,
-        *names: str,
-        converters: _MaybeIterable[ConverterSig[_OtherT]],
-        default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
-        min_value: _UndefinedOr[_CmpProto[_OtherT]] = UNDEFINED,
         multi: bool = False,
     ) -> _T:
         ...
