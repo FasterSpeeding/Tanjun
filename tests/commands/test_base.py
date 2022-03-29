@@ -73,7 +73,7 @@ class TestPartialCommand:
         assert command.metadata is command._metadata
 
     def test_copy(self, command: base_command.PartialCommand[typing.Any]):
-        mock_check = mock.Mock()
+        mock_check = mock.MagicMock()
         command._checks = [mock_check]
         command._hooks = mock.Mock()
         mock_metadata = mock.Mock()
@@ -82,7 +82,8 @@ class TestPartialCommand:
         new_command = command.copy()
 
         assert new_command is not command
-        new_command._checks == [mock_check.copy.return_value]
+        assert new_command._checks == [mock_check]
+        assert new_command._checks[0] is not mock_check
         assert new_command._hooks is command._hooks.copy.return_value
         assert new_command._metadata is mock_metadata.copy.return_value
 
