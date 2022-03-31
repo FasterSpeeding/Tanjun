@@ -51,7 +51,7 @@ from . import utilities
 if typing.TYPE_CHECKING:
     import hikari
 
-    from . import schedules
+    from . import schedules as schedules_
 
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun_abc.AppCommandContext)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound=tanjun_abc.BaseSlashCommand)
@@ -62,7 +62,7 @@ if typing.TYPE_CHECKING:
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun_abc.MessageCommand[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun_abc.MetaEventSig)
     _OnCallbackSigT = typing.TypeVar("_OnCallbackSigT", bound="OnCallbackSig")
-    _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules.AbstractSchedule)
+    _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules_.AbstractSchedule)
 
 
 _LOGGER = logging.getLogger("hikari.tanjun.components")
@@ -213,7 +213,7 @@ class Component(tanjun_abc.Component):
         self._names_to_commands: dict[str, tanjun_abc.MessageCommand[typing.Any]] = {}
         self._on_close: list[OnCallbackSig] = []
         self._on_open: list[OnCallbackSig] = []
-        self._schedules: list[schedules.AbstractSchedule] = []
+        self._schedules: list[schedules_.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
 
@@ -266,7 +266,7 @@ class Component(tanjun_abc.Component):
         return self._name
 
     @property
-    def schedules(self) -> collections.Collection[schedules.AbstractSchedule]:
+    def schedules(self) -> collections.Collection[schedules_.AbstractSchedule]:
         """Collection of the schedules registered to this component."""
         return self._schedules
 
@@ -1278,7 +1278,7 @@ class Component(tanjun_abc.Component):
             if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
-    def add_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule, /) -> _ComponentT:
+    def add_schedule(self: _ComponentT, schedule: schedules_.AbstractSchedule, /) -> _ComponentT:
         """Add a schedule to the component.
 
         Parameters
@@ -1297,7 +1297,7 @@ class Component(tanjun_abc.Component):
         self._schedules.append(schedule)
         return self
 
-    def remove_schedule(self: _ComponentT, schedule: schedules.AbstractSchedule, /) -> _ComponentT:
+    def remove_schedule(self: _ComponentT, schedule: schedules_.AbstractSchedule, /) -> _ComponentT:
         """Remove a schedule from the component.
 
         Parameters
@@ -1337,12 +1337,12 @@ class Component(tanjun_abc.Component):
 
         Parameters
         ----------
-        schedule : schedules.AbstractSchedule
+        schedule : tanjun.schedules.AbstractSchedule
             The schedule to add.
 
         Returns
         -------
-        schedules.AbstractSchedule
+        tanjun.schedules.AbstractSchedule
             The added schedule.
         """
         self.add_schedule(schedule)
