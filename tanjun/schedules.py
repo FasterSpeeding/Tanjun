@@ -37,7 +37,9 @@ __all__: list[str] = ["AbstractSchedule", "IntervalSchedule", "as_interval"]
 import abc
 import asyncio
 import copy
+import dataclasses
 import datetime
+import time
 import typing
 from collections import abc as collections
 
@@ -46,12 +48,13 @@ from alluka import abc as alluka
 from . import components
 
 if typing.TYPE_CHECKING:
-
     from . import abc as tanjun_abc
 
+    _DatetimeT = typing.TypeVar("_DatetimeT", bound="_Datetime")
     _IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
     _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
     _T = typing.TypeVar("_T")
+    _TimeSchedule = typing.TypeVar("_TimeSchedule", bound="TimeSchedule[typing.Any]")
 
 _CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound="_CallbackSig")
@@ -188,6 +191,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         "_stop_callback",
         "_start_callback",
         "_task",
+        "_tasks",
     )
 
     def __init__(
@@ -233,6 +237,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self._stop_callback: typing.Optional[_CallbackSig] = None
         self._start_callback: typing.Optional[_CallbackSig] = None
         self._task: typing.Optional[asyncio.Task[None]] = None
+        self._tasks: list[asyncio.Task[None]] = []
 
     @property
     def callback(self) -> _CallbackSigT:
@@ -329,8 +334,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
             while not self._max_runs or self._iteration_count < self._max_runs:
                 self._iteration_count += 1
-                event_loop.create_task(self._execute(client))
+                self._tasks.append(event_loop.create_task(self._execute(client)))
                 await asyncio.sleep(self._interval.total_seconds())
+                self._tasks = [task for task in self._tasks if not task.done()]
 
         finally:
             self._task = None
@@ -340,6 +346,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
                 except self._ignored_exceptions:
                     pass
+
+            self._tasks.clear()
 
     def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
@@ -443,6 +451,310 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self
 
     def set_fatal_exceptions(self: _IntervalScheduleT, *exceptions: type[Exception]) -> _IntervalScheduleT:
+        """Set the exceptions that will stop a schedule.
+
+        If any of these exceptions are encountered, the task will stop.
+
+        Parameters
+        ----------
+        *exceptions
+            Types of the exceptions to stop the task on.
+
+        Returns
+        -------
+        Self
+            The schedule object to enable chianed calls.
+        """
+        self._fatal_exceptions = exceptions
+        return self
+
+
+def _to_list(
+    values: typing.Union[int, collections.Collection[int], None], min_: int, max_: int, name: str
+) -> typing.Optional[list[int]]:
+    if values is None:
+        return None
+
+    if isinstance(values, int):
+        values = [values]
+
+    else:
+        values = sorted(set(values))
+
+    for value in values:
+        if value > max_ or value < min_:
+            raise ValueError(f"{name} value must be between {min_} and {max_}, not {value}")
+
+    return values
+
+
+def _get_next(target_values: list[int], current_value: int) -> tuple[int, int]:
+    for index, value in enumerate(target_values):
+        if value > current_value:
+            return index, value
+
+    return 0, target_values[0]
+
+
+@dataclasses.dataclass
+class _ScheduleConfig:
+    __slots__ = ("days", "hours", "minutes", "months", "seconds", "timezone")
+    days: typing.Optional[list[int]]
+    hours: typing.Optional[list[int]]
+    is_weekly: bool
+    minutes: typing.Optional[list[int]]
+    months: typing.Optional[list[int]]
+    seconds: typing.Optional[list[int]]
+    timezone: typing.Optional[datetime.timezone]
+
+
+class _Datetime:
+    __slots__ = ("config", "date")
+
+    def __init__(self, config: _ScheduleConfig):
+        self.config = config
+        self.date = datetime.datetime.now(tz=config.timezone)
+
+    def next(self) -> datetime.datetime:
+        if self.config.months and self.date.month not in self.config.months:
+            self.next_month()
+            return self.date
+
+        if self.config.days:
+            day = self.date.weekday() if self.config.is_weekly else self.date.day
+            if day not in self.config.days:
+                self.next_day()
+                return self.date
+
+        if self.config.hours and self.date.hour not in self.config.hours:
+            self.next_hour()
+            return self.date
+
+        if self.config.minutes and self.date.minute not in self.config.minutes:
+            self.next_minute()
+            return self.date
+
+        if self.config.seconds and self.date.second not in self.config.seconds:
+            self.next_second()
+            return self.date
+
+        raise NotImplementedError("Time schedules with no restrictions are not supported")
+
+    def next_year(self: _DatetimeT) -> _DatetimeT:
+        self.date = datetime.datetime(year=self.date.year + 1, month=0, day=0, hour=0, tzinfo=self.config.timezone)
+        return self.next_month()
+
+    def next_month(self: _DatetimeT) -> _DatetimeT:
+        if not self.config.months or self.date.month in self.config.months:
+            return self.next_hour()
+
+        index, month = _get_next(self.config.months, self.date.month)
+
+        if index == 0:
+            return self.next_year()
+
+        self.date = self.date.replace(month=month, hour=0, minute=0, second=0, microsecond=0)
+        return self.next_hour()
+
+    def next_day(self: _DatetimeT) -> _DatetimeT:
+        if not self.config.days:
+            return self
+
+        if self.config.is_weekly:
+            day = self.date.weekday()
+
+        else:
+            day = self.date.day
+
+        if day in self.config.days:
+            return self
+
+        index, day = _get_next(self.config.days, day)
+
+        if index == 0:
+            if not self.config.is_weekly:
+                return self.next_month()
+
+            start_of_next_week = self.date.day + (7 - self.date.weekday())
+
+            try:
+                self.date = self.date.replace(day=start_of_next_week, hour=0, minute=0, second=0, microsecond=0)
+
+            except ValueError:
+                return self.next_month()
+
+            return self.next_day()
+
+        return self.next_hour()
+
+    def next_hour(self: _DatetimeT) -> _DatetimeT:
+        if not self.config.hours or self.date.hour in self.config.hours:
+            return self.next_minute()
+
+        index, hour = _get_next(self.config.hours, self.date.hour)
+
+        if index == 0:
+            return self.next_day()
+
+        self.date = self.date.replace(hour=hour, minute=0, second=0, microsecond=0)
+        return self.next_minute()
+
+    def next_minute(self: _DatetimeT) -> _DatetimeT:
+        if not self.config.minutes or self.date.minute in self.config.minutes:
+            return self.next_second()
+
+        index, minute = _get_next(self.config.minutes, self.date.minute)
+
+        if index == 0:
+            return self.next_minute()
+
+        self.date = self.date.replace(minute=minute, second=0, microsecond=0)
+        return self.next_second()
+
+    def next_second(self: _DatetimeT) -> _DatetimeT:
+        if not self.config.seconds or self.date.second not in self.config.seconds:
+            self.date = self.date.replace(microsecond=0)
+            return self
+
+        index, second = _get_next(self.config.seconds, self.date.second)
+
+        if index == 0:
+            return self.next_minute()
+
+        self.date = self.date.replace(second=second, microsecond=0)
+        return self
+
+
+class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
+    __slots__ = ("_callback", "_fatal_exceptions", "_ignored_exceptions", "_level", "_task", "_tasks")
+
+    def __init__(
+        self,
+        callback: _CallbackSigT,
+        /,
+        *,
+        months: typing.Union[int, collections.Collection[int], None] = None,
+        weekly: bool = False,
+        days: typing.Union[int, collections.Collection[int], None] = None,
+        hours: typing.Union[int, collections.Collection[int], None] = None,
+        minutes: typing.Union[int, collections.Collection[int], None] = None,
+        seconds: typing.Union[int, collections.Collection[int], None] = None,
+        fatal_exceptions: collections.Sequence[type[Exception]] = (),
+        ignored_exceptions: collections.Sequence[type[Exception]] = (),
+        timezone: typing.Optional[datetime.timezone] = None,
+    ) -> None:
+        self._callback = callback
+
+        if not months and not days and not hours and not minutes and not seconds:
+            minutes = range(0, 60)
+
+        if weekly:
+            days = _to_list(days, 0, 6, "day")
+
+        else:
+            days = _to_list(days, 1, 31, "day")
+
+        self._config = _ScheduleConfig(
+            days=days,
+            hours=_to_list(hours, 0, 23, "hour"),
+            is_weekly=weekly,
+            minutes=_to_list(minutes, 0, 59, "minute"),
+            months=_to_list(months, 1, 12, "month"),
+            seconds=_to_list(seconds, 0, 59, "second"),
+            timezone=timezone,
+        )
+        self._fatal_exceptions = tuple(fatal_exceptions)
+        self._ignored_exceptions = tuple(ignored_exceptions)
+        self._task: typing.Optional[asyncio.Task[None]] = None
+        self._tasks: list[asyncio.Task[None]] = []
+
+    @property
+    def callback(self) -> _CallbackSigT:
+        # <<inherited docstring from IntervalSchedule>>.
+        return self._callback
+
+    @property
+    def is_alive(self) -> bool:
+        # <<inherited docstring from IntervalSchedule>>.
+        return False
+
+    if typing.TYPE_CHECKING:
+        __call__: _CallbackSigT
+
+    else:
+
+        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+            await self._callback(*args, **kwargs)
+
+    def copy(self: _TimeSchedule) -> _TimeSchedule:
+        # <<inherited docstring from IntervalSchedule>>.
+        return copy.copy(self)
+
+    async def _execute(self, client: alluka.Client, /) -> None:
+        try:
+            await client.call_with_async_di(self._callback)
+
+        except self._fatal_exceptions:
+            self.stop()
+            raise
+
+        except self._ignored_exceptions:
+            pass
+
+    async def _loop(self, client: alluka.Client, /) -> None:
+        try:
+            while True:
+                await asyncio.sleep(time.time() - _Datetime(self._config).next().timestamp())
+                self._tasks = [task for task in self._tasks if not task.done()]
+                self._tasks.append(asyncio.create_task(self._execute(client)))
+
+        finally:
+            self._tasks.clear()
+
+    def load_into_component(self, component: tanjun_abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
+        if isinstance(component, _ComponentProto):
+            component.add_schedule(self)
+
+    def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+        # <<inherited docstring from IntervalSchedule>>.
+        if self._task:
+            raise RuntimeError("Schedule is already running")
+
+        loop = loop or asyncio.get_running_loop()
+
+        if not loop.is_running():
+            raise RuntimeError("Event loop is not running")
+
+        self._task = loop.create_task(self._loop(client))
+
+    def stop(self) -> None:
+        # <<inherited docstring from IntervalSchedule>>.
+        if not self._task:
+            raise RuntimeError("Schedule is not running")
+
+        self._task.cancel()
+        self._task = None
+
+    def set_ignored_exceptions(self: _TimeSchedule, *exceptions: type[Exception]) -> _TimeSchedule:
+        """Set the exceptions that a schedule will ignore.
+
+        If any of these exceptions are encountered, there will be nothing printed to console.
+
+        Parameters
+        ----------
+        *exceptions
+            Types of the exceptions to ignore.
+
+        Returns
+        -------
+        Self
+            The schedule object to enable chained calls.
+        """
+        self._ignored_exceptions = exceptions
+        return self
+
+    def set_fatal_exceptions(self: _TimeSchedule, *exceptions: type[Exception]) -> _TimeSchedule:
         """Set the exceptions that will stop a schedule.
 
         If any of these exceptions are encountered, the task will stop.
