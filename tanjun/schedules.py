@@ -595,7 +595,7 @@ class _Datetime:
 
         day = _get_next(self._config.days, day)
 
-        if day is None:  # Indicates we've passed the last matching day in this week/month
+        if day is None:  # Indicates we've passed the last matching day in this month.
             if not self._config.is_weekly:
                 # This implicitly handles flowing to a new year/month.
                 days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
