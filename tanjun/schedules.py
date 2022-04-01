@@ -544,7 +544,7 @@ class _Datetime:
             self.date = datetime.datetime(year=self.date.year + 1, month=0, day=0, hour=0, tzinfo=self.config.timezone)
             return self.next_month()
 
-        self.date = self.date.replace(month=month, hour=0, minute=0, second=0, microsecond=0)
+        self.date = self.date.replace(month=month, hour=0, minute=0, second=0)
         return self.next_hour()
 
     def next_day(self: _DatetimeT) -> _DatetimeT:
@@ -564,16 +564,16 @@ class _Datetime:
 
         if day is None:
             if not self.config.is_weekly:
-                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
                 return self.next_month()
 
             start_of_next_week = self.date.day + (7 - self.date.weekday())
 
             try:
-                self.date = self.date.replace(day=start_of_next_week, hour=0, minute=0, second=0, microsecond=0)
+                self.date = self.date.replace(day=start_of_next_week, hour=0, minute=0, second=0)
 
             except ValueError:
-                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
                 return self.next_month()
 
             return self.next_day()
@@ -590,7 +590,7 @@ class _Datetime:
             self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
             return self.next_day()
 
-        self.date = self.date.replace(hour=hour, minute=0, second=0, microsecond=0)
+        self.date = self.date.replace(hour=hour, minute=0, second=0)
         return self.next_minute()
 
     def next_minute(self: _DatetimeT) -> _DatetimeT:
@@ -603,14 +603,14 @@ class _Datetime:
             self.date = (self.date + datetime.timedelta(hours=1)).replace(minute=0, second=0)
             return self.next_hour()
 
-        self.date = self.date.replace(minute=minute, second=0, microsecond=0)
+        self.date = self.date.replace(minute=minute, second=0)
         return self.next_second()
 
     def next_second(self: _DatetimeT) -> _DatetimeT:
         current_repr = _date_to_repr(self.date)
         if self.date.second in self.config.seconds and current_repr != self.config.current_second:
-            self.config.current_second = _date_to_repr(self.date)
-            self.date = self.date.replace(microsecond=0)
+            self.config.current_second = current_repr
+            self.date = self.date.replace(microsecond=500)
             return self
 
         second = _get_next(self.config.seconds, self.date.second)
@@ -619,8 +619,14 @@ class _Datetime:
             self.date = self.date + datetime.timedelta(seconds=60 - self.date.second)
             return self.next_minute()
 
-        self.date = self.date.replace(second=second, microsecond=0)
-        self.config.current_second = _date_to_repr(self.date)
+        self.date = self.date.replace(second=second, microsecond=500)
+        current_repr = _date_to_repr(self.date)
+        if self.config.current_second == current_repr:
+            # There's some timing edge-cases where this might trigger under a second before the
+            # target time and to avoid that leading to duped-calls we check after calculating.
+            return self.next_second()
+
+        self.config.current_second = current_repr
         return self
 
 
