@@ -462,10 +462,6 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self
 
 
-def _date_to_repr(date: datetime.datetime) -> tuple[int, int, int, int, int, int]:
-    return (date.year, date.month, date.day, date.hour, date.minute, date.second)
-
-
 def _get_next(target_values: collections.Sequence[int], current_value: int) -> typing.Optional[int]:
     for value in target_values:
         if value > current_value:
@@ -500,8 +496,8 @@ def _to_sequence(
 
 @dataclasses.dataclass
 class _TimeScheduleConfig:
-    __slots__ = ("current_second", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
-    current_second: tuple[int, int, int, int, int, int]
+    __slots__ = ("current_date", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
+    current_date: datetime.datetime
     days: typing.Optional[collections.Sequence[int]]
     hours: collections.Sequence[int]
     is_weekly: bool
@@ -509,6 +505,9 @@ class _TimeScheduleConfig:
     months: collections.Sequence[int]
     seconds: collections.Sequence[int]
     timezone: typing.Optional[datetime.timezone]
+
+
+_HALF_A_SECOND = 500000  # In microseconds.
 
 
 class _Datetime:
@@ -525,7 +524,11 @@ class _Datetime:
             The configuration to use.
         """
         self._config = config
-        self._date = datetime.datetime.now(tz=config.timezone)
+        # A half-second offset is used to lower the chances of this triggering early/late.
+        #
+        # Since datetime.replace and timedelta maths is used to calculate the time,
+        # this microsecond offset will persist to the calculated datetime.
+        self._date = datetime.datetime.now(tz=config.timezone).replace(microsecond=_HALF_A_SECOND)
 
     def next(self) -> datetime.datetime:
         """Get the next datetime which matches the schedule.
@@ -568,8 +571,10 @@ class _Datetime:
 
         month = _get_next(self._config.months, self._date.month)
 
-        if month is None:
+        if month is None:  # Indicates we've passed the last matching month in this year.
+            # So now we jump to the next year.
             self._date = self._date.replace(year=self._date.year + 1, month=0, day=0, hour=0, minute=0, second=0)
+            # Then re-calculate.
             return self._next_month()
 
         self._date = self._date.replace(month=month, hour=0, minute=0, second=0)
@@ -590,8 +595,9 @@ class _Datetime:
 
         day = _get_next(self._config.days, day)
 
-        if day is None:
+        if day is None:  # Indicates we've passed the last matching day in this week/month
             if not self._config.is_weekly:
+                # This implicitly handles overflowing to a new year/month.
                 days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
                 self._date = (self._date + datetime.timedelta(days=days_to_jump)).replace(
                     day=0, hour=0, minute=0, second=0
@@ -604,9 +610,12 @@ class _Datetime:
                 self._date = self._date.replace(day=start_of_next_week, hour=0, minute=0, second=0)
 
             except ValueError:
+                # A value error indicates that the start of next week isn't in the current month.
+                # So we need to jump to the next month/year then re-calculate.
                 self._date = (self._date + datetime.timedelta(days=7)).replace(day=0, hour=0, minute=0, second=0)
                 return self._next_month()
 
+            # Calculate the next matching day in this week.
             return self._next_day()
 
         return self._next_hour()
@@ -621,8 +630,10 @@ class _Datetime:
 
         hour = _get_next(self._config.hours, self._date.hour)
 
-        if hour is None:
+        if hour is None:  # Indicates we've passed the last matching hour in this day.
+            # So we need to jump to the next day (while handling overflowing to the next month/year).
             self._date = (self._date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
+            # Then re-calculate.
             return self._next_day()
 
         self._date = self._date.replace(hour=hour, minute=0, second=0)
@@ -638,8 +649,10 @@ class _Datetime:
 
         minute = _get_next(self._config.minutes, self._date.minute)
 
-        if minute is None:
+        if minute is None:  # Indicates we've passed the last matching minute in this hour.
+            # So we jump to the next hour (while handling overflowing to the next day/month/year).
             self._date = (self._date + datetime.timedelta(hours=1)).replace(minute=0, second=0)
+            # and then re-calculate.
             return self._next_hour()
 
         self._date = self._date.replace(minute=minute, second=0)
@@ -650,32 +663,32 @@ class _Datetime:
 
         The current second will also be considered.
         """
-        current_repr = _date_to_repr(self._date)
-        if self._date.second in self._config.seconds and current_repr != self._config.current_second:
-            self._config.current_second = current_repr
-            self._date = self._date.replace(microsecond=5000)
+        if self._date.second in self._config.seconds and self._date != self._config.current_date:
+            self._config.current_date = self._date
+            self._date = self._date
             return self
 
         second = _get_next(self._config.seconds, self._date.second)
 
-        if second is None:
+        if second is None:  # Indicates we've passed the last matching second in this minute.
+            # So we jump to the next minute (while handling overflowing to the next hour/day/month/year).
             self._date = self._date + datetime.timedelta(seconds=60 - self._date.second)
+            # and then re-calculate.
             return self._next_minute()
 
-        self._date = self._date.replace(second=second, microsecond=5000)
-        current_repr = _date_to_repr(self._date)
-        if self._config.current_second == current_repr:
-            # There's some timing edge-cases where this might trigger under a second before the
+        self._date = self._date.replace(second=second)
+        if self._config.current_date == self._date:
+            # There's some timing edge-cases where this might trigger before the
             # target time and to avoid that leading to duped-calls we check after calculating.
             return self._next_second()
 
-        self._config.current_second = current_repr
+        self._config.current_date = self._date
         return self
 
 
 def as_time_schedule(
     *,
-    months: typing.Union[int, collections.Sequence[int], None] = None,
+    months: typing.Union[int, collections.Sequence[int]] = (),
     weekly: bool = False,
     days: typing.Union[int, collections.Sequence[int]] = (),
     hours: typing.Union[int, collections.Sequence[int]] = (),
@@ -859,14 +872,14 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         self._callback = callback
 
         if weekly:
-            days = _to_sequence(days, 0, 6, "day")
+            actual_days = _to_sequence(days, 0, 6, "day")
 
         else:
-            days = _to_sequence(days, 1, 31, "day")
+            actual_days = _to_sequence(days, 1, 31, "day")
 
         self._config = _TimeScheduleConfig(
-            current_second=(-1, -1, -1, -1, -1, -1),
-            days=days,
+            current_date=datetime.datetime(1970, 1, 1, tzinfo=timezone),
+            days=actual_days,
             hours=_to_sequence(hours, 0, 23, "hour") or range(24),
             is_weekly=weekly,
             minutes=_to_sequence(minutes, 0, 59, "minute") or range(60),
