@@ -597,7 +597,7 @@ class _Datetime:
 
         if day is None:  # Indicates we've passed the last matching day in this week/month
             if not self._config.is_weekly:
-                # This implicitly handles overflowing to a new year/month.
+                # This implicitly handles flowing to a new year/month.
                 days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
                 self._date = (self._date + datetime.timedelta(days=days_to_jump)).replace(
                     day=0, hour=0, minute=0, second=0
@@ -631,10 +631,10 @@ class _Datetime:
         hour = _get_next(self._config.hours, self._date.hour)
 
         if hour is None:  # Indicates we've passed the last matching hour in this day.
-            # So we need to jump to the next day (while handling overflowing to the next month/year).
+            # So we need to jump to the next day (while handling flowing to the next month/year).
             self._date = (self._date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
             # Then re-calculate.
-            return self._next_day()
+            return self._next_month()
 
         self._date = self._date.replace(hour=hour, minute=0, second=0)
         return self._next_minute()
@@ -650,10 +650,10 @@ class _Datetime:
         minute = _get_next(self._config.minutes, self._date.minute)
 
         if minute is None:  # Indicates we've passed the last matching minute in this hour.
-            # So we jump to the next hour (while handling overflowing to the next day/month/year).
+            # So we jump to the next hour (while handling flowing to the next day/month/year).
             self._date = (self._date + datetime.timedelta(hours=1)).replace(minute=0, second=0)
             # and then re-calculate.
-            return self._next_hour()
+            return self._next_month()
 
         self._date = self._date.replace(minute=minute, second=0)
         return self._next_second()
@@ -671,10 +671,10 @@ class _Datetime:
         second = _get_next(self._config.seconds, self._date.second)
 
         if second is None:  # Indicates we've passed the last matching second in this minute.
-            # So we jump to the next minute (while handling overflowing to the next hour/day/month/year).
+            # So we jump to the next minute (while handling flowing to the next hour/day/month/year).
             self._date = self._date + datetime.timedelta(seconds=60 - self._date.second)
             # and then re-calculate.
-            return self._next_minute()
+            return self._next_month()
 
         self._date = self._date.replace(second=second)
         if self._config.current_date == self._date:
