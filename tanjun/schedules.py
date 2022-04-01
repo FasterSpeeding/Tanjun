@@ -36,6 +36,7 @@ __all__: list[str] = ["AbstractSchedule", "IntervalSchedule", "TimeSchedule", "a
 
 import abc
 import asyncio
+import calendar
 import copy
 import dataclasses
 import datetime
@@ -536,35 +537,34 @@ class _Datetime:
 
     def next_month(self: _DatetimeT) -> _DatetimeT:
         if not self.config.months or self.date.month in self.config.months:
-            return self.next_hour()
+            return self.next_day()
 
         month = _get_next(self.config.months, self.date.month)
 
         if month is None:
-            self.date = datetime.datetime(year=self.date.year + 1, month=0, day=0, hour=0, tzinfo=self.config.timezone)
+            self.date = self.date.replace(year=self.date.year + 1, month=0, day=0, hour=0, minute=0, second=0)
             return self.next_month()
 
         self.date = self.date.replace(month=month, hour=0, minute=0, second=0)
-        return self.next_hour()
+        return self.next_day()
 
     def next_day(self: _DatetimeT) -> _DatetimeT:
         if not self.config.days:
-            return self
+            return self.next_hour()
 
-        if self.config.is_weekly:
-            day = self.date.weekday()
-
-        else:
-            day = self.date.day
+        day = self.date.weekday() if self.config.is_weekly else self.date.day
 
         if day in self.config.days:
-            return self
+            return self.next_hour()
 
         day = _get_next(self.config.days, day)
 
         if day is None:
             if not self.config.is_weekly:
-                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
+                days_to_jump = (calendar.monthrange(self.date.year, self.date.month)[1] - self.date.day) + 1
+                self.date = (self.date + datetime.timedelta(days=days_to_jump)).replace(
+                    day=0, hour=0, minute=0, second=0
+                )
                 return self.next_month()
 
             start_of_next_week = self.date.day + (7 - self.date.weekday())
@@ -573,7 +573,7 @@ class _Datetime:
                 self.date = self.date.replace(day=start_of_next_week, hour=0, minute=0, second=0)
 
             except ValueError:
-                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
+                self.date = (self.date + datetime.timedelta(days=7)).replace(day=0, hour=0, minute=0, second=0)
                 return self.next_month()
 
             return self.next_day()
