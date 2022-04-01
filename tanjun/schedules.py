@@ -32,7 +32,7 @@
 """Interface and interval implementation for a Tanjun based callback scheduler."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractSchedule", "IntervalSchedule", "as_interval"]
+__all__: list[str] = ["AbstractSchedule", "IntervalSchedule", "TimeSchedule", "as_interval", "as_time_schedule"]
 
 import abc
 import asyncio
@@ -78,14 +78,6 @@ class AbstractSchedule(abc.ABC):
     @abc.abstractmethod
     def is_alive(self) -> bool:
         """Whether the schedule is alive."""
-
-    @property
-    @abc.abstractmethod
-    def iteration_count(self) -> int:
-        """Return the number of times this schedule has run.
-
-        This increments after a call regardless of if it failed.
-        """
 
     @abc.abstractmethod
     def copy(self: _T) -> _T:
@@ -469,6 +461,18 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self
 
 
+def _date_to_repr(date: datetime.datetime) -> tuple[int, int, int, int, int, int]:
+    return (date.year, date.month, date.day, date.hour, date.minute, date.second)
+
+
+def _get_next(target_values: list[int], current_value: int) -> typing.Optional[int]:
+    for value in target_values:
+        if value > current_value:
+            return value
+
+    return None
+
+
 def _to_list(
     values: typing.Union[int, collections.Collection[int], None], min_: int, max_: int, name: str
 ) -> typing.Optional[list[int]]:
@@ -488,23 +492,16 @@ def _to_list(
     return values
 
 
-def _get_next(target_values: list[int], current_value: int) -> tuple[int, int]:
-    for index, value in enumerate(target_values):
-        if value > current_value:
-            return index, value
-
-    return 0, target_values[0]
-
-
 @dataclasses.dataclass
 class _ScheduleConfig:
-    __slots__ = ("days", "hours", "minutes", "months", "seconds", "timezone")
+    __slots__ = ("current_second", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
+    current_second: tuple[int, int, int, int, int, int]
     days: typing.Optional[list[int]]
     hours: typing.Optional[list[int]]
     is_weekly: bool
     minutes: typing.Optional[list[int]]
     months: typing.Optional[list[int]]
-    seconds: typing.Optional[list[int]]
+    seconds: list[int]
     timezone: typing.Optional[datetime.timezone]
 
 
@@ -534,24 +531,18 @@ class _Datetime:
             self.next_minute()
             return self.date
 
-        if self.config.seconds and self.date.second not in self.config.seconds:
-            self.next_second()
-            return self.date
-
-        raise NotImplementedError("Time schedules with no restrictions are not supported")
-
-    def next_year(self: _DatetimeT) -> _DatetimeT:
-        self.date = datetime.datetime(year=self.date.year + 1, month=0, day=0, hour=0, tzinfo=self.config.timezone)
-        return self.next_month()
+        self.next_second()
+        return self.date
 
     def next_month(self: _DatetimeT) -> _DatetimeT:
         if not self.config.months or self.date.month in self.config.months:
             return self.next_hour()
 
-        index, month = _get_next(self.config.months, self.date.month)
+        month = _get_next(self.config.months, self.date.month)
 
-        if index == 0:
-            return self.next_year()
+        if month is None:
+            self.date = datetime.datetime(year=self.date.year + 1, month=0, day=0, hour=0, tzinfo=self.config.timezone)
+            return self.next_month()
 
         self.date = self.date.replace(month=month, hour=0, minute=0, second=0, microsecond=0)
         return self.next_hour()
@@ -569,10 +560,11 @@ class _Datetime:
         if day in self.config.days:
             return self
 
-        index, day = _get_next(self.config.days, day)
+        day = _get_next(self.config.days, day)
 
-        if index == 0:
+        if day is None:
             if not self.config.is_weekly:
+                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
                 return self.next_month()
 
             start_of_next_week = self.date.day + (7 - self.date.weekday())
@@ -581,6 +573,7 @@ class _Datetime:
                 self.date = self.date.replace(day=start_of_next_week, hour=0, minute=0, second=0, microsecond=0)
 
             except ValueError:
+                self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
                 return self.next_month()
 
             return self.next_day()
@@ -591,9 +584,10 @@ class _Datetime:
         if not self.config.hours or self.date.hour in self.config.hours:
             return self.next_minute()
 
-        index, hour = _get_next(self.config.hours, self.date.hour)
+        hour = _get_next(self.config.hours, self.date.hour)
 
-        if index == 0:
+        if hour is None:
+            self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
             return self.next_day()
 
         self.date = self.date.replace(hour=hour, minute=0, second=0, microsecond=0)
@@ -603,30 +597,61 @@ class _Datetime:
         if not self.config.minutes or self.date.minute in self.config.minutes:
             return self.next_second()
 
-        index, minute = _get_next(self.config.minutes, self.date.minute)
+        minute = _get_next(self.config.minutes, self.date.minute)
 
-        if index == 0:
-            return self.next_minute()
+        if minute is None:
+            self.date = (self.date + datetime.timedelta(hours=1)).replace(minute=0, second=0)
+            return self.next_hour()
 
         self.date = self.date.replace(minute=minute, second=0, microsecond=0)
         return self.next_second()
 
     def next_second(self: _DatetimeT) -> _DatetimeT:
-        if not self.config.seconds or self.date.second not in self.config.seconds:
+        current_repr = _date_to_repr(self.date)
+        if self.date.second in self.config.seconds and current_repr != self.config.current_second:
+            self.config.current_second = _date_to_repr(self.date)
             self.date = self.date.replace(microsecond=0)
             return self
 
-        index, second = _get_next(self.config.seconds, self.date.second)
+        second = _get_next(self.config.seconds, self.date.second)
 
-        if index == 0:
+        if second is None:
+            self.date = self.date + datetime.timedelta(seconds=60 - self.date.second)
             return self.next_minute()
 
         self.date = self.date.replace(second=second, microsecond=0)
+        self.config.current_second = _date_to_repr(self.date)
         return self
 
 
+def as_time_schedule(
+    *,
+    months: typing.Union[int, collections.Collection[int], None] = None,
+    weekly: bool = False,
+    days: typing.Union[int, collections.Collection[int], None] = None,
+    hours: typing.Union[int, collections.Collection[int], None] = None,
+    minutes: typing.Union[int, collections.Collection[int], None] = None,
+    seconds: typing.Union[int, collections.Collection[int], None] = None,
+    fatal_exceptions: collections.Sequence[type[Exception]] = (),
+    ignored_exceptions: collections.Sequence[type[Exception]] = (),
+    timezone: typing.Optional[datetime.timezone] = None,
+) -> collections.Callable[[_CallbackSigT], TimeSchedule[_CallbackSigT]]:
+    return lambda callback: TimeSchedule(
+        callback,
+        months=months,
+        weekly=weekly,
+        days=days,
+        hours=hours,
+        minutes=minutes,
+        seconds=seconds,
+        fatal_exceptions=fatal_exceptions,
+        ignored_exceptions=ignored_exceptions,
+        timezone=timezone,
+    )
+
+
 class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
-    __slots__ = ("_callback", "_fatal_exceptions", "_ignored_exceptions", "_level", "_task", "_tasks")
+    __slots__ = ("_callback", "_config", "_fatal_exceptions", "_ignored_exceptions", "_task", "_tasks")
 
     def __init__(
         self,
@@ -655,12 +680,13 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             days = _to_list(days, 1, 31, "day")
 
         self._config = _ScheduleConfig(
+            current_second=(-1, -1, -1, -1, -1, -1),
             days=days,
             hours=_to_list(hours, 0, 23, "hour"),
             is_weekly=weekly,
             minutes=_to_list(minutes, 0, 59, "minute"),
             months=_to_list(months, 1, 12, "month"),
-            seconds=_to_list(seconds, 0, 59, "second"),
+            seconds=_to_list(seconds, 0, 59, "second") or [0],
             timezone=timezone,
         )
         self._fatal_exceptions = tuple(fatal_exceptions)
@@ -702,11 +728,14 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             pass
 
     async def _loop(self, client: alluka.Client, /) -> None:
+        loop = asyncio.get_running_loop()
         try:
             while True:
-                await asyncio.sleep(time.time() - _Datetime(self._config).next().timestamp())
+                current_time = time.time()
+                result = _Datetime(self._config).next().timestamp() - current_time
+                await asyncio.sleep(result)
                 self._tasks = [task for task in self._tasks if not task.done()]
-                self._tasks.append(asyncio.create_task(self._execute(client)))
+                self._tasks.append(loop.create_task(self._execute(client)))
 
         finally:
             self._tasks.clear()
