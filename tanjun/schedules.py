@@ -144,10 +144,7 @@ def as_interval(
     Parameters
     ----------
     interval
-        The callback for the schedule.
-
-        This should be an asynchronous function which takes no positional
-        arguments, returns [None][] and may use dependency injection.
+        The interval between calls. Passed as a timedelta, or a number of seconds.
     fatal_exceptions
         A sequence of exceptions that will cause the schedule to stop if raised
         by the callback, start callback or stop callback.
@@ -161,6 +158,9 @@ def as_interval(
     -------
     collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]
         The decorator used to create the schedule.
+
+        This should be an decorating  asynchronous function which takes no
+        positional arguments, returns [None][] and may use dependency injection.
     """
     return lambda callback: IntervalSchedule(
         callback,
@@ -466,7 +466,7 @@ def _date_to_repr(date: datetime.datetime) -> tuple[int, int, int, int, int, int
     return (date.year, date.month, date.day, date.hour, date.minute, date.second)
 
 
-def _get_next(target_values: list[int], current_value: int) -> typing.Optional[int]:
+def _get_next(target_values: collections.Sequence[int], current_value: int) -> typing.Optional[int]:
     for value in target_values:
         if value > current_value:
             return value
@@ -474,174 +474,287 @@ def _get_next(target_values: list[int], current_value: int) -> typing.Optional[i
     return None
 
 
-def _to_list(
-    values: typing.Union[int, collections.Collection[int], None], min_: int, max_: int, name: str
-) -> typing.Optional[list[int]]:
-    if values is None:
+def _to_sequence(
+    values: typing.Union[int, collections.Sequence[int], None], min_: int, max_: int, name: str
+) -> typing.Optional[collections.Sequence[int]]:
+    if not values:
         return None
 
     if isinstance(values, int):
-        values = [values]
+        if values > max_ or values < min_:
+            raise ValueError(f"{name} value must be between {min_} and {max_}, not {values}")
 
-    else:
-        values = sorted(set(values))
+        return [values]
 
-    for value in values:
-        if value > max_ or value < min_:
-            raise ValueError(f"{name} value must be between {min_} and {max_}, not {value}")
+    if not isinstance(values, range) or values.step < 0:
+        # Ranges with a positive step will already be sorted so these can be left as-is.
+        values = sorted(values)
+
+    first_entry = values[0]
+    last_entry = values[-1]
+    if last_entry > max_ or first_entry < min_:
+        raise ValueError(f"{name} must be between {min_} and {max_}, not {first_entry}, {last_entry}")
 
     return values
 
 
 @dataclasses.dataclass
-class _ScheduleConfig:
+class _TimeScheduleConfig:
     __slots__ = ("current_second", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
     current_second: tuple[int, int, int, int, int, int]
-    days: typing.Optional[list[int]]
-    hours: typing.Optional[list[int]]
+    days: typing.Optional[collections.Sequence[int]]
+    hours: collections.Sequence[int]
     is_weekly: bool
-    minutes: typing.Optional[list[int]]
-    months: typing.Optional[list[int]]
-    seconds: list[int]
+    minutes: collections.Sequence[int]
+    months: collections.Sequence[int]
+    seconds: collections.Sequence[int]
     timezone: typing.Optional[datetime.timezone]
 
 
 class _Datetime:
-    __slots__ = ("config", "date")
+    """Class used to calculate the next datetime in a time schedule."""
 
-    def __init__(self, config: _ScheduleConfig):
-        self.config = config
-        self.date = datetime.datetime.now(tz=config.timezone)
+    __slots__ = ("_config", "_date")
+
+    def __init__(self, config: _TimeScheduleConfig) -> None:
+        """Initialise the class.
+
+        Parameters
+        ----------
+        config
+            The configuration to use.
+        """
+        self._config = config
+        self._date = datetime.datetime.now(tz=config.timezone)
 
     def next(self) -> datetime.datetime:
-        if self.config.months and self.date.month not in self.config.months:
-            self.next_month()
-            return self.date
+        """Get the next datetime which matches the schedule.
 
-        if self.config.days:
-            day = self.date.weekday() if self.config.is_weekly else self.date.day
-            if day not in self.config.days:
-                self.next_day()
-                return self.date
+        If the current time matches the schedule, this will be skipped.
 
-        if self.config.hours and self.date.hour not in self.config.hours:
-            self.next_hour()
-            return self.date
+        Returns
+        -------
+        datetime.datetime
+            The next datetime which matches the schedule.
+        """
+        if self._date.month not in self._config.months:
+            self._next_month()
+            return self._date
 
-        if self.config.minutes and self.date.minute not in self.config.minutes:
-            self.next_minute()
-            return self.date
+        if self._config.days:
+            day = self._date.weekday() if self._config.is_weekly else self._date.day
+            if day not in self._config.days:
+                self._next_day()
+                return self._date
 
-        self.next_second()
-        return self.date
+        if self._date.hour not in self._config.hours:
+            self._next_hour()
+            return self._date
 
-    def next_month(self: _DatetimeT) -> _DatetimeT:
-        if not self.config.months or self.date.month in self.config.months:
-            return self.next_day()
+        if self._date.minute not in self._config.minutes:
+            self._next_minute()
+            return self._date
 
-        month = _get_next(self.config.months, self.date.month)
+        self._next_second()
+        return self._date
+
+    def _next_month(self: _DatetimeT) -> _DatetimeT:
+        """Bump this to the next valid month.
+
+        The current month will also be considered.
+        """
+        if self._date.month in self._config.months:
+            return self._next_day()
+
+        month = _get_next(self._config.months, self._date.month)
 
         if month is None:
-            self.date = self.date.replace(year=self.date.year + 1, month=0, day=0, hour=0, minute=0, second=0)
-            return self.next_month()
+            self._date = self._date.replace(year=self._date.year + 1, month=0, day=0, hour=0, minute=0, second=0)
+            return self._next_month()
 
-        self.date = self.date.replace(month=month, hour=0, minute=0, second=0)
-        return self.next_day()
+        self._date = self._date.replace(month=month, hour=0, minute=0, second=0)
+        return self._next_day()
 
-    def next_day(self: _DatetimeT) -> _DatetimeT:
-        if not self.config.days:
-            return self.next_hour()
+    def _next_day(self: _DatetimeT) -> _DatetimeT:
+        """Bump this to the next valid day.
 
-        day = self.date.weekday() if self.config.is_weekly else self.date.day
+        The current day will also be considered.
+        """
+        if not self._config.days:
+            return self._next_hour()
 
-        if day in self.config.days:
-            return self.next_hour()
+        day = self._date.weekday() if self._config.is_weekly else self._date.day
 
-        day = _get_next(self.config.days, day)
+        if day in self._config.days:
+            return self._next_hour()
+
+        day = _get_next(self._config.days, day)
 
         if day is None:
-            if not self.config.is_weekly:
-                days_to_jump = (calendar.monthrange(self.date.year, self.date.month)[1] - self.date.day) + 1
-                self.date = (self.date + datetime.timedelta(days=days_to_jump)).replace(
+            if not self._config.is_weekly:
+                days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
+                self._date = (self._date + datetime.timedelta(days=days_to_jump)).replace(
                     day=0, hour=0, minute=0, second=0
                 )
-                return self.next_month()
+                return self._next_month()
 
-            start_of_next_week = self.date.day + (7 - self.date.weekday())
+            start_of_next_week = self._date.day + (7 - self._date.weekday())
 
             try:
-                self.date = self.date.replace(day=start_of_next_week, hour=0, minute=0, second=0)
+                self._date = self._date.replace(day=start_of_next_week, hour=0, minute=0, second=0)
 
             except ValueError:
-                self.date = (self.date + datetime.timedelta(days=7)).replace(day=0, hour=0, minute=0, second=0)
-                return self.next_month()
+                self._date = (self._date + datetime.timedelta(days=7)).replace(day=0, hour=0, minute=0, second=0)
+                return self._next_month()
 
-            return self.next_day()
+            return self._next_day()
 
-        return self.next_hour()
+        return self._next_hour()
 
-    def next_hour(self: _DatetimeT) -> _DatetimeT:
-        if not self.config.hours or self.date.hour in self.config.hours:
-            return self.next_minute()
+    def _next_hour(self: _DatetimeT) -> _DatetimeT:
+        """Bump this to the next valid hour.
 
-        hour = _get_next(self.config.hours, self.date.hour)
+        The current hour will also be considered.
+        """
+        if self._date.hour in self._config.hours:
+            return self._next_minute()
+
+        hour = _get_next(self._config.hours, self._date.hour)
 
         if hour is None:
-            self.date = (self.date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
-            return self.next_day()
+            self._date = (self._date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
+            return self._next_day()
 
-        self.date = self.date.replace(hour=hour, minute=0, second=0)
-        return self.next_minute()
+        self._date = self._date.replace(hour=hour, minute=0, second=0)
+        return self._next_minute()
 
-    def next_minute(self: _DatetimeT) -> _DatetimeT:
-        if not self.config.minutes or self.date.minute in self.config.minutes:
-            return self.next_second()
+    def _next_minute(self: _DatetimeT) -> _DatetimeT:
+        """Bump this to the next valid minute.
 
-        minute = _get_next(self.config.minutes, self.date.minute)
+        The current month will also be considered.
+        """
+        if self._date.minute in self._config.minutes:
+            return self._next_second()
+
+        minute = _get_next(self._config.minutes, self._date.minute)
 
         if minute is None:
-            self.date = (self.date + datetime.timedelta(hours=1)).replace(minute=0, second=0)
-            return self.next_hour()
+            self._date = (self._date + datetime.timedelta(hours=1)).replace(minute=0, second=0)
+            return self._next_hour()
 
-        self.date = self.date.replace(minute=minute, second=0)
-        return self.next_second()
+        self._date = self._date.replace(minute=minute, second=0)
+        return self._next_second()
 
-    def next_second(self: _DatetimeT) -> _DatetimeT:
-        current_repr = _date_to_repr(self.date)
-        if self.date.second in self.config.seconds and current_repr != self.config.current_second:
-            self.config.current_second = current_repr
-            self.date = self.date.replace(microsecond=500)
+    def _next_second(self: _DatetimeT) -> _DatetimeT:
+        """Bump this to the next valid second.
+
+        The current second will also be considered.
+        """
+        current_repr = _date_to_repr(self._date)
+        if self._date.second in self._config.seconds and current_repr != self._config.current_second:
+            self._config.current_second = current_repr
+            self._date = self._date.replace(microsecond=5000)
             return self
 
-        second = _get_next(self.config.seconds, self.date.second)
+        second = _get_next(self._config.seconds, self._date.second)
 
         if second is None:
-            self.date = self.date + datetime.timedelta(seconds=60 - self.date.second)
-            return self.next_minute()
+            self._date = self._date + datetime.timedelta(seconds=60 - self._date.second)
+            return self._next_minute()
 
-        self.date = self.date.replace(second=second, microsecond=500)
-        current_repr = _date_to_repr(self.date)
-        if self.config.current_second == current_repr:
+        self._date = self._date.replace(second=second, microsecond=5000)
+        current_repr = _date_to_repr(self._date)
+        if self._config.current_second == current_repr:
             # There's some timing edge-cases where this might trigger under a second before the
             # target time and to avoid that leading to duped-calls we check after calculating.
-            return self.next_second()
+            return self._next_second()
 
-        self.config.current_second = current_repr
+        self._config.current_second = current_repr
         return self
 
 
 def as_time_schedule(
     *,
-    months: typing.Union[int, collections.Collection[int], None] = None,
+    months: typing.Union[int, collections.Sequence[int], None] = None,
     weekly: bool = False,
-    days: typing.Union[int, collections.Collection[int], None] = None,
-    hours: typing.Union[int, collections.Collection[int], None] = None,
-    minutes: typing.Union[int, collections.Collection[int], None] = None,
-    seconds: typing.Union[int, collections.Collection[int], None] = None,
+    days: typing.Union[int, collections.Sequence[int]] = (),
+    hours: typing.Union[int, collections.Sequence[int]] = (),
+    minutes: typing.Union[int, collections.Sequence[int]] = (),
+    seconds: typing.Union[int, collections.Sequence[int]] = (0),
     fatal_exceptions: collections.Sequence[type[Exception]] = (),
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
     timezone: typing.Optional[datetime.timezone] = None,
 ) -> collections.Callable[[_CallbackSigT], TimeSchedule[_CallbackSigT]]:
+    """Create a time schedule through a decorator call.
+
+    Parameters
+    ----------
+    months
+        Either one or multiple months the schedule shouldrun on.
+
+        If this is not specified or an empty sequence then the schedule
+        will run on all months.
+    weekly
+        Whether the schedule should run on a weekly basis.
+    days
+        Either one or multiple days the schedule should run on.
+
+        When `weekly` is [True][], `days` will refer to the days of the week
+        (`range(7)`).
+
+        Otherwise this will refer to the days of the month (`range(32)`).
+        For months where less than 31 days exist, numbers which are too large
+        will be ignored.
+
+        If this is not specified or an empty sequence, then the schedule
+        will on all days.
+    hours
+        Either one or multiple hours the schedule should run on.
+
+        If this is not specified or an empty sequence then the schedule
+        will run on all hours.
+    minutes
+        Either one or multiple minutes the schedule should run on.
+
+        If this is not specified or an empty sequence then the schedule
+        will run on all minutes.
+    seconds
+        Either one or multiple seconds the schedule should run on.
+
+        Defaults to the start of the minute if not specified or an empty
+        sequence.
+    fatal_exceptions
+        A sequence of exceptions that will cause the schedule to stop if raised
+        by the callback, start callback or stop callback.
+    ignored_exceptions
+        A sequence of exceptions that should be ignored if raised by the
+        callback, start callback or stop callback.
+    timezone
+        The timezone to use for the schedule.
+
+        If this is not specified then the system's local timezone will be used.
+
+    Returns
+    -------
+    collections.Callable[[_CallbackSigT], tanjun.scheduling.TimeSchedule[_CallbackSigT]]
+        The decorator used to create the schedule.
+
+        This should be an decorating  asynchronous function which takes no
+        positional arguments, returns [None][] and may use dependency injection.
+
+    Raises
+    ------
+    ValueError
+        Raises a value error for any of the following reasons:
+
+        * If months has any values outside the range of `range(1, 13)`.
+        * If days has any values outside the range of `range(1, 32)` when
+            `weekly` is [False][] or outside the range of `range(1, 7)` when
+            `weekly` is [True][].
+        * If hours has any values outside the range of `range(0, 24)`.
+        * If minutes has any values outside the range of `range(0, 60)`.
+        * If seconds has any values outside the range of `range(0, 60)`.
+    """
     return lambda callback: TimeSchedule(
         callback,
         months=months,
@@ -657,6 +770,8 @@ def as_time_schedule(
 
 
 class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
+    """A schedule that runs at specific times."""
+
     __slots__ = ("_callback", "_config", "_fatal_exceptions", "_ignored_exceptions", "_task", "_tasks")
 
     def __init__(
@@ -664,35 +779,99 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         callback: _CallbackSigT,
         /,
         *,
-        months: typing.Union[int, collections.Collection[int], None] = None,
+        months: typing.Union[int, collections.Sequence[int]] = (),
         weekly: bool = False,
-        days: typing.Union[int, collections.Collection[int], None] = None,
-        hours: typing.Union[int, collections.Collection[int], None] = None,
-        minutes: typing.Union[int, collections.Collection[int], None] = None,
-        seconds: typing.Union[int, collections.Collection[int], None] = None,
+        days: typing.Union[int, collections.Sequence[int]] = (),
+        hours: typing.Union[int, collections.Sequence[int]] = (),
+        minutes: typing.Union[int, collections.Sequence[int]] = (),
+        seconds: typing.Union[int, collections.Sequence[int]] = (0),
         fatal_exceptions: collections.Sequence[type[Exception]] = (),
         ignored_exceptions: collections.Sequence[type[Exception]] = (),
         timezone: typing.Optional[datetime.timezone] = None,
     ) -> None:
+        """Initialise the time schedule.
+
+        Parameters
+        ----------
+        callback : collections.abc.Callable[...,  collections.abc.Coroutine[Any, Any, None]]
+            The callback for the schedule.
+
+            This should be an asynchronous function which takes no positional
+            arguments, returns [None][] and may use dependency injection.
+        months
+            Either one or multiple months the schedule shouldrun on.
+
+            If this is not specified or an empty sequence then the schedule
+            will run on all months.
+        weekly
+            Whether the schedule should run on a weekly basis.
+        days
+            Either one or multiple days the schedule should run on.
+
+            When `weekly` is [True][], `days` will refer to the days of the week
+            (`range(7)`).
+
+            Otherwise this will refer to the days of the month (`range(32)`).
+            For months where less than 31 days exist, numbers which are too large
+            will be ignored.
+
+            If this is not specified or an empty sequence, then the schedule
+            will on all days.
+        hours
+            Either one or multiple hours the schedule should run on.
+
+            If this is not specified or an empty sequence then the schedule
+            will run on all hours.
+        minutes
+            Either one or multiple minutes the schedule should run on.
+
+            If this is not specified or an empty sequence then the schedule
+            will run on all minutes.
+        seconds
+            Either one or multiple seconds the schedule should run on.
+
+            Defaults to the start of the minute if not specified or an empty
+            sequence.
+        fatal_exceptions
+            A sequence of exceptions that will cause the schedule to stop if raised
+            by the callback, start callback or stop callback.
+        ignored_exceptions
+            A sequence of exceptions that should be ignored if raised by the
+            callback, start callback or stop callback.
+        timezone
+            The timezone to use for the schedule.
+
+            If this is not specified then the system's local timezone will be used.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If months has any values outside the range of `range(1, 13)`.
+            * If days has any values outside the range of `range(1, 32)` when
+              `weekly` is [False][] or outside the range of `range(1, 7)` when
+              `weekly` is [True][].
+            * If hours has any values outside the range of `range(0, 24)`.
+            * If minutes has any values outside the range of `range(0, 60)`.
+            * If seconds has any values outside the range of `range(0, 60)`.
+        """
         self._callback = callback
 
-        if not months and not days and not hours and not minutes and not seconds:
-            minutes = range(0, 60)
-
         if weekly:
-            days = _to_list(days, 0, 6, "day")
+            days = _to_sequence(days, 0, 6, "day")
 
         else:
-            days = _to_list(days, 1, 31, "day")
+            days = _to_sequence(days, 1, 31, "day")
 
-        self._config = _ScheduleConfig(
+        self._config = _TimeScheduleConfig(
             current_second=(-1, -1, -1, -1, -1, -1),
             days=days,
-            hours=_to_list(hours, 0, 23, "hour"),
+            hours=_to_sequence(hours, 0, 23, "hour") or range(24),
             is_weekly=weekly,
-            minutes=_to_list(minutes, 0, 59, "minute"),
-            months=_to_list(months, 1, 12, "month"),
-            seconds=_to_list(seconds, 0, 59, "second") or [0],
+            minutes=_to_sequence(minutes, 0, 59, "minute") or range(60),
+            months=_to_sequence(months, 1, 12, "month") or range(1, 13),
+            seconds=_to_sequence(seconds, 0, 59, "second") or [0],
             timezone=timezone,
         )
         self._fatal_exceptions = tuple(fatal_exceptions)
