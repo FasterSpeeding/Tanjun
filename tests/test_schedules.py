@@ -72,8 +72,8 @@ class _Clock:
 
     async def __call__(self) -> None:
         while True:
-            await asyncio.sleep(0)
             self._freeze_time.tick(1)
+            await asyncio.sleep(0)
 
 
 class TestIntervalSchedule:
