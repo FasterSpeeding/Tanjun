@@ -70,13 +70,10 @@ class _Clock:
     def __init__(self, freeze_time: "freezegun.api.FrozenDateTimeFactory"):
         self._freeze_time = freeze_time
 
-    async def _tick(self):
-        self._freeze_time.tick(1)
-
     async def __call__(self) -> None:
         while True:
             await asyncio.sleep(0)
-            await asyncio.create_task(self._tick())
+            self._freeze_time.tick(1)
 
 
 class TestIntervalSchedule:
@@ -255,18 +252,12 @@ class TestIntervalSchedule:
         with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
             interval.start(mock_client)
             clock = asyncio.create_task(_Clock(frozen_time)())
-            await asyncio.sleep(25)
+            await asyncio.sleep(30)
             interval.stop()
             clock.cancel()
 
         assert interval._task is None
-        assert call_times == [
-            #   1326542400000000000 start point
-            1326542406000000000,
-            1326542411000000000,
-            1326542416000000000,
-            1326542421000000000,
-        ]
+        assert call_times == [1326542408000000000, 1326542415000000000, 1326542422000000000, 1326542429000000000]
         assert interval.iteration_count == 4
 
     @pytest.mark.asyncio()
@@ -290,15 +281,10 @@ class TestIntervalSchedule:
             interval.start(mock_client)
             clock = asyncio.create_task(_Clock(frozen_time)())
             await close_event.wait()
-            assert time.time_ns() == 1334145609000000000
+            assert time.time_ns() == 1334145615000000000
 
         assert interval._task is None
-        assert call_times == [
-            #   1334142000000000000 start point
-            1334145604000000000,
-            1334145607000000000,
-            1334145609000000000,
-        ]
+        assert call_times == [1334145606000000000, 1334145611000000000, 1334145615000000000]
         assert interval.iteration_count == 3
 
     @pytest.mark.asyncio()
@@ -325,18 +311,17 @@ class TestIntervalSchedule:
         with freezegun.freeze_time(datetime.datetime(2011, 4, 5, 4)) as frozen_time:
             interval.start(mock_client)
             clock = asyncio.create_task(_Clock(frozen_time)())
-            await asyncio.sleep(24)
+            await asyncio.sleep(28)
             interval.stop()
             await asyncio.sleep(0)
 
         assert interval._task is None
         assert call_times == [
-            #    1301972400000000000 start point
             "1301976000000000000-start",
-            "1301976008000000000",
-            "1301976015000000000",
-            "1301976022000000000",
-            "1301976025000000000-stop",
+            "1301976010000000000",
+            "1301976019000000000",
+            "1301976028000000000",
+            "1301976031000000000-stop",
         ]
         assert interval.iteration_count == 3
 
