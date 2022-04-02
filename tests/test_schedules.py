@@ -36,10 +36,13 @@
 
 import asyncio
 import datetime
+import time
 import types
 import typing
 from unittest import mock
 
+import alluka
+import freezegun
 import pytest
 
 import tanjun
@@ -57,6 +60,23 @@ def test_as_interval():
     assert result._ignored_exceptions == (TabError,)
     assert result._max_runs == 55
     assert isinstance(result, tanjun.schedules.IntervalSchedule)
+
+
+class KillCode(Exception):
+    ...
+
+
+class _Clock:
+    def __init__(self, freeze_time: "freezegun.api.FrozenDateTimeFactory"):
+        self._freeze_time = freeze_time
+
+    async def _tick(self):
+        self._freeze_time.tick(1)
+
+    async def __call__(self) -> None:
+        while True:
+            await asyncio.sleep(0)
+            await asyncio.create_task(self._tick())
 
 
 class TestIntervalSchedule:
@@ -222,98 +242,103 @@ class TestIntervalSchedule:
 
     @pytest.mark.asyncio()
     async def test__loop(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_result_1 = mock.Mock()
-        mock_result_2 = mock.Mock()
-        mock_result_3 = mock.Mock()
-        mock_result_4 = mock.Mock()
-        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, mock_result_4, object()])
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
-            "StubIntervalSchedule",
-            (tanjun.schedules.IntervalSchedule[typing.Any],),
-            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-        )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-        interval._task = mock.Mock()
+        mock_client = alluka.Client()
+        call_times: list[int] = []
 
-        with (
-            mock.patch.object(asyncio, "sleep", side_effect=[None, None, None, asyncio.CancelledError]) as sleep,
-            pytest.raises(asyncio.CancelledError),
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
+        async def callback():
+            call_times.append(time.time_ns())
 
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        get_running_loop.return_value.create_task.assert_has_calls(
-            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3), mock.call(mock_result_4)]
+        interval = tanjun.schedules.IntervalSchedule(
+            callback, 5, fatal_exceptions=[KillCode], ignored_exceptions=[LookupError]
         )
-        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+
+        with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
+            interval.start(mock_client)
+            clock = asyncio.create_task(_Clock(frozen_time)())
+            await asyncio.sleep(25)
+            interval.stop()
+            clock.cancel()
+
         assert interval._task is None
+        assert call_times == [
+            #   1326542400000000000 start point
+            1326542406000000000,
+            1326542411000000000,
+            1326542416000000000,
+            1326542421000000000,
+        ]
+        assert interval.iteration_count == 4
 
     @pytest.mark.asyncio()
     async def test__loop_when_max_runs(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_result_1 = mock.Mock()
-        mock_result_2 = mock.Mock()
-        mock_result_3 = mock.Mock()
-        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, object()])
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
-            "StubIntervalSchedule",
-            (tanjun.schedules.IntervalSchedule[typing.Any],),
-            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-        )(mock.Mock(), 123, ignored_exceptions=[LookupError], max_runs=3)
-        interval._task = mock.Mock()
+        mock_client = alluka.Client()
+        call_times: list[int] = []
+        close_event = asyncio.Event()
 
-        with (
-            mock.patch.object(asyncio, "sleep") as sleep,
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
+        async def callback():
+            call_times.append(time.time_ns())
 
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        get_running_loop.return_value.create_task.assert_has_calls(
-            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3)]
-        )
-        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+        async def on_stop():
+            close_event.set()
+            clock.cancel()
+
+        interval = tanjun.schedules.IntervalSchedule(
+            callback, 3, ignored_exceptions=[LookupError], max_runs=3
+        ).set_stop_callback(on_stop)
+
+        with freezegun.freeze_time(datetime.datetime(2012, 4, 11, 12)) as frozen_time:
+            interval.start(mock_client)
+            clock = asyncio.create_task(_Clock(frozen_time)())
+            await close_event.wait()
+            assert time.time_ns() == 1334145609000000000
+
         assert interval._task is None
+        assert call_times == [
+            #   1334142000000000000 start point
+            1334145604000000000,
+            1334145607000000000,
+            1334145609000000000,
+        ]
+        assert interval.iteration_count == 3
 
     @pytest.mark.asyncio()
-    async def test__loop_and_start_and_stop_callbacks_set(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_client.call_with_async_di = mock.AsyncMock()
-        mock_start = mock.Mock()
-        mock_stop = mock.Mock()
-        mock_result_1 = mock.Mock()
-        mock_result_2 = mock.Mock()
-        mock_result_3 = mock.Mock()
-        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3])
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
-            types.new_class(
-                "StubIntervalSchedule",
-                (tanjun.schedules.IntervalSchedule[typing.Any],),
-                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-            .set_start_callback(mock_start)
-            .set_stop_callback(mock_stop)
-        )
-        interval._task = mock.Mock()
+    async def test__loop_when_start_and_stop_callbacks_set(self):
+        mock_client = alluka.Client()
+        call_times: list[str] = []
 
-        with (
-            mock.patch.object(asyncio, "sleep", side_effect=[None, None, asyncio.CancelledError]) as sleep,
-            pytest.raises(asyncio.CancelledError),
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
+        async def callback():
+            call_times.append(str(time.time_ns()))
 
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        get_running_loop.return_value.create_task.assert_has_calls(
-            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3)]
+        async def on_start():
+            call_times.append(f"{time.time_ns()}-start")
+
+        async def on_stop():
+            call_times.append(f"{time.time_ns()}-stop")
+            clock.cancel()
+
+        interval = (
+            tanjun.schedules.IntervalSchedule(callback, 7, ignored_exceptions=[LookupError])
+            .set_start_callback(on_start)
+            .set_stop_callback(on_stop)
         )
-        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+
+        with freezegun.freeze_time(datetime.datetime(2011, 4, 5, 4)) as frozen_time:
+            interval.start(mock_client)
+            clock = asyncio.create_task(_Clock(frozen_time)())
+            await asyncio.sleep(24)
+            interval.stop()
+            await asyncio.sleep(0)
+
         assert interval._task is None
+        assert call_times == [
+            #    1301972400000000000 start point
+            "1301976000000000000-start",
+            "1301976008000000000",
+            "1301976015000000000",
+            "1301976022000000000",
+            "1301976025000000000-stop",
+        ]
+        assert interval.iteration_count == 3
 
     @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
     @pytest.mark.asyncio()
@@ -372,9 +397,9 @@ class TestIntervalSchedule:
             await interval._loop(mock_client)
 
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_called_once_with(mock_client)
-        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
-        sleep.assert_awaited_once_with(123.0)
+        mock_execute.assert_not_called()
+        get_running_loop.return_value.create_task.assert_not_called()
+        sleep.assert_called_once_with(123.0)
         assert interval._task is None
 
     @pytest.mark.asyncio()
@@ -406,8 +431,8 @@ class TestIntervalSchedule:
 
         assert exc_info.value is error
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_called_once_with(mock_client)
-        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
+        mock_execute.assert_not_called()
+        get_running_loop.return_value.create_task.assert_not_called()
         sleep.assert_awaited_once_with(123.0)
         assert interval._task is None
 
@@ -438,8 +463,8 @@ class TestIntervalSchedule:
             await interval._loop(mock_client)
 
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_called_once_with(mock_client)
-        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
+        mock_execute.assert_not_called()
+        get_running_loop.return_value.create_task.assert_not_called()
         sleep.assert_awaited_once_with(123.0)
         assert interval._task is None
 

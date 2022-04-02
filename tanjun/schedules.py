@@ -159,7 +159,7 @@ def as_interval(
     collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]
         The decorator used to create the schedule.
 
-        This should be an decorating  asynchronous function which takes no
+        This should be decorating an asynchronous function which takes no
         positional arguments, returns [None][] and may use dependency injection.
     """
     return lambda callback: IntervalSchedule(
@@ -326,10 +326,10 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                     pass
 
             while not self._max_runs or self._iteration_count < self._max_runs:
+                self._tasks = [task for task in self._tasks if not task.done()]
+                await asyncio.sleep(self._interval.total_seconds())
                 self._iteration_count += 1
                 self._tasks.append(event_loop.create_task(self._execute(client)))
-                await asyncio.sleep(self._interval.total_seconds())
-                self._tasks = [task for task in self._tasks if not task.done()]
 
         finally:
             self._task = None
@@ -752,7 +752,7 @@ def as_time_schedule(
     collections.Callable[[_CallbackSigT], tanjun.scheduling.TimeSchedule[_CallbackSigT]]
         The decorator used to create the schedule.
 
-        This should be an decorating  asynchronous function which takes no
+        This should be decorating an asynchronous function which takes no
         positional arguments, returns [None][] and may use dependency injection.
 
     Raises
