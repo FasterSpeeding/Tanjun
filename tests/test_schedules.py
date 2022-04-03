@@ -36,6 +36,7 @@
 
 import asyncio
 import datetime
+import platform
 import time
 import types
 import typing
@@ -257,7 +258,12 @@ class TestIntervalSchedule:
             clock.cancel()
 
         assert interval._task is None
-        assert call_times == [1326542408000000000, 1326542415000000000, 1326542422000000000, 1326542429000000000]
+
+        if platform.system() == "Windows":
+            assert call_times == [1326542408000000000, 1326542415000000000, 1326542422000000000, 1326542429000000000]
+        else:
+            assert call_times == [1326542409000000000, 1326542417000000000, 1326542425000000000, 1326542433000000000]
+
         assert interval.iteration_count == 4
 
     @pytest.mark.asyncio()
@@ -281,25 +287,36 @@ class TestIntervalSchedule:
             interval.start(mock_client)
             clock = asyncio.create_task(_Clock(frozen_time)())
             await close_event.wait()
-            assert time.time_ns() == 1334145615000000000
+            if platform.system() == "Windows":
+                assert time.time_ns() == 1334145615000000000
+            else:
+                assert time.time_ns() == 1334145618000000000
 
         assert interval._task is None
-        assert call_times == [1334145606000000000, 1334145611000000000, 1334145615000000000]
+        if platform.system() == "Windows":
+            assert call_times == [1334145606000000000, 1334145611000000000, 1334145615000000000]
+        else:
+            assert call_times == [1334145607000000000, 1334145613000000000, 1334145618000000000]
+
         assert interval.iteration_count == 3
 
     @pytest.mark.asyncio()
     async def test__loop_when_start_and_stop_callbacks_set(self):
         mock_client = alluka.Client()
-        call_times: list[str] = []
+        call_times: list[int] = []
+        start_time = None
+        stop_time = None
 
         async def callback():
-            call_times.append(str(time.time_ns()))
+            call_times.append(time.time_ns())
 
         async def on_start():
-            call_times.append(f"{time.time_ns()}-start")
+            nonlocal start_time
+            start_time = time.time_ns()
 
         async def on_stop():
-            call_times.append(f"{time.time_ns()}-stop")
+            nonlocal stop_time
+            stop_time = time.time_ns()
             clock.cancel()
 
         interval = (
@@ -316,13 +333,24 @@ class TestIntervalSchedule:
             await asyncio.sleep(0)
 
         assert interval._task is None
-        assert call_times == [
-            "1301976000000000000-start",
-            "1301976010000000000",
-            "1301976019000000000",
-            "1301976028000000000",
-            "1301976031000000000-stop",
-        ]
+
+        if platform.system() == "Windows":
+            assert call_times == [
+                1301976010000000000,
+                1301976019000000000,
+                1301976028000000000,
+            ]
+            assert start_time == 1301976000000000000
+            assert stop_time == 1301976031000000000
+        else:
+            assert call_times == [
+                1301976011000000000,
+                1301976021000000000,
+                1301976031000000000,
+            ]
+            assert start_time == 1301976000000000000
+            assert stop_time == 1301976032000000000
+
         assert interval.iteration_count == 3
 
     @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
