@@ -63,10 +63,6 @@ def test_as_interval():
     assert isinstance(result, tanjun.schedules.IntervalSchedule)
 
 
-class KillCode(Exception):
-    ...
-
-
 class _Clock:
     def __init__(self, freeze_time: "freezegun.api.FrozenDateTimeFactory"):
         self._freeze_time = freeze_time
@@ -246,9 +242,7 @@ class TestIntervalSchedule:
         async def callback():
             call_times.append(time.time_ns())
 
-        interval = tanjun.schedules.IntervalSchedule(
-            callback, 5, fatal_exceptions=[KillCode], ignored_exceptions=[LookupError]
-        )
+        interval = tanjun.schedules.IntervalSchedule(callback, 5, ignored_exceptions=[LookupError])
 
         with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
             interval.start(mock_client)
