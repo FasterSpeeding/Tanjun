@@ -900,7 +900,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
     @property
     def is_alive(self) -> bool:
         # <<inherited docstring from IntervalSchedule>>.
-        return False
+        return self._task is not None
 
     if typing.TYPE_CHECKING:
         __call__: _CallbackSigT
