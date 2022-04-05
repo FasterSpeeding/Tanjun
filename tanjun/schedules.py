@@ -507,9 +507,6 @@ class _TimeScheduleConfig:
     timezone: typing.Optional[datetime.timezone]
 
 
-_HALF_A_SECOND = 500000  # In microseconds.
-
-
 class _Datetime:
     """Class used to calculate the next datetime in a time schedule."""
 
@@ -528,7 +525,7 @@ class _Datetime:
         #
         # Since datetime.replace and timedelta maths is used to calculate the time,
         # this microsecond offset will persist to the calculated datetime.
-        self._date = datetime.datetime.now(tz=config.timezone).replace(microsecond=_HALF_A_SECOND)
+        self._date = datetime.datetime.now(tz=config.timezone).replace(microsecond=500000)
 
     def next(self) -> datetime.datetime:
         """Get the next datetime which matches the schedule.
