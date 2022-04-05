@@ -51,7 +51,7 @@ import pytest
 import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
-_TIMEOUT: typing.Final[float] = 1
+_TIMEOUT: typing.Final[float] = 2
 
 
 def _print_tb(callback: _CallbackT, /) -> _CallbackT:
@@ -905,10 +905,4 @@ class TestTimeSchedule:
             schedule.stop()
             clock.stop_ticker()
 
-        print(
-            [
-                datetime.datetime(d.year, d.month, d.day, d.hour, d.minute, d.second, d.microsecond, d.tzinfo)
-                for d in called_at
-            ]
-        )
         assert called_at == expected_dates
