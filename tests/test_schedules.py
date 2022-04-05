@@ -35,12 +35,14 @@
 # This leads to too many false-positives around mocks.
 
 import asyncio
+from collections import abc as collections
 import datetime
 import platform
 import time
 import types
 import typing
 from unittest import mock
+import traceback
 
 import alluka
 import freezegun
@@ -48,22 +50,21 @@ import pytest
 
 import tanjun
 
-
-def test_as_interval():
-    mock_callback = mock.Mock()
-
-    result = tanjun.as_interval(123, fatal_exceptions=[KeyError], ignored_exceptions=[TabError], max_runs=55)(
-        mock_callback
-    )
-
-    assert result.interval == datetime.timedelta(seconds=123)
-    assert result._fatal_exceptions == (KeyError,)
-    assert result._ignored_exceptions == (TabError,)
-    assert result._max_runs == 55
-    assert isinstance(result, tanjun.schedules.IntervalSchedule)
+_CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
 
 
-class _Clock:
+def _print_tb(callback: _CallbackT, /) -> _CallbackT:
+    async def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        try:
+            return await callback(*args, **kwargs)
+        except Exception:
+            traceback.print_exc()
+            raise
+
+    return wrapper
+
+
+class _AutoClock:
     def __init__(
         self,
         freeze_time: "freezegun.api.FrozenDateTimeFactory",
@@ -75,6 +76,7 @@ class _Clock:
         self._jump = int(jump.total_seconds())
         self._sleep_count = sleep_count
 
+    @_print_tb
     async def __call__(self) -> None:
         while True:
             self._freeze_time.tick(self._jump)
@@ -92,24 +94,85 @@ class _Clock:
         return asyncio.get_running_loop().create_task(cls(freeze_time, jump=jump, sleep_count=sleep_count)())
 
 
-def _tick_for(
-    freeze_time: "freezegun.api.FrozenDateTimeFactory",
-    tick_for: datetime.timedelta,
-    *,
-    interval: datetime.timedelta = datetime.timedelta(seconds=1),
-) -> asyncio.Task[None]:
-    async def _ticker() -> None:
-        tick_for_secs = tick_for.total_seconds()
-        interval_secs = interval.total_seconds()
-        await asyncio.sleep(0)
-        while tick_for_secs > 0:
-            tick_for_secs -= interval_secs
-            freeze_time.tick(interval_secs if tick_for_secs >= 0 else interval_secs - tick_for_secs)
+class _ManualClock:
+    def __init__(
+        self,
+        freeze_time: "freezegun.api.FrozenDateTimeFactory",
+        tick_fors: list[datetime.timedelta],
+        *,
+        interval: datetime.timedelta = datetime.timedelta(seconds=1),
+        sleep_count: int = 20,
+    ) -> None:
+        self._freeze_time = freeze_time
+        self._index = -1
+        self._is_ticking = False
+        self._keep_ticking = False
+        self._tick_fors = tick_fors
+        self._interval = interval
+        self._sleep_count = sleep_count
+        self._tasks: list[asyncio.Task[None]] = []
+
+    async def _next_tick(self) -> None:
+        index = self._index + 1
+        if len(self._tick_fors) == index:
+            tick_for = self._tick_fors[-1]
+        else:
+            tick_for = self._tick_fors[index]
+            self._index += 1
+
+        while tick_for > datetime.timedelta():
+            for _ in range(self._sleep_count):
+                # This lets the event loop run for a bit between ticks.
+                await asyncio.sleep(0)
+
+            if tick_for - self._interval >= datetime.timedelta():
+                self._freeze_time.tick(self._interval)
+            else:
+                self._freeze_time.tick(tick_for)
+
+            tick_for -= self._interval
+
+        # freeze_time.tick(datetime.timedelta(microseconds=1))
+        for _ in range(self._sleep_count):
+            # This lets the event loop run for a bit between ticks.
             await asyncio.sleep(0)
 
-        raise RuntimeError
+        if self._keep_ticking:
+            self._keep_ticking = False
+            return await self._next_tick()
 
-    return asyncio.get_running_loop().create_task(_ticker())
+        self._is_ticking = False
+
+    async def wait_to_spawn(self) -> None:
+        ...
+
+    def spawn_ticker(self) -> None:
+        if self._is_ticking and self._keep_ticking:
+            raise RuntimeError("Already ticking")
+
+        if self._is_ticking:
+            self._keep_ticking = True
+            return
+
+        self._is_ticking = True
+        self._tasks.append(asyncio.get_running_loop().create_task(_print_tb(self._next_tick)()))
+
+    def stop_ticker(self) -> None:
+        self._tasks[-1].cancel()
+
+
+def test_as_interval():
+    mock_callback = mock.Mock()
+
+    result = tanjun.as_interval(123, fatal_exceptions=[KeyError], ignored_exceptions=[TabError], max_runs=55)(
+        mock_callback
+    )
+
+    assert result.interval == datetime.timedelta(seconds=123)
+    assert result._fatal_exceptions == (KeyError,)
+    assert result._ignored_exceptions == (TabError,)
+    assert result._max_runs == 55
+    assert isinstance(result, tanjun.schedules.IntervalSchedule)
 
 
 class TestIntervalSchedule:
@@ -278,6 +341,7 @@ class TestIntervalSchedule:
         mock_client = alluka.Client()
         call_times: list[int] = []
 
+        @_print_tb
         async def callback():
             call_times.append(time.time_ns())
 
@@ -285,7 +349,7 @@ class TestIntervalSchedule:
 
         with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
             interval.start(mock_client)
-            clock = _Clock.spawn(frozen_time)
+            clock = _AutoClock.spawn(frozen_time)
             await asyncio.sleep(30)
             interval.stop()
             clock.cancel()
@@ -305,9 +369,11 @@ class TestIntervalSchedule:
         call_times: list[int] = []
         close_event = asyncio.Event()
 
+        @_print_tb
         async def callback():
             call_times.append(time.time_ns())
 
+        @_print_tb
         async def on_stop():
             close_event.set()
             clock.cancel()
@@ -318,7 +384,7 @@ class TestIntervalSchedule:
 
         with freezegun.freeze_time(datetime.datetime(2012, 4, 11, 12)) as frozen_time:
             interval.start(mock_client)
-            clock = _Clock.spawn(frozen_time)
+            clock = _AutoClock.spawn(frozen_time)
             await close_event.wait()
             if platform.system() == "Windows":
                 assert time.time_ns() == 1334145615000000000
@@ -340,13 +406,16 @@ class TestIntervalSchedule:
         start_time = None
         stop_time = None
 
+        @_print_tb
         async def callback():
             call_times.append(time.time_ns())
 
+        @_print_tb
         async def on_start():
             nonlocal start_time
             start_time = time.time_ns()
 
+        @_print_tb
         async def on_stop():
             nonlocal stop_time
             stop_time = time.time_ns()
@@ -360,7 +429,7 @@ class TestIntervalSchedule:
 
         with freezegun.freeze_time(datetime.datetime(2011, 4, 5, 4)) as frozen_time:
             interval.start(mock_client)
-            clock = _Clock.spawn(frozen_time)
+            clock = _AutoClock.spawn(frozen_time)
             await asyncio.sleep(28)
             interval.stop()
             await asyncio.sleep(0)
@@ -740,42 +809,43 @@ class TestTimeSchedule:
         with pytest.raises(RuntimeError, match="Schedule is not running"):
             interval.stop()
 
+    # Note: these have to be at least a microsecond after the target time as
+    # the unix event loop won't return the sleep until the target time has passed,
+    # not just been reached.
     @pytest.mark.parametrize(
-        ("kwargs", "start", "tick_for", "start_tick_for", "tick_interval", "sleep_for", "expected_dates"),
+        ("kwargs", "start", "tick_fors", "tick_interval", "sleep_for", "expected_dates"),
         [
             pytest.param(
                 {},
-                datetime.datetime(2020, 1, 1, 0, 0, 0),
-                datetime.timedelta(seconds=60),
-                datetime.timedelta(seconds=49, milliseconds=500),
+                datetime.datetime(2035, 11, 3, 23, 56, 5),
+                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1),
+                datetime.timedelta(seconds=60)],
                 datetime.timedelta(seconds=1),
                 datetime.timedelta(minutes=6, seconds=30),
                 [
-                    datetime.datetime(2020, 1, 1, 0, 0, 4),
-                    datetime.datetime(2020, 1, 1, 0, 1, 7),
-                    datetime.datetime(2020, 1, 1, 0, 2, 6, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 3, 7, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 4, 6, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 5, 7, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 6, 7, 500000),
+                    datetime.datetime(2035, 11, 3, 23, 57, 0, 500001),
+                    datetime.datetime(2035, 11, 3, 23, 58, 0, 500001),
+                    datetime.datetime(2035, 11, 3, 23, 59, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 0, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 1, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 2, 0, 500001),
                 ],
                 id="default timing",
             ),
             pytest.param(
                 {},
-                datetime.datetime(2020, 1, 1, 0, 0, 0),
-                datetime.timedelta(seconds=60),
-                datetime.timedelta(seconds=49, milliseconds=500),
+                datetime.datetime(2011, 1, 4, 11, 57, 10),
+                [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1),
+                datetime.timedelta(seconds=60)],
                 datetime.timedelta(seconds=1),
                 datetime.timedelta(minutes=6, seconds=30),
                 [
-                    datetime.datetime(2020, 1, 1, 0, 0, 4),
-                    datetime.datetime(2020, 1, 1, 0, 1, 7),
-                    datetime.datetime(2020, 1, 1, 0, 2, 6, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 3, 7, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 4, 6, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 5, 7, 500000),
-                    datetime.datetime(2020, 1, 1, 0, 6, 7, 500000),
+                    datetime.datetime(2011, 1, 4, 11, 58, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 11, 59, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 0, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 1, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 2, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 3, 0, 500001),
                 ],
                 id="default timing bumps hour",
             ),
@@ -828,34 +898,42 @@ class TestTimeSchedule:
             # pytest.param(id="specific seconds"),
         ],
     )
+    @pytest.mark.timeout(10)
     @pytest.mark.asyncio()
     async def test_run(
         self,
         kwargs: dict[str, typing.Any],
         start: datetime.datetime,
-        tick_for: datetime.timedelta,
-        start_tick_for: datetime.timedelta,
+        tick_fors: list[datetime.timedelta],
         tick_interval: datetime.timedelta,
         sleep_for: datetime.timedelta,
         expected_dates: typing.List[datetime.datetime],
     ):
         called_at: list[datetime.datetime] = []
-        tasks: list[asyncio.Task[None]] = []
 
+        @_print_tb
         async def callback():
             called_at.append(datetime.datetime.now())
-            tasks.append(_tick_for(frozen_time, tick_for, interval=tick_interval))
+            clock.spawn_ticker()
 
         schedule = tanjun.schedules.TimeSchedule(callback, **kwargs)
 
         frozen_time: freezegun.api.FrozenDateTimeFactory
-        with freezegun.freeze_time() as frozen_time:
-            frozen_time.move_to(start)
-            tasks.append(_tick_for(frozen_time, start_tick_for, interval=tick_interval))
+        with freezegun.freeze_time(start, tick=False) as frozen_time:
+            clock = _ManualClock(frozen_time, tick_fors, interval=tick_interval)
+
             schedule.start(alluka.Client())
+            clock.spawn_ticker()
             await asyncio.sleep(sleep_for.total_seconds())
             schedule.stop()
-            tasks[-1].cancel()
+            clock.stop_ticker()
 
-        # print(called_at)
+        print([datetime.datetime(d.year,
+                        d.month,
+                        d.day,
+                        d.hour,
+                        d.minute,
+                        d.second,
+                        d.microsecond,
+                        d.tzinfo) for d in called_at])
         assert called_at == expected_dates

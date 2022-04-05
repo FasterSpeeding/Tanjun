@@ -83,7 +83,7 @@ reportUnknownVariableType = "warning"           # Lotta false-positives, might f
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 testpaths = ["tests"]
-required_plugins = ["pytest-asyncio"]
+required_plugins = ["pytest-asyncio", "pytest-timeout"]
 
 [tool.mypy]
 # some good strict settings
