@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Time based async scheduler.
+
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev108.
 - Use `None` as the default for `max_value` and `min_value` in `parsing.py`.
