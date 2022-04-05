@@ -51,7 +51,7 @@ import pytest
 import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
-_TIMEOUT: typing.Final[float] = 2
+_TIMEOUT: typing.Final[float] = 1
 
 
 def _print_tb(callback: _CallbackT, /) -> _CallbackT:
@@ -73,16 +73,18 @@ class _ManualClock:
         tick_fors: list[datetime.timedelta],
         *,
         interval: datetime.timedelta = datetime.timedelta(seconds=1),
-        sleep_count: int = 20,
+        post_sleep_count: int = 5,
+        tick_sleep_count: int = 1,
     ) -> None:
         self._freeze_time = freeze_time
         self._index = -1
+        self._interval = interval
         self._is_ticking = False
         self._keep_ticking = False
-        self._tick_fors = tick_fors
-        self._interval = interval
-        self._sleep_count = sleep_count
+        self._post_sleep_count = post_sleep_count
         self._tasks: list[asyncio.Task[None]] = []
+        self._tick_fors = tick_fors
+        self._tick_sleep_count = tick_sleep_count
 
     async def _next_tick(self) -> None:
         index = self._index + 1
@@ -93,7 +95,7 @@ class _ManualClock:
             self._index += 1
 
         while tick_for > datetime.timedelta():
-            for _ in range(self._sleep_count):
+            for _ in range(self._tick_sleep_count):
                 # This lets the event loop run for a bit between ticks.
                 await asyncio.sleep(0)
 
@@ -105,7 +107,7 @@ class _ManualClock:
             tick_for -= self._interval
 
         # freeze_time.tick(datetime.timedelta(microseconds=1))
-        for _ in range(self._sleep_count):
+        for _ in range(self._post_sleep_count):
             # This lets the event loop run for a bit between ticks.
             await asyncio.sleep(0)
 
