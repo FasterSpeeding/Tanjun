@@ -36,6 +36,7 @@
 
 import asyncio
 import datetime
+import functools
 import time
 import traceback
 import types
@@ -54,6 +55,7 @@ _TIMEOUT: typing.Final[float] = 0.5
 
 
 def _print_tb(callback: _CallbackT, /) -> _CallbackT:
+    @functools.wraps(callback)
     async def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         try:
             return await callback(*args, **kwargs)
@@ -325,7 +327,7 @@ class TestIntervalSchedule:
             clock = _ManualClock(
                 frozen_time,
                 [datetime.timedelta(seconds=5, milliseconds=100)],
-                interval=datetime.timedelta(milliseconds=100),
+                interval=datetime.timedelta(milliseconds=300),
             ).spawn_ticker()
             await asyncio.sleep(30)
             interval.stop()
@@ -372,8 +374,8 @@ class TestIntervalSchedule:
             # not just been reached.
             clock = _ManualClock(
                 frozen_time,
-                [datetime.timedelta(seconds=3, milliseconds=100)],
-                interval=datetime.timedelta(milliseconds=100),
+                [datetime.timedelta(seconds=3, milliseconds=300)],
+                interval=datetime.timedelta(milliseconds=300),
             ).spawn_ticker()
             await close_event.wait()
             assert close_time == 1334145609000000000
@@ -419,8 +421,8 @@ class TestIntervalSchedule:
             # not just been reached.
             clock = _ManualClock(
                 frozen_time,
-                [datetime.timedelta(seconds=7, milliseconds=100)],
-                interval=datetime.timedelta(milliseconds=100),
+                [datetime.timedelta(seconds=7, milliseconds=200)],
+                interval=datetime.timedelta(milliseconds=300),
             ).spawn_ticker()
             await asyncio.sleep(28)
             interval.stop()
