@@ -35,14 +35,13 @@
 # This leads to too many false-positives around mocks.
 
 import asyncio
-from collections import abc as collections
 import datetime
-import platform
 import time
+import traceback
 import types
 import typing
+from collections import abc as collections
 from unittest import mock
-import traceback
 
 import alluka
 import freezegun
@@ -51,6 +50,7 @@ import pytest
 import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
+_TIMEOUT: typing.Final[float] = 0.5
 
 
 def _print_tb(callback: _CallbackT, /) -> _CallbackT:
@@ -62,36 +62,6 @@ def _print_tb(callback: _CallbackT, /) -> _CallbackT:
             raise
 
     return wrapper
-
-
-class _AutoClock:
-    def __init__(
-        self,
-        freeze_time: "freezegun.api.FrozenDateTimeFactory",
-        *,
-        jump: datetime.timedelta = datetime.timedelta(seconds=1),
-        sleep_count: int = 1,
-    ):
-        self._freeze_time = freeze_time
-        self._jump = int(jump.total_seconds())
-        self._sleep_count = sleep_count
-
-    @_print_tb
-    async def __call__(self) -> None:
-        while True:
-            self._freeze_time.tick(self._jump)
-            for _ in range(self._sleep_count):
-                await asyncio.sleep(0)
-
-    @classmethod
-    def spawn(
-        cls,
-        freeze_time: "freezegun.api.FrozenDateTimeFactory",
-        *,
-        jump: datetime.timedelta = datetime.timedelta(seconds=1),
-        sleep_count: int = 1,
-    ) -> asyncio.Task[None]:
-        return asyncio.get_running_loop().create_task(cls(freeze_time, jump=jump, sleep_count=sleep_count)())
 
 
 class _ManualClock:
@@ -143,19 +113,17 @@ class _ManualClock:
 
         self._is_ticking = False
 
-    async def wait_to_spawn(self) -> None:
-        ...
-
-    def spawn_ticker(self) -> None:
+    def spawn_ticker(self) -> "_ManualClock":
         if self._is_ticking and self._keep_ticking:
             raise RuntimeError("Already ticking")
 
         if self._is_ticking:
             self._keep_ticking = True
-            return
+            return self
 
         self._is_ticking = True
         self._tasks.append(asyncio.get_running_loop().create_task(_print_tb(self._next_tick)()))
+        return self
 
     def stop_ticker(self) -> None:
         self._tasks[-1].cancel()
@@ -336,6 +304,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_not_called()
 
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test__loop(self):
         mock_client = alluka.Client()
@@ -344,39 +313,53 @@ class TestIntervalSchedule:
         @_print_tb
         async def callback():
             call_times.append(time.time_ns())
+            clock.spawn_ticker()
 
         interval = tanjun.schedules.IntervalSchedule(callback, 5, ignored_exceptions=[LookupError])
 
         with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
             interval.start(mock_client)
-            clock = _AutoClock.spawn(frozen_time)
+            # Note: these have to be at least a microsecond after the target time as
+            # the unix event loop won't return the sleep until the target time has passed,
+            # not just been reached.
+            clock = _ManualClock(
+                frozen_time,
+                [datetime.timedelta(seconds=5, milliseconds=100)],
+                interval=datetime.timedelta(milliseconds=100),
+            ).spawn_ticker()
             await asyncio.sleep(30)
             interval.stop()
-            clock.cancel()
+            clock.stop_ticker()
 
         assert interval._task is None
+        assert call_times == [
+            1326542405000000000,
+            1326542410000000000,
+            1326542415000000000,
+            1326542420000000000,
+            1326542425000000000,
+        ]
+        assert interval.iteration_count == 5
 
-        if platform.system() == "Windows":
-            assert call_times == [1326542408000000000, 1326542415000000000, 1326542422000000000, 1326542429000000000]
-        else:
-            assert call_times == [1326542409000000000, 1326542417000000000, 1326542425000000000, 1326542433000000000]
-
-        assert interval.iteration_count == 4
-
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test__loop_when_max_runs(self):
         mock_client = alluka.Client()
         call_times: list[int] = []
         close_event = asyncio.Event()
+        close_time: typing.Optional[int] = None
 
         @_print_tb
         async def callback():
             call_times.append(time.time_ns())
+            clock.spawn_ticker()
 
         @_print_tb
         async def on_stop():
+            nonlocal close_time
             close_event.set()
-            clock.cancel()
+            clock.stop_ticker()
+            close_time = time.time_ns()
 
         interval = tanjun.schedules.IntervalSchedule(
             callback, 3, ignored_exceptions=[LookupError], max_runs=3
@@ -384,21 +367,22 @@ class TestIntervalSchedule:
 
         with freezegun.freeze_time(datetime.datetime(2012, 4, 11, 12)) as frozen_time:
             interval.start(mock_client)
-            clock = _AutoClock.spawn(frozen_time)
+            # Note: these have to be at least a microsecond after the target time as
+            # the unix event loop won't return the sleep until the target time has passed,
+            # not just been reached.
+            clock = _ManualClock(
+                frozen_time,
+                [datetime.timedelta(seconds=3, milliseconds=100)],
+                interval=datetime.timedelta(milliseconds=100),
+            ).spawn_ticker()
             await close_event.wait()
-            if platform.system() == "Windows":
-                assert time.time_ns() == 1334145615000000000
-            else:
-                assert time.time_ns() == 1334145618000000000
+            assert close_time == 1334145609000000000
 
         assert interval._task is None
-        if platform.system() == "Windows":
-            assert call_times == [1334145606000000000, 1334145611000000000, 1334145615000000000]
-        else:
-            assert call_times == [1334145607000000000, 1334145613000000000, 1334145618000000000]
-
+        assert call_times == [1334145603000000000, 1334145606000000000, 1334145609000000000]
         assert interval.iteration_count == 3
 
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test__loop_when_start_and_stop_callbacks_set(self):
         mock_client = alluka.Client()
@@ -409,6 +393,7 @@ class TestIntervalSchedule:
         @_print_tb
         async def callback():
             call_times.append(time.time_ns())
+            clock.spawn_ticker()
 
         @_print_tb
         async def on_start():
@@ -419,7 +404,7 @@ class TestIntervalSchedule:
         async def on_stop():
             nonlocal stop_time
             stop_time = time.time_ns()
-            clock.cancel()
+            clock.stop_ticker()
 
         interval = (
             tanjun.schedules.IntervalSchedule(callback, 7, ignored_exceptions=[LookupError])
@@ -429,30 +414,22 @@ class TestIntervalSchedule:
 
         with freezegun.freeze_time(datetime.datetime(2011, 4, 5, 4)) as frozen_time:
             interval.start(mock_client)
-            clock = _AutoClock.spawn(frozen_time)
+            # Note: these have to be at least a microsecond after the target time as
+            # the unix event loop won't return the sleep until the target time has passed,
+            # not just been reached.
+            clock = _ManualClock(
+                frozen_time,
+                [datetime.timedelta(seconds=7, milliseconds=100)],
+                interval=datetime.timedelta(milliseconds=100),
+            ).spawn_ticker()
             await asyncio.sleep(28)
             interval.stop()
             await asyncio.sleep(0)
 
         assert interval._task is None
-
-        if platform.system() == "Windows":
-            assert call_times == [
-                1301976010000000000,
-                1301976019000000000,
-                1301976028000000000,
-            ]
-            assert start_time == 1301976000000000000
-            assert stop_time == 1301976031000000000
-        else:
-            assert call_times == [
-                1301976011000000000,
-                1301976021000000000,
-                1301976031000000000,
-            ]
-            assert start_time == 1301976000000000000
-            assert stop_time == 1301976032000000000
-
+        assert call_times == [1301976007000000000, 1301976014000000000, 1301976021000000000]
+        assert start_time == 1301976000000000000
+        assert stop_time == 1301976028000000000
         assert interval.iteration_count == 3
 
     @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
@@ -818,8 +795,7 @@ class TestTimeSchedule:
             pytest.param(
                 {},
                 datetime.datetime(2035, 11, 3, 23, 56, 5),
-                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1),
-                datetime.timedelta(seconds=60)],
+                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
                 datetime.timedelta(seconds=1),
                 datetime.timedelta(minutes=6, seconds=30),
                 [
@@ -835,8 +811,7 @@ class TestTimeSchedule:
             pytest.param(
                 {},
                 datetime.datetime(2011, 1, 4, 11, 57, 10),
-                [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1),
-                datetime.timedelta(seconds=60)],
+                [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
                 datetime.timedelta(seconds=1),
                 datetime.timedelta(minutes=6, seconds=30),
                 [
@@ -898,7 +873,7 @@ class TestTimeSchedule:
             # pytest.param(id="specific seconds"),
         ],
     )
-    @pytest.mark.timeout(10)
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test_run(
         self,
@@ -928,12 +903,4 @@ class TestTimeSchedule:
             schedule.stop()
             clock.stop_ticker()
 
-        print([datetime.datetime(d.year,
-                        d.month,
-                        d.day,
-                        d.hour,
-                        d.minute,
-                        d.second,
-                        d.microsecond,
-                        d.tzinfo) for d in called_at])
         assert called_at == expected_dates
