@@ -72,13 +72,13 @@ class _ManualClock:
         freeze_time: "freezegun.api.FrozenDateTimeFactory",
         tick_fors: list[datetime.timedelta],
         *,
-        interval: datetime.timedelta = datetime.timedelta(seconds=1),
+        interval_ratio: int = 10,
         post_sleep_count: int = 5,
         tick_sleep_count: int = 1,
     ) -> None:
         self._freeze_time = freeze_time
         self._index = -1
-        self._interval = interval
+        self._interval_ratio = interval_ratio
         self._is_ticking = False
         self._keep_ticking = False
         self._post_sleep_count = post_sleep_count
@@ -94,17 +94,18 @@ class _ManualClock:
             tick_for = self._tick_fors[index]
             self._index += 1
 
+        interval = tick_for / self._interval_ratio
         while tick_for > datetime.timedelta():
             for _ in range(self._tick_sleep_count):
                 # This lets the event loop run for a bit between ticks.
                 await asyncio.sleep(0)
 
-            if tick_for - self._interval >= datetime.timedelta():
-                self._freeze_time.tick(self._interval)
+            if tick_for - interval >= datetime.timedelta():
+                self._freeze_time.tick(interval)
             else:
                 self._freeze_time.tick(tick_for)
 
-            tick_for -= self._interval
+            tick_for -= interval
 
         # freeze_time.tick(datetime.timedelta(microseconds=1))
         for _ in range(self._post_sleep_count):
@@ -326,11 +327,7 @@ class TestIntervalSchedule:
             # Note: these have to be at least a microsecond after the target time as
             # the unix event loop won't return the sleep until the target time has passed,
             # not just been reached.
-            clock = _ManualClock(
-                frozen_time,
-                [datetime.timedelta(seconds=5, milliseconds=100)],
-                interval=datetime.timedelta(milliseconds=300),
-            ).spawn_ticker()
+            clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=5, milliseconds=100)]).spawn_ticker()
             await asyncio.sleep(30)
             interval.stop()
             clock.stop_ticker()
@@ -374,11 +371,7 @@ class TestIntervalSchedule:
             # Note: these have to be at least a microsecond after the target time as
             # the unix event loop won't return the sleep until the target time has passed,
             # not just been reached.
-            clock = _ManualClock(
-                frozen_time,
-                [datetime.timedelta(seconds=3, milliseconds=300)],
-                interval=datetime.timedelta(milliseconds=300),
-            ).spawn_ticker()
+            clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=3, milliseconds=300)]).spawn_ticker()
             await close_event.wait()
             assert close_time == 1334145609000000000
 
@@ -421,11 +414,7 @@ class TestIntervalSchedule:
             # Note: these have to be at least a microsecond after the target time as
             # the unix event loop won't return the sleep until the target time has passed,
             # not just been reached.
-            clock = _ManualClock(
-                frozen_time,
-                [datetime.timedelta(seconds=7, milliseconds=200)],
-                interval=datetime.timedelta(milliseconds=300),
-            ).spawn_ticker()
+            clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=7, milliseconds=200)]).spawn_ticker()
             await asyncio.sleep(28)
             interval.stop()
             await asyncio.sleep(0)
@@ -794,29 +783,12 @@ class TestTimeSchedule:
     # the unix event loop won't return the sleep until the target time has passed,
     # not just been reached.
     @pytest.mark.parametrize(
-        ("kwargs", "start", "tick_fors", "tick_interval", "sleep_for", "expected_dates"),
+        ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates"),
         [
-            pytest.param(
-                {},
-                datetime.datetime(2035, 11, 3, 23, 56, 5),
-                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
-                datetime.timedelta(seconds=1),
-                datetime.timedelta(minutes=6, seconds=30),
-                [
-                    datetime.datetime(2035, 11, 3, 23, 57, 0, 500001),
-                    datetime.datetime(2035, 11, 3, 23, 58, 0, 500001),
-                    datetime.datetime(2035, 11, 3, 23, 59, 0, 500001),
-                    datetime.datetime(2035, 11, 4, 0, 0, 0, 500001),
-                    datetime.datetime(2035, 11, 4, 0, 1, 0, 500001),
-                    datetime.datetime(2035, 11, 4, 0, 2, 0, 500001),
-                ],
-                id="default timing",
-            ),
             pytest.param(
                 {},
                 datetime.datetime(2011, 1, 4, 11, 57, 10),
                 [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
-                datetime.timedelta(seconds=1),
                 datetime.timedelta(minutes=6, seconds=30),
                 [
                     datetime.datetime(2011, 1, 4, 11, 58, 0, 500001),
@@ -826,9 +798,106 @@ class TestTimeSchedule:
                     datetime.datetime(2011, 1, 4, 12, 2, 0, 500001),
                     datetime.datetime(2011, 1, 4, 12, 3, 0, 500001),
                 ],
-                id="default timing bumps hour",
+                id="default timing",
             ),
-            # pytest.param(id="all time fields specified"),
+            pytest.param(
+                {},
+                datetime.datetime(2035, 11, 3, 23, 56, 5),
+                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
+                datetime.timedelta(minutes=6, seconds=30),
+                [
+                    datetime.datetime(2035, 11, 3, 23, 57, 0, 500001),
+                    datetime.datetime(2035, 11, 3, 23, 58, 0, 500001),
+                    datetime.datetime(2035, 11, 3, 23, 59, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 0, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 1, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 2, 0, 500001),
+                ],
+                id="default timing bumps year",
+            ),
+            pytest.param(
+                {
+                    "months": [7, 4],
+                    "days": [14, 7],
+                    "hours": [17, 12],
+                    "minutes": [55, 22],
+                    "seconds": [30, 10],
+                },
+                datetime.datetime(2016, 3, 4, 10, 40, 30),
+                [
+                    datetime.timedelta(days=34, seconds=6100, microseconds=500001),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(days=6, seconds=66400),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(days=83, seconds=66400),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(days=6, seconds=66400),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(days=266, seconds=66400),
+                    datetime.timedelta(seconds=1),
+                ],
+                datetime.timedelta(days=399, seconds=6101),
+                [
+                    datetime.datetime(2016, 4, 7, 12, 22, 10, 500001),
+                    datetime.datetime(2016, 4, 7, 12, 22, 30, 500001),
+                    datetime.datetime(2016, 4, 7, 12, 55, 10, 500001),
+                    datetime.datetime(2016, 4, 7, 12, 55, 30, 500001),
+                    datetime.datetime(2016, 4, 7, 17, 22, 10, 500001),
+                    datetime.datetime(2016, 4, 7, 17, 22, 30, 500001),
+                    datetime.datetime(2016, 4, 7, 17, 55, 10, 500001),
+                    datetime.datetime(2016, 4, 7, 17, 55, 30, 500001),
+                    datetime.datetime(2016, 4, 14, 12, 22, 10, 500001),
+                    datetime.datetime(2016, 4, 14, 12, 22, 30, 500001),
+                    datetime.datetime(2016, 4, 14, 12, 55, 10, 500001),
+                    datetime.datetime(2016, 4, 14, 12, 55, 30, 500001),
+                    datetime.datetime(2016, 4, 14, 17, 22, 10, 500001),
+                    datetime.datetime(2016, 4, 14, 17, 22, 30, 500001),
+                    datetime.datetime(2016, 4, 14, 17, 55, 10, 500001),
+                    datetime.datetime(2016, 4, 14, 17, 55, 30, 500001),
+                    datetime.datetime(2016, 7, 7, 12, 22, 10, 500001),
+                    datetime.datetime(2016, 7, 7, 12, 22, 30, 500001),
+                    datetime.datetime(2016, 7, 7, 12, 55, 10, 500001),
+                    datetime.datetime(2016, 7, 7, 12, 55, 30, 500001),
+                    datetime.datetime(2016, 7, 7, 17, 22, 10, 500001),
+                    datetime.datetime(2016, 7, 7, 17, 22, 30, 500001),
+                    datetime.datetime(2016, 7, 7, 17, 55, 10, 500001),
+                    datetime.datetime(2016, 7, 7, 17, 55, 30, 500001),
+                    datetime.datetime(2016, 7, 14, 12, 22, 10, 500001),
+                    datetime.datetime(2016, 7, 14, 12, 22, 30, 500001),
+                    datetime.datetime(2016, 7, 14, 12, 55, 10, 500001),
+                    datetime.datetime(2016, 7, 14, 12, 55, 30, 500001),
+                    datetime.datetime(2016, 7, 14, 17, 22, 10, 500001),
+                    datetime.datetime(2016, 7, 14, 17, 22, 30, 500001),
+                    datetime.datetime(2016, 7, 14, 17, 55, 10, 500001),
+                    datetime.datetime(2016, 7, 14, 17, 55, 30, 500001),
+                    datetime.datetime(2017, 4, 7, 12, 22, 10, 500001),
+                ],
+                id="all time fields specified",
+            ),
             # pytest.param(id="all time fields specified weekly"),
             # pytest.param(id="specific months, days, hours and minutes"),
             # pytest.param(id="specific months, days, hours and minutes weekly"),
@@ -877,14 +946,13 @@ class TestTimeSchedule:
             # pytest.param(id="specific seconds"),
         ],
     )
-    @pytest.mark.timeout(_TIMEOUT)
+    # @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test_run(
         self,
         kwargs: dict[str, typing.Any],
         start: datetime.datetime,
         tick_fors: list[datetime.timedelta],
-        tick_interval: datetime.timedelta,
         sleep_for: datetime.timedelta,
         expected_dates: typing.List[datetime.datetime],
     ):
@@ -899,7 +967,7 @@ class TestTimeSchedule:
 
         frozen_time: freezegun.api.FrozenDateTimeFactory
         with freezegun.freeze_time(start, tick=False) as frozen_time:
-            clock = _ManualClock(frozen_time, tick_fors, interval=tick_interval)
+            clock = _ManualClock(frozen_time, tick_fors)
 
             schedule.start(alluka.Client())
             clock.spawn_ticker()

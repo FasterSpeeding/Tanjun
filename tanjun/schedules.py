@@ -40,7 +40,6 @@ import calendar
 import copy
 import dataclasses
 import datetime
-import time
 import typing
 from collections import abc as collections
 
@@ -512,7 +511,7 @@ class _Datetime:
 
     __slots__ = ("_config", "_date")
 
-    def __init__(self, config: _TimeScheduleConfig) -> None:
+    def __init__(self, config: _TimeScheduleConfig, date: datetime.datetime) -> None:
         """Initialise the class.
 
         Parameters
@@ -525,7 +524,7 @@ class _Datetime:
         #
         # Since datetime.replace and timedelta maths is used to calculate the time,
         # this microsecond offset will persist to the calculated datetime.
-        self._date = datetime.datetime.now(tz=config.timezone).replace(microsecond=500000)
+        self._date = date.replace(microsecond=500000)
 
     def next(self) -> datetime.datetime:
         """Get the next datetime which matches the schedule.
@@ -570,7 +569,7 @@ class _Datetime:
 
         if month is None:  # Indicates we've passed the last matching month in this year.
             # So now we jump to the next year.
-            self._date = self._date.replace(year=self._date.year + 1, month=0, day=0, hour=0, minute=0, second=0)
+            self._date = self._date.replace(year=self._date.year + 1, month=1, day=1, hour=0, minute=0, second=0)
             # Then re-calculate.
             return self._next_month()
 
@@ -597,7 +596,7 @@ class _Datetime:
                 # This implicitly handles flowing to a new year/month.
                 days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
                 self._date = (self._date + datetime.timedelta(days=days_to_jump)).replace(
-                    day=0, hour=0, minute=0, second=0
+                    day=1, hour=0, minute=0, second=0
                 )
                 return self._next_month()
 
@@ -609,12 +608,13 @@ class _Datetime:
             except ValueError:
                 # A value error indicates that the start of next week isn't in the current month.
                 # So we need to jump to the next month/year then re-calculate.
-                self._date = (self._date + datetime.timedelta(days=7)).replace(day=0, hour=0, minute=0, second=0)
+                self._date = (self._date + datetime.timedelta(days=7)).replace(day=1, hour=0, minute=0, second=0)
                 return self._next_month()
 
             # Calculate the next matching day in this week.
             return self._next_day()
 
+        self._date = self._date.replace(day=day)
         return self._next_hour()
 
     def _next_hour(self: _DatetimeT) -> _DatetimeT:
@@ -926,9 +926,10 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         loop = asyncio.get_running_loop()
         try:
             while True:
-                current_time = time.time()
-                result = _Datetime(self._config).next().timestamp() - current_time
-                await asyncio.sleep(result)
+                current_date = datetime.datetime.now(tz=self._config.timezone)
+                next_date = _Datetime(self._config, current_date).next()
+                result = next_date - current_date
+                await asyncio.sleep(result.total_seconds())
                 self._tasks = [task for task in self._tasks if not task.done()]
                 self._tasks.append(loop.create_task(self._execute(client)))
 
