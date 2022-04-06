@@ -253,8 +253,7 @@ class TestIntervalSchedule:
     async def test__execute_when_fatal_exception(self):
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
-        error = KeyError("hihihiih")
-        mock_client.call_with_async_di.side_effect = error
+        mock_client.call_with_async_di.side_effect = KeyError("hihihiih")
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -262,10 +261,7 @@ class TestIntervalSchedule:
             exec_body=lambda ns: ns.update({"stop": stop}),
         )(mock_callback, 123, fatal_exceptions=[LookupError], ignored_exceptions=[Exception])
 
-        with pytest.raises(KeyError) as exc_info:
-            await interval._execute(mock_client)
-
-        assert exc_info.value is error
+        await interval._execute(mock_client)
 
         mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_called_once_with()
@@ -274,8 +270,7 @@ class TestIntervalSchedule:
     async def test__execute_when_ignored_exception(self):
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
-        error = IndexError("hihihiih")
-        mock_client.call_with_async_di.side_effect = error
+        mock_client.call_with_async_di.side_effect = IndexError("hihihiih")
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -301,10 +296,7 @@ class TestIntervalSchedule:
             exec_body=lambda ns: ns.update({"stop": stop}),
         )(mock_callback, 123, fatal_exceptions=[KeyError], ignored_exceptions=[TypeError])
 
-        with pytest.raises(ValueError, match="hihihiih") as exc_info:
-            await interval._execute(mock_client)
-
-        assert exc_info.value is error
+        await interval._execute(mock_client)
 
         mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_not_called()
@@ -446,10 +438,9 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        with mock.patch.object(asyncio, "sleep") as sleep, pytest.raises(KeyError) as exc_info:
+        with mock.patch.object(asyncio, "sleep") as sleep:
             await interval._loop(mock_client)
 
-        assert exc_info.value is error
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_not_called()
         sleep.assert_not_called()
@@ -508,17 +499,17 @@ class TestIntervalSchedule:
         interval._task = mock.Mock()
 
         with (
-            mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError) as sleep,
-            pytest.raises(RuntimeError) as exc_info,
+            mock.patch.object(asyncio, "sleep", side_effect=RuntimeError) as sleep,
+            # We don't care about tg eerror being raised here, this is just to stop the loop.
+            pytest.raises(RuntimeError),
             mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
         ):
             await interval._loop(mock_client)
 
-        assert exc_info.value is error
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_not_called()
         get_running_loop.return_value.create_task.assert_not_called()
-        sleep.assert_awaited_once_with(123.0)
+        sleep.assert_called_once_with(123)
         assert interval._task is None
 
     @pytest.mark.asyncio()
@@ -946,7 +937,7 @@ class TestTimeSchedule:
             # pytest.param(id="specific seconds"),
         ],
     )
-    # @pytest.mark.timeout(_TIMEOUT)
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test_run(
         self,

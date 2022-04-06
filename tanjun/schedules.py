@@ -40,6 +40,7 @@ import calendar
 import copy
 import dataclasses
 import datetime
+import traceback
 import typing
 from collections import abc as collections
 
@@ -308,11 +309,14 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             await client.call_with_async_di(self._callback)
 
         except self._fatal_exceptions:
+            traceback.print_exc()
             self.stop()
-            raise
 
         except self._ignored_exceptions:
             pass
+
+        except Exception:
+            traceback.print_exc()
 
     async def _loop(self, client: alluka.Client, /) -> None:
         event_loop = asyncio.get_running_loop()
@@ -322,7 +326,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                     await client.call_with_async_di(self._start_callback)
 
                 except self._ignored_exceptions:
+                    traceback.print_exc()
                     pass
+
+                except Exception:
+                    traceback.print_exc()
+                    return
 
             while not self._max_runs or self._iteration_count < self._max_runs:
                 self._tasks = [task for task in self._tasks if not task.done()]
@@ -332,6 +341,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         finally:
             self._task = None
+            tasks = self._tasks
+            self._tasks = []
             if self._stop_callback:
                 try:
                     await client.call_with_async_di(self._stop_callback)
@@ -339,7 +350,11 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                 except self._ignored_exceptions:
                     pass
 
-            self._tasks.clear()
+                except Exception:
+                    traceback.print_exc()
+
+            if tasks:
+                await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
     def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
@@ -916,11 +931,14 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             await client.call_with_async_di(self._callback)
 
         except self._fatal_exceptions:
+            traceback.print_exc()
             self.stop()
-            raise
 
         except self._ignored_exceptions:
             pass
+
+        except Exception:
+            traceback.print_exc()
 
     async def _loop(self, client: alluka.Client, /) -> None:
         loop = asyncio.get_running_loop()
@@ -934,7 +952,11 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
                 self._tasks.append(loop.create_task(self._execute(client)))
 
         finally:
-            self._tasks.clear()
+            self._task = None
+            if self._tasks:
+                tasks = self._tasks
+                self._tasks = []
+                await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
     def load_into_component(self, component: tanjun_abc.Component, /) -> None:
         # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
