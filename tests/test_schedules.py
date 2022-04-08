@@ -51,7 +51,7 @@ import pytest
 import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
-_TIMEOUT: typing.Final[float] = 1
+_TIMEOUT: typing.Final[float] = 0.5
 
 
 def _print_tb(callback: _CallbackT, /) -> _CallbackT:
