@@ -107,7 +107,6 @@ class _ManualClock:
 
             tick_for -= interval
 
-        # freeze_time.tick(datetime.timedelta(microseconds=1))
         for _ in range(self._post_sleep_count):
             # This lets the event loop run for a bit between ticks.
             await asyncio.sleep(0)
@@ -141,7 +140,7 @@ def test_as_interval():
         mock_callback
     )
 
-    assert result.interval == datetime.timedelta(seconds=123)
+    assert result.interval == datetime.timedelta(minutes=2, seconds=3)
     assert result._fatal_exceptions == (KeyError,)
     assert result._ignored_exceptions == (TabError,)
     assert result._max_runs == 55
@@ -164,11 +163,13 @@ class TestIntervalSchedule:
 
         assert interval.is_alive is True
 
-    @pytest.mark.parametrize("interval", [datetime.timedelta(seconds=652134), 652134, 652134.0])
+    @pytest.mark.parametrize(
+        "interval", [datetime.timedelta(days=7, hours=13, minutes=8, seconds=54), 652134, 652134.0]
+    )
     def test_interval_property(self, interval: typing.Union[int, float, datetime.timedelta]):
         interval_ = tanjun.schedules.IntervalSchedule(mock.Mock(), interval)
 
-        assert interval_.interval == datetime.timedelta(seconds=652134)
+        assert interval_.interval == datetime.timedelta(days=7, hours=13, minutes=8, seconds=54)
 
     def test_iteration_count_property(self):
         assert tanjun.schedules.IntervalSchedule(mock.Mock(), 123).iteration_count == 0
@@ -777,7 +778,7 @@ class TestTimeSchedule:
             pytest.param(
                 {},
                 datetime.datetime(2011, 1, 4, 11, 57, 10),
-                [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
+                [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1), datetime.timedelta(minutes=1)],
                 datetime.timedelta(minutes=6, seconds=30),
                 [
                     datetime.datetime(2011, 1, 4, 11, 58, 0, 500001),
@@ -792,7 +793,7 @@ class TestTimeSchedule:
             pytest.param(
                 {},
                 datetime.datetime(2035, 11, 3, 23, 56, 5),
-                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1), datetime.timedelta(seconds=60)],
+                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1), datetime.timedelta(minutes=1)],
                 datetime.timedelta(minutes=6, seconds=30),
                 [
                     datetime.datetime(2035, 11, 3, 23, 57, 0, 500001),
@@ -816,40 +817,41 @@ class TestTimeSchedule:
                 [
                     datetime.timedelta(days=34, seconds=6100, microseconds=500001),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(hours=4, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=6, seconds=66400),
+                    datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(hours=4, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=83, seconds=66400),
+                    datetime.timedelta(days=83, hours=18, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(hours=4, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=6, seconds=66400),
+                    datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=16000),
+                    datetime.timedelta(hours=4, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(seconds=1960),
+                    datetime.timedelta(minutes=32, seconds=40),
                     datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=266, seconds=66400),
+                    datetime.timedelta(days=266, hours=18, minutes=26, seconds=40),
+                    datetime.timedelta(seconds=20),
                     datetime.timedelta(seconds=1),
                 ],
-                datetime.timedelta(days=399, seconds=6101),
+                datetime.timedelta(days=399, hours=1, minutes=42, seconds=1),
                 [
                     datetime.datetime(2016, 4, 7, 12, 22, 10, 500001),
                     datetime.datetime(2016, 4, 7, 12, 22, 30, 500001),
@@ -884,6 +886,7 @@ class TestTimeSchedule:
                     datetime.datetime(2016, 7, 14, 17, 55, 10, 500001),
                     datetime.datetime(2016, 7, 14, 17, 55, 30, 500001),
                     datetime.datetime(2017, 4, 7, 12, 22, 10, 500001),
+                    datetime.datetime(2017, 4, 7, 12, 22, 30, 500001),
                 ],
                 id="all time fields specified",
             ),
