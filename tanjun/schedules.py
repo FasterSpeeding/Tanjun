@@ -339,6 +339,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                 self._iteration_count += 1
                 self._tasks.append(event_loop.create_task(self._execute(client)))
 
+        except Exception:
+            traceback.print_exc()
+
         finally:
             self._task = None
             tasks = self._tasks
@@ -556,7 +559,7 @@ class _Datetime:
             return self._date
 
         if self._config.days:
-            day = self._date.weekday() if self._config.is_weekly else self._date.day
+            day = self._date.isoweekday() if self._config.is_weekly else self._date.day
             if day not in self._config.days:
                 self._next_day()
                 return self._date
@@ -588,7 +591,7 @@ class _Datetime:
             # Then re-calculate.
             return self._next_month()
 
-        self._date = self._date.replace(month=month, hour=0, minute=0, second=0)
+        self._date = self._date.replace(month=month, day=1, hour=0, minute=0, second=0)
         return self._next_day()
 
     def _next_day(self: _DatetimeT) -> _DatetimeT:
@@ -599,15 +602,12 @@ class _Datetime:
         if not self._config.days:
             return self._next_hour()
 
-        day = self._date.weekday() if self._config.is_weekly else self._date.day
+        if not self._config.is_weekly:
+            if self._date.day in self._config.days:
+                return self._next_hour()
 
-        if day in self._config.days:
-            return self._next_hour()
-
-        day = _get_next(self._config.days, day)
-
-        if day is None:  # Indicates we've passed the last matching day in this month.
-            if not self._config.is_weekly:
+            day = _get_next(self._config.days, self._date.day)
+            if day is None:  # Indicates we've passed the last matching day in this week.
                 # This implicitly handles flowing to a new year/month.
                 days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
                 self._date = (self._date + datetime.timedelta(days=days_to_jump)).replace(
@@ -615,21 +615,32 @@ class _Datetime:
                 )
                 return self._next_month()
 
-            start_of_next_week = self._date.day + (7 - self._date.weekday())
+            self._date = self._date.replace(day=day)
+            return self._next_hour()
 
-            try:
-                self._date = self._date.replace(day=start_of_next_week, hour=0, minute=0, second=0)
+        day = self._date.isoweekday()
+        if day in self._config.days:
+            return self._next_hour()
 
-            except ValueError:
-                # A value error indicates that the start of next week isn't in the current month.
-                # So we need to jump to the next month/year then re-calculate.
-                self._date = (self._date + datetime.timedelta(days=7)).replace(day=1, hour=0, minute=0, second=0)
+        day = _get_next(self._config.days, day)
+        current = self._date.year, self._date.month
+        if day is None:  # Indicates we've passed the last matching day in this week.
+            self._date += datetime.timedelta((8 - self._date.isoweekday()))
+
+            if (self._date.year, self._date.month) != current:
+                # If this jump crossed to a new month or year, we need to
+                # recalculate to ensure this month matches.
                 return self._next_month()
 
             # Calculate the next matching day in this week.
             return self._next_day()
 
-        self._date = self._date.replace(day=day)
+        self._date += datetime.timedelta(days=day - self._date.isoweekday())
+        if (self._date.year, self._date.month) != current:
+            # If this jump crossed to a new month or year, we need to
+            # recalculate to ensure this month matches.
+            return self._next_month()
+
         return self._next_hour()
 
     def _next_hour(self: _DatetimeT) -> _DatetimeT:
@@ -875,7 +886,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
             * If months has any values outside the range of `range(1, 13)`.
             * If days has any values outside the range of `range(1, 32)` when
-              `weekly` is [False][] or outside the range of `range(1, 7)` when
+              `weekly` is [False][] or outside the range of `range(1, 8)` when
               `weekly` is [True][].
             * If hours has any values outside the range of `range(0, 24)`.
             * If minutes has any values outside the range of `range(0, 60)`.
@@ -884,7 +895,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         self._callback = callback
 
         if weekly:
-            actual_days = _to_sequence(days, 0, 6, "day")
+            actual_days = _to_sequence(days, 1, 8, "day")
 
         else:
             actual_days = _to_sequence(days, 1, 31, "day")

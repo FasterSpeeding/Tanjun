@@ -500,8 +500,6 @@ class TestIntervalSchedule:
 
         with (
             mock.patch.object(asyncio, "sleep", side_effect=RuntimeError) as sleep,
-            # We don't care about tg eerror being raised here, this is just to stop the loop.
-            pytest.raises(RuntimeError),
             mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
         ):
             await interval._loop(mock_client)
@@ -889,7 +887,80 @@ class TestTimeSchedule:
                 ],
                 id="all time fields specified",
             ),
-            # pytest.param(id="all time fields specified weekly"),
+            pytest.param(
+                {
+                    "months": [1, 5, 9],
+                    "weekly": True,
+                    "days": [3, 5],
+                    "hours": [5],
+                    "minutes": [45],
+                    "seconds": [10],
+                },
+                datetime.datetime(2069, 3, 5, 5, 45, 10),
+                [
+                    datetime.timedelta(days=57, microseconds=500001),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=96),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=96),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=5),
+                    datetime.timedelta(days=2),
+                ],
+                datetime.timedelta(days=333),
+                [
+                    datetime.datetime(2069, 5, 1, 5, 45, 10, 500001),  # 3rd day
+                    datetime.datetime(2069, 5, 3, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 8, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 10, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 15, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 17, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 22, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 24, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 29, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 31, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 4, 5, 45, 10, 500001),  # 3rd day
+                    datetime.datetime(2069, 9, 6, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 11, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 13, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 18, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 20, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 25, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 27, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 1, 5, 45, 10, 500001),  # 3rd day
+                    datetime.datetime(2070, 1, 3, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 8, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 10, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 15, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 17, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 22, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 24, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 29, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 31, 5, 45, 10, 500001),
+                ],
+                id="all time fields specified weekly",
+            ),
+            # ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates")
             # pytest.param(id="specific months, days, hours and minutes"),
             # pytest.param(id="specific months, days, hours and minutes weekly"),
             # pytest.param(id="specific months, days, hours and seconds"),
@@ -947,6 +1018,10 @@ class TestTimeSchedule:
         sleep_for: datetime.timedelta,
         expected_dates: typing.List[datetime.datetime],
     ):
+        # Ensure test-data integrity
+        assert start < expected_dates[0], "Start must be before expected dates"
+        assert sorted(expected_dates) == expected_dates, "Expected dates must be sorted"
+
         called_at: list[datetime.datetime] = []
 
         @_print_tb

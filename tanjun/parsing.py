@@ -63,7 +63,6 @@ from . import errors
 
 if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun_abc.MessageCommand[typing.Any])
-    _OtherT = typing.TypeVar("_OtherT")
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
