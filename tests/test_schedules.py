@@ -657,10 +657,6 @@ class TestIntervalSchedule:
         assert interval._fatal_exceptions == (mock_exception, mock_other_exception)
 
 
-def test_as_time_schedule():
-    ...
-
-
 class TestTimeSchedule:
     def test_callback_property(self):
         mock_callback = mock.AsyncMock()
@@ -1032,7 +1028,7 @@ class TestTimeSchedule:
             called_at.append(datetime.datetime.now())
             clock.spawn_ticker()
 
-        schedule = tanjun.schedules.TimeSchedule(callback, **kwargs)
+        schedule = tanjun.schedules.as_time_schedule(**kwargs)(callback)
 
         frozen_time: freezegun.api.FrozenDateTimeFactory
         with freezegun.freeze_time(start, tick=False) as frozen_time:
