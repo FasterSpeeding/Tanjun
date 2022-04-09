@@ -302,6 +302,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         "_has_responded",
         "_interaction",
         "_last_response_id",
+        "_register_task",
         "_response_future",
         "_response_lock",
     )
@@ -310,6 +311,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         client: tanjun.Client,
         interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
@@ -321,6 +323,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._has_responded = False
         self._interaction = interaction
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
+        self._register_task = register_task
         self._response_future = future
         self._response_lock = asyncio.Lock()
         self._set_type_special_case(tanjun.AppCommandContext, self)
@@ -529,7 +532,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._has_responded = True
 
         if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
-            asyncio.create_task(self._delete_followup_after(delete_after, message))
+            self._register_task(asyncio.create_task(self._delete_followup_after(delete_after, message)))
 
         return message
 
@@ -668,7 +671,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
         self._has_responded = True
         if delete_after is not None and not flags & hikari.MessageFlag.EPHEMERAL:
-            asyncio.create_task(self._delete_initial_response_after(delete_after))
+            self._register_task(asyncio.create_task(self._delete_initial_response_after(delete_after)))
 
     async def create_initial_response(
         self,
@@ -769,7 +772,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._has_responded = True
 
         if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
-            asyncio.create_task(self._delete_initial_response_after(delete_after))
+            self._register_task(asyncio.create_task(self._delete_initial_response_after(delete_after)))
 
         return message
 
@@ -811,7 +814,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 role_mentions=role_mentions,
             )
             if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
-                asyncio.create_task(self._delete_followup_after(delete_after, message))
+                self._register_task(asyncio.create_task(self._delete_followup_after(delete_after, message)))
 
             return message
 
@@ -960,6 +963,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         self,
         client: tanjun.Client,
         interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
@@ -973,6 +977,8 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
             The Tanjun client this context is bound to.
         interaction
             The command interaction this context is for.
+        register_task
+            Callback used to register long-running tasks spawned by this context.
         default_to_ephemeral
             Whether to default to ephemeral responses.
         future
@@ -981,7 +987,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         on_not_found
             Callback used to indicate no matching command was found.
         """
-        super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
+        super().__init__(client, interaction, register_task, default_to_ephemeral=default_to_ephemeral, future=future)
         self._marked_not_found = False
         self._on_not_found = on_not_found
 

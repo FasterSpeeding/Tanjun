@@ -64,6 +64,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         self,
         client: tanjun.Client,
         interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
@@ -77,6 +78,8 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
             The Tanjun client this context is bound to.
         interaction
             The command interaction this context is for.
+        register_task
+            Callback used to register long-running tasks spawned by this context.
         future
             A future used to set the initial response if this is being called
             through the REST webhook flow.
@@ -85,7 +88,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         on_not_found
             Callback used to indicate no matching command was found.
         """
-        super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
+        super().__init__(client, interaction, register_task, default_to_ephemeral=default_to_ephemeral, future=future)
         self._command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]] = None
         self._marked_not_found = False
         self._on_not_found = on_not_found

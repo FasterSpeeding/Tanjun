@@ -549,7 +549,7 @@ class TestAppCommandContext:
     @pytest.fixture()
     def context(self, mock_client: mock.Mock) -> tanjun.context.slash.AppCommandContext:
         return stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
-            mock_client, mock.AsyncMock(options=None)
+            mock_client, mock.AsyncMock(options=None), mock.Mock()
         )
 
     def test_author_property(self, context: tanjun.context.slash.AppCommandContext):
@@ -570,6 +570,7 @@ class TestAppCommandContext:
             mock.Mock(
                 created_at=datetime.datetime(2021, 11, 15, 5, 42, 6, 445670, tzinfo=datetime.timezone.utc), options=None
             ),
+            mock.Mock(),
         )
 
         assert context.expires_at == datetime.datetime(2021, 11, 15, 5, 57, 6, 445670, tzinfo=datetime.timezone.utc)
@@ -598,7 +599,9 @@ class TestAppCommandContext:
     @pytest.mark.asyncio()
     async def test__auto_defer(self, mock_client: mock.Mock):
         defer = mock.AsyncMock()
-        context = stub_class(tanjun.context.slash.AppCommandContext, defer=defer)(mock_client, mock.Mock(options=None))
+        context = stub_class(tanjun.context.slash.AppCommandContext, defer=defer)(
+            mock_client, mock.Mock(options=None), mock.Mock()
+        )
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._auto_defer(0.1)
@@ -643,8 +646,7 @@ class TestAppCommandContext:
     def test_start_defer_timer(self, mock_client: mock.Mock):
         auto_defer = mock.Mock()
         context = stub_class(tanjun.context.slash.AppCommandContext, _auto_defer=auto_defer)(
-            mock_client,
-            mock.Mock(options=None),
+            mock_client, mock.Mock(options=None), mock.Mock()
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
@@ -718,14 +720,14 @@ class TestAppCommandContext:
         ...
 
     @pytest.mark.asyncio()
-    async def test__delete_initial_response_after(self, context: tanjun.context.slash.AppCommandContext):
+    async def test__delete_initial_response_after(self):
         mock_delete_initial_response = mock.AsyncMock()
         context = stub_class(
             tanjun.context.slash.AppCommandContext,
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock,
             delete_initial_response=mock_delete_initial_response,
-        )(mock.Mock(), mock.Mock(options=None))
+        )(mock.Mock(), mock.Mock(options=None), mock.Mock())
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -740,7 +742,7 @@ class TestAppCommandContext:
         )
         context = stub_class(
             tanjun.context.slash.AppCommandContext, delete_initial_response=mock_delete_initial_response
-        )(mock.Mock(), mock.Mock(options=None))
+        )(mock.Mock(), mock.Mock(options=None), mock.Mock())
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -800,8 +802,15 @@ class TestAppCommandContext:
         assert context.has_responded is True
 
     @pytest.mark.asyncio()
-    async def test_edit_initial_response(self, context: tanjun.context.slash.AppCommandContext):
-        assert context.has_responded is False
+    async def test_edit_initial_response(self, mock_client: mock.Mock):
+        mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
+        mock_register_task = mock.Mock()
+        context = stub_class(
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock(),
+            mark_not_found=mock.AsyncMock(),
+        )(mock_client, mock_interaction, mock_register_task)
+
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
         mock_component = mock.Mock()
@@ -824,8 +833,7 @@ class TestAppCommandContext:
                 role_mentions=[444],
             )
 
-        assert isinstance(context.interaction.edit_initial_response, mock.AsyncMock)
-        context.interaction.edit_initial_response.assert_awaited_once_with(
+        mock_interaction.edit_initial_response.assert_awaited_once_with(
             content="bye",
             attachment=mock_attachment,
             attachments=mock_attachments,
@@ -840,71 +848,68 @@ class TestAppCommandContext:
         )
         create_task.assert_not_called()
         assert context.has_responded is True
+        mock_register_task.assert_not_called()
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=545), 545, 545.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after(
-        self,
-        context: tanjun.context.slash.AppCommandContext,
-        mock_client: mock.Mock,
-        delete_after: typing.Union[datetime.timedelta, int, float],
+        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
         mock_interaction.edit_initial_response.return_value.flags = hikari.MessageFlag.NONE
+        mock_register_task = mock.Mock()
         context = stub_class(
             tanjun.context.slash.AppCommandContext,
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock_interaction)
+        )(mock_client, mock_interaction, mock_register_task)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
 
         mock_delete_initial_response_after.assert_called_once_with(545)
         create_task.assert_called_once_with(mock_delete_initial_response_after.return_value)
+        mock_register_task.assert_called_once_with(create_task.return_value)
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=545), 545, 545.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_ignores_delete_after_when_is_ephemeral(
-        self,
-        context: tanjun.context.slash.AppCommandContext,
-        mock_client: mock.Mock,
-        delete_after: typing.Union[datetime.timedelta, int, float],
+        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
         mock_interaction.edit_initial_response.return_value.flags = hikari.MessageFlag.EPHEMERAL
+        mock_register_task = mock.Mock()
         context = stub_class(
             tanjun.context.slash.AppCommandContext,
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock_interaction)
+        )(mock_client, mock_interaction, mock_register_task)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
 
         mock_delete_initial_response_after.assert_not_called()
         create_task.assert_not_called()
+        mock_register_task.assert_not_called()
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=901), 901, 901.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after_will_have_expired(
-        self,
-        context: tanjun.context.slash.AppCommandContext,
-        mock_client: mock.Mock,
-        delete_after: typing.Union[datetime.timedelta, int, float],
+        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
     ):
         mock_delete_initial_response_after = mock.Mock()
+        mock_register_task = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
         context = stub_class(
             tanjun.context.slash.AppCommandContext,
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock_interaction)
+        )(mock_client, mock_interaction, mock_register_task)
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             with pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"):
@@ -912,6 +917,7 @@ class TestAppCommandContext:
 
         mock_delete_initial_response_after.assert_not_called()
         create_task.assert_not_called()
+        mock_register_task.assert_not_called()
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
@@ -969,17 +975,14 @@ class TestAppCommandContext:
 class TestSlashContext:
     @pytest.fixture()
     def context(self, mock_client: mock.Mock) -> tanjun.context.SlashContext:
-        return tanjun.context.SlashContext(
-            mock_client,
-            mock.AsyncMock(options=None),
-        )
+        return tanjun.context.SlashContext(mock_client, mock.AsyncMock(options=None), mock.Mock())
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_when_no_options(
         self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
     ):
         context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options), mock.Mock()
         )
 
         assert context.options == {}
@@ -990,7 +993,9 @@ class TestSlashContext:
         mock_option_2 = mock.Mock()
         mock_option_2.name = "bye"
         context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
+            mock_client,
+            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
+            mock.Mock(),
         )
 
         assert len(context.options) == 2
@@ -1011,7 +1016,7 @@ class TestSlashContext:
         mock_option_2.name = "nyaa"
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]), mock.Mock()
         )
 
         assert len(context.options) == 2
@@ -1031,7 +1036,7 @@ class TestSlashContext:
     ):
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]), mock.Mock()
         )
 
         assert context.options == {}
@@ -1044,7 +1049,7 @@ class TestSlashContext:
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
         context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]), mock.Mock()
         )
 
         assert len(context.options) == 2
@@ -1065,7 +1070,7 @@ class TestSlashContext:
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
         context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option])
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]), mock.Mock()
         )
 
         assert context.options == {}
@@ -1076,7 +1081,9 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test_mark_not_found(self):
         on_not_found = mock.AsyncMock()
-        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
+        context = tanjun.context.SlashContext(
+            mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=on_not_found
+        )
 
         await context.mark_not_found()
 
@@ -1084,14 +1091,16 @@ class TestSlashContext:
 
     @pytest.mark.asyncio()
     async def test_mark_not_found_when_no_callback(self):
-        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), on_not_found=None)
+        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=None)
 
         await context.mark_not_found()
 
     @pytest.mark.asyncio()
     async def test_mark_not_found_when_already_marked_as_not_found(self):
         on_not_found = mock.AsyncMock()
-        context = tanjun.context.SlashContext(mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
+        context = tanjun.context.SlashContext(
+            mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=on_not_found
+        )
         await context.mark_not_found()
         on_not_found.reset_mock()
 

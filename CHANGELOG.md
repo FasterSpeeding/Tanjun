@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - A `send` method to `CommandError` which can be overridden to customise its response behaviour.
 - Support for other create message arguments to `CommandError`.
+### Fixed
+- Long running `delete_after` and command execution tasks will no-longer be cancelled by GC.
 
 ### Changed
 - Renamed `CommandError.message` to `.content`.
