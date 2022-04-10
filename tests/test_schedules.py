@@ -53,7 +53,7 @@ import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
 _T = typing.TypeVar("_T")
-_TIMEOUT: typing.Final[float] = 1.0
+_TIMEOUT: typing.Final[float] = 2.0
 
 
 def _chain(data: collections.Iterable[collections.Iterable[_T]]) -> list[_T]:
