@@ -53,7 +53,7 @@ import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
 _T = typing.TypeVar("_T")
-_TIMEOUT: typing.Final[float] = 5.0
+_TIMEOUT: typing.Final[float] = 10.0
 
 
 def _chain(data: collections.Iterable[collections.Iterable[_T]]) -> list[_T]:
@@ -78,7 +78,7 @@ class _ManualClock:
         freeze_time: "freezegun.api.FrozenDateTimeFactory",
         tick_fors: list[datetime.timedelta],
         *,
-        interval_ratio: int = 5,
+        interval_ratio: int = 10,
         post_sleep_count: int = 5,
         tick_sleep_count: int = 1,
     ) -> None:
