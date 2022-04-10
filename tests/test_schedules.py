@@ -78,7 +78,7 @@ class _ManualClock:
         freeze_time: "freezegun.api.FrozenDateTimeFactory",
         tick_fors: list[datetime.timedelta],
         *,
-        interval_ratio: int = 10,
+        interval_ratio: int = 5,
         post_sleep_count: int = 5,
         tick_sleep_count: int = 1,
     ) -> None:
