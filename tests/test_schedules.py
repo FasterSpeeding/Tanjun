@@ -1402,3 +1402,50 @@ class TestTimeSchedule:
             clock.stop_ticker()
 
         assert called_at == expected_dates
+
+    @pytest.mark.timeout(_TIMEOUT)
+    @pytest.mark.asyncio()
+    async def test_error_handling(self):
+        called_at: list[datetime.datetime] = []
+
+        @_print_tb
+        async def callback():
+            called_at.append(datetime.datetime.now())
+            clock.spawn_ticker()
+            length = len(called_at)
+            if length == 1:
+                raise RuntimeError("Not caught")
+
+            if length == 2:
+                raise ValueError("Ignored")
+
+            if length == 3:
+                raise TypeError("Fatal")
+
+        schedule = (
+            tanjun.schedules.as_time_schedule(hours=[4, 6], minutes=30)(callback)
+            .set_fatal_exceptions(TypeError)
+            .set_ignored_exceptions(ValueError)
+        )
+
+        frozen_time: freezegun.api.FrozenDateTimeFactory
+        with freezegun.freeze_time(datetime.datetime(2044, 4, 4), tick=False) as frozen_time:
+            clock = _ManualClock(
+                frozen_time,
+                [
+                    datetime.timedelta(hours=4, minutes=30, microseconds=500001),
+                    datetime.timedelta(hours=2),
+                    datetime.timedelta(hours=22),
+                ],
+            ).spawn_ticker()
+            schedule.start(alluka.Client())
+            await asyncio.sleep(datetime.timedelta(days=1, seconds=16201).total_seconds())
+
+            clock.stop_ticker()
+            assert schedule.is_alive is False
+
+        assert called_at == [
+            datetime.datetime(2044, 4, 4, 4, 30, 0, 500001),
+            datetime.datetime(2044, 4, 4, 6, 30, 0, 500001),
+            datetime.datetime(2044, 4, 5, 4, 30, 0, 500001),
+        ]
