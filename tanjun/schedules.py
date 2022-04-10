@@ -490,23 +490,38 @@ def _get_next(target_values: collections.Sequence[int], current_value: int) -> t
 def _to_sequence(
     values: typing.Union[int, collections.Sequence[int], None], min_: int, max_: int, name: str
 ) -> typing.Optional[collections.Sequence[int]]:
-    if not values:
+    if values is None:
         return None
 
     if isinstance(values, int):
-        if values > max_ or values < min_:
-            raise ValueError(f"{name} value must be between {min_} and {max_}, not {values}")
+        if values >= max_ or values < min_:
+            raise ValueError(f"{name} value must be (inclusively) between {min_} and {max_ - 1}, not {values}")
 
         return [values]
 
-    if not isinstance(values, range) or values.step < 0:
-        # Ranges with a positive step will already be sorted so these can be left as-is.
+    if isinstance(values, float):
+        raise ValueError(f"{name} value must be an integer, not a float")
+
+    if isinstance(values, range):
+        if values.step < 0:
+            # Ranges with a positive step will already be sorted so these can be left as-is.
+            values = sorted(values)
+
+    elif len(values) == 0:  # Empty sequences should be treated as None.
+        # an explicit len check is used here to ensure this case is only ever applied to a sequence.
+        return None
+
+    else:
         values = sorted(values)
+        if any(isinstance(value, float) for value in values):
+            raise ValueError(f"Cannot pass floats for {name}")
 
     first_entry = values[0]
     last_entry = values[-1]
-    if last_entry > max_ or first_entry < min_:
-        raise ValueError(f"{name} must be between {min_} and {max_}, not {first_entry}, {last_entry}")
+    if last_entry >= max_ or first_entry < min_:
+        raise ValueError(
+            f"{name} must be (inclusively) between {min_} and {max_ - 1}, not {first_entry} and {last_entry}"
+        )
 
     return values
 
@@ -608,7 +623,7 @@ class _Datetime:
 
             day = _get_next(self._config.days, self._date.day)
             if day is None:  # Indicates we've passed the last matching day in this week.
-                # This implicitly handles flowing to a new year/month.
+                # This implicitly handles flowing to the next year.
                 days_to_jump = (calendar.monthrange(self._date.year, self._date.month)[1] - self._date.day) + 1
                 self._date = (self._date + datetime.timedelta(days=days_to_jump)).replace(
                     day=1, hour=0, minute=0, second=0
@@ -628,8 +643,8 @@ class _Datetime:
             self._date += datetime.timedelta((8 - self._date.isoweekday()))
 
             if (self._date.year, self._date.month) != current:
-                # If this jump crossed to a new month or year, we need to
-                # recalculate to ensure this month matches.
+                # Re-calculate if necessary to ensure that this month matches
+                # if this jump crossed to a new month or year.
                 return self._next_month()
 
             # Calculate the next matching day in this week.
@@ -637,8 +652,8 @@ class _Datetime:
 
         self._date += datetime.timedelta(days=day - self._date.isoweekday())
         if (self._date.year, self._date.month) != current:
-            # If this jump crossed to a new month or year, we need to
-            # recalculate to ensure this month matches.
+            # Re-calculate if necessary to ensure that this month matches if
+            # this jump crossed to a new month or year.
             return self._next_month()
 
         return self._next_hour()
@@ -665,7 +680,7 @@ class _Datetime:
     def _next_minute(self: _DatetimeT) -> _DatetimeT:
         """Bump this to the next valid minute.
 
-        The current month will also be considered.
+        The current minute will also be considered.
         """
         if self._date.minute in self._config.minutes:
             return self._next_second()
@@ -716,7 +731,7 @@ def as_time_schedule(
     days: typing.Union[int, collections.Sequence[int]] = (),
     hours: typing.Union[int, collections.Sequence[int]] = (),
     minutes: typing.Union[int, collections.Sequence[int]] = (),
-    seconds: typing.Union[int, collections.Sequence[int]] = (0),
+    seconds: typing.Union[int, collections.Sequence[int]] = 0,
     fatal_exceptions: collections.Sequence[type[Exception]] = (),
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
     timezone: typing.Optional[datetime.timezone] = None,
@@ -820,7 +835,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         days: typing.Union[int, collections.Sequence[int]] = (),
         hours: typing.Union[int, collections.Sequence[int]] = (),
         minutes: typing.Union[int, collections.Sequence[int]] = (),
-        seconds: typing.Union[int, collections.Sequence[int]] = (0),
+        seconds: typing.Union[int, collections.Sequence[int]] = 0,
         fatal_exceptions: collections.Sequence[type[Exception]] = (),
         ignored_exceptions: collections.Sequence[type[Exception]] = (),
         timezone: typing.Optional[datetime.timezone] = None,
@@ -895,19 +910,19 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         self._callback = callback
 
         if weekly:
-            actual_days = _to_sequence(days, 1, 8, "day")
+            actual_days = _to_sequence(days, 1, 9, "days")
 
         else:
-            actual_days = _to_sequence(days, 1, 31, "day")
+            actual_days = _to_sequence(days, 1, 32, "days")
 
         self._config = _TimeScheduleConfig(
-            current_date=datetime.datetime(1970, 1, 1, tzinfo=timezone),
+            current_date=datetime.datetime.min.replace(tzinfo=timezone),
             days=actual_days,
-            hours=_to_sequence(hours, 0, 23, "hour") or range(24),
+            hours=_to_sequence(hours, 0, 24, "hours") or range(24),
             is_weekly=weekly,
-            minutes=_to_sequence(minutes, 0, 59, "minute") or range(60),
-            months=_to_sequence(months, 1, 12, "month") or range(1, 13),
-            seconds=_to_sequence(seconds, 0, 59, "second") or [0],
+            minutes=_to_sequence(minutes, 0, 60, "minutes") or range(60),
+            months=_to_sequence(months, 1, 13, "months") or range(1, 13),
+            seconds=_to_sequence(seconds, 0, 60, "seconds") or [0],
             timezone=timezone,
         )
         self._fatal_exceptions = tuple(fatal_exceptions)

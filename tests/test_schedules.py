@@ -37,6 +37,7 @@
 import asyncio
 import datetime
 import functools
+import itertools
 import time
 import traceback
 import types
@@ -51,7 +52,12 @@ import pytest
 import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
+_T = typing.TypeVar("_T")
 _TIMEOUT: typing.Final[float] = 0.5
+
+
+def _chain(data: collections.Iterable[collections.Iterable[_T]]) -> list[_T]:
+    return list(itertools.chain.from_iterable(data))
 
 
 def _print_tb(callback: _CallbackT, /) -> _CallbackT:
@@ -681,6 +687,185 @@ class TestTimeSchedule:
 
         interval.stop()
 
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_message"),
+        [
+            pytest.param(
+                {"months": 0},
+                r"months value must be \(inclusively\) between 1 and 12, not 0",
+                id="Single month too small",
+            ),
+            pytest.param(
+                {"months": 13},
+                r"months value must be \(inclusively\) between 1 and 12, not 13",
+                id="Single month too large",
+            ),
+            pytest.param(
+                {"months": [-1, 0, 4, 5]},
+                r"months must be \(inclusively\) between 1 and 12, not -1 and 5",
+                id="Multiple months too small",
+            ),
+            pytest.param(
+                {"months": [4, 5, 7, 14]},
+                r"months must be \(inclusively\) between 1 and 12, not 4 and 14",
+                id="Multiple months too large",
+            ),
+            pytest.param(
+                {"months": range(0, 14)},
+                r"months must be \(inclusively\) between 1 and 12, not 0 and 13",
+                id="Months range out of range",
+            ),
+            pytest.param(
+                {"days": 0},
+                r"days value must be \(inclusively\) between 1 and 31, not 0",
+                id="Single day too small",
+            ),
+            pytest.param(
+                {"days": 32},
+                r"days value must be \(inclusively\) between 1 and 31, not 32",
+                id="Single day too large",
+            ),
+            pytest.param(
+                {"days": [-1, 0, 4, 5]},
+                r"days must be \(inclusively\) between 1 and 31, not -1 and 5",
+                id="Multiple days too small",
+            ),
+            pytest.param(
+                {"days": [4, 5, 7, 32]},
+                r"days must be \(inclusively\) between 1 and 31, not 4 and 32",
+                id="Multiple days too large",
+            ),
+            pytest.param(
+                {"days": range(0, 34)},
+                r"days must be \(inclusively\) between 1 and 31, not 0 and 33",
+                id="days range out of range",
+            ),
+            pytest.param(
+                {"days": 0, "weekly": True},
+                r"days value must be \(inclusively\) between 1 and 8, not 0",
+                id="Single day too small and weekly",
+            ),
+            pytest.param(
+                {"days": 9, "weekly": True},
+                r"days value must be \(inclusively\) between 1 and 8, not 9",
+                id="Single day too large and weekly",
+            ),
+            pytest.param(
+                {"days": [-1, 0, 4, 5], "weekly": True},
+                r"days must be \(inclusively\) between 1 and 8, not -1 and 5",
+                id="Multiple days too small and weekly",
+            ),
+            pytest.param(
+                {"days": [4, 5, 7, 9], "weekly": True},
+                r"days must be \(inclusively\) between 1 and 8, not 4 and 9",
+                id="Multiple days too large and weekly",
+            ),
+            pytest.param(
+                {"days": range(1, 10), "weekly": True},
+                r"days must be \(inclusively\) between 1 and 8, not 1 and 9",
+                id="days range out of range and weekly",
+            ),
+            pytest.param(
+                {"hours": -1},
+                r"hours value must be \(inclusively\) between 0 and 23, not -1",
+                id="Single hour too small",
+            ),
+            pytest.param(
+                {"hours": 24},
+                r"hours value must be \(inclusively\) between 0 and 23, not 24",
+                id="Single hour too large",
+            ),
+            pytest.param(
+                {"hours": [-1, 0, 4, 5]},
+                r"hours must be \(inclusively\) between 0 and 23, not -1 and 5",
+                id="Multiple hours too small",
+            ),
+            pytest.param(
+                {"hours": [4, 5, 7, 25]},
+                r"hours must be \(inclusively\) between 0 and 23, not 4 and 25",
+                id="Multiple hours too large",
+            ),
+            pytest.param(
+                {"hours": range(0, 25)},
+                r"hours must be \(inclusively\) between 0 and 23, not 0 and 24",
+                id="Hours range out of range",
+            ),
+            pytest.param(
+                {"minutes": -1},
+                r"minutes value must be \(inclusively\) between 0 and 59, not -1",
+                id="Single minute too small",
+            ),
+            pytest.param(
+                {"minutes": 60},
+                r"minutes value must be \(inclusively\) between 0 and 59, not 60",
+                id="Single minute too large",
+            ),
+            pytest.param(
+                {"minutes": [-1, 0, 4, 5]},
+                r"minutes must be \(inclusively\) between 0 and 59, not -1 and 5",
+                id="Multiple minutes too small",
+            ),
+            pytest.param(
+                {"minutes": [4, 5, 7, 60]},
+                r"minutes must be \(inclusively\) between 0 and 59, not 4 and 60",
+                id="Multiple minutes too large",
+            ),
+            pytest.param(
+                {"minutes": range(0, 61)},
+                r"minutes must be \(inclusively\) between 0 and 59, not 0 and 60",
+                id="Minutes range out of range",
+            ),
+            #
+            pytest.param(
+                {"seconds": -1},
+                r"seconds value must be \(inclusively\) between 0 and 59, not -1",
+                id="Single second too small",
+            ),
+            pytest.param(
+                {"seconds": 60},
+                r"seconds value must be \(inclusively\) between 0 and 59, not 60",
+                id="Single second too large",
+            ),
+            pytest.param(
+                {"seconds": [-1, 0, 4, 5]},
+                r"seconds must be \(inclusively\) between 0 and 59, not -1 and 5",
+                id="Multiple seconds too small",
+            ),
+            pytest.param(
+                {"seconds": [4, 5, 7, 60]},
+                r"seconds must be \(inclusively\) between 0 and 59, not 4 and 60",
+                id="Multiple seconds too large",
+            ),
+            pytest.param(
+                {"seconds": range(0, 61)},
+                r"seconds must be \(inclusively\) between 0 and 59, not 0 and 60",
+                id="Seconds range out of range",
+            ),
+        ],
+    )
+    def test_init_with_out_of_range_value(self, kwargs: dict[str, typing.Any], expected_message: str):
+        with pytest.raises(ValueError, match=expected_message):
+            tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
+
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_message"),
+        [
+            pytest.param({"months": 2.4}, "months value must be an integer, not a float", id="Single month"),
+            pytest.param({"months": [4, 6, 7, 3.4, 6]}, "Cannot pass floats for months", id="Multiple months"),
+            pytest.param({"days": 5.34}, "days value must be an integer, not a float", id="Single day"),
+            pytest.param({"days": [3, 5, 2, 4, 5.34]}, "Cannot pass floats for days", id="Multiple days"),
+            pytest.param({"hours": 4.3}, "hours value must be an integer, not a float", id="Single hour"),
+            pytest.param({"hours": [3, 5, 2, 4.5, 6]}, "Cannot pass floats for hours", id="Multiple hours"),
+            pytest.param({"minutes": 3.5}, "minutes value must be an integer, not a float", id="Single minute"),
+            pytest.param({"minutes": [4, 5, 5.6, 6, 7]}, "Cannot pass floats for minutes", id="Multiple minutes"),
+            pytest.param({"seconds": 3.5}, "seconds value must be an integer, not a float", id="Single second"),
+            pytest.param({"seconds": [3, 4, 5, 6.54, 3]}, "Cannot pass floats for seconds", id="Multiple seconds"),
+        ],
+    )
+    def test_init_when_float_passed(self, kwargs: dict[str, typing.Any], expected_message: str):
+        with pytest.raises(ValueError, match=expected_message):
+            tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
+
     @pytest.mark.asyncio()
     async def test_call_dunder_method(self):
         mock_callback: typing.Any = mock.AsyncMock()
@@ -772,6 +957,111 @@ class TestTimeSchedule:
         ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates"),
         [
             pytest.param(
+                {
+                    "months": 1,
+                    "days": 1,
+                    "hours": 0,
+                    "minutes": 0,
+                    "seconds": 0,
+                },
+                datetime.datetime(2020, 12, 31, 23, 59, 59),
+                [
+                    datetime.timedelta(seconds=1, microseconds=500001),
+                    datetime.timedelta(days=365),
+                    datetime.timedelta(days=365),
+                ],
+                datetime.timedelta(days=730, seconds=2, microseconds=500001),
+                [
+                    datetime.datetime(2021, 1, 1, 0, 0, 0, 500001),
+                    datetime.datetime(2022, 1, 1, 0, 0, 0, 500001),
+                    datetime.datetime(2023, 1, 1, 0, 0, 0, 500001),
+                ],
+                id="Start of each section",
+            ),
+            pytest.param(
+                {
+                    "months": 1,
+                    "weekly": True,
+                    "days": 1,
+                    "hours": 0,
+                    "minutes": 0,
+                    "seconds": 0,
+                },
+                datetime.datetime(2066, 12, 31, 23, 59, 59),
+                [
+                    datetime.timedelta(days=2, seconds=1, microseconds=500001),
+                    *(datetime.timedelta(days=7),) * 4,
+                    datetime.timedelta(days=336),
+                    *(datetime.timedelta(days=7),) * 4,
+                ],
+                datetime.timedelta(days=394, seconds=2, microseconds=500001),
+                [
+                    datetime.datetime(2067, 1, 3, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 10, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 17, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 24, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 31, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 2, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 9, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 16, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 23, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 30, 0, 0, 0, 500001),
+                ],
+                id="Start of each section weekly",
+            ),
+            # pytest.param(
+            #     {
+            #         "months": [11, 12],  # This also tests that out-of-month-range date handling works.
+            #         "days": 31,
+            #         "hours": 23,
+            #         "minutes": 59,
+            #         "seconds": 59,
+            #     },
+            #     datetime.datetime(2015, 10, 5, 23, 1, 1),
+            #     [
+            #         datetime.timedelta(days=87, minutes=58, seconds=58, microseconds=500001),
+            #         datetime.timedelta(days=366),
+            #         datetime.timedelta(days=1),
+            #     ],
+            #     datetime.timedelta(days=453, minutes=58, seconds=58, microseconds=500001),
+            #     [
+            #         datetime.datetime(2015, 12, 31, 23, 59, 59, 500001),
+            #         datetime.datetime(2016, 12, 31, 23, 59, 59, 500001),
+            #     ],
+            #     id="End of each section",
+            # ),
+            # pytest.param(
+            #     {
+            #         "months": [11, 12],
+            #         "weekly": True,
+            #         "days": 31,
+            #         "hours": 23,
+            #         "minutes": 59,
+            #         "seconds": 59,
+            #     },
+            #     datetime.datetime(2066, 12, 31, 23, 59, 59),
+            #     [
+            #         datetime.timedelta(days=2, seconds=1, microseconds=500001),
+            #         *(datetime.timedelta(days=7),) * 4,
+            #         datetime.timedelta(days=336),
+            #         *(datetime.timedelta(days=7),) * 4,
+            #     ],
+            #     datetime.timedelta(days=394, seconds=2, microseconds=500001),
+            #     [
+            #         datetime.datetime(2067, 1, 3, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 10, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 17, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 24, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 31, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 2, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 9, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 16, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 23, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 30, 0, 0, 0, 500001),
+            #     ],
+            #     id="End of each section weekly",
+            # ),
+            pytest.param(
                 {},
                 datetime.datetime(2011, 1, 4, 11, 57, 10),
                 [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1), datetime.timedelta(minutes=1)],
@@ -810,77 +1100,35 @@ class TestTimeSchedule:
                     "seconds": [30, 10],
                 },
                 datetime.datetime(2016, 3, 4, 10, 40, 30),
-                [
-                    datetime.timedelta(days=34, seconds=6100, microseconds=500001),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(hours=4, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(hours=4, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=83, hours=18, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(hours=4, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(hours=4, minutes=26, seconds=40),
-                    datetime.timedelta(seconds=20),
-                    datetime.timedelta(minutes=32, seconds=40),
-                    datetime.timedelta(seconds=20),
+                _chain(
+                    (
+                        d,
+                        datetime.timedelta(seconds=20),
+                        datetime.timedelta(minutes=32, seconds=40),
+                        datetime.timedelta(seconds=20),
+                    )
+                    for d in (
+                        datetime.timedelta(days=34, seconds=6100, microseconds=500001),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        datetime.timedelta(days=83, hours=18, minutes=26, seconds=40),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                    )
+                )
+                + [
                     datetime.timedelta(days=266, hours=18, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
                     datetime.timedelta(seconds=1),
                 ],
                 datetime.timedelta(days=399, hours=1, minutes=42, seconds=1),
                 [
-                    datetime.datetime(2016, 4, 7, 12, 22, 10, 500001),
-                    datetime.datetime(2016, 4, 7, 12, 22, 30, 500001),
-                    datetime.datetime(2016, 4, 7, 12, 55, 10, 500001),
-                    datetime.datetime(2016, 4, 7, 12, 55, 30, 500001),
-                    datetime.datetime(2016, 4, 7, 17, 22, 10, 500001),
-                    datetime.datetime(2016, 4, 7, 17, 22, 30, 500001),
-                    datetime.datetime(2016, 4, 7, 17, 55, 10, 500001),
-                    datetime.datetime(2016, 4, 7, 17, 55, 30, 500001),
-                    datetime.datetime(2016, 4, 14, 12, 22, 10, 500001),
-                    datetime.datetime(2016, 4, 14, 12, 22, 30, 500001),
-                    datetime.datetime(2016, 4, 14, 12, 55, 10, 500001),
-                    datetime.datetime(2016, 4, 14, 12, 55, 30, 500001),
-                    datetime.datetime(2016, 4, 14, 17, 22, 10, 500001),
-                    datetime.datetime(2016, 4, 14, 17, 22, 30, 500001),
-                    datetime.datetime(2016, 4, 14, 17, 55, 10, 500001),
-                    datetime.datetime(2016, 4, 14, 17, 55, 30, 500001),
-                    datetime.datetime(2016, 7, 7, 12, 22, 10, 500001),
-                    datetime.datetime(2016, 7, 7, 12, 22, 30, 500001),
-                    datetime.datetime(2016, 7, 7, 12, 55, 10, 500001),
-                    datetime.datetime(2016, 7, 7, 12, 55, 30, 500001),
-                    datetime.datetime(2016, 7, 7, 17, 22, 10, 500001),
-                    datetime.datetime(2016, 7, 7, 17, 22, 30, 500001),
-                    datetime.datetime(2016, 7, 7, 17, 55, 10, 500001),
-                    datetime.datetime(2016, 7, 7, 17, 55, 30, 500001),
-                    datetime.datetime(2016, 7, 14, 12, 22, 10, 500001),
-                    datetime.datetime(2016, 7, 14, 12, 22, 30, 500001),
-                    datetime.datetime(2016, 7, 14, 12, 55, 10, 500001),
-                    datetime.datetime(2016, 7, 14, 12, 55, 30, 500001),
-                    datetime.datetime(2016, 7, 14, 17, 22, 10, 500001),
-                    datetime.datetime(2016, 7, 14, 17, 22, 30, 500001),
-                    datetime.datetime(2016, 7, 14, 17, 55, 10, 500001),
-                    datetime.datetime(2016, 7, 14, 17, 55, 30, 500001),
+                    *(
+                        datetime.datetime(2016, *args, microsecond=500001)
+                        for args in itertools.product([4, 7], [7, 14], [12, 17], [22, 55], [10, 30])
+                    ),
                     datetime.datetime(2017, 4, 7, 12, 22, 10, 500001),
                     datetime.datetime(2017, 4, 7, 12, 22, 30, 500001),
                 ],
@@ -898,32 +1146,13 @@ class TestTimeSchedule:
                 datetime.datetime(2069, 3, 5, 5, 45, 10),
                 [
                     datetime.timedelta(days=57, microseconds=500001),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
+                    *(datetime.timedelta(days=2), datetime.timedelta(days=5)) * 4,
                     datetime.timedelta(days=2),
                     datetime.timedelta(days=96),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
+                    *(datetime.timedelta(days=2), datetime.timedelta(days=5)) * 3,
                     datetime.timedelta(days=2),
                     datetime.timedelta(days=96),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
-                    datetime.timedelta(days=2),
-                    datetime.timedelta(days=5),
+                    *(datetime.timedelta(days=2), datetime.timedelta(days=5)) * 4,
                     datetime.timedelta(days=2),
                 ],
                 datetime.timedelta(days=333),
@@ -959,12 +1188,144 @@ class TestTimeSchedule:
                 ],
                 id="all time fields specified weekly",
             ),
-            # ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates")
-            # pytest.param(id="specific months, days, hours and minutes"),
-            # pytest.param(id="specific months, days, hours and minutes weekly"),
-            # pytest.param(id="specific months, days, hours and seconds"),
-            # pytest.param(id="specific months, days, hours and seconds weekly"),
-            # pytest.param(id="specific months, days, minutes and seconds"),
+            pytest.param(
+                {
+                    "months": range(11, 13),
+                    "days": [1, 15],
+                    "hours": range(7, 5, -1),
+                    "minutes": range(3, 1, -1),
+                },
+                datetime.datetime(2016, 7, 15, 12, 22, 10, 500001),
+                _chain(
+                    (
+                        d,
+                        datetime.timedelta(minutes=1),
+                        datetime.timedelta(minutes=59),
+                        datetime.timedelta(minutes=1),
+                    )
+                    for d in (
+                        datetime.timedelta(days=108, hours=17, minutes=39, seconds=50),
+                        datetime.timedelta(days=13, hours=22, minutes=59),
+                        datetime.timedelta(days=15, hours=22, minutes=59),
+                        datetime.timedelta(days=13, hours=22, minutes=59),
+                        datetime.timedelta(days=320, hours=22, minutes=59),
+                        datetime.timedelta(days=13, hours=22, minutes=59),
+                    )
+                ),
+                datetime.timedelta(days=487, hours=18, minutes=41, seconds=50),
+                [
+                    *(
+                        datetime.datetime(2016, *args, microsecond=500001)
+                        for args in itertools.product([11, 12], [1, 15], [6, 7], [2, 3])
+                    ),
+                    *(
+                        datetime.datetime(2017, 11, *args, microsecond=500001)
+                        for args in itertools.product([1, 15], [6, 7], [2, 3])
+                    ),
+                ],
+                id="specific months, days, hours and minutes",
+            ),
+            pytest.param(
+                {
+                    "months": range(12, 10, -1),
+                    "weekly": True,
+                    "days": range(3, 5),
+                    "hours": range(6, 8),
+                    "minutes": range(3, 4),
+                },
+                datetime.datetime(2019, 5, 1),
+                [
+                    datetime.timedelta(days=189, hours=6, minutes=3, microseconds=500001),
+                    datetime.timedelta(hours=1),
+                    datetime.timedelta(hours=23),
+                    datetime.timedelta(hours=1),
+                    *(
+                        datetime.timedelta(days=5, hours=23),
+                        datetime.timedelta(hours=1),
+                        datetime.timedelta(hours=23),
+                        datetime.timedelta(hours=1),
+                    )
+                    * 7,
+                    datetime.timedelta(days=313, hours=23),
+                    datetime.timedelta(hours=1),
+                    datetime.timedelta(hours=23),
+                ],
+                datetime.timedelta(days=554, hours=6, minutes=4),
+                [
+                    datetime.datetime(2019, 11, 6, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 6, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 7, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 7, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 13, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 13, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 14, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 14, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 20, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 20, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 21, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 21, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 27, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 27, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 28, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 28, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 4, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 4, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 5, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 5, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 11, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 11, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 12, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 12, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 18, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 18, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 19, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 19, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 25, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 25, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 26, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 26, 7, 3, 00, 500001),
+                    datetime.datetime(2020, 11, 4, 6, 3, 00, 500001),
+                    datetime.datetime(2020, 11, 4, 7, 3, 00, 500001),
+                    datetime.datetime(2020, 11, 5, 6, 3, 00, 500001),
+                ],
+                id="specific months, days, hours and minutes weekly",
+            ),
+            # pytest.param(
+            #     {
+            #         "months": 8,
+            #         "days": range(4, 2, -1),  # [4, 3]
+            #         "hours": 3,
+            #         "seconds": range(5, 9, 2),  # [5, 7]
+            #     },
+            #     datetime.datetime(3222, 1, 2, 3, microsecond=500001),
+            #     [
+            #         datetime.timedelta(days=213, seconds=5),
+            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
+            #         datetime.timedelta(seconds=2),
+            #         datetime.timedelta(hours=23, minutes=1, seconds=58),
+            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
+            #         datetime.timedelta(seconds=2),
+            #         datetime.timedelta(days=363, hours=23, minutes=1, seconds=58),
+            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
+            #         datetime.timedelta(seconds=2),
+            #     ],
+            #     datetime.timedelta(days=578, minutes=58, seconds=7, microseconds=500001),
+            #     [
+            #         *(
+            #             datetime.datetime(3222, 8, day, 3, minute, second, 500001)
+            #             for day, minute, second in itertools.product([3, 4], range(0, 59), [5, 7])
+            #         ),
+            #         *(
+            #             datetime.datetime(3223, 8, 3, 3, minute, second, 500001)
+            #             for minute, second in itertools.product(range(0, 59), [5, 7])
+            #         ),
+            #     ],
+            #     id="specific months, days, hours and seconds",
+            # ),
+            # ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates")  # TODO: test timezone behaviour
+            # needs to be singled: days, days weekly, minutes, seconds
+            # pytest.param(id="specific months, days, hours and seconds weekly"),  #  backwards range days and seconds
+            # pytest.param(id="specific months, days, minutes and seconds"),   # backwards range days
             # pytest.param(id="specific months, days, minutes and seconds weekly"),
             # pytest.param(id="specific months, hours, minutes and seconds"),
             # pytest.param(id="specific months, days and hours"),
