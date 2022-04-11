@@ -102,6 +102,7 @@ jobs:
   # TODO: Could we switch over to gather coverage from the normal test runs and combining
   # the result once https://github.com/nedbat/coveragepy/issues/1002 is fixed?
   upload-coverage:
+    needs: [test]
     runs-on: ubuntu-latest
 
     steps:
