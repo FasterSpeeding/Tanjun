@@ -1,0 +1,3689 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
+    
+    
+      
+        <title>tanjun.parsing - Tanjun docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.120efc48.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.9647289d.min.css">
+        
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tanjunparsing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Tanjun docs" class="md-header__button md-logo" aria-label="Tanjun docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Tanjun docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              tanjun.parsing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Tanjun docs" class="md-nav__button md-logo" aria-label="Tanjun docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Tanjun docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        tanjun
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abc/" class="md-nav__link">
+        tanjun.abc
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../checks/" class="md-nav__link">
+        tanjun.checks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clients/" class="md-nav__link">
+        tanjun.clients
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/" class="md-nav__link">
+        tanjun.commands
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/" class="md-nav__link">
+        tanjun.components
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context/" class="md-nav__link">
+        tanjun.context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/" class="md-nav__link">
+        tanjun.conversion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependencies/" class="md-nav__link">
+        tanjun.dependencies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
+        tanjun.errors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hooks/" class="md-nav__link">
+        tanjun.hooks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          tanjun.parsing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        tanjun.parsing
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing" class="md-nav__link">
+    tanjun.parsing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractParser" class="md-nav__link">
+    AbstractParser
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.ConverterSig" class="md-nav__link">
+    ConverterSig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UNDEFINED" class="md-nav__link">
+    UNDEFINED
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UNDEFINED_DEFAULT" class="md-nav__link">
+    UNDEFINED_DEFAULT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UndefinedDefaultT" class="md-nav__link">
+    UndefinedDefaultT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser" class="md-nav__link">
+    AbstractOptionParser
+  </a>
+  
+    <nav class="md-nav" aria-label="AbstractOptionParser">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.add_argument" class="md-nav__link">
+    add_argument()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.add_option" class="md-nav__link">
+    add_option()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.arguments" class="md-nav__link">
+    arguments()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.options" class="md-nav__link">
+    options()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.Argument" class="md-nav__link">
+    Argument
+  </a>
+  
+    <nav class="md-nav" aria-label="Argument">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Argument.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Argument.is_greedy" class="md-nav__link">
+    is_greedy()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option" class="md-nav__link">
+    Option
+  </a>
+  
+    <nav class="md-nav" aria-label="Option">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option.empty_value" class="md-nav__link">
+    empty_value()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option.names" class="md-nav__link">
+    names()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter" class="md-nav__link">
+    Parameter
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.convert" class="md-nav__link">
+    convert()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.converters" class="md-nav__link">
+    converters()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.copy" class="md-nav__link">
+    copy()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.default" class="md-nav__link">
+    default()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.is_multi" class="md-nav__link">
+    is_multi()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.key" class="md-nav__link">
+    key()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.ShlexParser" class="md-nav__link">
+    ShlexParser
+  </a>
+  
+    <nav class="md-nav" aria-label="ShlexParser">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.ShlexParser.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UndefinedT" class="md-nav__link">
+    UndefinedT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_argument" class="md-nav__link">
+    with_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_greedy_argument" class="md-nav__link">
+    with_greedy_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_multi_argument" class="md-nav__link">
+    with_multi_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_multi_option" class="md-nav__link">
+    with_multi_option()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_option" class="md-nav__link">
+    with_option()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_parser" class="md-nav__link">
+    with_parser()
+  </a>
+  
+    <nav class="md-nav" aria-label="with_parser()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_parser--example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schedules/" class="md-nav__link">
+        tanjun.schedules
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utilities/" class="md-nav__link">
+        tanjun.utilities
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing" class="md-nav__link">
+    tanjun.parsing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractParser" class="md-nav__link">
+    AbstractParser
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.ConverterSig" class="md-nav__link">
+    ConverterSig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UNDEFINED" class="md-nav__link">
+    UNDEFINED
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UNDEFINED_DEFAULT" class="md-nav__link">
+    UNDEFINED_DEFAULT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UndefinedDefaultT" class="md-nav__link">
+    UndefinedDefaultT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser" class="md-nav__link">
+    AbstractOptionParser
+  </a>
+  
+    <nav class="md-nav" aria-label="AbstractOptionParser">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.add_argument" class="md-nav__link">
+    add_argument()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.add_option" class="md-nav__link">
+    add_option()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.arguments" class="md-nav__link">
+    arguments()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.AbstractOptionParser.options" class="md-nav__link">
+    options()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.Argument" class="md-nav__link">
+    Argument
+  </a>
+  
+    <nav class="md-nav" aria-label="Argument">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Argument.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Argument.is_greedy" class="md-nav__link">
+    is_greedy()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option" class="md-nav__link">
+    Option
+  </a>
+  
+    <nav class="md-nav" aria-label="Option">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option.empty_value" class="md-nav__link">
+    empty_value()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Option.names" class="md-nav__link">
+    names()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter" class="md-nav__link">
+    Parameter
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.convert" class="md-nav__link">
+    convert()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.converters" class="md-nav__link">
+    converters()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.copy" class="md-nav__link">
+    copy()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.default" class="md-nav__link">
+    default()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.is_multi" class="md-nav__link">
+    is_multi()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.key" class="md-nav__link">
+    key()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.ShlexParser" class="md-nav__link">
+    ShlexParser
+  </a>
+  
+    <nav class="md-nav" aria-label="ShlexParser">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.ShlexParser.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.UndefinedT" class="md-nav__link">
+    UndefinedT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_argument" class="md-nav__link">
+    with_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_greedy_argument" class="md-nav__link">
+    with_greedy_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_multi_argument" class="md-nav__link">
+    with_multi_argument()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_multi_option" class="md-nav__link">
+    with_multi_option()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_option" class="md-nav__link">
+    with_option()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_parser" class="md-nav__link">
+    with_parser()
+  </a>
+  
+    <nav class="md-nav" aria-label="with_parser()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.with_parser--example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="tanjunparsing">tanjun.parsing</h1>
+
+
+  <div class="doc doc-object doc-module">
+
+<a id="tanjun.parsing"></a>
+    <div class="doc doc-contents first">
+
+      <p>Standard implementation of message command argument parsing.</p>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.parsing.AbstractParser" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">AbstractParser</span> <span class="o">=</span> <span class="n">AbstractOptionParser</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.parsing.AbstractOptionParser">AbstractOptionParser</a>.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.parsing.ConverterSig" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ConverterSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">_T</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">_T</span><span class="p">]]</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Type hint of a converter used within a parser instance.</p>
+<p>This must be a callable or asynchronous callable which takes one position
+<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, argument and returns the resultant value.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.parsing.UNDEFINED" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">UNDEFINED</span> <span class="o">=</span> <span class="n">UndefinedT</span><span class="p">()</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>A singleton used to represent an undefined value within parsing logic.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.parsing.UNDEFINED_DEFAULT" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">UNDEFINED_DEFAULT</span> <span class="o">=</span> <span class="n">UNDEFINED</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a>.</p>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.parsing.UndefinedDefaultT" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">UndefinedDefaultT</span> <span class="o">=</span> <span class="n">UndefinedT</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">Undefined</a>.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.parsing.AbstractOptionParser" class="doc doc-heading">
+          <code>AbstractOptionParser</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+        <p class="doc doc-class-bases">
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageParser" href="../abc/#tanjun.abc.MessageParser">MessageParser</a></code>, <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/abc.html#module-abc">abc</a>.<a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.9/library/abc.html#abc.ABC">ABC</a></code></p>
+
+
+      <p>Abstract interface of a message content parser.</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.AbstractOptionParser.add_argument" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_argument</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a positional argument type to the parser..</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Order matters for positional arguments.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, if left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no default.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>greedy</code></td>
+          <td class="doc-param-details">
+            <p>Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>multi</code></td>
+          <td class="doc-param-details">
+            <p>Whether this argument can be passed multiple times.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This parser to enable chained calls.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.AbstractOptionParser.add_option" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_option</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add an named option to this parser.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this option which will be used to pass the
+result of this option to the command's callback during execution as
+a keyword argument.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>*names</code></td>
+          <td class="doc-param-details">
+            <p>Other names of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this option, unlike arguments this is required
+for options.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this option should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>empty_value</code></td>
+          <td class="doc-param-details">
+            <p>The value to use if this option is provided without a value.
+If left as <a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this option
+will error if it's provided without a value.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>multi</code></td>
+          <td class="doc-param-details">
+            <p>If this option can be provided multiple times.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This parser to enable chained calls.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.AbstractOptionParser.arguments" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">arguments</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Sequence of the positional arguments registered with this parser.</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.AbstractOptionParser.options" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">options</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Sequence of the named options registered with this parser.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.parsing.Argument" class="doc doc-heading">
+          <code>Argument</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+        <p class="doc doc-class-bases">
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.parsing.Parameter" href="#tanjun.parsing.Parameter">Parameter</a></code></p>
+
+
+      <p>Representation of a positional argument used by the standard parser.</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Argument.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Initialise a positional argument.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, if left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no
+default.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>greedy</code></td>
+          <td class="doc-param-details">
+            <p>Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>multi</code></td>
+          <td class="doc-param-details">
+            <p>Whether this argument can be passed multiple times.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Argument.is_greedy" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">is_greedy</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Whether this parameter is greedy.</p>
+<p>Greedy parameters will consume the remaining message content as one
+string (with converters also being passed the whole string).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Greedy and multi parameters cannot be used together.</p>
+</div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.parsing.Option" class="doc doc-heading">
+          <code>Option</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+        <p class="doc doc-class-bases">
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.parsing.Parameter" href="#tanjun.parsing.Parameter">Parameter</a></code></p>
+
+
+      <p>Representation of a named optional parameter used by the standard parser.</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Option.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Initialise a named optional parameter.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>*names</code></td>
+          <td class="doc-param-details">
+            <p>Other names of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, unlike arguments this is required
+for options.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>empty_value</code></td>
+          <td class="doc-param-details">
+            <p>The value to use if this option is provided without a value.
+If left as <a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this option
+will error if it's provided without a value.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>multi</code></td>
+          <td class="doc-param-details">
+            <p>If this option can be provided multiple times.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>True</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Option.empty_value" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">empty_value</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The value to return if the option is empty.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then a value will be
+required for the option.</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Option.names" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">names</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Sequence of the CLI names of this option.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.parsing.Parameter" class="doc doc-heading">
+          <code>Parameter</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Base class for parameters for the standard parser(s).</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Initialise a parameter.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.convert" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Convert the given value to the type of this parameter.</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.converters" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">converters</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Sequence of the converters registered for this parameter.</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.copy" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">copy</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Copy the parameter.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>A copy of the parameter.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.default" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">default</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The parameter's default.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this parameter is
+required.</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.is_multi" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">is_multi</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Whether this parameter is "multi".</p>
+<p>Multi parameters will be passed a list of all the values provided for
+this parameter (with each entry being converted separately.)</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.key" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">key</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The key of this parameter used to pass the result to the command's callback.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.parsing.ShlexParser" class="doc doc-heading">
+          <code>ShlexParser</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+        <p class="doc doc-class-bases">
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.parsing.AbstractOptionParser" href="#tanjun.parsing.AbstractOptionParser">AbstractOptionParser</a></code></p>
+
+
+      <p>A shlex based <a class="autorefs autorefs-internal" href="#tanjun.parsing.AbstractOptionParser">AbstractOptionParser</a> implementation.</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.ShlexParser.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Initialise a shlex parser.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.parsing.UndefinedT" class="doc doc-heading">
+          <code>UndefinedT</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Singleton used to indicate an undefined value within parsing logic.</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="tanjun.parsing.with_argument" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_argument</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add an argument to a message command through a decorator call.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Since order matters for positional arguments, you'll want to keep in
+mind that decorator execution starts at the decorator closest to the
+command and goes upwards with this deciding where a positional
+argument is located in a command's signature.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, if left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no default.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>greedy</code></td>
+          <td class="doc-param-details">
+            <p>Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>multi</code></td>
+          <td class="doc-param-details">
+            <p>Whether this argument can be passed multiple times.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Decorator function for the message command this argument is being added to.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="tanjun.parsing.with_greedy_argument" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_greedy_argument</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a greedy argument to a message command through a decorator call.</p>
+<p>A greedy argument will consume the remaining positional arguments and pass
+them through to the converters as one joined string while also requiring
+that at least one more positional argument is remaining unless a default is
+set.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Since order matters for positional arguments, you'll want to keep in
+mind that decorator execution starts at the decorator closest to the
+command and goes upwards with this deciding where a positional
+argument is located in a command's signature.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, if left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no default.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Decorator function for the message command this argument is being added to.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_greedy_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">StringView</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">StringView</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="tanjun.parsing.with_multi_argument" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_multi_argument</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a multi-argument to a message command through a decorator call.</p>
+<p>A multi argument will consume the remaining positional arguments and pass
+them to the converters through multiple calls while also requiring that
+at least one more positional argument is remaining unless a default is
+set and passing through the results to the command's callback as a
+sequence.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Since order matters for positional arguments, you'll want to keep in
+mind that decorator execution starts at the decorator closest to the
+command and goes upwards with this deciding where a positional
+argument is located in a command's signature.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, if left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no default.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Decorator function for the message command this argument is being added to.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="tanjun.parsing.with_multi_option" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_multi_option</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add an multi-option to a command's parser through a decorator call.</p>
+<p>A multi option will consume all the values provided for an option and
+pass them through to the converters as an array of strings while also
+requiring that at least one value is provided for the option unless
+a default is set.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>*names</code></td>
+          <td class="doc-param-details">
+            <p>Other names of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, unlike arguments this is required
+for options.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>empty_value</code></td>
+          <td class="doc-param-details">
+            <p>The value to use if this option is provided without a value. If left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this option will error if
+it's provided without a value.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Decorator function for the message command this option is being added to.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="tanjun.parsing.with_option" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_option</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add an option to a message command through a decorator call.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If no parser is explicitly set on the command this is decorating before
+this decorator call then this will set
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td class="doc-param-details">
+            <p>The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>*names</code></td>
+          <td class="doc-param-details">
+            <p>Other names of this option used for identifying it in the parsed content.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td class="doc-param-details">
+            <p>The default value of this argument, unlike arguments this is required
+for options.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+<p>If no converters are provided then the raw string value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._MaybeIterable">_MaybeIterable</span>[<a class="autorefs autorefs-internal" title="tanjun.parsing.ConverterSig" href="#tanjun.parsing.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>empty_value</code></td>
+          <td class="doc-param-details">
+            <p>The value to use if this option is provided without a value. If left as
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this option will error if
+it's provided without a value.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._UndefinedOr">_UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>multi</code></td>
+          <td class="doc-param-details">
+            <p>If this option can be provided multiple times.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Decorator function for the message command this option is being added to.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="tanjun.parsing.with_parser" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_parser</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span></code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a shlex parser command parser to a supported command.</p>
+<h4 id="tanjun.parsing.with_parser--example">Example</h4>
+<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;arg&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;hi&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">hi</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command</code></td>
+          <td class="doc-param-details">
+            <p>The message command to set the parser on.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="tanjun.parsing._CommandT">_CommandT</span></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>tanjun.abc.MessageCommand</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The command with the parser set.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>ValueError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If the command already has a parser set.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../hooks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: tanjun.hooks" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              tanjun.hooks
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../schedules/" class="md-footer__link md-footer__link--next" aria-label="Next: tanjun.schedules" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              tanjun.schedules
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+      
+    
+  </body>
+</html>

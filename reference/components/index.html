@@ -1,0 +1,3571 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
+    
+    
+      
+        <title>tanjun.components - Tanjun docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.120efc48.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.9647289d.min.css">
+        
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tanjuncomponents" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Tanjun docs" class="md-header__button md-logo" aria-label="Tanjun docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Tanjun docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              tanjun.components
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Tanjun docs" class="md-nav__button md-logo" aria-label="Tanjun docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Tanjun docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        tanjun
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abc/" class="md-nav__link">
+        tanjun.abc
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../checks/" class="md-nav__link">
+        tanjun.checks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clients/" class="md-nav__link">
+        tanjun.clients
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/" class="md-nav__link">
+        tanjun.commands
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          tanjun.components
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        tanjun.components
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components" class="md-nav__link">
+    tanjun.components
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components.OnCallbackSig" class="md-nav__link">
+    OnCallbackSig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components.AbstractComponentLoader" class="md-nav__link">
+    AbstractComponentLoader
+  </a>
+  
+    <nav class="md-nav" aria-label="AbstractComponentLoader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.AbstractComponentLoader.load_into_component" class="md-nav__link">
+    load_into_component()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components.Component" class="md-nav__link">
+    Component
+  </a>
+  
+    <nav class="md-nav" aria-label="Component">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_check" class="md-nav__link">
+    add_check()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_client_callback" class="md-nav__link">
+    add_client_callback()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_command" class="md-nav__link">
+    add_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_message_command" class="md-nav__link">
+    add_message_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_on_close" class="md-nav__link">
+    add_on_close()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_on_open" class="md-nav__link">
+    add_on_open()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_schedule" class="md-nav__link">
+    add_schedule()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.checks" class="md-nav__link">
+    checks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.get_client_callbacks" class="md-nav__link">
+    get_client_callbacks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.hooks" class="md-nav__link">
+    hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.load_from_scope" class="md-nav__link">
+    load_from_scope()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.make_loader" class="md-nav__link">
+    make_loader()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.menu_hooks" class="md-nav__link">
+    menu_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.message_hooks" class="md-nav__link">
+    message_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_check" class="md-nav__link">
+    remove_check()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_client_callback" class="md-nav__link">
+    remove_client_callback()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_command" class="md-nav__link">
+    remove_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_schedule" class="md-nav__link">
+    remove_schedule()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.schedules" class="md-nav__link">
+    schedules()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_ephemeral_default" class="md-nav__link">
+    set_ephemeral_default()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_hooks" class="md-nav__link">
+    set_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_menu_hooks" class="md-nav__link">
+    set_menu_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_message_hooks" class="md-nav__link">
+    set_message_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_slash_hooks" class="md-nav__link">
+    set_slash_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.slash_hooks" class="md-nav__link">
+    slash_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_check" class="md-nav__link">
+    with_check()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_client_callback" class="md-nav__link">
+    with_client_callback()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_command" class="md-nav__link">
+    with_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_on_close" class="md-nav__link">
+    with_on_close()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_on_open" class="md-nav__link">
+    with_on_open()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_schedule" class="md-nav__link">
+    with_schedule()
+  </a>
+  
+    <nav class="md-nav" aria-label="with_schedule()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_schedule--example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context/" class="md-nav__link">
+        tanjun.context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conversion/" class="md-nav__link">
+        tanjun.conversion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependencies/" class="md-nav__link">
+        tanjun.dependencies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
+        tanjun.errors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hooks/" class="md-nav__link">
+        tanjun.hooks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsing/" class="md-nav__link">
+        tanjun.parsing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schedules/" class="md-nav__link">
+        tanjun.schedules
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utilities/" class="md-nav__link">
+        tanjun.utilities
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components" class="md-nav__link">
+    tanjun.components
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components.OnCallbackSig" class="md-nav__link">
+    OnCallbackSig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components.AbstractComponentLoader" class="md-nav__link">
+    AbstractComponentLoader
+  </a>
+  
+    <nav class="md-nav" aria-label="AbstractComponentLoader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.AbstractComponentLoader.load_into_component" class="md-nav__link">
+    load_into_component()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.components.Component" class="md-nav__link">
+    Component
+  </a>
+  
+    <nav class="md-nav" aria-label="Component">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_check" class="md-nav__link">
+    add_check()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_client_callback" class="md-nav__link">
+    add_client_callback()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_command" class="md-nav__link">
+    add_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_message_command" class="md-nav__link">
+    add_message_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_on_close" class="md-nav__link">
+    add_on_close()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_on_open" class="md-nav__link">
+    add_on_open()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.add_schedule" class="md-nav__link">
+    add_schedule()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.checks" class="md-nav__link">
+    checks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.get_client_callbacks" class="md-nav__link">
+    get_client_callbacks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.hooks" class="md-nav__link">
+    hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.load_from_scope" class="md-nav__link">
+    load_from_scope()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.make_loader" class="md-nav__link">
+    make_loader()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.menu_hooks" class="md-nav__link">
+    menu_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.message_hooks" class="md-nav__link">
+    message_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_check" class="md-nav__link">
+    remove_check()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_client_callback" class="md-nav__link">
+    remove_client_callback()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_command" class="md-nav__link">
+    remove_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.remove_schedule" class="md-nav__link">
+    remove_schedule()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.schedules" class="md-nav__link">
+    schedules()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_ephemeral_default" class="md-nav__link">
+    set_ephemeral_default()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_hooks" class="md-nav__link">
+    set_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_menu_hooks" class="md-nav__link">
+    set_menu_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_message_hooks" class="md-nav__link">
+    set_message_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_slash_hooks" class="md-nav__link">
+    set_slash_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.slash_hooks" class="md-nav__link">
+    slash_hooks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_check" class="md-nav__link">
+    with_check()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_client_callback" class="md-nav__link">
+    with_client_callback()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_command" class="md-nav__link">
+    with_command()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_on_close" class="md-nav__link">
+    with_on_close()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_on_open" class="md-nav__link">
+    with_on_open()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_schedule" class="md-nav__link">
+    with_schedule()
+  </a>
+  
+    <nav class="md-nav" aria-label="with_schedule()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.with_schedule--example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="tanjuncomponents">tanjun.components</h1>
+
+
+  <div class="doc doc-object doc-module">
+
+<a id="tanjun.components"></a>
+    <div class="doc doc-contents first">
+
+      <p>Standard implementation of Tanjun's "components" used to manage separate features within a client.</p>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.components.OnCallbackSig" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">OnCallbackSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Type hint of a on_open or on_close component callback.</p>
+<p>These support dependency injection, should expect no positional arguments and
+should return <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a>.</p>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.components.AbstractComponentLoader" class="doc doc-heading">
+          <code>AbstractComponentLoader</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+        <p class="doc doc-class-bases">
+          Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/abc.html#module-abc">abc</a>.<a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.9/library/abc.html#abc.ABC">ABC</a></code></p>
+
+
+      <p>Abstract interface used for loading utility into a standard <a class="autorefs autorefs-internal" href="../#tanjun.Component">tanjun.Component</a>.</p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.AbstractComponentLoader.load_into_component" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">load_into_component</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Load the object into the component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>component</code></td>
+          <td class="doc-param-details">
+            <p>The component this object should be loaded into.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Component" href="../abc/#tanjun.abc.Component">Component</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.components.Component" class="doc doc-heading">
+          <code>Component</code>
+
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+        <p class="doc doc-class-bases">
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Component" href="../abc/#tanjun.abc.Component">Component</a></code></p>
+
+
+      <p>Standard implementation of <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Component">tanjun.abc.Component</a>.</p>
+<p>This is a collcetion of commands (both message and slash), hooks and listener
+callbacks which can be added to a generic client.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This implementation supports dependency injection for its checks,
+command callbacks and listeners when linked to a client which
+supports dependency injection.</p>
+</div>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Initialise a new component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The component's identifier.</p>
+<p>If not provided then this will be a random string.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>strict</code></td>
+          <td class="doc-param-details">
+            <p>Whether this component should use a stricter (more optimal) approach
+for message command search.</p>
+<p>When this is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>, message command names will not be allowed to contain
+spaces and will have to be unique to one command within the component.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_check" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_check</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a command check to this component to be used for all its commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>check</code></td>
+          <td class="doc-param-details">
+            <p>The check to add.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.CheckSig" href="../abc/#tanjun.abc.CheckSig">CheckSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_client_callback" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_client_callback</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a client callback.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name this callback is being registered to.</p>
+<p>This is case-insensitive.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.ClientCallbackNames" href="../abc/#tanjun.abc.ClientCallbackNames">ClientCallbackNames</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>callback</code></td>
+          <td class="doc-param-details">
+            <p>The callback to register.</p>
+<p>This may be sync or async and must return None. The positional and
+keyword arguments a callback should expect depend on implementation
+detail around the <code>name</code> being subscribed to.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MetaEventSig" href="../abc/#tanjun.abc.MetaEventSig">MetaEventSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The client instance to enable chained calls.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_command" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_command</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a command to this component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command</code></td>
+          <td class="doc-param-details">
+            <p>The command to add.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.ExecutableCommand" href="../abc/#tanjun.abc.ExecutableCommand">ExecutableCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The current component to allow for chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_message_command" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_message_command</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a message command to the component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command</code></td>
+          <td class="doc-param-details">
+            <p>The command to add.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The component to allow method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>ValueError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If one of the command's name is already registered in a strict
+component.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_on_close" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_on_close</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a close callback to this component.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the closing and closed client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>callback</code></td>
+          <td class="doc-param-details">
+            <p>The close callback to add to this component.</p>
+<p>This should take no positional arguments, return <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and may
+take use injected dependencies.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.components.OnCallbackSig" href="#tanjun.components.OnCallbackSig">OnCallbackSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The component object to enable call chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_on_open" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_on_open</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a open callback to this component.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the starting and started client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>callback</code></td>
+          <td class="doc-param-details">
+            <p>The open callback to add to this component.</p>
+<p>This should take no positional arguments, return <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and may
+take use injected dependencies.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.components.OnCallbackSig" href="#tanjun.components.OnCallbackSig">OnCallbackSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The component object to enable call chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.add_schedule" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_schedule</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a schedule to the component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>schedule</code></td>
+          <td class="doc-param-details">
+            <p>The schedule to add.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.schedules" href="../schedules/#tanjun.schedules">schedules_</a>.<a class="autorefs autorefs-internal" title="tanjun.schedules.AbstractSchedule" href="../schedules/#tanjun.schedules.AbstractSchedule">AbstractSchedule</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The component itself for chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.checks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">checks</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Collection of the checks being run against every command execution in this component.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.get_client_callbacks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_client_callbacks</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Get a collection of the callbacks registered for a specific name.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name to get the callbacks registered for.</p>
+<p>This is case-insensitive.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.ClientCallbackNames" href="../abc/#tanjun.abc.ClientCallbackNames">ClientCallbackNames</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Collection[MetaEventSig]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Collection of the callbacks for the provided name.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">hooks</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The general command hooks set for this component, if any.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.load_from_scope" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">load_from_scope</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">include_globals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Load entries such as top-level commands into the component from the calling scope.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will load schedules which support and commands
+<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">AbstractComponentLoader</a>
+(all standard implementations support this) and will ignore commands
+which are owned by command groups.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will detect entries from the calling scope which implement
+<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">tanjun.components.AbstractComponentLoader</a> unless <code>scope</code> is passed
+but this isn't possible in a stack-less python implementation; in
+stack-less environments the scope will have to be explicitly passed as
+<code>scope</code>.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>include_globals</code></td>
+          <td class="doc-param-details">
+            <p>Whether to include global variables (along with local) while
+detecting from the calling scope.</p>
+<p>This cannot be <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a> when <code>scope</code> is provided and will only ever
+be needed when the local scope is different from the global scope.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scope</code></td>
+          <td class="doc-param-details">
+            <p>The scope to detect entries which implement
+<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">tanjun.components.AbstractComponentLoader</a> from.</p>
+<p>This overrides the default usage of stackframe introspection.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The current component to allow for chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>RuntimeError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If this is called in a python implementation which doesn't support
+stack frame inspection when <code>scope</code> is not provided.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>ValueError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>scope</code> is provided when <code>include_globals</code> is True.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.make_loader" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">make_loader</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Make a loader/unloader for this component.</p>
+<p>This enables loading, unloading and reloading of this component into a
+client by targeting the module using [tanjun.Client.load_modules][],
+[tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>copy</code></td>
+          <td class="doc-param-details">
+            <p>Whether to copy the component before loading it into a client.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>True</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>tanjun.abc.ClientLoader</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The loader for this component.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.menu_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">menu_hooks</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The menu command hooks set for this component, if any.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.message_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">message_hooks</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The message command hooks set for this component, if any.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.remove_check" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">remove_check</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Remove a command check from this component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>check</code></td>
+          <td class="doc-param-details">
+            <p>The check to remove.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.CheckSig" href="../abc/#tanjun.abc.CheckSig">CheckSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>ValueError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If the check is not registered with this component.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.remove_client_callback" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">remove_client_callback</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Remove a client callback.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name this callback is being registered to.</p>
+<p>This is case-insensitive.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>callback</code></td>
+          <td class="doc-param-details">
+            <p>The callback to remove from the client's callbacks.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MetaEventSig" href="../abc/#tanjun.abc.MetaEventSig">MetaEventSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>KeyError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If the provided name isn't found.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>ValueError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If the provided callback isn't found.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The client instance to enable chained calls.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.remove_command" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">remove_command</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Remove a command from this component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command</code></td>
+          <td class="doc-param-details">
+            <p>The command to remove.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.ExecutableCommand" href="../abc/#tanjun.abc.ExecutableCommand">ExecutableCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.remove_schedule" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">remove_schedule</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Remove a schedule from the component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>schedule</code></td>
+          <td class="doc-param-details">
+            <p>The schedule to remove</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.schedules" href="../schedules/#tanjun.schedules">schedules_</a>.<a class="autorefs autorefs-internal" title="tanjun.schedules.AbstractSchedule" href="../schedules/#tanjun.schedules.AbstractSchedule">AbstractSchedule</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The component itself for chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code>ValueError</code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If the schedule isn't registered.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.schedules" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">schedules</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Collection of the schedules registered to this component.</p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.set_ephemeral_default" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set whether slash contexts executed in this component should default to ephemeral responses.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>state</code></td>
+          <td class="doc-param-details">
+            <p>Whether slash command contexts executed in this component should
+should default to ephemeral.
+This will be overridden by any response calls which specify flags.</p>
+<p>Setting this to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> will let the default set on the parent
+client propagate and decide the ephemeral default behaviour.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.set_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">set_hooks</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">hooks</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set hooks to be called during the execution of all of this component's commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>hooks</code></td>
+          <td class="doc-param-details">
+            <p>The command hooks to set.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AnyHooks" href="../abc/#tanjun.abc.AnyHooks">AnyHooks</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.set_menu_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">set_menu_hooks</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">hooks</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set hooks to be called during the execution of this component's menu commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>hooks</code></td>
+          <td class="doc-param-details">
+            <p>The menu command hooks to set.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuHooks" href="../abc/#tanjun.abc.MenuHooks">MenuHooks</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.set_message_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">set_message_hooks</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">hooks</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set hooks to be called during the execution of this component's message commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>hooks</code></td>
+          <td class="doc-param-details">
+            <p>The message command hooks to set.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageHooks" href="../abc/#tanjun.abc.MessageHooks">MessageHooks</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.set_slash_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">set_slash_hooks</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">hooks</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set hooks to be called during the execution of this component's slash commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>hooks</code></td>
+          <td class="doc-param-details">
+            <p>The slash command hooks to set.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashHooks" href="../abc/#tanjun.abc.SlashHooks">SlashHooks</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>Self</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>This component to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.slash_hooks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">slash_hooks</span><span class="p">()</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>The slash command hooks set for this component, if any.</p>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.with_check" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_check</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">check</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a general command check to this component through a decorator call.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>check</code></td>
+          <td class="doc-param-details">
+            <p>The check to add.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>tanjun.abc.CheckSig</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>tanjun.abc.CheckSig</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The added check.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.with_client_callback" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_client_callback</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a client callback through a decorator call.</p>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_client_callback</span><span class="p">(</span><span class="s2">&quot;closed&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_close</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The name this callback is being registered to.</p>
+<p>This is case-insensitive.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.ClientCallbackNames" href="../abc/#tanjun.abc.ClientCallbackNames">ClientCallbackNames</a>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>collections.abc.Callable[[tanjun.abc.MetaEventSig], tanjun.abc.MetaEventSig]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>Decorator callback used to register the client callback.</p>
+<p>This may be sync or async and must return None. The positional and
+keyword arguments a callback should expect depend on implementation
+detail around the <code>name</code> being subscribed to.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.with_command" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_command</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a command to this component through a decorator call.</p>
+
+<p><strong>Examples:</strong></p>
+    <p>This may be used inconjunction with <a class="autorefs autorefs-internal" href="../#tanjun.as_slash_command">tanjun.as_slash_command</a>
+and <a class="autorefs autorefs-internal" href="../#tanjun.as_message_command">tanjun.as_message_command</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_slash_str_option</span><span class="p">(</span><span class="s2">&quot;option_name&quot;</span><span class="p">,</span> <span class="s2">&quot;option description&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;command_name&quot;</span><span class="p">,</span> <span class="s2">&quot;command description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;argument_name&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command_name&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">message_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hi </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command</code></td>
+          <td class="doc-param-details">
+            <p>The command to add to this component.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.components._CommandT">_CommandT</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>copy</code></td>
+          <td class="doc-param-details">
+            <p>Whether to copy the command before adding it to this component.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>tanjun.abc.ExecutableCommand</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The added command.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.with_on_close" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_on_close</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a close callback to this component through a decorator call.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the closing and closed client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>callback</code></td>
+          <td class="doc-param-details">
+            <p>The close callback to add to this component.</p>
+<p>This should take no positional arguments, return <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and may
+take use injected dependencies.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>OnCallbackSig</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>OnCallbackSig</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The added close callback.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.with_on_open" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_on_open</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a open callback to this component through a decorator call.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the starting and started client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>callback</code></td>
+          <td class="doc-param-details">
+            <p>The open callback to add to this component.</p>
+<p>This should take no positional arguments, return <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and may
+take use injected dependencies.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>OnCallbackSig</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>OnCallbackSig</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The added open callback.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.with_schedule" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">with_schedule</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span></code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Add a schedule to the component through a decorator call.</p>
+<h5 id="tanjun.components.Component.with_schedule--example">Example</h5>
+<p>This may be used in conjunction with <a class="autorefs autorefs-internal" href="../#tanjun.as_interval">tanjun.as_interval</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_schedule</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_interval</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_schedule</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I&#39;m running every minute!&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>schedule</code></td>
+          <td class="doc-param-details">
+            <p>The schedule to add.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>tanjun.schedules.AbstractSchedule</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>tanjun.schedules.AbstractSchedule</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The added schedule.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../commands/" class="md-footer__link md-footer__link--prev" aria-label="Previous: tanjun.commands" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              tanjun.commands
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../context/" class="md-footer__link md-footer__link--next" aria-label="Next: tanjun.context" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              tanjun.context
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+      
+    
+  </body>
+</html>
