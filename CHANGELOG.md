@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev108.
 - Use `None` as the default for `max_value` and `min_value` in `parsing.py`.
+- The interval schedule no-longer calls its main callback when it's started.
+
+### Fixed
+- The inteval schedule now explicitly prints tracebacks instead of leaving them to asyncio's
+  handler; this avoids relying on Asyncio detail which would wait until the Event is gc'ed to
+  print the traceback.
 
 ### Removed
 - `AbstractSchedule.iteration_count` (note, this property still exists on `IntervalSchedule`).
