@@ -53,7 +53,7 @@ import tanjun
 
 _CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
 _T = typing.TypeVar("_T")
-_TIMEOUT: typing.Final[float] = 10.0
+_TIMEOUT: typing.Final[float] = 0.5
 
 
 def _chain(data: collections.Iterable[collections.Iterable[_T]]) -> list[_T]:
@@ -1211,7 +1211,8 @@ class TestTimeSchedule:
                         datetime.timedelta(days=320, hours=22, minutes=59),
                         datetime.timedelta(days=13, hours=22, minutes=59),
                     )
-                ),
+                )
+                + [datetime.timedelta(days=3)],
                 datetime.timedelta(days=487, hours=18, minutes=41, seconds=50),
                 [
                     *(
