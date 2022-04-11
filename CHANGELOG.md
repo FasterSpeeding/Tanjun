@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The interval schedule no-longer calls its main callback when it's started.
 
 ### Fixed
-- The inteval schedule now explicitly prints tracebacks instead of leaving them to asyncio's
+- The interval schedule now explicitly prints tracebacks instead of leaving them to asyncio's
   handler; this avoids relying on Asyncio detail which would wait until the Event is gc'ed to
   print the traceback.
 
