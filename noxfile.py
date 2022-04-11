@@ -171,6 +171,8 @@ def spell_check(session: nox.Session) -> None:
         "./github",
         ".pre-commit-config.yaml",
         "./docs",
+        "--ignore-regex",
+        "TimeSchedule",
     )
 
 

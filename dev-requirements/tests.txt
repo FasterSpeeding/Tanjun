@@ -4,12 +4,18 @@
 #
 #    pip-compile --output-file='dev-requirements\tests.txt' 'dev-requirements\tests.in'
 #
+atomicwrites==1.4.0
+    # via pytest
 attrs==21.4.0
+    # via pytest
+colorama==0.4.4
     # via pytest
 coverage[toml]==6.3.2
     # via pytest-cov
 execnet==1.9.0
     # via pytest-xdist
+freezegun==1.2.1
+    # via -r dev-requirements\tests.in
 iniconfig==1.1.1
     # via pytest
 packaging==21.3
@@ -24,19 +30,26 @@ pyparsing==3.0.7
     # via packaging
 pytest==7.1.1
     # via
-    #   -r dev-requirements/tests.in
+    #   -r dev-requirements\tests.in
     #   pytest-asyncio
     #   pytest-cov
     #   pytest-forked
+    #   pytest-timeout
     #   pytest-xdist
 pytest-asyncio==0.18.3
-    # via -r dev-requirements/tests.in
+    # via -r dev-requirements\tests.in
 pytest-cov==3
-    # via -r dev-requirements/tests.in
+    # via -r dev-requirements\tests.in
 pytest-forked==1.4.0
     # via pytest-xdist
+pytest-timeout==2.1.0
+    # via -r dev-requirements\tests.in
 pytest-xdist==2.5
-    # via -r dev-requirements/tests.in
+    # via -r dev-requirements\tests.in
+python-dateutil==2.8.2
+    # via freezegun
+six==1.16.0
+    # via python-dateutil
 tomli==2.0.1
     # via
     #   coverage

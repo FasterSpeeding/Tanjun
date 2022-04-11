@@ -5,9 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Time based async scheduler.
+
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev108.
 - Use `None` as the default for `max_value` and `min_value` in `parsing.py`.
+- The interval schedule no-longer calls its main callback when it's started.
+
+### Fixed
+- The interval schedule now explicitly prints tracebacks instead of leaving them to asyncio's
+  handler; this avoids relying on Asyncio detail which would wait until the Event is gc'ed to
+  print the traceback.
+
+### Removed
+- `AbstractSchedule.iteration_count` (note, this property still exists on `IntervalSchedule`).
 
 ## [2.4.3a1] - 2022-03-12
 ### Added

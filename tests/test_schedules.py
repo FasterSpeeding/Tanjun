@@ -36,13 +36,107 @@
 
 import asyncio
 import datetime
+import functools
+import itertools
+import time
+import traceback
 import types
 import typing
+from collections import abc as collections
 from unittest import mock
 
+import alluka
+import freezegun
 import pytest
 
 import tanjun
+
+_CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
+_T = typing.TypeVar("_T")
+_TIMEOUT: typing.Final[float] = 0.5
+
+
+def _chain(data: collections.Iterable[collections.Iterable[_T]]) -> list[_T]:
+    return list(itertools.chain.from_iterable(data))
+
+
+def _print_tb(callback: _CallbackT, /) -> _CallbackT:
+    @functools.wraps(callback)
+    async def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        try:
+            return await callback(*args, **kwargs)
+        except Exception:
+            traceback.print_exc()
+            raise
+
+    return wrapper
+
+
+class _ManualClock:
+    def __init__(
+        self,
+        freeze_time: "freezegun.api.FrozenDateTimeFactory",
+        tick_fors: list[datetime.timedelta],
+        *,
+        interval_ratio: int = 10,
+        post_sleep_count: int = 5,
+        tick_sleep_count: int = 1,
+    ) -> None:
+        self._freeze_time = freeze_time
+        self._index = -1
+        self._interval_ratio = interval_ratio
+        self._is_ticking = False
+        self._keep_ticking = False
+        self._post_sleep_count = post_sleep_count
+        self._tasks: list[asyncio.Task[None]] = []
+        self._tick_fors = tick_fors
+        self._tick_sleep_count = tick_sleep_count
+
+    async def _next_tick(self) -> None:
+        index = self._index + 1
+        if len(self._tick_fors) == index:
+            tick_for = self._tick_fors[-1]
+        else:
+            tick_for = self._tick_fors[index]
+            self._index += 1
+
+        interval = tick_for / self._interval_ratio
+        while tick_for > datetime.timedelta():
+            for _ in range(self._tick_sleep_count):
+                # This lets the event loop run for a bit between ticks.
+                await asyncio.sleep(0)
+
+            if tick_for - interval >= datetime.timedelta():
+                self._freeze_time.tick(interval)
+            else:
+                self._freeze_time.tick(tick_for)
+
+            tick_for -= interval
+
+        for _ in range(self._post_sleep_count):
+            # This lets the event loop run for a bit between ticks.
+            await asyncio.sleep(0)
+
+        if self._keep_ticking:
+            self._keep_ticking = False
+            return await self._next_tick()
+
+        self._is_ticking = False
+
+    def spawn_ticker(self) -> "_ManualClock":
+        if self._is_ticking and self._keep_ticking:
+            raise RuntimeError("Already ticking")
+
+        if self._is_ticking:
+            self._keep_ticking = True
+            return self
+
+        self._is_ticking = True
+        self._tasks.append(asyncio.get_running_loop().create_task(_print_tb(self._next_tick)()))
+        return self
+
+    def stop_ticker(self) -> None:
+        self._tasks[-1].cancel()
 
 
 def test_as_interval():
@@ -52,7 +146,7 @@ def test_as_interval():
         mock_callback
     )
 
-    assert result.interval == datetime.timedelta(seconds=123)
+    assert result.interval == datetime.timedelta(minutes=2, seconds=3)
     assert result._fatal_exceptions == (KeyError,)
     assert result._ignored_exceptions == (TabError,)
     assert result._max_runs == 55
@@ -75,11 +169,13 @@ class TestIntervalSchedule:
 
         assert interval.is_alive is True
 
-    @pytest.mark.parametrize("interval", [datetime.timedelta(seconds=652134), 652134, 652134.0])
+    @pytest.mark.parametrize(
+        "interval", [datetime.timedelta(days=7, hours=13, minutes=8, seconds=54), 652134, 652134.0]
+    )
     def test_interval_property(self, interval: typing.Union[int, float, datetime.timedelta]):
         interval_ = tanjun.schedules.IntervalSchedule(mock.Mock(), interval)
 
-        assert interval_.interval == datetime.timedelta(seconds=652134)
+        assert interval_.interval == datetime.timedelta(days=7, hours=13, minutes=8, seconds=54)
 
     def test_iteration_count_property(self):
         assert tanjun.schedules.IntervalSchedule(mock.Mock(), 123).iteration_count == 0
@@ -164,8 +260,7 @@ class TestIntervalSchedule:
     async def test__execute_when_fatal_exception(self):
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
-        error = KeyError("hihihiih")
-        mock_client.call_with_async_di.side_effect = error
+        mock_client.call_with_async_di.side_effect = KeyError("hihihiih")
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -173,10 +268,7 @@ class TestIntervalSchedule:
             exec_body=lambda ns: ns.update({"stop": stop}),
         )(mock_callback, 123, fatal_exceptions=[LookupError], ignored_exceptions=[Exception])
 
-        with pytest.raises(KeyError) as exc_info:
-            await interval._execute(mock_client)
-
-        assert exc_info.value is error
+        await interval._execute(mock_client)
 
         mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_called_once_with()
@@ -185,8 +277,7 @@ class TestIntervalSchedule:
     async def test__execute_when_ignored_exception(self):
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
-        error = IndexError("hihihiih")
-        mock_client.call_with_async_di.side_effect = error
+        mock_client.call_with_async_di.side_effect = IndexError("hihihiih")
         stop = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -212,108 +303,126 @@ class TestIntervalSchedule:
             exec_body=lambda ns: ns.update({"stop": stop}),
         )(mock_callback, 123, fatal_exceptions=[KeyError], ignored_exceptions=[TypeError])
 
-        with pytest.raises(ValueError, match="hihihiih") as exc_info:
-            await interval._execute(mock_client)
-
-        assert exc_info.value is error
+        await interval._execute(mock_client)
 
         mock_client.call_with_async_di.assert_awaited_once_with(mock_callback)
         stop.assert_not_called()
 
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test__loop(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_result_1 = mock.Mock()
-        mock_result_2 = mock.Mock()
-        mock_result_3 = mock.Mock()
-        mock_result_4 = mock.Mock()
-        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, mock_result_4, object()])
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
-            "StubIntervalSchedule",
-            (tanjun.schedules.IntervalSchedule[typing.Any],),
-            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-        )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-        interval._task = mock.Mock()
+        mock_client = alluka.Client()
+        call_times: list[int] = []
 
-        with (
-            mock.patch.object(asyncio, "sleep", side_effect=[None, None, None, asyncio.CancelledError]) as sleep,
-            pytest.raises(asyncio.CancelledError),
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
+        @_print_tb
+        async def callback():
+            call_times.append(time.time_ns())
+            clock.spawn_ticker()
 
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        get_running_loop.return_value.create_task.assert_has_calls(
-            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3), mock.call(mock_result_4)]
-        )
-        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+        interval = tanjun.schedules.IntervalSchedule(callback, 5, ignored_exceptions=[LookupError])
+
+        with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
+            interval.start(mock_client)
+            # Note: these have to be at least a microsecond after the target time as
+            # the unix event loop won't return the sleep until the target time has passed,
+            # not just been reached.
+            clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=5, milliseconds=100)]).spawn_ticker()
+            await asyncio.sleep(30)
+            interval.stop()
+            clock.stop_ticker()
+
         assert interval._task is None
+        assert call_times == [
+            1326542405000000000,
+            1326542410000000000,
+            1326542415000000000,
+            1326542420000000000,
+            1326542425000000000,
+        ]
+        assert interval.iteration_count == 5
 
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
     async def test__loop_when_max_runs(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_result_1 = mock.Mock()
-        mock_result_2 = mock.Mock()
-        mock_result_3 = mock.Mock()
-        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3, object()])
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
-            "StubIntervalSchedule",
-            (tanjun.schedules.IntervalSchedule[typing.Any],),
-            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-        )(mock.Mock(), 123, ignored_exceptions=[LookupError], max_runs=3)
-        interval._task = mock.Mock()
+        mock_client = alluka.Client()
+        call_times: list[int] = []
+        close_event = asyncio.Event()
+        close_time: typing.Optional[int] = None
 
-        with (
-            mock.patch.object(asyncio, "sleep") as sleep,
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
+        @_print_tb
+        async def callback():
+            call_times.append(time.time_ns())
+            clock.spawn_ticker()
 
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        get_running_loop.return_value.create_task.assert_has_calls(
-            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3)]
-        )
-        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+        @_print_tb
+        async def on_stop():
+            nonlocal close_time
+            close_event.set()
+            clock.stop_ticker()
+            close_time = time.time_ns()
+
+        interval = tanjun.schedules.IntervalSchedule(
+            callback, 3, ignored_exceptions=[LookupError], max_runs=3
+        ).set_stop_callback(on_stop)
+
+        with freezegun.freeze_time(datetime.datetime(2012, 4, 11, 12)) as frozen_time:
+            interval.start(mock_client)
+            # Note: these have to be at least a microsecond after the target time as
+            # the unix event loop won't return the sleep until the target time has passed,
+            # not just been reached.
+            clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=3, milliseconds=300)]).spawn_ticker()
+            await close_event.wait()
+            assert close_time == 1334145609000000000
+
         assert interval._task is None
+        assert call_times == [1334145603000000000, 1334145606000000000, 1334145609000000000]
+        assert interval.iteration_count == 3
 
+    @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio()
-    async def test__loop_and_start_and_stop_callbacks_set(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_client.call_with_async_di = mock.AsyncMock()
-        mock_start = mock.Mock()
-        mock_stop = mock.Mock()
-        mock_result_1 = mock.Mock()
-        mock_result_2 = mock.Mock()
-        mock_result_3 = mock.Mock()
-        mock_execute = mock.Mock(side_effect=[mock_result_1, mock_result_2, mock_result_3])
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
-            types.new_class(
-                "StubIntervalSchedule",
-                (tanjun.schedules.IntervalSchedule[typing.Any],),
-                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-            .set_start_callback(mock_start)
-            .set_stop_callback(mock_stop)
-        )
-        interval._task = mock.Mock()
+    async def test__loop_when_start_and_stop_callbacks_set(self):
+        mock_client = alluka.Client()
+        call_times: list[int] = []
+        start_time = None
+        stop_time = None
 
-        with (
-            mock.patch.object(asyncio, "sleep", side_effect=[None, None, asyncio.CancelledError]) as sleep,
-            pytest.raises(asyncio.CancelledError),
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
+        @_print_tb
+        async def callback():
+            call_times.append(time.time_ns())
+            clock.spawn_ticker()
 
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        mock_execute.assert_has_calls([mock.call(mock_client), mock.call(mock_client), mock.call(mock_client)])
-        get_running_loop.return_value.create_task.assert_has_calls(
-            [mock.call(mock_result_1), mock.call(mock_result_2), mock.call(mock_result_3)]
+        @_print_tb
+        async def on_start():
+            nonlocal start_time
+            start_time = time.time_ns()
+
+        @_print_tb
+        async def on_stop():
+            nonlocal stop_time
+            stop_time = time.time_ns()
+            clock.stop_ticker()
+
+        interval = (
+            tanjun.schedules.IntervalSchedule(callback, 7, ignored_exceptions=[LookupError])
+            .set_start_callback(on_start)
+            .set_stop_callback(on_stop)
         )
-        sleep.assert_has_calls([mock.call(123.0), mock.call(123.0), mock.call(123.0)])
+
+        with freezegun.freeze_time(datetime.datetime(2011, 4, 5, 4)) as frozen_time:
+            interval.start(mock_client)
+            # Note: these have to be at least a microsecond after the target time as
+            # the unix event loop won't return the sleep until the target time has passed,
+            # not just been reached.
+            clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=7, milliseconds=200)]).spawn_ticker()
+            await asyncio.sleep(28)
+            interval.stop()
+            await asyncio.sleep(0)
+
         assert interval._task is None
+        assert call_times == [1301976007000000000, 1301976014000000000, 1301976021000000000]
+        assert start_time == 1301976000000000000
+        assert stop_time == 1301976028000000000
+        assert interval.iteration_count == 3
 
     @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
     @pytest.mark.asyncio()
@@ -336,10 +445,9 @@ class TestIntervalSchedule:
         )
         interval._task = mock.Mock()
 
-        with mock.patch.object(asyncio, "sleep") as sleep, pytest.raises(KeyError) as exc_info:
+        with mock.patch.object(asyncio, "sleep") as sleep:
             await interval._loop(mock_client)
 
-        assert exc_info.value is error
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
         mock_execute.assert_not_called()
         sleep.assert_not_called()
@@ -372,9 +480,9 @@ class TestIntervalSchedule:
             await interval._loop(mock_client)
 
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_called_once_with(mock_client)
-        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
-        sleep.assert_awaited_once_with(123.0)
+        mock_execute.assert_not_called()
+        get_running_loop.return_value.create_task.assert_not_called()
+        sleep.assert_called_once_with(123.0)
         assert interval._task is None
 
     @pytest.mark.asyncio()
@@ -398,17 +506,15 @@ class TestIntervalSchedule:
         interval._task = mock.Mock()
 
         with (
-            mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError) as sleep,
-            pytest.raises(RuntimeError) as exc_info,
+            mock.patch.object(asyncio, "sleep", side_effect=RuntimeError) as sleep,
             mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
         ):
             await interval._loop(mock_client)
 
-        assert exc_info.value is error
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_called_once_with(mock_client)
-        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
-        sleep.assert_awaited_once_with(123.0)
+        mock_execute.assert_not_called()
+        get_running_loop.return_value.create_task.assert_not_called()
+        sleep.assert_called_once_with(123)
         assert interval._task is None
 
     @pytest.mark.asyncio()
@@ -438,8 +544,8 @@ class TestIntervalSchedule:
             await interval._loop(mock_client)
 
         mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_called_once_with(mock_client)
-        get_running_loop.return_value.create_task.assert_called_once_with(mock_execute.return_value)
+        mock_execute.assert_not_called()
+        get_running_loop.return_value.create_task.assert_not_called()
         sleep.assert_awaited_once_with(123.0)
         assert interval._task is None
 
@@ -555,3 +661,792 @@ class TestIntervalSchedule:
         interval.set_fatal_exceptions(mock_exception, mock_other_exception)
 
         assert interval._fatal_exceptions == (mock_exception, mock_other_exception)
+
+
+class TestTimeSchedule:
+    def test_callback_property(self):
+        mock_callback = mock.AsyncMock()
+        interval = tanjun.schedules.TimeSchedule(mock_callback)
+
+        assert interval.callback is mock_callback
+
+    def test_is_alive_property(self):
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+
+        assert interval.is_alive is False
+
+    @pytest.mark.asyncio()
+    async def test_is_alive_property_when_is_alive(self):
+        mock_callback = mock.AsyncMock()
+        client = alluka.Client()
+        interval = tanjun.schedules.TimeSchedule(mock_callback)
+
+        interval.start(client)
+
+        assert interval.is_alive is True
+
+        interval.stop()
+
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_message"),
+        [
+            pytest.param(
+                {"months": 0},
+                r"months value must be \(inclusively\) between 1 and 12, not 0",
+                id="Single month too small",
+            ),
+            pytest.param(
+                {"months": 13},
+                r"months value must be \(inclusively\) between 1 and 12, not 13",
+                id="Single month too large",
+            ),
+            pytest.param(
+                {"months": [-1, 0, 4, 5]},
+                r"months must be \(inclusively\) between 1 and 12, not -1 and 5",
+                id="Multiple months too small",
+            ),
+            pytest.param(
+                {"months": [4, 5, 7, 14]},
+                r"months must be \(inclusively\) between 1 and 12, not 4 and 14",
+                id="Multiple months too large",
+            ),
+            pytest.param(
+                {"months": range(0, 14)},
+                r"months must be \(inclusively\) between 1 and 12, not 0 and 13",
+                id="Months range out of range",
+            ),
+            pytest.param(
+                {"days": 0},
+                r"days value must be \(inclusively\) between 1 and 31, not 0",
+                id="Single day too small",
+            ),
+            pytest.param(
+                {"days": 32},
+                r"days value must be \(inclusively\) between 1 and 31, not 32",
+                id="Single day too large",
+            ),
+            pytest.param(
+                {"days": [-1, 0, 4, 5]},
+                r"days must be \(inclusively\) between 1 and 31, not -1 and 5",
+                id="Multiple days too small",
+            ),
+            pytest.param(
+                {"days": [4, 5, 7, 32]},
+                r"days must be \(inclusively\) between 1 and 31, not 4 and 32",
+                id="Multiple days too large",
+            ),
+            pytest.param(
+                {"days": range(0, 34)},
+                r"days must be \(inclusively\) between 1 and 31, not 0 and 33",
+                id="days range out of range",
+            ),
+            pytest.param(
+                {"days": 0, "weekly": True},
+                r"days value must be \(inclusively\) between 1 and 8, not 0",
+                id="Single day too small and weekly",
+            ),
+            pytest.param(
+                {"days": 9, "weekly": True},
+                r"days value must be \(inclusively\) between 1 and 8, not 9",
+                id="Single day too large and weekly",
+            ),
+            pytest.param(
+                {"days": [-1, 0, 4, 5], "weekly": True},
+                r"days must be \(inclusively\) between 1 and 8, not -1 and 5",
+                id="Multiple days too small and weekly",
+            ),
+            pytest.param(
+                {"days": [4, 5, 7, 9], "weekly": True},
+                r"days must be \(inclusively\) between 1 and 8, not 4 and 9",
+                id="Multiple days too large and weekly",
+            ),
+            pytest.param(
+                {"days": range(1, 10), "weekly": True},
+                r"days must be \(inclusively\) between 1 and 8, not 1 and 9",
+                id="days range out of range and weekly",
+            ),
+            pytest.param(
+                {"hours": -1},
+                r"hours value must be \(inclusively\) between 0 and 23, not -1",
+                id="Single hour too small",
+            ),
+            pytest.param(
+                {"hours": 24},
+                r"hours value must be \(inclusively\) between 0 and 23, not 24",
+                id="Single hour too large",
+            ),
+            pytest.param(
+                {"hours": [-1, 0, 4, 5]},
+                r"hours must be \(inclusively\) between 0 and 23, not -1 and 5",
+                id="Multiple hours too small",
+            ),
+            pytest.param(
+                {"hours": [4, 5, 7, 25]},
+                r"hours must be \(inclusively\) between 0 and 23, not 4 and 25",
+                id="Multiple hours too large",
+            ),
+            pytest.param(
+                {"hours": range(0, 25)},
+                r"hours must be \(inclusively\) between 0 and 23, not 0 and 24",
+                id="Hours range out of range",
+            ),
+            pytest.param(
+                {"minutes": -1},
+                r"minutes value must be \(inclusively\) between 0 and 59, not -1",
+                id="Single minute too small",
+            ),
+            pytest.param(
+                {"minutes": 60},
+                r"minutes value must be \(inclusively\) between 0 and 59, not 60",
+                id="Single minute too large",
+            ),
+            pytest.param(
+                {"minutes": [-1, 0, 4, 5]},
+                r"minutes must be \(inclusively\) between 0 and 59, not -1 and 5",
+                id="Multiple minutes too small",
+            ),
+            pytest.param(
+                {"minutes": [4, 5, 7, 60]},
+                r"minutes must be \(inclusively\) between 0 and 59, not 4 and 60",
+                id="Multiple minutes too large",
+            ),
+            pytest.param(
+                {"minutes": range(0, 61)},
+                r"minutes must be \(inclusively\) between 0 and 59, not 0 and 60",
+                id="Minutes range out of range",
+            ),
+            #
+            pytest.param(
+                {"seconds": -1},
+                r"seconds value must be \(inclusively\) between 0 and 59, not -1",
+                id="Single second too small",
+            ),
+            pytest.param(
+                {"seconds": 60},
+                r"seconds value must be \(inclusively\) between 0 and 59, not 60",
+                id="Single second too large",
+            ),
+            pytest.param(
+                {"seconds": [-1, 0, 4, 5]},
+                r"seconds must be \(inclusively\) between 0 and 59, not -1 and 5",
+                id="Multiple seconds too small",
+            ),
+            pytest.param(
+                {"seconds": [4, 5, 7, 60]},
+                r"seconds must be \(inclusively\) between 0 and 59, not 4 and 60",
+                id="Multiple seconds too large",
+            ),
+            pytest.param(
+                {"seconds": range(0, 61)},
+                r"seconds must be \(inclusively\) between 0 and 59, not 0 and 60",
+                id="Seconds range out of range",
+            ),
+        ],
+    )
+    def test_init_with_out_of_range_value(self, kwargs: dict[str, typing.Any], expected_message: str):
+        with pytest.raises(ValueError, match=expected_message):
+            tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
+
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_message"),
+        [
+            pytest.param({"months": 2.4}, "months value must be an integer, not a float", id="Single month"),
+            pytest.param({"months": [4, 6, 7, 3.4, 6]}, "Cannot pass floats for months", id="Multiple months"),
+            pytest.param({"days": 5.34}, "days value must be an integer, not a float", id="Single day"),
+            pytest.param({"days": [3, 5, 2, 4, 5.34]}, "Cannot pass floats for days", id="Multiple days"),
+            pytest.param({"hours": 4.3}, "hours value must be an integer, not a float", id="Single hour"),
+            pytest.param({"hours": [3, 5, 2, 4.5, 6]}, "Cannot pass floats for hours", id="Multiple hours"),
+            pytest.param({"minutes": 3.5}, "minutes value must be an integer, not a float", id="Single minute"),
+            pytest.param({"minutes": [4, 5, 5.6, 6, 7]}, "Cannot pass floats for minutes", id="Multiple minutes"),
+            pytest.param({"seconds": 3.5}, "seconds value must be an integer, not a float", id="Single second"),
+            pytest.param({"seconds": [3, 4, 5, 6.54, 3]}, "Cannot pass floats for seconds", id="Multiple seconds"),
+        ],
+    )
+    def test_init_when_float_passed(self, kwargs: dict[str, typing.Any], expected_message: str):
+        with pytest.raises(ValueError, match=expected_message):
+            tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
+
+    @pytest.mark.asyncio()
+    async def test_call_dunder_method(self):
+        mock_callback: typing.Any = mock.AsyncMock()
+        interval = tanjun.schedules.TimeSchedule(mock_callback)
+
+        result = await interval(123, "32", a=432, b=123)
+
+        assert result is None
+        mock_callback.assert_awaited_once_with(123, "32", a=432, b=123)
+
+    def test_copy(self):
+        mock_callback: typing.Any = mock.AsyncMock()
+        interval = tanjun.schedules.TimeSchedule(mock_callback)
+
+        result = interval.copy()
+
+        assert result is not interval
+        assert result.callback is mock_callback
+
+    def test_load_into_component(self):
+        mock_component = mock.Mock(tanjun.Component)
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+
+        interval.load_into_component(mock_component)
+
+        mock_component.add_schedule.assert_called_once_with(interval)
+
+    def test_load_into_component_when_not_loader(self):
+        mock_component = mock.Mock(object)
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+
+        interval.load_into_component(mock_component)
+
+    def test_start_when_passed_event_loop(self):
+        class StubSchedule(tanjun.schedules.TimeSchedule):
+            ...
+
+        mock_client = mock.Mock()
+        mock_loop = mock.Mock()
+        interval = StubSchedule(mock.AsyncMock())
+        interval._loop = mock.Mock()
+
+        interval.start(mock_client, loop=mock_loop)
+
+        assert interval._task is mock_loop.create_task.return_value
+        mock_loop.create_task.assert_called_once_with(interval._loop.return_value)
+        interval._loop.assert_called_once_with(mock_client)
+
+    def test_start_when_passed_event_loop_isnt_active(self):
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+        mock_loop = mock.Mock()
+        mock_loop.is_running.return_value = False
+
+        with pytest.raises(RuntimeError, match="Event loop is not running"):
+            interval.start(mock.Mock(), loop=mock_loop)
+
+    @pytest.mark.asyncio()
+    async def test_start_when_already_running(self):
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+        interval.start(mock.Mock())
+        try:
+
+            with pytest.raises(RuntimeError, match="Schedule is already running"):
+                interval.start(mock.Mock())
+
+        finally:
+            interval.stop()
+
+    def test_stop(self):
+        mock_task = mock.Mock()
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+        interval._task = mock_task
+
+        interval.stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+
+    def test_stop_when_not_running(self):
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+
+        with pytest.raises(RuntimeError, match="Schedule is not running"):
+            interval.stop()
+
+    # Note: these have to be at least a microsecond after the target time as
+    # the unix event loop won't return the sleep until the target time has passed,
+    # not just been reached.
+    @pytest.mark.parametrize(
+        ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates"),
+        [
+            pytest.param(
+                {
+                    "months": 1,
+                    "days": 1,
+                    "hours": 0,
+                    "minutes": 0,
+                    "seconds": 0,
+                },
+                datetime.datetime(2020, 12, 31, 23, 59, 59),
+                [
+                    datetime.timedelta(seconds=1, microseconds=500001),
+                    datetime.timedelta(days=365),
+                    datetime.timedelta(days=365),
+                ],
+                datetime.timedelta(days=730, seconds=2, microseconds=500001),
+                [
+                    datetime.datetime(2021, 1, 1, 0, 0, 0, 500001),
+                    datetime.datetime(2022, 1, 1, 0, 0, 0, 500001),
+                    datetime.datetime(2023, 1, 1, 0, 0, 0, 500001),
+                ],
+                id="Start of each section",
+            ),
+            pytest.param(
+                {
+                    "months": 1,
+                    "weekly": True,
+                    "days": 1,
+                    "hours": 0,
+                    "minutes": 0,
+                    "seconds": 0,
+                },
+                datetime.datetime(2066, 12, 31, 23, 59, 59),
+                [
+                    datetime.timedelta(days=2, seconds=1, microseconds=500001),
+                    *(datetime.timedelta(days=7),) * 4,
+                    datetime.timedelta(days=336),
+                    *(datetime.timedelta(days=7),) * 4,
+                ],
+                datetime.timedelta(days=394, seconds=2, microseconds=500001),
+                [
+                    datetime.datetime(2067, 1, 3, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 10, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 17, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 24, 0, 0, 0, 500001),
+                    datetime.datetime(2067, 1, 31, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 2, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 9, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 16, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 23, 0, 0, 0, 500001),
+                    datetime.datetime(2068, 1, 30, 0, 0, 0, 500001),
+                ],
+                id="Start of each section weekly",
+            ),
+            # pytest.param(
+            #     {
+            #         "months": [11, 12],  # This also tests that out-of-month-range date handling works.
+            #         "days": 31,
+            #         "hours": 23,
+            #         "minutes": 59,
+            #         "seconds": 59,
+            #     },
+            #     datetime.datetime(2015, 10, 5, 23, 1, 1),
+            #     [
+            #         datetime.timedelta(days=87, minutes=58, seconds=58, microseconds=500001),
+            #         datetime.timedelta(days=366),
+            #         datetime.timedelta(days=1),
+            #     ],
+            #     datetime.timedelta(days=453, minutes=58, seconds=58, microseconds=500001),
+            #     [
+            #         datetime.datetime(2015, 12, 31, 23, 59, 59, 500001),
+            #         datetime.datetime(2016, 12, 31, 23, 59, 59, 500001),
+            #     ],
+            #     id="End of each section",
+            # ),
+            # pytest.param(
+            #     {
+            #         "months": [11, 12],
+            #         "weekly": True,
+            #         "days": 31,
+            #         "hours": 23,
+            #         "minutes": 59,
+            #         "seconds": 59,
+            #     },
+            #     datetime.datetime(2066, 12, 31, 23, 59, 59),
+            #     [
+            #         datetime.timedelta(days=2, seconds=1, microseconds=500001),
+            #         *(datetime.timedelta(days=7),) * 4,
+            #         datetime.timedelta(days=336),
+            #         *(datetime.timedelta(days=7),) * 4,
+            #     ],
+            #     datetime.timedelta(days=394, seconds=2, microseconds=500001),
+            #     [
+            #         datetime.datetime(2067, 1, 3, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 10, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 17, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 24, 0, 0, 0, 500001),
+            #         datetime.datetime(2067, 1, 31, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 2, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 9, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 16, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 23, 0, 0, 0, 500001),
+            #         datetime.datetime(2068, 1, 30, 0, 0, 0, 500001),
+            #     ],
+            #     id="End of each section weekly",
+            # ),
+            pytest.param(
+                {},
+                datetime.datetime(2011, 1, 4, 11, 57, 10),
+                [datetime.timedelta(seconds=50, milliseconds=500, microseconds=1), datetime.timedelta(minutes=1)],
+                datetime.timedelta(minutes=6, seconds=30),
+                [
+                    datetime.datetime(2011, 1, 4, 11, 58, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 11, 59, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 0, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 1, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 2, 0, 500001),
+                    datetime.datetime(2011, 1, 4, 12, 3, 0, 500001),
+                ],
+                id="default timing",
+            ),
+            pytest.param(
+                {},
+                datetime.datetime(2035, 11, 3, 23, 56, 5),
+                [datetime.timedelta(seconds=55, milliseconds=500, microseconds=1), datetime.timedelta(minutes=1)],
+                datetime.timedelta(minutes=6, seconds=30),
+                [
+                    datetime.datetime(2035, 11, 3, 23, 57, 0, 500001),
+                    datetime.datetime(2035, 11, 3, 23, 58, 0, 500001),
+                    datetime.datetime(2035, 11, 3, 23, 59, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 0, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 1, 0, 500001),
+                    datetime.datetime(2035, 11, 4, 0, 2, 0, 500001),
+                ],
+                id="default timing bumps year",
+            ),
+            pytest.param(
+                {
+                    "months": [7, 4],
+                    "days": [14, 7],
+                    "hours": [17, 12],
+                    "minutes": [55, 22],
+                    "seconds": [30, 10],
+                },
+                datetime.datetime(2016, 3, 4, 10, 40, 30),
+                _chain(
+                    (
+                        d,
+                        datetime.timedelta(seconds=20),
+                        datetime.timedelta(minutes=32, seconds=40),
+                        datetime.timedelta(seconds=20),
+                    )
+                    for d in (
+                        datetime.timedelta(days=34, seconds=6100, microseconds=500001),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        datetime.timedelta(days=83, hours=18, minutes=26, seconds=40),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
+                        datetime.timedelta(hours=4, minutes=26, seconds=40),
+                    )
+                )
+                + [
+                    datetime.timedelta(days=266, hours=18, minutes=26, seconds=40),
+                    datetime.timedelta(seconds=20),
+                    datetime.timedelta(seconds=1),
+                ],
+                datetime.timedelta(days=399, hours=1, minutes=42, seconds=1),
+                [
+                    *(
+                        datetime.datetime(2016, *args, microsecond=500001)
+                        for args in itertools.product([4, 7], [7, 14], [12, 17], [22, 55], [10, 30])
+                    ),
+                    datetime.datetime(2017, 4, 7, 12, 22, 10, 500001),
+                    datetime.datetime(2017, 4, 7, 12, 22, 30, 500001),
+                ],
+                id="all time fields specified",
+            ),
+            pytest.param(
+                {
+                    "months": [1, 5, 9],
+                    "weekly": True,
+                    "days": [3, 5],
+                    "hours": [5],
+                    "minutes": [45],
+                    "seconds": [10],
+                },
+                datetime.datetime(2069, 3, 5, 5, 45, 10),
+                [
+                    datetime.timedelta(days=57, microseconds=500001),
+                    *(datetime.timedelta(days=2), datetime.timedelta(days=5)) * 4,
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=96),
+                    *(datetime.timedelta(days=2), datetime.timedelta(days=5)) * 3,
+                    datetime.timedelta(days=2),
+                    datetime.timedelta(days=96),
+                    *(datetime.timedelta(days=2), datetime.timedelta(days=5)) * 4,
+                    datetime.timedelta(days=2),
+                ],
+                datetime.timedelta(days=333),
+                [
+                    datetime.datetime(2069, 5, 1, 5, 45, 10, 500001),  # 3rd day
+                    datetime.datetime(2069, 5, 3, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 8, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 10, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 15, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 17, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 22, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 24, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 29, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 5, 31, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 4, 5, 45, 10, 500001),  # 3rd day
+                    datetime.datetime(2069, 9, 6, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 11, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 13, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 18, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 20, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 25, 5, 45, 10, 500001),
+                    datetime.datetime(2069, 9, 27, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 1, 5, 45, 10, 500001),  # 3rd day
+                    datetime.datetime(2070, 1, 3, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 8, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 10, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 15, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 17, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 22, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 24, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 29, 5, 45, 10, 500001),
+                    datetime.datetime(2070, 1, 31, 5, 45, 10, 500001),
+                ],
+                id="all time fields specified weekly",
+            ),
+            pytest.param(
+                {
+                    "months": range(11, 13),
+                    "days": [1, 15],
+                    "hours": range(7, 5, -1),
+                    "minutes": range(3, 1, -1),
+                },
+                datetime.datetime(2016, 7, 15, 12, 22, 10, 500001),
+                _chain(
+                    (
+                        d,
+                        datetime.timedelta(minutes=1),
+                        datetime.timedelta(minutes=59),
+                        datetime.timedelta(minutes=1),
+                    )
+                    for d in (
+                        datetime.timedelta(days=108, hours=17, minutes=39, seconds=50),
+                        datetime.timedelta(days=13, hours=22, minutes=59),
+                        datetime.timedelta(days=15, hours=22, minutes=59),
+                        datetime.timedelta(days=13, hours=22, minutes=59),
+                        datetime.timedelta(days=320, hours=22, minutes=59),
+                        datetime.timedelta(days=13, hours=22, minutes=59),
+                    )
+                )
+                + [datetime.timedelta(days=3)],
+                datetime.timedelta(days=487, hours=18, minutes=41, seconds=50),
+                [
+                    *(
+                        datetime.datetime(2016, *args, microsecond=500001)
+                        for args in itertools.product([11, 12], [1, 15], [6, 7], [2, 3])
+                    ),
+                    *(
+                        datetime.datetime(2017, 11, *args, microsecond=500001)
+                        for args in itertools.product([1, 15], [6, 7], [2, 3])
+                    ),
+                ],
+                id="specific months, days, hours and minutes",
+            ),
+            pytest.param(
+                {
+                    "months": range(12, 10, -1),
+                    "weekly": True,
+                    "days": range(3, 5),
+                    "hours": range(6, 8),
+                    "minutes": range(3, 4),
+                },
+                datetime.datetime(2019, 5, 1),
+                [
+                    datetime.timedelta(days=189, hours=6, minutes=3, microseconds=500001),
+                    datetime.timedelta(hours=1),
+                    datetime.timedelta(hours=23),
+                    datetime.timedelta(hours=1),
+                    *(
+                        datetime.timedelta(days=5, hours=23),
+                        datetime.timedelta(hours=1),
+                        datetime.timedelta(hours=23),
+                        datetime.timedelta(hours=1),
+                    )
+                    * 7,
+                    datetime.timedelta(days=313, hours=23),
+                    datetime.timedelta(hours=1),
+                    datetime.timedelta(hours=23),
+                ],
+                datetime.timedelta(days=554, hours=6, minutes=4),
+                [
+                    datetime.datetime(2019, 11, 6, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 6, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 7, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 7, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 13, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 13, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 14, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 14, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 20, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 20, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 21, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 21, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 27, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 27, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 28, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 11, 28, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 4, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 4, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 5, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 5, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 11, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 11, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 12, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 12, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 18, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 18, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 19, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 19, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 25, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 25, 7, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 26, 6, 3, 00, 500001),
+                    datetime.datetime(2019, 12, 26, 7, 3, 00, 500001),
+                    datetime.datetime(2020, 11, 4, 6, 3, 00, 500001),
+                    datetime.datetime(2020, 11, 4, 7, 3, 00, 500001),
+                    datetime.datetime(2020, 11, 5, 6, 3, 00, 500001),
+                ],
+                id="specific months, days, hours and minutes weekly",
+            ),
+            # pytest.param(
+            #     {
+            #         "months": 8,
+            #         "days": range(4, 2, -1),  # [4, 3]
+            #         "hours": 3,
+            #         "seconds": range(5, 9, 2),  # [5, 7]
+            #     },
+            #     datetime.datetime(3222, 1, 2, 3, microsecond=500001),
+            #     [
+            #         datetime.timedelta(days=213, seconds=5),
+            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
+            #         datetime.timedelta(seconds=2),
+            #         datetime.timedelta(hours=23, minutes=1, seconds=58),
+            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
+            #         datetime.timedelta(seconds=2),
+            #         datetime.timedelta(days=363, hours=23, minutes=1, seconds=58),
+            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
+            #         datetime.timedelta(seconds=2),
+            #     ],
+            #     datetime.timedelta(days=578, minutes=58, seconds=7, microseconds=500001),
+            #     [
+            #         *(
+            #             datetime.datetime(3222, 8, day, 3, minute, second, 500001)
+            #             for day, minute, second in itertools.product([3, 4], range(0, 59), [5, 7])
+            #         ),
+            #         *(
+            #             datetime.datetime(3223, 8, 3, 3, minute, second, 500001)
+            #             for minute, second in itertools.product(range(0, 59), [5, 7])
+            #         ),
+            #     ],
+            #     id="specific months, days, hours and seconds",
+            # ),
+            # ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates")  # TODO: test timezone behaviour
+            # needs to be singled: days, days weekly, minutes, seconds
+            # pytest.param(id="specific months, days, hours and seconds weekly"),  #  backwards range days and seconds
+            # pytest.param(id="specific months, days, minutes and seconds"),   # backwards range days
+            # pytest.param(id="specific months, days, minutes and seconds weekly"),
+            # pytest.param(id="specific months, hours, minutes and seconds"),
+            # pytest.param(id="specific months, days and hours"),
+            # pytest.param(id="specific months, days and hours weekly"),
+            # pytest.param(id="specific months, days and minutes"),
+            # pytest.param(id="specific months, days and minutes weekly"),
+            # pytest.param(id="specific months, days and seconds"),
+            # pytest.param(id="specific months, days and seconds weekly"),
+            # pytest.param(id="specific months, hours and minutes"),
+            # pytest.param(id="specific months, hours and seconds"),
+            # pytest.param(id="specific months, minutes and seconds"),
+            # pytest.param(id="specific months and days"),
+            # pytest.param(id="specific months and days weekly"),
+            # pytest.param(id="specific months and hours"),
+            # pytest.param(id="specific months and minutes"),
+            # pytest.param(id="specific months and seconds"),
+            # pytest.param(id="specific months"),
+            # pytest.param(id="specific days, hours minutes and seconds"),
+            # pytest.param(id="specific days, hours minutes and seconds weekly"),
+            # pytest.param(id="specific days, hours and minutes"),
+            # pytest.param(id="specific days, hours and minutes weekly"),
+            # pytest.param(id="specific days, hours and seconds"),
+            # pytest.param(id="specific days, hours and seconds weekly"),
+            # pytest.param(id="specific days, minutes and seconds"),
+            # pytest.param(id="specific days, minutes and seconds weekly"),
+            # pytest.param(id="specific days and hours"),
+            # pytest.param(id="specific days and hours weekly"),
+            # pytest.param(id="specific days and minutes"),
+            # pytest.param(id="specific days and minutes weekly"),
+            # pytest.param(id="specific days and seconds"),
+            # pytest.param(id="specific days and seconds weekly"),
+            # pytest.param(id="specific days"),
+            # pytest.param(id="specific days weekly"),
+            # pytest.param(id="specific hours, minutes and seconds"),
+            # pytest.param(id="specific hours and minutes"),
+            # pytest.param(id="specific hours and seconds"),
+            # pytest.param(id="specific hours"),
+            # pytest.param(id="specific minutes and seconds"),
+            # pytest.param(id="specific minutes"),
+            # pytest.param(id="specific seconds"),
+        ],
+    )
+    @pytest.mark.timeout(_TIMEOUT)
+    @pytest.mark.asyncio()
+    async def test_run(
+        self,
+        kwargs: dict[str, typing.Any],
+        start: datetime.datetime,
+        tick_fors: list[datetime.timedelta],
+        sleep_for: datetime.timedelta,
+        expected_dates: typing.List[datetime.datetime],
+    ):
+        # Ensure test-data integrity
+        assert start < expected_dates[0], "Start must be before expected dates"
+        assert sorted(expected_dates) == expected_dates, "Expected dates must be sorted"
+
+        called_at: list[datetime.datetime] = []
+
+        @_print_tb
+        async def callback():
+            called_at.append(datetime.datetime.now())
+            clock.spawn_ticker()
+
+        schedule = tanjun.schedules.as_time_schedule(**kwargs)(callback)
+
+        frozen_time: freezegun.api.FrozenDateTimeFactory
+        with freezegun.freeze_time(start, tick=False) as frozen_time:
+            clock = _ManualClock(frozen_time, tick_fors)
+
+            schedule.start(alluka.Client())
+            clock.spawn_ticker()
+            await asyncio.sleep(sleep_for.total_seconds())
+            schedule.stop()
+            clock.stop_ticker()
+
+        assert called_at == expected_dates
+
+    @pytest.mark.timeout(_TIMEOUT)
+    @pytest.mark.asyncio()
+    async def test_error_handling(self):
+        called_at: list[datetime.datetime] = []
+
+        @_print_tb
+        async def callback():
+            called_at.append(datetime.datetime.now())
+            clock.spawn_ticker()
+            length = len(called_at)
+            if length == 1:
+                raise RuntimeError("Not caught")
+
+            if length == 2:
+                raise ValueError("Ignored")
+
+            if length == 3:
+                raise TypeError("Fatal")
+
+        schedule = (
+            tanjun.schedules.as_time_schedule(hours=[4, 6], minutes=30)(callback)
+            .set_fatal_exceptions(TypeError)
+            .set_ignored_exceptions(ValueError)
+        )
+
+        frozen_time: freezegun.api.FrozenDateTimeFactory
+        with freezegun.freeze_time(datetime.datetime(2044, 4, 4), tick=False) as frozen_time:
+            clock = _ManualClock(
+                frozen_time,
+                [
+                    datetime.timedelta(hours=4, minutes=30, microseconds=500001),
+                    datetime.timedelta(hours=2),
+                    datetime.timedelta(hours=22),
+                ],
+            ).spawn_ticker()
+            schedule.start(alluka.Client())
+            await asyncio.sleep(datetime.timedelta(days=1, seconds=16201).total_seconds())
+
+            clock.stop_ticker()
+            assert schedule.is_alive is False
+
+        assert called_at == [
+            datetime.datetime(2044, 4, 4, 4, 30, 0, 500001),
+            datetime.datetime(2044, 4, 4, 6, 30, 0, 500001),
+            datetime.datetime(2044, 4, 5, 4, 30, 0, 500001),
+        ]

@@ -148,6 +148,7 @@ __all__: list[str] = [
     "as_message_menu",
     "as_self_injecting",
     "as_slash_command",
+    "as_time_schedule",
     "as_unloader",
     "as_user_menu",
     "cached_inject",
@@ -309,6 +310,7 @@ from .parsing import with_multi_option
 from .parsing import with_option
 from .parsing import with_parser
 from .schedules import as_interval
+from .schedules import as_time_schedule
 
 __author__: typing.Final[str] = "Faster Speeding"
 __ci__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/actions"
