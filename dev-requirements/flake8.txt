@@ -53,7 +53,7 @@ flake8-fixme==1.1.1
     # via -r dev-requirements/flake8.in
 flake8-functions==0.0.7
     # via -r dev-requirements/flake8.in
-flake8-html==0.4.1
+flake8-html==0.4.2
     # via -r dev-requirements/flake8.in
 flake8-if-statements==0.1
     # via -r dev-requirements/flake8.in
@@ -81,11 +81,9 @@ gitdb==4.0.9
     # via gitpython
 gitpython==3.1.27
     # via bandit
-importlib-metadata==4.11.3
-    # via flake8-html
 isort==5.10.1
     # via flake8-isort
-jinja2==3.0.3
+jinja2==3.1.1
     # via flake8-html
 markupsafe==2.1.1
     # via jinja2
@@ -126,8 +124,6 @@ tomli==2.0.1
     # via
     #   black
     #   flake8-black
-zipp==3.7.0
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
