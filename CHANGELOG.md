@@ -8,8 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - A `send` method to `CommandError` which can be overridden to customise its response behaviour.
 - Support for other create message arguments to `CommandError`.
-### Fixed
-- Long running `delete_after` and command execution tasks will no-longer be cancelled by GC.
 
 ### Changed
 - Renamed `CommandError.message` to `.content`.
@@ -17,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Allowed a type of `bool` (not a literal) to be passed to ensure_result typing wise.
 - Some edge cases in the weekly schedule increment handling logic.
+- Long running `delete_after` and command execution tasks will no-longer be cancelled by GC.
 
 ### Removed
 - `default_permission` options for slash commands as command permissions V2 broke and deprecated this.

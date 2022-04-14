@@ -2741,7 +2741,7 @@ class Client(tanjun.Client):
             # Under very specific timing there may be another future which could set a result while we await
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
-            self._add_task(loop.create_task(ctx.respond(exc.message), name=f"{interaction.id} command error responder"))
+            self._add_task(loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder"))
             return await future
 
         self._add_task(loop.create_task(ctx.mark_not_found(), name=f"{interaction.id} not found"))

@@ -707,7 +707,6 @@ class _Datetime:
         """
         if self._date.second in self._config.seconds and self._date != self._config.current_date:
             self._config.current_date = self._date
-            self._date = self._date
             return self
 
         second = _get_next(self._config.seconds, self._date.second)
