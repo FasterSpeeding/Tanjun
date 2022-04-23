@@ -640,7 +640,9 @@ class _Datetime:
         day = _get_next(self._config.days, day)
         current = self._date.year, self._date.month
         if day is None:  # Indicates we've passed the last matching day in this week.
-            self._date += datetime.timedelta((8 - self._date.isoweekday()))
+            self._date = (self._date + datetime.timedelta((8 - self._date.isoweekday()))).replace(
+                hour=0, minute=0, second=0
+            )
 
             if (self._date.year, self._date.month) != current:
                 # Re-calculate if necessary to ensure that this month matches
@@ -650,7 +652,9 @@ class _Datetime:
             # Calculate the next matching day in this week.
             return self._next_day()
 
-        self._date += datetime.timedelta(days=day - self._date.isoweekday())
+        self._date = (self._date + datetime.timedelta(days=day - self._date.isoweekday())).replace(
+            hour=0, minute=0, second=0
+        )
         if (self._date.year, self._date.month) != current:
             # Re-calculate if necessary to ensure that this month matches if
             # this jump crossed to a new month or year.
@@ -670,7 +674,7 @@ class _Datetime:
 
         if hour is None:  # Indicates we've passed the last matching hour in this day.
             # So we need to jump to the next day (while handling flowing to the next month/year).
-            self._date = (self._date + datetime.timedelta(days=1)).replace(hour=0, second=0, minute=0)
+            self._date = (self._date + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0)
             # Then re-calculate.
             return self._next_month()
 

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allowed a type of `bool` (not a literal) to be passed to ensure_result typing wise.
+- Some edge cases in the weekly schedule increment handling logic.
 
 ## [2.5.0a1] - 2022-04-11
 ### Added
