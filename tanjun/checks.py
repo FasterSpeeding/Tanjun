@@ -790,7 +790,7 @@ def all_checks(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
+    collections.abc.Callable[[tanjun.abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
     return _AllChecks([check, *checks])
@@ -815,7 +815,7 @@ def with_all_checks(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
+    collections.abc.Callable[[tanjun.abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
     return lambda c: c.add_check(all_checks(check, *checks))
