@@ -48,7 +48,7 @@ from . import async_cache
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    from .. import abc as tanjun_abc
+    from .. import abc as tanjun
 
 
 _T = typing.TypeVar("_T")
@@ -61,7 +61,7 @@ class AbstractOwners(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def check_ownership(self, client: tanjun_abc.Client, user: hikari.User, /) -> bool:
+    async def check_ownership(self, client: tanjun.Client, user: hikari.User, /) -> bool:
         """Check whether this object is owned by the given object.
 
         Parameters
@@ -162,7 +162,7 @@ class Owners(AbstractOwners):
         self._owner_ids = {hikari.Snowflake(id_) for id_ in owners} if owners else set[hikari.Snowflake]()
         self._value = _CachedValue[hikari.Application](expire_after=expire_after)
 
-    async def check_ownership(self, client: tanjun_abc.Client, user: hikari.User, /) -> bool:
+    async def check_ownership(self, client: tanjun.Client, user: hikari.User, /) -> bool:
         if user.id in self._owner_ids:
             return True
 

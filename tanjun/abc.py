@@ -531,10 +531,12 @@ class Context(alluka.Context):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+
             If `delete_after` would be more than 14 minutes after the slash
             command was called.
-        TypeError
-            If both `attachment` and `attachments` are specified.
+
+            If both `attachment` and `attachments` are passed or both `component`
+            and `components` are passed or both `embed` and `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
@@ -659,10 +661,12 @@ class Context(alluka.Context):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+
             If `delete_after` would be more than 14 minutes after the slash
             command was called.
-        TypeError
-            If both `attachment` and `attachments` are specified.
+
+            If both `attachmet` and `attachments` are passed or both `component`
+            and `components` are passed or both `embed` and `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
@@ -717,28 +721,6 @@ class Context(alluka.Context):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        ensure_result: typing.Literal[False] = False,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
-        ...
-
-    @typing.overload
-    @abc.abstractmethod
-    async def respond(
-        self,
-        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
-        *,
         ensure_result: typing.Literal[True],
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -753,6 +735,28 @@ class Context(alluka.Context):
             hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    async def respond(
+        self,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
+        *,
+        ensure_result: bool = False,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         ...
 
     @abc.abstractmethod
@@ -793,10 +797,6 @@ class Context(alluka.Context):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
         ensure_result
             Ensure that this call will always return a message object.
 
@@ -848,10 +848,12 @@ class Context(alluka.Context):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+
             If `delete_after` would be more than 14 minutes after the slash
             command was called.
-        TypeError
-            If both `attachment` and `attachments` are specified.
+
+            If both `component` and `components` are passed or both `embed` and
+            `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
@@ -1025,8 +1027,9 @@ class MessageContext(Context, abc.ABC):
             `role_mentions` or `user_mentions`.
 
             If the interaction will have expired before `delete_after` is reached.
-        TypeError
-            If both `attachment` and `attachments` are specified.
+
+            If both `component` and `components` are passed or both `embed` and
+            `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
@@ -1509,8 +1512,9 @@ class AppCommandContext(Context, abc.ABC):
             `role_mentions` or `user_mentions.
 
             If the interaction will have expired before `delete_after` is reached.
-        TypeError
-            If both `attachment` and `attachments` are specified.
+
+            If both `attachment` and `attachments` are passed of both `component`
+            and `components` are passed or both `embed` and `embeds` are passed.
         """
 
     @abc.abstractmethod
@@ -1559,10 +1563,6 @@ class AppCommandContext(Context, abc.ABC):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -1626,8 +1626,9 @@ class AppCommandContext(Context, abc.ABC):
             `role_mentions` or `user_mentions`.
 
             If the interaction will have expired before `delete_after` is reached.
-        TypeError
-            If both `embed` and `embeds` are specified.
+
+            If both `component` and `components` are passed or both `embed` and
+            `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no embeds; messages with more than

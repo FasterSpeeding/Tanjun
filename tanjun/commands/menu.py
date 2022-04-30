@@ -36,7 +36,7 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
-from .. import abc
+from .. import abc as tanjun
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
@@ -47,16 +47,16 @@ if typing.TYPE_CHECKING:
     from collections import abc as collections
 
     _CommandT = typing.Union[
-        abc.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
-        abc.MessageCommand["_MenuCommandCallbackSigT"],
-        abc.SlashCommand["_MenuCommandCallbackSigT"],
+        tanjun.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
+        tanjun.MessageCommand["_MenuCommandCallbackSigT"],
+        tanjun.SlashCommand["_MenuCommandCallbackSigT"],
     ]
     _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
 
 import hikari
 
-_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="abc.MenuCommandCallbackSig")
+_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="tanjun.MenuCommandCallbackSig")
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
@@ -73,7 +73,7 @@ def _as_menu(
     def decorator(
         callback: _CallbackishT[_MenuCommandCallbackSigT], /
     ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
-        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
+        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             return MenuCommand(
                 callback.callback,
                 type_,
@@ -252,7 +252,7 @@ def as_user_menu(
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
-class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
+class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
     """Base class used for the standard menu command implementations."""
 
     __slots__ = (
@@ -283,7 +283,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
-        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -299,7 +299,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
-        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -314,7 +314,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
-        _wrapped_command: typing.Optional[abc.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         """Initialise a user or message menu command.
 
@@ -382,7 +382,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         if type_ not in _VALID_TYPES:
             raise ValueError("Command type must be message or user")
 
-        if isinstance(callback, (abc.MenuCommand, abc.MessageCommand, abc.SlashCommand)):
+        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
         self._always_defer = always_defer
@@ -391,9 +391,9 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_global = is_global
         self._name = name
-        self._parent: typing.Optional[abc.SlashCommandGroup] = None
+        self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.ContextMenuCommand] = None
-        self._type = type_
+        self._type: _MenuTypeT = type_  # MyPy bug causes this to need an explicit annotation.
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
@@ -474,7 +474,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         self._defaults_to_ephemeral = state
         return self
 
-    async def check_context(self, ctx: abc.MenuContext, /) -> bool:
+    async def check_context(self, ctx: tanjun.MenuContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
@@ -482,7 +482,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         return result
 
     def copy(
-        self: _MenuCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None
+        self: _MenuCommandT, *, _new: bool = True, parent: typing.Optional[tanjun.SlashCommandGroup] = None
     ) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
@@ -492,7 +492,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         return super().copy(_new=_new)
 
     async def execute(
-        self, ctx: abc.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[abc.MenuHooks]] = None
+        self, ctx: tanjun.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         if self._always_defer and not ctx.has_been_deferred and not ctx.has_responded:
@@ -512,7 +512,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
             await ctx.call_with_async_di(self._callback, ctx, value)
 
         except errors.CommandError as exc:
-            await ctx.respond(exc.message)
+            await exc.send(ctx)
 
         except errors.HaltExecution:
             # Unlike a message command, this won't necessarily reach the client level try except
@@ -529,7 +529,7 @@ class MenuCommand(base.PartialCommand[abc.MenuContext], abc.MenuCommand[_MenuCom
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
-    def load_into_component(self, component: abc.Component, /) -> None:
+    def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.
         component.add_menu_command(self)
         if self._wrapped_command and isinstance(self._wrapped_command, components.AbstractComponentLoader):

@@ -40,23 +40,23 @@ import alluka
 import hikari
 from hikari import snowflakes
 
-from .. import abc as tanjun_abc
+from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
 
 
-class BaseContext(alluka.BasicContext, tanjun_abc.Context):
+class BaseContext(alluka.BasicContext, tanjun.Context):
     """Base class for the standard command context implementations."""
 
     __slots__ = ("_client", "_component", "_final")
 
-    def __init__(self, client: tanjun_abc.Client) -> None:
+    def __init__(self, client: tanjun.Client) -> None:
         super().__init__(client.injector)
         self._client = client
-        self._component: typing.Optional[tanjun_abc.Component] = None
+        self._component: typing.Optional[tanjun.Component] = None
         self._final = False
-        self._set_type_special_case(tanjun_abc.Context, self)
+        self._set_type_special_case(tanjun.Context, self)
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -64,12 +64,12 @@ class BaseContext(alluka.BasicContext, tanjun_abc.Context):
         return self._client.cache
 
     @property
-    def client(self) -> tanjun_abc.Client:
+    def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
 
     @property
-    def component(self) -> typing.Optional[tanjun_abc.Component]:
+    def component(self) -> typing.Optional[tanjun.Component]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._component
 
@@ -127,14 +127,14 @@ class BaseContext(alluka.BasicContext, tanjun_abc.Context):
         self._final = True
         return self
 
-    def set_component(self: _BaseContextT, component: typing.Optional[tanjun_abc.Component], /) -> _BaseContextT:
+    def set_component(self: _BaseContextT, component: typing.Optional[tanjun.Component], /) -> _BaseContextT:
         # <<inherited docstring from tanjun.abc.Context>>.
         self._assert_not_final()
         if component:
-            self._set_type_special_case(tanjun_abc.Component, component)
+            self._set_type_special_case(tanjun.Component, component)
 
         elif self._component:
-            self._remove_type_special_case(tanjun_abc.Component)
+            self._remove_type_special_case(tanjun.Component)
 
         self._component = component
         return self

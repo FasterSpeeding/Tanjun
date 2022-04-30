@@ -86,7 +86,7 @@ from collections import abc as collections
 import alluka
 import hikari
 
-from . import abc as tanjun_abc
+from . import abc as tanjun
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
@@ -165,7 +165,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         and will never fallback to REST requests.
         """
 
-    def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
+    def check_client(self, client: tanjun.Client, parent_name: str, /) -> None:
         """Check that this converter will work with the given client.
 
         This never raises any errors but simply warns the user if the converter
@@ -251,7 +251,7 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
         dm_cache: _DmCacheT = alluka.inject(type=_DmCacheT),
     ) -> hikari.PartialChannel:
@@ -340,7 +340,7 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _EmojiCacheT = alluka.inject(type=_EmojiCacheT),
     ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
@@ -407,7 +407,7 @@ class ToGuild(BaseConverter[hikari.Guild]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _GuildCacheT = alluka.inject(type=_GuildCacheT),
     ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
@@ -468,7 +468,7 @@ class ToInvite(BaseConverter[hikari.Invite]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _InviteCacheT = alluka.inject(type=_InviteCacheT),
     ) -> hikari.Invite:
         if not isinstance(argument, str):
@@ -534,7 +534,7 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: typing.Optional[_InviteCacheT] = alluka.inject(type=_InviteCacheT),
     ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
@@ -591,7 +591,7 @@ class ToMember(BaseConverter[hikari.Member]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _MemberCacheT = alluka.inject(type=_MemberCacheT),
     ) -> hikari.Member:
         if ctx.guild_id is None:
@@ -671,7 +671,7 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _PresenceCacheT = alluka.inject(type=_PresenceCacheT),
     ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
@@ -725,7 +725,7 @@ class ToRole(BaseConverter[hikari.Role]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _RoleCacheT = alluka.inject(type=_RoleCacheT),
     ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID found")
@@ -788,7 +788,7 @@ class ToUser(BaseConverter[hikari.User]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _UserCacheT = alluka.inject(type=_UserCacheT),
     ) -> hikari.User:
         # TODO: search by name if this is a guild context
@@ -854,7 +854,7 @@ class ToMessage(BaseConverter[hikari.Message]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _MessageCacheT = alluka.inject(type=_MessageCacheT),
     ) -> hikari.Message:
         channel_id, message_id = parse_message_id(argument)
@@ -918,7 +918,7 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun_abc.Context = alluka.inject(type=tanjun_abc.Context),
+        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
         cache: _VoiceStateCacheT = alluka.inject(type=_VoiceStateCacheT),
     ) -> hikari.VoiceState:
         if ctx.guild_id is None:

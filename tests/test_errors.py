@@ -36,26 +36,113 @@
 
 from unittest import mock
 
+import hikari
 import pytest
 
 import tanjun
 
 
 class TestCommandError:
-    def test__init__(self):
-        assert tanjun.CommandError("foo").message == "foo"
+    def test_init_dunder_method(self):
+        mock_component = mock.Mock()
+        mock_embed = mock.Mock()
 
-    def test__init__when_no_message(self):
-        with pytest.raises(ValueError, match="Response message must have at least 1 character."):
-            tanjun.CommandError("")
+        error = tanjun.CommandError(
+            "moon",
+            delete_after=555,
+            components=[mock_component],
+            embeds=[mock_embed],
+            mentions_everyone=False,
+            user_mentions=[2332],
+            role_mentions=[6534],
+        )
 
-    @pytest.mark.parametrize("message", ["i" * 2001, "a" * 2010])
-    def test__init___when_message_len_out_of_bounds(self, message: str):
-        with pytest.raises(ValueError, match="Error message cannot be over 2_000 characters long."):
-            tanjun.CommandError(message)
+        assert error.content == "moon"
+        assert error.components == [mock_component]
+        assert error.delete_after == 555
+        assert error.embeds == [mock_embed]
+        assert error.mentions_everyone is False
+        assert error.user_mentions == [2332]
+        assert error.role_mentions == [6534]
 
-    def test__str__(self):
+    def test_init_dunder_method_for_singular_fields(self):
+        mock_component = mock.Mock()
+        mock_embed = mock.Mock()
+
+        error = tanjun.CommandError(component=mock_component, embed=mock_embed)
+
+        assert error.components == [mock_component]
+        assert error.embeds == [mock_embed]
+
+    def test_init_dunder_method_for_partial(self):
+        error = tanjun.CommandError()
+
+        assert error.content is hikari.UNDEFINED
+        assert error.components is hikari.UNDEFINED
+        assert error.delete_after is None
+        assert error.embeds is hikari.UNDEFINED
+        assert error.mentions_everyone is hikari.UNDEFINED
+        assert error.role_mentions is hikari.UNDEFINED
+        assert error.user_mentions is hikari.UNDEFINED
+
+    def test_init_dunder_method_when_both_component_and_components_passed(self):
+        with pytest.raises(ValueError, match="Cannot specify both component and components"):
+            tanjun.CommandError(component=mock.Mock(), components=[mock.Mock()])
+
+    def test_init_dunder_method_when_both_embed_and_embeds_passed(self):
+        with pytest.raises(ValueError, match="Cannot specify both embed and embeds"):
+            tanjun.CommandError(embed=mock.Mock(), embeds=[mock.Mock()])
+
+    def test_str_dunder_method(self):
         assert str(tanjun.CommandError("bar")) == "bar"
+
+    @pytest.mark.asyncio()
+    async def test_send(self):
+        error = tanjun.CommandError()
+        mock_context = mock.AsyncMock()
+
+        result = await error.send(mock_context)
+
+        assert result is mock_context.respond.return_value
+        mock_context.respond.assert_awaited_once_with(
+            content=hikari.UNDEFINED,
+            components=hikari.UNDEFINED,
+            delete_after=None,
+            embeds=hikari.UNDEFINED,
+            ensure_result=False,
+            mentions_everyone=hikari.UNDEFINED,
+            role_mentions=hikari.UNDEFINED,
+            user_mentions=hikari.UNDEFINED,
+        )
+
+    @pytest.mark.asyncio()
+    async def test_send_when_all_fields(self):
+        mock_component = mock.Mock()
+        mock_embed = mock.Mock()
+        error = tanjun.CommandError(
+            "hello",
+            components=[mock_component],
+            delete_after=53,
+            embeds=[mock_embed],
+            mentions_everyone=True,
+            role_mentions=[123, 431],
+            user_mentions=[666, 555],
+        )
+        mock_context = mock.AsyncMock()
+
+        result = await error.send(mock_context, ensure_result=True)
+
+        assert result is mock_context.respond.return_value
+        mock_context.respond.assert_awaited_once_with(
+            content="hello",
+            components=[mock_component],
+            delete_after=53,
+            embeds=[mock_embed],
+            ensure_result=True,
+            mentions_everyone=True,
+            role_mentions=[123, 431],
+            user_mentions=[666, 555],
+        )
 
 
 class TestParserError:

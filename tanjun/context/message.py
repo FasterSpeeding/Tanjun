@@ -41,7 +41,7 @@ import typing
 
 import hikari
 
-from .. import abc as tanjun_abc
+from .. import abc as tanjun
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -56,7 +56,7 @@ def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float,
     return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
-class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
+class MessageContext(base.BaseContext, tanjun.MessageContext):
     """Standard implementation of a command context as used within Tanjun."""
 
     __slots__ = (
@@ -72,7 +72,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
 
     def __init__(
         self,
-        client: tanjun_abc.Client,
+        client: tanjun.Client,
         content: str,
         message: hikari.Message,
         *,
@@ -98,7 +98,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
             raise ValueError("Cannot spawn context with a content-less message.")
 
         super().__init__(client)
-        self._command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None
+        self._command: typing.Optional[tanjun.MessageCommand[typing.Any]] = None
         self._content = content
         self._initial_response_id: typing.Optional[hikari.Snowflake] = None
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
@@ -106,7 +106,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         self._message = message
         self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
-        self._set_type_special_case(tanjun_abc.MessageContext, self)._set_type_special_case(MessageContext, self)
+        self._set_type_special_case(tanjun.MessageContext, self)._set_type_special_case(MessageContext, self)
 
     def __repr__(self) -> str:
         return f"MessageContext <{self._message!r}, {self._command!r}>"
@@ -122,7 +122,7 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         return self._message.channel_id
 
     @property
-    def command(self) -> typing.Optional[tanjun_abc.MessageCommand[typing.Any]]:
+    def command(self) -> typing.Optional[tanjun.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._command
 
@@ -172,20 +172,18 @@ class MessageContext(base.BaseContext, tanjun_abc.MessageContext):
         return self._triggering_prefix
 
     def set_command(
-        self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]], /
+        self: _MessageContextT, command: typing.Optional[tanjun.MessageCommand[typing.Any]], /
     ) -> _MessageContextT:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         if command:
             # TODO: command group?
-            self._set_type_special_case(tanjun_abc.ExecutableCommand, command)._set_type_special_case(
-                tanjun_abc.MessageCommand, command
+            self._set_type_special_case(tanjun.ExecutableCommand, command)._set_type_special_case(
+                tanjun.MessageCommand, command
             )
 
         elif self._command:
-            self._remove_type_special_case(tanjun_abc.ExecutableCommand)._remove_type_special_case(
-                tanjun_abc.MessageCommand
-            )
+            self._remove_type_special_case(tanjun.ExecutableCommand)._remove_type_special_case(tanjun.MessageCommand)
 
         self._command = command
         return self

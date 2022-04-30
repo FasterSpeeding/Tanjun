@@ -38,7 +38,7 @@ import typing
 
 import hikari
 
-from .. import abc
+from .. import abc as tanjun
 from . import slash
 
 if typing.TYPE_CHECKING:
@@ -55,19 +55,19 @@ _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandTy
 )
 
 
-class MenuContext(slash.AppCommandContext, abc.MenuContext):
+class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
     """Standard menu command execution context."""
 
     __slots__ = ("_command", "_marked_not_found", "_on_not_found")
 
     def __init__(
         self,
-        client: abc.Client,
+        client: tanjun.Client,
         interaction: hikari.CommandInteraction,
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[abc.MenuContext], collections.Awaitable[None]]] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]] = None,
     ) -> None:
         """Initialise a menu command context.
 
@@ -86,13 +86,13 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
             Callback used to indicate no matching command was found.
         """
         super().__init__(client, interaction, default_to_ephemeral=default_to_ephemeral, future=future)
-        self._command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]] = None
+        self._command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]] = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
-        self._set_type_special_case(abc.MenuContext, self)._set_type_special_case(MenuContext, self)
+        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)
 
     @property
-    def command(self) -> typing.Optional[abc.MenuCommand[typing.Any, typing.Any]]:
+    def command(self) -> typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         return self._command
 
@@ -136,14 +136,14 @@ class MenuContext(slash.AppCommandContext, abc.MenuContext):
             await self._on_not_found(self)
 
     def set_command(
-        self: _MenuContextT, command: typing.Optional[abc.MenuCommand[typing.Any, typing.Any]], /
+        self: _MenuContextT, command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]], /
     ) -> _MenuContextT:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         if command:
-            self._set_type_special_case(abc.MenuCommand, command)
+            self._set_type_special_case(tanjun.MenuCommand, command)
 
         elif self._command:
-            self._remove_type_special_case(abc.MenuContext)
+            self._remove_type_special_case(tanjun.MenuContext)
 
         self._command = command
         return self

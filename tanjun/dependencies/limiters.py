@@ -57,14 +57,14 @@ from collections import abc as collections
 import alluka
 import hikari
 
-from .. import abc as tanjun_abc
+from .. import abc as tanjun
 from .. import errors
 from .. import hooks
 from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
-    _CommandT = typing.TypeVar("_CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
+    _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
     _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
     _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
@@ -78,7 +78,7 @@ class AbstractCooldownManager(abc.ABC):
 
     @abc.abstractmethod
     async def check_cooldown(
-        self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
+        self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[float]:
         """Check if a bucket is on cooldown for the provided context.
 
@@ -100,7 +100,7 @@ class AbstractCooldownManager(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+    async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Increment the cooldown of a cooldown bucket.
 
         Parameters
@@ -118,7 +118,7 @@ class AbstractConcurrencyLimiter(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def try_acquire(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> bool:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
         """Try to acquire a concurrency lock on a bucket.
 
         Parameters
@@ -135,7 +135,7 @@ class AbstractConcurrencyLimiter(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+    async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Release a concurrency lock on a bucket."""
 
 
@@ -194,7 +194,7 @@ async def _try_get_role(
         pass
 
 
-async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> hikari.Snowflake:
+async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hikari.Snowflake:
     if type_ is BucketResource.USER:
         return ctx.author.id
 
@@ -324,11 +324,11 @@ class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def into_inner(self, ctx: tanjun_abc.Context, /) -> _InnerResourceT:
+    async def into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
+    async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         raise NotImplementedError
 
 
@@ -343,10 +343,10 @@ class _FlatResource(_BaseResource[_InnerResourceT]):
         self.mapping: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.resource = resource
 
-    async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
+    async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         return self.mapping.get(await _get_ctx_target(ctx, self.resource))
 
-    async def into_inner(self, ctx: tanjun_abc.Context, /) -> _InnerResourceT:
+    async def into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT:
         target = await _get_ctx_target(ctx, self.resource)
         if resource := self.mapping.get(target):
             return resource
@@ -371,7 +371,7 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
         self.dm_fallback: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _InnerResourceT]] = {}
 
-    async def into_inner(self, ctx: tanjun_abc.Context, /) -> _InnerResourceT:
+    async def into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT:
         if not ctx.guild_id:
             if resource := self.dm_fallback.get(ctx.channel_id):
                 return resource
@@ -390,7 +390,7 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
         self.mapping[ctx.guild_id] = {ctx.author.id: resource}
         return resource
 
-    async def try_into_inner(self, ctx: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
+    async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         if not ctx.guild_id:
             return self.dm_fallback.get(ctx.channel_id)
 
@@ -421,10 +421,10 @@ class _GlobalResource(_BaseResource[_InnerResourceT]):
         super().__init__(make_resource)
         self.bucket = make_resource()
 
-    async def try_into_inner(self, _: tanjun_abc.Context, /) -> typing.Optional[_InnerResourceT]:
+    async def try_into_inner(self, _: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         return self.bucket
 
-    async def into_inner(self, _: tanjun_abc.Context, /) -> _InnerResourceT:
+    async def into_inner(self, _: tanjun.Context, /) -> _InnerResourceT:
         return self.bucket
 
     def cleanup(self) -> None:
@@ -492,7 +492,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             for bucket in self._buckets.values():
                 bucket.cleanup()
 
-    def add_to_client(self, client: tanjun_abc.Client, /) -> None:
+    def add_to_client(self, client: tanjun.Client, /) -> None:
         """Add this cooldown manager to a tanjun client.
 
         !!! note
@@ -505,14 +505,14 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The client to add this cooldown manager to.
         """
         client.set_type_dependency(AbstractCooldownManager, self)
-        client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
-        client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
+        client.add_client_callback(tanjun.ClientCallbackNames.STARTING, self.open)
+        client.add_client_callback(tanjun.ClientCallbackNames.CLOSING, self.close)
         if client.is_alive:
             assert client.loop is not None
             self.open(_loop=client.loop)
 
     async def check_cooldown(
-        self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
+        self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[float]:
         # <<inherited docstring from AbstractCooldownManager>>.
         bucket: typing.Optional[_Cooldown]
@@ -527,7 +527,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
             return bucket.must_wait_for()
 
-    async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+    async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
         (await self._get_or_default(bucket_id).into_inner(ctx)).increment()
 
@@ -677,7 +677,7 @@ class CooldownPreExecution:
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         cooldowns: AbstractCooldownManager = alluka.inject(type=AbstractCooldownManager),
         owner_check: typing.Optional[owners.AbstractOwners] = alluka.inject(
             type=typing.Optional[owners.AbstractOwners]
@@ -800,7 +800,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     __slots__ = ("_acquiring_ctxs", "_buckets", "_default_bucket_template", "_gc_task")
 
     def __init__(self) -> None:
-        self._acquiring_ctxs: dict[tuple[str, tanjun_abc.Context], _ConcurrencyLimit] = {}
+        self._acquiring_ctxs: dict[tuple[str, tanjun.Context], _ConcurrencyLimit] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
         self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
             BucketResource.USER, lambda: _ConcurrencyLimit(limit=1)
@@ -813,7 +813,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             for bucket in self._buckets.values():
                 bucket.cleanup()
 
-    def add_to_client(self, client: tanjun_abc.Client, /) -> None:
+    def add_to_client(self, client: tanjun.Client, /) -> None:
         """Add this concurrency manager to a tanjun client.
 
         !!! note
@@ -826,8 +826,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The client to add this concurrency manager to.
         """
         client.set_type_dependency(AbstractConcurrencyLimiter, self)
-        client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
-        client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
+        client.add_client_callback(tanjun.ClientCallbackNames.STARTING, self.open)
+        client.add_client_callback(tanjun.ClientCallbackNames.CLOSING, self.close)
         if client.is_alive:
             assert client.loop is not None
             self.open(_loop=client.loop)
@@ -860,7 +860,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
-    async def try_acquire(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> bool:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
         bucket = self._buckets.get(bucket_id)
         if not bucket:
@@ -878,7 +878,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         return result
 
-    async def release(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+    async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release()
@@ -982,7 +982,7 @@ class ConcurrencyPreExecution:
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
@@ -1013,7 +1013,7 @@ class ConcurrencyPostExecution:
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         await limiter.release(self._bucket_id, ctx)

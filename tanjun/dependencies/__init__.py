@@ -69,7 +69,7 @@ __all__: list[str] = [
 
 import hikari
 
-from .. import abc
+from .. import abc as _tanjun
 from .async_cache import AsyncCache
 from .async_cache import CacheIterator
 from .async_cache import CacheMissError
@@ -98,7 +98,7 @@ from .owners import AbstractOwners
 from .owners import Owners
 
 
-def set_standard_dependencies(client: abc.Client, /) -> None:
+def set_standard_dependencies(client: _tanjun.Client, /) -> None:
     """Set the standard dependencies for Tanjun.
 
     Parameters
