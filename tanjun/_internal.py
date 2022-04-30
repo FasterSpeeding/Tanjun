@@ -38,7 +38,7 @@ import copy as copy_
 import typing
 from collections import abc as collections
 
-from . import abc
+from . import abc as tanjun
 
 _COMMANDS_KEY = "comm ands"
 _PARENT_KEY = "par ent"
@@ -54,8 +54,8 @@ class MessageCommandIndex:
         strict: bool,
         /,
         *,
-        commands: typing.Optional[list[abc.MessageCommand[typing.Any]]] = None,
-        names_to_commands: typing.Optional[dict[str, tuple[str, abc.MessageCommand[typing.Any]]]] = None,
+        commands: typing.Optional[list[tanjun.MessageCommand[typing.Any]]] = None,
+        names_to_commands: typing.Optional[dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]]] = None,
         search_tree: typing.Optional[dict[str, typing.Any]] = None,
     ) -> None:
         """Initialise a message command index.
@@ -74,7 +74,7 @@ class MessageCommandIndex:
         self.names_to_commands = names_to_commands or {}
         self.search_tree = search_tree or {}
 
-    def add(self, command: abc.MessageCommand[typing.Any], /) -> bool:
+    def add(self, command: tanjun.MessageCommand[typing.Any], /) -> bool:
         """Add a command to the index.
 
         Parameters
@@ -158,7 +158,7 @@ class MessageCommandIndex:
 
     def find(
         self, content: str, case_sensitive: bool, /
-    ) -> collections.Iterator[tuple[str, abc.MessageCommand[typing.Any]]]:
+    ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         """Find commands in the index.
 
         Parameters
@@ -214,7 +214,7 @@ class MessageCommandIndex:
 
             node = node[_PARENT_KEY]
 
-    def remove(self, command: abc.MessageCommand[typing.Any], /) -> None:
+    def remove(self, command: tanjun.MessageCommand[typing.Any], /) -> None:
         """Remove a command from the index.
 
         Parameters
