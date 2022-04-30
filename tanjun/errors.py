@@ -49,6 +49,7 @@ __all__: list[str] = [
 ]
 
 import typing
+from collections import abc as collections
 
 import alluka
 import hikari
@@ -56,7 +57,6 @@ import hikari
 if typing.TYPE_CHECKING:
     import datetime
     import pathlib
-    from collections import abc as collections
 
     from . import abc as tanjun
 
@@ -80,7 +80,6 @@ MissingDependencyError = alluka.MissingDependencyError
 class CommandError(TanjunError):
     """An error which is sent as a response to the command call."""
 
-    # None or empty string == no response
     content: hikari.UndefinedOr[str]
     """The response error message's content."""
 
@@ -138,7 +137,42 @@ class CommandError(TanjunError):
         Parameters
         ----------
         content
-            String message which will be sent as a response to the command.
+            The content to respond with.
+
+            If provided, the message contents. If
+            [hikari.undefined.UNDEFINED][], then nothing will be sent
+            in the content.
+        delete_after
+            If provided, the seconds after which the response message should be deleted.
+
+            Slash command responses can only be deleted within 14 minutes of
+            the command being received.
+        component
+            If provided, builder object of the component to include in this response.
+        components
+            If provided, a sequence of the component builder objects to include
+            in this response.
+        embed
+            An embed to respond with.
+        embeds
+            A sequence of embeds to respond with.
+        mentions_everyone
+            If provided, whether the message should parse @everyone/@here
+            mentions.
+        user_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
+
+            Alternatively this may be a collection of
+            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            derivatives to enforce mentioning specific users.
+        role_mentions
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
+
+            Alternatively this may be a collection of
+            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            derivatives to enforce mentioning specific roles.
 
         Raises
         ------
@@ -147,12 +181,20 @@ class CommandError(TanjunError):
 
             * When both `component` and `components` are passed.
             * When both `embed` and `embeds` are passed.
+            * If more than 100 entries are passed for `role_mentions`.
+            * If more than 100 entries are passed for `user_mentions`.
         """
         if component and components:
             raise ValueError("Cannot specify both component and components")
 
         if embed and embeds:
             raise ValueError("Cannot specify both embed and embeds")
+
+        if isinstance(role_mentions, collections.Sequence) and len(role_mentions) > 100:
+            raise ValueError("Cannot specify more than 100 role mentions")
+
+        if isinstance(user_mentions, collections.Sequence) and len(user_mentions) > 100:
+            raise ValueError("Cannot specify more than 100 user mentions")
 
         self.content = content
         self.components = [component] if component else components
@@ -174,6 +216,53 @@ class CommandError(TanjunError):
         ...
 
     async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
+        """Send this error as a command response.
+
+        Parameters
+        ----------
+        ctx
+            The command call context to respond to.
+        ensure_result
+            Ensure that this call will always return a message object.
+
+            If [True][] then this will always return [hikari.messages.Message][],
+            otherwise this will return `hikari.Message | None`.
+
+            It's worth noting that, under certain scenarios within the slash
+            command flow, this may lead to an extre request being made.
+
+        Raises
+        ------
+        ValueError
+            If `delete_after` would be more than 14 minutes after the slash
+            command was called.
+        hikari.BadRequestError
+            This may be raised in several discrete situations, such as messages
+            being empty with no attachments or embeds; messages with more than
+            2000 characters in them, embeds that exceed one of the many embed
+            limits; too many attachments; attachments that are too large;
+            invalid image URLs in embeds; too many components.
+        hikari.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.ForbiddenError
+            If you are missing the `SEND_MESSAGES` in the channel or the
+            person you are trying to message has the DM's disabled.
+        hikari.NotFoundError
+            If the channel is not found.
+        hikari.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """
         return await ctx.respond(
             content=self.content,
             components=self.components,
