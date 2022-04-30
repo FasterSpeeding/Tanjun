@@ -51,10 +51,14 @@ __all__: list[str] = [
 import typing
 
 import alluka
+import hikari
 
 if typing.TYPE_CHECKING:
+    import datetime
     import pathlib
     from collections import abc as collections
+
+    from . import abc as tanjun
 
 
 class TanjunError(Exception):
@@ -74,39 +78,112 @@ MissingDependencyError = alluka.MissingDependencyError
 
 
 class CommandError(TanjunError):
-    """Error raised to end command execution."""
+    """An error which is sent as a response to the command call."""
 
     # None or empty string == no response
-    message: str
-    """The response error message.
+    content: hikari.UndefinedOr[str]
+    """The response error message's content."""
 
-    Tanjun will try to send the string message as a response.
+    delete_after: typing.Union[datetime.timedelta, float, int, None]
+    """The seconds after which the response message should be deleted, if set."""
+
+    components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]]
+    """Sequence of the components to be sent as a response to the command."""
+
+    embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+    """Sequence of the embeds to be sent as a response to the command."""
+
+    mentions_everyone: hikari.UndefinedOr[bool]
+    """Whether or not the response should be allowed to mention `@everyone`/`@here`."""
+
+    user_mentions: typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType]
+    """Configuration for the response's allowed user mentions.
+
+    If this is a sequence then the response will only be allowed to mention
+    users in the sequence.
+
+    If this is a bool then the response will only be allowed to mention users
+    if the value is `True`.
     """
 
-    def __init__(self, message: str, /) -> None:
+    role_mentions: typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType]
+    """Configuration for the response's allowed role mentions.
+
+    If this is a sequence then the response will only be allowed to mention
+    roles in the sequence.
+
+    If this is a bool then the response will only be allowed to mention roles
+    if the value is `True`.
+    """
+
+    def __init__(
+        self,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
+        *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+    ) -> None:
         """Initialise a command error.
 
         Parameters
         ----------
-        message
-            String message which will be sent as a response to the message
-            that triggered the current command.
+        content
+            String message which will be sent as a response to the command.
 
         Raises
         ------
         ValueError
-            Raised when the message is over 2000 characters long or empty.
+            Raised for any of the following reasons:
+
+            * When both `component` and `components` are passed.
+            * When both `embed` and `embeds` are passed.
         """
-        if len(message) > 2000:
-            raise ValueError("Error message cannot be over 2_000 characters long.")
+        if component and components:
+            raise ValueError("Cannot specify both component and components")
 
-        elif not message:
-            raise ValueError("Response message must have at least 1 character.")
+        if embed and embeds:
+            raise ValueError("Cannot specify both embed and embeds")
 
-        self.message = message
+        self.content = content
+        self.components = [component] if component else components
+        self.delete_after = delete_after
+        self.embeds = [embed] if embed else embeds
+        self.mentions_everyone = mentions_everyone
+        self.role_mentions = role_mentions
+        self.user_mentions = user_mentions
 
     def __str__(self) -> str:
-        return self.message or ""
+        return self.content or ""
+
+    @typing.overload
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: typing.Literal[True]) -> hikari.Message:
+        ...
+
+    @typing.overload
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
+        ...
+
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
+        return await ctx.respond(
+            content=self.content,
+            components=self.components,
+            delete_after=self.delete_after,
+            embeds=self.embeds,
+            ensure_result=ensure_result,
+            mentions_everyone=self.mentions_everyone,
+            role_mentions=self.role_mentions,
+            user_mentions=self.user_mentions,
+        )
 
 
 # TODO: use this

@@ -41,7 +41,7 @@ import alluka
 import hikari
 from hikari import snowflakes
 
-from .. import abc
+from .. import abc as tanjun
 from . import slash
 
 if typing.TYPE_CHECKING:
@@ -52,7 +52,7 @@ if typing.TYPE_CHECKING:
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
 
 
-class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):
+class AutocompleteOption(slash.SlashOption, tanjun.AutocompleteOption):
     """Standard implementation for autocomplete options."""
 
     __slots__ = ()
@@ -68,14 +68,14 @@ class AutocompleteOption(slash.SlashOption, abc.AutocompleteOption):
         return self._option.is_focused
 
 
-class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
+class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
     __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction", "_options")
 
     def __init__(
         self,
-        client: abc.Client,
+        client: tanjun.Client,
         interaction: hikari.AutocompleteInteraction,
         *,
         future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
@@ -109,7 +109,7 @@ class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
 
         assert focused is not None
         self._focused = focused
-        self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(abc.AutocompleteContext, self)
+        self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(tanjun.AutocompleteContext, self)
 
     @property
     def author(self) -> hikari.User:
@@ -127,7 +127,7 @@ class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
         return self._client.cache
 
     @property
-    def client(self) -> abc.Client:
+    def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client
 
@@ -142,7 +142,7 @@ class AutocompleteContext(alluka.BasicContext, abc.AutocompleteContext):
         return self._client.events
 
     @property
-    def focused(self) -> abc.AutocompleteOption:
+    def focused(self) -> tanjun.AutocompleteOption:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._focused
 

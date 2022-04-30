@@ -61,18 +61,18 @@ from collections import abc as collections
 import alluka
 import hikari
 
-from . import abc as tanjun_abc
+from . import abc as tanjun
 from . import dependencies
 from . import errors
 from . import utilities
 
-_CommandT = typing.TypeVar("_CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
+_CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
 _CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT], check: tanjun_abc.CheckSig, /
+    command: typing.Optional[_CommandT], check: tanjun.CheckSig, /
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
         return command.add_check(check)
@@ -134,7 +134,7 @@ class OwnerCheck(_Check):
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         dependency: dependencies.AbstractOwners = alluka.inject(type=dependencies.AbstractOwners),
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
@@ -144,7 +144,7 @@ _GuildChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
 
 
 async def _get_is_nsfw(
-    ctx: tanjun_abc.Context,
+    ctx: tanjun.Context,
     /,
     *,
     dm_default: bool,
@@ -205,7 +205,7 @@ class NsfwCheck(_Check):
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         /,
         channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
     ) -> bool:
@@ -245,7 +245,7 @@ class SfwCheck(_Check):
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         /,
         channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
     ) -> bool:
@@ -283,7 +283,7 @@ class DmCheck(_Check):
         """
         super().__init__(error_message, halt_execution)
 
-    def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+    def __call__(self, ctx: tanjun.Context, /) -> bool:
         return self._handle_result(ctx.guild_id is None)
 
 
@@ -318,7 +318,7 @@ class GuildCheck(_Check):
         """
         super().__init__(error_message, halt_execution)
 
-    def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+    def __call__(self, ctx: tanjun.Context, /) -> bool:
         return self._handle_result(ctx.guild_id is not None)
 
 
@@ -358,7 +358,7 @@ class AuthorPermissionCheck(_Check):
         super().__init__(error_message=error_message, halt_execution=halt_execution)
         self._permissions = permissions
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun.Context, /) -> bool:
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
             # something like a webhook or guild visitor with no real permissions
@@ -418,7 +418,7 @@ class OwnPermissionCheck(_Check):
 
     async def __call__(
         self,
-        ctx: tanjun_abc.Context,
+        ctx: tanjun.Context,
         /,
         my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
     ) -> bool:
@@ -741,7 +741,7 @@ def with_own_permission_check(
     )
 
 
-def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[_CommandT], _CommandT]:
+def with_check(check: tanjun.CheckSig, /) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a generic check to a command.
 
     Parameters
@@ -760,10 +760,10 @@ def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[_CommandT
 class _AllChecks(_Check):
     __slots__ = ("_checks",)
 
-    def __init__(self, checks: list[tanjun_abc.CheckSig]) -> None:
+    def __init__(self, checks: list[tanjun.CheckSig]) -> None:
         self._checks = checks
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun.Context, /) -> bool:
         for check in self._checks:
             if not await ctx.call_with_async_di(check, ctx):
                 return False
@@ -772,10 +772,10 @@ class _AllChecks(_Check):
 
 
 def all_checks(
-    check: tanjun_abc.CheckSig,
+    check: tanjun.CheckSig,
     /,
-    *checks: tanjun_abc.CheckSig,
-) -> collections.Callable[[tanjun_abc.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+    *checks: tanjun.CheckSig,
+) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -790,16 +790,16 @@ def all_checks(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
+    collections.abc.Callable[[tanjun.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
     return _AllChecks([check, *checks])
 
 
 def with_all_checks(
-    check: tanjun_abc.CheckSig,
+    check: tanjun.CheckSig,
     /,
-    *checks: tanjun_abc.CheckSig,
+    *checks: tanjun.CheckSig,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
@@ -815,7 +815,7 @@ def with_all_checks(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun_abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
+    collections.abc.Callable[[tanjun.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
     return lambda c: c.add_check(all_checks(check, *checks))
@@ -826,7 +826,7 @@ class _AnyChecks(_Check):
 
     def __init__(
         self,
-        checks: list[tanjun_abc.CheckSig],
+        checks: list[tanjun.CheckSig],
         suppress: tuple[type[Exception], ...],
         error_message: typing.Optional[str],
         halt_execution: bool,
@@ -835,7 +835,7 @@ class _AnyChecks(_Check):
         self._checks = checks
         self._suppress = suppress
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun.Context, /) -> bool:
         for check in self._checks:
             try:
                 if await ctx.call_with_async_di(check, ctx):
@@ -856,13 +856,13 @@ class _AnyChecks(_Check):
 
 
 def any_checks(
-    check: tanjun_abc.CheckSig,
+    check: tanjun.CheckSig,
     /,
-    *checks: tanjun_abc.CheckSig,
+    *checks: tanjun.CheckSig,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
     error_message: typing.Optional[str],
     halt_execution: bool = False,
-) -> collections.Callable[[tanjun_abc.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -893,9 +893,9 @@ def any_checks(
 
 
 def with_any_checks(
-    check: tanjun_abc.CheckSig,
+    check: tanjun.CheckSig,
     /,
-    *checks: tanjun_abc.CheckSig,
+    *checks: tanjun.CheckSig,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
     error_message: typing.Optional[str],
     halt_execution: bool = False,

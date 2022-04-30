@@ -41,7 +41,7 @@ import typing
 
 import hikari
 
-from .. import abc as tanjun_abc
+from .. import abc as tanjun
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -71,7 +71,7 @@ _SnowflakeOptions = frozenset(
 )
 
 
-class SlashOption(tanjun_abc.SlashOption):
+class SlashOption(tanjun.SlashOption):
     """Standard implementation of the SlashOption interface."""
 
     __slots__ = ("_option", "_resolved")
@@ -292,7 +292,7 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
     return options or ()
 
 
-class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
+class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
     """Base class for interaction-based command contexts."""
 
     __slots__ = (
@@ -308,7 +308,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
 
     def __init__(
         self,
-        client: tanjun_abc.Client,
+        client: tanjun.Client,
         interaction: hikari.CommandInteraction,
         *,
         default_to_ephemeral: bool = False,
@@ -323,7 +323,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
         self._response_future = future
         self._response_lock = asyncio.Lock()
-        self._set_type_special_case(tanjun_abc.AppCommandContext, self)
+        self._set_type_special_case(tanjun.AppCommandContext, self)
 
     @property
     def author(self) -> hikari.User:
@@ -336,7 +336,7 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
         return self._interaction.channel_id
 
     @property
-    def client(self) -> tanjun_abc.Client:
+    def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
 
@@ -951,21 +951,19 @@ class AppCommandContext(base.BaseContext, tanjun_abc.AppCommandContext):
             return await self._interaction.fetch_initial_response()
 
 
-class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
+class SlashContext(AppCommandContext, tanjun.SlashContext):
     """Standard implementation of [tanjun.abc.SlashContext][]."""
 
     __slots__ = ("_command", "_marked_not_found", "_on_not_found", "_options")
 
     def __init__(
         self,
-        client: tanjun_abc.Client,
+        client: tanjun.Client,
         interaction: hikari.CommandInteraction,
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[
-            collections.Callable[[tanjun_abc.SlashContext], collections.Awaitable[None]]
-        ] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
     ) -> None:
         """Initialise a slash command context.
 
@@ -987,22 +985,22 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
         self._marked_not_found = False
         self._on_not_found = on_not_found
 
-        self._command: typing.Optional[tanjun_abc.BaseSlashCommand] = None
+        self._command: typing.Optional[tanjun.BaseSlashCommand] = None
         if options := flatten_options(interaction.options):
             self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
 
         else:
             self._options = {}
 
-        (self._set_type_special_case(tanjun_abc.SlashContext, self)._set_type_special_case(SlashContext, self))
+        (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
 
     @property
-    def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
+    def command(self) -> typing.Optional[tanjun.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._command
 
     @property
-    def options(self) -> collections.Mapping[str, tanjun_abc.SlashOption]:
+    def options(self) -> collections.Mapping[str, tanjun.SlashOption]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._options.copy()
 
@@ -1018,24 +1016,24 @@ class SlashContext(AppCommandContext, tanjun_abc.SlashContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
+    def set_command(self: _SlashContextT, command: typing.Optional[tanjun.BaseSlashCommand], /) -> _SlashContextT:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
         if command:
             # TODO: command group?
             (
-                self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
-                ._set_type_special_case(tanjun_abc.AppCommand, command)
-                ._set_type_special_case(tanjun_abc.BaseSlashCommand, command)
-                ._set_type_special_case(tanjun_abc.SlashCommand, command)
+                self._set_type_special_case(tanjun.ExecutableCommand, command)
+                ._set_type_special_case(tanjun.AppCommand, command)
+                ._set_type_special_case(tanjun.BaseSlashCommand, command)
+                ._set_type_special_case(tanjun.SlashCommand, command)
             )
 
         elif self._command:
             (
-                self._remove_type_special_case(tanjun_abc.ExecutableCommand)
-                ._remove_type_special_case(tanjun_abc.AppCommand)
-                ._remove_type_special_case(tanjun_abc.BaseSlashCommand)
-                ._remove_type_special_case(tanjun_abc.SlashCommand)
+                self._remove_type_special_case(tanjun.ExecutableCommand)
+                ._remove_type_special_case(tanjun.AppCommand)
+                ._remove_type_special_case(tanjun.BaseSlashCommand)
+                ._remove_type_special_case(tanjun.SlashCommand)
             )
 
         self._command = command

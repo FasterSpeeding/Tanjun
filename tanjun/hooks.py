@@ -39,19 +39,19 @@ import copy
 import typing
 from collections import abc as collections
 
-from . import abc
+from . import abc as tanjun
 from . import errors
 
 if typing.TypeVar:
-    _CommandT = typing.TypeVar("_CommandT", bound=abc.ExecutableCommand[typing.Any])
-    _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound=abc.ErrorHookSig)
-    _HookSigT = typing.TypeVar("_HookSigT", bound=abc.HookSig)
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
+    _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound=tanjun.ErrorHookSig)
+    _HookSigT = typing.TypeVar("_HookSigT", bound=tanjun.HookSig)
     _HooksT = typing.TypeVar("_HooksT", bound="Hooks[typing.Any]")
 
-_ContextT_contra = typing.TypeVar("_ContextT_contra", bound=abc.Context, contravariant=True)
+_ContextT_contra = typing.TypeVar("_ContextT_contra", bound=tanjun.Context, contravariant=True)
 
 
-class Hooks(abc.Hooks[_ContextT_contra]):
+class Hooks(tanjun.Hooks[_ContextT_contra]):
     """Standard implementation of [tanjun.abc.Hooks][] used for command execution.
 
     This will take either [tanjun.abc.Context][], [tanjun.abc.MessageContext][]
@@ -74,11 +74,11 @@ class Hooks(abc.Hooks[_ContextT_contra]):
 
     def __init__(self) -> None:
         """Initialise a command hook object."""
-        self._error_callbacks: list[abc.ErrorHookSig] = []
-        self._parser_error_callbacks: list[abc.HookSig] = []
-        self._pre_execution_callbacks: list[abc.HookSig] = []
-        self._post_execution_callbacks: list[abc.HookSig] = []
-        self._success_callbacks: list[abc.HookSig] = []
+        self._error_callbacks: list[tanjun.ErrorHookSig] = []
+        self._parser_error_callbacks: list[tanjun.HookSig] = []
+        self._pre_execution_callbacks: list[tanjun.HookSig] = []
+        self._post_execution_callbacks: list[tanjun.HookSig] = []
+        self._success_callbacks: list[tanjun.HookSig] = []
 
     def add_to_command(self, command: _CommandT, /) -> _CommandT:
         """Add this hook object to a command.
@@ -114,12 +114,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         """Copy this hook object."""
         return copy.deepcopy(self)  # TODO: maybe don't
 
-    def add_on_error(self: _HooksT, callback: abc.ErrorHookSig, /) -> _HooksT:
+    def add_on_error(self: _HooksT, callback: tanjun.ErrorHookSig, /) -> _HooksT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self._error_callbacks.append(callback)
         return self
 
-    def set_on_error(self: _HooksT, callback: typing.Optional[abc.ErrorHookSig], /) -> _HooksT:
+    def set_on_error(self: _HooksT, callback: typing.Optional[tanjun.ErrorHookSig], /) -> _HooksT:
         """Set the error callback for this hook object.
 
         !!! note
@@ -155,12 +155,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         self.add_on_error(callback)
         return callback
 
-    def add_on_parser_error(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+    def add_on_parser_error(self: _HooksT, callback: tanjun.HookSig, /) -> _HooksT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self._parser_error_callbacks.append(callback)
         return self
 
-    def set_on_parser_error(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
+    def set_on_parser_error(self: _HooksT, callback: typing.Optional[tanjun.HookSig], /) -> _HooksT:
         """Set the parser error callback for this hook object.
 
         Parameters
@@ -189,12 +189,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         self.add_on_parser_error(callback)
         return callback
 
-    def add_post_execution(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+    def add_post_execution(self: _HooksT, callback: tanjun.HookSig, /) -> _HooksT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self._post_execution_callbacks.append(callback)
         return self
 
-    def set_post_execution(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
+    def set_post_execution(self: _HooksT, callback: typing.Optional[tanjun.HookSig], /) -> _HooksT:
         """Set the post-execution callback for this hook object.
 
         Parameters
@@ -220,12 +220,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         self.add_post_execution(callback)
         return callback
 
-    def add_pre_execution(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+    def add_pre_execution(self: _HooksT, callback: tanjun.HookSig, /) -> _HooksT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self._pre_execution_callbacks.append(callback)
         return self
 
-    def set_pre_execution(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
+    def set_pre_execution(self: _HooksT, callback: typing.Optional[tanjun.HookSig], /) -> _HooksT:
         """Set the pre-execution callback for this hook object.
 
         Parameters
@@ -251,12 +251,12 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         self.add_pre_execution(callback)
         return callback
 
-    def add_on_success(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+    def add_on_success(self: _HooksT, callback: tanjun.HookSig, /) -> _HooksT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self._success_callbacks.append(callback)
         return self
 
-    def set_on_success(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
+    def set_on_success(self: _HooksT, callback: typing.Optional[tanjun.HookSig], /) -> _HooksT:
         """Set the success callback for this hook object.
 
         Parameters
@@ -288,7 +288,7 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         /,
         exception: Exception,
         *,
-        hooks: typing.Optional[collections.Set[abc.Hooks[_ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> int:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         level = 0
@@ -311,7 +311,7 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         ctx: _ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[abc.Hooks[_ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._post_execution_callbacks:
@@ -325,7 +325,7 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         ctx: _ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[abc.Hooks[_ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._pre_execution_callbacks:
@@ -339,7 +339,7 @@ class Hooks(abc.Hooks[_ContextT_contra]):
         ctx: _ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[abc.Hooks[_ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._success_callbacks:
@@ -349,28 +349,28 @@ class Hooks(abc.Hooks[_ContextT_contra]):
             await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
 
 
-AnyHooks = Hooks[abc.Context]
+AnyHooks = Hooks[tanjun.Context]
 """Hooks that can be used with any context.
 
 !!! note
     This is shorthand for `Hooks[tanjun.abc.Context]`.
 """
 
-MenuHooks = Hooks[abc.MenuContext]
+MenuHooks = Hooks[tanjun.MenuContext]
 """Hooks that can be used with a message context.
 
 !!! note
     This is shorthand for `Hooks[tanjun.abc.MenuContext]`.
 """
 
-MessageHooks = Hooks[abc.MessageContext]
+MessageHooks = Hooks[tanjun.MessageContext]
 """Hooks that can be used with a message context.
 
 !!! note
     This is shorthand for `Hooks[tanjun.abc.MessageContext]`.
 """
 
-SlashHooks = Hooks[abc.SlashContext]
+SlashHooks = Hooks[tanjun.SlashContext]
 """Hooks that can be used with a slash context.
 
 !!! note

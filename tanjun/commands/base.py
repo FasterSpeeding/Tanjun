@@ -38,40 +38,40 @@ import copy
 import typing
 from collections import abc as collections
 
-from .. import abc
+from .. import abc as tanjun
 from .. import components
 
 if typing.TYPE_CHECKING:
-    _CheckSigT = typing.TypeVar("_CheckSigT", bound=abc.CheckSig)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
     _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any]")
 
 
-_ContextT = typing.TypeVar("_ContextT", bound="abc.Context")
+_ContextT = typing.TypeVar("_ContextT", bound="tanjun.Context")
 
 
-class PartialCommand(abc.ExecutableCommand[_ContextT], components.AbstractComponentLoader):
+class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractComponentLoader):
     """Base class for the standard ExecutableCommand implementations."""
 
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
 
     def __init__(self) -> None:
-        self._checks: list[abc.CheckSig] = []
-        self._component: typing.Optional[abc.Component] = None
-        self._hooks: typing.Optional[abc.Hooks[_ContextT]] = None
+        self._checks: list[tanjun.CheckSig] = []
+        self._component: typing.Optional[tanjun.Component] = None
+        self._hooks: typing.Optional[tanjun.Hooks[_ContextT]] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
 
     @property
-    def checks(self) -> collections.Collection[abc.CheckSig]:
+    def checks(self) -> collections.Collection[tanjun.CheckSig]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._checks.copy()
 
     @property
-    def component(self) -> typing.Optional[abc.Component]:
+    def component(self) -> typing.Optional[tanjun.Component]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._component
 
     @property
-    def hooks(self) -> typing.Optional[abc.Hooks[_ContextT]]:
+    def hooks(self) -> typing.Optional[tanjun.Hooks[_ContextT]]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._hooks
 
@@ -90,7 +90,7 @@ class PartialCommand(abc.ExecutableCommand[_ContextT], components.AbstractCompon
 
         return copy.copy(self).copy(_new=False)
 
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[abc.Hooks[_ContextT]], /) -> _PartialCommandT:
+    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[tanjun.Hooks[_ContextT]], /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._hooks = hooks
         return self
@@ -100,14 +100,14 @@ class PartialCommand(abc.ExecutableCommand[_ContextT], components.AbstractCompon
         self._metadata[key] = value
         return self
 
-    def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
+    def add_check(self: _PartialCommandT, check: tanjun.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if check not in self._checks:
             self._checks.append(check)
 
         return self
 
-    def remove_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
+    def remove_check(self: _PartialCommandT, check: tanjun.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)
         return self
@@ -116,11 +116,11 @@ class PartialCommand(abc.ExecutableCommand[_ContextT], components.AbstractCompon
         self.add_check(check)
         return check
 
-    def bind_client(self: _PartialCommandT, client: abc.Client, /) -> _PartialCommandT:
+    def bind_client(self: _PartialCommandT, client: tanjun.Client, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self
 
-    def bind_component(self: _PartialCommandT, component: abc.Component, /) -> _PartialCommandT:
+    def bind_component(self: _PartialCommandT, component: tanjun.Component, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._component = component
         return self

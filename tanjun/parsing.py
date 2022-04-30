@@ -57,12 +57,12 @@ import shlex
 import typing
 from collections import abc as collections
 
-from . import abc as tanjun_abc
+from . import abc as tanjun
 from . import conversion
 from . import errors
 
 if typing.TYPE_CHECKING:
-    _CommandT = typing.TypeVar("_CommandT", bound=tanjun_abc.MessageCommand[typing.Any])
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.MessageCommand[typing.Any])
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
@@ -121,7 +121,7 @@ UNDEFINED_DEFAULT = UNDEFINED
 _UndefinedOr = typing.Union[UndefinedT, _T]
 
 
-class AbstractOptionParser(tanjun_abc.MessageParser, abc.ABC):
+class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
     """Abstract interface of a message content parser."""
 
     __slots__ = ()
@@ -431,7 +431,7 @@ class _ShlexTokenizer:
 
 
 async def _covert_option_or_empty(
-    ctx: tanjun_abc.MessageContext, option: Option, value: typing.Optional[typing.Any], /
+    ctx: tanjun.MessageContext, option: Option, value: typing.Optional[typing.Any], /
 ) -> typing.Any:
     if value is not None:
         return await option.convert(ctx, value)
@@ -447,7 +447,7 @@ class _SemanticShlex(_ShlexTokenizer):
 
     def __init__(
         self,
-        ctx: tanjun_abc.MessageContext,
+        ctx: tanjun.MessageContext,
         arguments: collections.Sequence[Argument],
         options: collections.Sequence[Option],
         /,
@@ -507,7 +507,7 @@ class _SemanticShlex(_ShlexTokenizer):
         raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
 
 
-def _get_or_set_parser(command: tanjun_abc.MessageCommand[typing.Any], /) -> AbstractOptionParser:
+def _get_or_set_parser(command: tanjun.MessageCommand[typing.Any], /) -> AbstractOptionParser:
     if not command.parser:
         parser = ShlexParser()
         command.set_parser(parser)
@@ -1156,8 +1156,8 @@ class Parameter:
         multi: bool = False,
     ) -> None:
         """Initialise a parameter."""
-        self._client: typing.Optional[tanjun_abc.Client] = None
-        self._component: typing.Optional[tanjun_abc.Component] = None
+        self._client: typing.Optional[tanjun.Client] = None
+        self._component: typing.Optional[tanjun.Component] = None
         self._converters: list[ConverterSig[typing.Any]] = []
         self._default = default
         self._is_multi = multi
@@ -1215,13 +1215,13 @@ class Parameter:
         converter = conversion.override_type(converter)
         self._converters.append(converter)
 
-    def bind_client(self, client: tanjun_abc.Client, /) -> None:
+    def bind_client(self, client: tanjun.Client, /) -> None:
         self._client = client
         for converter in self._converters:
             if isinstance(converter, conversion.BaseConverter):
                 converter.check_client(client, f"{self._key} parameter")
 
-    def bind_component(self, component: tanjun_abc.Component, /) -> None:
+    def bind_component(self, component: tanjun.Component, /) -> None:
         self._component = component
 
     def _validate(self, value: typing.Any, /) -> None:
@@ -1235,7 +1235,7 @@ class Parameter:
         if self._max_value is not None and self._max_value < value:
             raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self.key)
 
-    async def convert(self, ctx: tanjun_abc.Context, value: str) -> typing.Any:
+    async def convert(self, ctx: tanjun.Context, value: str) -> typing.Any:
         """Convert the given value to the type of this parameter."""
         if not self._converters:
             self._validate(value)
@@ -1436,8 +1436,8 @@ class ShlexParser(AbstractOptionParser):
     def __init__(self) -> None:
         """Initialise a shlex parser."""
         self._arguments: list[Argument] = []
-        self._client: typing.Optional[tanjun_abc.Client] = None
-        self._component: typing.Optional[tanjun_abc.Component] = None
+        self._client: typing.Optional[tanjun.Client] = None
+        self._component: typing.Optional[tanjun.Component] = None
         self._options: list[Option] = []  # TODO: maybe switch to dict[str, Option] and assert doesn't already exist
 
     @property
@@ -1617,7 +1617,7 @@ class ShlexParser(AbstractOptionParser):
         self._options.append(option)
         return self
 
-    def bind_client(self: _ShlexParserT, client: tanjun_abc.Client, /) -> _ShlexParserT:
+    def bind_client(self: _ShlexParserT, client: tanjun.Client, /) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
         self._client = client
         for parameter in itertools.chain(self._options, self._arguments):
@@ -1625,7 +1625,7 @@ class ShlexParser(AbstractOptionParser):
 
         return self
 
-    def bind_component(self: _ShlexParserT, component: tanjun_abc.Component, /) -> _ShlexParserT:
+    def bind_component(self: _ShlexParserT, component: tanjun.Component, /) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
         self._component = component
         for parameter in itertools.chain(self._options, self._arguments):
@@ -1634,7 +1634,7 @@ class ShlexParser(AbstractOptionParser):
         return self
 
     def parse(
-        self, ctx: tanjun_abc.MessageContext, /
+        self, ctx: tanjun.MessageContext, /
     ) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
         # <<inherited docstring from AbstractOptionParser>>.
         return _SemanticShlex(ctx, self._arguments, self._options).parse()

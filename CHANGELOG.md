@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- A `send` method to `CommandError` which can be overridden to customise its response behaviour.
+- Support for other create message arguments to `CommandError`.
+
+### Changed
+- Renamed `CommandError.message` to `.content`.
+
+### Fixed
+- Allowed a type of `bool` (not a literal) to be passed to ensure_result typing wise.
 
 ## [2.5.0a1] - 2022-04-11
 ### Added

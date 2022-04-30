@@ -39,14 +39,14 @@ import typing
 import alluka
 import hikari
 
-from .. import abc
+from .. import abc as tanjun
 from . import async_cache
 
 _OwnUserCache = typing.Optional[async_cache.SingleStoreCache[hikari.OwnUser]]
 
 
 async def fetch_my_user(
-    client: abc.Client = alluka.inject(type=abc.Client),
+    client: tanjun.Client = alluka.inject(type=tanjun.Client),
     me_cache: _OwnUserCache = alluka.inject(type=_OwnUserCache),
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.

@@ -49,7 +49,7 @@ from alluka import abc as alluka
 from . import components
 
 if typing.TYPE_CHECKING:
-    from . import abc as tanjun_abc
+    from . import abc as tanjun
 
     _DatetimeT = typing.TypeVar("_DatetimeT", bound="_Datetime")
     _IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
@@ -267,7 +267,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         return copy.copy(self)
 
-    def load_into_component(self, component: tanjun_abc.Component, /) -> None:
+    def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
         if isinstance(component, _ComponentProto):
             component.add_schedule(self)
@@ -984,7 +984,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
                 self._tasks = []
                 await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
-    def load_into_component(self, component: tanjun_abc.Component, /) -> None:
+    def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
         if isinstance(component, _ComponentProto):
             component.add_schedule(self)

@@ -2906,7 +2906,6 @@ class TestClient:
             ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
         )
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -2936,7 +2935,6 @@ class TestClient:
             ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
         )
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
         ctx_maker.return_value.call_with_async_di.assert_awaited_once_with(prefix_getter, ctx_maker.return_value)
 
@@ -3022,7 +3020,6 @@ class TestClient:
             ctx_maker.return_value, hooks={command_dispatch_client.message_hooks}
         )
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3050,7 +3047,6 @@ class TestClient:
             ctx_maker.return_value, hooks={command_dispatch_client.hooks}
         )
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3076,7 +3072,6 @@ class TestClient:
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
         mock_component_1.execute_message.assert_awaited_once_with(ctx_maker.return_value, hooks=None)
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3093,6 +3088,7 @@ class TestClient:
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         assert isinstance(command_dispatch_client.dispatch_client_callback, mock.AsyncMock)
         command_dispatch_client.check.side_effect = tanjun.CommandError("eee")
+        command_dispatch_client.check.side_effect.send = mock.AsyncMock()
         mock_event = mock.Mock(message=mock.Mock(content="eye"))
 
         await command_dispatch_client.on_message_create_event(mock_event)
@@ -3103,7 +3099,7 @@ class TestClient:
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
         mock_component_1.execute_message.assert_not_called()
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_awaited_once_with("eee")
+        command_dispatch_client.check.side_effect.send.assert_awaited_once_with(ctx_maker.return_value)
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3130,7 +3126,6 @@ class TestClient:
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
         mock_component_1.execute_message.assert_not_called()
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
             tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
         )
@@ -3157,7 +3152,6 @@ class TestClient:
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
         mock_component_1.execute_message.assert_not_called()
         mock_component_2.execute_message.assert_not_called()
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
             tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
         )
@@ -3172,6 +3166,7 @@ class TestClient:
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_1.execute_message.return_value = False
         mock_component_2.execute_message.side_effect = tanjun.CommandError("eeea")
+        mock_component_2.execute_message.side_effect.send = mock.AsyncMock()
         command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker).add_component(
             mock_component_1
         ).add_component(mock_component_2)
@@ -3192,7 +3187,7 @@ class TestClient:
         mock_component_2.execute_message.assert_awaited_once_with(
             ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
         )
-        ctx_maker.return_value.respond.assert_awaited_once_with("eeea")
+        mock_component_2.execute_message.side_effect.send.assert_awaited_once_with(ctx_maker.return_value)
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3225,7 +3220,6 @@ class TestClient:
         mock_component_2.execute_message.assert_awaited_once_with(
             ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
         )
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
             tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
         )
@@ -3258,7 +3252,6 @@ class TestClient:
         mock_component_2.execute_message.assert_awaited_once_with(
             ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
         )
-        ctx_maker.return_value.respond.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
             tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
         )
@@ -3443,7 +3436,6 @@ class TestClient:
         )
         mock_component_2.execute_menu.assert_not_called()
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_other_ctx_maker.assert_not_called()
 
@@ -3492,7 +3484,6 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3536,7 +3527,6 @@ class TestClient:
         mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -3581,7 +3571,6 @@ class TestClient:
         mock_component_1.execute_slash.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_component_2.execute_slash.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3629,7 +3618,6 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
         )
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3677,7 +3665,6 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
         )
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3721,7 +3708,6 @@ class TestClient:
         mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -3750,6 +3736,7 @@ class TestClient:
         mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.side_effect = tanjun.CommandError("3903939")
+        command_dispatch_client.check.side_effect.send = mock.AsyncMock()
 
         await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
@@ -3762,7 +3749,7 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
-        mock_ctx_maker.return_value.respond.assert_awaited_once_with("3903939")
+        command_dispatch_client.check.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3803,7 +3790,6 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -3829,6 +3815,7 @@ class TestClient:
         )
         mock_component_1.execute_slash.return_value = None
         mock_component_2.execute_slash.side_effect = tanjun.CommandError("123321")
+        mock_component_2.execute_slash.side_effect.send = mock.AsyncMock()
         mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.SLASH)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = True
@@ -3848,7 +3835,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_awaited_once_with("123321")
+        mock_component_2.execute_slash.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -3893,7 +3880,6 @@ class TestClient:
         mock_component_2.execute_slash.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -3934,7 +3920,6 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -3983,7 +3968,6 @@ class TestClient:
         )
         mock_component_2.execute_slash.assert_not_called()
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         other_ctx_maker.assert_not_called()
 
@@ -4032,7 +4016,6 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -4076,7 +4059,6 @@ class TestClient:
         mock_component_2.execute_menu.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -4121,7 +4103,6 @@ class TestClient:
         mock_component_1.execute_menu.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_component_2.execute_menu.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -4169,7 +4150,6 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.menu_hooks}
         )
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -4217,7 +4197,6 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
         )
         mock_future.assert_awaited_once()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -4261,7 +4240,6 @@ class TestClient:
         mock_component_2.execute_menu.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -4290,6 +4268,7 @@ class TestClient:
         mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.side_effect = tanjun.CommandError("3903939")
+        command_dispatch_client.check.side_effect.send = mock.AsyncMock()
 
         await command_dispatch_client.on_gateway_command_create(mock_interaction)
 
@@ -4302,7 +4281,7 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
-        mock_ctx_maker.return_value.respond.assert_awaited_once_with("3903939")
+        command_dispatch_client.check.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -4339,7 +4318,6 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -4365,6 +4343,7 @@ class TestClient:
         )
         mock_component_1.execute_menu.return_value = None
         mock_component_2.execute_menu.side_effect = tanjun.CommandError("123321")
+        mock_component_2.execute_menu.side_effect.send = mock.AsyncMock()
         mock_interaction = mock.Mock(hikari.CommandInteraction, command_type=hikari.CommandType.MESSAGE)
         assert isinstance(command_dispatch_client.check, mock.AsyncMock)
         command_dispatch_client.check.return_value = True
@@ -4384,7 +4363,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_awaited_once_with("123321")
+        mock_component_2.execute_menu.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -4429,7 +4408,6 @@ class TestClient:
         mock_component_2.execute_menu.assert_awaited_once_with(
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -4470,7 +4448,6 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
-        mock_ctx_maker.return_value.respond.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
 
     @pytest.mark.asyncio()

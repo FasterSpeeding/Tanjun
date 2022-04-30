@@ -68,7 +68,7 @@ from alluka.abc import CallbackSig
 from alluka.abc import Context as AbstractInjectionContext
 from alluka.abc import Undefined
 
-from . import abc as tanjun_abc
+from . import abc as tanjun
 
 _T = typing.TypeVar("_T")
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])
@@ -78,7 +78,7 @@ UndefinedOr = typing.Union[Undefined, _T]
 
 
 def as_self_injecting(
-    client: tanjun_abc.Client, /
+    client: tanjun.Client, /
 ) -> collections.Callable[[_CallbackSigT], alluka.AsyncSelfInjecting[_CallbackSigT]]:
     """Make a callback self-inecting by linking it to a client through a decorator call.
 
