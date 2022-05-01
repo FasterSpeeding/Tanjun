@@ -44,12 +44,14 @@ import tanjun
 
 class TestCommandError:
     def test_init_dunder_method(self):
+        mock_attachment = mock.Mock()
         mock_component = mock.Mock()
         mock_embed = mock.Mock()
 
         error = tanjun.CommandError(
             "moon",
             delete_after=555,
+            attachments=[mock_attachment],
             components=[mock_component],
             embeds=[mock_embed],
             mentions_everyone=False,
@@ -58,6 +60,7 @@ class TestCommandError:
         )
 
         assert error.content == "moon"
+        assert error.attachments == [mock_attachment]
         assert error.components == [mock_component]
         assert error.delete_after == 555
         assert error.embeds == [mock_embed]
@@ -66,11 +69,13 @@ class TestCommandError:
         assert error.role_mentions == [6534]
 
     def test_init_dunder_method_for_singular_fields(self):
+        mock_attachment = mock.Mock()
         mock_component = mock.Mock()
         mock_embed = mock.Mock()
 
-        error = tanjun.CommandError(component=mock_component, embed=mock_embed)
+        error = tanjun.CommandError(attachment=mock_attachment, component=mock_component, embed=mock_embed)
 
+        assert error.attachments == [mock_attachment]
         assert error.components == [mock_component]
         assert error.embeds == [mock_embed]
 
@@ -78,12 +83,17 @@ class TestCommandError:
         error = tanjun.CommandError()
 
         assert error.content is hikari.UNDEFINED
+        assert error.attachments is hikari.UNDEFINED
         assert error.components is hikari.UNDEFINED
         assert error.delete_after is None
         assert error.embeds is hikari.UNDEFINED
         assert error.mentions_everyone is hikari.UNDEFINED
         assert error.role_mentions is hikari.UNDEFINED
         assert error.user_mentions is hikari.UNDEFINED
+
+    def test_init_dunder_method_when_both_attachment_and_attachments_passed(self):
+        with pytest.raises(ValueError, match="Cannot specify both attachment and attachments"):
+            tanjun.CommandError(attachment=mock.Mock(), attachments=[mock.Mock()])
 
     def test_init_dunder_method_when_both_component_and_components_passed(self):
         with pytest.raises(ValueError, match="Cannot specify both component and components"):
@@ -106,6 +116,7 @@ class TestCommandError:
         assert result is mock_context.respond.return_value
         mock_context.respond.assert_awaited_once_with(
             content=hikari.UNDEFINED,
+            attachments=hikari.UNDEFINED,
             components=hikari.UNDEFINED,
             delete_after=None,
             embeds=hikari.UNDEFINED,
@@ -117,10 +128,12 @@ class TestCommandError:
 
     @pytest.mark.asyncio()
     async def test_send_when_all_fields(self):
+        mock_attachment = mock.Mock()
         mock_component = mock.Mock()
         mock_embed = mock.Mock()
         error = tanjun.CommandError(
             "hello",
+            attachments=[mock_attachment],
             components=[mock_component],
             delete_after=53,
             embeds=[mock_embed],
@@ -135,6 +148,7 @@ class TestCommandError:
         assert result is mock_context.respond.return_value
         mock_context.respond.assert_awaited_once_with(
             content="hello",
+            attachments=[mock_attachment],
             components=[mock_component],
             delete_after=53,
             embeds=[mock_embed],
