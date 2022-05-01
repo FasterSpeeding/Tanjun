@@ -1313,8 +1313,8 @@ class Component(tanjun.Component):
         ValueError
             If the schedule isn't registered.
         """
-        if schedule.is_alive:
-            schedule.stop()
+        if self._loop and schedule.is_alive:
+            self._loop.create_task(schedule.stop())  # TODO: add_task
 
         self._schedules.remove(schedule)
         return self
@@ -1353,11 +1353,8 @@ class Component(tanjun.Component):
 
         assert self._client
 
-        for schedule in self._schedules:
-            if schedule.is_alive:
-                schedule.stop()
-
         self._loop = None
+        await asyncio.gather(*(schedule.stop() for schedule in self._schedules if schedule.is_alive))
         await asyncio.gather(*(self._client.injector.call_with_async_di(callback) for callback in self._on_close))
         if unbind:
             self.unbind_client(self._client)
