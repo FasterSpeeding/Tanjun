@@ -106,7 +106,6 @@ def slash_command_group(
     description: str,
     /,
     *,
-    default_permission: bool = True,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> SlashCommandGroup:
@@ -151,8 +150,6 @@ def slash_command_group(
         This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
     description
         The description of the command group.
-    default_permission
-        Whether this command can be accessed without set permissions.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -179,7 +176,6 @@ def slash_command_group(
     return SlashCommandGroup(
         name,
         description,
-        default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
     )
@@ -204,7 +200,6 @@ def as_slash_command(
     /,
     *,
     always_defer: bool = False,
-    default_permission: bool = True,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
@@ -217,8 +212,7 @@ def as_slash_command(
         or when `declare_global_commands` is True
 
     !!! warning
-        `default_permission` and `is_global` are ignored for commands within
-        slash command groups.
+        `is_global` is ignored for commands within slash command groups.
 
     !!! note
         If you want your first response to be ephemeral while using
@@ -247,8 +241,6 @@ def as_slash_command(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
-    default_permission
-        Whether this command can be accessed without set permissions.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -292,7 +284,6 @@ def as_slash_command(
                 name,
                 description,
                 always_defer=always_defer,
-                default_permission=default_permission,
                 default_to_ephemeral=default_to_ephemeral,
                 is_global=is_global,
                 sort_options=sort_options,
@@ -304,7 +295,6 @@ def as_slash_command(
             name,
             description,
             always_defer=always_defer,
-            default_permission=default_permission,
             default_to_ephemeral=default_to_ephemeral,
             is_global=is_global,
             sort_options=sort_options,
@@ -906,7 +896,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         be callable functions themselves.
     """
 
-    __slots__ = ("_commands", "_default_permission")
+    __slots__ = "_commands"
 
     def __init__(
         self,
@@ -915,7 +905,6 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         /,
         *,
         default_to_ephemeral: typing.Optional[bool] = None,
-        default_permission: bool = True,
         is_global: bool = True,
     ) -> None:
         r"""Initialise a slash command group.
@@ -933,8 +922,6 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
         description
             The description of the command group.
-        default_permission
-            Whether this command can be accessed without set permissions.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -955,7 +942,6 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         """
         super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
         self._commands: dict[str, tanjun.BaseSlashCommand] = {}
-        self._default_permission = default_permission
 
     @property
     def commands(self) -> collections.Collection[tanjun.BaseSlashCommand]:
@@ -964,9 +950,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(self._name, self._description, False).set_default_permission(
-            self._default_permission
-        )
+        builder = _SlashCommandBuilder(self._name, self._description, False)
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -1131,7 +1115,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
@@ -1148,7 +1131,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
@@ -1164,7 +1146,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
@@ -1178,8 +1159,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             or when `declare_global_commands` is True
 
         !!! warning
-            `default_permission` and `is_global` are ignored for commands within
-            slash command groups.
+            `is_global` is ignored for commands within slash command groups.
 
         !!! note
             If you want your first response to be ephemeral while using
@@ -1203,8 +1183,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         always_defer
             Whether the contexts this command is executed with should always be deferred
             before being passed to the command's callback.
-        default_permission
-            Whether this command can be accessed without set permissions.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -1235,7 +1213,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._builder = _SlashCommandBuilder(name, description, sort_options).set_default_permission(default_permission)
+        self._builder = _SlashCommandBuilder(name, description, sort_options)
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
         self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}

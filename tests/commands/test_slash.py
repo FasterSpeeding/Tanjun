@@ -63,13 +63,10 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 
 
 def test_slash_command_group():
-    command = tanjun.slash_command_group(
-        "a_name", "very", default_permission=False, default_to_ephemeral=True, is_global=False
-    )
+    command = tanjun.slash_command_group("a_name", "very", default_to_ephemeral=True, is_global=False)
 
     assert command.name == "a_name"
     assert command.description == "very"
-    assert command.build().default_permission is False
     assert command.is_global is False
     assert command.defaults_to_ephemeral is True
     assert isinstance(command, tanjun.SlashCommandGroup)
@@ -79,7 +76,6 @@ def test_slash_command_group_with_default():
     command = tanjun.slash_command_group("a_name", "very")
 
     assert command.tracked_command_id is None
-    assert command.build().default_permission is True
     assert command.defaults_to_ephemeral is None
     assert command.is_global is True
     assert isinstance(command, tanjun.SlashCommandGroup)
@@ -92,7 +88,6 @@ def test_as_slash_command():
         "a_very",
         "cool name",
         always_defer=True,
-        default_permission=False,
         default_to_ephemeral=True,
         is_global=False,
         sort_options=False,
@@ -101,7 +96,6 @@ def test_as_slash_command():
     assert command._always_defer is True
     assert command.name == "a_very"
     assert command.description == "cool name"
-    assert command.build().default_permission is hikari.UNDEFINED
     assert command.defaults_to_ephemeral is True
     assert command.is_global is False
     assert command._builder._sort_options is False
@@ -138,7 +132,6 @@ def test_as_slash_command_with_defaults():
     command = tanjun.as_slash_command("a_very", "cool name")(mock_callback)
 
     assert command._always_defer is False
-    assert command.build().default_permission is hikari.UNDEFINED
     assert command.defaults_to_ephemeral is None
     assert command.is_global is True
     assert command._builder._sort_options is True
@@ -647,16 +640,13 @@ class TestSlashCommandGroup:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         mock_command_group = mock.Mock(tanjun.abc.SlashCommandGroup)
         command_group = (
-            tanjun.SlashCommandGroup("yee", "nsoosos", default_permission=True)
-            .add_command(mock_command)
-            .add_command(mock_command_group)
+            tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command).add_command(mock_command_group)
         )
 
         result = command_group.build()
 
         assert result == (
             tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
-            .set_default_permission(True)
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
