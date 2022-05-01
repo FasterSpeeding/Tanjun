@@ -436,7 +436,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name)
+        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name)  # type: ignore
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
