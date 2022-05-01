@@ -37,6 +37,7 @@ __all__: list[str] = ["SlashContext", "SlashOption"]
 import asyncio
 import datetime
 import logging
+import os
 import typing
 
 import hikari
@@ -636,9 +637,9 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             )
 
         else:
-            attachments = _to_list(attachment, attachments, "attachment")
-            components = _to_list(component, components, "component")
-            embeds = _to_list(embed, embeds, "embed")
+            attachments = _to_list(attachment, attachments, content, _ATTACHMENT_TYPES, "attachment")
+            components = _to_list(component, components, content, hikari.api.ComponentBuilder, "component")
+            embeds = _to_list(embed, embeds, content, hikari.Embed, "embed")
 
             content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
@@ -955,8 +956,15 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             return await self._interaction.fetch_initial_response()
 
 
+_ATTACHMENT_TYPES: tuple[type[typing.Any], ...] = (hikari.files.Resource, *hikari.files.RAWISH_TYPES, os.PathLike)
+
+
 def _to_list(
-    singular: hikari.UndefinedOr[_T], plural: hikari.UndefinedOr[collections.Sequence[_T]], name: str
+    singular: hikari.UndefinedOr[_T],
+    plural: hikari.UndefinedOr[collections.Sequence[_T]],
+    other: typing.Any,
+    type_: typing.Union[type[typing.Any], tuple[type[typing.Any], ...]],
+    name: str,
 ) -> list[_T]:
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
         raise ValueError(f"Only one of {name} or {name}s may be passed")
@@ -966,6 +974,9 @@ def _to_list(
 
     if plural:
         return list(plural)
+
+    if other and isinstance(other, type_):
+        return [other]
 
     return []
 

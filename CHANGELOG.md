@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - A `send` method to `CommandError` which can be overridden to customise its response behaviour.
 - Support for other create message arguments to `CommandError`.
+- Support for sending attachments with `Context.respond`, `CommandError` and
+  `SlashContext.create_initial_response`.
 
 ### Changed
 - Renamed `CommandError.message` to `.content`.
@@ -39,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allowed a type of `bool` (not a literal) to be passed to ensure_result typing wise.
 - Some edge cases in the weekly schedule increment handling logic.
 - Long running `delete_after` and command execution tasks will no-longer be cancelled by GC.
+- Allow for implicitly passing an embed or component as `content` when creating the initial
+  response for an application command as a REST server to match the documented behaviour.
 
 ### Removed
 - `default_permission` options for slash commands as command permissions V2 broke and deprecated this.

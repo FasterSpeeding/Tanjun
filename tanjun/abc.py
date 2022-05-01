@@ -802,6 +802,10 @@ class Context(alluka.Context):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.files.Resource][], then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
         ensure_result
             Ensure that this call will always return a message object.
 
@@ -1565,6 +1569,10 @@ class AppCommandContext(Context, abc.ABC):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.files.Resource][], then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
