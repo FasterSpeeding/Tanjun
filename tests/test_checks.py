@@ -418,15 +418,24 @@ def test_with_dm_check(command: mock.Mock):
         assert tanjun.checks.with_dm_check(command) is command
 
         command.add_check.assert_called_once_with(dm_check.return_value)
-        dm_check.assert_called_once_with(halt_execution=False, error_message="Command can only be used in DMs")
+        dm_check.assert_called_once_with(
+            error=None, halt_execution=False, error_message="Command can only be used in DMs"
+        )
 
 
 def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
+    mock_error_callback = mock.Mock()
+
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
-        assert tanjun.checks.with_dm_check(halt_execution=True, error_message="message")(command) is command
+        assert (
+            tanjun.checks.with_dm_check(error=mock_error_callback, halt_execution=True, error_message="message")(
+                command
+            )
+            is command
+        )
 
         command.add_check.assert_called_once_with(dm_check.return_value)
-        dm_check.assert_called_once_with(halt_execution=True, error_message="message")
+        dm_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="message")
 
 
 def test_with_guild_check(command: mock.Mock):
@@ -435,16 +444,21 @@ def test_with_guild_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(guild_check.return_value)
         guild_check.assert_called_once_with(
-            halt_execution=False, error_message="Command can only be used in guild channels"
+            error=None, halt_execution=False, error_message="Command can only be used in guild channels"
         )
 
 
 def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
+    mock_error_callback = mock.Mock()
+
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
-        assert tanjun.checks.with_guild_check(halt_execution=True, error_message="eee")(command) is command
+        assert (
+            tanjun.checks.with_guild_check(error=mock_error_callback, halt_execution=True, error_message="eee")(command)
+            is command
+        )
 
         command.add_check.assert_called_once_with(guild_check.return_value)
-        guild_check.assert_called_once_with(halt_execution=True, error_message="eee")
+        guild_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="eee")
 
 
 def test_with_nsfw_check(command: mock.Mock):
@@ -453,16 +467,23 @@ def test_with_nsfw_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(nsfw_check.return_value)
         nsfw_check.assert_called_once_with(
-            halt_execution=False, error_message="Command can only be used in NSFW channels"
+            error=None, halt_execution=False, error_message="Command can only be used in NSFW channels"
         )
 
 
 def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
+    mock_error_callback = mock.Mock()
+
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as nsfw_check:
-        assert tanjun.checks.with_nsfw_check(halt_execution=True, error_message="banned!!!")(command) is command
+        assert (
+            tanjun.checks.with_nsfw_check(error=mock_error_callback, halt_execution=True, error_message="banned!!!")(
+                command
+            )
+            is command
+        )
 
         command.add_check.assert_called_once_with(nsfw_check.return_value)
-        nsfw_check.assert_called_once_with(halt_execution=True, error_message="banned!!!")
+        nsfw_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="banned!!!")
 
 
 def test_with_sfw_check(command: mock.Mock):
@@ -471,16 +492,21 @@ def test_with_sfw_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(sfw_check.return_value)
         sfw_check.assert_called_once_with(
-            halt_execution=False, error_message="Command can only be used in SFW channels"
+            error=None, halt_execution=False, error_message="Command can only be used in SFW channels"
         )
 
 
 def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
+    mock_error_callback = mock.Mock()
+
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as sfw_check:
-        assert tanjun.checks.with_sfw_check(halt_execution=True, error_message="bango")(command) is command
+        assert (
+            tanjun.checks.with_sfw_check(error=mock_error_callback, halt_execution=True, error_message="bango")(command)
+            is command
+        )
 
         command.add_check.assert_called_once_with(sfw_check.return_value)
-        sfw_check.assert_called_once_with(halt_execution=True, error_message="bango")
+        sfw_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="bango")
 
 
 def test_with_owner_check(command: mock.Mock):
@@ -488,42 +514,58 @@ def test_with_owner_check(command: mock.Mock):
         assert tanjun.checks.with_owner_check(command) is command
 
         command.add_check.assert_called_once_with(owner_check.return_value)
-        owner_check.assert_called_once_with(halt_execution=False, error_message="Only bot owners can use this command")
+        owner_check.assert_called_once_with(
+            error=None, halt_execution=False, error_message="Only bot owners can use this command"
+        )
 
 
 def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
+    mock_error_callback = mock.Mock()
     mock_check = object()
     with mock.patch.object(tanjun.checks, "OwnerCheck", return_value=mock_check) as owner_check:
         result = tanjun.checks.with_owner_check(
+            error=mock_error_callback,
             halt_execution=True,
             error_message="dango",
         )(command)
         assert result is command
 
         command.add_check.assert_called_once_with(owner_check.return_value)
-        owner_check.assert_called_once_with(halt_execution=True, error_message="dango")
+        owner_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="dango")
 
 
 def test_with_author_permission_check(command: mock.Mock):
+    mock_error_callback = mock.Mock()
+
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
         assert (
-            tanjun.checks.with_author_permission_check(435213, halt_execution=True, error_message="bye")(command)
+            tanjun.checks.with_author_permission_check(
+                435213, error=mock_error_callback, halt_execution=True, error_message="bye"
+            )(command)
             is command
         )
 
         command.add_check.assert_called_once_with(author_permission_check.return_value)
-        author_permission_check.assert_called_once_with(435213, halt_execution=True, error_message="bye")
+        author_permission_check.assert_called_once_with(
+            435213, error=mock_error_callback, halt_execution=True, error_message="bye"
+        )
 
 
 def test_with_own_permission_check(command: mock.Mock):
+    mock_error_callback = mock.Mock()
+
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
         assert (
-            tanjun.checks.with_own_permission_check(5412312, halt_execution=True, error_message="hi")(command)
+            tanjun.checks.with_own_permission_check(
+                5412312, error=mock_error_callback, halt_execution=True, error_message="hi"
+            )(command)
             is command
         )
 
         command.add_check.assert_called_once_with(own_permission_check.return_value)
-        own_permission_check.assert_called_once_with(5412312, halt_execution=True, error_message="hi")
+        own_permission_check.assert_called_once_with(
+            5412312, error=mock_error_callback, halt_execution=True, error_message="hi"
+        )
 
 
 def test_with_check(command: mock.Mock):

@@ -1220,31 +1220,33 @@ class TestCooldownPreExecution:
 
 def test_with_cooldown():
     mock_command = mock.Mock()
+    mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution:
-        tanjun.with_cooldown("catgirl x catgirl", error_message="pussy cat pussy cat", owners_exempt=False)(
-            mock_command
-        )
+        tanjun.with_cooldown(
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+        )(mock_command)
 
         mock_pre_execution.assert_called_once_with(
-            "catgirl x catgirl", error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
 
 def test_with_cooldown_when_no_set_hooks():
     mock_command = mock.Mock(hooks=None)
+    mock_error_callback = mock.Mock()
 
     with (
         mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution,
         mock.patch.object(tanjun.hooks, "AnyHooks") as any_hooks,
     ):
-        tanjun.with_cooldown("catgirl x catgirl", error_message="pussy cat pussy cat", owners_exempt=False)(
-            mock_command
-        )
+        tanjun.with_cooldown(
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+        )(mock_command)
 
         mock_pre_execution.assert_called_once_with(
-            "catgirl x catgirl", error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
         )
         mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
         any_hooks.return_value.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
@@ -1686,22 +1688,27 @@ def test_with_concurrency_limit():
     mock_command = mock.Mock()
     mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
     mock_command.hooks.add_post_execution.return_value = mock_command.hooks
+    mock_error_callback = mock.Mock()
 
     with (
         mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
         mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
     ):
-        result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
+        result = tanjun.with_concurrency_limit("bucket me", error=mock_error_callback, error_message="aye message")(
+            mock_command
+        )
 
     assert result is mock_command
     mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
     mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
-    pre_execution.assert_called_once_with("bucket me", error_message="aye message")
+    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
     post_execution.assert_called_once_with("bucket me")
 
 
 def test_with_concurrency_limit_makes_new_hooks():
     mock_command = mock.Mock(hooks=None)
+    mock_error_callback = mock.Mock()
+
     with (
         mock.patch.object(tanjun.hooks, "AnyHooks") as any_hooks,
         mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
@@ -1710,12 +1717,14 @@ def test_with_concurrency_limit_makes_new_hooks():
         any_hooks.return_value.add_pre_execution.return_value = any_hooks.return_value
         any_hooks.return_value.add_post_execution.return_value = any_hooks.return_value
 
-        result = tanjun.with_concurrency_limit("bucket me", error_message="aye message")(mock_command)
+        result = tanjun.with_concurrency_limit("bucket me", error=mock_error_callback, error_message="aye message")(
+            mock_command
+        )
 
     assert result is mock_command
     any_hooks.assert_called_once_with()
     mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
     any_hooks.return_value.add_pre_execution.assert_called_once_with(pre_execution.return_value)
     any_hooks.return_value.add_post_execution.assert_called_once_with(post_execution.return_value)
-    pre_execution.assert_called_once_with("bucket me", error_message="aye message")
+    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
     post_execution.assert_called_once_with("bucket me")

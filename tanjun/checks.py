@@ -120,7 +120,7 @@ class OwnerCheck(_Check):
         error_message: typing.Optional[str] = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
-        """Initialise a owner check.
+        """Initialise an owner check.
 
         Parameters
         ----------
@@ -483,7 +483,10 @@ def with_dm_check(command: _CommandT, /) -> _CommandT:
 
 @typing.overload
 def with_dm_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in DMs", halt_execution: bool = False
+    *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -766,7 +769,7 @@ def with_author_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        AuthorPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        AuthorPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message)
     )
 
 
@@ -809,7 +812,7 @@ def with_own_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        OwnPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        OwnPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message)
     )
 
 
