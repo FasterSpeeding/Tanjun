@@ -387,10 +387,6 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
     if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id or builder.type != command.type:
         return False
 
-    default_perm = builder.default_permission if builder.default_permission is not hikari.UNDEFINED else True
-    if default_perm is not command.default_permission:
-        return False
-
     if isinstance(command, hikari.SlashCommand):
         assert isinstance(builder, hikari.api.SlashCommandBuilder)
         if builder.name != command.name or builder.description != command.description:
@@ -1218,11 +1214,7 @@ class Client(tanjun.Client):
 
             elif isinstance(builder, hikari.api.ContextMenuCommandBuilder):
                 response = await self._rest.create_context_menu_command(
-                    application,
-                    builder.type,  # type: ignore
-                    builder.name,
-                    guild=guild,
-                    default_permission=builder.default_permission,
+                    application, builder.type, builder.name, guild=guild  # type: ignore
                 )
 
             else:

@@ -258,7 +258,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     __slots__ = (
         "_always_defer",
         "_callback",
-        "_default_permission",
         "_defaults_to_ephemeral",
         "_description",
         "_is_global",
@@ -280,7 +279,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
-        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -296,7 +294,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
-        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -311,7 +308,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
-        default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -387,7 +383,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
         self._always_defer = always_defer
         self._callback = callback
-        self._default_permission = default_permission
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_global = is_global
         self._name = name
@@ -441,9 +436,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name).set_default_permission(  # type: ignore
-            self._default_permission
-        )
+        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name)
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.

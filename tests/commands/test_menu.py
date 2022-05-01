@@ -253,19 +253,15 @@ class TestMenuCommand:
         assert builder.name == "owo"
         assert builder.type is hikari.CommandType.USER
         assert builder.id is hikari.UNDEFINED
-        assert builder.default_permission is True
 
     def test_build_when_all_fields_set(self):
-        command = tanjun.MenuCommand[typing.Any, typing.Any](
-            mock.Mock(), hikari.CommandType.MESSAGE, "pat", default_permission=False
-        )
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")
 
         builder = command.build()
 
         assert builder.name == "pat"
         assert builder.type is hikari.CommandType.MESSAGE
         assert builder.id is hikari.UNDEFINED
-        assert builder.default_permission is False
 
     def test_set_tracked_command(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")

@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allowed a type of `bool` (not a literal) to be passed to ensure_result typing wise.
 - Some edge cases in the weekly schedule increment handling logic.
 
+### Removed
+- `default_permission` options for slash commands as command permissions V2 broke and deprecated this.
+
 ## [2.5.0a1] - 2022-04-11
 ### Added
 - Time based async scheduler.
