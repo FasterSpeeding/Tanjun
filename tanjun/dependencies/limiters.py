@@ -654,13 +654,14 @@ class CooldownPreExecution:
     instead and incrementing the bucket's use counter.
     """
 
-    __slots__ = ("_bucket_id", "_error_message", "_owners_exempt", "__weakref__")
+    __slots__ = ("_bucket_id", "_error", "_error_message", "_owners_exempt", "__weakref__")
 
     def __init__(
         self,
         bucket_id: str,
         /,
         *,
+        error: typing.Optional[collections.Callable[[str, datetime.timedelta], Exception]] = None,
         error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
@@ -670,12 +671,19 @@ class CooldownPreExecution:
         ----------
         bucket_id
             The cooldown bucket's ID.
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This should two arguments one of type [str][] and [datetime.timedelta][]
+            where the first is the limiting bucket's ID and the second is the
+            time remaining before said bucket can be used again.
         error_message
             The error message to send in response as a command error if the check fails.
         owners_exempt
             Whether owners should be exempt from the cooldown.
         """
         self._bucket_id = bucket_id
+        self._error = error
         self._error_message = error_message
         self._owners_exempt = owners_exempt
 
@@ -696,14 +704,19 @@ class CooldownPreExecution:
                 return
 
         if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
+            if self._error:
+                raise self._error(self._bucket_id, datetime.timedelta(seconds=wait_for)) from None
             wait_for_repr = conversion.from_datetime(wait_for, style="R")
             raise errors.CommandError(self._error_message.format(cooldown=wait_for_repr))
+
+            raise errors.CommandError(self._error_message.format(cooldown=wait_for)) from None
 
 
 def with_cooldown(
     bucket_id: str,
     /,
     *,
+    error: typing.Optional[collections.Callable[[str, datetime.timedelta], Exception]] = None,
     error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -719,6 +732,12 @@ def with_cooldown(
     ----------
     bucket_id
         The cooldown bucket's ID.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should two arguments one of type [str][] and [datetime.timedelta][]
+        where the first is the limiting bucket's ID and the second is the
+        time remaining before said bucket can be used again.
     error_message
         The error message to send in response as a command error if the check fails.
     owners_exempt
@@ -738,7 +757,7 @@ def with_cooldown(
             command.set_hooks(hooks_)
 
         hooks_.add_pre_execution(
-            CooldownPreExecution(bucket_id, error_message=error_message, owners_exempt=owners_exempt)
+            CooldownPreExecution(bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt)
         )
         return command
 
@@ -963,13 +982,14 @@ class ConcurrencyPreExecution:
         hooks must be registered for a command scope.
     """
 
-    __slots__ = ("_bucket_id", "_error_message", "__weakref__")
+    __slots__ = ("_bucket_id", "_error", "_error_message", "__weakref__")
 
     def __init__(
         self,
         bucket_id: str,
         /,
         *,
+        error: typing.Optional[collections.Callable[[str], Exception]] = None,
         error_message: str = "This resource is currently busy; please try again later.",
     ) -> None:
         """Initialise a concurrency pre-execution hook.
@@ -978,11 +998,16 @@ class ConcurrencyPreExecution:
         ----------
         bucket_id
             The concurrency limit bucket's ID.
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This should two one [str][] argument which is the limiting bucket's ID.
         error_message
             The error message to send in response as a command error if this fails
             to acquire the concurrency limit.
         """
         self._bucket_id = bucket_id
+        self._error = error
         self._error_message = error_message
 
     async def __call__(
@@ -991,7 +1016,10 @@ class ConcurrencyPreExecution:
         limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
-            raise errors.CommandError(self._error_message)
+            if self._error:
+                raise self._error(self._bucket_id) from None
+
+            raise errors.CommandError(self._error_message) from None
 
 
 class ConcurrencyPostExecution:
@@ -1028,6 +1056,7 @@ def with_concurrency_limit(
     bucket_id: str,
     /,
     *,
+    error: typing.Optional[collections.Callable[[str], Exception]] = None,
     error_message: str = "This resource is currently busy; please try again later.",
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
@@ -1042,6 +1071,10 @@ def with_concurrency_limit(
     ----------
     bucket_id
         The concurrency limit bucket's ID.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should two one [str][] argument which is the limiting bucket's ID.
     error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
@@ -1058,9 +1091,9 @@ def with_concurrency_limit(
             hooks_ = hooks.AnyHooks()
             command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(ConcurrencyPreExecution(bucket_id, error_message=error_message)).add_post_execution(
-            ConcurrencyPostExecution(bucket_id)
-        )
+        hooks_.add_pre_execution(
+            ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
+        ).add_post_execution(ConcurrencyPostExecution(bucket_id))
         return command
 
     return decorator
