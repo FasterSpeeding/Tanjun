@@ -34,7 +34,6 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "AutocompleteContext",
-    "AutocompleteOption",
     "MenuContext",
     "MessageContext",
     "SlashContext",
@@ -42,7 +41,6 @@ __all__: list[str] = [
 ]
 
 from .autocomplete import AutocompleteContext
-from .autocomplete import AutocompleteOption
 from .menu import MenuContext
 from .message import MessageContext
 from .slash import SlashContext

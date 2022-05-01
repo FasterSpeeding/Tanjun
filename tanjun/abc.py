@@ -38,7 +38,6 @@ __all__: list[str] = [
     "AppCommandContext",
     "AutocompleteCallbackSig",
     "AutocompleteContext",
-    "AutocompleteOption",
     "BaseSlashCommand",
     "CheckSig",
     "Client",
@@ -1284,17 +1283,6 @@ class SlashOption(abc.ABC):
         """
 
 
-class AutocompleteOption(SlashOption, abc.ABC):
-    """Interface for an auto-complete option."""
-
-    __slots__ = ()
-
-    @property
-    @abc.abstractmethod
-    def is_focused(self) -> bool:
-        """Whether this is the option being autocompleted."""
-
-
 class AppCommandContext(Context, abc.ABC):
     """Base class for application command contexts."""
 
@@ -1830,7 +1818,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def focused(self) -> AutocompleteOption:
+    def focused(self) -> hikari.AutocompleteInteractionOption:
         """The option being autocompleted."""
 
     @property
@@ -1890,7 +1878,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def options(self) -> collections.Mapping[str, AutocompleteOption]:
+    def options(self) -> collections.Mapping[str, hikari.AutocompleteInteractionOption]:
         """Mapping of option names to the values provided for them."""
 
     @abc.abstractmethod
