@@ -64,6 +64,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         "_content",
         "_initial_response_id",
         "_last_response_id",
+        "_register_task",
         "_response_lock",
         "_message",
         "_triggering_name",
@@ -75,6 +76,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         client: tanjun.Client,
         content: str,
         message: hikari.Message,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         triggering_name: str = "",
         triggering_prefix: str = "",
@@ -89,6 +91,8 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
             The content of the message (minus any matched prefix and name).
         message
             The message that triggered the command.
+        register_task
+            Callback used to register long-running tasks spawned by this context.
         triggering_name
             The name of the command that triggered this context.
         triggering_prefix
@@ -102,6 +106,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._content = content
         self._initial_response_id: typing.Optional[hikari.Snowflake] = None
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
+        self._register_task = register_task
         self._response_lock = asyncio.Lock()
         self._message = message
         self._triggering_name = triggering_name
@@ -272,7 +277,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
             role_mentions=role_mentions,
         )
         if delete_after is not None:
-            asyncio.create_task(self._delete_after(delete_after, message))
+            self._register_task(asyncio.create_task(self._delete_after(delete_after, message)))
 
         return message
 
@@ -318,7 +323,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         )
 
         if delete_after is not None:
-            asyncio.create_task(self._delete_after(delete_after, message))
+            self._register_task(asyncio.create_task(self._delete_after(delete_after, message)))
 
         return message
 
@@ -390,6 +395,6 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
                 self._initial_response_id = message.id
 
             if delete_after is not None:
-                asyncio.create_task(self._delete_after(delete_after, message))
+                self._register_task(asyncio.create_task(self._delete_after(delete_after, message)))
 
             return message

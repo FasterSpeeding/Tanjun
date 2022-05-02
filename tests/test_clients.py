@@ -204,6 +204,44 @@ class TestClient:
         ...
 
     @pytest.mark.skip(reason="TODO")
+    def test__schedule_startup_registers(self):
+        ...
+
+    def test__add_task(self):
+        mock_task_1 = mock.Mock()
+        mock_task_1.done.return_value = False
+        mock_task_2 = mock.Mock()
+        mock_task_2.done.return_value = False
+        mock_task_3 = mock.Mock()
+        mock_task_3.done.return_value = False
+        mock_new_task = mock.Mock()
+        mock_new_task.done.return_value = False
+        client = tanjun.Client(mock.AsyncMock())
+        client._tasks = [mock.Mock(), mock_task_1, mock.Mock(), mock.Mock(), mock_task_2, mock_task_3, mock.Mock()]
+
+        client._add_task(mock_new_task)
+
+        assert client._tasks == [mock_task_1, mock_task_2, mock_task_3, mock_new_task]
+
+    def test__add_task_when_empty(self):
+        mock_task = mock.Mock()
+        mock_task.done.return_value = False
+        client = tanjun.Client(mock.AsyncMock())
+
+        client._add_task(mock_task)
+
+        assert client._tasks == [mock_task]
+
+    def test__add_task_when_task_already_done(self):
+        mock_task = mock.Mock()
+        mock_task.done.return_value = True
+        client = tanjun.Client(mock.AsyncMock())
+
+        client._add_task(mock_task)
+
+        assert client._tasks == []
+
+    @pytest.mark.skip(reason="TODO")
     def test_from_gateway_bot(self):
         ...
 
@@ -749,9 +787,11 @@ class TestClient:
 
     def test_remove_component_by_name(self):
         remove_component_ = mock.Mock()
+        mock_add_task = mock.Mock()
 
         class StubClient(tanjun.Client):
             remove_component = remove_component_
+            _add_task = mock_add_task
 
         mock_component = mock.Mock()
         mock_component.name = "aye"
@@ -762,6 +802,7 @@ class TestClient:
 
         assert result is client
         remove_component_.assert_called_once_with(mock_component)
+        mock_add_task.assert_not_called()
 
     def test_remove_component_by_name_when_not_present(self):
         client = tanjun.Client(mock.AsyncMock())
@@ -2898,7 +2939,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -2927,7 +2973,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -2967,7 +3018,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         mock_component_1.execute_message.assert_not_called()
         mock_component_2.execute_message.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
@@ -2989,7 +3045,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         mock_component_1.execute_message.assert_not_called()
         mock_component_2.execute_message.assert_not_called()
         command_dispatch_client.dispatch_client_callback.assert_not_called()
@@ -3012,7 +3073,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3039,7 +3105,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3066,7 +3137,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3093,7 +3169,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3120,7 +3201,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3146,7 +3232,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3177,7 +3268,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3210,7 +3306,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3242,7 +3343,12 @@ class TestClient:
 
         await command_dispatch_client.on_message_create_event(mock_event)
 
-        ctx_maker.assert_called_once_with(client=command_dispatch_client, content="eye", message=mock_event.message)
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+            register_task=command_dispatch_client._add_task,
+        )
         ctx_maker.return_value.set_content.assert_called_once_with("42")
         ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
         command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
@@ -3423,6 +3529,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3473,6 +3580,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=True,
         )
@@ -3517,6 +3625,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3564,6 +3673,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3607,6 +3717,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3654,6 +3765,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3698,6 +3810,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3743,6 +3856,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3784,6 +3898,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3825,6 +3940,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3870,6 +3986,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3914,6 +4031,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_slash_not_found,
             default_to_ephemeral=False,
         )
@@ -3955,6 +4073,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4005,6 +4124,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=True,
         )
@@ -4049,6 +4169,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4096,6 +4217,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4139,6 +4261,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4186,6 +4309,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4230,6 +4354,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4275,6 +4400,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4312,6 +4438,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4353,6 +4480,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4398,6 +4526,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4442,6 +4571,7 @@ class TestClient:
         mock_ctx_maker.assert_called_once_with(
             client=command_dispatch_client,
             interaction=mock_interaction,
+            register_task=command_dispatch_client._add_task,
             on_not_found=command_dispatch_client._on_menu_not_found,
             default_to_ephemeral=False,
         )
@@ -4494,11 +4624,13 @@ class TestClient:
     @pytest.mark.asyncio()
     async def test_on_autocomplete_interaction_request(self, command_dispatch_client: tanjun.Client):
         mock_result = mock.Mock()
+        task = None
 
-        def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+        async def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+            nonlocal task
             assert ctx is mock_make_ctx.return_value
             mock_make_ctx.call_args.kwargs["future"].set_result(mock_result)
-            return mock.AsyncMock()()
+            task = asyncio.current_task()
 
         mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(side_effect=execution_callback))
@@ -4510,6 +4642,8 @@ class TestClient:
             .add_component(mock_component_2)
             .add_component(mock_component_3)
         )
+        mock_add_task = mock.Mock()
+        command_dispatch_client._add_task = mock_add_task
         mock_interaction = mock.Mock()
 
         result = await command_dispatch_client.on_autocomplete_interaction_request(mock_interaction)
@@ -4518,6 +4652,7 @@ class TestClient:
         mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_3.execute_autocomplete.assert_not_called()
+        mock_add_task.assert_called_once_with(task)
 
     @pytest.mark.asyncio()
     async def test_on_autocomplete_interaction_request_when_not_found(self, command_dispatch_client: tanjun.Client):
@@ -4531,6 +4666,8 @@ class TestClient:
             .add_component(mock_component_2)
             .add_component(mock_component_3)
         )
+        mock_add_task = mock.Mock()
+        command_dispatch_client._add_task = mock_add_task
         mock_interaction = mock.Mock()
 
         with pytest.raises(RuntimeError, match="Autocomplete not found for .*"):
@@ -4539,6 +4676,7 @@ class TestClient:
         mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_3.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_add_task.assert_not_called()
 
     # Note, these will likely need to be more integrationy than the above tests to ensure there's no deadlocking
     # behaviour around ctx and its owned future.

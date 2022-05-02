@@ -55,14 +55,17 @@ def _dev_dep(*values: str) -> collections.Iterator[str]:
     return itertools.chain.from_iterable(("-r", str(_DEV_DEP_DIR / f"{value}.txt")) for value in values)
 
 
-def install_requirements(session: nox.Session, *other_requirements: str, first_call: bool = True) -> None:
+def install_requirements(session: nox.Session, *requirements: str, first_call: bool = True) -> None:
     # --no-install --no-venv leads to it trying to install in the global venv
     # as --no-install only skips "reused" venvs and global is not considered reused.
     if not _try_find_option(session, "--skip-install", when_empty="True"):
         if first_call:
             session.install("--upgrade", "wheel")
 
-        session.install("--upgrade", *map(str, other_requirements))
+        session.install("--upgrade", *map(str, requirements))
+
+    elif "." in requirements:
+        session.install("--upgrade", "--force-reinstall", "--no-dependencies", ".")
 
 
 def _try_find_option(session: nox.Session, name: str, *other_names: str, when_empty: str | None = None) -> str | None:

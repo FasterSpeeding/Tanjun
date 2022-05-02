@@ -91,6 +91,7 @@ if typing.TYPE_CHECKING:
             self,
             client: tanjun.Client,
             interaction: hikari.CommandInteraction,
+            register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             default_to_ephemeral: bool = False,
             future: typing.Optional[
@@ -110,6 +111,7 @@ if typing.TYPE_CHECKING:
             client: tanjun.Client,
             content: str,
             message: hikari.Message,
+            register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             triggering_name: str = "",
             triggering_prefix: str = "",
@@ -121,6 +123,7 @@ if typing.TYPE_CHECKING:
             self,
             client: tanjun.Client,
             interaction: hikari.CommandInteraction,
+            register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             default_to_ephemeral: bool = False,
             future: typing.Optional[
@@ -472,6 +475,7 @@ class Client(tanjun.Client):
         "_rest",
         "_server",
         "_shards",
+        "_tasks",
         "_voice",
     )
 
@@ -646,6 +650,7 @@ class Client(tanjun.Client):
         self._rest = rest
         self._server = server
         self._shards = shards
+        self._tasks: list[asyncio.Task[typing.Any]] = []
         self._voice = voice
 
         if event_managed:
@@ -748,6 +753,10 @@ class Client(tanjun.Client):
                     self, declare_global_commands, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
                 ),
             )
+
+    def _add_task(self, task: asyncio.Task[typing.Any], /) -> None:
+        self._tasks.append(task)
+        self._tasks = [t for t in self._tasks if not t.done()]
 
     @classmethod
     def from_gateway_bot(
@@ -1668,8 +1677,10 @@ class Client(tanjun.Client):
             self.set_type_dependency(type(component), lambda: component)
 
         if self._loop:
-            self._loop.create_task(component.open())
-            self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.COMPONENT_ADDED, component))
+            self._add_task(self._loop.create_task(component.open()))
+            self._add_task(
+                self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.COMPONENT_ADDED, component))
+            )
 
         return self
 
@@ -1686,9 +1697,11 @@ class Client(tanjun.Client):
         del self._components[component.name]
 
         if self._loop:
-            self._loop.create_task(component.close(unbind=True))
-            self._loop.create_task(
-                self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, stored_component)
+            self._add_task(self._loop.create_task(component.close(unbind=True)))
+            self._add_task(
+                self._loop.create_task(
+                    self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, stored_component)
+                )
             )
 
         else:
@@ -2102,7 +2115,7 @@ class Client(tanjun.Client):
             self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
             self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
 
-        self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
+        self._add_task(self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED)))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
         """Fetch the ID of the application this client is linked to.
@@ -2465,7 +2478,9 @@ class Client(tanjun.Client):
         if event.message.content is None:
             return
 
-        ctx = self._make_message_context(client=self, content=event.message.content, message=event.message)
+        ctx = self._make_message_context(
+            client=self, register_task=self._add_task, content=event.message.content, message=event.message
+        )
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -2557,6 +2572,7 @@ class Client(tanjun.Client):
             ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
                 client=self,
                 interaction=interaction,
+                register_task=self._add_task,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
@@ -2566,6 +2582,7 @@ class Client(tanjun.Client):
             ctx = self._make_menu_context(
                 client=self,
                 interaction=interaction,
+                register_task=self._add_task,
                 on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
@@ -2644,7 +2661,7 @@ class Client(tanjun.Client):
 
         for component in self._components.values():
             if coro := component.execute_autocomplete(ctx):
-                loop.create_task(coro)
+                self._add_task(loop.create_task(coro))
                 return await future
 
         raise RuntimeError(f"Autocomplete not found for {interaction!r}")
@@ -2673,6 +2690,7 @@ class Client(tanjun.Client):
             ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
                 client=self,
                 interaction=interaction,
+                register_task=self._add_task,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
@@ -2683,6 +2701,7 @@ class Client(tanjun.Client):
             ctx = self._make_menu_context(
                 client=self,
                 interaction=interaction,
+                register_task=self._add_task,
                 on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
@@ -2712,7 +2731,7 @@ class Client(tanjun.Client):
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
                 if coro:
-                    loop.create_task(coro)
+                    self._add_task(loop.create_task(coro))
                     return await future
 
         except errors.HaltExecution:
@@ -2722,10 +2741,10 @@ class Client(tanjun.Client):
             # Under very specific timing there may be another future which could set a result while we await
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
-            asyncio.get_running_loop().create_task(exc.send(ctx), name=f"{interaction.id} command error responder")
+            self._add_task(loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder"))
             return await future
 
-        asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
+        self._add_task(loop.create_task(ctx.mark_not_found(), name=f"{interaction.id} not found"))
         return await future
 
 
