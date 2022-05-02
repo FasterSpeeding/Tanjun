@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.5.1a1] - 2022-05-02
 ### Added
 - A `send` method to `CommandError` which can be overridden to customise its response behaviour.
 - Support for other create message arguments to `CommandError`.
@@ -569,7 +571,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.1a1...HEAD
+[2.5.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...v2.5.1a1
 [2.5.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.3a1...v2.5.0a1
 [2.4.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.2a1...v2.4.3a1
 [2.4.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.1a1...v2.4.2a1
