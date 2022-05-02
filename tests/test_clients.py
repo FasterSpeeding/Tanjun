@@ -749,9 +749,11 @@ class TestClient:
 
     def test_remove_component_by_name(self):
         remove_component_ = mock.Mock()
+        mock_add_task = mock.Mock()
 
         class StubClient(tanjun.Client):
             remove_component = remove_component_
+            _add_task = mock_add_task
 
         mock_component = mock.Mock()
         mock_component.name = "aye"
@@ -762,6 +764,7 @@ class TestClient:
 
         assert result is client
         remove_component_.assert_called_once_with(mock_component)
+        mock_add_task.assert_not_called()
 
     def test_remove_component_by_name_when_not_present(self):
         client = tanjun.Client(mock.AsyncMock())
@@ -4583,11 +4586,13 @@ class TestClient:
     @pytest.mark.asyncio()
     async def test_on_autocomplete_interaction_request(self, command_dispatch_client: tanjun.Client):
         mock_result = mock.Mock()
+        task = None
 
-        def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+        async def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+            nonlocal task
             assert ctx is mock_make_ctx.return_value
             mock_make_ctx.call_args.kwargs["future"].set_result(mock_result)
-            return mock.AsyncMock()()
+            task = asyncio.current_task()
 
         mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(side_effect=execution_callback))
@@ -4599,6 +4604,8 @@ class TestClient:
             .add_component(mock_component_2)
             .add_component(mock_component_3)
         )
+        mock_add_task = mock.Mock()
+        command_dispatch_client._add_task = mock_add_task
         mock_interaction = mock.Mock()
 
         result = await command_dispatch_client.on_autocomplete_interaction_request(mock_interaction)
@@ -4607,6 +4614,7 @@ class TestClient:
         mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_3.execute_autocomplete.assert_not_called()
+        mock_add_task.assert_called_once_with(task)
 
     @pytest.mark.asyncio()
     async def test_on_autocomplete_interaction_request_when_not_found(self, command_dispatch_client: tanjun.Client):
@@ -4620,6 +4628,8 @@ class TestClient:
             .add_component(mock_component_2)
             .add_component(mock_component_3)
         )
+        mock_add_task = mock.Mock()
+        command_dispatch_client._add_task = mock_add_task
         mock_interaction = mock.Mock()
 
         with pytest.raises(RuntimeError, match="Autocomplete not found for .*"):
@@ -4628,6 +4638,7 @@ class TestClient:
         mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
         mock_component_3.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_add_task.assert_not_called()
 
     # Note, these will likely need to be more integrationy than the above tests to ensure there's no deadlocking
     # behaviour around ctx and its owned future.

@@ -452,7 +452,12 @@ class TestMessageContext:
             mock_message.delete.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
-    async def test_respond(self, context: tanjun.context.MessageContext):
+    async def test_respond(self):
+        mock_delete_after = mock.Mock()
+        mock_register_task = mock.Mock()
+        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
+            mock.Mock(), "e", mock.AsyncMock(), mock_register_task
+        )
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
         mock_component = mock.Mock()
@@ -496,6 +501,8 @@ class TestMessageContext:
         )
         assert context._last_response_id == context.message.respond.return_value.id
         assert context._initial_response_id == context.message.respond.return_value.id
+        mock_register_task.assert_not_called()
+        mock_delete_after.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_respond_when_initial_response_id_already_set(self, context: tanjun.context.MessageContext):
@@ -509,8 +516,9 @@ class TestMessageContext:
     @pytest.mark.asyncio()
     async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
         mock_delete_after = mock.Mock()
+        mock_register_task = mock.Mock()
         context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock.Mock(), "e", mock.AsyncMock(), mock.Mock()
+            mock.Mock(), "e", mock.AsyncMock(), mock_register_task
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
@@ -519,3 +527,4 @@ class TestMessageContext:
         assert isinstance(context.message.respond, mock.Mock)
         mock_delete_after.assert_called_once_with(123.0, context.message.respond.return_value)
         create_task.assert_called_once_with(mock_delete_after.return_value)
+        mock_register_task.assert_called_once_with(create_task.return_value)
