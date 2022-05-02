@@ -692,10 +692,6 @@ class Client(tanjun.Client):
             _stack_level=_stack_level,
         )
 
-    def _add_task(self, task: asyncio.Task[typing.Any], /) -> None:
-        self._tasks.append(task)
-        self._tasks = [t for t in self._tasks if not t.done()]
-
     def _schedule_startup_registers(
         self,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
@@ -757,6 +753,10 @@ class Client(tanjun.Client):
                     self, declare_global_commands, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
                 ),
             )
+
+    def _add_task(self, task: asyncio.Task[typing.Any], /) -> None:
+        self._tasks.append(task)
+        self._tasks = [t for t in self._tasks if not t.done()]
 
     @classmethod
     def from_gateway_bot(

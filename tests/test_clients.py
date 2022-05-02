@@ -204,6 +204,44 @@ class TestClient:
         ...
 
     @pytest.mark.skip(reason="TODO")
+    def test__schedule_startup_registers(self):
+        ...
+
+    def test__add_task(self):
+        mock_task_1 = mock.Mock()
+        mock_task_1.done.return_value = False
+        mock_task_2 = mock.Mock()
+        mock_task_2.done.return_value = False
+        mock_task_3 = mock.Mock()
+        mock_task_3.done.return_value = False
+        mock_new_task = mock.Mock()
+        mock_new_task.done.return_value = False
+        client = tanjun.Client(mock.AsyncMock())
+        client._tasks = [mock.Mock(), mock_task_1, mock.Mock(), mock.Mock(), mock_task_2, mock_task_3, mock.Mock()]
+
+        client._add_task(mock_new_task)
+
+        assert client._tasks == [mock_task_1, mock_task_2, mock_task_3, mock_new_task]
+
+    def test__add_task_when_empty(self):
+        mock_task = mock.Mock()
+        mock_task.done.return_value = False
+        client = tanjun.Client(mock.AsyncMock())
+
+        client._add_task(mock_task)
+
+        assert client._tasks == [mock_task]
+
+    def test__add_task_when_task_already_done(self):
+        mock_task = mock.Mock()
+        mock_task.done.return_value = True
+        client = tanjun.Client(mock.AsyncMock())
+
+        client._add_task(mock_task)
+
+        assert client._tasks == []
+
+    @pytest.mark.skip(reason="TODO")
     def test_from_gateway_bot(self):
         ...
 
