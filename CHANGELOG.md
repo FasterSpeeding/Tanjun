@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `default_permission` options for slash commands as command permissions V2 broke and deprecated this.
+- `AutocompleteOption` as a lot of the promises this makes aren't realistic.
+  `AutocompleteContext.options` and `AutocompleteContext.focused` now use
+  `hikari.AutocompleteInteractionOption`.
 
 ## [2.5.0a1] - 2022-04-11
 ### Added

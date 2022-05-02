@@ -43,14 +43,6 @@ from hikari import traits
 import tanjun
 
 
-class TestAutocompleteOption:
-    def test_is_focused_property(self):
-        mock_raw_option = mock.Mock()
-        option = tanjun.context.AutocompleteOption(mock.Mock(), mock_raw_option)
-
-        assert option.is_focused is mock_raw_option.is_focused
-
-
 class TestAutocompleteContext:
     @pytest.fixture()
     def mock_client(self) -> tanjun.Client:
@@ -95,9 +87,7 @@ class TestAutocompleteContext:
         mock_interaction = mock.Mock(options=[mock.Mock(is_focused=False), focused_option, mock.Mock(is_focused=False)])
         context = tanjun.context.AutocompleteContext(mock.Mock(tanjun.Client), mock_interaction)
 
-        assert isinstance(context.focused, tanjun.context.AutocompleteOption)
-        assert context.focused._resolved is mock_interaction.resolved
-        assert context.focused._option is focused_option
+        assert context.focused is focused_option
 
     def test_guild_id_property(
         self, context: tanjun.context.AutocompleteContext, mock_interaction: hikari.AutocompleteInteraction
@@ -160,17 +150,16 @@ class TestAutocompleteContext:
 
     def test_options_property(self):
         mock_option_1 = mock.Mock()
+        mock_option_1.name = "hi"
         mock_option_2 = mock.Mock()
+        mock_option_2.name = "bye"
         mock_option_3 = mock.Mock()
+        mock_option_3.name = "yoda"
         context = tanjun.context.AutocompleteContext(
             mock.Mock(tanjun.Client), mock.Mock(options=[mock_option_1, mock_option_2, mock_option_3])
         )
 
-        assert len(context.options) == 3
-        for (name, option), raw_option in zip(context.options.items(), [mock_option_1, mock_option_2, mock_option_3]):
-            assert isinstance(option, tanjun.context.AutocompleteOption)
-            assert name is option.name
-            assert option._option is raw_option
+        assert context.options == {"hi": mock_option_1, "bye": mock_option_2, "yoda": mock_option_3}
 
     # def test_options_property_for_top_level_command(self, mock_client: mock.Mock):
     #     mock_option_1 = mock.Mock()

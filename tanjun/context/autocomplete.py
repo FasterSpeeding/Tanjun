@@ -52,22 +52,6 @@ if typing.TYPE_CHECKING:
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
 
 
-class AutocompleteOption(slash.SlashOption, tanjun.AutocompleteOption):
-    """Standard implementation for autocomplete options."""
-
-    __slots__ = ()
-
-    def __init__(
-        self, resolved: typing.Optional[hikari.ResolvedOptionData], option: hikari.AutocompleteInteractionOption, /
-    ):
-        self._option: hikari.AutocompleteInteractionOption
-        super().__init__(resolved, option)
-
-    @property
-    def is_focused(self) -> bool:
-        return self._option.is_focused
-
-
 class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
@@ -99,11 +83,11 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         self._interaction = interaction
 
         options = slash.flatten_options(interaction.options)
-        focused: typing.Optional[AutocompleteOption] = None
-        self._options: dict[str, AutocompleteOption] = {}
+        focused: typing.Optional[hikari.AutocompleteInteractionOption] = None
+        self._options: dict[str, hikari.AutocompleteInteractionOption] = {}
         if options := slash.flatten_options(interaction.options):
             for option in options:
-                self._options[option.name] = AutocompleteOption(interaction.resolved, option)
+                self._options[option.name] = option
                 if option.is_focused:
                     focused = self._options[option.name]
 
@@ -142,7 +126,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._client.events
 
     @property
-    def focused(self) -> tanjun.AutocompleteOption:
+    def focused(self) -> hikari.AutocompleteInteractionOption:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._focused
 
@@ -201,7 +185,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._interaction
 
     @property
-    def options(self) -> collections.Mapping[str, AutocompleteOption]:
+    def options(self) -> collections.Mapping[str, hikari.AutocompleteInteractionOption]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._options.copy()
 
