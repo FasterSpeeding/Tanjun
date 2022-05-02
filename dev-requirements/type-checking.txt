@@ -10,7 +10,7 @@ mypy-extensions==0.4.3
     # via mypy
 nodeenv==1.6.0
     # via pyright
-pyright==1.1.225
+pyright==1.1.243
     # via -r dev-requirements/type-checking.in
 tomli==2.0.1
     # via mypy
