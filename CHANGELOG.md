@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.1a1] - 2022-05-02
+### Added
+- A `send` method to `CommandError` which can be overridden to customise its response behaviour.
+- Support for other create message arguments to `CommandError`.
+
+### Changed
+- Renamed `CommandError.message` to `.content`.
+
+### Fixed
+- Allowed a type of `bool` (not a literal) to be passed to ensure_result typing wise.
+- Some edge cases in the weekly schedule increment handling logic.
+- Long running `delete_after` and command execution tasks will no-longer be cancelled by GC.
+
+### Removed
+- `default_permission` options for slash commands as command permissions V2 broke and deprecated this.
+- `AutocompleteOption` as a lot of the promises this makes aren't realistic.
+  `AutocompleteContext.options` and `AutocompleteContext.focused` now use
+  `hikari.AutocompleteInteractionOption`.
+
 ## [2.5.0a1] - 2022-04-11
 ### Added
 - Time based async scheduler.
@@ -552,7 +571,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.1a1...HEAD
+[2.5.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...v2.5.1a1
 [2.5.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.3a1...v2.5.0a1
 [2.4.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.2a1...v2.4.3a1
 [2.4.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.1a1...v2.4.2a1

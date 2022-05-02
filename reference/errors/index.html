@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.13">
     
     
       
@@ -17,10 +17,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.120efc48.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e411adfe.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.9647289d.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
         
       
     
@@ -467,6 +467,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#tanjun.errors.CommandError.send" class="md-nav__link">
+    send()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -821,6 +828,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#tanjun.errors.CommandError.send" class="md-nav__link">
+    send()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1124,7 +1138,7 @@
           Bases: <code><a class="autorefs autorefs-internal" title="tanjun.errors.TanjunError" href="#tanjun.errors.TanjunError">TanjunError</a></code></p>
 
 
-      <p>Error raised to end command execution.</p>
+      <p>An error which is sent as a response to the command call.</p>
 
 
 
@@ -1140,12 +1154,18 @@
 
 
 
+
+
+
+
+
+
   <div class="doc doc-object doc-function">
 
 
 
 <h3 id="tanjun.errors.CommandError.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">delete_after</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">embeds</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">user_mentions</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">role_mentions</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span></code>
 
 
 </h3>
@@ -1164,14 +1184,160 @@
     </thead>
     <tbody>
         <tr>
-          <td><code>message</code></td>
+          <td><code>content</code></td>
           <td class="doc-param-details">
-            <p>String message which will be sent as a response to the message
-that triggered the current command.</p>
+            <p>The content to respond with.</p>
+<p>If provided, the message contents. If
+<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/undefined.html#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
+in the content.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>delete_after</code></td>
+          <td class="doc-param-details">
+            <p>If provided, the seconds after which the response message should be deleted.</p>
+<p>Slash command responses can only be deleted within 14 minutes of
+the command being received.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/datetime.html#module-datetime">datetime</a>.<a class="autorefs autorefs-external" title="datetime.timedelta" href="https://docs.python.org/3.9/library/datetime.html#datetime.timedelta">timedelta</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>, None]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>component</code></td>
+          <td class="doc-param-details">
+            <p>If provided, builder object of the component to include in this response.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<a class="autorefs autorefs-external" title="hikari.api" href="https://hikari-py.github.io/hikari/hikari/api/index.html">api</a>.<span title="hikari.api.ComponentBuilder">ComponentBuilder</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>components</code></td>
+          <td class="doc-param-details">
+            <p>If provided, a sequence of the component builder objects to include
+in this response.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<a class="autorefs autorefs-external" title="hikari.api" href="https://hikari-py.github.io/hikari/hikari/api/index.html">api</a>.<span title="hikari.api.ComponentBuilder">ComponentBuilder</span>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embed</code></td>
+          <td class="doc-param-details">
+            <p>An embed to respond with.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.Embed">Embed</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embeds</code></td>
+          <td class="doc-param-details">
+            <p>A sequence of embeds to respond with.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.Embed">Embed</span>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>mentions_everyone</code></td>
+          <td class="doc-param-details">
+            <p>If provided, whether the message should parse @everyone/@here
+mentions.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>user_mentions</code></td>
+          <td class="doc-param-details">
+            <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>, all mentions will be parsed.
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#False">False</a>, no mentions will be parsed.</p>
+<p>Alternatively this may be a collection of
+<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/snowflakes.html#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/users.html#hikari.users.PartialUser">hikari.users.PartialUser</a>
+derivatives to enforce mentioning specific users.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.SnowflakeishSequence">SnowflakeishSequence</span>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.PartialUser">PartialUser</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>, <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedType">UndefinedType</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>role_mentions</code></td>
+          <td class="doc-param-details">
+            <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>, all mentions will be parsed.
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#False">False</a>, no mentions will be parsed.</p>
+<p>Alternatively this may be a collection of
+<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/snowflakes.html#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/guilds.html#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+derivatives to enforce mentioning specific roles.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.SnowflakeishSequence">SnowflakeishSequence</span>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.PartialRole">PartialRole</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>, <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UndefinedType">UndefinedType</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>hikari.UNDEFINED</code>
                 </span>
             </p>
           </td>
@@ -1190,11 +1356,17 @@ that triggered the current command.</p>
         <tr>
           <td>
             <span class="doc-raises-annotation">
-                <code>ValueError</code>
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>Raised when the message is over 2000 characters long or empty.</p>
+            <p>Raised for any of the following reasons:</p>
+<ul>
+<li>When both <code>component</code> and <code>components</code> are passed.</li>
+<li>When both <code>embed</code> and <code>embeds</code> are passed.</li>
+<li>If more than 100 entries are passed for <code>role_mentions</code>.</li>
+<li>If more than 100 entries are passed for <code>user_mentions</code>.</li>
+</ul>
           </td>
         </tr>
     </tbody>
@@ -1204,6 +1376,177 @@ that triggered the current command.</p>
 
   </div>
 
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.errors.CommandError.send" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">send</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ensure_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Send this error as a command response.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ctx</code></td>
+          <td class="doc-param-details">
+            <p>The command call context to respond to.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Context" href="../abc/#tanjun.abc.Context">Context</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>ensure_result</code></td>
+          <td class="doc-param-details">
+            <p>Ensure that this call will always return a message object.</p>
+<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a> then this will always return <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/messages.html#hikari.messages.Message">hikari.messages.Message</a>,
+otherwise this will return <code>hikari.Message | None</code>.</p>
+<p>It's worth noting that, under certain scenarios within the slash
+command flow, this may lead to an extre request being made.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>delete_after</code> would be more than 14 minutes after the slash
+command was called.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.BadRequestError">BadRequestError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; too many components.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.UnauthorizedError">UnauthorizedError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If you are unauthorized to make the request (invalid/missing token).</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.ForbiddenError">ForbiddenError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.NotFoundError">NotFoundError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If the channel is not found.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.RateLimitTooLongError">RateLimitTooLongError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.RateLimitedError">RateLimitedError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.InternalServerError">InternalServerError</span></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If an internal error occurs on Discord while handling the request.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+
+  </div>
 
 
 
@@ -1609,6 +1952,9 @@ other commands from being tried.</p>
 <h3 id="tanjun.errors.ModuleMissingLoaders.message" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">message</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -1630,6 +1976,9 @@ other commands from being tried.</p>
 <h3 id="tanjun.errors.ModuleMissingLoaders.path" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -1696,6 +2045,9 @@ other commands from being tried.</p>
 <h3 id="tanjun.errors.ModuleStateConflict.message" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">message</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -1717,6 +2069,9 @@ other commands from being tried.</p>
 <h3 id="tanjun.errors.ModuleStateConflict.path" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2193,7 +2548,7 @@ if not applicable.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
       
     
   </body>

@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.13">
     
     
       
@@ -17,10 +17,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.120efc48.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e411adfe.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.9647289d.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
         
       
     
@@ -424,13 +424,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#tanjun.context.autocomplete.AutocompleteOption" class="md-nav__link">
-    AutocompleteOption
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -756,13 +749,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#tanjun.context.autocomplete.AutocompleteOption" class="md-nav__link">
-    AutocompleteOption
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -980,7 +966,7 @@
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><a class="autorefs autorefs-external" href="https://alluka.cursed.solutions/reference/#alluka">alluka</a>.<a class="autorefs autorefs-external" title="alluka.BasicContext" href="https://alluka.cursed.solutions/reference/#alluka.BasicContext">BasicContext</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AutocompleteContext" href="../abc/#tanjun.abc.AutocompleteContext">AutocompleteContext</a></code></p>
+          Bases: <code><a class="autorefs autorefs-external" href="https://alluka.cursed.solutions/reference/#alluka">alluka</a>.<a class="autorefs autorefs-external" title="alluka.BasicContext" href="https://alluka.cursed.solutions/reference/#alluka.BasicContext">BasicContext</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AutocompleteContext" href="../abc/#tanjun.abc.AutocompleteContext">AutocompleteContext</a></code></p>
 
 
       <p>Standard implementation of an autocomplete context.</p>
@@ -1035,7 +1021,7 @@
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
                 </span>
             </p>
           </td>
@@ -1088,52 +1074,6 @@ through the REST webhook flow.</p>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-  </div>
-
-
-
-  <div class="doc doc-object doc-class">
-
-
-
-<h3 id="tanjun.context.autocomplete.AutocompleteOption" class="doc doc-heading">
-          <code>AutocompleteOption</code>
-
-
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-        <p class="doc doc-class-bases">
-          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.context.slash" href="#tanjun.context.slash">slash</a>.<a class="autorefs autorefs-internal" title="tanjun.context.slash.SlashOption" href="#tanjun.context.slash.SlashOption">SlashOption</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AutocompleteOption" href="../abc/#tanjun.abc.AutocompleteOption">AutocompleteOption</a></code></p>
-
-
-      <p>Standard implementation for autocomplete options.</p>
-
-
-
-
-
-  <div class="doc doc-children">
 
 
 
@@ -1211,7 +1151,7 @@ through the REST webhook flow.</p>
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.context.slash" href="#tanjun.context.slash">slash</a>.<a class="autorefs autorefs-internal" title="tanjun.context.slash.AppCommandContext" href="#tanjun.context.slash.AppCommandContext">AppCommandContext</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuContext" href="../abc/#tanjun.abc.MenuContext">MenuContext</a></code></p>
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.context.slash" href="#tanjun.context.slash">slash</a>.<a class="autorefs autorefs-internal" title="tanjun.context.slash.AppCommandContext" href="#tanjun.context.slash.AppCommandContext">AppCommandContext</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuContext" href="../abc/#tanjun.abc.MenuContext">MenuContext</a></code></p>
 
 
       <p>Standard menu command execution context.</p>
@@ -1238,7 +1178,7 @@ through the REST webhook flow.</p>
 
 
 <h4 id="tanjun.context.menu.MenuContext.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_not_found</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">register_task</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_not_found</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 
 </h4>
@@ -1263,7 +1203,7 @@ through the REST webhook flow.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
                 </span>
             </p>
           </td>
@@ -1276,6 +1216,18 @@ through the REST webhook flow.</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.CommandInteraction">CommandInteraction</span></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>register_task</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to register long-running tasks spawned by this context.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/asyncio.html#module-asyncio">asyncio</a>.<a class="autorefs autorefs-external" title="asyncio.Task" href="https://docs.python.org/3.9/library/asyncio-task.html#asyncio.Task">Task</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]], None]</code>
                 </span>
             </p>
           </td>
@@ -1320,7 +1272,7 @@ through the REST webhook flow.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuContext" href="../abc/#tanjun.abc.MenuContext">MenuContext</a>], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Awaitable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Awaitable">Awaitable</a>[None]]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuContext" href="../abc/#tanjun.abc.MenuContext">MenuContext</a>], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Awaitable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Awaitable">Awaitable</a>[None]]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -1410,7 +1362,7 @@ through the REST webhook flow.</p>
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><span title="tanjun.context.base">base</span>.<span title="tanjun.context.base.BaseContext">BaseContext</span></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageContext" href="../abc/#tanjun.abc.MessageContext">MessageContext</a></code></p>
+          Bases: <code><span title="tanjun.context.base">base</span>.<span title="tanjun.context.base.BaseContext">BaseContext</span></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageContext" href="../abc/#tanjun.abc.MessageContext">MessageContext</a></code></p>
 
 
       <p>Standard implementation of a command context as used within Tanjun.</p>
@@ -1437,12 +1389,13 @@ through the REST webhook flow.</p>
 
 
 
+
   <div class="doc doc-object doc-function">
 
 
 
 <h4 id="tanjun.context.message.MessageContext.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">triggering_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">triggering_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">register_task</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">triggering_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">triggering_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
 
 
 </h4>
@@ -1467,7 +1420,7 @@ through the REST webhook flow.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
                 </span>
             </p>
           </td>
@@ -1492,6 +1445,18 @@ through the REST webhook flow.</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.Message">Message</span></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>register_task</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to register long-running tasks spawned by this context.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/asyncio.html#module-asyncio">asyncio</a>.<a class="autorefs autorefs-external" title="asyncio.Task" href="https://docs.python.org/3.9/library/asyncio-task.html#asyncio.Task">Task</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]], None]</code>
                 </span>
             </p>
           </td>
@@ -1697,7 +1662,7 @@ through the REST webhook flow.</p>
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><span title="tanjun.context.base">base</span>.<span title="tanjun.context.base.BaseContext">BaseContext</span></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AppCommandContext" href="../abc/#tanjun.abc.AppCommandContext">AppCommandContext</a></code></p>
+          Bases: <code><span title="tanjun.context.base">base</span>.<span title="tanjun.context.base.BaseContext">BaseContext</span></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AppCommandContext" href="../abc/#tanjun.abc.AppCommandContext">AppCommandContext</a></code></p>
 
 
       <p>Base class for interaction-based command contexts.</p>
@@ -1707,6 +1672,7 @@ through the REST webhook flow.</p>
 
 
   <div class="doc doc-children">
+
 
 
 
@@ -1867,7 +1833,7 @@ interaction.</p>
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.context.slash.AppCommandContext" href="#tanjun.context.slash.AppCommandContext">AppCommandContext</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashContext" href="../abc/#tanjun.abc.SlashContext">SlashContext</a></code></p>
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.context.slash.AppCommandContext" href="#tanjun.context.slash.AppCommandContext">AppCommandContext</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashContext" href="../abc/#tanjun.abc.SlashContext">SlashContext</a></code></p>
 
 
       <p>Standard implementation of <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.SlashContext">tanjun.abc.SlashContext</a>.</p>
@@ -1895,7 +1861,7 @@ interaction.</p>
 
 
 <h4 id="tanjun.context.slash.SlashContext.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_not_found</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">register_task</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_not_found</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 
 </h4>
@@ -1920,7 +1886,7 @@ interaction.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
                 </span>
             </p>
           </td>
@@ -1933,6 +1899,18 @@ interaction.</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.CommandInteraction">CommandInteraction</span></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>register_task</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to register long-running tasks spawned by this context.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/asyncio.html#module-asyncio">asyncio</a>.<a class="autorefs autorefs-external" title="asyncio.Task" href="https://docs.python.org/3.9/library/asyncio-task.html#asyncio.Task">Task</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]], None]</code>
                 </span>
             </p>
           </td>
@@ -1977,7 +1955,7 @@ through the REST webhook flow.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashContext" href="../abc/#tanjun.abc.SlashContext">SlashContext</a>], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Awaitable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Awaitable">Awaitable</a>[None]]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashContext" href="../abc/#tanjun.abc.SlashContext">SlashContext</a>], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Awaitable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Awaitable">Awaitable</a>[None]]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -2024,7 +2002,7 @@ through the REST webhook flow.</p>
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashOption" href="../abc/#tanjun.abc.SlashOption">SlashOption</a></code></p>
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashOption" href="../abc/#tanjun.abc.SlashOption">SlashOption</a></code></p>
 
 
       <p>Standard implementation of the SlashOption interface.</p>
@@ -2204,7 +2182,7 @@ through the REST webhook flow.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
       
     
   </body>

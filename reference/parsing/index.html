@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.13">
     
     
       
@@ -17,10 +17,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.120efc48.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e411adfe.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.9647289d.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
         
       
     
@@ -1285,7 +1285,7 @@
 
     <div class="doc doc-contents ">
         <p class="doc doc-class-bases">
-          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun_abc</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageParser" href="../abc/#tanjun.abc.MessageParser">MessageParser</a></code>, <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/abc.html#module-abc">abc</a>.<a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.9/library/abc.html#abc.ABC">ABC</a></code></p>
+          Bases: <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageParser" href="../abc/#tanjun.abc.MessageParser">MessageParser</a></code>, <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/abc.html#module-abc">abc</a>.<a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.9/library/abc.html#abc.ABC">ABC</a></code></p>
 
 
       <p>Abstract interface of a message content parser.</p>
@@ -1311,6 +1311,9 @@
 <h3 id="tanjun.parsing.AbstractOptionParser.add_argument" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">add_argument</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
 
 </h3>
 
@@ -1486,6 +1489,9 @@ with the result of them.</p>
 <h3 id="tanjun.parsing.AbstractOptionParser.add_option" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">add_option</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
 
 </h3>
 
@@ -1683,6 +1689,10 @@ with the result of them.</p>
 <h3 id="tanjun.parsing.AbstractOptionParser.arguments" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">arguments</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -1704,6 +1714,10 @@ with the result of them.</p>
 <h3 id="tanjun.parsing.AbstractOptionParser.options" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">options</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -1920,6 +1934,9 @@ with the result of them.</p>
 <h3 id="tanjun.parsing.Argument.is_greedy" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">is_greedy</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2173,6 +2190,9 @@ with the result of them.</p>
 <h3 id="tanjun.parsing.Option.empty_value" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">empty_value</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2196,6 +2216,9 @@ required for the option.</p>
 <h3 id="tanjun.parsing.Option.names" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">names</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2316,6 +2339,9 @@ required for the option.</p>
 <h3 id="tanjun.parsing.Parameter.converters" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">converters</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2379,6 +2405,9 @@ required for the option.</p>
 <h3 id="tanjun.parsing.Parameter.default" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">default</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2402,6 +2431,9 @@ required.</p>
 <h3 id="tanjun.parsing.Parameter.is_multi" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">is_multi</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2425,6 +2457,9 @@ this parameter (with each entry being converted separately.)</p>
 <h3 id="tanjun.parsing.Parameter.key" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">key</span><span class="p">()</span></code>
 
+  <span class="doc doc-properties">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
 
 </h3>
 
@@ -2743,7 +2778,7 @@ with the result of them.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -2908,7 +2943,7 @@ with the result of them.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -3074,7 +3109,7 @@ with the result of them.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -3275,7 +3310,7 @@ with the result of them.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -3488,7 +3523,7 @@ with the result of them.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -3570,7 +3605,7 @@ with the result of them.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>tanjun.abc.MessageCommand</code>
+                  <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCommand" href="../abc/#tanjun.abc.MessageCommand">MessageCommand</a></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -3591,7 +3626,7 @@ with the result of them.</p>
         <tr>
           <td>
             <span class="doc-raises-annotation">
-                <code>ValueError</code>
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
             </span>
           </td>
           <td class="doc-raises-details">
@@ -3682,7 +3717,7 @@ with the result of them.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+      <script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
       
     
   </body>
