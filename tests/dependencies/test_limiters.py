@@ -1189,7 +1189,9 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.return_value = False
 
         with (
-            pytest.raises(tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1326542469:R>."),
+            pytest.raises(
+                tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1326542469:R>."
+            ),
             freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)),
         ):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
@@ -1206,7 +1208,9 @@ class TestCooldownPreExecution:
         mock_owner_check = mock.AsyncMock()
 
         with (
-            pytest.raises(tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1452946089:R>."),
+            pytest.raises(
+                tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1452946089:R>."
+            ),
             freezegun.freeze_time(datetime.datetime(2016, 1, 16, 12)),
         ):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
