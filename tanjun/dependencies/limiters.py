@@ -658,7 +658,7 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error_message: str = "Command is currently in cooldown. Try again {cooldown}.",
+        error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -703,7 +703,7 @@ def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error_message: str = "Command is currently in cooldown. Try again {cooldown}.",
+    error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
