@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- The cooldown limiter now uses Discord's timestamp format in its default error messages.
+- `AbstractCooldownManager.check_cooldown` now returns a `datetime.timedelta` instead of a  `float`.
 
 ## [2.5.1a1] - 2022-05-02
 ### Added

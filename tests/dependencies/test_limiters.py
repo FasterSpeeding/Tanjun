@@ -35,11 +35,11 @@
 # This leads to too many false-positives around mocks.
 import asyncio
 import datetime
-import time
 import typing
 from unittest import mock
 
 import alluka
+import freezegun
 import hikari
 import pytest
 
@@ -288,98 +288,100 @@ async def test__get_ctx_target_when_unexpected_type():
 
 class Test_Cooldown:
     def test_has_expired_property(self):
-        with mock.patch.object(time, "monotonic", side_effect=[69.0, 72.0]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=60.0)
+        with freezegun.freeze_time(auto_tick_seconds=3):
+            cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=datetime.timedelta(seconds=60))
 
             assert cooldown.has_expired() is False
 
     def test_has_expired_property_when_has_expired(self):
-        with mock.patch.object(time, "monotonic", side_effect=[69.0, 96.0]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=26.5)
+        with freezegun.freeze_time(auto_tick_seconds=30):
+            cooldown = tanjun.dependencies.limiters._Cooldown(
+                limit=1, reset_after=datetime.timedelta(seconds=26, milliseconds=500)
+            )
 
             assert cooldown.has_expired() is True
 
     def test_increment(self):
-        with mock.patch.object(time, "monotonic", side_effect=[50.0, 55.0]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=69.420)
+        with freezegun.freeze_time(datetime.datetime(2016, 3, 2, 12, 4, 5), auto_tick_seconds=5):
+            cooldown = tanjun.dependencies.limiters._Cooldown(
+                limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+            )
             cooldown.counter = 2
 
             cooldown.increment()
 
             assert cooldown.counter == 3
-            assert cooldown.resets_at == 119.420
+            assert cooldown.resets_at == datetime.datetime(2016, 3, 2, 12, 5, 14, 420000, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_counter_is_0(self):
-        with mock.patch.object(time, "monotonic", side_effect=[419.0, 420.0]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=69.00)
+        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=1):
+            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=69))
 
             cooldown.increment()
 
             assert cooldown.counter == 1
-            assert cooldown.resets_at == 489.00
+            assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 5, 15, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_counter_is_at_limit(self):
-        with mock.patch.object(time, "monotonic", side_effect=[419.0, 420.0]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=69.00)
+        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=1):
+            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=69))
             cooldown.counter = 5
 
             cooldown.increment()
 
             assert cooldown.counter == 5
-            assert cooldown.resets_at == 488.00
+            assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 5, 14, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_passed_reset_after(self):
-        with mock.patch.object(time, "monotonic", side_effect=[419.0, 422.5]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=2.0)
+        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=2):
+            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=2))
             cooldown.counter = 2
 
             cooldown.increment()
 
             assert cooldown.counter == 1
-            assert cooldown.resets_at == 424.5
+            assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 4, 9, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_limit_is_negeative_1(self):
-        cooldown = tanjun.dependencies.limiters._Cooldown(limit=-1, reset_after=-1)
-        cooldown.resets_at = 54345543
+        cooldown = tanjun.dependencies.limiters._Cooldown(limit=-1, reset_after=datetime.timedelta(seconds=-1))
+        cooldown.resets_at = datetime.datetime(2020, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
         cooldown.counter = 123
 
-        with mock.patch.object(time, "monotonic") as monotonic:
-            result = cooldown.increment()
-
-            monotonic.assert_not_called()
+        result = cooldown.increment()
 
         assert result is cooldown
         assert cooldown.counter == 123
-        assert cooldown.resets_at == 54345543
+        assert cooldown.resets_at == datetime.datetime(2020, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
-    def test_must_wait_for(self):
-        with mock.patch.object(time, "monotonic", side_effect=[419.0, 422.0]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=10.5, limit=3)
+    def test_must_wait_until(self):
+        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=3):
+            cooldown = tanjun.dependencies.limiters._Cooldown(
+                reset_after=datetime.timedelta(seconds=10, milliseconds=5), limit=3
+            )
             cooldown.counter = 3
 
-            assert cooldown.must_wait_for() == 7.5
+            assert cooldown.must_wait_until() == datetime.datetime(
+                2014, 1, 2, 12, 4, 15, 5000, tzinfo=datetime.timezone.utc
+            )
 
-    def test_must_wait_for_when_resource_limit_not_hit(self):
-        cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=2.0, limit=3)
+    def test_must_wait_until_when_resource_limit_not_hit(self):
+        cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=datetime.timedelta(seconds=2), limit=3)
         cooldown.counter = 2
 
-        assert cooldown.must_wait_for() is None
+        assert cooldown.must_wait_until() is None
 
-    def test_must_wait_for_when_reset_after_reached(self):
-        with mock.patch.object(time, "monotonic", side_effect=[419.0, 425.5]):
-            cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=5.0, limit=3)
+    def test_must_wait_until_when_reset_after_reached(self):
+        with freezegun.freeze_time(datetime.datetime(2014, 1, 5, 12, 4, 5), auto_tick_seconds=5):
+            cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=datetime.timedelta(seconds=5), limit=3)
             cooldown.counter = 3
 
-            assert cooldown.must_wait_for() is None
+            assert cooldown.must_wait_until() is None
 
-    def test_must_wait_for_when_limit_is_negative_1(self):
-        cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=64, limit=-1)
+    def test_must_wait_until_when_limit_is_negative_1(self):
+        cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=datetime.timedelta(seconds=64), limit=-1)
         cooldown.counter = 55
 
-        with mock.patch.object(time, "monotonic") as monotonic:
-            assert cooldown.must_wait_for() is None
-
-            monotonic.assert_not_called()
+        assert cooldown.must_wait_until() is None
 
 
 class Test_FlatResource:
@@ -779,9 +781,9 @@ class TestInMemoryCooldownManager:
 
         result = await manager.check_cooldown("ok", mock_context, increment=False)
 
-        assert result is mock_bucket.try_into_inner.return_value.must_wait_for.return_value
+        assert result is mock_bucket.try_into_inner.return_value.must_wait_until.return_value
         mock_bucket.try_into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.must_wait_for.assert_called_once_with()
+        mock_inner.must_wait_until.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_try_into_inner_returns_none(self):
@@ -802,7 +804,7 @@ class TestInMemoryCooldownManager:
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
         mock_inner: typing.Any = mock_bucket.into_inner.return_value
         mock_inner.increment.return_value = mock_bucket.into_inner.return_value
-        mock_inner.must_wait_for.return_value = None
+        mock_inner.must_wait_until.return_value = None
         manager._buckets["ok"] = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
@@ -810,10 +812,10 @@ class TestInMemoryCooldownManager:
         assert result is None
         mock_bucket.into_inner.assert_awaited_once_with(mock_context)
         mock_inner.increment.assert_called_once_with()
-        mock_inner.must_wait_for.assert_called_once_with()
+        mock_inner.must_wait_until.assert_called_once_with()
 
     @pytest.mark.asyncio()
-    async def test_check_cooldown_when_increment_and_must_wait_for_returns_time(self):
+    async def test_check_cooldown_when_increment_and_must_wait_until_returns_time(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
         mock_context = mock.Mock()
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
@@ -823,10 +825,10 @@ class TestInMemoryCooldownManager:
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
-        assert result is mock_inner.must_wait_for.return_value
+        assert result is mock_inner.must_wait_until.return_value
         mock_bucket.into_inner.assert_awaited_once_with(mock_context)
         mock_inner.increment.assert_not_called()
-        mock_inner.must_wait_for.assert_called_once_with()
+        mock_inner.must_wait_until.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket(self):
@@ -836,7 +838,7 @@ class TestInMemoryCooldownManager:
         mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
         mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
         mock_inner.increment.return_value = mock_inner
-        mock_inner.must_wait_for.return_value = None
+        mock_inner.must_wait_until.return_value = None
 
         manager._default_bucket_template = mock_bucket
 
@@ -847,7 +849,7 @@ class TestInMemoryCooldownManager:
         mock_bucket.copy.assert_called_once_with()
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
         mock_inner.increment.assert_called_once_with()
-        mock_inner.must_wait_for.assert_called_once_with()
+        mock_inner.must_wait_until.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket_when_wait_for_returns_time(
@@ -864,12 +866,12 @@ class TestInMemoryCooldownManager:
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
-        assert result is mock_inner.must_wait_for.return_value
+        assert result is mock_inner.must_wait_until.return_value
         assert manager._buckets["ok"] is mock_bucket.copy.return_value
         mock_bucket.copy.assert_called_once_with()
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
         mock_inner.increment.assert_not_called()
-        mock_inner.must_wait_for.assert_called_once_with()
+        mock_inner.must_wait_until.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown(self):
@@ -975,7 +977,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == -1
-            assert cooldown.reset_after == -1
+            assert cooldown.reset_after == datetime.timedelta(-1)
 
     def test_disable_bucket_when_is_default(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -996,7 +998,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == -1
-            assert cooldown.reset_after == -1
+            assert cooldown.reset_after == datetime.timedelta(-1)
 
     @pytest.mark.parametrize(
         "resource_type",
@@ -1029,7 +1031,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 123
-            assert cooldown.reset_after == 43.123
+            assert cooldown.reset_after == datetime.timedelta(seconds=43, milliseconds=123)
 
     @pytest.mark.parametrize("reset_after", [datetime.timedelta(seconds=69), 69, 69.0])
     def test_set_bucket_handles_different_reset_after_types(
@@ -1051,7 +1053,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 444
-            assert cooldown.reset_after == 69
+            assert cooldown.reset_after == datetime.timedelta(seconds=69)
 
     def test_set_bucket_for_member_resource(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1069,7 +1071,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 64
-            assert cooldown.reset_after == 42.0
+            assert cooldown.reset_after == datetime.timedelta(seconds=42.0)
 
     def test_set_bucket_for_global_resource(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1087,7 +1089,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 420
-            assert cooldown.reset_after == 69.420
+            assert cooldown.reset_after == datetime.timedelta(seconds=69, milliseconds=420)
 
     def test_set_bucket_when_is_default(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1109,7 +1111,7 @@ class TestInMemoryCooldownManager:
             cooldown = cooldown_maker()
             assert isinstance(cooldown, tanjun.dependencies.limiters._Cooldown)
             assert cooldown.limit == 777
-            assert cooldown.reset_after == 666.0
+            assert cooldown.reset_after == datetime.timedelta(seconds=666)
 
     @pytest.mark.parametrize("reset_after", [datetime.timedelta(seconds=-42), -431, -0.123])
     def test_set_bucket_when_reset_after_is_negative(self, reset_after: typing.Union[datetime.timedelta, float, int]):
@@ -1183,11 +1185,15 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = 69.420
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc
+        )
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
-        with pytest.raises(tanjun.CommandError, match="Please wait 69.42 seconds before using this command again."):
+        with pytest.raises(
+            tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1326542469:R>."
+        ):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri", mock_context, increment=True)
@@ -1198,10 +1204,14 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = 420.69420
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
         mock_owner_check = mock.AsyncMock()
 
-        with pytest.raises(tanjun.CommandError, match="Please wait 420.69 seconds before using this command again."):
+        with pytest.raises(
+            tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1452946089:R>."
+        ):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
