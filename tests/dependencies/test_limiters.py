@@ -40,6 +40,7 @@ import typing
 from unittest import mock
 
 import alluka
+import freezegun
 import hikari
 import pytest
 
@@ -357,7 +358,7 @@ class Test_Cooldown:
             cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=10.5, limit=3)
             cooldown.counter = 3
 
-            assert cooldown.must_wait_for() == 7.5
+            assert cooldown.must_wait_for() == datetime.timedelta(seconds=7, milliseconds=500)
 
     def test_must_wait_for_when_resource_limit_not_hit(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=2.0, limit=3)
@@ -1183,11 +1184,14 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = 69.420
+        mock_cooldown_manager.check_cooldown.return_value = datetime.timedelta(seconds=69, milliseconds=420)
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
-        with pytest.raises(tanjun.CommandError, match="Please wait 69.42 seconds before using this command again."):
+        with (
+            pytest.raises(tanjun.CommandError, match="Command is currently in cooldown. Try again <t:1326542469:R>."),
+            freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)),
+        ):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri", mock_context, increment=True)
@@ -1198,10 +1202,13 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = 420.69420
+        mock_cooldown_manager.check_cooldown.return_value = datetime.timedelta(seconds=420, milliseconds=69420)
         mock_owner_check = mock.AsyncMock()
 
-        with pytest.raises(tanjun.CommandError, match="Please wait 420.69 seconds before using this command again."):
+        with (
+            pytest.raises(tanjun.CommandError, match="Command is currently in cooldown. Try again <t:1452946089:R>."),
+            freezegun.freeze_time(datetime.datetime(2016, 1, 16, 12)),
+        ):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)

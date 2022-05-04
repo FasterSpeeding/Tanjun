@@ -58,6 +58,7 @@ import alluka
 import hikari
 
 from .. import abc as tanjun
+from .. import conversion
 from .. import errors
 from .. import hooks
 from . import async_cache
@@ -79,7 +80,7 @@ class AbstractCooldownManager(abc.ABC):
     @abc.abstractmethod
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[float]:
+    ) -> typing.Optional[datetime.timedelta]:
         """Check if a bucket is on cooldown for the provided context.
 
         Parameters
@@ -94,7 +95,7 @@ class AbstractCooldownManager(abc.ABC):
 
         Returns
         -------
-        float | None
+        datetime.timedelta | None
             When this command will next be usable for the provided context
             if it's in cooldown else [None][].
         """
@@ -292,13 +293,13 @@ class _Cooldown:
 
         return self
 
-    def must_wait_for(self) -> typing.Optional[float]:
+    def must_wait_for(self) -> typing.Optional[datetime.timedelta]:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
         if self.limit == -1:
             return None
 
         if self.counter >= self.limit and (time_left := self.resets_at - time.monotonic()) > 0:
-            return time_left
+            return datetime.timedelta(seconds=time_left)
 
 
 class _InnerResourceProto(typing.Protocol):
@@ -513,7 +514,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[float]:
+    ) -> typing.Optional[datetime.timedelta]:
         # <<inherited docstring from AbstractCooldownManager>>.
         bucket: typing.Optional[_Cooldown]
         if increment:
@@ -657,7 +658,7 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
+        error_message: str = "Command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -692,14 +693,17 @@ class CooldownPreExecution:
                 return
 
         if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
-            raise errors.CommandError(self._error_message.format(cooldown=wait_for))
+            wait_for_repr = conversion.from_datetime(
+                datetime.datetime.now(tz=datetime.timezone.utc) + wait_for, style="R"
+            )
+            raise errors.CommandError(self._error_message.format(cooldown=wait_for_repr))
 
 
 def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again.",
+    error_message: str = "Command is currently in cooldown. Try again {cooldown}.",
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
