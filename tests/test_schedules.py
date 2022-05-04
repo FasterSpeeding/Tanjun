@@ -51,7 +51,8 @@ import pytest
 
 import tanjun
 
-_CallbackT = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
+_CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]]
+_CallbackSigT = typing.TypeVar("_CallbackSigT", bound=_CallbackSig)
 _T = typing.TypeVar("_T")
 _TIMEOUT: typing.Final[float] = 10.0
 
@@ -60,7 +61,7 @@ def _chain(data: collections.Iterable[collections.Iterable[_T]]) -> list[_T]:
     return list(itertools.chain.from_iterable(data))
 
 
-def _print_tb(callback: _CallbackT, /) -> _CallbackT:
+def _print_tb(callback: _CallbackSigT, /) -> _CallbackSigT:
     @functools.wraps(callback)
     async def wrapper(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         try:
@@ -69,7 +70,7 @@ def _print_tb(callback: _CallbackT, /) -> _CallbackT:
             traceback.print_exc()
             raise
 
-    return wrapper
+    return typing.cast(_CallbackSigT, wrapper)
 
 
 class _ManualClock:
@@ -387,17 +388,17 @@ class TestIntervalSchedule:
         stop_time = None
 
         @_print_tb
-        async def callback():
+        async def callback() -> None:
             call_times.append(time.time_ns())
             clock.spawn_ticker()
 
         @_print_tb
-        async def on_start():
+        async def on_start() -> None:
             nonlocal start_time
             start_time = time.time_ns()
 
         @_print_tb
-        async def on_stop():
+        async def on_stop() -> None:
             nonlocal stop_time
             stop_time = time.time_ns()
             clock.stop_ticker()
@@ -900,7 +901,7 @@ class TestTimeSchedule:
         interval.load_into_component(mock_component)
 
     def test_start_when_passed_event_loop(self):
-        class StubSchedule(tanjun.schedules.TimeSchedule):
+        class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]):
             ...
 
         mock_client = mock.Mock()
@@ -1410,7 +1411,7 @@ class TestTimeSchedule:
         called_at: list[datetime.datetime] = []
 
         @_print_tb
-        async def callback():
+        async def callback() -> None:
             called_at.append(datetime.datetime.now())
             clock.spawn_ticker()
             length = len(called_at)
