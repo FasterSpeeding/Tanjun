@@ -50,7 +50,6 @@ import asyncio
 import datetime
 import enum
 import logging
-import time
 import typing
 from collections import abc as collections
 
@@ -80,7 +79,7 @@ class AbstractCooldownManager(abc.ABC):
     @abc.abstractmethod
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[datetime.timedelta]:
+    ) -> typing.Optional[datetime.datetime]:
         """Check if a bucket is on cooldown for the provided context.
 
         Parameters
@@ -263,18 +262,22 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
 _CooldownT = typing.TypeVar("_CooldownT", bound="_Cooldown")
 
 
+def _now() -> datetime.datetime:
+    return datetime.datetime.now(tz=datetime.timezone.utc)
+
+
 class _Cooldown:
     __slots__ = ("counter", "limit", "reset_after", "resets_at")
 
-    def __init__(self, *, limit: int, reset_after: float) -> None:
+    def __init__(self, *, limit: int, reset_after: datetime.timedelta) -> None:
         self.counter = 0
         self.limit = limit
         self.reset_after = reset_after
-        self.resets_at = time.monotonic() + reset_after
+        self.resets_at = _now() + reset_after
 
     def has_expired(self) -> bool:
         # Expiration doesn't actually matter for cases where the limit is -1.
-        return time.monotonic() >= self.resets_at
+        return _now() >= self.resets_at
 
     def increment(self: _CooldownT) -> _CooldownT:
         # A limit of -1 is special cased to mean no limit, so there's no need to increment the counter.
@@ -282,9 +285,9 @@ class _Cooldown:
             return self
 
         if self.counter == 0:
-            self.resets_at = time.monotonic() + self.reset_after
+            self.resets_at = _now() + self.reset_after
 
-        elif (current_time := time.monotonic()) >= self.resets_at:
+        elif (current_time := _now()) >= self.resets_at:
             self.counter = 0
             self.resets_at = current_time + self.reset_after
 
@@ -293,13 +296,13 @@ class _Cooldown:
 
         return self
 
-    def must_wait_for(self) -> typing.Optional[datetime.timedelta]:
+    def must_wait_until(self) -> typing.Optional[datetime.datetime]:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
         if self.limit == -1:
             return None
 
-        if self.counter >= self.limit and (time_left := self.resets_at - time.monotonic()) > 0:
-            return datetime.timedelta(seconds=time_left)
+        if self.counter >= self.limit and self.resets_at > _now():
+            return self.resets_at
 
 
 class _InnerResourceProto(typing.Protocol):
@@ -475,7 +478,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
-            BucketResource.USER, lambda: _Cooldown(limit=2, reset_after=5)
+            BucketResource.USER, lambda: _Cooldown(limit=2, reset_after=datetime.timedelta(seconds=5))
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
@@ -514,19 +517,19 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[datetime.timedelta]:
+    ) -> typing.Optional[datetime.datetime]:
         # <<inherited docstring from AbstractCooldownManager>>.
         bucket: typing.Optional[_Cooldown]
         if increment:
             bucket = await self._get_or_default(bucket_id).into_inner(ctx)
-            if cooldown := bucket.must_wait_for():
+            if cooldown := bucket.must_wait_until():
                 return cooldown
 
             bucket.increment()
             return None
 
         if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
-            return bucket.must_wait_for()
+            return bucket.must_wait_until()
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
@@ -581,7 +584,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             This cooldown manager to allow for chaining.
         """
         # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
-        bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _Cooldown(limit=-1, reset_after=-1))
+        bucket = self._buckets[bucket_id] = _GlobalResource(
+            lambda: _Cooldown(limit=-1, reset_after=datetime.timedelta(-1))
+        )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -624,19 +629,17 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             If reset_after or limit are negative, 0 or invalid.
             if limit is less 0 or negative.
         """
-        if isinstance(reset_after, datetime.timedelta):
-            reset_after_seconds = reset_after.total_seconds()
-        else:
-            reset_after_seconds = float(reset_after)
+        if not isinstance(reset_after, datetime.timedelta):
+            reset_after = datetime.timedelta(seconds=reset_after)
 
-        if reset_after_seconds <= 0:
+        if reset_after.total_seconds() <= 0:
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
         bucket = self._buckets[bucket_id] = _to_bucket(
-            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after_seconds)
+            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after)
         )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
@@ -693,9 +696,7 @@ class CooldownPreExecution:
                 return
 
         if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
-            wait_for_repr = conversion.from_datetime(
-                datetime.datetime.now(tz=datetime.timezone.utc) + wait_for, style="R"
-            )
+            wait_for_repr = conversion.from_datetime(wait_for, style="R")
             raise errors.CommandError(self._error_message.format(cooldown=wait_for_repr))
 
 
