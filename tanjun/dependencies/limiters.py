@@ -661,7 +661,7 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error: typing.Optional[collections.Callable[[str, datetime.timedelta], Exception]] = None,
+        error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
         error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
@@ -674,9 +674,9 @@ class CooldownPreExecution:
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should two arguments one of type [str][] and [datetime.timedelta][]
-            where the first is the limiting bucket's ID and the second is the
-            time remaining before said bucket can be used again.
+            This should two arguments one of type [str][] and [datetime.datetime][]
+            where the first is the limiting bucket's ID and the second is when said
+            bucket can be used again.
         error_message
             The error message to send in response as a command error if the check fails.
         owners_exempt
@@ -705,18 +705,17 @@ class CooldownPreExecution:
 
         if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
             if self._error:
-                raise self._error(self._bucket_id, datetime.timedelta(seconds=wait_for)) from None
+                raise self._error(self._bucket_id, wait_for) from None
+
             wait_for_repr = conversion.from_datetime(wait_for, style="R")
             raise errors.CommandError(self._error_message.format(cooldown=wait_for_repr))
-
-            raise errors.CommandError(self._error_message.format(cooldown=wait_for)) from None
 
 
 def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str, datetime.timedelta], Exception]] = None,
+    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
     error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -735,9 +734,9 @@ def with_cooldown(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should two arguments one of type [str][] and [datetime.timedelta][]
-        where the first is the limiting bucket's ID and the second is the
-        time remaining before said bucket can be used again.
+        This should two arguments one of type [str][] and [datetime.datetime][]
+        where the first is the limiting bucket's ID and the second is when said
+        bucket can be used again.
     error_message
         The error message to send in response as a command error if the check fails.
     owners_exempt
