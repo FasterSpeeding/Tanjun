@@ -60,7 +60,7 @@ class TestOwnerCheck:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = True
         mock_context = mock.Mock()
-        check = tanjun.checks.OwnerCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.OwnerCheck(error=TypeError, error_message="yeet", halt_execution=True)
 
         result = await check(mock_context, mock_dependency)
 
@@ -72,7 +72,7 @@ class TestOwnerCheck:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
-        check = tanjun.checks.OwnerCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.OwnerCheck(error_message=None)
 
         result = await check(mock_context, mock_dependency)
 
@@ -80,11 +80,27 @@ class TestOwnerCheck:
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     @pytest.mark.asyncio()
+    async def test_when_false_and_error(self):
+        class MockException(Exception):
+            def __init__(self):
+                ...
+
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock()
+        check = tanjun.checks.OwnerCheck(error=MockException, error_message="hi")
+
+        with pytest.raises(MockException):
+            await check(mock_context, mock_dependency)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+
+    @pytest.mark.asyncio()
     async def test_when_false_and_error_message(self):
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
-        check = tanjun.checks.OwnerCheck(error_message="aye", halt_execution=False)
+        check = tanjun.checks.OwnerCheck(error_message="aye")
 
         with pytest.raises(tanjun.errors.CommandError, match="aye"):
             await check(mock_context, mock_dependency)
@@ -96,7 +112,7 @@ class TestOwnerCheck:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
-        check = tanjun.checks.OwnerCheck(error_message=None, halt_execution=True)
+        check = tanjun.checks.OwnerCheck(error_message="eeep", halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
             await check(mock_context, mock_dependency)
@@ -109,7 +125,7 @@ class TestNsfwCheck:
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
         mock_cache = mock.AsyncMock()
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error=TypeError, error_message="meep", halt_execution=True)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -123,7 +139,7 @@ class TestNsfwCheck:
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
         mock_cache = mock.AsyncMock()
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -137,7 +153,7 @@ class TestNsfwCheck:
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         with pytest.raises(tanjun.dependencies.EntryNotFound):
             await check(mock_context, channel_cache=mock_cache)
@@ -150,7 +166,7 @@ class TestNsfwCheck:
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()
         mock_cache.get.return_value.is_nsfw = True
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -164,7 +180,7 @@ class TestNsfwCheck:
         mock_context.cache.get_guild_channel.return_value = None
         mock_cache = mock.AsyncMock()
         mock_cache.get.return_value.is_nsfw = None
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -177,7 +193,7 @@ class TestNsfwCheck:
     async def test_when_not_cache_bound(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=None)
 
@@ -191,7 +207,7 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -204,11 +220,27 @@ class TestNsfwCheck:
     async def test_when_false(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = None
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=None)
 
         assert result is False
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_when_false_when_error(self):
+        class MockException(Exception):
+            def __init__(self):
+                ...
+
+        mock_context = mock.Mock()
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = None
+        check = tanjun.checks.NsfwCheck(error=MockException, error_message="nye")
+
+        with pytest.raises(MockException):
+            await check(mock_context, channel_cache=None)
+
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
@@ -218,7 +250,7 @@ class TestNsfwCheck:
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.NsfwCheck(error_message="meow me", halt_execution=False)
+        check = tanjun.checks.NsfwCheck(error_message="meow me")
 
         with pytest.raises(tanjun.errors.CommandError, match="meow me"):
             await check(mock_context, channel_cache=mock_cache)
@@ -234,7 +266,7 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=False)
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.NsfwCheck(error_message=None, halt_execution=True)
+        check = tanjun.checks.NsfwCheck(error_message="yeet", halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
             await check(mock_context, channel_cache=mock_cache)
@@ -249,7 +281,7 @@ class TestSfwCheck:
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
         mock_cache = mock.AsyncMock()
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error=ValueError, error_message="lll", halt_execution=True)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -263,7 +295,7 @@ class TestSfwCheck:
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
         mock_cache = mock.AsyncMock()
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -277,7 +309,7 @@ class TestSfwCheck:
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()
         mock_cache.get.return_value.is_nsfw = False
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -291,7 +323,7 @@ class TestSfwCheck:
         mock_context.cache.get_guild_channel.return_value = None
         mock_cache = mock.AsyncMock()
         mock_cache.get.return_value.is_nsfw = None
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -304,7 +336,7 @@ class TestSfwCheck:
     async def test_when_not_cache_bound(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=None)
 
@@ -318,7 +350,7 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=mock_cache)
 
@@ -331,11 +363,27 @@ class TestSfwCheck:
     async def test_when_is_nsfw(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message=None)
 
         result = await check(mock_context, channel_cache=None)
 
         assert result is False
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_when_is_nsfw_and_error(self):
+        class MockException(Exception):
+            def __init__(self):
+                ...
+
+        mock_context = mock.Mock()
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        check = tanjun.checks.SfwCheck(error=MockException, error_message="bye")
+
+        with pytest.raises(MockException):
+            await check(mock_context, channel_cache=None)
+
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
@@ -345,7 +393,7 @@ class TestSfwCheck:
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.SfwCheck(error_message="meow me", halt_execution=False)
+        check = tanjun.checks.SfwCheck(error_message="meow me")
 
         with pytest.raises(tanjun.errors.CommandError, match="meow me"):
             await check(mock_context, channel_cache=mock_cache)
@@ -361,7 +409,7 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
         mock_cache = mock.AsyncMock()
         mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.SfwCheck(error_message=None, halt_execution=True)
+        check = tanjun.checks.SfwCheck(error_message="yeet", halt_execution=True)
 
         with pytest.raises(tanjun.errors.HaltExecution):
             await check(mock_context, channel_cache=mock_cache)
@@ -373,34 +421,57 @@ class TestSfwCheck:
 
 class TestDmCheck:
     def test_for_dm(self):
-        assert tanjun.checks.DmCheck()(mock.Mock(guild_id=None)) is True
+        check = tanjun.checks.DmCheck(error=ValueError, error_message="meow", halt_execution=True)
+        assert check(mock.Mock(guild_id=None)) is True
 
     def test_for_guild(self):
-        assert tanjun.checks.DmCheck(halt_execution=False, error_message=None)(mock.Mock(guild_id=3123)) is False
+        assert tanjun.checks.DmCheck(error_message=None)(mock.Mock(guild_id=3123)) is False
+
+    def test_for_guild_when_error(self):
+        class MockException(Exception):
+            def __init__(self):
+                ...
+
+        check = tanjun.checks.DmCheck(error=MockException, error_message="meow")
+
+        with pytest.raises(MockException):
+            assert check(mock.Mock(guild_id=3123)) is False
 
     def test_for_guild_when_halt_execution(self):
         with pytest.raises(tanjun.HaltExecution):
-            assert tanjun.checks.DmCheck(halt_execution=True, error_message=None)(mock.Mock(guild_id=3123))
+            assert tanjun.checks.DmCheck(error_message="beep", halt_execution=True)(mock.Mock(guild_id=3123))
 
     def test_for_guild_when_error_message(self):
         with pytest.raises(tanjun.CommandError, match="message"):
-            assert tanjun.checks.DmCheck(halt_execution=False, error_message="message")(mock.Mock(guild_id=3123))
+            assert tanjun.checks.DmCheck(error_message="message")(mock.Mock(guild_id=3123))
 
 
 class TestGuildCheck:
     def test_for_guild(self):
-        assert tanjun.checks.GuildCheck()(mock.Mock(guild_id=123123)) is True
+        check = tanjun.checks.GuildCheck(error=IndentationError, error_message="meow", halt_execution=True)
+
+        assert check(mock.Mock(guild_id=123123)) is True
 
     def test_for_dm(self):
-        assert tanjun.checks.GuildCheck(halt_execution=False, error_message=None)(mock.Mock(guild_id=None)) is False
+        assert tanjun.checks.GuildCheck(error_message=None)(mock.Mock(guild_id=None)) is False
+
+    def test_for_dm_when_error(self):
+        class MockException(Exception):
+            def __init__(self):
+                ...
+
+        check = tanjun.checks.GuildCheck(error=MockException, error_message="meep")
+
+        with pytest.raises(MockException):
+            assert check(mock.Mock(guild_id=None)) is False
 
     def test_for_dm_when_halt_execution(self):
         with pytest.raises(tanjun.HaltExecution):
-            tanjun.checks.GuildCheck(halt_execution=True, error_message=None)(mock.Mock(guild_id=None))
+            tanjun.checks.GuildCheck(error_message="beep", halt_execution=True)(mock.Mock(guild_id=None))
 
     def test_for_dm_when_error_message(self):
         with pytest.raises(tanjun.CommandError, match="hi"):
-            tanjun.checks.GuildCheck(halt_execution=False, error_message="hi")(mock.Mock(guild_id=None))
+            tanjun.checks.GuildCheck(error_message="hi")(mock.Mock(guild_id=None))
 
 
 @pytest.mark.skip(reason="Not Implemented")
@@ -419,7 +490,7 @@ def test_with_dm_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(dm_check.return_value)
         dm_check.assert_called_once_with(
-            error=None, halt_execution=False, error_message="Command can only be used in DMs"
+            error=None, error_message="Command can only be used in DMs", halt_execution=False
         )
 
 
@@ -427,15 +498,17 @@ def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
-        assert (
-            tanjun.checks.with_dm_check(error=mock_error_callback, halt_execution=True, error_message="message")(
-                command
-            )
-            is command
+        result = tanjun.checks.with_dm_check(error=mock_error_callback, error_message="message", halt_execution=True)(
+            command
         )
 
+        assert result is command
         command.add_check.assert_called_once_with(dm_check.return_value)
-        dm_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="message")
+        dm_check.assert_called_once_with(
+            error=mock_error_callback,
+            error_message="message",
+            halt_execution=True,
+        )
 
 
 def test_with_guild_check(command: mock.Mock):
@@ -444,7 +517,7 @@ def test_with_guild_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(guild_check.return_value)
         guild_check.assert_called_once_with(
-            error=None, halt_execution=False, error_message="Command can only be used in guild channels"
+            error=None, error_message="Command can only be used in guild channels", halt_execution=False
         )
 
 
@@ -453,12 +526,12 @@ def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
 
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
         assert (
-            tanjun.checks.with_guild_check(error=mock_error_callback, halt_execution=True, error_message="eee")(command)
+            tanjun.checks.with_guild_check(error=mock_error_callback, error_message="eee", halt_execution=True)(command)
             is command
         )
 
         command.add_check.assert_called_once_with(guild_check.return_value)
-        guild_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="eee")
+        guild_check.assert_called_once_with(error=mock_error_callback, error_message="eee", halt_execution=True)
 
 
 def test_with_nsfw_check(command: mock.Mock):
@@ -467,7 +540,7 @@ def test_with_nsfw_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(nsfw_check.return_value)
         nsfw_check.assert_called_once_with(
-            error=None, halt_execution=False, error_message="Command can only be used in NSFW channels"
+            error=None, error_message="Command can only be used in NSFW channels", halt_execution=False
         )
 
 
@@ -475,15 +548,13 @@ def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as nsfw_check:
-        assert (
-            tanjun.checks.with_nsfw_check(error=mock_error_callback, halt_execution=True, error_message="banned!!!")(
-                command
-            )
-            is command
-        )
+        result = tanjun.checks.with_nsfw_check(
+            error=mock_error_callback, error_message="banned!!!", halt_execution=True
+        )(command)
 
+        assert result is command
         command.add_check.assert_called_once_with(nsfw_check.return_value)
-        nsfw_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="banned!!!")
+        nsfw_check.assert_called_once_with(error=mock_error_callback, error_message="banned!!!", halt_execution=True)
 
 
 def test_with_sfw_check(command: mock.Mock):
@@ -492,7 +563,7 @@ def test_with_sfw_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(sfw_check.return_value)
         sfw_check.assert_called_once_with(
-            error=None, halt_execution=False, error_message="Command can only be used in SFW channels"
+            error=None, error_message="Command can only be used in SFW channels", halt_execution=False
         )
 
 
@@ -500,13 +571,13 @@ def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as sfw_check:
-        assert (
-            tanjun.checks.with_sfw_check(error=mock_error_callback, halt_execution=True, error_message="bango")(command)
-            is command
+        result = tanjun.checks.with_sfw_check(error=mock_error_callback, error_message="bango", halt_execution=True)(
+            command
         )
 
+        assert result is command
         command.add_check.assert_called_once_with(sfw_check.return_value)
-        sfw_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="bango")
+        sfw_check.assert_called_once_with(error=mock_error_callback, error_message="bango", halt_execution=True)
 
 
 def test_with_owner_check(command: mock.Mock):
@@ -515,7 +586,7 @@ def test_with_owner_check(command: mock.Mock):
 
         command.add_check.assert_called_once_with(owner_check.return_value)
         owner_check.assert_called_once_with(
-            error=None, halt_execution=False, error_message="Only bot owners can use this command"
+            error=None, error_message="Only bot owners can use this command", halt_execution=False
         )
 
 
@@ -525,29 +596,27 @@ def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
     with mock.patch.object(tanjun.checks, "OwnerCheck", return_value=mock_check) as owner_check:
         result = tanjun.checks.with_owner_check(
             error=mock_error_callback,
-            halt_execution=True,
             error_message="dango",
+            halt_execution=True,
         )(command)
         assert result is command
 
         command.add_check.assert_called_once_with(owner_check.return_value)
-        owner_check.assert_called_once_with(error=mock_error_callback, halt_execution=True, error_message="dango")
+        owner_check.assert_called_once_with(error=mock_error_callback, error_message="dango", halt_execution=True)
 
 
 def test_with_author_permission_check(command: mock.Mock):
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
-        assert (
-            tanjun.checks.with_author_permission_check(
-                435213, error=mock_error_callback, halt_execution=True, error_message="bye"
-            )(command)
-            is command
-        )
+        result = tanjun.checks.with_author_permission_check(
+            435213, error=mock_error_callback, error_message="bye", halt_execution=True
+        )(command)
 
+        assert result is command
         command.add_check.assert_called_once_with(author_permission_check.return_value)
         author_permission_check.assert_called_once_with(
-            435213, error=mock_error_callback, halt_execution=True, error_message="bye"
+            435213, error=mock_error_callback, error_message="bye", halt_execution=True
         )
 
 
@@ -555,16 +624,14 @@ def test_with_own_permission_check(command: mock.Mock):
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
-        assert (
-            tanjun.checks.with_own_permission_check(
-                5412312, error=mock_error_callback, halt_execution=True, error_message="hi"
-            )(command)
-            is command
-        )
+        result = tanjun.checks.with_own_permission_check(
+            5412312, error=mock_error_callback, error_message="hi", halt_execution=True
+        )(command)
 
+        assert result is command
         command.add_check.assert_called_once_with(own_permission_check.return_value)
         own_permission_check.assert_called_once_with(
-            5412312, error=mock_error_callback, halt_execution=True, error_message="hi"
+            5412312, error=mock_error_callback, error_message="hi", halt_execution=True
         )
 
 
@@ -769,6 +836,12 @@ async def test_any_checks_when_all_fail():
     )
 
 
+@pytest.mark.skip(reason="Feature hasn't been implemented yet")
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error():
+    raise NotImplementedError
+
+
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_halt_execution():
     mock_check_1 = mock.Mock()
@@ -776,7 +849,7 @@ async def test_any_checks_when_all_fail_and_halt_execution():
     mock_check_3 = mock.Mock()
     mock_context = mock.Mock()
     mock_context.call_with_async_di = mock.AsyncMock(side_effect=[False, False, tanjun.FailedCheck])
-    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message=None, halt_execution=True)
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="dab", halt_execution=True)
 
     with pytest.raises(tanjun.HaltExecution):
         await check(mock_context)

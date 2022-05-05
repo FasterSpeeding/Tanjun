@@ -97,10 +97,10 @@ class _Check:
         if not result:
             if self._error:
                 raise self._error(*args) from None
-            if self._error_message:
-                raise errors.CommandError(self._error_message) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
+            if self._error_message:
+                raise errors.CommandError(self._error_message) from None
 
         return result
 
@@ -126,16 +126,18 @@ class OwnerCheck(_Check):
         ----------
         error
             Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the
             command search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
 
@@ -200,16 +202,18 @@ class NsfwCheck(_Check):
         ----------
         error
             Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
 
@@ -243,16 +247,18 @@ class SfwCheck(_Check):
         ----------
         error
             Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
 
@@ -286,16 +292,18 @@ class DmCheck(_Check):
         ----------
         error
             Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
 
@@ -324,16 +332,18 @@ class GuildCheck(_Check):
         ----------
         error
             Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
 
@@ -369,16 +379,18 @@ class AuthorPermissionCheck(_Check):
 
             This should take 1 positional argument of type [hikari.permissions.Permissions][].
             This represents the missing permissions required for this command to run.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
         self._permissions = permissions
@@ -434,16 +446,18 @@ class OwnPermissionCheck(_Check):
 
             This should take 1 positional argument of type [hikari.permissions.Permissions][].
             This represents the missing permissions required for this command to run.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
         super().__init__(error, error_message, halt_execution)
         self._permissions = permissions
@@ -507,16 +521,18 @@ def with_dm_check(
         The command to add this check to.
     error
         Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -557,16 +573,18 @@ def with_guild_check(
         The command to add this check to.
     error
         Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -609,16 +627,18 @@ def with_nsfw_check(
         The command to add this check to.
     error
         Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -659,16 +679,18 @@ def with_sfw_check(
         The command to add this check to.
     error
         Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -709,16 +731,18 @@ def with_owner_check(
         The command to add this check to.
     error
         Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -752,16 +776,18 @@ def with_author_permission_check(
 
         This should take 1 positional argument of type [hikari.permissions.Permissions][].
         This represents the missing permissions required for this command to run.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -795,16 +821,18 @@ def with_own_permission_check(
 
         This should take 1 positional argument of type [hikari.permissions.Permissions][].
         This represents the missing permissions required for this command to run.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -832,7 +860,7 @@ def with_check(check: tanjun.CheckSig, /) -> collections.Callable[[_CommandT], _
     return lambda command: command.add_check(check)
 
 
-class _AllChecks(_Check):
+class _AllChecks:
     __slots__ = ("_checks",)
 
     def __init__(self, checks: list[tanjun.CheckSig]) -> None:
@@ -902,9 +930,9 @@ class _AnyChecks(_Check):
     def __init__(
         self,
         checks: list[tanjun.CheckSig],
-        suppress: tuple[type[Exception], ...],
         error_message: typing.Optional[str],
         halt_execution: bool,
+        suppress: tuple[type[Exception], ...],
     ) -> None:
         super().__init__(None, error_message, halt_execution)
         self._checks = checks
@@ -922,21 +950,16 @@ class _AnyChecks(_Check):
             except self._suppress:
                 pass
 
-        if self._error_message is not None:
-            raise errors.CommandError(self._error_message)
-        if self._halt_execution:
-            raise errors.HaltExecution
-
-        return False
+        return self._handle_result(False)
 
 
 def any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
-    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
     error_message: typing.Optional[str],
     halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
@@ -951,29 +974,29 @@ def any_checks(
         Additional check callbacks to combine.
     error_message
         The error message to send in response as a command error if the check fails.
-
-        This takes priority over `halt_execution`.
-    suppress
-        Tuple of the exceptions to suppress when a check fails.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
+    suppress
+        Tuple of the exceptions to suppress when a check fails.
 
     Returns
     -------
     collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the generated check to a command.
     """
-    return _AnyChecks([check, *checks], suppress, error_message, halt_execution)
+    return _AnyChecks([check, *checks], error_message, halt_execution, suppress)
 
 
 def with_any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
-    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
     error_message: typing.Optional[str],
     halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a check which'll pass if any of the provided checks pass through a decorator call.
 
@@ -988,13 +1011,13 @@ def with_any_checks(
         Additional check callbacks to combine.
     error_message
         The error message to send in response as a command error if the check fails.
-
-        This takes priority over `halt_execution`.
-    suppress
-        Tuple of the exceptions to suppress when a check fails.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
+    suppress
+        Tuple of the exceptions to suppress when a check fails.
 
     Returns
     -------
@@ -1002,5 +1025,5 @@ def with_any_checks(
         A decorator which adds the generated check to a command.
     """
     return lambda c: c.add_check(
-        any_checks(check, *checks, suppress=suppress, error_message=error_message, halt_execution=halt_execution)
+        any_checks(check, *checks, error_message=error_message, halt_execution=halt_execution, suppress=suppress)
     )
