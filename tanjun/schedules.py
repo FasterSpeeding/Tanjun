@@ -415,6 +415,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self._client = None
         self._task.cancel()
         self._task = None
+        if not self._tasks:
+            return
+
         tasks = self._tasks
         self._tasks = []
         try:
@@ -1074,6 +1077,9 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
         self._task.cancel()
         self._task = None
+        if not self._tasks:
+            return
+
         tasks = self._tasks
         self._tasks = []
         try:
