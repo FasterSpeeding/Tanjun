@@ -178,6 +178,7 @@ class Component(tanjun.Component):
         "_schedules",
         "_slash_commands",
         "_slash_hooks",
+        "_tasks",
     )
 
     def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
@@ -216,6 +217,7 @@ class Component(tanjun.Component):
         self._schedules: list[schedules_.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun.BaseSlashCommand] = {}
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
+        self._tasks: list[asyncio.Task[typing.Any]] = []
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
@@ -296,6 +298,10 @@ class Component(tanjun.Component):
     def metadata(self) -> dict[typing.Any, typing.Any]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._metadata
+
+    def _add_task(self, task: asyncio.Task[typing.Any], /) -> None:
+        self._tasks.append(task)
+        self._tasks = [t for t in self._tasks if not t.done()]
 
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -1314,7 +1320,7 @@ class Component(tanjun.Component):
             If the schedule isn't registered.
         """
         if self._loop and schedule.is_alive:
-            self._loop.create_task(schedule.stop())  # TODO: add_task
+            self._add_task(self._loop.create_task(schedule.stop()))
 
         self._schedules.remove(schedule)
         return self

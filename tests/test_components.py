@@ -73,6 +73,40 @@ class TestComponent:
     def test_defaults_to_ephemeral_property(self):
         assert tanjun.Component().defaults_to_ephemeral is None
 
+    def test__add_task(self):
+        mock_task_1 = mock.Mock()
+        mock_task_1.done.return_value = False
+        mock_task_2 = mock.Mock()
+        mock_task_2.done.return_value = False
+        mock_task_3 = mock.Mock()
+        mock_task_3.done.return_value = False
+        mock_new_task = mock.Mock()
+        mock_new_task.done.return_value = False
+        component = tanjun.Component()
+        component._tasks = [mock.Mock(), mock_task_1, mock.Mock(), mock.Mock(), mock_task_2, mock_task_3, mock.Mock()]
+
+        component._add_task(mock_new_task)
+
+        assert component._tasks == [mock_task_1, mock_task_2, mock_task_3, mock_new_task]
+
+    def test__add_task_when_empty(self):
+        mock_task = mock.Mock()
+        mock_task.done.return_value = False
+        component = tanjun.Component()
+
+        component._add_task(mock_task)
+
+        assert component._tasks == [mock_task]
+
+    def test__add_task_when_task_already_done(self):
+        mock_task = mock.Mock()
+        mock_task.done.return_value = True
+        component = tanjun.Component()
+
+        component._add_task(mock_task)
+
+        assert component._tasks == []
+
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
         ...
@@ -1275,8 +1309,15 @@ class TestComponent:
         mock_schedule.stop.assert_not_called()
 
     def test_remove_schedule_when_is_alive(self):
+        mock_loop = mock.Mock()
         mock_schedule = mock.Mock(is_alive=True)
-        component = tanjun.Component().add_schedule(mock_schedule)
+        mock__add_task = mock.Mock()
+
+        class StubComponent(tanjun.Component):
+            _add_task = mock__add_task
+
+        component = StubComponent().add_schedule(mock_schedule)
+        component._loop = mock_loop
         assert mock_schedule in component.schedules
 
         result = component.remove_schedule(mock_schedule)
@@ -1284,6 +1325,8 @@ class TestComponent:
         assert result is component
         assert mock_schedule not in component.schedules
         mock_schedule.stop.assert_called_once_with()
+        mock_loop.create_task.assert_called_once_with(mock_schedule.stop.return_value)
+        mock__add_task.assert_called_once_with(mock_loop.create_task.return_value)
 
     def test_with_schedule(self):
         add_schedule = mock.Mock()
@@ -1303,8 +1346,8 @@ class TestComponent:
     async def test_close(self):
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
-        mock_schedule_1 = mock.Mock(is_alive=True)
-        mock_schedule_2 = mock.Mock(is_alive=True)
+        mock_schedule_1 = mock.AsyncMock(is_alive=True)
+        mock_schedule_2 = mock.AsyncMock(is_alive=True)
         mock_closed_schedule = mock.Mock(is_alive=False)
         mock_client = mock.Mock()
         mock_client.injector.call_with_async_di = mock.AsyncMock()
@@ -1327,8 +1370,8 @@ class TestComponent:
         mock_client.injector.call_with_async_di.assert_has_awaits(
             [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
-        mock_schedule_1.stop.assert_called_once_with()
-        mock_schedule_2.stop.assert_called_once_with()
+        mock_schedule_1.stop.assert_awaited_once_with()
+        mock_schedule_2.stop.assert_awaited_once_with()
         mock_closed_schedule.stop.assert_not_called()
         mock_unbind.assert_not_called()
         assert component.loop is None
@@ -1337,8 +1380,8 @@ class TestComponent:
     async def test_close_when_unbind(self):
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
-        mock_schedule_1 = mock.Mock()
-        mock_schedule_2 = mock.Mock()
+        mock_schedule_1 = mock.AsyncMock()
+        mock_schedule_2 = mock.AsyncMock()
         mock_client = mock.Mock()
         mock_client.injector.call_with_async_di = mock.AsyncMock()
         mock_unbind = mock.Mock()
@@ -1359,8 +1402,8 @@ class TestComponent:
         mock_client.injector.call_with_async_di.assert_has_awaits(
             [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
-        mock_schedule_1.stop.assert_called_once_with()
-        mock_schedule_2.stop.assert_called_once_with()
+        mock_schedule_1.stop.assert_awaited_once_with()
+        mock_schedule_2.stop.assert_awaited_once_with()
         mock_unbind.assert_called_once_with(mock_client)
         assert component.loop is None
 
