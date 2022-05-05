@@ -329,7 +329,7 @@ class TestIntervalSchedule:
             # not just been reached.
             clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=5, milliseconds=100)]).spawn_ticker()
             await asyncio.sleep(30)
-            interval.stop()
+            await interval.stop()
             clock.stop_ticker()
 
         assert interval._task is None
@@ -416,7 +416,7 @@ class TestIntervalSchedule:
             # not just been reached.
             clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=7, milliseconds=200)]).spawn_ticker()
             await asyncio.sleep(28)
-            interval.stop()
+            await interval.stop()
             await asyncio.sleep(0)
 
         assert interval._task is None
@@ -601,21 +601,23 @@ class TestIntervalSchedule:
 
         assert interval._task is mock_task
 
-    def test_stop(self):
+    @pytest.mark.asyncio()
+    async def test_stop(self):
         mock_task = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock_task
 
-        interval.stop()
+        await interval.stop()
 
         mock_task.cancel.assert_called_once_with()
         assert interval._task is None
 
-    def test_stop_when_not_active(self):
+    @pytest.mark.asyncio()
+    async def test_stop_when_not_active(self):
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
-            interval.stop()
+            await interval.stop()
 
     def test_with_start_callback(self):
         set_start_callback = mock.Mock()
@@ -686,7 +688,7 @@ class TestTimeSchedule:
 
         assert interval.is_alive is True
 
-        interval.stop()
+        interval.force_stop()
 
     @pytest.mark.parametrize(
         ("kwargs", "expected_message"),
@@ -933,23 +935,25 @@ class TestTimeSchedule:
                 interval.start(mock.Mock())
 
         finally:
-            interval.stop()
+            interval.force_stop()
 
-    def test_stop(self):
+    @pytest.mark.asyncio()
+    async def test_stop(self):
         mock_task = mock.Mock()
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
         interval._task = mock_task
 
-        interval.stop()
+        await interval.stop()
 
         mock_task.cancel.assert_called_once_with()
         assert interval._task is None
 
-    def test_stop_when_not_running(self):
+    @pytest.mark.asyncio()
+    async def test_stop_when_not_running(self):
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
-            interval.stop()
+            await interval.stop()
 
     # Note: these have to be at least a microsecond after the target time as
     # the unix event loop won't return the sleep until the target time has passed,
@@ -1400,7 +1404,7 @@ class TestTimeSchedule:
             schedule.start(alluka.Client())
             clock.spawn_ticker()
             await asyncio.sleep(sleep_for.total_seconds())
-            schedule.stop()
+            await schedule.stop()
             clock.stop_ticker()
 
         assert called_at == expected_dates
