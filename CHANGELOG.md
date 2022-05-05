@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AbstractSchedule.stop` is now async.
 
 ### Fixed
-- Some edge cases where closing schedule may lead to futures being erronously cancelled.
+- Some edge cases where closing schedule may lead to futures being erroneously cancelled.
 
 ## [2.5.1a1] - 2022-05-02
 ### Added
