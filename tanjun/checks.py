@@ -930,11 +930,12 @@ class _AnyChecks(_Check):
     def __init__(
         self,
         checks: list[tanjun.CheckSig],
+        error: typing.Optional[collections.Callable[[], Exception]],
         error_message: typing.Optional[str],
         halt_execution: bool,
         suppress: tuple[type[Exception], ...],
     ) -> None:
-        super().__init__(None, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
         self._checks = checks
         self._suppress = suppress
 
@@ -957,6 +958,7 @@ def any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -972,6 +974,10 @@ def any_checks(
         The first check callback to combine.
     *checks
         Additional check callbacks to combine.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
     halt_execution
@@ -987,13 +993,14 @@ def any_checks(
     collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the generated check to a command.
     """
-    return _AnyChecks([check, *checks], error_message, halt_execution, suppress)
+    return _AnyChecks([check, *checks], error, error_message, halt_execution, suppress)
 
 
 def with_any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -1009,6 +1016,10 @@ def with_any_checks(
         The first check callback to combine.
     *checks
         Additional check callbacks to combine.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
     halt_execution
@@ -1025,5 +1036,7 @@ def with_any_checks(
         A decorator which adds the generated check to a command.
     """
     return lambda c: c.add_check(
-        any_checks(check, *checks, error_message=error_message, halt_execution=halt_execution, suppress=suppress)
+        any_checks(
+            check, *checks, error=error, error_message=error_message, halt_execution=halt_execution, suppress=suppress
+        )
     )

@@ -677,6 +677,8 @@ class CooldownPreExecution:
             This should two arguments one of type [str][] and [datetime.datetime][]
             where the first is the limiting bucket's ID and the second is when said
             bucket can be used again.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
         owners_exempt
@@ -737,6 +739,8 @@ def with_cooldown(
         This should two arguments one of type [str][] and [datetime.datetime][]
         where the first is the limiting bucket's ID and the second is when said
         bucket can be used again.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
     owners_exempt
@@ -1001,6 +1005,8 @@ class ConcurrencyPreExecution:
             Callback used to create a custom error to raise if the check fails.
 
             This should two one [str][] argument which is the limiting bucket's ID.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if this fails
             to acquire the concurrency limit.
@@ -1074,6 +1080,8 @@ def with_concurrency_limit(
         Callback used to create a custom error to raise if the check fails.
 
         This should two one [str][] argument which is the limiting bucket's ID.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.

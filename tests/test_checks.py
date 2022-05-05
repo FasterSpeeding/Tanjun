@@ -760,7 +760,9 @@ async def test_any_checks_when_first_check_passes():
     mock_check_3 = mock.Mock()
     mock_context = mock.Mock()
     mock_context.call_with_async_di = mock.AsyncMock(return_value=True)
-    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
+    check = tanjun.checks.any_checks(
+        mock_check_1, mock_check_2, mock_check_3, error=TypeError, error_message="hi", halt_execution=True
+    )
 
     result = await check(mock_context)
 
@@ -775,7 +777,9 @@ async def test_any_checks_when_last_check_passes():
     mock_check_3 = mock.Mock()
     mock_context = mock.Mock()
     mock_context.call_with_async_di = mock.AsyncMock(side_effect=[False, tanjun.FailedCheck, True])
-    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error_message="hi")
+    check = tanjun.checks.any_checks(
+        mock_check_1, mock_check_2, mock_check_3, error=ValueError, error_message="hi", halt_execution=True
+    )
 
     result = await check(mock_context)
 
@@ -799,7 +803,14 @@ async def test_any_checks_when_check_passes():
     mock_context = mock.Mock()
     mock_context.call_with_async_di = mock.AsyncMock(side_effect=[False, tanjun.FailedCheck, False, True])
     check = tanjun.checks.any_checks(
-        mock_check_1, mock_check_2, mock_check_3, mock_check_4, mock_check_5, error_message="hi"
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        mock_check_4,
+        mock_check_5,
+        error=ValueError,
+        error_message="hi",
+        halt_execution=True,
     )
 
     result = await check(mock_context)
@@ -839,7 +850,27 @@ async def test_any_checks_when_all_fail():
 @pytest.mark.skip(reason="Feature hasn't been implemented yet")
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error():
-    raise NotImplementedError
+    class MockException(Exception):
+        def __init__(self):
+            ...
+
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock()
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[False, tanjun.FailedCheck, False])
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error=MockException, error_message="hi")
+
+    with pytest.raises(MockException):
+        await check(mock_context)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()
@@ -1011,6 +1042,7 @@ def test_with_any_checks():
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
     mock_command = mock.Mock()
+    mock_error_callback = mock.Mock()
 
     class MockError(Exception):
         ...
@@ -1021,6 +1053,7 @@ def test_with_any_checks():
             mock_check_2,
             mock_check_3,
             suppress=(MockError,),
+            error=mock_error_callback,
             error_message="yay catgirls",
             halt_execution=True,
         )(mock_command)
@@ -1031,6 +1064,7 @@ def test_with_any_checks():
         mock_check_1,
         mock_check_2,
         mock_check_3,
+        error=mock_error_callback,
         error_message="yay catgirls",
         suppress=(MockError,),
         halt_execution=True,

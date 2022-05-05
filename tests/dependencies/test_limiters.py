@@ -1130,7 +1130,9 @@ class TestInMemoryCooldownManager:
 class TestCooldownPreExecution:
     @pytest.mark.asyncio()
     async def test_call(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=False)
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "yuri catgirls", owners_exempt=False, error=mock.Mock()
+        )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
         mock_cooldown_manager.check_cooldown.return_value = None
@@ -1143,7 +1145,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True)
+        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True, error=mock.Mock())
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
         mock_owner_check = mock.AsyncMock()
@@ -1156,7 +1158,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_but_owner_check_is_none(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True)
+        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True, error=mock.Mock())
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
         mock_cooldown_manager.check_cooldown.return_value = None
@@ -1168,7 +1170,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_and_not_owner(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls", owners_exempt=True)
+        pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls", owners_exempt=True, error=mock.Mock())
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
         mock_cooldown_manager.check_cooldown.return_value = None
@@ -1200,6 +1202,30 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     @pytest.mark.asyncio()
+    async def test_call_when_owners_exempt_still_leads_to_wait_for_and_error_callback(self):
+        class MockException(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(return_value=MockException())
+        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+        mock_owner_check.check_ownership.return_value = False
+
+        with pytest.raises(MockException):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+        mock_error_callback.assert_called_once_with(
+            "yuri", datetime.datetime(2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
+
+    @pytest.mark.asyncio()
     async def test_call_when_wait_for(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
@@ -1216,6 +1242,31 @@ class TestCooldownPreExecution:
 
         mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
         mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_wait_for_and_error_callback(self):
+        class MockException(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(return_value=MockException())
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri", owners_exempt=False, error=mock_error_callback
+        )
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(MockException):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
+        mock_error_callback.assert_called_once_with(
+            "catgirls yuri", datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
 
 
 def test_with_cooldown():
@@ -1653,7 +1704,7 @@ class TestConcurrencyPreExecution:
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = True
-        hook = tanjun.dependencies.ConcurrencyPreExecution("bucket boobs")
+        hook = tanjun.dependencies.ConcurrencyPreExecution("bucket boobs", error=KeyError)
 
         await hook(mock_context, mock_limiter)
 
@@ -1670,6 +1721,24 @@ class TestConcurrencyPreExecution:
             await hook(mock_context, mock_limiter)
 
         mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails_and_error_callback(self):
+        class MockException(Exception):
+            ...
+
+        mock_concurrency_callback = mock.Mock(return_value=MockException())
+
+        mock_context = mock.Mock()
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        hook = tanjun.dependencies.ConcurrencyPreExecution("bucket catgirls", error=mock_concurrency_callback)
+
+        with pytest.raises(MockException):
+            await hook(mock_context, mock_limiter)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
+        mock_concurrency_callback.assert_called_once_with("bucket catgirls")
 
 
 class TestConcurrencyPostExecution:
