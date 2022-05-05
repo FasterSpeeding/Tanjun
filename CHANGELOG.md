@@ -184,6 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `error` option to the standard checks and limiters to allow setting a callback which generates
   a custom error.
 - `AbstractSchedule.force_stop` which immediately stops the tasks without waiting and is sync.
+- Support for toggleable case-insensitive message command name handling.
 
 ### Changed
 - The cooldown limiter now uses Discord's timestamp format in its default error messages.
@@ -202,7 +203,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - A `send` method to `CommandError` which can be overridden to customise its response behaviour.
 - Support for other create message arguments to `CommandError`.
-- Support for toggleable case-insensitive message command name handling.
 
 ### Changed
 - Renamed `CommandError.message` to `.content`.
