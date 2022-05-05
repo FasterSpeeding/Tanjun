@@ -377,8 +377,8 @@ class AuthorPermissionCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should take 1 positional argument of type [hikari.permissions.Permissions][].
-            This represents the missing permissions required for this command to run.
+            This should take 1 positional argument of type [hikari.permissions.Permissions][]
+            which represents the missing permissions required for this command to run.
 
             This takes priority over `error_message`.
         error_message
@@ -444,8 +444,8 @@ class OwnPermissionCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should take 1 positional argument of type [hikari.permissions.Permissions][].
-            This represents the missing permissions required for this command to run.
+            This should take 1 positional argument of type [hikari.permissions.Permissions][]
+            which represents the missing permissions required for this command to run.
 
             This takes priority over `error_message`.
         error_message
@@ -774,8 +774,8 @@ def with_author_permission_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should take 1 positional argument of type [hikari.permissions.Permissions][].
-        This represents the missing permissions required for this command to run.
+        This should take 1 positional argument of type [hikari.permissions.Permissions][]
+        which represents the missing permissions required for this command to run.
 
         This takes priority over `error_message`.
     error_message
@@ -819,8 +819,8 @@ def with_own_permission_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should take 1 positional argument of type [hikari.permissions.Permissions][].
-        This represents the missing permissions required for this command to run.
+        This should take 1 positional argument of type [hikari.permissions.Permissions][]
+        which represents the missing permissions required for this command to run.
 
         This takes priority over `error_message`.
     error_message
