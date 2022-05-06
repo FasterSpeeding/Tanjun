@@ -474,15 +474,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         ctx.set_command(None)
         return result
 
-    def copy(
-        self: _MenuCommandT, *, _new: bool = True, parent: typing.Optional[tanjun.SlashCommandGroup] = None
-    ) -> _MenuCommandT:
+    def copy(self: _MenuCommandT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not _new:
-            self._parent = parent
-            return super().copy(_new=_new)
-
-        return super().copy(_new=_new)
+        inst = super().copy()
+        inst._parent = parent
+        return inst
 
     async def execute(
         self, ctx: tanjun.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None

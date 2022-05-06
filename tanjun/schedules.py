@@ -279,7 +279,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         if self._task:
             raise RuntimeError("Cannot copy an active schedule")
 
-        return copy.copy(self)
+        inst = copy.copy(self)
+        inst._tasks = []
+        return inst
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
@@ -1005,7 +1007,12 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
     def copy(self: _TimeSchedule) -> _TimeSchedule:
         # <<inherited docstring from IntervalSchedule>>.
-        return copy.copy(self)
+        if self._task:
+            raise RuntimeError("Cannot copy an active schedule")
+
+        inst = copy.copy(self)
+        inst._tasks = []
+        return inst
 
     async def _execute(self, client: alluka.Client, /) -> None:
         try:

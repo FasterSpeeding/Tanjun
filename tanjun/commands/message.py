@@ -263,20 +263,15 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         return self
 
     def copy(
-        self: _MessageCommandT,
-        *,
-        parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None,
-        _new: bool = True,
+        self: _MessageCommandT, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
     ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        if not _new:
-            self._callback = copy.copy(self._callback)
-            self._names = self._names.copy()
-            self._parent = parent
-            self._parser = self._parser.copy() if self._parser else None
-            return super().copy(_new=_new)
-
-        return super().copy(_new=_new)
+        inst = super().copy()
+        inst._callback = copy.copy(self._callback)
+        inst._names = self._names.copy()
+        inst._parent = parent
+        inst._parser = self._parser.copy() if self._parser else None
+        return inst
 
     def set_parent(
         self: _MessageCommandT, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]], /
@@ -420,19 +415,14 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         return self._is_strict
 
     def copy(
-        self: _MessageCommandGroupT,
-        *,
-        parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None,
-        _new: bool = True,
+        self: _MessageCommandGroupT, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
     ) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        if not _new:
-            commands = {command: command.copy(parent=self) for command in self._commands}
-            self._commands = list(commands.values())
-            self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            return super().copy(parent=parent, _new=_new)
-
-        return super().copy(parent=parent, _new=_new)
+        inst = super().copy(parent=parent)
+        commands = {command: command.copy(parent=self) for command in self._commands}
+        inst._commands = list(commands.values())
+        inst._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
+        return inst
 
     def add_command(
         self: _MessageCommandGroupT, command: tanjun.MessageCommand[typing.Any], /

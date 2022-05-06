@@ -303,23 +303,21 @@ class Component(tanjun.Component):
         self._tasks.append(task)
         self._tasks = [t for t in self._tasks if not t.done()]
 
-    def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
+    def copy(self: _ComponentT) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
-        if not _new:
-            self._checks = [copy.copy(check) for check in self._checks]
-            self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
-            self._hooks = self._hooks.copy() if self._hooks else None
-            self._listeners = {
-                event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
-            }
-            commands = {command: command.copy() for command in self._message_commands}
-            self._message_commands = list(commands.values())
-            self._metadata = self._metadata.copy()
-            self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            self._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
-            return self
-
-        return copy.copy(self).copy(_new=False)
+        inst = copy.copy(self)
+        inst._checks = [copy.copy(check) for check in self._checks]
+        inst._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
+        inst._hooks = self._hooks.copy() if self._hooks else None
+        inst._listeners = {
+            event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
+        }
+        commands = {command: command.copy() for command in self._message_commands}
+        inst._message_commands = list(commands.values())
+        inst._metadata = self._metadata.copy()
+        inst._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
+        inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
+        return inst
 
     @typing.overload
     def load_from_scope(

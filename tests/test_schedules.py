@@ -888,6 +888,13 @@ class TestTimeSchedule:
         assert result is not interval
         assert result.callback is mock_callback
 
+    def test_copy_when_schedule_is_active(self):
+        interval = tanjun.schedules.TimeSchedule(mock.Mock())
+        interval._task = mock.Mock()
+
+        with pytest.raises(RuntimeError, match="Cannot copy an active schedule"):
+            interval.copy()
+
     def test_load_into_component(self):
         mock_component = mock.Mock(tanjun.Component)
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())

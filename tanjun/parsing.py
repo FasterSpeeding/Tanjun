@@ -1256,7 +1256,7 @@ class Parameter:
         parameter_type = "option" if isinstance(self, Option) else "argument"
         raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self.key}'", self.key, sources)
 
-    def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
+    def copy(self: _ParameterT) -> _ParameterT:
         """Copy the parameter.
 
         Returns
@@ -1264,12 +1264,9 @@ class Parameter:
         Self
             A copy of the parameter.
         """
-        if not _new:
-            self._converters = [copy.copy(converter) for converter in self._converters]
-            return self
-
-        result = copy.copy(self).copy(_new=False)
-        return result
+        inst = copy.copy(self)
+        inst._converters = [copy.copy(converter) for converter in self._converters]
+        return inst
 
 
 class Argument(Parameter):
@@ -1450,14 +1447,12 @@ class ShlexParser(AbstractOptionParser):
         # <<inherited docstring from AbstractOptionParser>>.
         return self._options.copy()
 
-    def copy(self: _ShlexParserT, *, _new: bool = True) -> _ShlexParserT:
+    def copy(self: _ShlexParserT) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
-        if not _new:
-            self._arguments = [argument.copy() for argument in self._arguments]
-            self._options = [option.copy() for option in self._options]
-            return self
-
-        return copy.copy(self).copy(_new=False)
+        inst = copy.copy(self)
+        inst._arguments = [argument.copy() for argument in self._arguments]
+        inst._options = [option.copy() for option in self._options]
+        return inst
 
     @typing.overload
     def add_argument(
