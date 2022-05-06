@@ -692,10 +692,9 @@ class CooldownPreExecution:
     async def __call__(
         self,
         ctx: tanjun.Context,
-        cooldowns: AbstractCooldownManager = alluka.inject(type=AbstractCooldownManager),
-        owner_check: typing.Optional[owners.AbstractOwners] = alluka.inject(
-            type=typing.Optional[owners.AbstractOwners]
-        ),
+        cooldowns: alluka.Injected[AbstractCooldownManager],
+        *,
+        owner_check: alluka.Injected[typing.Optional[owners.AbstractOwners]],
     ) -> None:
         if self._owners_exempt:
             if not owner_check:
@@ -1018,7 +1017,7 @@ class ConcurrencyPreExecution:
     async def __call__(
         self,
         ctx: tanjun.Context,
-        limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
+        limiter: alluka.Injected[AbstractConcurrencyLimiter],
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
             if self._error:
@@ -1052,7 +1051,7 @@ class ConcurrencyPostExecution:
     async def __call__(
         self,
         ctx: tanjun.Context,
-        limiter: AbstractConcurrencyLimiter = alluka.inject(type=AbstractConcurrencyLimiter),
+        limiter: alluka.Injected[AbstractConcurrencyLimiter],
     ) -> None:
         await limiter.release(self._bucket_id, ctx)
 

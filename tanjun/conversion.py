@@ -201,8 +201,8 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             )
 
 
-_DmCacheT = typing.Optional[async_cache.SfCache[hikari.DMChannel]]
-_GuildChannelCacheT = typing.Optional[async_cache.SfCache[hikari.PartialChannel]]
+_DmCacheT = async_cache.SfCache[hikari.DMChannel]
+_GuildChannelCacheT = async_cache.SfCache[hikari.PartialChannel]
 
 
 # TODO: GuildChannelConverter
@@ -251,9 +251,10 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
-        dm_cache: _DmCacheT = alluka.inject(type=_DmCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_GuildChannelCacheT]] = None,
+        dm_cache: alluka.Injected[typing.Optional[_DmCacheT]] = None,
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
@@ -298,7 +299,7 @@ class ToChannel(BaseConverter[hikari.PartialChannel]):
 ChannelConverter = ToChannel
 """Deprecated alias of [tanjun.conversion.ToChannel][]."""
 
-_EmojiCacheT = typing.Optional[async_cache.SfCache[hikari.KnownCustomEmoji]]
+_EmojiCacheT = async_cache.SfCache[hikari.KnownCustomEmoji]
 
 
 class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
@@ -340,8 +341,9 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _EmojiCacheT = alluka.inject(type=_EmojiCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_EmojiCacheT]] = None,
     ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
@@ -372,7 +374,7 @@ EmojiConverter = ToEmoji
 """Deprecated alias of [tanjun.conversion.ToEmoji][]."""
 
 
-_GuildCacheT = typing.Optional[async_cache.SfCache[hikari.Guild]]
+_GuildCacheT = async_cache.SfCache[hikari.Guild]
 
 
 class ToGuild(BaseConverter[hikari.Guild]):
@@ -407,8 +409,9 @@ class ToGuild(BaseConverter[hikari.Guild]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _GuildCacheT = alluka.inject(type=_GuildCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_GuildCacheT]] = None,
     ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
         if ctx.cache and (guild := ctx.cache.get_guild(guild_id)):
@@ -436,7 +439,7 @@ class ToGuild(BaseConverter[hikari.Guild]):
 GuildConverter = ToGuild
 """Deprecated alias of [tanjun.conversion.ToGuild][]."""
 
-_InviteCacheT = typing.Optional[async_cache.AsyncCache[str, hikari.InviteWithMetadata]]
+_InviteCacheT = async_cache.AsyncCache[str, hikari.InviteWithMetadata]
 
 
 class ToInvite(BaseConverter[hikari.Invite]):
@@ -468,8 +471,9 @@ class ToInvite(BaseConverter[hikari.Invite]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _InviteCacheT = alluka.inject(type=_InviteCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
     ) -> hikari.Invite:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
@@ -534,8 +538,9 @@ class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: typing.Optional[_InviteCacheT] = alluka.inject(type=_InviteCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
     ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
             raise ValueError(f"`{argument}` is not a valid invite code")
@@ -553,7 +558,7 @@ InviteWithMetadataConverter = ToInviteWithMetadata
 """Deprecated alias of [tanjun.conversion.ToInviteWithMetadata][]."""
 
 
-_MemberCacheT = typing.Optional[async_cache.SfGuildBound[hikari.Member]]
+_MemberCacheT = async_cache.SfGuildBound[hikari.Member]
 
 
 class ToMember(BaseConverter[hikari.Member]):
@@ -591,8 +596,9 @@ class ToMember(BaseConverter[hikari.Member]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _MemberCacheT = alluka.inject(type=_MemberCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_MemberCacheT]] = None,
     ) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
@@ -634,7 +640,7 @@ class ToMember(BaseConverter[hikari.Member]):
 MemberConverter = ToMember
 """Deprecated alias of [tanjun.conversion.ToMember][]."""
 
-_PresenceCacheT = typing.Optional[async_cache.SfGuildBound[hikari.MemberPresence]]
+_PresenceCacheT = async_cache.SfGuildBound[hikari.MemberPresence]
 
 
 class ToPresence(BaseConverter[hikari.MemberPresence]):
@@ -671,8 +677,9 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _PresenceCacheT = alluka.inject(type=_PresenceCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_PresenceCacheT]] = None,
     ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
@@ -690,7 +697,7 @@ class ToPresence(BaseConverter[hikari.MemberPresence]):
 PresenceConverter = ToPresence
 """Deprecated alias of [tanjun.conversion.ToPresence][]."""
 
-_RoleCacheT = typing.Optional[async_cache.SfCache[hikari.Role]]
+_RoleCacheT = async_cache.SfCache[hikari.Role]
 
 
 class ToRole(BaseConverter[hikari.Role]):
@@ -725,8 +732,9 @@ class ToRole(BaseConverter[hikari.Role]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _RoleCacheT = alluka.inject(type=_RoleCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_RoleCacheT]] = None,
     ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID found")
         if ctx.cache and (role := ctx.cache.get_role(role_id)):
@@ -753,7 +761,7 @@ class ToRole(BaseConverter[hikari.Role]):
 RoleConverter = ToRole
 """Deprecated alias of [tanjun.conversion.ToRole][]."""
 
-_UserCacheT = typing.Optional[async_cache.SfCache[hikari.User]]
+_UserCacheT = async_cache.SfCache[hikari.User]
 
 
 class ToUser(BaseConverter[hikari.User]):
@@ -788,8 +796,9 @@ class ToUser(BaseConverter[hikari.User]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _UserCacheT = alluka.inject(type=_UserCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_UserCacheT]] = None,
     ) -> hikari.User:
         # TODO: search by name if this is a guild context
         user_id = parse_user_id(argument, message="No valid user mention or ID found")
@@ -819,7 +828,7 @@ UserConverter = ToUser
 """Deprecated alias of [tanjun.conversion.ToUser][]."""
 
 
-_MessageCacheT = typing.Optional[async_cache.SfCache[hikari.Message]]
+_MessageCacheT = async_cache.SfCache[hikari.Message]
 
 
 class ToMessage(BaseConverter[hikari.Message]):
@@ -854,8 +863,9 @@ class ToMessage(BaseConverter[hikari.Message]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _MessageCacheT = alluka.inject(type=_MessageCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_MessageCacheT]] = None,
     ) -> hikari.Message:
         channel_id, message_id = parse_message_id(argument)
         if ctx.cache and (message := ctx.cache.get_message(message_id)):
@@ -880,7 +890,7 @@ class ToMessage(BaseConverter[hikari.Message]):
         raise ValueError("Couldn't find message")
 
 
-_VoiceStateCacheT = typing.Optional[async_cache.SfGuildBound[hikari.VoiceState]]
+_VoiceStateCacheT = async_cache.SfGuildBound[hikari.VoiceState]
 
 
 class ToVoiceState(BaseConverter[hikari.VoiceState]):
@@ -918,8 +928,9 @@ class ToVoiceState(BaseConverter[hikari.VoiceState]):
         self,
         argument: _ArgumentT,
         /,
-        ctx: tanjun.Context = alluka.inject(type=tanjun.Context),
-        cache: _VoiceStateCacheT = alluka.inject(type=_VoiceStateCacheT),
+        ctx: alluka.Injected[tanjun.Context],
+        *,
+        cache: alluka.Injected[typing.Optional[_VoiceStateCacheT]] = None,
     ) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")

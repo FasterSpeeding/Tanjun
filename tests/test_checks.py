@@ -476,7 +476,12 @@ class TestGuildCheck:
 
 @pytest.mark.skip(reason="Not Implemented")
 class TestAuthorPermissionCheck:
-    ...
+    @pytest.mark.asyncio()
+    async def test_for_dm(self):
+        ...
+
+    async def test_for_dm_when_not_dm_perms_required(self):
+        ...
 
 
 @pytest.mark.skip(reason="Not Implemented")

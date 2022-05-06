@@ -144,7 +144,7 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun.Context,
-        dependency: dependencies.AbstractOwners = alluka.inject(type=dependencies.AbstractOwners),
+        dependency: alluka.Injected[dependencies.AbstractOwners],
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
@@ -221,7 +221,8 @@ class NsfwCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
-        channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
+        *,
+        channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
     ) -> bool:
         return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
@@ -266,7 +267,8 @@ class SfwCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
-        channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
+        *,
+        channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
     ) -> bool:
         return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
@@ -418,6 +420,9 @@ class AuthorPermissionCheck(_Check):
         return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
 
 
+_MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
+
+
 class OwnPermissionCheck(_Check):
     """Standard own permission check callback registered by [tanjun.with_own_permission_check][].
 
@@ -466,7 +471,9 @@ class OwnPermissionCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
+        member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
         if ctx.guild_id is None:
             permissions = utilities.DM_PERMISSIONS
@@ -476,7 +483,17 @@ class OwnPermissionCheck(_Check):
 
         else:
             try:
-                member = await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
+                member = await member_cache.get_from_guild(ctx.guild_id, my_user.id) if member_cache else None
+            except dependencies.EntryNotFound:
+                # If we're not in the Guild then we have to assume the application
+                # is still in there and that we likely won't be able to do anything.
+                # TODO: re-visit this later.
+                return self._handle_result(False, self._permissions)
+            except dependencies.CacheMissError:
+                member = None
+
+            try:
+                member = member or await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
 
             except hikari.NotFoundError:
                 # If we're not in the Guild then we have to assume the application
