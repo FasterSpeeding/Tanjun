@@ -632,7 +632,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if not isinstance(reset_after, datetime.timedelta):
             reset_after = datetime.timedelta(seconds=reset_after)
 
-        if reset_after.total_seconds() <= 0:
+        if reset_after <= datetime.timedelta():
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:

@@ -411,12 +411,14 @@ class AuthorPermissionCheck(_Check):
                 permissions = utilities.DM_PERMISSIONS
 
         elif isinstance(ctx.member, hikari.InteractionMember):
+            # Luckily, InteractionMember.permissions already handles the
+            # implicit owner and admin permssion special casing for us.
             permissions = ctx.member.permissions
 
         else:
             permissions = await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
-        missing_permissions = ~self._permissions & permissions
+        missing_permissions = ~permissions & self._permissions
         return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
 
 
@@ -503,7 +505,7 @@ class OwnPermissionCheck(_Check):
 
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-        missing_permissions = ~self._permissions & permissions
+        missing_permissions = ~permissions & self._permissions
         return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
 
 

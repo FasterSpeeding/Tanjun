@@ -33,7 +33,11 @@
 # pyright: reportUnknownMemberType=none
 # This leads to too many false-positives around mocks.
 
+import functools
+import itertools
+import operator
 import typing
+from collections import abc as collections
 from unittest import mock
 
 import hikari
@@ -54,8 +58,8 @@ def context() -> tanjun.abc.Context:
     return mock.MagicMock(tanjun.abc.Context)
 
 
+@pytest.mark.asyncio()
 class TestOwnerCheck:
-    @pytest.mark.asyncio()
     async def test(self):
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = True
@@ -67,7 +71,6 @@ class TestOwnerCheck:
         assert result is True
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    @pytest.mark.asyncio()
     async def test_when_false(self):
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
@@ -79,7 +82,6 @@ class TestOwnerCheck:
         assert result is False
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    @pytest.mark.asyncio()
     async def test_when_false_and_error(self):
         class MockException(Exception):
             def __init__(self):
@@ -95,7 +97,6 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    @pytest.mark.asyncio()
     async def test_when_false_and_error_message(self):
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
@@ -107,7 +108,6 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    @pytest.mark.asyncio()
     async def test_when_false_and_halt_execution(self):
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
@@ -120,8 +120,8 @@ class TestOwnerCheck:
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
 
+@pytest.mark.asyncio()
 class TestNsfwCheck:
-    @pytest.mark.asyncio()
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
         mock_cache = mock.AsyncMock()
@@ -134,7 +134,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
@@ -148,7 +147,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_async_cache_raises_not_found(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()
@@ -161,7 +159,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_cache_bound_and_async_cache_hit(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()
@@ -174,7 +171,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_found_in_cache_and_async_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -189,7 +185,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_cache_bound(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
@@ -200,7 +195,6 @@ class TestNsfwCheck:
         assert result is True
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_found_in_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -216,7 +210,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
         mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_false(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = None
@@ -228,7 +221,6 @@ class TestNsfwCheck:
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_false_when_error(self):
         class MockException(Exception):
             def __init__(self):
@@ -244,7 +236,6 @@ class TestNsfwCheck:
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_false_and_error_message(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
@@ -259,7 +250,6 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_false_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -276,8 +266,8 @@ class TestNsfwCheck:
         mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
 
+@pytest.mark.asyncio()
 class TestSfwCheck:
-    @pytest.mark.asyncio()
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
         mock_cache = mock.AsyncMock()
@@ -290,7 +280,6 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = False
@@ -304,7 +293,6 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_not_cache_bound_and_async_cache_hit(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_cache = mock.AsyncMock()
@@ -317,7 +305,6 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_found_in_cache_and_async_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -332,7 +319,6 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_called_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_cache_bound(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
@@ -343,7 +329,6 @@ class TestSfwCheck:
         assert result is False
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_not_found_in_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -359,7 +344,6 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
         mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
 
-    @pytest.mark.asyncio()
     async def test_when_is_nsfw(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
@@ -371,7 +355,6 @@ class TestSfwCheck:
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_is_nsfw_and_error(self):
         class MockException(Exception):
             def __init__(self):
@@ -387,7 +370,6 @@ class TestSfwCheck:
         mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_is_nsfw_and_error_message(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.is_nsfw = True
@@ -402,7 +384,6 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
     async def test_when_is_nsfw_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -435,7 +416,7 @@ class TestDmCheck:
         check = tanjun.checks.DmCheck(error=MockException, error_message="meow")
 
         with pytest.raises(MockException):
-            assert check(mock.Mock(guild_id=3123)) is False
+            assert check(mock.Mock(guild_id=3123))
 
     def test_for_guild_when_halt_execution(self):
         with pytest.raises(tanjun.HaltExecution):
@@ -463,7 +444,7 @@ class TestGuildCheck:
         check = tanjun.checks.GuildCheck(error=MockException, error_message="meep")
 
         with pytest.raises(MockException):
-            assert check(mock.Mock(guild_id=None)) is False
+            assert check(mock.Mock(guild_id=None))
 
     def test_for_dm_when_halt_execution(self):
         with pytest.raises(tanjun.HaltExecution):
@@ -474,12 +455,540 @@ class TestGuildCheck:
             tanjun.checks.GuildCheck(error_message="hi")(mock.Mock(guild_id=None))
 
 
-@pytest.mark.skip(reason="Not Implemented")
+def _perm_combos(perms: hikari.Permissions) -> collections.Iterator[hikari.Permissions]:
+    for index in range(1, len(perms) + 1):
+        yield from map(lambda v: functools.reduce(operator.ior, v), itertools.combinations(perms, index))
+
+
+@pytest.mark.asyncio()
 class TestAuthorPermissionCheck:
-    ...
+    @pytest.mark.parametrize(
+        ("required_perms", "actual_perms"),
+        [
+            (
+                p := hikari.Permissions.ADD_REACTIONS | hikari.Permissions.USE_EXTERNAL_EMOJIS,
+                p | hikari.Permissions.ADMINISTRATOR,
+            ),
+            (p := hikari.Permissions.ATTACH_FILES | hikari.Permissions.BAN_MEMBERS, p),
+            (p := hikari.Permissions.CHANGE_NICKNAME, p),
+            (hikari.Permissions.all_permissions(), hikari.Permissions.all_permissions()),
+            (
+                p := hikari.Permissions.all_permissions()
+                & ~hikari.Permissions.ADD_REACTIONS
+                & ~hikari.Permissions.ATTACH_FILES,
+                p,
+            ),
+            (hikari.Permissions.NONE, hikari.Permissions.ADD_REACTIONS | hikari.Permissions.CREATE_INSTANT_INVITE),
+        ],
+    )
+    async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+        mock_context = mock.Mock()
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.member, channel=mock_context.channel_id
+        )
+
+    async def test_when_missing_perms(self):
+        mock_context = mock.Mock()
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.BAN_MEMBERS | hikari.Permissions.MANAGE_CHANNELS | hikari.Permissions.KICK_MEMBERS,
+            error_message=None,
+        )
+
+        with mock.patch.object(
+            tanjun.utilities,
+            "fetch_permissions",
+            return_value=hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.SEND_MESSAGES_IN_THREADS
+            | hikari.Permissions.SEND_MESSAGES_IN_THREADS,
+        ) as fetch_permissions:
+            result = await check(mock_context)
+
+        assert result is False
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.member, channel=mock_context.channel_id
+        )
+
+    @pytest.mark.parametrize(
+        ("required_perms", "actual_perms", "missing_perms"),
+        [
+            (
+                hikari.Permissions.all_permissions() & ~hikari.Permissions.ADMINISTRATOR,
+                hikari.Permissions.all_permissions()
+                & ~hikari.Permissions.MODERATE_MEMBERS
+                & ~hikari.Permissions.ATTACH_FILES,
+                hikari.Permissions.MODERATE_MEMBERS | hikari.Permissions.ATTACH_FILES,
+            ),
+            (
+                _p := hikari.Permissions.ADD_REACTIONS
+                | hikari.Permissions.SEND_MESSAGES
+                | hikari.Permissions.ATTACH_FILES
+                | hikari.Permissions.ATTACH_FILES,
+                hikari.Permissions.KICK_MEMBERS
+                | hikari.Permissions.DEAFEN_MEMBERS
+                | hikari.Permissions.SEND_MESSAGES_IN_THREADS,
+                _p,
+            ),
+            (
+                hikari.Permissions.SEND_MESSAGES_IN_THREADS
+                | hikari.Permissions.SEND_MESSAGES
+                | hikari.Permissions.BAN_MEMBERS
+                | hikari.Permissions.CREATE_PRIVATE_THREADS,
+                hikari.Permissions.SEND_MESSAGES_IN_THREADS
+                | hikari.Permissions.MANAGE_CHANNELS
+                | hikari.Permissions.MANAGE_GUILD
+                | hikari.Permissions.BAN_MEMBERS,
+                hikari.Permissions.SEND_MESSAGES | hikari.Permissions.CREATE_PRIVATE_THREADS,
+            ),
+        ],
+    )
+    async def test_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock()
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(
+            tanjun.utilities,
+            "fetch_permissions",
+            return_value=actual_perms,
+        ) as fetch_permissions:
+            await check(mock_context)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.member, channel=mock_context.channel_id
+        )
+
+    async def test_when_missing_perms_and_error_message(self):
+        mock_context = mock.Mock()
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.USE_APPLICATION_COMMANDS | hikari.Permissions.CONNECT | hikari.Permissions.KICK_MEMBERS,
+            error_message="yeet feet",
+        )
+
+        with pytest.raises(tanjun.CommandError, match="yeet feet"), mock.patch.object(
+            tanjun.utilities,
+            "fetch_permissions",
+            return_value=hikari.Permissions.CONNECT
+            | hikari.Permissions.ATTACH_FILES
+            | hikari.Permissions.CREATE_INSTANT_INVITE,
+        ) as fetch_permissions:
+            await check(mock_context)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.member, channel=mock_context.channel_id
+        )
+
+    async def test_when_missing_perms_and_halt_execution(self):
+        mock_context = mock.Mock()
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.USE_APPLICATION_COMMANDS
+            | hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.ATTACH_FILES,
+            halt_execution=True,
+        )
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities,
+            "fetch_permissions",
+            return_value=hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.ATTACH_FILES
+            | hikari.Permissions.CREATE_INSTANT_INVITE,
+        ) as fetch_permissions:
+            await check(mock_context)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.member, channel=mock_context.channel_id
+        )
+
+    @pytest.mark.parametrize(
+        ("required_perms", "actual_perms"),
+        [
+            (
+                p := hikari.Permissions.ADD_REACTIONS | hikari.Permissions.USE_EXTERNAL_EMOJIS,
+                p | hikari.Permissions.ADMINISTRATOR,
+            ),
+            (p := hikari.Permissions.ATTACH_FILES | hikari.Permissions.BAN_MEMBERS, p),
+            (p := hikari.Permissions.CHANGE_NICKNAME, p),
+            (hikari.Permissions.all_permissions(), hikari.Permissions.all_permissions()),
+            (
+                p := hikari.Permissions.all_permissions()
+                & ~hikari.Permissions.ADD_REACTIONS
+                & ~hikari.Permissions.ATTACH_FILES,
+                p,
+            ),
+            (hikari.Permissions.NONE, hikari.Permissions.ADD_REACTIONS | hikari.Permissions.CREATE_INSTANT_INVITE),
+        ],
+    )
+    async def test_for_interaction_member(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+        mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
+
+        result = await check(mock_context)
+
+        assert result is True
+
+    async def test_for_interaction_member_when_missing_perms(self):
+        mock_context = mock.Mock(
+            member=mock.Mock(
+                hikari.InteractionMember,
+                permissions=hikari.Permissions.MANAGE_CHANNELS
+                | hikari.Permissions.ADD_REACTIONS
+                | hikari.Permissions.CHANGE_NICKNAME,
+            )
+        )
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.BAN_MEMBERS | hikari.Permissions.ADD_REACTIONS | hikari.Permissions.DEAFEN_MEMBERS,
+            error_message=None,
+        )
+
+        result = await check(mock_context)
+
+        assert result is False
+
+    @pytest.mark.parametrize(
+        ("required_perms", "actual_perms", "missing_perms"),
+        [
+            (
+                hikari.Permissions.all_permissions() & ~hikari.Permissions.ADMINISTRATOR,
+                hikari.Permissions.all_permissions()
+                & ~hikari.Permissions.CREATE_INSTANT_INVITE
+                & ~hikari.Permissions.MANAGE_GUILD,
+                hikari.Permissions.CREATE_INSTANT_INVITE | hikari.Permissions.MANAGE_GUILD,
+            ),
+            (
+                _p := hikari.Permissions.REQUEST_TO_SPEAK
+                | hikari.Permissions.SEND_MESSAGES_IN_THREADS
+                | hikari.Permissions.CONNECT
+                | hikari.Permissions.CHANGE_NICKNAME,
+                hikari.Permissions.KICK_MEMBERS | hikari.Permissions.DEAFEN_MEMBERS | hikari.Permissions.SEND_MESSAGES,
+                _p,
+            ),
+            (
+                hikari.Permissions.ADD_REACTIONS
+                | hikari.Permissions.CHANGE_NICKNAME
+                | hikari.Permissions.CONNECT
+                | hikari.Permissions.EMBED_LINKS,
+                hikari.Permissions.EMBED_LINKS
+                | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+                | hikari.Permissions.MANAGE_ROLES,
+                hikari.Permissions.ADD_REACTIONS | hikari.Permissions.CONNECT | hikari.Permissions.CHANGE_NICKNAME,
+            ),
+        ],
+    )
+    async def test_for_interaction_member_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError):
+            await check(mock_context)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+
+    async def test_for_interaction_member_when_missing_perms_and_error_message(self):
+        mock_context = mock.Mock(
+            member=mock.Mock(
+                hikari.InteractionMember,
+                permissions=hikari.Permissions.CONNECT
+                | hikari.Permissions.ATTACH_FILES
+                | hikari.Permissions.CREATE_INSTANT_INVITE,
+            )
+        )
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.USE_APPLICATION_COMMANDS | hikari.Permissions.CONNECT | hikari.Permissions.KICK_MEMBERS,
+            error_message="yeet feet",
+        )
+
+        with pytest.raises(tanjun.CommandError, match="yeet feet"):
+            await check(mock_context)
+
+    async def test_for_interaction_member_when_missing_perms_and_halt_execution(self):
+        mock_context = mock.Mock(
+            member=mock.Mock(
+                hikari.InteractionMember,
+                permissions=hikari.Permissions.SEND_MESSAGES
+                | hikari.Permissions.ATTACH_FILES
+                | hikari.Permissions.CREATE_INSTANT_INVITE,
+            )
+        )
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.USE_APPLICATION_COMMANDS
+            | hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.ATTACH_FILES,
+            halt_execution=True,
+        )
+
+        with pytest.raises(tanjun.HaltExecution):
+            await check(mock_context)
+
+    @pytest.mark.parametrize(
+        ("required_perms", "actual_perms"),
+        [
+            (
+                p := hikari.Permissions.ADD_REACTIONS | hikari.Permissions.USE_EXTERNAL_EMOJIS,
+                p | hikari.Permissions.ADMINISTRATOR,
+            ),
+            (p := hikari.Permissions.ATTACH_FILES | hikari.Permissions.BAN_MEMBERS, p),
+            (p := hikari.Permissions.CHANGE_NICKNAME, p),
+            (hikari.Permissions.all_permissions(), hikari.Permissions.all_permissions()),
+            (
+                p := hikari.Permissions.all_permissions()
+                & ~hikari.Permissions.ADD_REACTIONS
+                & ~hikari.Permissions.ATTACH_FILES,
+                p,
+            ),
+            (hikari.Permissions.NONE, hikari.Permissions.ADD_REACTIONS | hikari.Permissions.CREATE_INSTANT_INVITE),
+        ],
+    )
+    async def test_when_guild_user(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+        mock_context = mock.Mock(member=None)
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
+
+        with mock.patch.object(
+            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+        ) as fetch_everyone_permissions:
+            result = await check(mock_context)
+
+        assert result is True
+        fetch_everyone_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.guild_id, channel=mock_context.channel_id
+        )
+
+    async def test_for_guild_user_when_missing_perms(self):
+        mock_context = mock.Mock(member=None)
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.BAN_MEMBERS | hikari.Permissions.MANAGE_MESSAGES | hikari.Permissions.DEAFEN_MEMBERS,
+            error_message=None,
+        )
+
+        with mock.patch.object(
+            tanjun.utilities,
+            "fetch_everyone_permissions",
+            return_value=hikari.Permissions.MANAGE_CHANNELS
+            | hikari.Permissions.MANAGE_MESSAGES
+            | hikari.Permissions.CHANGE_NICKNAME,
+        ) as fetch_everyone_permissions:
+            result = await check(mock_context)
+
+        assert result is False
+        fetch_everyone_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.guild_id, channel=mock_context.channel_id
+        )
+
+    @pytest.mark.parametrize(
+        ("required_perms", "actual_perms", "missing_perms"),
+        [
+            (
+                hikari.Permissions.all_permissions() & ~hikari.Permissions.ADMINISTRATOR,
+                hikari.Permissions.all_permissions() & ~hikari.Permissions.KICK_MEMBERS & ~hikari.Permissions.CONNECT,
+                hikari.Permissions.KICK_MEMBERS | hikari.Permissions.CONNECT,
+            ),
+            (
+                _p := hikari.Permissions.MANAGE_CHANNELS
+                | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+                | hikari.Permissions.KICK_MEMBERS,
+                hikari.Permissions.MANAGE_THREADS
+                | hikari.Permissions.MANAGE_GUILD
+                | hikari.Permissions.MANAGE_MESSAGES
+                | hikari.Permissions.MANAGE_NICKNAMES,
+                _p,
+            ),
+            (
+                hikari.Permissions.ADD_REACTIONS
+                | hikari.Permissions.MANAGE_GUILD
+                | hikari.Permissions.CONNECT
+                | hikari.Permissions.BAN_MEMBERS,
+                hikari.Permissions.ADD_REACTIONS
+                | hikari.Permissions.MANAGE_NICKNAMES
+                | hikari.Permissions.BAN_MEMBERS
+                | hikari.Permissions.SEND_MESSAGES
+                | hikari.Permissions.KICK_MEMBERS,
+                hikari.Permissions.MANAGE_GUILD | hikari.Permissions.CONNECT,
+            ),
+        ],
+    )
+    async def test_for_guild_user_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(member=None)
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(
+            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+        ) as fetch_everyone_permissions:
+            await check(mock_context)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+        fetch_everyone_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.guild_id, channel=mock_context.channel_id
+        )
+
+    async def test_for_guild_user_when_missing_perms_and_error_message(self):
+        mock_context = mock.Mock(member=None)
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.USE_APPLICATION_COMMANDS | hikari.Permissions.CONNECT | hikari.Permissions.KICK_MEMBERS,
+            error_message="beat yo meow",
+        )
+
+        with pytest.raises(tanjun.CommandError, match="beat yo meow"), mock.patch.object(
+            tanjun.utilities,
+            "fetch_everyone_permissions",
+            return_value=hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.ATTACH_FILES
+            | hikari.Permissions.CREATE_INSTANT_INVITE,
+        ) as fetch_everyone_permissions:
+            await check(mock_context)
+
+        fetch_everyone_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.guild_id, channel=mock_context.channel_id
+        )
+
+    async def test_for_guild_user_when_missing_perms_and_halt_execution(self):
+        mock_context = mock.Mock(member=None)
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.USE_APPLICATION_COMMANDS
+            | hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.ATTACH_FILES,
+            halt_execution=True,
+        )
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities,
+            "fetch_everyone_permissions",
+            return_value=hikari.Permissions.SEND_MESSAGES
+            | hikari.Permissions.ATTACH_FILES
+            | hikari.Permissions.CREATE_INSTANT_INVITE,
+        ) as fetch_everyone_permissions:
+            await check(mock_context)
+
+        fetch_everyone_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.guild_id, channel=mock_context.channel_id
+        )
+
+    @pytest.mark.parametrize("required_perms", list(_perm_combos(tanjun.utilities.DM_PERMISSIONS)))
+    async def test_for_dm(self, required_perms: hikari.Permissions):
+        mock_context = mock.Mock(guild_id=None, member=None)
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
+
+        result = await check(mock_context)
+
+        assert result is True
+
+    @pytest.mark.parametrize(
+        "required_perms",
+        [
+            v if i % 2 else v | hikari.Permissions.SEND_MESSAGES
+            # a few guild-only permissions
+            for i, v in enumerate(
+                _perm_combos(
+                    hikari.Permissions.ADMINISTRATOR
+                    | hikari.Permissions.BAN_MEMBERS
+                    | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+                )
+            )
+        ],
+    )
+    async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions):
+        mock_context = mock.Mock(guild_id=None, member=None)
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
+
+        result = await check(mock_context)
+
+        assert result is False
+
+    foo = (
+        hikari.Permissions.ADD_REACTIONS
+        | hikari.Permissions.VIEW_CHANNEL
+        | hikari.Permissions.SEND_MESSAGES
+        | hikari.Permissions.EMBED_LINKS
+        | hikari.Permissions.ATTACH_FILES
+        | hikari.Permissions.READ_MESSAGE_HISTORY
+        | hikari.Permissions.USE_EXTERNAL_EMOJIS
+        | hikari.Permissions.USE_EXTERNAL_STICKERS
+        | hikari.Permissions.USE_APPLICATION_COMMANDS
+    )
+
+    @pytest.mark.parametrize(
+        ("required_perms", "missing_perms"),
+        [
+            (
+                hikari.Permissions.all_permissions(),
+                hikari.Permissions.all_permissions() & ~tanjun.utilities.DM_PERMISSIONS,
+            ),
+            (
+                _p := hikari.Permissions.MANAGE_CHANNELS
+                | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+                | hikari.Permissions.KICK_MEMBERS,
+                _p,
+            ),
+            (
+                hikari.Permissions.ADD_REACTIONS | hikari.Permissions.MANAGE_GUILD | hikari.Permissions.CONNECT,
+                hikari.Permissions.MANAGE_GUILD | hikari.Permissions.CONNECT,
+            ),
+        ],
+    )
+    async def test_for_dm_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(guild_id=None, member=None)
+        check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError):
+            await check(mock_context)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+
+    async def test_for_dm_when_missing_perms_and_error_message(self):
+        mock_context = mock.Mock(guild_id=None, member=None)
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.ADMINISTRATOR
+            | hikari.Permissions.USE_APPLICATION_COMMANDS
+            | hikari.Permissions.SEND_MESSAGES,
+            error_message="aye lmao",
+        )
+
+        with pytest.raises(tanjun.CommandError, match="aye lmao"):
+            await check(mock_context)
+
+    async def test_for_dm_when_missing_perms_and_halt_execution(self):
+        mock_context = mock.Mock(guild_id=None, member=None)
+        check = tanjun.checks.AuthorPermissionCheck(
+            hikari.Permissions.BAN_MEMBERS
+            | hikari.Permissions.USE_APPLICATION_COMMANDS
+            | hikari.Permissions.SEND_MESSAGES,
+            halt_execution=True,
+        )
+
+        with pytest.raises(tanjun.HaltExecution):
+            await check(mock_context)
 
 
-@pytest.mark.skip(reason="Not Implemented")
+@pytest.mark.asyncio()
 class TestOwnPermissionCheck:
     ...
 
