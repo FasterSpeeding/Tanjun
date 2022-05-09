@@ -5,9 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `error` option to the standard checks and limiters to allow setting a callback which generates
+  a custom error.
+
 ### Changed
 - The cooldown limiter now uses Discord's timestamp format in its default error messages.
 - `AbstractCooldownManager.check_cooldown` now returns a `datetime.timedelta` instead of a  `float`.
+- `halt_execution` now takes priority over `error_message` when configuring checks.
 
 ## [2.5.1a1] - 2022-05-02
 ### Added

@@ -81,22 +81,26 @@ def _optional_kwargs(
 
 
 class _Check:
-    __slots__ = ("_error_message", "_halt_execution", "__weakref__")
+    __slots__ = ("_error", "_error_message", "_halt_execution", "__weakref__")
 
     def __init__(
         self,
+        error: typing.Optional[collections.Callable[..., Exception]],
         error_message: typing.Optional[str],
         halt_execution: bool,
     ) -> None:
+        self._error = error
         self._error_message = error_message
         self._halt_execution = halt_execution
 
-    def _handle_result(self, result: bool) -> bool:
+    def _handle_result(self, result: bool, /, *args: typing.Any) -> bool:
         if not result:
-            if self._error_message:
-                raise errors.CommandError(self._error_message) from None
+            if self._error:
+                raise self._error(*args) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
+            if self._error_message:
+                raise errors.CommandError(self._error_message) from None
 
         return result
 
@@ -112,30 +116,35 @@ class OwnerCheck(_Check):
     def __init__(
         self,
         *,
+        error: typing.Optional[collections.Callable[[], Exception]] = None,
         error_message: typing.Optional[str] = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
-        """Initialise a owner check.
+        """Initialise an owner check.
 
         Parameters
         ----------
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the
             command search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
 
     async def __call__(
         self,
         ctx: tanjun.Context,
-        dependency: dependencies.AbstractOwners = alluka.inject(type=dependencies.AbstractOwners),
+        dependency: alluka.Injected[dependencies.AbstractOwners],
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
@@ -183,6 +192,7 @@ class NsfwCheck(_Check):
     def __init__(
         self,
         *,
+        error: typing.Optional[collections.Callable[[], Exception]] = None,
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
@@ -190,24 +200,29 @@ class NsfwCheck(_Check):
 
         Parameters
         ----------
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
 
     async def __call__(
         self,
         ctx: tanjun.Context,
         /,
-        channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
+        *,
+        channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
     ) -> bool:
         return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
@@ -223,6 +238,7 @@ class SfwCheck(_Check):
     def __init__(
         self,
         *,
+        error: typing.Optional[collections.Callable[[], Exception]] = None,
         error_message: typing.Optional[str] = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
@@ -230,24 +246,29 @@ class SfwCheck(_Check):
 
         Parameters
         ----------
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
 
     async def __call__(
         self,
         ctx: tanjun.Context,
         /,
-        channel_cache: _GuildChannelCacheT = alluka.inject(type=_GuildChannelCacheT),
+        *,
+        channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
     ) -> bool:
         return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
@@ -263,6 +284,7 @@ class DmCheck(_Check):
     def __init__(
         self,
         *,
+        error: typing.Optional[collections.Callable[[], Exception]] = None,
         error_message: typing.Optional[str] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
@@ -270,18 +292,22 @@ class DmCheck(_Check):
 
         Parameters
         ----------
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
 
     def __call__(self, ctx: tanjun.Context, /) -> bool:
         return self._handle_result(ctx.guild_id is None)
@@ -298,6 +324,7 @@ class GuildCheck(_Check):
     def __init__(
         self,
         *,
+        error: typing.Optional[collections.Callable[[], Exception]] = None,
         error_message: typing.Optional[str] = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:
@@ -305,18 +332,22 @@ class GuildCheck(_Check):
 
         Parameters
         ----------
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
 
     def __call__(self, ctx: tanjun.Context, /) -> bool:
         return self._handle_result(ctx.guild_id is not None)
@@ -335,6 +366,7 @@ class AuthorPermissionCheck(_Check):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
+        error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
         error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
@@ -344,18 +376,25 @@ class AuthorPermissionCheck(_Check):
         ----------
         permissions
             The permission(s) required for this command to run.
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This should take 1 positional argument of type [hikari.permissions.Permissions][]
+            which represents the missing permissions required for this command to run.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message=error_message, halt_execution=halt_execution)
+        super().__init__(error, error_message, halt_execution)
         self._permissions = permissions
 
     async def __call__(self, ctx: tanjun.Context, /) -> bool:
@@ -372,12 +411,18 @@ class AuthorPermissionCheck(_Check):
                 permissions = utilities.DM_PERMISSIONS
 
         elif isinstance(ctx.member, hikari.InteractionMember):
+            # Luckily, InteractionMember.permissions already handles the
+            # implicit owner and admin permssion special casing for us.
             permissions = ctx.member.permissions
 
         else:
             permissions = await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
-        return self._handle_result((self._permissions & permissions) == self._permissions)
+        missing_permissions = ~permissions & self._permissions
+        return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
+
+
+_MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
 
 
 class OwnPermissionCheck(_Check):
@@ -393,6 +438,7 @@ class OwnPermissionCheck(_Check):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
+        error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
         error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
@@ -402,25 +448,34 @@ class OwnPermissionCheck(_Check):
         ----------
         permissions
             The permission(s) required for this command to run.
+        error
+            Callback used to create a custom error to raise if the check fails.
+
+            This should take 1 positional argument of type [hikari.permissions.Permissions][]
+            which represents the missing permissions required for this command to run.
+
+            This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
-
-            This takes priority over `halt_execution`.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
+
+            This takes priority over `error_message`.
         """
-        super().__init__(error_message=error_message, halt_execution=halt_execution)
+        super().__init__(error, error_message, halt_execution)
         self._permissions = permissions
 
     async def __call__(
         self,
         ctx: tanjun.Context,
         /,
+        *,
         my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
+        member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
         if ctx.guild_id is None:
             permissions = utilities.DM_PERMISSIONS
@@ -430,17 +485,28 @@ class OwnPermissionCheck(_Check):
 
         else:
             try:
-                member = await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
+                member = await member_cache.get_from_guild(ctx.guild_id, my_user.id) if member_cache else None
+            except dependencies.EntryNotFound:
+                # If we're not in the Guild then we have to assume the application
+                # is still in there and that we likely won't be able to do anything.
+                # TODO: re-visit this later.
+                return self._handle_result(False, self._permissions)
+            except dependencies.CacheMissError:
+                member = None
+
+            try:
+                member = member or await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
 
             except hikari.NotFoundError:
                 # If we're not in the Guild then we have to assume the application
                 # is still in there and that we likely won't be able to do anything.
                 # TODO: re-visit this later.
-                return self._handle_result(False)
+                return self._handle_result(False, self._permissions)
 
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-        return self._handle_result((permissions & self._permissions) == self._permissions)
+        missing_permissions = ~permissions & self._permissions
+        return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
 
 
 @typing.overload
@@ -450,7 +516,10 @@ def with_dm_check(command: _CommandT, /) -> _CommandT:
 
 @typing.overload
 def with_dm_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in DMs", halt_execution: bool = False
+    *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -459,6 +528,7 @@ def with_dm_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in DMs",
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -468,23 +538,27 @@ def with_dm_check(
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, DmCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(command, DmCheck(error=error, halt_execution=halt_execution, error_message=error_message))
 
 
 @typing.overload
@@ -494,7 +568,10 @@ def with_guild_check(command: _CommandT, /) -> _CommandT:
 
 @typing.overload
 def with_guild_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in guild channels", halt_execution: bool = False
+    *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -503,6 +580,7 @@ def with_guild_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in guild channels",
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -512,23 +590,29 @@ def with_guild_check(
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
     tanjun.abc.ExecutableCommanmd
         The command this check was added to.
     """
-    return _optional_kwargs(command, GuildCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, GuildCheck(error=error, halt_execution=halt_execution, error_message=error_message)
+    )
 
 
 @typing.overload
@@ -538,7 +622,10 @@ def with_nsfw_check(command: _CommandT, /) -> _CommandT:
 
 @typing.overload
 def with_nsfw_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in NSFW channels", halt_execution: bool = False
+    *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -547,6 +634,7 @@ def with_nsfw_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -556,23 +644,27 @@ def with_nsfw_check(
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, NsfwCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(command, NsfwCheck(error=error, halt_execution=halt_execution, error_message=error_message))
 
 
 @typing.overload
@@ -583,6 +675,7 @@ def with_sfw_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_sfw_check(
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in SFW channels",
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -593,6 +686,7 @@ def with_sfw_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in SFW channels",
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -602,23 +696,27 @@ def with_sfw_check(
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, SfwCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(command, SfwCheck(error=error, halt_execution=halt_execution, error_message=error_message))
 
 
 @typing.overload
@@ -629,6 +727,7 @@ def with_owner_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_owner_check(
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Only bot owners can use this command",
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -639,6 +738,7 @@ def with_owner_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Only bot owners can use this command",
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -648,28 +748,35 @@ def with_owner_check(
     ----------
     command : tanjun.abc.ExecutableCommand | None
         The command to add this check to.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, OwnerCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, OwnerCheck(error=error, halt_execution=halt_execution, error_message=error_message)
+    )
 
 
 def with_author_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
+    error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
     error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -683,16 +790,23 @@ def with_author_permission_check(
     ----------
     permissions
         The permission(s) required for this command to run.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should take 1 positional argument of type [hikari.permissions.Permissions][]
+        which represents the missing permissions required for this command to run.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -700,13 +814,14 @@ def with_author_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        AuthorPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        AuthorPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message)
     )
 
 
 def with_own_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
+    error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
     error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -720,16 +835,23 @@ def with_own_permission_check(
     ----------
     permissions
         The permission(s) required for this command to run.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should take 1 positional argument of type [hikari.permissions.Permissions][]
+        which represents the missing permissions required for this command to run.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
-
-        This takes priority over `halt_execution`.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
 
     Returns
     -------
@@ -737,7 +859,7 @@ def with_own_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        OwnPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        OwnPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message)
     )
 
 
@@ -757,7 +879,7 @@ def with_check(check: tanjun.CheckSig, /) -> collections.Callable[[_CommandT], _
     return lambda command: command.add_check(check)
 
 
-class _AllChecks(_Check):
+class _AllChecks:
     __slots__ = ("_checks",)
 
     def __init__(self, checks: list[tanjun.CheckSig]) -> None:
@@ -827,11 +949,12 @@ class _AnyChecks(_Check):
     def __init__(
         self,
         checks: list[tanjun.CheckSig],
-        suppress: tuple[type[Exception], ...],
+        error: typing.Optional[collections.Callable[[], Exception]],
         error_message: typing.Optional[str],
         halt_execution: bool,
+        suppress: tuple[type[Exception], ...],
     ) -> None:
-        super().__init__(error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution)
         self._checks = checks
         self._suppress = suppress
 
@@ -847,21 +970,17 @@ class _AnyChecks(_Check):
             except self._suppress:
                 pass
 
-        if self._error_message is not None:
-            raise errors.CommandError(self._error_message)
-        if self._halt_execution:
-            raise errors.HaltExecution
-
-        return False
+        return self._handle_result(False)
 
 
 def any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
-    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str],
     halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
@@ -874,31 +993,36 @@ def any_checks(
         The first check callback to combine.
     *checks
         Additional check callbacks to combine.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
-
-        This takes priority over `halt_execution`.
-    suppress
-        Tuple of the exceptions to suppress when a check fails.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
+    suppress
+        Tuple of the exceptions to suppress when a check fails.
 
     Returns
     -------
     collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the generated check to a command.
     """
-    return _AnyChecks([check, *checks], suppress, error_message, halt_execution)
+    return _AnyChecks([check, *checks], error, error_message, halt_execution, suppress)
 
 
 def with_any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
-    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str],
     halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a check which'll pass if any of the provided checks pass through a decorator call.
 
@@ -911,15 +1035,19 @@ def with_any_checks(
         The first check callback to combine.
     *checks
         Additional check callbacks to combine.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
-
-        This takes priority over `halt_execution`.
-    suppress
-        Tuple of the exceptions to suppress when a check fails.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
+
+        This takes priority over `error_message`.
+    suppress
+        Tuple of the exceptions to suppress when a check fails.
 
     Returns
     -------
@@ -927,5 +1055,7 @@ def with_any_checks(
         A decorator which adds the generated check to a command.
     """
     return lambda c: c.add_check(
-        any_checks(check, *checks, suppress=suppress, error_message=error_message, halt_execution=halt_execution)
+        any_checks(
+            check, *checks, error=error, error_message=error_message, halt_execution=halt_execution, suppress=suppress
+        )
     )
