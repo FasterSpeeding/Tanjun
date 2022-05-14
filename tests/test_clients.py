@@ -4655,6 +4655,37 @@ class TestClient:
         mock_add_task.assert_called_once_with(task)
 
     @pytest.mark.asyncio()
+    async def test_on_autocomplete_interaction_request_when_no_result_set(self, command_dispatch_client: tanjun.Client):
+        task = None
+
+        async def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+            nonlocal task
+            assert ctx is mock_make_ctx.return_value
+            task = asyncio.current_task()
+
+        mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
+        mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(side_effect=execution_callback))
+        mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock())
+        mock_make_ctx = mock.Mock()
+        (
+            command_dispatch_client.set_autocomplete_ctx_maker(mock_make_ctx)
+            .add_component(mock_component_1)
+            .add_component(mock_component_2)
+            .add_component(mock_component_3)
+        )
+        mock_add_task = mock.Mock()
+        command_dispatch_client._add_task = mock_add_task
+        mock_interaction = mock.Mock()
+
+        with pytest.raises(asyncio.CancelledError):
+            await command_dispatch_client.on_autocomplete_interaction_request(mock_interaction)
+
+        mock_component_1.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_2.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
+        mock_component_3.execute_autocomplete.assert_not_called()
+        mock_add_task.assert_called_once_with(task)
+
+    @pytest.mark.asyncio()
     async def test_on_autocomplete_interaction_request_when_not_found(self, command_dispatch_client: tanjun.Client):
         mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
