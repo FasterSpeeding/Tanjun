@@ -2661,7 +2661,9 @@ class Client(tanjun.Client):
 
         for component in self._components.values():
             if coro := component.execute_autocomplete(ctx):
-                self._add_task(loop.create_task(coro))
+                task = loop.create_task(coro)
+                task.add_done_callback(lambda _: future.cancel())
+                self._add_task(task)
                 return await future
 
         raise RuntimeError(f"Autocomplete not found for {interaction!r}")
@@ -2731,7 +2733,9 @@ class Client(tanjun.Client):
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
                 if coro:
-                    self._add_task(loop.create_task(coro))
+                    task = loop.create_task(coro)
+                    task.add_done_callback(lambda _: future.cancel())
+                    self._add_task(task)
                     return await future
 
         except errors.HaltExecution:
