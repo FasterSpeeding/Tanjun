@@ -2611,16 +2611,25 @@ class Client(tanjun.Client):
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
                 if coro:
-                    return await coro
+                    try:
+                        return await coro
+                    finally:
+                        ctx.cancel_defer()
 
         except errors.HaltExecution:
             pass
 
         except errors.CommandError as exc:
-            await exc.send(ctx)
+            try:
+                await exc.send(ctx)
+            finally:
+                ctx.cancel_defer()
             return
 
-        await ctx.mark_not_found()
+        try:
+            await ctx.mark_not_found()
+        finally:
+            ctx.cancel_defer()
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
@@ -2661,7 +2670,9 @@ class Client(tanjun.Client):
 
         for component in self._components.values():
             if coro := component.execute_autocomplete(ctx):
-                self._add_task(loop.create_task(coro))
+                task = loop.create_task(coro)
+                task.add_done_callback(lambda _: future.cancel())
+                self._add_task(task)
                 return await future
 
         raise RuntimeError(f"Autocomplete not found for {interaction!r}")
@@ -2731,7 +2742,9 @@ class Client(tanjun.Client):
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
                 if coro:
-                    self._add_task(loop.create_task(coro))
+                    task = loop.create_task(coro)
+                    task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
+                    self._add_task(task)
                     return await future
 
         except errors.HaltExecution:
@@ -2741,10 +2754,14 @@ class Client(tanjun.Client):
             # Under very specific timing there may be another future which could set a result while we await
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
-            self._add_task(loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder"))
+            task = loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder")
+            task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
+            self._add_task(task)
             return await future
 
-        self._add_task(loop.create_task(ctx.mark_not_found(), name=f"{interaction.id} not found"))
+        task = loop.create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
+        task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
+        self._add_task(task)
         return await future
 
 
