@@ -3542,6 +3542,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_not_called()
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_ephemeral_default(
@@ -3590,6 +3591,7 @@ class TestClient:
         )
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_not_auto_deferring(
@@ -3634,6 +3636,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_no_hooks(
@@ -3679,6 +3682,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_only_slash_hooks(
@@ -3727,6 +3731,7 @@ class TestClient:
         )
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_only_generic_hooks(
@@ -3775,6 +3780,7 @@ class TestClient:
         )
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_not_found(
@@ -3819,6 +3825,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_checks_raise_command_error(
@@ -3862,6 +3869,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_not_called()
         command_dispatch_client.check.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_checks_raise_halt_execution(
@@ -3903,6 +3911,7 @@ class TestClient:
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_component_raises_command_error(
@@ -3950,6 +3959,7 @@ class TestClient:
         )
         mock_component_2.execute_slash.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_component_raises_halt_execution(
@@ -3995,6 +4005,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_slash_command_when_checks_fail(
@@ -4036,6 +4047,7 @@ class TestClient:
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command(self, command_dispatch_client: tanjun.Client):
@@ -4083,6 +4095,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_not_called()
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_ephemeral_default(
@@ -4131,6 +4144,7 @@ class TestClient:
         )
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_not_auto_deferring(
@@ -4175,6 +4189,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_no_hooks(
@@ -4220,6 +4235,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_only_menu_hooks(
@@ -4268,6 +4284,7 @@ class TestClient:
         )
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_only_generic_hooks(
@@ -4316,6 +4333,7 @@ class TestClient:
         )
         mock_future.assert_awaited_once()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_not_found(
@@ -4360,6 +4378,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_checks_raise_command_error(
@@ -4403,6 +4422,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_not_called()
         command_dispatch_client.check.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_checks_raise_halt_execution(
@@ -4440,6 +4460,7 @@ class TestClient:
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_component_raises_command_error(
@@ -4487,6 +4508,7 @@ class TestClient:
         )
         mock_component_2.execute_menu.side_effect.send.assert_awaited_once_with(mock_ctx_maker.return_value)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_component_raises_halt_execution(
@@ -4532,6 +4554,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_gateway_command_create_for_menu_command_when_checks_fail(
@@ -4573,6 +4596,7 @@ class TestClient:
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_interaction_create_event_for_command_interaction(self, command_dispatch_client: tanjun.Client):
@@ -4764,6 +4788,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_future_not_set(
@@ -4824,6 +4849,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_ephemeral_default(
@@ -4887,6 +4913,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_not_auto_deferring(
@@ -4941,6 +4968,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_no_hooks(
@@ -5001,6 +5029,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_called_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_only_slash_hooks(
@@ -5064,6 +5093,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_only_generic_hooks(
@@ -5127,6 +5157,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_not_found(
@@ -5180,6 +5211,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_not_found_and_no_result(
@@ -5231,6 +5263,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_checks_raise_command_error(
@@ -5284,6 +5317,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_checks_raise_command_error_and_result_not_given(
@@ -5335,6 +5369,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_checks_raise_halt_execution(
@@ -5385,6 +5420,7 @@ class TestClient:
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_component_raises_command_error(
@@ -5443,6 +5479,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_component_raises_halt_execution(
@@ -5499,6 +5536,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_slash_command_when_checks_fail(
@@ -5548,6 +5586,7 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_slash.assert_not_called()
         mock_component_2.execute_slash.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command(self, command_dispatch_client: tanjun.Client):
@@ -5610,6 +5649,7 @@ class TestClient:
         mock_component_2.execute_slash.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_future_not_set(
@@ -5670,6 +5710,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_ephemeral_default(
@@ -5733,6 +5774,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_not_auto_deferring(
@@ -5787,6 +5829,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_no_hooks(
@@ -5848,6 +5891,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_called_once_with(mock_ctx_maker.return_value, hooks=None)
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_only_menu_hooks(
@@ -5911,6 +5955,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_only_generic_hooks(
@@ -5974,6 +6019,7 @@ class TestClient:
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_not_found(
@@ -6027,6 +6073,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_not_found_and_no_result(
@@ -6078,6 +6125,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_checks_raise_command_error(
@@ -6131,8 +6179,8 @@ class TestClient:
         mock_component_2.execute_menu.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
-    @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_checks_raise_command_error_and_result_not_given(
         self, command_dispatch_client: tanjun.Client
@@ -6183,6 +6231,7 @@ class TestClient:
         mock_component_2.execute_menu.assert_not_called()
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_checks_raise_halt_execution(
@@ -6233,6 +6282,7 @@ class TestClient:
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_component_raises_command_error(
@@ -6291,6 +6341,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_component_raises_halt_execution(
@@ -6347,6 +6398,7 @@ class TestClient:
             mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
         )
         mock_add_task.assert_called_once_with(task)
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_command_interaction_request_for_menu_command_when_checks_fail(
@@ -6396,6 +6448,7 @@ class TestClient:
         mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
         mock_component_1.execute_menu.assert_not_called()
         mock_component_2.execute_menu.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
 
 def test__normalize_path():

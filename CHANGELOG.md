@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `halt_execution` now takes priority over `error_message` when configuring checks.
 - The REST strategies for interaction handling now cancel the response future if the execution task
   ends before it's set to avoid dangling waiting tasks.
+- Command interaction handling now cancels auto-deferral if the command execution task finishes before
+  a response is given.
 
 ## [2.5.1a1] - 2022-05-02
 ### Added

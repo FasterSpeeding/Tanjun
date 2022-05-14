@@ -2611,16 +2611,25 @@ class Client(tanjun.Client):
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
                 if coro:
-                    return await coro
+                    try:
+                        return await coro
+                    finally:
+                        ctx.cancel_defer()
 
         except errors.HaltExecution:
             pass
 
         except errors.CommandError as exc:
-            await exc.send(ctx)
+            try:
+                await exc.send(ctx)
+            finally:
+                ctx.cancel_defer()
             return
 
-        await ctx.mark_not_found()
+        try:
+            await ctx.mark_not_found()
+        finally:
+            ctx.cancel_defer()
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
@@ -2734,7 +2743,7 @@ class Client(tanjun.Client):
 
                 if coro:
                     task = loop.create_task(coro)
-                    task.add_done_callback(lambda _: future.cancel())
+                    task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
                     self._add_task(task)
                     return await future
 
@@ -2746,12 +2755,12 @@ class Client(tanjun.Client):
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
             task = loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder")
-            task.add_done_callback(lambda _: future.cancel())
+            task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
             self._add_task(task)
             return await future
 
         task = loop.create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
-        task.add_done_callback(lambda _: future.cancel())
+        task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
         self._add_task(task)
         return await future
 
