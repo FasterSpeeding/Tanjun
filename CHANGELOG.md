@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The cooldown limiter now uses Discord's timestamp format in its default error messages.
 - `AbstractCooldownManager.check_cooldown` now returns a `datetime.timedelta` instead of a  `float`.
 - `halt_execution` now takes priority over `error_message` when configuring checks.
+- The REST strategies for interaction handling now cancel the response future if the execution task
+  ends before it's set to avoid dangling waiting tasks.
 
 ## [2.5.1a1] - 2022-05-02
 ### Added
