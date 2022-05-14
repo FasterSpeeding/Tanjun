@@ -1011,6 +1011,8 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             raise RuntimeError("Cannot copy an active schedule")
 
         inst = copy.copy(self)
+        self._config = copy.copy(self._config)
+        self._config.current_date = datetime.datetime.min.replace(tzinfo=self._config.timezone)
         inst._tasks = []
         return inst
 
