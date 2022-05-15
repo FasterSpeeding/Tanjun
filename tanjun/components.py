@@ -178,6 +178,7 @@ class Component(tanjun.Component):
         "_schedules",
         "_slash_commands",
         "_slash_hooks",
+        "_tasks",
     )
 
     def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
@@ -216,6 +217,7 @@ class Component(tanjun.Component):
         self._schedules: list[schedules_.AbstractSchedule] = []
         self._slash_commands: dict[str, tanjun.BaseSlashCommand] = {}
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
+        self._tasks: list[asyncio.Task[typing.Any]] = []
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
@@ -297,23 +299,29 @@ class Component(tanjun.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._metadata
 
-    def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
-        # <<inherited docstring from tanjun.abc.Component>>.
-        if not _new:
-            self._checks = [copy.copy(check) for check in self._checks]
-            self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
-            self._hooks = self._hooks.copy() if self._hooks else None
-            self._listeners = {
-                event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
-            }
-            commands = {command: command.copy() for command in self._message_commands}
-            self._message_commands = list(commands.values())
-            self._metadata = self._metadata.copy()
-            self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            self._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
-            return self
+    def _remove_task(self, task: asyncio.Task[typing.Any], /) -> None:
+        self._tasks.remove(task)
 
-        return copy.copy(self).copy(_new=False)
+    def _add_task(self, task: asyncio.Task[typing.Any], /) -> None:
+        if not task.done():
+            self._tasks.append(task)
+            task.add_done_callback(self._remove_task)
+
+    def copy(self: _ComponentT) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        inst = copy.copy(self)
+        inst._checks = [copy.copy(check) for check in self._checks]
+        inst._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
+        inst._hooks = self._hooks.copy() if self._hooks else None
+        inst._listeners = {
+            event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
+        }
+        commands = {command: command.copy() for command in self._message_commands}
+        inst._message_commands = list(commands.values())
+        inst._metadata = self._metadata.copy()
+        inst._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
+        inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
+        return inst
 
     @typing.overload
     def load_from_scope(
@@ -1313,8 +1321,8 @@ class Component(tanjun.Component):
         ValueError
             If the schedule isn't registered.
         """
-        if schedule.is_alive:
-            schedule.stop()
+        if self._loop and schedule.is_alive:
+            self._add_task(self._loop.create_task(schedule.stop()))
 
         self._schedules.remove(schedule)
         return self
@@ -1353,11 +1361,8 @@ class Component(tanjun.Component):
 
         assert self._client
 
-        for schedule in self._schedules:
-            if schedule.is_alive:
-                schedule.stop()
-
         self._loop = None
+        await asyncio.gather(*(schedule.stop() for schedule in self._schedules if schedule.is_alive))
         await asyncio.gather(*(self._client.injector.call_with_async_di(callback) for callback in self._on_close))
         if unbind:
             self.unbind_client(self._client)

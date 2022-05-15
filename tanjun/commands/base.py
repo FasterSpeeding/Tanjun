@@ -80,15 +80,13 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._metadata
 
-    def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
+    def copy(self: _PartialCommandT) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not _new:
-            self._checks = [copy.copy(check) for check in self._checks]
-            self._hooks = self._hooks.copy() if self._hooks else None
-            self._metadata = self._metadata.copy()
-            return self
-
-        return copy.copy(self).copy(_new=False)
+        inst = copy.copy(self)
+        inst._checks = [copy.copy(check) for check in self._checks]
+        inst._hooks = self._hooks.copy() if self._hooks else None
+        inst._metadata = self._metadata.copy()
+        return inst
 
     def set_hooks(self: _PartialCommandT, hooks: typing.Optional[tanjun.Hooks[_ContextT]], /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.

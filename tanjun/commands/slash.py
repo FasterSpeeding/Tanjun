@@ -873,14 +873,12 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         return result
 
     def copy(
-        self: _BaseSlashCommandT, *, _new: bool = True, parent: typing.Optional[tanjun.SlashCommandGroup] = None
+        self: _BaseSlashCommandT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None
     ) -> _BaseSlashCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not _new:
-            self._parent = parent
-            return super().copy(_new=_new)
-
-        return super().copy(_new=_new)
+        inst = super().copy()
+        inst._parent = parent
+        return inst
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.
@@ -971,14 +969,12 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         return builder
 
     def copy(
-        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[tanjun.SlashCommandGroup] = None
+        self: _SlashCommandGroupT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None
     ) -> _SlashCommandGroupT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not _new:
-            self._commands = {name: command.copy() for name, command in self._commands.items()}
-            return super().copy(_new=_new, parent=parent)
-
-        return super().copy(_new=_new, parent=parent)
+        inst = super().copy(parent=parent)
+        inst._commands = {name: command.copy() for name, command in self._commands.items()}
+        return inst
 
     def add_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Add a slash command to this group.
@@ -2431,12 +2427,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         await ctx.call_with_async_di(callback, ctx, ctx.focused.value)
 
-    def copy(
-        self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[tanjun.SlashCommandGroup] = None
-    ) -> _SlashCommandT:
+    def copy(self: _SlashCommandT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> _SlashCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not _new:
-            self._callback = copy.copy(self._callback)
-            return super().copy(_new=_new, parent=parent)
-
-        return super().copy(_new=_new, parent=parent)
+        inst = super().copy(parent=parent)
+        inst._callback = copy.copy(self._callback)
+        return inst

@@ -754,9 +754,13 @@ class Client(tanjun.Client):
                 ),
             )
 
+    def _remove_task(self, task: asyncio.Task[typing.Any], /) -> None:
+        self._tasks.remove(task)
+
     def _add_task(self, task: asyncio.Task[typing.Any], /) -> None:
-        self._tasks.append(task)
-        self._tasks = [t for t in self._tasks if not t.done()]
+        if not task.done():
+            self._tasks.append(task)
+            task.add_done_callback(self._remove_task)
 
     @classmethod
     def from_gateway_bot(
