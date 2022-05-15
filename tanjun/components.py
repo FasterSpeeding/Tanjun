@@ -340,8 +340,7 @@ class Component(tanjun.Component):
         inst._listeners = {
             event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
         }
-        commands = {command: command.copy() for command in self._message_commands}
-        inst._message_commands = list(commands.values())
+        inst._message_commands = self._message_commands.copy()
         inst._metadata = self._metadata.copy()
         inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
         return inst

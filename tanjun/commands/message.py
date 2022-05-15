@@ -456,8 +456,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy(parent=parent)
-        commands = {command: command.copy(parent=self) for command in self._commands}
-        inst._commands = list(commands.values())
+        inst._commands = self._commands.copy()
         return inst
 
     def add_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
