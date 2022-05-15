@@ -420,7 +420,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             return
 
         current_task = asyncio.current_task()
-        tasks = [task for task in self._tasks if not task is current_task]
+        tasks = [task for task in self._tasks if task is not current_task]
         try:
             await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
         except asyncio.CancelledError:
