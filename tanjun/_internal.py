@@ -34,11 +34,17 @@ from __future__ import annotations
 
 __all__: list[str] = ["MessageCommandIndex"]
 
+import asyncio
 import copy as copy_
 import typing
 from collections import abc as collections
 
 from . import abc as tanjun
+from . import errors
+
+_KeyT = typing.TypeVar("_KeyT")
+_ValueT = typing.TypeVar("_ValueT")
+_OtherValueT = typing.TypeVar("_OtherValueT")
 
 _COMMANDS_KEY = "comm ands"
 _PARENT_KEY = "par ent"
@@ -137,15 +143,20 @@ class MessageCommandIndex:
         self.commands.append(command)
         return True
 
-    def copy(self) -> MessageCommandIndex:
+    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> MessageCommandIndex:
         """In-place copy the index and its contained commands.
+
+        Parameters
+        ----------
+        parent
+            The parent message command group of the copied index.
 
         Returns
         -------
         MessageCommandIndex
             The copied index.
         """
-        commands = {command: command.copy() for command in self.commands}
+        commands = {command: command.copy(parent=parent) for command in self.commands}
         memo = {id(command): new_command for command, new_command in commands.items()}
         return MessageCommandIndex(
             self.is_strict,
@@ -267,3 +278,67 @@ class MessageCommandIndex:
                         break
 
                     del parent[char]
+
+
+async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> bool:
+    foo = ctx.call_with_async_di(callback, ctx)
+    if result := await foo:
+        return result
+
+    raise errors.FailedCheck
+
+
+async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun.CheckSig], /) -> bool:
+    """Gather a collection of checks.
+
+    Parameters
+    ----------
+    ctx
+        The context to check.
+    checks
+        An iterable of injectable checks.
+
+    Returns
+    -------
+    bool
+        Whether all the checks passed or not.
+    """
+    try:
+        await asyncio.gather(*(_execute_check(ctx, check) for check in checks))
+        # InjectableCheck will raise FailedCheck if a false is received so if
+        # we get this far then it's True.
+        return True
+
+    except errors.FailedCheck:
+        return False
+
+
+class CastedView(collections.Mapping[_KeyT, _ValueT]):
+    """An immutable mapping relay which casts values to another type."""
+
+    __slots__ = ("_buffer", "_cast", "_raw_data")
+
+    def __init__(
+        self, raw_data: dict[_KeyT, _OtherValueT], cast: collections.Callable[[_OtherValueT], _ValueT]
+    ) -> None:
+        self._buffer: dict[_KeyT, _ValueT] = {}
+        self._cast = cast
+        self._raw_data = raw_data
+
+    def __getitem__(self, key: _KeyT, /) -> _ValueT:
+        try:
+            return self._buffer[key]
+
+        except KeyError:
+            pass
+
+        entry = self._raw_data[key]
+        result = self._cast(entry)
+        self._buffer[key] = result
+        return result
+
+    def __iter__(self) -> collections.Iterator[_KeyT]:
+        return iter(self._raw_data)
+
+    def __len__(self) -> int:
+        return len(self._raw_data)
