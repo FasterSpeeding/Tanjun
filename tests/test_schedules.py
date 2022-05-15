@@ -693,6 +693,38 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_not_called()
 
     @pytest.mark.asyncio()
+    async def test_stop_when_some_tasks_time_out(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_task_1 = asyncio.create_task(asyncio.sleep(0.1, result=None))
+        mock_task_2 = asyncio.create_task(asyncio.sleep(0.7, result=None))
+        mock_task_3 = asyncio.create_task(asyncio.sleep(0.2, result=None))
+        mock_task_4 = asyncio.create_task(asyncio.sleep(0.8, result=None))
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._add_task(mock_task_1)
+        interval._add_task(mock_task_2)
+        interval._add_task(mock_task_3)
+        interval._add_task(mock_task_4)
+
+        with pytest.raises(asyncio.TimeoutError):
+            await asyncio.wait_for(interval.stop(), 0.3)
+
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0)
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval.is_alive is False
+        assert interval._task is None
+        assert interval._tasks == []
+        assert mock_task_1.result() is None
+        assert mock_task_2.cancelled() is True
+        assert mock_task_3.result() is None
+        assert mock_task_4.cancelled() is True
+        mock_client.call_with_async_di.assert_not_called()
+
+    @pytest.mark.asyncio()
     async def test_stop_when_stop_callback_stop_set(self):
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
@@ -1161,6 +1193,32 @@ class TestTimeSchedule:
         assert mock_task_1.result() is None
         assert mock_task_2.result() is None
         assert mock_task_3.result() is None
+
+    @pytest.mark.asyncio()
+    async def test_stop_when_some_tasks_time_out(self):
+        mock_task = mock.Mock()
+        mock_task_1 = asyncio.create_task(asyncio.sleep(0.6, result=None))
+        mock_task_2 = asyncio.create_task(asyncio.sleep(0.2, result=None))
+        mock_task_3 = asyncio.create_task(asyncio.sleep(0.5, result=None))
+        mock_task_4 = asyncio.create_task(asyncio.sleep(0.1, result=None))
+        interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
+        interval._task = mock_task
+        interval._add_task(mock_task_1)
+        interval._add_task(mock_task_2)
+        interval._add_task(mock_task_3)
+        interval._add_task(mock_task_4)
+
+        with pytest.raises(asyncio.TimeoutError):
+            await asyncio.wait_for(interval.stop(), 0.25)
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval.is_alive is False
+        assert interval._task is None
+        assert interval._tasks == []
+        assert mock_task_1.cancelled() is True
+        assert mock_task_2.result() is None
+        assert mock_task_3.cancelled() is True
+        assert mock_task_4.result() is None
 
     @pytest.mark.asyncio()
     async def test_stop_when_not_running(self):
