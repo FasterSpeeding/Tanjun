@@ -433,26 +433,23 @@ class TestIntervalSchedule:
     async def test__loop_and_start_raises(self, fatal_exceptions: list[type[Exception]]):
         error = KeyError()
         mock_client = mock.Mock()
-        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[error, None])
+        mock_client.call_with_async_di = mock.AsyncMock(side_effect=error)
         mock_client.get_callback_override.return_value = None
         mock_start = mock.Mock()
-        mock_stop = mock.Mock()
         mock_execute = mock.Mock()
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
-            types.new_class(
-                "StubIntervalSchedule",
-                (tanjun.schedules.IntervalSchedule[typing.Any],),
-                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-            )(mock.Mock(), 123, ignored_exceptions=[RuntimeError], fatal_exceptions=fatal_exceptions)
-            .set_start_callback(mock_start)
-            .set_stop_callback(mock_stop)
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
+            "StubIntervalSchedule",
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
+            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+        )(mock.Mock(), 123, ignored_exceptions=[RuntimeError], fatal_exceptions=fatal_exceptions).set_start_callback(
+            mock_start
         )
         interval._task = mock.Mock()
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await interval._loop(mock_client)
 
-        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_start)
         mock_execute.assert_not_called()
         sleep.assert_not_called()
         assert interval._task is None
@@ -460,20 +457,15 @@ class TestIntervalSchedule:
     @pytest.mark.asyncio()
     async def test__loop_and_start_raises_ignored(self):
         mock_client = mock.Mock()
-        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[KeyError(), None])
+        mock_client.call_with_async_di = mock.AsyncMock(side_effect=KeyError())
         mock_client.get_callback_override.return_value = None
         mock_start = mock.Mock()
-        mock_stop = mock.Mock()
         mock_execute = mock.Mock()
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
-            types.new_class(
-                "StubIntervalSchedule",
-                (tanjun.schedules.IntervalSchedule[typing.Any],),
-                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-            .set_start_callback(mock_start)
-            .set_stop_callback(mock_stop)
-        )
+        interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
+            "StubIntervalSchedule",
+            (tanjun.schedules.IntervalSchedule[typing.Any],),
+            exec_body=lambda ns: ns.update({"_execute": mock_execute}),
+        )(mock.Mock(), 123, ignored_exceptions=[LookupError]).set_start_callback(mock_start)
         interval._task = mock.Mock()
 
         with (
@@ -483,74 +475,10 @@ class TestIntervalSchedule:
         ):
             await interval._loop(mock_client)
 
-        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_start)
         mock_execute.assert_not_called()
         get_running_loop.return_value.create_task.assert_not_called()
         sleep.assert_called_once_with(123.0)
-        assert interval._task is None
-
-    @pytest.mark.asyncio()
-    async def test__loop_and_stop_raises(self):
-        error = RuntimeError()
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[None, error])
-        mock_start = mock.Mock()
-        mock_stop = mock.Mock()
-        mock_execute = mock.Mock()
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
-            types.new_class(
-                "StubIntervalSchedule",
-                (tanjun.schedules.IntervalSchedule[typing.Any],),
-                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-            .set_start_callback(mock_start)
-            .set_stop_callback(mock_stop)
-        )
-        interval._task = mock.Mock()
-
-        with (
-            mock.patch.object(asyncio, "sleep", side_effect=RuntimeError) as sleep,
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
-
-        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_not_called()
-        get_running_loop.return_value.create_task.assert_not_called()
-        sleep.assert_called_once_with(123)
-        assert interval._task is None
-
-    @pytest.mark.asyncio()
-    async def test__loop_and_stop_raises_ignored(self):
-        mock_client = mock.Mock()
-        mock_client.get_callback_override.return_value = None
-        mock_client.call_with_async_di = mock.AsyncMock(side_effect=[None, LookupError()])
-        mock_start = mock.Mock()
-        mock_stop = mock.Mock()
-        mock_execute = mock.Mock()
-        interval: tanjun.schedules.IntervalSchedule[typing.Any] = (
-            types.new_class(
-                "StubIntervalSchedule",
-                (tanjun.schedules.IntervalSchedule[typing.Any],),
-                exec_body=lambda ns: ns.update({"_execute": mock_execute}),
-            )(mock.Mock(), 123, ignored_exceptions=[LookupError])
-            .set_start_callback(mock_start)
-            .set_stop_callback(mock_stop)
-        )
-        interval._task = mock.Mock()
-
-        with (
-            mock.patch.object(asyncio, "sleep", side_effect=asyncio.CancelledError) as sleep,
-            pytest.raises(asyncio.CancelledError),
-            mock.patch.object(asyncio, "get_running_loop") as get_running_loop,
-        ):
-            await interval._loop(mock_client)
-
-        mock_client.call_with_async_di.assert_has_awaits([mock.call(mock_start), mock.call(mock_stop)])
-        mock_execute.assert_not_called()
-        get_running_loop.return_value.create_task.assert_not_called()
-        sleep.assert_awaited_once_with(123.0)
         assert interval._task is None
 
     def test_start(self):
@@ -606,21 +534,122 @@ class TestIntervalSchedule:
         assert interval._task is mock_task
 
     @pytest.mark.asyncio()
+    async def test_force_stop(self):
+        mock_task = mock.Mock()
+        mock_task_1 = mock.Mock()
+        mock_task_2 = mock.Mock()
+        mock_task_3 = mock.Mock()
+        mock_client = mock.AsyncMock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = [mock_task_1, mock_task_2, mock_task_3]
+
+        interval.force_stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert len(interval._tasks) == 1
+        await interval._tasks[0]
+        assert interval._tasks == []
+        mock_task_1.cancel.assert_called_once_with()
+        mock_task_2.cancel.assert_called_once_with()
+        mock_task_3.cancel.assert_called_once_with()
+        mock_client.call_with_async_di.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_force_stop_when_stop_callback_set(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_stop_callback = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123).set_stop_callback(mock_stop_callback)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = []
+
+        interval.force_stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert len(interval._tasks) == 1
+        await interval._tasks[0]
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
+
+    @pytest.mark.asyncio()
+    async def test_force_stop_when_stop_callback_stop_raises(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_client.call_with_async_di.side_effect = KeyError
+        mock_stop_callback = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123).set_stop_callback(mock_stop_callback)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = [asyncio.create_task(mock.AsyncMock()())]
+
+        interval.force_stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert len(interval._tasks) == 1
+        await interval._tasks[0]
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
+
+    @pytest.mark.asyncio()
+    async def test_force_stop_when_stop_callback_raises_ignored(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_client.call_with_async_di.side_effect = ValueError
+        mock_stop_callback = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(
+            mock.Mock(), 123, ignored_exceptions=(ValueError,)
+        ).set_stop_callback(mock_stop_callback)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = []
+
+        interval.force_stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert len(interval._tasks) == 1
+        await interval._tasks[0]
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
+
+    @pytest.mark.asyncio()
+    async def test_force_stop_when_no_tasks(self):
+        mock_task = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
+        interval._client = mock.AsyncMock()
+        interval._task = mock_task
+        interval._tasks = []
+
+        interval.force_stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert len(interval._tasks) == 1
+
+    def test_force_stop_when_not_active(self):
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
+
+        with pytest.raises(RuntimeError, match="Schedule is not running"):
+            interval.force_stop()
+
+    @pytest.mark.asyncio()
     async def test_stop(self):
         async def side_effect():
             await asyncio.sleep(0.2)
 
         mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
         mock_task_1 = mock.AsyncMock(side_effect=side_effect)
         mock_task_2 = mock.AsyncMock(side_effect=side_effect)
         mock_task_3 = mock.AsyncMock(side_effect=side_effect)
-        mock_on_stop = mock.AsyncMock()
-
-        class StubIntervalSchedule(tanjun.schedules.IntervalSchedule):
-            _on_stop = mock_on_stop
-
-        interval = StubIntervalSchedule(mock.Mock(), 123)
-        interval._client = mock.AsyncMock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
+        interval._client = mock_client
         interval._task = mock_task
         interval._tasks = [
             asyncio.create_task(mock_task_1()),
@@ -636,6 +665,78 @@ class TestIntervalSchedule:
         mock_task_1.assert_awaited_once()
         mock_task_2.assert_awaited_once()
         mock_task_3.assert_awaited_once()
+        mock_client.call_with_async_di.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_stop_when_no_tasks(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = []
+
+        await interval.stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_stop_when_stop_callback_stop_set(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_stop_callback = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123).set_stop_callback(mock_stop_callback)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = []
+
+        await interval.stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
+
+    @pytest.mark.asyncio()
+    async def test_stop_when_stop_callback_stop_raises(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_client.call_with_async_di.side_effect = TypeError
+        mock_stop_callback = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123).set_stop_callback(mock_stop_callback)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = [asyncio.create_task(mock.AsyncMock()())]
+
+        await interval.stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
+
+    @pytest.mark.asyncio()
+    async def test_stop_when_stop_callback_raises_ignored(self):
+        mock_task = mock.Mock()
+        mock_client = mock.AsyncMock()
+        mock_client.call_with_async_di.side_effect = RuntimeError
+        mock_stop_callback = mock.Mock()
+        interval = tanjun.schedules.IntervalSchedule(
+            mock.Mock(), 123, ignored_exceptions=(RuntimeError,)
+        ).set_stop_callback(mock_stop_callback)
+        interval._client = mock_client
+        interval._task = mock_task
+        interval._tasks = []
+
+        await interval.stop()
+
+        mock_task.cancel.assert_called_once_with()
+        assert interval._task is None
+        assert interval._tasks == []
+        mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio()
     async def test_stop_when_not_active(self):

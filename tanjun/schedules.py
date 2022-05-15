@@ -405,7 +405,9 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             task.cancel()
 
         self._tasks.clear()
-        self._tasks.append(asyncio.create_task(self._on_stop(client)))
+        stop_task = asyncio.create_task(self._on_stop(client))
+        stop_task.add_done_callback(lambda _: self._tasks.remove(stop_task))
+        self._tasks.append(stop_task)
 
     async def stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
@@ -418,6 +420,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self._task.cancel()
         self._task = None
         if not self._tasks:
+            await self._on_stop(client)
             return
 
         tasks = self._tasks
