@@ -207,38 +207,50 @@ class TestClient:
     def test__schedule_startup_registers(self):
         ...
 
-    def test__add_task(self):
+    @pytest.mark.asyncio()
+    async def test__add_task(self):
         mock_task_1 = mock.Mock()
-        mock_task_1.done.return_value = False
         mock_task_2 = mock.Mock()
-        mock_task_2.done.return_value = False
         mock_task_3 = mock.Mock()
-        mock_task_3.done.return_value = False
-        mock_new_task = mock.Mock()
-        mock_new_task.done.return_value = False
+        mock_new_task = asyncio.create_task(asyncio.sleep(50))
         client = tanjun.Client(mock.AsyncMock())
-        client._tasks = [mock.Mock(), mock_task_1, mock.Mock(), mock.Mock(), mock_task_2, mock_task_3, mock.Mock()]
+        client._tasks = [mock_task_1, mock_task_2, mock_task_3]
 
         client._add_task(mock_new_task)
 
         assert client._tasks == [mock_task_1, mock_task_2, mock_task_3, mock_new_task]
 
-    def test__add_task_when_empty(self):
-        mock_task = mock.Mock()
-        mock_task.done.return_value = False
+        mock_new_task.cancel()
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0.1)
+
+        assert client._tasks == [mock_task_1, mock_task_2, mock_task_3]
+
+    @pytest.mark.asyncio()
+    async def test__add_task_when_empty(self):
+        mock_task = asyncio.create_task(asyncio.sleep(50))
         client = tanjun.Client(mock.AsyncMock())
 
         client._add_task(mock_task)
 
         assert client._tasks == [mock_task]
 
-    def test__add_task_when_task_already_done(self):
-        mock_task = mock.Mock()
-        mock_task.done.return_value = True
+        mock_task.cancel()
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0.1)
+
+        assert client._tasks == []
+
+    @pytest.mark.asyncio()
+    async def test__add_task_when_task_already_done(self):
+        mock_task = asyncio.create_task(asyncio.sleep(50))
+        mock_task.cancel()
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0)
+
         client = tanjun.Client(mock.AsyncMock())
 
         client._add_task(mock_task)
-
         assert client._tasks == []
 
     @pytest.mark.skip(reason="TODO")

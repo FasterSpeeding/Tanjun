@@ -73,34 +73,46 @@ class TestComponent:
     def test_defaults_to_ephemeral_property(self):
         assert tanjun.Component().defaults_to_ephemeral is None
 
-    def test__add_task(self):
+    @pytest.mark.asyncio()
+    async def test__add_task(self):
         mock_task_1 = mock.Mock()
-        mock_task_1.done.return_value = False
         mock_task_2 = mock.Mock()
-        mock_task_2.done.return_value = False
         mock_task_3 = mock.Mock()
-        mock_task_3.done.return_value = False
-        mock_new_task = mock.Mock()
-        mock_new_task.done.return_value = False
+        mock_new_task = asyncio.create_task(asyncio.sleep(50))
         component = tanjun.Component()
-        component._tasks = [mock.Mock(), mock_task_1, mock.Mock(), mock.Mock(), mock_task_2, mock_task_3, mock.Mock()]
+        component._tasks = [mock_task_1, mock_task_2, mock_task_3]
 
         component._add_task(mock_new_task)
 
         assert component._tasks == [mock_task_1, mock_task_2, mock_task_3, mock_new_task]
 
-    def test__add_task_when_empty(self):
-        mock_task = mock.Mock()
-        mock_task.done.return_value = False
+        mock_new_task.cancel()
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0.1)
+
+        assert component._tasks == [mock_task_1, mock_task_2, mock_task_3]
+
+    @pytest.mark.asyncio()
+    async def test__add_task_when_empty(self):
+        mock_task = asyncio.create_task(asyncio.sleep(50))
         component = tanjun.Component()
 
         component._add_task(mock_task)
 
         assert component._tasks == [mock_task]
 
-    def test__add_task_when_task_already_done(self):
-        mock_task = mock.Mock()
-        mock_task.done.return_value = True
+        mock_task.cancel()
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0.1)
+
+        assert component._tasks == []
+
+    @pytest.mark.asyncio()
+    async def test__add_task_when_task_already_done(self):
+        mock_task = asyncio.create_task(asyncio.sleep(50))
+        mock_task.cancel()
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0)
         component = tanjun.Component()
 
         component._add_task(mock_task)

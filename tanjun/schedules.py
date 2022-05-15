@@ -187,7 +187,6 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     __slots__ = (
         "_callback",
         "_client",
-        "_closing_task",
         "_fatal_exceptions",
         "_ignored_exceptions",
         "_interval",
@@ -236,7 +235,6 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         self._callback = callback
         self._client: typing.Optional[alluka.Client] = None
-        self._closing_task: typing.Optional[asyncio.Task[None]] = None
         self._fatal_exceptions = tuple(fatal_exceptions)
         self._ignored_exceptions = tuple(ignored_exceptions)
         self._iteration_count: int = 0
@@ -326,12 +324,6 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         except self._fatal_exceptions:
             traceback.print_exc()
-            task = asyncio.current_task()
-            assert task
-            # The current task is assigned here to make sure it isn't stopped
-            # by gc collection while this is closing.
-            self._closing_task = task
-            self._tasks.remove(task)
             await self.stop()
 
         except self._ignored_exceptions:
@@ -339,6 +331,14 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
         except Exception:
             traceback.print_exc()
+
+    def _add_task(self, task: asyncio.Task[None], /) -> None:
+        if not task.done():
+            task.add_done_callback(self._remove_task)
+            self._tasks.append(task)
+
+    def _remove_task(self, task: asyncio.Task[None], /) -> None:
+        self._tasks.remove(task)
 
     async def _loop(self, client: alluka.Client, /) -> None:
         event_loop = asyncio.get_running_loop()
@@ -348,24 +348,22 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                     await client.call_with_async_di(self._start_callback)
 
                 except self._ignored_exceptions:
-                    traceback.print_exc()
                     pass
 
                 except Exception:
                     traceback.print_exc()
+                    self._task = None
                     return
 
             while not self._max_runs or self._iteration_count < self._max_runs:
-                self._tasks = [task for task in self._tasks if not task.done()]
                 await asyncio.sleep(self._interval.total_seconds())
                 self._iteration_count += 1
-                self._tasks.append(event_loop.create_task(self._execute(client)))
+                self._add_task(event_loop.create_task(self._execute(client)))
+
+            self._add_task(event_loop.create_task(self.stop()))
 
         except Exception:
             traceback.print_exc()
-
-        finally:
-            self._task = None
 
     async def _on_stop(self, client: alluka.Client, /) -> None:
         if self._stop_callback:
@@ -401,13 +399,11 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self._client = None
         self._task.cancel()
         self._task = None
-        for task in self._tasks:
+        for task in self._tasks.copy():
             task.cancel()
 
-        self._tasks.clear()
-        stop_task = asyncio.create_task(self._on_stop(client))
-        stop_task.add_done_callback(lambda _: self._tasks.remove(stop_task))
-        self._tasks.append(stop_task)
+        if self._stop_callback:
+            self._add_task(asyncio.create_task(self._on_stop(client)))
 
     async def stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
@@ -423,8 +419,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             await self._on_stop(client)
             return
 
-        tasks = self._tasks
-        self._tasks = []
+        current_task = asyncio.current_task()
+        tasks = [task for task in self._tasks if not task is current_task]
         try:
             await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
         except asyncio.CancelledError:
@@ -882,7 +878,7 @@ def as_time_schedule(
 class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
     """A schedule that runs at specific times."""
 
-    __slots__ = ("_callback", "_closing_task", "_config", "_fatal_exceptions", "_ignored_exceptions", "_task", "_tasks")
+    __slots__ = ("_callback", "_config", "_fatal_exceptions", "_ignored_exceptions", "_task", "_tasks")
 
     def __init__(
         self,
@@ -967,7 +963,6 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             * If seconds has any values outside the range of `range(0, 60)`.
         """
         self._callback = callback
-        self._closing_task: typing.Optional[asyncio.Task[None]] = None
 
         if weekly:
             actual_days = _to_sequence(days, 1, 9, "days")
@@ -1025,12 +1020,6 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
         except self._fatal_exceptions:
             traceback.print_exc()
-            task = asyncio.current_task()
-            assert task
-            # The current task is assigned here to make sure it isn't stopped
-            # by gc collection while this is closing.
-            self._closing_task = task
-            self._tasks.remove(task)
             await self.stop()
 
         except self._ignored_exceptions:
@@ -1038,6 +1027,14 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
         except Exception:
             traceback.print_exc()
+
+    def _add_task(self, task: asyncio.Task[None], /) -> None:
+        if not task.done():
+            task.add_done_callback(self._remove_task)
+            self._tasks.append(task)
+
+    def _remove_task(self, task: asyncio.Task[None], /) -> None:
+        self._tasks.remove(task)
 
     async def _loop(self, client: alluka.Client, /) -> None:
         loop = asyncio.get_running_loop()
@@ -1047,8 +1044,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
                 next_date = _Datetime(self._config, current_date).next()
                 result = next_date - current_date
                 await asyncio.sleep(result.total_seconds())
-                self._tasks = [task for task in self._tasks if not task.done()]
-                self._tasks.append(loop.create_task(self._execute(client)))
+                self._add_task(loop.create_task(self._execute(client)))
 
         finally:
             self._task = None
@@ -1077,10 +1073,8 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
         self._task.cancel()
         self._task = None
-        for task in self._tasks:
+        for task in self._tasks.copy():
             task.cancel()
-
-        self._tasks.clear()
 
     async def stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
@@ -1092,8 +1086,8 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         if not self._tasks:
             return
 
-        tasks = self._tasks
-        self._tasks = []
+        current_task = asyncio.current_task()
+        tasks = [task for task in self._tasks if task is not current_task]
         try:
             await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
         except asyncio.CancelledError:
