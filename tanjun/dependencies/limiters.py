@@ -94,7 +94,7 @@ class AbstractCooldownManager(abc.ABC):
 
         Returns
         -------
-        datetime.timedelta | None
+        datetime.datetime | None
             When this command will next be usable for the provided context
             if it's in cooldown else [None][].
         """
@@ -704,12 +704,12 @@ class CooldownPreExecution:
             elif await owner_check.check_ownership(ctx.client, ctx.author):
                 return
 
-        if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
+        if wait_until := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
             if self._error:
-                raise self._error(self._bucket_id, wait_for) from None
+                raise self._error(self._bucket_id, wait_until) from None
 
-            wait_for_repr = conversion.from_datetime(wait_for, style="R")
-            raise errors.CommandError(self._error_message.format(cooldown=wait_for_repr))
+            wait_until_repr = conversion.from_datetime(wait_until, style="R")
+            raise errors.CommandError(self._error_message.format(cooldown=wait_until_repr))
 
 
 def with_cooldown(
