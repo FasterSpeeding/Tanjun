@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.2a1] - 2022-05-16
+### Added
+- `error` option to the standard checks and limiters to allow setting a callback which generates
+  a custom error.
+- `AbstractSchedule.force_stop` which immediately stops the tasks without waiting and is sync.
+
+### Changed
+- The cooldown limiter now uses Discord's timestamp format in its default error messages.
+- `AbstractCooldownManager.check_cooldown` now returns a `datetime.datetime` instead of a  `float`.
+- `halt_execution` now takes priority over `error_message` when configuring checks.
+- The REST strategies for interaction handling now cancel the response future if the execution task
+  ends before it's set to avoid dangling waiting tasks.
+- Command interaction handling now cancels auto-deferral if the command execution task finishes before
+  a response is given.
+- `AbstractSchedule.stop` is now async.
+
+### Fixed
+- Some edge cases where closing schedule(s) may lead to futures being erroneously cancelled.
+
 ## [2.5.1a1] - 2022-05-02
 ### Added
 - A `send` method to `CommandError` which can be overridden to customise its response behaviour.
@@ -571,7 +590,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.1a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.2a1...HEAD
+[2.5.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...v2.5.2a1
 [2.5.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...v2.5.1a1
 [2.5.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.3a1...v2.5.0a1
 [2.4.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.4.2a1...v2.4.3a1

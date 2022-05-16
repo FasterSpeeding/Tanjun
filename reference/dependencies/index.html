@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.13">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.14">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.e411adfe.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3de6f41f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
@@ -2078,8 +2078,8 @@ and <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hika
 <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -2294,8 +2294,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <code class="highlight language-python"><span class="nb">len</span><span class="p">()</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -2422,8 +2422,8 @@ doesn't exist.</p>
 <code class="highlight language-python"><span class="n">get_from_channel</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -2749,8 +2749,8 @@ which indicates that the cache is sure that the entry doesn't exist.</p>
 <code class="highlight language-python"><span class="n">get_from_guild</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">guild_id</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -3052,8 +3052,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -3201,13 +3201,12 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 
 
 
-
   <div class="doc doc-object doc-function">
 
 
 
 <h3 id="tanjun.dependencies.callbacks.fetch_my_user" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">fetch_my_user</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span> <span class="n">me_cache</span><span class="o">=</span><span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">_OwnUserCache</span><span class="p">))</span></code>
+<code class="highlight language-python"><span class="n">fetch_my_user</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">me_cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
@@ -3240,11 +3239,7 @@ dependency.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>alluka.inject(type=tanjun.Client)</code>
+                    <code><a class="autorefs autorefs-external" href="https://alluka.cursed.solutions/reference/#alluka">alluka</a>.<a class="autorefs autorefs-external" title="alluka.Injected" href="https://alluka.cursed.solutions/reference/#alluka.Injected">Injected</a>[<a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="../abc/#tanjun.abc.Client">Client</a>]</code>
                 </span>
             </p>
           </td>
@@ -4090,8 +4085,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 <code class="highlight language-python"><span class="n">release</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -4115,8 +4110,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 <code class="highlight language-python"><span class="n">try_acquire</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -4239,8 +4234,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 <code class="highlight language-python"><span class="n">check_cooldown</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -4313,7 +4308,7 @@ it isn't depleted.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a> | None</code>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/datetime.html#module-datetime">datetime</a>.<a class="autorefs autorefs-external" title="datetime.datetime" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime">datetime</a> | None</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -4338,8 +4333,8 @@ if it's in cooldown else <a class="autorefs autorefs-external" href="https://doc
 <code class="highlight language-python"><span class="n">increment_cooldown</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -4744,12 +4739,13 @@ hooks must be registered for a command scope.</p>
 
 
 
+
   <div class="doc doc-object doc-function">
 
 
 
 <h4 id="tanjun.dependencies.limiters.ConcurrencyPreExecution.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;This resource is currently busy; please try again later.&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;This resource is currently busy; please try again later.&#39;</span><span class="p">)</span></code>
 
 
 </h4>
@@ -4775,6 +4771,24 @@ hooks must be registered for a command scope.</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>error</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to create a custom error to raise if the check fails.</p>
+<p>This should two one <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a> argument which is the limiting bucket's ID.</p>
+<p>This takes priority over <code>error_message</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#Exception">Exception</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
                 </span>
             </p>
           </td>
@@ -4852,12 +4866,13 @@ instead and incrementing the bucket's use counter.</p>
 
 
 
+
   <div class="doc doc-object doc-function">
 
 
 
 <h4 id="tanjun.dependencies.limiters.CooldownPreExecution.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s1"> seconds before using this command again.&#39;</span><span class="p">,</span> <span class="n">owners_exempt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;This command is currently in cooldown. Try again </span><span class="si">{cooldown}</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="n">owners_exempt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 
 </h4>
@@ -4888,6 +4903,26 @@ instead and incrementing the bucket's use counter.</p>
           </td>
         </tr>
         <tr>
+          <td><code>error</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to create a custom error to raise if the check fails.</p>
+<p>This should two arguments one of type <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a> and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime">datetime.datetime</a>
+where the first is the limiting bucket's ID and the second is when said
+bucket can be used again.</p>
+<p>This takes priority over <code>error_message</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/datetime.html#module-datetime">datetime</a>.<a class="autorefs autorefs-external" title="datetime.datetime" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime">datetime</a>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#Exception">Exception</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>error_message</code></td>
           <td class="doc-param-details">
             <p>The error message to send in response as a command error if the check fails.</p>
@@ -4898,7 +4933,7 @@ instead and incrementing the bucket's use counter.</p>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
-                    <code>&#39;Please wait {cooldown:0.2f} seconds before using this command again.&#39;</code>
+                    <code>&#39;This command is currently in cooldown. Try again {cooldown}.&#39;</code>
                 </span>
             </p>
           </td>
@@ -5740,12 +5775,13 @@ if limit is less 0 or negative.</p>
 
 
 
+
   <div class="doc doc-object doc-function">
 
 
 
 <h3 id="tanjun.dependencies.limiters.with_concurrency_limit" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_concurrency_limit</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;This resource is currently busy; please try again later.&#39;</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_concurrency_limit</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;This resource is currently busy; please try again later.&#39;</span><span class="p">)</span></code>
 
 
 </h3>
@@ -5778,6 +5814,24 @@ being usable as a standard in-memory concurrency manager.</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>error</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to create a custom error to raise if the check fails.</p>
+<p>This should two one <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a> argument which is the limiting bucket's ID.</p>
+<p>This takes priority over <code>error_message</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#Exception">Exception</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
                 </span>
             </p>
           </td>
@@ -5834,7 +5888,7 @@ to acquire the concurrency limit.</p>
 
 
 <h3 id="tanjun.dependencies.limiters.with_cooldown" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_cooldown</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Please wait </span><span class="si">{cooldown:0.2f}</span><span class="s1"> seconds before using this command again.&#39;</span><span class="p">,</span> <span class="n">owners_exempt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_cooldown</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;This command is currently in cooldown. Try again </span><span class="si">{cooldown}</span><span class="s1">.&#39;</span><span class="p">,</span> <span class="n">owners_exempt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 
 </h3>
@@ -5846,8 +5900,8 @@ to acquire the concurrency limit.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -5872,6 +5926,26 @@ being usable as a standard in-memory cooldown manager.</p>
           </td>
         </tr>
         <tr>
+          <td><code>error</code></td>
+          <td class="doc-param-details">
+            <p>Callback used to create a custom error to raise if the check fails.</p>
+<p>This should two arguments one of type <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a> and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime">datetime.datetime</a>
+where the first is the limiting bucket's ID and the second is when said
+bucket can be used again.</p>
+<p>This takes priority over <code>error_message</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/datetime.html#module-datetime">datetime</a>.<a class="autorefs autorefs-external" title="datetime.datetime" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime">datetime</a>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#Exception">Exception</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>error_message</code></td>
           <td class="doc-param-details">
             <p>The error message to send in response as a command error if the check fails.</p>
@@ -5882,7 +5956,7 @@ being usable as a standard in-memory cooldown manager.</p>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
-                    <code>&#39;Please wait {cooldown:0.2f} seconds before using this command again.&#39;</code>
+                    <code>&#39;This command is currently in cooldown. Try again {cooldown}.&#39;</code>
                 </span>
             </p>
           </td>
@@ -6014,8 +6088,8 @@ hook to the command.</p>
 <code class="highlight language-python"><span class="n">check_ownership</span><span class="p">(</span><span class="o">/</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></code>
 
   <span class="doc doc-properties">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 </h4>
@@ -6312,7 +6386,7 @@ bot's owners-only commands.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c2e1ee47.min.js"></script>
       
     
   </body>
