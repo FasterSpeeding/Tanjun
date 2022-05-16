@@ -852,7 +852,7 @@ class TestInMemoryCooldownManager:
         mock_inner.must_wait_until.assert_called_once_with()
 
     @pytest.mark.asyncio()
-    async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket_when_wait_for_returns_time(
+    async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket_when_wait_until_returns_time(
         self,
     ):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1183,7 +1183,7 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     @pytest.mark.asyncio()
-    async def test_call_when_owners_exempt_still_leads_to_wait_for(self):
+    async def test_call_when_owners_exempt_still_leads_to_wait_until(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
@@ -1202,7 +1202,7 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     @pytest.mark.asyncio()
-    async def test_call_when_owners_exempt_still_leads_to_wait_for_and_error_callback(self):
+    async def test_call_when_owners_exempt_still_leads_to_wait_until_and_error_callback(self):
         class MockException(Exception):
             ...
 
@@ -1226,7 +1226,7 @@ class TestCooldownPreExecution:
         )
 
     @pytest.mark.asyncio()
-    async def test_call_when_wait_for(self):
+    async def test_call_when_wait_until(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
@@ -1244,7 +1244,7 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_call_when_wait_for_and_error_callback(self):
+    async def test_call_when_wait_until_and_error_callback(self):
         class MockException(Exception):
             ...
 
