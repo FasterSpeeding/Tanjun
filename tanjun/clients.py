@@ -1264,22 +1264,7 @@ class Client(tanjun.Client):
             )
 
         else:
-            if isinstance(builder, hikari.api.SlashCommandBuilder):
-                response = await self._rest.create_slash_command(
-                    application,
-                    guild=guild,
-                    name=builder.name,
-                    description=builder.description,
-                    options=builder.options,
-                )
-
-            elif isinstance(builder, hikari.api.ContextMenuCommandBuilder):
-                response = await self._rest.create_context_menu_command(
-                    application, builder.type, builder.name, guild=guild  # type: ignore
-                )
-
-            else:
-                raise NotImplementedError(f"Unknown command builder type {builder.type}.")
+            response = await builder.create(self._rest, application, guild=guild)
 
         if not guild:
             command.set_tracked_command(response)  # TODO: is this fine?

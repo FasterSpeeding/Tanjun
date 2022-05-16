@@ -47,15 +47,22 @@ import tanjun
 def test_as_message_menu():
     mock_callback = mock.Mock()
 
-    command = tanjun.as_message_menu("eat", always_defer=True, default_to_ephemeral=False, is_global=False)(
-        mock_callback
-    )
+    command = tanjun.as_message_menu(
+        "eat",
+        always_defer=True,
+        default_member_permissions=hikari.Permissions(43123),
+        default_to_ephemeral=False,
+        dm_enabled=False,
+        is_global=False,
+    )(mock_callback)
 
     assert isinstance(command, tanjun.MenuCommand)
     assert command.type is hikari.CommandType.MESSAGE
     assert command.name == "eat"
     assert command._always_defer is True
+    assert command._default_member_permissions == hikari.Permissions(43123)
     assert command.defaults_to_ephemeral is False
+    assert command._is_dm_enabled is False
     assert command.is_global is False
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -70,7 +77,9 @@ def test_as_message_menu_with_defaults():
     assert command.type is hikari.CommandType.MESSAGE
     assert command.name == "yeet"
     assert command._always_defer is False
+    assert command._default_member_permissions is hikari.Permissions.NONE
     assert command.defaults_to_ephemeral is None
+    assert command._is_dm_enabled is True
     assert command.is_global is True
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -102,13 +111,22 @@ def test_as_message_menu_when_wrapping_command(
 def test_as_user_menu():
     mock_callback = mock.Mock()
 
-    command = tanjun.as_user_menu("uoy", always_defer=True, default_to_ephemeral=False, is_global=False)(mock_callback)
+    command = tanjun.as_user_menu(
+        "uoy",
+        always_defer=True,
+        default_member_permissions=hikari.Permissions(49494),
+        default_to_ephemeral=False,
+        dm_enabled=False,
+        is_global=False,
+    )(mock_callback)
 
     assert isinstance(command, tanjun.MenuCommand)
     assert command.type is hikari.CommandType.USER
     assert command.name == "uoy"
     assert command._always_defer is True
+    assert command._default_member_permissions is hikari.Permissions(49494)
     assert command.defaults_to_ephemeral is False
+    assert command._is_dm_enabled is False
     assert command.is_global is False
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -123,7 +141,9 @@ def test_as_user_menu_with_defaults():
     assert command.type is hikari.CommandType.USER
     assert command.name == "you"
     assert command._always_defer is False
+    assert command._default_member_permissions is hikari.Permissions.NONE
     assert command.defaults_to_ephemeral is None
+    assert command._is_dm_enabled is True
     assert command.is_global is True
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -253,15 +273,25 @@ class TestMenuCommand:
         assert builder.name == "owo"
         assert builder.type is hikari.CommandType.USER
         assert builder.id is hikari.UNDEFINED
+        assert builder.default_member_permissions is hikari.Permissions.NONE
+        assert builder.is_dm_enabled is True
 
     def test_build_when_all_fields_set(self):
-        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(),
+            hikari.CommandType.MESSAGE,
+            "pat",
+            default_member_permissions=hikari.Permissions(4123),
+            dm_enabled=False,
+        )
 
         builder = command.build()
 
         assert builder.name == "pat"
         assert builder.type is hikari.CommandType.MESSAGE
         assert builder.id is hikari.UNDEFINED
+        assert builder.default_member_permissions is hikari.Permissions(4123)
+        assert builder.is_dm_enabled is False
 
     def test_set_tracked_command(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")

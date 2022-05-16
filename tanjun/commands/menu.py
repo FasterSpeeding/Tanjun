@@ -67,7 +67,9 @@ def _as_menu(
     name: str,
     type_: _MenuTypeT,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: bool = True,
     is_global: bool = True,
 ) -> _ResultProto[_MenuTypeT]:
     def decorator(
@@ -79,7 +81,9 @@ def _as_menu(
                 type_,
                 name,
                 always_defer=always_defer,
+                default_member_permissions=default_member_permissions,
                 default_to_ephemeral=default_to_ephemeral,
+                dm_enabled=dm_enabled,
                 is_global=is_global,
                 _wrapped_command=callback,
             )
@@ -89,7 +93,9 @@ def _as_menu(
             type_,
             name,
             always_defer=always_defer,
+            default_member_permissions=default_member_permissions,
             default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
             is_global=is_global,
         )
 
@@ -116,7 +122,9 @@ def as_message_menu(
     /,
     *,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: bool = True,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
     """Build a message [tanjun.MenuCommand][] by decorating a function.
@@ -176,7 +184,15 @@ def as_message_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-    return _as_menu(name, hikari.CommandType.MESSAGE, always_defer, default_to_ephemeral, is_global)
+    return _as_menu(
+        name,
+        hikari.CommandType.MESSAGE,
+        always_defer=always_defer,
+        default_member_permissions=default_member_permissions,
+        default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
+        is_global=is_global,
+    )
 
 
 def as_user_menu(
@@ -184,7 +200,9 @@ def as_user_menu(
     /,
     *,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: bool = True,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
     """Build a user [tanjun.MenuCommand][] by decorating a function.
@@ -246,7 +264,15 @@ def as_user_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-    return _as_menu(name, hikari.CommandType.USER, always_defer, default_to_ephemeral, is_global)
+    return _as_menu(
+        name,
+        hikari.CommandType.USER,
+        always_defer=always_defer,
+        default_member_permissions=default_member_permissions,
+        default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
+        is_global=is_global,
+    )
 
 
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -258,8 +284,10 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     __slots__ = (
         "_always_defer",
         "_callback",
+        "_default_member_permissions",
         "_defaults_to_ephemeral",
         "_description",
+        "_is_dm_enabled",
         "_is_global",
         "_name",
         "_parent",
@@ -279,7 +307,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -294,7 +324,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -308,7 +340,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -383,7 +417,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
         self._always_defer = always_defer
         self._callback = callback
+        self._default_member_permissions = hikari.Permissions(default_member_permissions)
         self._defaults_to_ephemeral = default_to_ephemeral
+        self._is_dm_enabled = dm_enabled
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
@@ -436,7 +472,12 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name)  # type: ignore
+        return hikari.impl.ContextMenuCommandBuilder(
+            self._type,  # type: ignore
+            self._name,  # type: ignore
+            default_member_permissions=self._default_member_permissions,  # type: ignore
+            is_dm_enabled=self._is_dm_enabled,  # type: ignore
+        )
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.

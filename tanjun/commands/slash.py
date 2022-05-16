@@ -200,7 +200,9 @@ def as_slash_command(
     /,
     *,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: bool = True,
     is_global: bool = True,
     sort_options: bool = True,
 ) -> _ResultProto:
@@ -284,7 +286,9 @@ def as_slash_command(
                 name,
                 description,
                 always_defer=always_defer,
+                default_member_permissions=default_member_permissions,
                 default_to_ephemeral=default_to_ephemeral,
+                dm_enabled=dm_enabled,
                 is_global=is_global,
                 sort_options=sort_options,
                 _wrapped_command=callback,
@@ -718,9 +722,17 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         description: str,
         sort_options: bool,
         *,
-        id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,  # noqa: A002
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        dm_enabled: bool = True,
+        id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        super().__init__(name, description, id=id)  # type: ignore
+        super().__init__(
+            name,
+            description,
+            id=id_,  # type: ignore
+            default_member_permissions=hikari.Permissions(default_member_permissions),  # type: ignore
+            is_dm_enabled=dm_enabled,  # type: ignore
+        )
         self._options_dict: dict[str, hikari.CommandOption] = {}
         self._has_been_sorted = True
         self._sort_options = sort_options
@@ -755,7 +767,14 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
     def copy(
         self,
     ) -> _SlashCommandBuilder:
-        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id=self.id)
+        builder = _SlashCommandBuilder(
+            self.name,
+            self.description,
+            self._sort_options,
+            default_member_permissions=self.default_member_permissions or hikari.Permissions.NONE,
+            dm_enabled=self.is_dm_enabled if self.is_dm_enabled is not hikari.UNDEFINED else True,
+            id_=self.id,
+        )
 
         for option in self._options:
             builder.add_option(option)
@@ -894,7 +913,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         be callable functions themselves.
     """
 
-    __slots__ = "_commands"
+    __slots__ = ("_commands", "_default_member_permissions", "_is_dm_enabled")
 
     def __init__(
         self,
@@ -902,7 +921,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         description: str,
         /,
         *,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
     ) -> None:
         r"""Initialise a slash command group.
@@ -940,6 +961,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         """
         super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
         self._commands: dict[str, tanjun.BaseSlashCommand] = {}
+        self._default_member_permissions = hikari.Permissions(default_member_permissions)
+        self._is_dm_enabled = dm_enabled
 
     @property
     def commands(self) -> collections.Collection[tanjun.BaseSlashCommand]:
@@ -948,7 +971,14 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(self._name, self._description, False)
+        builder = _SlashCommandBuilder(
+            self._name,
+            self._description,
+            False,
+            default_member_permissions=self._default_member_permissions,
+            dm_enabled=self._is_dm_enabled,
+        )
+
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -1111,7 +1141,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1127,7 +1159,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1142,7 +1176,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: bool = True,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1209,7 +1245,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._builder = _SlashCommandBuilder(name, description, sort_options)
+        self._builder = _SlashCommandBuilder(
+            name,
+            description,
+            sort_options,
+            dm_enabled=dm_enabled,
+            default_member_permissions=default_member_permissions,
+        )
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
         self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}

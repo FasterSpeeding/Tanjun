@@ -652,6 +652,8 @@ class TestSlashCommandGroup:
 
         result = command_group.build()
 
+        assert result.default_member_permissions is hikari.Permissions.NONE
+        assert result.is_dm_enabled is True
         assert result == (
             tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
             .add_option(
@@ -673,6 +675,17 @@ class TestSlashCommandGroup:
                 )
             )
         )
+
+    def test_build_with_optional_fields(self):
+        command_group = tanjun.SlashCommandGroup(
+            "yee", "nsoosos", default_member_permissions=hikari.Permissions(45123), dm_enabled=False
+        )
+
+        result = command_group.build()
+
+        assert result.default_member_permissions is hikari.Permissions(45123)
+        assert result.is_dm_enabled is False
+        assert result.options == []
 
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
