@@ -273,7 +273,7 @@ class TestMenuCommand:
         assert builder.name == "owo"
         assert builder.type is hikari.CommandType.USER
         assert builder.id is hikari.UNDEFINED
-        assert builder.default_member_permissions is hikari.Permissions.NONE
+        assert builder.default_member_permissions is hikari.UNDEFINED
         assert builder.is_dm_enabled is True
 
     def test_build_when_all_fields_set(self):

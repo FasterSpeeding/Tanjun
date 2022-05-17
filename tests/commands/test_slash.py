@@ -652,7 +652,7 @@ class TestSlashCommandGroup:
 
         result = command_group.build()
 
-        assert result.default_member_permissions is hikari.Permissions.NONE
+        assert result.default_member_permissions is hikari.UNDEFINED
         assert result.is_dm_enabled is True
         assert result == (
             tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
