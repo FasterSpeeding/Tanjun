@@ -157,12 +157,16 @@ def as_message_menu(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
     is_global
         Whether this command is a global command.
 
@@ -237,12 +241,16 @@ def as_user_menu(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
     is_global
         Whether this command is a global command.
 
@@ -378,12 +386,16 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         always_defer
             Whether the contexts this command is executed with should always be deferred
             before being passed to the command's callback.
+        default_member_permissions
+            Member permissions necessary to utilize this command by default.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
             If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
+        dm_enabled
+            Whether this command is enabled in DMs with the bot.
         is_global
             Whether this command is a global command.
 
@@ -475,7 +487,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         return hikari.impl.ContextMenuCommandBuilder(
             self._type,  # type: ignore
             self._name,  # type: ignore
-            default_member_permissions=self._default_member_permissions,  # type: ignore
+            # For some dumb arse reason Discord thought they needed to special case required perms of `0`/`NONE` to
+            # to mean admin only while leaving UNDEFINED to indicate no required permissions (so true `0`) even though
+            # fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS THE REQUIRED
+            # PERMISSION so we replace NONE with hikari.UNDEFINED.
+            default_member_permissions=self._default_member_permissions or hikari.UNDEFINED,  # type: ignore
             is_dm_enabled=self._is_dm_enabled,  # type: ignore
         )
 
