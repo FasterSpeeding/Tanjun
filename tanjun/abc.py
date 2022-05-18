@@ -483,7 +483,7 @@ class Context(alluka.Context):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            Slash command responses can only be deleted within 14 minutes of
+            Slash command responses can only be deleted within 15 minutes of
             the command being received.
         attachment
             A singular attachment to edit the initial response with.
@@ -531,7 +531,7 @@ class Context(alluka.Context):
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
 
-            If `delete_after` would be more than 14 minutes after the slash
+            If `delete_after` would be more than 15 minutes after the slash
             command was called.
 
             If both `attachment` and `attachments` are passed or both `component`
@@ -611,7 +611,7 @@ class Context(alluka.Context):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            Slash command responses can only be deleted within 14 minutes of
+            Slash command responses can only be deleted within 15 minutes of
             the command being received.
         attachment
             A singular attachment to edit the last response with.
@@ -661,7 +661,7 @@ class Context(alluka.Context):
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
 
-            If `delete_after` would be more than 14 minutes after the slash
+            If `delete_after` would be more than 15 minutes after the slash
             command was called.
 
             If both `attachmet` and `attachments` are passed or both `component`
@@ -807,7 +807,7 @@ class Context(alluka.Context):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            Slash command responses can only be deleted within 14 minutes of
+            Slash command responses can only be deleted within 15 minutes of
             the command being received.
         component
             If provided, builder object of the component to include in this response.
@@ -848,7 +848,7 @@ class Context(alluka.Context):
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
 
-            If `delete_after` would be more than 14 minutes after the slash
+            If `delete_after` would be more than 15 minutes after the slash
             command was called.
 
             If both `component` and `components` are passed or both `embed` and
@@ -1431,7 +1431,7 @@ class AppCommandContext(Context, abc.ABC):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            Slash command responses can only be deleted within 14 minutes of the
+            Slash command responses can only be deleted within 15 minutes of the
             command being received.
 
         ephemeral
@@ -1554,7 +1554,7 @@ class AppCommandContext(Context, abc.ABC):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            Slash command responses can only be deleted within 14 minutes of the
+            Slash command responses can only be deleted within 15 minutes of the
             command being received.
         ephemeral
             Whether the deferred response should be ephemeral.
@@ -2939,7 +2939,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
 class Component(abc.ABC):
     """Standard interface of a Tanjun component.
 
-    This is a collection of message and slash commands, and listeners
+    This is a collection of message and application commands, and listeners
     with logic for command search + execution and loading the listeners
     into a tanjun client.
     """
@@ -2962,7 +2962,7 @@ class Component(abc.ABC):
         unless the `flags` field is provided for the methods which support it.
 
         !!! note
-            This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][]
+            This may be overridden by [tanjun.abc.AppCommand.defaults_to_ephemeral][]
             and only effects slash command execution.
 
         !!! note
@@ -3589,7 +3589,7 @@ class Client(abc.ABC):
         This defaults to [False][].
 
         !!! note
-            This may be overridden by [tanjun.abc.BaseSlashCommand.defaults_to_ephemeral][]
+            This may be overridden by [tanjun.abc.AppCommand.defaults_to_ephemeral][]
             and [tanjun.abc.Component.defaults_to_ephemeral][] and only effects
             slash command execution.
         """
@@ -3651,7 +3651,7 @@ class Client(abc.ABC):
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         """Object of the Hikari interaction server provided for this client.
 
-        This is used for executing slash commands if set.
+        This is used for executing application commands if set.
         """
 
     @property
@@ -3711,11 +3711,6 @@ class Client(abc.ABC):
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
-
-        !!! note
-            Setting a specific `guild` can be useful for testing/debug purposes
-            as slash commands may take up to an hour to propagate globally but
-            will immediately propagate when set on a specific guild.
 
         Parameters
         ----------

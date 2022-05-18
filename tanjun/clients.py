@@ -549,9 +549,7 @@ class Client(tanjun.Client):
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
-            than globally. This can be useful for testing/debug purposes as slash
-            commands may take up to an hour to propagate globally but will
-            immediately propagate when set on a specific guild.
+            than globally.
 
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
@@ -812,9 +810,7 @@ class Client(tanjun.Client):
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
-            than globally. This can be useful for testing/debug purposes as slash
-            commands may take up to an hour to propagate globally but will
-            immediately propagate when set on a specific guild.
+            than globally.
 
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
@@ -890,9 +886,7 @@ class Client(tanjun.Client):
 
             If one or more guild objects/IDs are passed here then the registered
             global commands will be set on the specified guild(s) at startup rather
-            than globally. This can be useful for testing/debug purposes as slash
-            commands may take up to an hour to propagate globally but will
-            immediately propagate when set on a specific guild.
+            than globally.
 
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
@@ -1366,7 +1360,7 @@ class Client(tanjun.Client):
         Parameters
         ----------
         state
-            Whether slash command contexts executed in this component should
+            Whether slash command contexts executed in this client should
             should default to ephemeral.
 
             This will be overridden by any response calls which specify flags.
@@ -1374,7 +1368,7 @@ class Client(tanjun.Client):
         Returns
         -------
         Self
-            This component to enable method chaining.
+            This client to enable method chaining.
         """
         self._defaults_to_ephemeral = state
         return self
@@ -1480,7 +1474,7 @@ class Client(tanjun.Client):
         Returns
         -------
         Self
-            This component to enable method chaining.
+            This client to enable method chaining.
         """
         self._make_autocomplete_context = maker
         return self
@@ -1506,7 +1500,7 @@ class Client(tanjun.Client):
         Returns
         -------
         Self
-            This component to enable method chaining.
+            This client to enable method chaining.
         """
         self._make_menu_context = maker
         return self
@@ -1532,7 +1526,7 @@ class Client(tanjun.Client):
         Returns
         -------
         Self
-            This component to enable method chaining.
+            This client to enable method chaining.
         """
         self._make_message_context = maker
         return self
@@ -1563,7 +1557,7 @@ class Client(tanjun.Client):
         Returns
         -------
         Self
-            This component to enable method chaining.
+            This client to enable method chaining.
         """
         self._make_slash_context = maker
         return self
