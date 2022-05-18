@@ -521,11 +521,9 @@ class Client(tanjun.Client):
         "_checks",
         "_client_callbacks",
         "_components",
+        "_default_app_cmd_permissions",
         "_defaults_to_ephemeral",
-        "_make_autocomplete_context",
-        "_make_menu_context",
-        "_make_message_context",
-        "_make_slash_context",
+        "_dms_enabled_for_app_cmds",
         "_events",
         "_grab_mention_prefix",
         "_hooks",
@@ -537,6 +535,10 @@ class Client(tanjun.Client):
         "_is_closing",
         "_listeners",
         "_loop",
+        "_make_autocomplete_context",
+        "_make_menu_context",
+        "_make_message_context",
+        "_make_slash_context",
         "_message_hooks",
         "_metadata",
         "_modules",
@@ -690,11 +692,9 @@ class Client(tanjun.Client):
         self._checks: list[tanjun.CheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
-        self._defaults_to_ephemeral: bool = False
-        self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
-        self._make_menu_context: _MenuContextMakerProto = context.MenuContext
-        self._make_message_context: _MessageContextMakerProto = context.MessageContext
-        self._make_slash_context: _SlashContextMakerProto = context.SlashContext
+        self._default_app_cmd_permissions = hikari.Permissions.NONE
+        self._defaults_to_ephemeral = False
+        self._dms_enabled_for_app_cmds = True
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
@@ -710,6 +710,10 @@ class Client(tanjun.Client):
             dict[tanjun.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig]],
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
+        self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
+        self._make_menu_context: _MenuContextMakerProto = context.MenuContext
+        self._make_message_context: _MessageContextMakerProto = context.MessageContext
+        self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._message_hooks: typing.Optional[tanjun.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
@@ -1018,9 +1022,19 @@ class Client(tanjun.Client):
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
 
     @property
+    def default_app_cmd_permissions(self) -> hikari.Permissions:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._default_app_cmd_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._defaults_to_ephemeral
+
+    @property
+    def dms_enabled_for_app_cmds(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._dms_enabled_for_app_cmds
 
     @property
     def message_accepts(self) -> MessageAcceptsEnum:
@@ -1406,6 +1420,51 @@ class Client(tanjun.Client):
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
+        return self
+
+    def set_default_app_command_permissions(self: _ClientT, permissions: hikari.Permissions, /) -> _ClientT:
+        """Set the default member permissions needed for this client's commands.
+
+        !!! warning
+            This may be overridden by guild staff and does not apply to admins.
+
+        Parameters
+        ----------
+        permissions
+            The default member permissions needed for this client's application commands.
+
+            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+            and [tanjun.abc.Component.default_app_cmd_permissions][]; if this is
+            left as [None][] then this config will be inherited from the parent
+            client.
+
+        Returns
+        -------
+        Self
+            This client to enable method chaining.
+        """
+        self._default_app_cmd_permissions = permissions
+        return self
+
+    def set_dms_enabled_for_app_cmds(self: _ClientT, state: bool, /) -> _ClientT:
+        """Set whether this clients's commands should be enabled in DMs.
+
+        Parameters
+        ----------
+        state
+            Whether to enable this client's commands in DMs.
+
+            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
+            and [tanjun.abc.Component.dms_enabled_for_app_cmds][]; if this is
+            left as [None][] then this config will be inherited from the parent
+            client.
+
+        Returns
+        -------
+        Self
+            This client to enable method chaining.
+        """
+        self._dms_enabled_for_app_cmds = state
         return self
 
     def set_ephemeral_default(self: _ClientT, state: bool, /) -> _ClientT:

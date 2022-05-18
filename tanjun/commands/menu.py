@@ -301,7 +301,7 @@ _MenuCommandBuilderT = typing.TypeVar("_MenuCommandBuilderT", bound="_MenuComman
 
 
 class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
-    __slots__ = ("__command", "__default_member_permissions", "__is_dm_enabled")
+    __slots__ = ("_command",)
 
     def __init__(
         self,
@@ -309,16 +309,10 @@ class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
         type_: hikari.CommandType,
         name: str,
         *,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-        dm_enabled: typing.Optional[bool] = None,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
         super().__init__(type_, name, description, id=id_)  # type: ignore
-        self.__command = command
-        self.__default_member_permissions = (
-            hikari.Permissions(default_member_permissions) if default_member_permissions else None
-        )
-        self.__is_dm_enabled = dm_enabled
+        self._command = command
 
     @property
     def default_member_permissions(self) -> hikari.UndefinedOr[hikari.Permissions]:
@@ -331,34 +325,46 @@ class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
 
     @property
     def is_dm_enabled(self) -> bool:
-        if self.__is_dm_enabled is not None:
-            return self.__is_dm_enabled
+        if (state := super().is_dm_enabled) is not hikari.UNDEFINED:
+            return state
 
-        return True
+        if self._command.is_dm_enabled:
+            return self._command.is_dm_enabled
+
+        assert self._command.component
+        if self._command.component.dms_enabled_for_app_cmds:
+            return self._command.component.dms_enabled_for_app_cmds
+
+        assert self._command.component.client
+        return self._command.component.client.dms_enabled_for_app_cmds
 
     def __get_default_member_perms(self) -> hikari.Permissions:
-        if self.__default_member_permissions is not None:
+        # TODO: this feels bodged tbh
+        if self.__default_member_permissions is not hikari.UNDEFINED:
             return self.__default_member_permissions
 
-        return hikari.Permissions.NONE
+        if self._command.default_member_permissions is not None:
+            return self._command.default_member_permissions
+
+        assert self._command.component
+        if self._command.component.default_app_cmd_permissions:
+            return self._command.component.default_app_cmd_permissions
+
+        assert self._command.component.client
+        return self._command.component.client.default_app_cmd_permissions
 
     def set_default_member_permissions(
         self: _MenuCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
     ) -> _MenuCommandBuilderT:
+        # This feels like a shit hack, I'd rather not lol.
         if default_member_permissions is hikari.UNDEFINED:
             self.__default_member_permissions = hikari.Permissions.NONE
 
+        elif default_member_permissions == hikari.Permissions.NONE:
+            self.__default_member_permissions = hikari.Permissions.ADMINISTRATOR
+
         else:
             self.__default_member_permissions = default_member_permissions
-
-        return self
-
-    def set_dm_enabled(self: _MenuCommandBuilderT, state: hikari.UndefinedOr[bool], /) -> _MenuCommandBuilderT:
-        if state is hikari.UNDEFINED:
-            self.__is_dm_enabled = True
-
-        else:
-            self.__is_dm_enabled = state
 
         return self
 
@@ -529,9 +535,12 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
+        if default_member_permissions is not None:
+            default_member_permissions = hikari.Permissions(default_member_permissions)
+
         self._always_defer = always_defer
         self._callback = callback
-        self._default_member_permissions = hikari.Permissions(default_member_permissions)
+        self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_dm_enabled = dm_enabled
         self._is_global = is_global
@@ -555,18 +564,27 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         return self._callback
 
     @property
+    def default_member_permissions(self) -> typing.Optional[hikari.Permissions]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._default_member_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         return self._defaults_to_ephemeral
 
     @property
+    def is_dm_enabled(self) -> typing.Optional[bool]:
+        return self._is_dm_enabled
+
+    @property
     def is_global(self) -> bool:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._name
 
     @property
@@ -576,30 +594,20 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     @property
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
     @property
     def type(self) -> _MenuTypeT:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._type
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return _MenuCommandBuilder(
-            self,
-            self._type,  # type: ignore
-            self._name,  # type: ignore
-            # For some dumb arse reason Discord thought they needed to special case required perms of `0`/`NONE` to
-            # to mean admin only while leaving UNDEFINED to indicate no required permissions (so true `0`) even though
-            # fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS THE REQUIRED
-            # PERMISSION so we replace NONE with hikari.UNDEFINED.
-            default_member_permissions=self._default_member_permissions or hikari.UNDEFINED,  # type: ignore
-            is_dm_enabled=self._is_dm_enabled,  # type: ignore
-        )
+        return _MenuCommandBuilder(self, self._type, self._name)
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.MenuCommand>>.
         if not isinstance(command, hikari.ContextMenuCommand):
             raise TypeError("Command must be a ContextMenuCommand")
 

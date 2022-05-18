@@ -735,35 +735,23 @@ _SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCom
 
 
 class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
-    __slots__ = (
-        "__command",
-        "__default_member_permissions",
-        "__has_been_sorted",
-        "__is_dm_enabled",
-        "__options_dict",
-        "__sort_options",
-    )
+    __slots__ = ("_command", "__default_member_permissions", "_has_been_sorted", "_options_dict", "_sort_options")
 
     def __init__(
         self,
-        command: typing.Union[SlashCommand[typing.Any], SlashCommandGroup],
+        command: tanjun.AppCommand[typing.Any],
         name: str,
         description: str,
         sort_options: bool,
         *,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-        dm_enabled: typing.Optional[bool] = None,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
         super().__init__(name, description, id=id_)  # type: ignore
-        self.__command = command
-        self.__default_member_permissions = (
-            hikari.Permissions(default_member_permissions) if default_member_permissions else None
-        )
-        self.__has_been_sorted = True
-        self.__is_dm_enabled = dm_enabled
-        self.__options_dict: dict[str, hikari.CommandOption] = {}
-        self.__sort_options = sort_options
+        self._command = command
+        self.__default_member_permissions: hikari.UndefinedOr[hikari.Permissions] = hikari.UNDEFINED
+        self._has_been_sorted = True
+        self._options_dict: dict[str, hikari.CommandOption] = {}
+        self._sort_options = sort_options
 
     @property
     def default_member_permissions(self) -> hikari.UndefinedOr[hikari.Permissions]:
@@ -776,50 +764,62 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 
     @property
     def is_dm_enabled(self) -> bool:
-        if self.__is_dm_enabled is not None:
-            return self.__is_dm_enabled
+        if (state := super().is_dm_enabled) is not hikari.UNDEFINED:
+            return state
 
-        return True
+        if self._command.is_dm_enabled:
+            return self._command.is_dm_enabled
+
+        assert self._command.component
+        if self._command.component.dms_enabled_for_app_cmds:
+            return self._command.component.dms_enabled_for_app_cmds
+
+        assert self._command.component.client
+        return self._command.component.client.dms_enabled_for_app_cmds
 
     def __get_default_member_perms(self) -> hikari.Permissions:
-        if self.__default_member_permissions is not None:
+        # TODO: this feels bodged tbh
+        if self.__default_member_permissions is not hikari.UNDEFINED:
             return self.__default_member_permissions
 
-        return hikari.Permissions.NONE
+        if self._command.default_member_permissions is not None:
+            return self._command.default_member_permissions
+
+        assert self._command.component
+        if self._command.component.default_app_cmd_permissions:
+            return self._command.component.default_app_cmd_permissions
+
+        assert self._command.component.client
+        return self._command.component.client.default_app_cmd_permissions
 
     def set_default_member_permissions(
         self: _SlashCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
     ) -> _SlashCommandBuilderT:
+        # This feels like a shit hack, I'd rather not lol.
         if default_member_permissions is hikari.UNDEFINED:
             self.__default_member_permissions = hikari.Permissions.NONE
+
+        elif default_member_permissions == hikari.Permissions.NONE:
+            self.__default_member_permissions = hikari.Permissions.ADMINISTRATOR
 
         else:
             self.__default_member_permissions = default_member_permissions
 
         return self
 
-    def set_dm_enabled(self: _SlashCommandBuilderT, state: hikari.UndefinedOr[bool], /) -> _SlashCommandBuilderT:
-        if state is hikari.UNDEFINED:
-            self.__is_dm_enabled = True
-
-        else:
-            self.__is_dm_enabled = state
-
-        return self
-
     def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
         if self._options:
-            self.__has_been_sorted = False
+            self._has_been_sorted = False
 
         super().add_option(option)
-        self.__options_dict[option.name] = option
+        self._options_dict[option.name] = option
         return self
 
     def get_option(self, name: str) -> typing.Optional[hikari.CommandOption]:
-        return self.__options_dict.get(name)
+        return self._options_dict.get(name)
 
     def sort(self: _SlashCommandBuilderT) -> _SlashCommandBuilderT:
-        if self.__sort_options and not self.__has_been_sorted:
+        if self._sort_options and not self._has_been_sorted:
             required: list[hikari.CommandOption] = []
             not_required: list[hikari.CommandOption] = []
             for option in self._options:
@@ -829,7 +829,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
                     not_required.append(option)
 
             self._options = [*required, *not_required]
-            self.__has_been_sorted = True
+            self._has_been_sorted = True
 
         return self
 
@@ -850,16 +850,8 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         return data
 
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
-    def copy(self, command: typing.Union[SlashCommand[typing.Any], SlashCommandGroup], /) -> _SlashCommandBuilder:
-        builder = _SlashCommandBuilder(
-            command,
-            self.name,
-            self.description,
-            self.__sort_options,
-            default_member_permissions=self.default_member_permissions or hikari.Permissions.NONE,
-            dm_enabled=self.is_dm_enabled if self.is_dm_enabled is not hikari.UNDEFINED else True,
-            id_=self.id,
-        )
+    def copy(self, command: tanjun.AppCommand[typing.Any], /) -> _SlashCommandBuilder:
+        builder = _SlashCommandBuilder(command, self.name, self.description, self._sort_options, id_=self.id)
 
         for option in self.options:
             builder.add_option(option)
@@ -870,7 +862,16 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlashCommand):
     """Base class used for the standard slash command implementations."""
 
-    __slots__ = ("_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent", "_tracked_command")
+    __slots__ = (
+        "_default_member_permissions",
+        "_defaults_to_ephemeral",
+        "_description",
+        "_is_dm_enabled",
+        "_is_global",
+        "_name",
+        "_parent",
+        "_tracked_command",
+    )
 
     def __init__(
         self,
@@ -878,7 +879,9 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         description: str,
         /,
         *,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
     ) -> None:
         super().__init__()
@@ -886,31 +889,46 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
+        if default_member_permissions is not None:
+            default_member_permissions = hikari.Permissions(default_member_permissions)
+
+        self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
+        self._is_dm_enabled = dm_enabled
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.SlashCommand] = None
 
     @property
+    def default_member_permissions(self) -> typing.Optional[hikari.Permissions]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._default_member_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._defaults_to_ephemeral
 
     @property
-    def description(self) -> str:
+    def description(self) -> str:  # TODO: this feels like a mistake
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._description
 
     @property
+    def is_dm_enabled(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._is_dm_enabled
+
+    @property
     def is_global(self) -> bool:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._name
 
     @property
@@ -925,16 +943,16 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
 
     @property
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
     @property
     def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
-        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return hikari.CommandType.SLASH
 
     def set_tracked_command(self: _BaseSlashCommandT, command: hikari.PartialCommand, /) -> _BaseSlashCommandT:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         if not isinstance(command, hikari.SlashCommand):
             raise TypeError("The tracked command must be a slash command")
 
@@ -998,7 +1016,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         be callable functions themselves.
     """
 
-    __slots__ = ("_commands", "_default_member_permissions", "_is_dm_enabled")
+    __slots__ = ("_commands",)
 
     def __init__(
         self,
@@ -1054,10 +1072,15 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
         """
-        super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+        super().__init__(
+            name,
+            description,
+            default_member_permissions=default_member_permissions,
+            default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
+            is_global=is_global,
+        )
         self._commands: dict[str, tanjun.BaseSlashCommand] = {}
-        self._default_member_permissions = hikari.Permissions(default_member_permissions)
-        self._is_dm_enabled = dm_enabled
 
     @property
     def commands(self) -> collections.Collection[tanjun.BaseSlashCommand]:
@@ -1066,14 +1089,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(
-            self,
-            self._name,
-            self._description,
-            False,
-            default_member_permissions=self._default_member_permissions,
-            dm_enabled=self._is_dm_enabled,
-        )
+        builder = _SlashCommandBuilder(self, self._name, self._description, False)
 
         for command in self._commands.values():
             option_type = (
@@ -1223,6 +1239,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         "_client",
         "_float_autocompletes",
         "_int_autocompletes",
+        "_is_dm_enabled",
         "_str_autocompletes",
         "_tracked_options",
         "_wrapped_command",
@@ -1346,19 +1363,19 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
         """
-        super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+        super().__init__(
+            name,
+            description,
+            default_member_permissions=default_member_permissions,
+            default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
+            is_global=is_global,
+        )
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._builder = _SlashCommandBuilder(
-            self,
-            name,
-            description,
-            sort_options,
-            dm_enabled=dm_enabled,
-            default_member_permissions=hikari.Permissions(default_member_permissions),
-        )
+        self._builder = _SlashCommandBuilder(self, name, description, sort_options)
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
         self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
@@ -1387,6 +1404,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     @property
     def int_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteCallbackSig]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._int_autocompletes.copy()
 
     @property

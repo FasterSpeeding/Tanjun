@@ -2499,6 +2499,19 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
     @property
     @abc.abstractmethod
+    def default_member_permissions(self) -> typing.Optional[hikari.Permissions]:
+        """The default guild member permissions required to use this command.
+
+        !!! warning
+            This can be overridden by guild staff and does not apply to admins.
+
+        !!! warning
+            For commands within command groups the state of this flag
+            is inherited regardless of what it's set as on the child command.
+        """
+
+    @property
+    @abc.abstractmethod
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether contexts executed by this command should default to ephemeral responses.
 
@@ -2507,13 +2520,23 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
         unless the `flags` field is provided for the methods which support it.
 
-        Returns
-        -------
-        bool
-            Whether calls to this command should default to ephemeral mode.
-
+        !!! note
             If this is [None][] then the default from the parent command(s),
             component or client is used.
+        """
+
+    @property
+    @abc.abstractmethod
+    def is_dm_enabled(self) -> typing.Optional[bool]:
+        """Whether this command is enabled in DM contexts.
+
+        !!! note
+            If this is [None][] then the default from the parent component or
+            client is used.
+
+        !!! warning
+            For commands within command groups the state of this flag
+            is inherited regardless of what it's set as on the child command.
         """
 
     @property
@@ -2981,6 +3004,18 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def default_app_cmd_permissions(self) -> typing.Optional[hikari.Permissions]:
+        """Default required guild member permissions for the commands in this component.
+
+        This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+        and if this is [None][] then the default from the parent client is used.
+
+        !!! warning
+            This may be overridden by guild staff and does not apply to admins.
+        """
+
+    @property
+    @abc.abstractmethod
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether slash contexts executed in this component should default to ephemeral responses.
 
@@ -2991,7 +3026,17 @@ class Component(abc.ABC):
 
         !!! note
             This may be overridden by [tanjun.abc.AppCommand.defaults_to_ephemeral][]
-            and only effects slash command execution.
+            and only effects slash command execution; if this is [None][] then
+            the default from the parent client is used.
+        """
+
+    @property
+    @abc.abstractmethod
+    def dms_enabled_for_app_cmds(self) -> typing.Optional[bool]:
+        """Whether application commands in this component should be enabled in DMs.
+
+        !!! note
+            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][].
 
         !!! note
             If this is [None][] then the default from the parent client is used.
@@ -3606,6 +3651,19 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def default_app_cmd_permissions(self) -> hikari.Permissions:
+        """Default required guild member permissions for the commands in this client.
+
+        This may be overridden by [tanjun.abc.Component.default_app_cmd_permissions][] and
+        [tanjun.abc.AppCommand.default_member_permissions][]; this defaults to no
+        required permissions.
+
+        !!! warning
+            This may be overridden by guild staff and does not apply to admins.
+        """
+
+    @property
+    @abc.abstractmethod
     def defaults_to_ephemeral(self) -> bool:
         """Whether slash contexts spawned by this client should default to ephemeral responses.
 
@@ -3620,6 +3678,18 @@ class Client(abc.ABC):
             This may be overridden by [tanjun.abc.AppCommand.defaults_to_ephemeral][]
             and [tanjun.abc.Component.defaults_to_ephemeral][] and only effects
             slash command execution.
+        """
+
+    @property
+    @abc.abstractmethod
+    def dms_enabled_for_app_cmds(self) -> bool:
+        """Whether application commands in this client should be enabled in DMs by default.
+
+        This defaults to [True][].
+
+        !!! note
+            This may be overridden by [tanjun.abc.AppCommand.dms_enabled_for_app_cmds][]
+            and [tanjun.abc.Component.is_dm_enabled][].
         """
 
     @property
