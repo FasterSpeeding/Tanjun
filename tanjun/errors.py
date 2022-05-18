@@ -145,7 +145,7 @@ class CommandError(TanjunError):
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
-            Slash command responses can only be deleted within 14 minutes of
+            Slash command responses can only be deleted within 15 minutes of
             the command being received.
         component
             If provided, builder object of the component to include in this response.
@@ -234,7 +234,7 @@ class CommandError(TanjunError):
         Raises
         ------
         ValueError
-            If `delete_after` would be more than 14 minutes after the slash
+            If `delete_after` would be more than 15 minutes after the slash
             command was called.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
