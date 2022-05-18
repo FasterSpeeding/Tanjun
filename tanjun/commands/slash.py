@@ -59,6 +59,7 @@ import warnings
 from collections import abc as collections
 
 import hikari
+import hikari.internal.data_binding
 
 from .. import abc as tanjun
 from .. import components
@@ -152,6 +153,9 @@ def slash_command_group(
         The description of the command group.
     default_member_permissions
         Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -160,6 +164,9 @@ def slash_command_group(
         component or client will be in effect.
     dm_enabled
         Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
 
@@ -204,9 +211,9 @@ def as_slash_command(
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
-    dm_enabled: bool = True,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
 ) -> _ResultProto:
@@ -249,6 +256,9 @@ def as_slash_command(
         before being passed to the command's callback.
     default_member_permissions
         Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -257,6 +267,9 @@ def as_slash_command(
         component or client will be in effect.
     dm_enabled
         Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
     sort_options
@@ -722,46 +735,91 @@ _SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCom
 
 
 class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
-    __slots__ = ("_has_been_sorted", "_options_dict", "_sort_options")
+    __slots__ = (
+        "__command",
+        "__default_member_permissions",
+        "__has_been_sorted",
+        "__is_dm_enabled",
+        "__options_dict",
+        "__sort_options",
+    )
 
     def __init__(
         self,
+        command: typing.Union[SlashCommand[typing.Any], SlashCommandGroup],
         name: str,
         description: str,
         sort_options: bool,
         *,
-        default_member_permissions: hikari.Permissions = hikari.Permissions.NONE,
-        dm_enabled: bool = True,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        dm_enabled: typing.Optional[bool] = None,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        super().__init__(
-            name,
-            description,
-            id=id_,  # type: ignore
-            # Note, for some dumb arse reason Discord thought they needed to special case required perms of
-            # `0`/`NONE` to mean admin only while leaving UNDEFINED to indicate no required permissions (so true `0`)
-            # even though fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS THE
-            # REQUIRED PERMISSION so we replace NONE with hikari.UNDEFINED.
-            default_member_permissions=default_member_permissions or hikari.UNDEFINED,  # type: ignore
-            is_dm_enabled=dm_enabled,  # type: ignore
+        super().__init__(name, description, id=id_)  # type: ignore
+        self.__command = command
+        self.__default_member_permissions = (
+            hikari.Permissions(default_member_permissions) if default_member_permissions else None
         )
-        self._options_dict: dict[str, hikari.CommandOption] = {}
-        self._has_been_sorted = True
-        self._sort_options = sort_options
+        self.__has_been_sorted = True
+        self.__is_dm_enabled = dm_enabled
+        self.__options_dict: dict[str, hikari.CommandOption] = {}
+        self.__sort_options = sort_options
+
+    @property
+    def default_member_permissions(self) -> hikari.UndefinedOr[hikari.Permissions]:
+        perms = self.__get_default_member_perms()
+
+        if perms is hikari.Permissions.NONE:
+            return hikari.UNDEFINED
+
+        return perms
+
+    @property
+    def is_dm_enabled(self) -> bool:
+        if self.__is_dm_enabled is not None:
+            return self.__is_dm_enabled
+
+        return True
+
+    def __get_default_member_perms(self) -> hikari.Permissions:
+        if self.__default_member_permissions is not None:
+            return self.__default_member_permissions
+
+        return hikari.Permissions.NONE
+
+    def set_default_member_permissions(
+        self: _SlashCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
+    ) -> _SlashCommandBuilderT:
+        if default_member_permissions is hikari.UNDEFINED:
+            self.__default_member_permissions = hikari.Permissions.NONE
+
+        else:
+            self.__default_member_permissions = default_member_permissions
+
+        return self
+
+    def set_dm_enabled(self: _SlashCommandBuilderT, state: hikari.UndefinedOr[bool], /) -> _SlashCommandBuilderT:
+        if state is hikari.UNDEFINED:
+            self.__is_dm_enabled = True
+
+        else:
+            self.__is_dm_enabled = state
+
+        return self
 
     def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
         if self._options:
-            self._has_been_sorted = False
+            self.__has_been_sorted = False
 
         super().add_option(option)
-        self._options_dict[option.name] = option
+        self.__options_dict[option.name] = option
         return self
 
     def get_option(self, name: str) -> typing.Optional[hikari.CommandOption]:
-        return self._options_dict.get(name)
+        return self.__options_dict.get(name)
 
     def sort(self: _SlashCommandBuilderT) -> _SlashCommandBuilderT:
-        if self._sort_options and not self._has_been_sorted:
+        if self.__sort_options and not self.__has_been_sorted:
             required: list[hikari.CommandOption] = []
             not_required: list[hikari.CommandOption] = []
             for option in self._options:
@@ -771,24 +829,39 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
                     not_required.append(option)
 
             self._options = [*required, *not_required]
-            self._has_been_sorted = True
+            self.__has_been_sorted = True
 
         return self
 
+    # TODO: get rid of internal import usage
+    def build(self, entity_factory: hikari.api.EntityFactory, /) -> hikari.internal.data_binding.JSONObjectBuilder:
+        data = super().build(entity_factory)
+        assert "default_member_permissions" not in data
+        assert "dm_permission" not in data
+
+        if (perms := self.__get_default_member_perms()) is not hikari.Permissions.NONE:
+            # Note, for some dumb arse reason Discord thought they needed to special case required perms of
+            # `0`/`NONE` to mean admin only while leaving undefined to indicate no required permissions (so true `0`)
+            # even though fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS
+            # THEREQUIRED PERMISSION so we replace NONE with undefined.
+            data["default_member_permissions"] = perms
+
+        data["dm_permission"] = self.is_dm_enabled
+        return data
+
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
-    def copy(
-        self,
-    ) -> _SlashCommandBuilder:
+    def copy(self, command: typing.Union[SlashCommand[typing.Any], SlashCommandGroup], /) -> _SlashCommandBuilder:
         builder = _SlashCommandBuilder(
+            command,
             self.name,
             self.description,
-            self._sort_options,
+            self.__sort_options,
             default_member_permissions=self.default_member_permissions or hikari.Permissions.NONE,
             dm_enabled=self.is_dm_enabled if self.is_dm_enabled is not hikari.UNDEFINED else True,
             id_=self.id,
         )
 
-        for option in self._options:
+        for option in self.options:
             builder.add_option(option)
 
         return builder
@@ -933,9 +1006,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         description: str,
         /,
         *,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
     ) -> None:
         r"""Initialise a slash command group.
@@ -955,6 +1028,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             The description of the command group.
         default_member_permissions
             Member permissions necessary to utilize this command by default.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -963,6 +1039,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             component or client will be in effect.
         dm_enabled
             Whether this command is enabled in DMs with the bot.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         is_global
             Whether this command is a global command.
 
@@ -988,6 +1067,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _SlashCommandBuilder(
+            self,
             self._name,
             self._description,
             False,
@@ -1157,9 +1237,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1175,9 +1255,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1192,9 +1272,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1233,6 +1313,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             before being passed to the command's callback.
         default_member_permissions
             Member permissions necessary to utilize this command by default.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -1241,6 +1324,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             component or client will be in effect.
         dm_enabled
             Whether this command is enabled in DMs with the bot.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         is_global
             Whether this command is a global command.
         sort_options
@@ -1266,6 +1352,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         self._always_defer = always_defer
         self._builder = _SlashCommandBuilder(
+            self,
             name,
             description,
             sort_options,
@@ -1317,7 +1404,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._builder.sort().copy()
+        return self._builder.sort().copy(self)
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         super().load_into_component(component)

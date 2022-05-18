@@ -36,6 +36,8 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
+import hikari.internal.data_binding
+
 from .. import abc as tanjun
 from .. import components
 from .. import errors
@@ -67,9 +69,9 @@ def _as_menu(
     name: str,
     type_: _MenuTypeT,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
-    dm_enabled: bool = True,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[_MenuTypeT]:
     def decorator(
@@ -122,9 +124,9 @@ def as_message_menu(
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
-    dm_enabled: bool = True,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
     """Build a message [tanjun.MenuCommand][] by decorating a function.
@@ -159,6 +161,9 @@ def as_message_menu(
         before being passed to the command's callback.
     default_member_permissions
         Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -167,6 +172,9 @@ def as_message_menu(
         component or client will be in effect.
     dm_enabled
         Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
 
@@ -204,9 +212,9 @@ def as_user_menu(
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
-    dm_enabled: bool = True,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
     """Build a user [tanjun.MenuCommand][] by decorating a function.
@@ -243,6 +251,9 @@ def as_user_menu(
         before being passed to the command's callback.
     default_member_permissions
         Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
@@ -251,6 +262,9 @@ def as_user_menu(
         component or client will be in effect.
     dm_enabled
         Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
 
@@ -281,6 +295,88 @@ def as_user_menu(
         dm_enabled=dm_enabled,
         is_global=is_global,
     )
+
+
+_MenuCommandBuilderT = typing.TypeVar("_MenuCommandBuilderT", bound="_MenuCommandBuilder")
+
+
+class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
+    __slots__ = ("__command", "__default_member_permissions", "__is_dm_enabled")
+
+    def __init__(
+        self,
+        command: MenuCommand[typing.Any, typing.Any],
+        type_: hikari.CommandType,
+        name: str,
+        *,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        dm_enabled: typing.Optional[bool] = None,
+        id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
+    ) -> None:
+        super().__init__(type_, name, description, id=id_)  # type: ignore
+        self.__command = command
+        self.__default_member_permissions = (
+            hikari.Permissions(default_member_permissions) if default_member_permissions else None
+        )
+        self.__is_dm_enabled = dm_enabled
+
+    @property
+    def default_member_permissions(self) -> hikari.UndefinedOr[hikari.Permissions]:
+        perms = self.__get_default_member_perms()
+
+        if perms is hikari.Permissions.NONE:
+            return hikari.UNDEFINED
+
+        return perms
+
+    @property
+    def is_dm_enabled(self) -> bool:
+        if self.__is_dm_enabled is not None:
+            return self.__is_dm_enabled
+
+        return True
+
+    def __get_default_member_perms(self) -> hikari.Permissions:
+        if self.__default_member_permissions is not None:
+            return self.__default_member_permissions
+
+        return hikari.Permissions.NONE
+
+    def set_default_member_permissions(
+        self: _MenuCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
+    ) -> _MenuCommandBuilderT:
+        if default_member_permissions is hikari.UNDEFINED:
+            self.__default_member_permissions = hikari.Permissions.NONE
+
+        else:
+            self.__default_member_permissions = default_member_permissions
+
+        return self
+
+    def set_dm_enabled(self: _MenuCommandBuilderT, state: hikari.UndefinedOr[bool], /) -> _MenuCommandBuilderT:
+        if state is hikari.UNDEFINED:
+            self.__is_dm_enabled = True
+
+        else:
+            self.__is_dm_enabled = state
+
+        return self
+
+    # TODO: get rid of internal import usage
+    def build(self, entity_factory: hikari.api.EntityFactory, /) -> hikari.internal.data_binding.JSONObjectBuilder:
+        data = super().build(entity_factory)
+        assert "default_member_permissions" not in data
+        assert "dm_permission" not in data
+
+        if (perms := self.__get_default_member_perms()) is not hikari.Permissions.NONE:
+            # Note, for some dumb arse reason Discord thought they needed to special case required perms of
+            # `0`/`NONE` to mean admin only while leaving undefined to indicate no required permissions (so true `0`)
+            # even though fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS
+            # THEREQUIRED PERMISSION so we replace NONE with undefined.
+            data["default_member_permissions"] = perms
+
+        data["dm_permission"] = self.is_dm_enabled
+        return data
 
 
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -315,9 +411,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -332,9 +428,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -348,9 +444,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int] = hikari.Permissions.NONE,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: bool = True,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -388,6 +484,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             before being passed to the command's callback.
         default_member_permissions
             Member permissions necessary to utilize this command by default.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
@@ -396,6 +495,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             component or client will be in effect.
         dm_enabled
             Whether this command is enabled in DMs with the bot.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         is_global
             Whether this command is a global command.
 
@@ -484,7 +586,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return hikari.impl.ContextMenuCommandBuilder(
+        return _MenuCommandBuilder(
+            self,
             self._type,  # type: ignore
             self._name,  # type: ignore
             # For some dumb arse reason Discord thought they needed to special case required perms of `0`/`NONE` to

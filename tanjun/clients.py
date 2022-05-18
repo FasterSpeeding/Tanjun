@@ -440,8 +440,25 @@ async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError) -> Non
     await ctx.respond(error.message)
 
 
+def _compile_default_member_perms(perms: hikari.UndefinedNoneOr[hikari.Permissions]) -> hikari.Permissions:
+    if perms is hikari.UNDEFINED or perms is None:
+        return hikari.Permissions.NONE
+
+    if perms is hikari.Permissions.NONE:
+        return hikari.Permissions.ADMINISTRATOR
+
+    return perms
+
+
 def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.PartialCommand) -> bool:
     if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id or builder.type != command.type:
+        return False
+
+    builder_dm_enabled = True if builder.is_dm_enabled is hikari.UNDEFINED else builder.is_dm_enabled
+    default_perms = _compile_default_member_perms(builder.default_member_permissions)
+    builder_default_perms = _compile_default_member_perms(command.default_member_permissions)
+
+    if builder_dm_enabled is not command.is_dm_enabled or default_perms != builder_default_perms:
         return False
 
     if isinstance(command, hikari.SlashCommand):
