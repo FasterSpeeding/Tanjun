@@ -457,7 +457,7 @@ class TestGuildCheck:
 
 def _perm_combos(perms: hikari.Permissions) -> collections.Iterator[hikari.Permissions]:
     for index in range(1, len(perms) + 1):
-        yield from map(lambda v: functools.reduce(operator.ior, v), itertools.combinations(perms, index))
+        yield from (functools.reduce(operator.ior, v) for v in itertools.combinations(perms, index))
 
 
 @pytest.mark.asyncio()

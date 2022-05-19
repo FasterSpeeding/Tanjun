@@ -459,7 +459,7 @@ class _SemanticShlex(_ShlexTokenizer):
 
     async def parse(self) -> dict[str, typing.Any]:
         raw_options = self.collect_raw_options()
-        results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), self.__options))
+        results = asyncio.gather(*(self.__process_option(option, raw_options) for option in self.__options))
         values = dict(zip((option.key for option in self.__options), await results))
 
         for argument in self.__arguments:
