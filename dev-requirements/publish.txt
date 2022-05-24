@@ -20,7 +20,7 @@ idna==3.3
     # via requests
 pep517==0.12.0
     # via pip-tools
-pip-tools==6.6.1
+pip-tools==6.6.2
     # via -r dev-requirements/publish.in
 requests==2.27.1
     # via flit
