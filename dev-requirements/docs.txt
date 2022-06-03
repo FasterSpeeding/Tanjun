@@ -45,14 +45,11 @@ mkdocs-material==8.2.16
     # via -r dev-requirements/docs.in
 mkdocs-material-extensions==1.0.3
     # via mkdocs-material
-mkdocstrings[python]==0.18.1
+mkdocstrings[python]==0.19.0
     # via
     #   -r dev-requirements/docs.in
     #   mkdocstrings-python
-    #   mkdocstrings-python-legacy
 mkdocstrings-python==0.6.6
-    # via mkdocstrings
-mkdocstrings-python-legacy==0.2.2
     # via mkdocstrings
 packaging==21.3
     # via mkdocs
@@ -66,8 +63,6 @@ pyparsing==3.0.8
     # via packaging
 python-dateutil==2.8.2
     # via ghp-import
-pytkdocs==0.16.1
-    # via mkdocstrings-python-legacy
 pyyaml==6.0
     # via
     #   mkdocs
