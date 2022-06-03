@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=dev-requirements/publish.txt dev-requirements/publish.in
 #
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via requests
 charset-normalizer==2.0.12
     # via requests

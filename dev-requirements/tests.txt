@@ -6,7 +6,7 @@
 #
 attrs==21.4.0
     # via pytest
-coverage[toml]==6.3.2
+coverage[toml]==6.4.1
     # via pytest-cov
 execnet==1.9.0
     # via pytest-xdist
@@ -22,7 +22,7 @@ py==1.11.0
     # via
     #   pytest
     #   pytest-forked
-pyparsing==3.0.8
+pyparsing==3.0.9
     # via packaging
 pytest==7.1.2
     # via
