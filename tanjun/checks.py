@@ -91,7 +91,9 @@ def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: 
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT], check: tanjun.CheckSig, follow_wrapped: bool, /
+    command: typing.Optional[_CommandT], check: tanjun.AnyCheckSig, /
+    check: tanjun.CheckSig,
+    follow_wrapped: bool,
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
         return _add_to_command(command, check, follow_wrapped)

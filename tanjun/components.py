@@ -55,7 +55,7 @@ if typing.TYPE_CHECKING:
 
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun.AppCommandContext)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound=tanjun.BaseSlashCommand)
-    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
@@ -197,7 +197,7 @@ class Component(tanjun.Component):
             When this is [True][], message command names will not be allowed to contain
             spaces and will have to be unique to one command within the component.
         """
-        self._checks: list[tanjun.CheckSig] = []
+        self._checks: list[tanjun.AnyCheckSig] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._default_app_cmd_permissions: typing.Optional[hikari.Permissions] = None
@@ -229,7 +229,7 @@ class Component(tanjun.Component):
         return self._is_case_sensitive
 
     @property
-    def checks(self) -> collections.Collection[tanjun.CheckSig]:
+    def checks(self) -> collections.Collection[tanjun.AnyCheckSig]:
         """Collection of the checks being run against every command execution in this component."""
         return self._checks.copy()
 
@@ -565,7 +565,7 @@ class Component(tanjun.Component):
         self._slash_hooks = hooks
         return self
 
-    def add_check(self, *checks: tanjun.CheckSig) -> Self:
+    def add_check(self: _ComponentT, check: tanjun.AnyCheckSig, /) -> _ComponentT:
         """Add a command check to this component to be used for all its commands.
 
         Parameters
@@ -584,7 +584,7 @@ class Component(tanjun.Component):
 
         return self
 
-    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
+    def remove_check(self: _ComponentT, check: tanjun.AnyCheckSig, /) -> _ComponentT:
         """Remove a command check from this component.
 
         Parameters

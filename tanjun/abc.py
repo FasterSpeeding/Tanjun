@@ -72,6 +72,7 @@ import typing
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
@@ -90,6 +91,7 @@ if typing.TYPE_CHECKING:
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound="MetaEventSig")
 
+_P = typing_extensions.ParamSpec("_P")
 _T = typing.TypeVar("_T")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="CommandCallbackSig")
@@ -101,8 +103,10 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 
+_MaybeAwaitable = typing.Union[collections.Callable[_P, _CoroT[_T]], collections.Callable[_P, _T]]
+_AutocompleteCallbackSig = collections.Callable[typing_extensions.Concatenate["AutocompleteContext", _P], _CoroT[None]]
 
-AutocompleteCallbackSig = collections.Callable[..., _CoroT[None]]
+AutocompleteCallbackSig = _AutocompleteCallbackSig[...]
 """Type hint of the callback an autocomplete callback should have.
 
 This will be called when handling autocomplete and should be an asynchronous
@@ -111,8 +115,8 @@ callback which two positional arguments of type [tanjun.abc.AutocompleteContext]
 autocomplete type), returns [None][] and may use dependency injection.
 """
 
-
-CheckSig = typing.Union[collections.Callable[..., _CoroT[bool]], collections.Callable[..., bool]]
+_CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
+CheckSig = _CheckSig[_ContextT_contra, ...]
 """Type hint of a general context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
 
 This may be registered with a [tanjun.abc.ExecutableCommand][] to add a rule
@@ -123,7 +127,29 @@ returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
 current context shouldn't lead to an execution.
 """
 
-CommandCallbackSig = collections.Callable[..., _CoroT[None]]
+AnyCheckSig = _CheckSig["Context", ...]
+
+MessageCheckSig = _CheckSig["MessageContext", ...]
+
+SlashCheckSig = _CheckSig["SlashContext", ...]
+
+
+_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
+
+_MenuValueT = typing.TypeVar("_MenuValueT", hikari.User, hikari.InteractionMember)
+_ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], None]
+MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
+"""Type hint of a context menu command callback.
+
+This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
+and either `hikari.User | hikari.InteractionMember` and/or
+[hikari.messages.Message][] dependent on the type(s) of menu this is.
+"""
+
+MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
+SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
+
+CommandCallbackSig = _CommandCallbackSig["Context", ...]
 """Type hint of the callback a callable [tanjun.abc.ExecutableCommand][] instance will operate on.
 
 This will be called when executing a command and will need to take one
@@ -135,10 +161,9 @@ if applicable and dependency injection.
     This will have to be asynchronous.
 """
 
+_ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], typing.Optional[bool]]
 
-ErrorHookSig = typing.Union[
-    collections.Callable[..., typing.Optional[bool]], collections.Callable[..., _CoroT[typing.Optional[bool]]]
-]
+ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
 """Type hint of the callback used as a unexpected command error hook.
 
 This will be called whenever an unexpected [Exception][] is raised during the
@@ -152,8 +177,9 @@ returns [bool][] or [None][] and may take advantage of dependency injection.
 [False][] is returned to indicate that the exception should be re-raised.
 """
 
+_HookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
 
-HookSig = typing.Union[collections.Callable[..., None], collections.Callable[..., _CoroT[None]]]
+HookSig = _HookSig[_ContextT_contra, ...]
 """Type hint of the callback used as a general command hook.
 
 !!! note
@@ -162,22 +188,16 @@ HookSig = typing.Union[collections.Callable[..., None], collections.Callable[...
     are passed dependent on the type of hook this is being registered as.
 """
 
-ListenerCallbackSig = collections.Callable[..., _CoroT[None]]
+_ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[Exception, _P], _CoroT[None]]
+
+ListenerCallbackSig = _ListenerCallbackSig[...]
 """Type hint of a hikari event manager callback.
 
 This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
 regardless of implementation and must be a coruotine function which returns [None][].
 """
 
-MenuCommandCallbackSig = collections.Callable[..., _CoroT[None]]
-"""Type hint of a context menu command callback.
-
-This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
-and either `hikari.User | hikari.InteractionMember` and/or
-[hikari.messages.Message][] dependent on the type(s) of menu this is.
-"""
-
-MetaEventSig = typing.Union[collections.Callable[..., _CoroT[None]], collections.Callable[..., None]]
+MetaEventSig = _MaybeAwaitable[..., None]
 """Type hint of a client callback.
 
 The positional arguments this is guaranteed depend on the event name its being
@@ -2415,7 +2435,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
 
     @property
     @abc.abstractmethod
-    def checks(self) -> collections.Collection[CheckSig]:
+    def checks(self) -> collections.Collection[CheckSig[_ContextT_co]]:
         """Collection of checks that must be met before the command can be executed."""
 
     @property

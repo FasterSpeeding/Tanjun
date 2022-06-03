@@ -75,7 +75,7 @@ if typing.TYPE_CHECKING:
     import typing_extensions
     from typing_extensions import Self
 
-    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
     _AppCmdResponse = typing.Union[
         hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
     ]
@@ -679,7 +679,7 @@ class Client(tanjun.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
-        self._checks: list[tanjun.CheckSig] = []
+        self._checks: list[tanjun.AnyCheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
         self._default_app_cmd_permissions = hikari.Permissions.NONE
@@ -1067,7 +1067,7 @@ class Client(tanjun.Client):
         return self._cache
 
     @property
-    def checks(self) -> collections.Collection[tanjun.CheckSig]:
+    def checks(self) -> collections.Collection[tanjun.AnyCheckSig]:
         """Collection of the level [tanjun.abc.Context][] checks registered to this client.
 
         !!! note
@@ -1756,7 +1756,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def add_check(self, *checks: tanjun.CheckSig) -> Self:
+    def add_check(self: _ClientT, check: tanjun.AnyCheckSig, /) -> _ClientT:
         """Add a generic check to this client.
 
         This will be applied to both message and slash command execution.
@@ -1779,7 +1779,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
+    def remove_check(self: _ClientT, check: tanjun.AnyCheckSig, /) -> _ClientT:
         """Remove a check from the client.
 
         Parameters

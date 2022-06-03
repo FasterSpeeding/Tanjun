@@ -43,7 +43,7 @@ from .. import components
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
-    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
 
 
 _ContextT = typing.TypeVar("_ContextT", bound="tanjun.Context")
@@ -55,13 +55,13 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
 
     def __init__(self) -> None:
-        self._checks: list[tanjun.CheckSig] = []
+        self._checks: list[tanjun.AnyCheckSig] = []
         self._component: typing.Optional[tanjun.Component] = None
         self._hooks: typing.Optional[tanjun.Hooks[_ContextT]] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
 
     @property
-    def checks(self) -> collections.Collection[tanjun.CheckSig]:
+    def checks(self) -> collections.Collection[tanjun.AnyCheckSig]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._checks.copy()
 
@@ -98,7 +98,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self._metadata[key] = value
         return self
 
-    def add_check(self, *checks: tanjun.CheckSig) -> Self:
+    def add_check(self: _PartialCommandT, check: tanjun.AnyCheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         for check in checks:
             if check not in self._checks:
@@ -106,7 +106,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
 
         return self
 
-    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
+    def remove_check(self: _PartialCommandT, check: tanjun.AnyCheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)
         return self
