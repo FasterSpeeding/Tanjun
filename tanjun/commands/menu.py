@@ -134,7 +134,7 @@ def as_message_menu(
     --------
     ```py
     @as_message_menu("message")
-    async def message_command(self, ctx: tanjun.abc.AutocompleteContext, message: hikari.Message) -> None:
+    async def message_command(self, ctx: tanjun.abc.MenuContext, message: hikari.Message) -> None:
         await ctx.respond(
             embed=hikari.Embed(title="Message content", description=message.content or "N/A")
         )
@@ -204,7 +204,7 @@ def as_user_menu(
     @as_user_menu("user")
     async def user_command(
         self,
-        ctx: tanjun.abc.AutocompleteContext,
+        ctx: tanjun.abc.MenuContext,
         user: hikari.User | hikari.InteractionMember,
     ) -> None:
         await ctx.respond(f"Hello {user}")
