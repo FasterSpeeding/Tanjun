@@ -48,6 +48,7 @@ from unittest import mock
 
 import hikari
 import pytest
+import typing_extensions
 
 import tanjun
 
@@ -91,6 +92,31 @@ class Test_LoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
+
+        result = descriptor.load(mock_client)
+
+        assert result is True
+        mock_callback.assert_called_once_with(mock_client)
+
+    def test_load_when_called_as_decorator(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        descriptor = tanjun.as_loader()(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
+
+        result = descriptor.load(mock_client)
+
+        assert result is True
+        mock_callback.assert_called_once_with(mock_client)
+
+    def test_load_when_called_as_decorator_and_args_passed(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        descriptor = tanjun.as_loader(standard_impl=True)(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -101,6 +127,7 @@ class Test_LoaderDescriptor:
     def test_load_when_must_be_std_and_not_std(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         with pytest.raises(ValueError, match="This loader requires instances of the standard Client implementation"):
@@ -112,6 +139,19 @@ class Test_LoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback, standard_impl=False)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
+        assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
+
+        result = descriptor.load(mock_client)
+
+        assert result is True
+        mock_callback.assert_called_once_with(mock_client)
+
+    def test_load_when_abc_allowed_and_called_as_decorator(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock()
+        descriptor = tanjun.as_loader(standard_impl=False)(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -165,6 +205,31 @@ class Test_UnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
+
+        result = descriptor.unload(mock_client)
+
+        assert result is True
+        mock_callback.assert_called_once_with(mock_client)
+
+    def test_unload_when_called_as_decorator(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        descriptor = tanjun.as_unloader()(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
+
+        result = descriptor.unload(mock_client)
+
+        assert result is True
+        mock_callback.assert_called_once_with(mock_client)
+
+    def test_unload_called_as_decorator_and_args_passed(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock(tanjun.Client)
+        descriptor = tanjun.as_unloader(standard_impl=True)(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -175,6 +240,7 @@ class Test_UnloaderDescriptor:
     def test_unload_when_must_be_std_and_not_std(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         with pytest.raises(ValueError, match="This unloader requires instances of the standard Client implementation"):
@@ -186,6 +252,19 @@ class Test_UnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback, standard_impl=False)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
+        assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
+
+        result = descriptor.unload(mock_client)
+
+        assert result is True
+        mock_callback.assert_called_once_with(mock_client)
+
+    def test_unload_when_abc_allowed_and_called_as_decorator(self):
+        mock_callback = mock.Mock()
+        mock_client = mock.Mock()
+        descriptor = tanjun.as_unloader(standard_impl=False)(mock_callback)
+        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)

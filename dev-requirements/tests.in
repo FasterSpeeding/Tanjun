@@ -4,3 +4,4 @@ pytest-asyncio==0.18.3
 pytest-cov==3
 pytest-timeout==2.1.0
 pytest-xdist==2.5
+typing-extensions==4.2.0

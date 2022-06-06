@@ -235,17 +235,38 @@ def as_loader(
 
 @typing.overload
 def as_loader(
+    *, standard_impl: typing.Literal[True] = True
+) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]:
+    ...
+
+
+@typing.overload
+def as_loader(
     callback: collections.Callable[[tanjun.Client], None], /, *, standard_impl: typing.Literal[False]
 ) -> collections.Callable[[tanjun.Client], None]:
     ...
 
 
+@typing.overload
 def as_loader(
-    callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None]],
+    *, standard_impl: typing.Literal[False]
+) -> collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]:
+    ...
+
+
+def as_loader(
+    callback: typing.Union[
+        collections.Callable[[tanjun.Client], None], collections.Callable[[Client], None], None
+    ] = None,
     /,
     *,
     standard_impl: bool = True,
-) -> typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None]]:
+) -> typing.Union[
+    collections.Callable[[tanjun.Client], None],
+    collections.Callable[[Client], None],
+    collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]],
+    collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]],
+]:
     """Mark a callback as being used to load Tanjun components from a module.
 
     !!! note
@@ -269,7 +290,13 @@ def as_loader(
     collections.abc.Callable[[tanjun.abc.Client], None]]
         The decorated load callback.
     """
-    return _LoaderDescriptor(callback, standard_impl)
+    if callback:
+        return _LoaderDescriptor(callback, standard_impl)
+
+    def decorator(callback: collections.Callable[[tanjun.Client], None]) -> collections.Callable[[tanjun.Client], None]:
+        return _LoaderDescriptor(callback, standard_impl)
+
+    return decorator
 
 
 @typing.overload
@@ -281,17 +308,38 @@ def as_unloader(
 
 @typing.overload
 def as_unloader(
+    *, standard_impl: typing.Literal[True] = True
+) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]:
+    ...
+
+
+@typing.overload
+def as_unloader(
     callback: collections.Callable[[tanjun.Client], None], /, *, standard_impl: typing.Literal[False]
 ) -> collections.Callable[[tanjun.Client], None]:
     ...
 
 
+@typing.overload
 def as_unloader(
-    callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None]],
+    *, standard_impl: typing.Literal[False]
+) -> collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]:
+    ...
+
+
+def as_unloader(
+    callback: typing.Union[
+        collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None], None
+    ] = None,
     /,
     *,
     standard_impl: bool = True,
-) -> typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None]]:
+) -> typing.Union[
+    collections.Callable[[Client], None],
+    collections.Callable[[tanjun.Client], None],
+    collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]],
+    collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]],
+]:
     """Mark a callback as being used to unload a module's utilities from a client.
 
     !!! note
@@ -317,7 +365,13 @@ def as_unloader(
     collections.abc.Callable[[tanjun.abc.Client], None]]
         The decorated unload callback.
     """
-    return _UnloaderDescriptor(callback, standard_impl)
+    if callback:
+        return _UnloaderDescriptor(callback, standard_impl)
+
+    def decorator(callback: collections.Callable[[tanjun.Client], None]) -> collections.Callable[[tanjun.Client], None]:
+        return _UnloaderDescriptor(callback, standard_impl)
+
+    return decorator
 
 
 ClientCallbackNames = tanjun.ClientCallbackNames
