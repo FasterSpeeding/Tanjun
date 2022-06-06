@@ -18,7 +18,7 @@ or [tutorials and articles](https://patchwork.systems/programming/hikari-discord
 
 # Support
 
-[Hikari's support guild.](https://discord.gg/hikari) can be used for support with Tanjun. 
+[Hikari's support guild](https://discord.gg/hikari) provides for support for Tanjun. 
 
 # Contributing
 
