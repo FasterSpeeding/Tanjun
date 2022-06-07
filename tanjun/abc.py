@@ -3138,7 +3138,7 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def with_slash_command(
-        self, command: _BaseSlashCommandT = ..., /, *, copy: bool = False
+        self, command: typing.Optional[_BaseSlashCommandT] = None, /, *, copy: bool = False
     ) -> typing.Union[_BaseSlashCommandT, collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]]:
         """Add a slash command to this component through a decorator call.
 
@@ -3204,7 +3204,7 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def with_message_command(
-        self, command: _MessageCommandT = ..., /, *, copy: bool = False
+        self, command: typing.Optional[_MessageCommandT] = None, /, *, copy: bool = False
     ) -> typing.Union[_MessageCommandT, collections.Callable[[_MessageCommandT], _MessageCommandT]]:
         """Add a message command to this component through a decorator call.
 
