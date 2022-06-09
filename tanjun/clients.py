@@ -1982,7 +1982,7 @@ class Client(tanjun.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.MESSAGE, None] = None,  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Literal[hikari.CommandType.MESSAGE],  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
@@ -1991,7 +1991,7 @@ class Client(tanjun.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.USER, None] = None,  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Literal[hikari.CommandType.USER],  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
@@ -2000,9 +2000,7 @@ class Client(tanjun.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Literal[  # noqa: A002 - Shadowing a builtin name.
-            hikari.CommandType.MESSAGE, hikari.CommandType.USER, None
-        ] = None,
+        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
         ...
 
@@ -2010,9 +2008,7 @@ class Client(tanjun.Client):
         self,
         *,
         global_only: bool = False,
-        type: typing.Literal[  # noqa: A002 - Shadowing a builtin name.
-            hikari.CommandType.MESSAGE, hikari.CommandType.USER, None
-        ] = None,
+        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002 - Shadowing a builtin name.
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         if global_only:
