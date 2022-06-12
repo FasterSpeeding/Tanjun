@@ -51,7 +51,7 @@ mkdocstrings[python]==0.19.0
     # via
     #   -r dev-requirements/docs.in
     #   mkdocstrings-python
-mkdocstrings-python==0.7.0
+mkdocstrings-python==0.7.1
     # via mkdocstrings
 packaging==21.3
     # via mkdocs
