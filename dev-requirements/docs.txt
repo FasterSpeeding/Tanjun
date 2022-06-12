@@ -11,7 +11,9 @@ ghp-import==2.1.0
 griffe==0.20.0
     # via mkdocstrings-python
 importlib-metadata==4.11.4
-    # via mkdocs
+    # via
+    #   markdown
+    #   mkdocs
 jinja2==3.1.2
     # via
     #   mkdocs
@@ -55,7 +57,7 @@ packaging==21.3
     # via mkdocs
 pygments==2.12.0
     # via mkdocs-material
-pymdown-extensions==9.4
+pymdown-extensions==9.5
     # via
     #   mkdocs-material
     #   mkdocstrings
@@ -71,7 +73,7 @@ pyyaml-env-tag==0.1
     # via mkdocs
 six==1.16.0
     # via python-dateutil
-watchdog==2.1.8
+watchdog==2.1.9
     # via mkdocs
 zipp==3.8.0
     # via importlib-metadata
