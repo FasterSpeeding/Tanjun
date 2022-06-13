@@ -35,6 +35,8 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
   - markdown_include.include
+  - toc:
+      permalink: "#"
 
 plugins:
   - search
