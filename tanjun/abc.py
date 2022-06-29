@@ -664,7 +664,7 @@ class Context(alluka.Context):
             If `delete_after` would be more than 15 minutes after the slash
             command was called.
 
-            If both `attachmet` and `attachments` are passed or both `component`
+            If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
@@ -722,6 +722,8 @@ class Context(alluka.Context):
         *,
         ensure_result: typing.Literal[True],
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -744,6 +746,8 @@ class Context(alluka.Context):
         *,
         ensure_result: bool = False,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -765,6 +769,8 @@ class Context(alluka.Context):
         *,
         ensure_result: bool = False,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -796,6 +802,10 @@ class Context(alluka.Context):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.files.Resource][], then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
         ensure_result
             Ensure that this call will always return a message object.
 
@@ -809,6 +819,12 @@ class Context(alluka.Context):
 
             Slash command responses can only be deleted within 15 minutes of
             the command being received.
+        attachment
+            If provided, the message attachment. This can be a resource,
+            or string of a path on your computer or a URL.
+        attachments
+            If provided, the message attachments. These can be resources, or
+            strings consisting of paths on your computer or URLs.
         component
             If provided, builder object of the component to include in this response.
         components
@@ -851,8 +867,8 @@ class Context(alluka.Context):
             If `delete_after` would be more than 15 minutes after the slash
             command was called.
 
-            If both `component` and `components` are passed or both `embed` and
-            `embeds` are passed.
+            If both `attachment` and `attachments` are passed or both `component`
+            and `components` are passed or both `embed` and `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
@@ -1027,8 +1043,8 @@ class MessageContext(Context, abc.ABC):
 
             If the interaction will have expired before `delete_after` is reached.
 
-            If both `component` and `components` are passed or both `embed` and
-            `embeds` are passed.
+            If both `attachment` and `attachments` are passed or both `component`
+            and `components` are passed or both `embed` and `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
@@ -1501,7 +1517,7 @@ class AppCommandContext(Context, abc.ABC):
 
             If the interaction will have expired before `delete_after` is reached.
 
-            If both `attachment` and `attachments` are passed of both `component`
+            If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
         """
 
@@ -1512,6 +1528,8 @@ class AppCommandContext(Context, abc.ABC):
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         ephemeral: bool = False,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -1551,6 +1569,10 @@ class AppCommandContext(Context, abc.ABC):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.files.Resource][], then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -1570,6 +1592,12 @@ class AppCommandContext(Context, abc.ABC):
             If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
             is provided, then this will instead update the embed. This allows
             for simpler syntax when sending an embed alone.
+        attachment
+            If provided, the message attachment. This can be a resource,
+            or string of a path on your computer or a URL.
+        attachments
+            If provided, the message attachments. These can be resources, or
+            strings consisting of paths on your computer or URLs.
         component
             If provided, builder object of the component to include in this message.
         components
@@ -1615,8 +1643,8 @@ class AppCommandContext(Context, abc.ABC):
 
             If the interaction will have expired before `delete_after` is reached.
 
-            If both `component` and `components` are passed or both `embed` and
-            `embeds` are passed.
+            If both `attachment` and `attachments` are passed or both `component`
+            and `components` are passed or both `embed` and `embeds` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no embeds; messages with more than

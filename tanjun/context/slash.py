@@ -37,6 +37,7 @@ __all__: list[str] = ["SlashContext", "SlashOption"]
 import asyncio
 import datetime
 import logging
+import os
 import typing
 
 import hikari
@@ -591,6 +592,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -620,6 +623,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             await self._interaction.create_initial_response(
                 response_type=hikari.ResponseType.MESSAGE_CREATE,
                 content=content,
+                attachment=attachment,
+                attachments=attachments,
                 component=component,
                 components=components,
                 embed=embed,
@@ -632,25 +637,9 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             )
 
         else:
-            if component and components:
-                raise ValueError("Only one of component or components may be passed")
-
-            if embed and embeds:
-                raise ValueError("Only one of embed or embeds may be passed")
-
-            if component:
-                assert not isinstance(component, hikari.UndefinedType)
-                components = [component]
-
-            elif components is hikari.UNDEFINED:
-                components = []
-
-            if embed:
-                assert not isinstance(embed, hikari.UndefinedType)
-                embeds = [embed]
-
-            elif embeds is hikari.UNDEFINED:
-                embeds = []
+            attachments = _to_list(attachment, attachments, content, _ATTACHMENT_TYPES, "attachment")
+            components = _to_list(component, components, content, hikari.api.ComponentBuilder, "component")
+            embeds = _to_list(embed, embeds, content, hikari.Embed, "embed")
 
             content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
@@ -658,6 +647,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             result = hikari.impl.InteractionMessageBuilder(
                 type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
                 content=content,  # type: ignore
+                attachments=attachments,  # type: ignore
                 components=components,  # type: ignore
                 embeds=embeds,  # type: ignore
                 flags=flags,  # type: ignore
@@ -679,6 +669,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         ephemeral: bool = False,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -701,6 +693,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             await self._create_initial_response(
                 delete_after=delete_after,
                 content=content,
+                attachment=attachment,
+                attachments=attachments,
                 component=component,
                 components=components,
                 embed=embed,
@@ -898,6 +892,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         *,
         ensure_result: bool = False,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -916,6 +912,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 return await self._create_followup(
                     content,
                     delete_after=delete_after,
+                    attachment=attachment,
+                    attachments=attachments,
                     component=component,
                     components=components,
                     embed=embed,
@@ -929,6 +927,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 return await self.edit_initial_response(
                     delete_after=delete_after,
                     content=content,
+                    attachment=attachment,
+                    attachments=attachments,
                     component=component,
                     components=components,
                     embed=embed,
@@ -941,6 +941,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             await self._create_initial_response(
                 delete_after=delete_after,
                 content=content,
+                attachment=attachment,
+                attachments=attachments,
                 component=component,
                 components=components,
                 embed=embed,
@@ -952,6 +954,31 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
         if ensure_result:
             return await self._interaction.fetch_initial_response()
+
+
+_ATTACHMENT_TYPES: tuple[type[typing.Any], ...] = (hikari.files.Resource, *hikari.files.RAWISH_TYPES, os.PathLike)
+
+
+def _to_list(
+    singular: hikari.UndefinedOr[_T],
+    plural: hikari.UndefinedOr[collections.Sequence[_T]],
+    other: typing.Any,
+    type_: typing.Union[type[typing.Any], tuple[type[typing.Any], ...]],
+    name: str,
+) -> list[_T]:
+    if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
+        raise ValueError(f"Only one of {name} or {name}s may be passed")
+
+    if singular:
+        return [singular]
+
+    if plural:
+        return list(plural)
+
+    if other and isinstance(other, type_):
+        return [other]
+
+    return []
 
 
 class SlashContext(AppCommandContext, tanjun.SlashContext):

@@ -86,11 +86,14 @@ class CommandError(TanjunError):
     delete_after: typing.Union[datetime.timedelta, float, int, None]
     """The seconds after which the response message should be deleted, if set."""
 
+    attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+    """Sequence of the attachments to be sent as a response to the command, if set."""
+
     components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]]
-    """Sequence of the components to be sent as a response to the command."""
+    """Sequence of the components to be sent as a response to the command, if set."""
 
     embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
-    """Sequence of the embeds to be sent as a response to the command."""
+    """Sequence of the embeds to be sent as a response to the command, if set."""
 
     mentions_everyone: hikari.UndefinedOr[bool]
     """Whether or not the response should be allowed to mention `@everyone`/`@here`."""
@@ -120,6 +123,8 @@ class CommandError(TanjunError):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -147,6 +152,10 @@ class CommandError(TanjunError):
 
             Slash command responses can only be deleted within 15 minutes of
             the command being received.
+        attachment
+            A singular attachment to respond with.
+        attachments
+            A sequence of attachments to respond with.
         component
             If provided, builder object of the component to include in this response.
         components
@@ -179,11 +188,15 @@ class CommandError(TanjunError):
         ValueError
             Raised for any of the following reasons:
 
+            * When both `attachment` and `attachments` are provided.
             * When both `component` and `components` are passed.
             * When both `embed` and `embeds` are passed.
             * If more than 100 entries are passed for `role_mentions`.
             * If more than 100 entries are passed for `user_mentions`.
         """
+        if attachment and attachments:
+            raise ValueError("Cannot specify both attachment and attachments")
+
         if component and components:
             raise ValueError("Cannot specify both component and components")
 
@@ -196,6 +209,7 @@ class CommandError(TanjunError):
         if isinstance(user_mentions, collections.Sequence) and len(user_mentions) > 100:
             raise ValueError("Cannot specify more than 100 user mentions")
 
+        self.attachments = [attachment] if attachment else attachments
         self.content = content
         self.components = [component] if component else components
         self.delete_after = delete_after
@@ -265,6 +279,7 @@ class CommandError(TanjunError):
         """
         return await ctx.respond(
             content=self.content,
+            attachments=self.attachments,
             components=self.components,
             delete_after=self.delete_after,
             embeds=self.embeds,
