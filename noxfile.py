@@ -152,7 +152,7 @@ def flake8(session: nox.Session) -> None:
 @nox.session(reuse_venv=True, name="slot-check")
 def slot_check(session: nox.Session) -> None:
     """Check this project's slotted classes for common mistakes."""
-    install_requirements(session, ".", "--use-feature=in-tree-build", *_dev_dep("lint"))
+    install_requirements(session, ".", *_dev_dep("lint"))
     session.run("slotscheck", "-m", "tanjun")
 
 
@@ -191,7 +191,7 @@ def build(session: nox.Session) -> None:
 def publish(session: nox.Session, test: bool = False) -> None:
     """Publish this project to pypi."""
     install_requirements(session, *_dev_dep("publish"))
-    install_requirements(session, ".", "--use-feature=in-tree-build", first_call=False)
+    install_requirements(session, ".", first_call=False)
 
     env: dict[str, str] = {}
 
@@ -232,7 +232,7 @@ def reformat(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def test(session: nox.Session) -> None:
     """Run this project's tests using pytest."""
-    install_requirements(session, ".", "--use-feature=in-tree-build", *_dev_dep("tests"))
+    install_requirements(session, ".", *_dev_dep("tests"))
     # TODO: can import-mode be specified in the config.
     session.run("pytest", "-n", "auto", "--import-mode", "importlib")
 
@@ -240,7 +240,7 @@ def test(session: nox.Session) -> None:
 @nox.session(name="test-coverage", reuse_venv=True)
 def test_coverage(session: nox.Session) -> None:
     """Run this project's tests while recording test coverage."""
-    install_requirements(session, ".", "--use-feature=in-tree-build", *_dev_dep("tests"))
+    install_requirements(session, ".", *_dev_dep("tests"))
     # TODO: can import-mode be specified in the config.
     # https://github.com/nedbat/coveragepy/issues/1002
     session.run(
@@ -262,7 +262,7 @@ def _run_pyright(session: nox.Session, *args: str) -> None:
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
     """Statically analyse and veirfy this project using Pyright."""
-    install_requirements(session, ".", "--use-feature=in-tree-build", *_dev_dep("nox", "tests", "type-checking"))
+    install_requirements(session, ".", *_dev_dep("nox", "tests", "type-checking"))
     _run_pyright(session)
     # session.run("python", "-m", "mypy", "--version")
     # Right now MyPy is allowed to fail without failing CI as the alternative is to let MyPy bugs block releases.
@@ -272,7 +272,7 @@ def type_check(session: nox.Session) -> None:
 @nox.session(name="verify-types", reuse_venv=True)
 def verify_types(session: nox.Session) -> None:
     """Verify the "type completeness" of types exported by the library using Pyright."""
-    install_requirements(session, ".", "--use-feature=in-tree-build", *_dev_dep("type-checking"))
+    install_requirements(session, ".", *_dev_dep("type-checking"))
     _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")
 
 
