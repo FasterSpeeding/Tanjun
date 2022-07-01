@@ -47,5 +47,5 @@ sniffio==1.2.0
     #   anyio
     #   httpcore
     #   httpx
-virtualenv==20.14.1
+virtualenv==20.15.1
     # via nox
