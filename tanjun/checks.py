@@ -880,7 +880,7 @@ def with_check(check: tanjun.CheckSig, /) -> collections.Callable[[_CommandT], _
 
 
 class _AllChecks:
-    __slots__ = ("_checks",)
+    __slots__ = ("_checks", "__weakref__")
 
     def __init__(self, checks: list[tanjun.CheckSig]) -> None:
         self._checks = checks
