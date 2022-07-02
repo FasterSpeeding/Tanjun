@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Allow for implicitly passing an embed or component as `content` when creating the initial
   response for an application command as a REST server to match the documented behaviour.
+- The "all_checks" check failing on calls with DI.
 
 ## [2.5.2a1] - 2022-05-16
 ### Added
