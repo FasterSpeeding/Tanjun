@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for sending attachments with `Context.respond`, `CommandError` and
+  `SlashContext.create_initial_response`.
+
+### Changed
+- Allow `as_loader` and `as_unloader` to be used as decorators while passing keyword-arguments.
+- Bumped minimum Hikari version to `2.0.0.dev109`.
+
+### Fixed
+- Allow for implicitly passing an embed or component as `content` when creating the initial
+  response for an application command as a REST server to match the documented behaviour.
+- The "all_checks" check failing on calls with DI.
 
 ## [2.5.2a1] - 2022-05-16
 ### Added
