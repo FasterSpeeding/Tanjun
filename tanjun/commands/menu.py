@@ -36,8 +36,6 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
-import hikari.internal.data_binding
-
 from .. import abc as tanjun
 from .. import components
 from .. import errors
@@ -356,20 +354,11 @@ class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
     def set_default_member_permissions(
         self: _MenuCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
     ) -> _MenuCommandBuilderT:
-        # This feels like a shit hack, I'd rather not lol.
-        if default_member_permissions is hikari.UNDEFINED:
-            self.__default_member_permissions = hikari.Permissions.NONE
-
-        elif default_member_permissions == hikari.Permissions.NONE:
-            self.__default_member_permissions = hikari.Permissions.ADMINISTRATOR
-
-        else:
-            self.__default_member_permissions = default_member_permissions
-
+        self.__default_member_permissions = default_member_permissions
         return self
 
     # TODO: get rid of internal import usage
-    def build(self, entity_factory: hikari.api.EntityFactory, /) -> hikari.internal.data_binding.JSONObjectBuilder:
+    def build(self, entity_factory: hikari.api.EntityFactory, /) -> collections.MutableMapping[str, typing.Any]:
         data = super().build(entity_factory)
         assert "default_member_permissions" not in data
         assert "dm_permission" not in data
