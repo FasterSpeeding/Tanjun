@@ -796,7 +796,7 @@ def as_time_schedule(
     Parameters
     ----------
     months
-        Either one or multiple months the schedule shouldrun on.
+        Either one or multiple months the schedule should run on.
 
         If this is not specified or an empty sequence then the schedule
         will run on all months.
