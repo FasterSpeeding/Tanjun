@@ -81,6 +81,7 @@ if typing.TYPE_CHECKING:
             self,
             client: tanjun.Client,
             interaction: hikari.AutocompleteInteraction,
+            /,
             *,
             future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
         ) -> context.AutocompleteContext:
@@ -92,6 +93,7 @@ if typing.TYPE_CHECKING:
             client: tanjun.Client,
             interaction: hikari.CommandInteraction,
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+            /,
             *,
             default_to_ephemeral: bool = False,
             future: typing.Optional[
@@ -112,6 +114,7 @@ if typing.TYPE_CHECKING:
             content: str,
             message: hikari.Message,
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+            /,
             *,
             triggering_name: str = "",
             triggering_prefix: str = "",
@@ -124,6 +127,7 @@ if typing.TYPE_CHECKING:
             client: tanjun.Client,
             interaction: hikari.CommandInteraction,
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+            /,
             *,
             default_to_ephemeral: bool = False,
             future: typing.Optional[
@@ -2526,9 +2530,7 @@ class Client(tanjun.Client):
         if event.message.content is None:
             return
 
-        ctx = self._make_message_context(
-            client=self, register_task=self._add_task, content=event.message.content, message=event.message
-        )
+        ctx = self._make_message_context(self, event.message.content, event.message, self._add_task)
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -2618,9 +2620,9 @@ class Client(tanjun.Client):
         """
         if interaction.command_type is hikari.CommandType.SLASH:
             ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
-                client=self,
-                interaction=interaction,
-                register_task=self._add_task,
+                self,
+                interaction,
+                self._add_task,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
@@ -2628,9 +2630,9 @@ class Client(tanjun.Client):
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
-                client=self,
-                interaction=interaction,
-                register_task=self._add_task,
+                self,
+                interaction,
+                self._add_task,
                 on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
@@ -2747,9 +2749,9 @@ class Client(tanjun.Client):
 
         if interaction.command_type is hikari.CommandType.SLASH:
             ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
-                client=self,
-                interaction=interaction,
-                register_task=self._add_task,
+                self,
+                interaction,
+                self._add_task,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
@@ -2758,9 +2760,9 @@ class Client(tanjun.Client):
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
-                client=self,
-                interaction=interaction,
-                register_task=self._add_task,
+                self,
+                interaction,
+                self._add_task,
                 on_not_found=self._on_menu_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,

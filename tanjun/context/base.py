@@ -44,19 +44,42 @@ from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
+    _RustContext = None
+
+else:
+    try:
+        from alluka_rust import BasicContext as _RustContext  # type: ignore
+
+    except Exception:
+        _RustContext = None
 
 
-class BaseContext(alluka.BasicContext, tanjun.Context):
+_ContextBase = alluka.BasicContext
+
+
+class BaseContext(_ContextBase, tanjun.Context):
     """Base class for the standard command context implementations."""
 
     __slots__ = ("_client", "_component", "_final")
 
-    def __init__(self, client: tanjun.Client) -> None:
-        super().__init__(client.injector)
+    def __init__(self, client: tanjun.Client, /) -> None:
+        if _ContextBase is _RustContext:
+            super().__init__()  # type: ignore
+
+        else:
+            super().__init__(client.injector)
+
         self._client = client
         self._component: typing.Optional[tanjun.Component] = None
         self._final = False
         self._set_type_special_case(tanjun.Context, self)
+
+    if _ContextBase is _RustContext:  # type: ignore
+
+        def __new__(cls, *args, **kwargs):  # type: ignore
+            result = super().__new__(cls, args[0].injector)  # type: ignore
+            result.__init__(*args, **kwargs)  # type: ignore
+            return result  # type: ignore
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:

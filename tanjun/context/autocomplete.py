@@ -50,9 +50,21 @@ if typing.TYPE_CHECKING:
     from collections import abc as collections
 
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
+    _RustContext = None
 
 
-class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
+else:
+    try:
+        from alluka_rust import BasicContext as _RustContext  # type: ignore
+
+    except Exception:
+        _RustContext = None
+
+
+_ContextBase = alluka.BasicContext
+
+
+class AutocompleteContext(_ContextBase, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
     __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction", "_options")
@@ -61,6 +73,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         self,
         client: tanjun.Client,
         interaction: hikari.AutocompleteInteraction,
+        /,
         *,
         future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
     ) -> None:
@@ -76,7 +89,12 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
             A future used to set the initial response if this is being called
             through the REST webhook flow.
         """
-        super().__init__(client.injector)
+        if _ContextBase is _RustContext:
+            super().__init__()  # type: ignore
+
+        else:
+            super().__init__(client.injector)
+
         self._client = client
         self._future = future
         self._has_responded = False
@@ -94,6 +112,13 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         assert focused is not None
         self._focused = focused
         self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(tanjun.AutocompleteContext, self)
+
+    if _ContextBase is _RustContext:  # type: ignore
+
+        def __new__(cls, *args, **kwargs) -> AutocompleteContext:  # type: ignore
+            result = super().__new__(cls, args[0].injector)  # type: ignore
+            result.__init__(*args, **kwargs)  # type: ignore
+            return result  # type: ignore
 
     @property
     def author(self) -> hikari.User:

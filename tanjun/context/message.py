@@ -77,6 +77,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         content: str,
         message: hikari.Message,
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        /,
         *,
         triggering_name: str = "",
         triggering_prefix: str = "",

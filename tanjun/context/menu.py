@@ -65,6 +65,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         client: tanjun.Client,
         interaction: hikari.CommandInteraction,
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        /,
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
