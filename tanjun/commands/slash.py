@@ -734,11 +734,10 @@ _SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCom
 
 
 class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
-    __slots__ = ("_command", "__default_member_permissions", "_has_been_sorted", "_options_dict", "_sort_options")
+    __slots__ = ("_has_been_sorted", "_options_dict", "_sort_options")
 
     def __init__(
         self,
-        command: tanjun.AppCommand[typing.Any],
         name: str,
         description: str,
         sort_options: bool,
@@ -746,56 +745,12 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
         super().__init__(name, description, id=id_)  # type: ignore
-        self._command = command
-        self.__default_member_permissions: hikari.UndefinedOr[hikari.Permissions] = hikari.UNDEFINED
         self._has_been_sorted = True
         self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
 
-    @property
-    def default_member_permissions(self) -> hikari.UndefinedOr[hikari.Permissions]:
-        perms = self.__get_default_member_perms()
-
-        if perms is hikari.Permissions.NONE:
-            return hikari.UNDEFINED
-
-        return perms
-
-    @property
-    def is_dm_enabled(self) -> bool:
-        if (state := super().is_dm_enabled) is not hikari.UNDEFINED:
-            return state
-
-        if self._command.is_dm_enabled:
-            return self._command.is_dm_enabled
-
-        assert self._command.component
-        if self._command.component.dms_enabled_for_app_cmds:
-            return self._command.component.dms_enabled_for_app_cmds
-
-        assert self._command.component.client
-        return self._command.component.client.dms_enabled_for_app_cmds
-
-    def __get_default_member_perms(self) -> hikari.Permissions:
-        # TODO: this feels bodged tbh
-        if self.__default_member_permissions is not hikari.UNDEFINED:
-            return self.__default_member_permissions
-
-        if self._command.default_member_permissions is not None:
-            return self._command.default_member_permissions
-
-        assert self._command.component
-        if self._command.component.default_app_cmd_permissions:
-            return self._command.component.default_app_cmd_permissions
-
-        assert self._command.component.client
-        return self._command.component.client.default_app_cmd_permissions
-
-    def set_default_member_permissions(
-        self: _SlashCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
-    ) -> _SlashCommandBuilderT:
-        self.__default_member_permissions = default_member_permissions
-        return self
+    def inherit_permissions(self, client: tanjun.Client, component: tanjun.Component, /) -> None:
+        raise NotImplementedError
 
     def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
         if self._options:
@@ -823,25 +778,9 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 
         return self
 
-    # TODO: get rid of internal import usage
-    def build(self, entity_factory: hikari.api.EntityFactory, /) -> collections.MutableMapping[str, typing.Any]:
-        data = super().build(entity_factory)
-        assert "default_member_permissions" not in data
-        assert "dm_permission" not in data
-
-        if (perms := self.__get_default_member_perms()) is not hikari.Permissions.NONE:
-            # Note, for some dumb arse reason Discord thought they needed to special case required perms of
-            # `0`/`NONE` to mean admin only while leaving undefined to indicate no required permissions (so true `0`)
-            # even though fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS
-            # THEREQUIRED PERMISSION so we replace NONE with undefined.
-            data["default_member_permissions"] = perms
-
-        data["dm_permission"] = self.is_dm_enabled
-        return data
-
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
-    def copy(self, command: tanjun.AppCommand[typing.Any], /) -> _SlashCommandBuilder:
-        builder = _SlashCommandBuilder(command, self.name, self.description, self._sort_options, id_=self.id)
+    def copy(self, /) -> _SlashCommandBuilder:
+        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id_=self.id)
 
         for option in self.options:
             builder.add_option(option)
@@ -1079,7 +1018,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(self, self._name, self._description, False)
+        builder = _SlashCommandBuilder(self._name, self._description, False)
 
         for command in self._commands.values():
             option_type = (
@@ -1365,7 +1304,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._builder = _SlashCommandBuilder(self, name, description, sort_options)
+        self._builder = _SlashCommandBuilder(name, description, sort_options)
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
         self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
@@ -1412,7 +1351,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def build(self) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._builder.sort().copy(self)
+        return self._builder.sort().copy()
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         super().load_into_component(component)

@@ -655,7 +655,7 @@ class TestSlashCommandGroup:
         assert result.default_member_permissions is hikari.UNDEFINED
         assert result.is_dm_enabled is True
         assert result == (
-            tanjun.commands.slash._SlashCommandBuilder(mock.Mock(), "yee", "nsoosos", False)
+            tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,

@@ -299,79 +299,10 @@ _MenuCommandBuilderT = typing.TypeVar("_MenuCommandBuilderT", bound="_MenuComman
 
 
 class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
-    __slots__ = ("_command",)
+    __slots__ = ()
 
-    def __init__(
-        self,
-        command: MenuCommand[typing.Any, typing.Any],
-        type_: hikari.CommandType,
-        name: str,
-        *,
-        id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
-    ) -> None:
-        super().__init__(type_, name, description, id=id_)  # type: ignore
-        self._command = command
-
-    @property
-    def default_member_permissions(self) -> hikari.UndefinedOr[hikari.Permissions]:
-        perms = self.__get_default_member_perms()
-
-        if perms is hikari.Permissions.NONE:
-            return hikari.UNDEFINED
-
-        return perms
-
-    @property
-    def is_dm_enabled(self) -> bool:
-        if (state := super().is_dm_enabled) is not hikari.UNDEFINED:
-            return state
-
-        if self._command.is_dm_enabled:
-            return self._command.is_dm_enabled
-
-        assert self._command.component
-        if self._command.component.dms_enabled_for_app_cmds:
-            return self._command.component.dms_enabled_for_app_cmds
-
-        assert self._command.component.client
-        return self._command.component.client.dms_enabled_for_app_cmds
-
-    def __get_default_member_perms(self) -> hikari.Permissions:
-        # TODO: this feels bodged tbh
-        if self.__default_member_permissions is not hikari.UNDEFINED:
-            return self.__default_member_permissions
-
-        if self._command.default_member_permissions is not None:
-            return self._command.default_member_permissions
-
-        assert self._command.component
-        if self._command.component.default_app_cmd_permissions:
-            return self._command.component.default_app_cmd_permissions
-
-        assert self._command.component.client
-        return self._command.component.client.default_app_cmd_permissions
-
-    def set_default_member_permissions(
-        self: _MenuCommandBuilderT, default_member_permissions: hikari.UndefinedOr[hikari.Permissions], /
-    ) -> _MenuCommandBuilderT:
-        self.__default_member_permissions = default_member_permissions
-        return self
-
-    # TODO: get rid of internal import usage
-    def build(self, entity_factory: hikari.api.EntityFactory, /) -> collections.MutableMapping[str, typing.Any]:
-        data = super().build(entity_factory)
-        assert "default_member_permissions" not in data
-        assert "dm_permission" not in data
-
-        if (perms := self.__get_default_member_perms()) is not hikari.Permissions.NONE:
-            # Note, for some dumb arse reason Discord thought they needed to special case required perms of
-            # `0`/`NONE` to mean admin only while leaving undefined to indicate no required permissions (so true `0`)
-            # even though fun fact if I wanted a command to be admin-only by default then I WOULD JUST SET ADMIN AS
-            # THEREQUIRED PERMISSION so we replace NONE with undefined.
-            data["default_member_permissions"] = perms
-
-        data["dm_permission"] = self.is_dm_enabled
-        return data
+    def inherit_permissions(self, client: tanjun.Client, component: tanjun.Component, /) -> None:
+        raise NotImplementedError
 
 
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -593,7 +524,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return _MenuCommandBuilder(self, self._type, self._name)
+        return _MenuCommandBuilder(self._type, self._name)  # type: ignore
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
