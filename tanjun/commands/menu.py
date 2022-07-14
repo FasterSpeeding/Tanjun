@@ -524,7 +524,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             builder.set_default_member_permissions(component.default_app_cmd_permissions)
 
         if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
-            builder.set_dm_enabled(component.dms_enabled_for_app_cmds)
+            builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
 
         return builder
 

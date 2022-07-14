@@ -1044,7 +1044,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             builder.set_default_member_permissions(component.default_app_cmd_permissions)
 
         if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
-            builder.set_dm_enabled(component.dms_enabled_for_app_cmds)
+            builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
 
         return builder
 
@@ -1371,7 +1371,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             builder.set_default_member_permissions(component.default_app_cmd_permissions)
 
         if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
-            builder.set_dm_enabled(component.dms_enabled_for_app_cmds)
+            builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
 
         return builder
 

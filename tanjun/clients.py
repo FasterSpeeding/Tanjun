@@ -1343,7 +1343,7 @@ class Client(tanjun.Client):
                 builder.set_default_member_permissions(self.default_app_cmd_permissions)
 
             if builder.is_dm_enabled is hikari.UNDEFINED:
-                builder.set_dm_enabled(self.dms_enabled_for_app_cmds)
+                builder.set_is_dm_enabled(self.dms_enabled_for_app_cmds)
 
             builders[key] = builder
 
