@@ -37,6 +37,7 @@
 
 import types
 import typing
+from collections import abc as collections
 from unittest import mock
 
 import pytest
@@ -46,7 +47,13 @@ from tanjun.commands import base as base_command
 _T = typing.TypeVar("_T")
 
 
-def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
+def stub_class(
+    cls: typing.Type[_T],
+    /,
+    args: collections.Sequence[typing.Any] = (),
+    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    **namespace: typing.Any,
+) -> _T:
     namespace["__slots__"] = ()
 
     for name in getattr(cls, "__abstractmethods__", None) or ():
@@ -55,7 +62,7 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)
+    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
 
 
 class TestPartialCommand:
@@ -130,7 +137,7 @@ class TestPartialCommand:
     def test_with_check(self, command: base_command.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
         add_check = mock.Mock()
-        command = stub_class(base_command.PartialCommand, add_check=add_check)()
+        command = stub_class(base_command.PartialCommand, add_check=add_check)
 
         assert command.with_check(mock_check) is mock_check
         add_check.assert_called_once_with(mock_check)

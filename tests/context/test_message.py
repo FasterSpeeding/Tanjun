@@ -30,14 +30,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# pyright: reportUnknownMemberType=none
-# pyright: reportPrivateUsage=none
-# This leads to too many false-positives around mocks.
-
 import asyncio
 import datetime
 import types
 import typing
+
+# pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
+# This leads to too many false-positives around mocks.
+from collections import abc as collections
 from unittest import mock
 
 import alluka
@@ -49,7 +50,13 @@ import tanjun
 _T = typing.TypeVar("_T")
 
 
-def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
+def stub_class(
+    cls: typing.Type[_T],
+    /,
+    args: collections.Sequence[typing.Any] = (),
+    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    **namespace: typing.Any,
+) -> _T:
     namespace["__slots__"] = ()
 
     for name in getattr(cls, "__abstractmethods__", None) or ():
@@ -58,7 +65,7 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)
+    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
 
 
 @pytest.fixture()
@@ -245,8 +252,10 @@ class TestMessageContext:
     async def test_edit_initial_response(self, mock_client: mock.Mock):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock_client, "e", mock.AsyncMock(), mock_register_task
+        context = stub_class(
+            tanjun.context.MessageContext,
+            _delete_after=mock_delete_after,
+            args=(mock_client, "e", mock.AsyncMock(), mock_register_task),
         )
         context._initial_response_id = hikari.Snowflake(32123)
         mock_attachment = mock.Mock()
@@ -306,8 +315,10 @@ class TestMessageContext:
     ):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock_client, "e", mock.AsyncMock(), mock_register_task
+        context = stub_class(
+            tanjun.context.MessageContext,
+            _delete_after=mock_delete_after,
+            args=(mock_client, "e", mock.AsyncMock(), mock_register_task),
         )
         context._initial_response_id = hikari.Snowflake(32123)
 
@@ -322,8 +333,10 @@ class TestMessageContext:
     async def test_edit_last_response(self, mock_client: mock.Mock):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock_client, "e", mock.AsyncMock(), mock_register_task
+        context = stub_class(
+            tanjun.context.MessageContext,
+            _delete_after=mock_delete_after,
+            args=(mock_client, "e", mock.AsyncMock(), mock_register_task),
         )
         context._last_response_id = hikari.Snowflake(32123)
         mock_attachment = mock.Mock()
@@ -381,8 +394,10 @@ class TestMessageContext:
     ):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
-        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock_client, "e", mock.AsyncMock(), mock_register_task
+        context = stub_class(
+            tanjun.context.MessageContext,
+            _delete_after=mock_delete_after,
+            args=(mock_client, "e", mock.AsyncMock(), mock_register_task),
         )
         context._last_response_id = hikari.Snowflake(32123)
 
@@ -455,8 +470,10 @@ class TestMessageContext:
     async def test_respond(self):
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()
-        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock.Mock(), "e", mock.AsyncMock(), mock_register_task
+        context = stub_class(
+            tanjun.context.MessageContext,
+            _delete_after=mock_delete_after,
+            args=(mock.Mock(), "e", mock.AsyncMock(), mock_register_task),
         )
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -517,8 +534,10 @@ class TestMessageContext:
     async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()
-        context = stub_class(tanjun.context.MessageContext, _delete_after=mock_delete_after)(
-            mock.Mock(), "e", mock.AsyncMock(), mock_register_task
+        context = stub_class(
+            tanjun.context.MessageContext,
+            _delete_after=mock_delete_after,
+            args=(mock.Mock(), "e", mock.AsyncMock(), mock_register_task),
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
