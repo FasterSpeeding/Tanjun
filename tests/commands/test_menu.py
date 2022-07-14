@@ -60,9 +60,9 @@ def test_as_message_menu():
     assert command.type is hikari.CommandType.MESSAGE
     assert command.name == "eat"
     assert command._always_defer is True
-    assert command._default_member_permissions == hikari.Permissions(43123)
+    assert command.default_member_permissions == hikari.Permissions(43123)
     assert command.defaults_to_ephemeral is False
-    assert command._is_dm_enabled is False
+    assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -74,12 +74,13 @@ def test_as_message_menu_with_defaults():
     command = tanjun.as_message_menu("yeet")(mock_callback)
 
     assert isinstance(command, tanjun.MenuCommand)
+    assert command.callback is mock_callback
     assert command.type is hikari.CommandType.MESSAGE
     assert command.name == "yeet"
     assert command._always_defer is False
-    assert command._default_member_permissions is hikari.Permissions.NONE
+    assert command.default_member_permissions is None
     assert command.defaults_to_ephemeral is None
-    assert command._is_dm_enabled is True
+    assert command.is_dm_enabled is None
     assert command.is_global is True
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -100,8 +101,20 @@ def test_as_message_menu_when_wrapping_command(
         tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
-    command = tanjun.as_message_menu("c")(other_command)
+    command = tanjun.as_message_menu(
+        "c",
+        always_defer=False,
+        default_member_permissions=hikari.Permissions(543123),
+        default_to_ephemeral=True,
+        dm_enabled=False,
+        is_global=True,
+    )(other_command)
 
+    assert command._always_defer is False
+    assert command.default_member_permissions == 543123
+    assert command.defaults_to_ephemeral is True
+    assert command.is_dm_enabled is False
+    assert command.is_global is True
     assert command.type is hikari.CommandType.MESSAGE
     assert command.callback is other_command.callback
     assert command._wrapped_command is other_command
@@ -121,12 +134,13 @@ def test_as_user_menu():
     )(mock_callback)
 
     assert isinstance(command, tanjun.MenuCommand)
+    assert command.callback is mock_callback
     assert command.type is hikari.CommandType.USER
     assert command.name == "uoy"
     assert command._always_defer is True
-    assert command._default_member_permissions is hikari.Permissions(49494)
+    assert command.default_member_permissions == hikari.Permissions(49494)
     assert command.defaults_to_ephemeral is False
-    assert command._is_dm_enabled is False
+    assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -141,9 +155,9 @@ def test_as_user_menu_with_defaults():
     assert command.type is hikari.CommandType.USER
     assert command.name == "you"
     assert command._always_defer is False
-    assert command._default_member_permissions is hikari.Permissions.NONE
+    assert command.default_member_permissions is None
     assert command.defaults_to_ephemeral is None
-    assert command._is_dm_enabled is True
+    assert command.is_dm_enabled is None
     assert command.is_global is True
     assert command.callback is mock_callback
     assert command._wrapped_command is None
@@ -164,8 +178,20 @@ def test_as_user_menu_when_wrapping_command(
         tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
-    command = tanjun.as_user_menu("c")(other_command)
+    command = tanjun.as_user_menu(
+        "c",
+        always_defer=True,
+        default_member_permissions=hikari.Permissions(4212312),
+        default_to_ephemeral=False,
+        dm_enabled=True,
+        is_global=False,
+    )(other_command)
 
+    assert command._always_defer is True
+    assert command.default_member_permissions == 4212312
+    assert command.defaults_to_ephemeral is False
+    assert command.is_dm_enabled is True
+    assert command.is_global is False
     assert command.type is hikari.CommandType.USER
     assert command.callback is other_command.callback
     assert command._wrapped_command is other_command
@@ -274,7 +300,7 @@ class TestMenuCommand:
         assert builder.type is hikari.CommandType.USER
         assert builder.id is hikari.UNDEFINED
         assert builder.default_member_permissions is hikari.UNDEFINED
-        assert builder.is_dm_enabled is True
+        assert builder.is_dm_enabled is hikari.UNDEFINED
 
     def test_build_when_all_fields_set(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](
@@ -283,14 +309,52 @@ class TestMenuCommand:
             "pat",
             default_member_permissions=hikari.Permissions(4123),
             dm_enabled=False,
+        ).bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(54123123), dms_enabled_for_app_cmds=True)
         )
 
-        builder = command.build()
+        builder = command.build(
+            component=mock.Mock(default_app_cmd_permissions=hikari.Permissions(341123), dms_enabled_for_app_cmds=True)
+        )
 
         assert builder.name == "pat"
         assert builder.type is hikari.CommandType.MESSAGE
         assert builder.id is hikari.UNDEFINED
-        assert builder.default_member_permissions is hikari.Permissions(4123)
+        assert builder.default_member_permissions == hikari.Permissions(4123)
+        assert builder.is_dm_enabled is False
+
+    def test_build_with_bound_component_field_inheritance(self):
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(), hikari.CommandType.USER, "owo"
+        ).bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(65412312), dms_enabled_for_app_cmds=True)
+        )
+
+        builder = command.build()
+
+        assert builder.name == "owo"
+        assert builder.type is hikari.CommandType.USER
+        assert builder.id is hikari.UNDEFINED
+        assert builder.default_member_permissions == 65412312
+        assert builder.is_dm_enabled is True
+
+    def test_build_with_passed_component_field_inheritance(self):
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(), hikari.CommandType.USER, "owo"
+        ).bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(65412312), dms_enabled_for_app_cmds=True)
+        )
+
+        builder = command.build(
+            component=mock.Mock(
+                default_app_cmd_permissions=hikari.Permissions(561234123), dms_enabled_for_app_cmds=False
+            )
+        )
+
+        assert builder.name == "owo"
+        assert builder.type is hikari.CommandType.USER
+        assert builder.id is hikari.UNDEFINED
+        assert builder.default_member_permissions == 561234123
         assert builder.is_dm_enabled is False
 
     def test_set_tracked_command(self):

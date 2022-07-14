@@ -319,7 +319,9 @@ def as_slash_command(
             name,
             description,
             always_defer=always_defer,
+            default_member_permissions=default_member_permissions,
             default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
             is_global=is_global,
             sort_options=sort_options,
         )
@@ -1037,13 +1039,15 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             )
 
         component = component or self._component
-        if not component:
-            return builder
 
-        if self._default_member_permissions is None and component.default_app_cmd_permissions is not None:
+        if self._default_member_permissions is not None:
+            builder.set_default_member_permissions(self._default_member_permissions)
+        elif component and component.default_app_cmd_permissions is not None:
             builder.set_default_member_permissions(component.default_app_cmd_permissions)
 
-        if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
+        if self._is_dm_enabled is not None:
+            builder.set_is_dm_enabled(self._is_dm_enabled)
+        elif component and component.dms_enabled_for_app_cmds is not None:
             builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
 
         return builder

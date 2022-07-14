@@ -95,15 +95,20 @@ def test_as_slash_command():
         "a_very",
         "cool name",
         always_defer=True,
+        default_member_permissions=365234123,
         default_to_ephemeral=True,
+        dm_enabled=False,
         is_global=False,
         sort_options=False,
     )(mock_callback)
 
     assert command._always_defer is True
+    assert command.callback is mock_callback
     assert command.name == "a_very"
     assert command.description == "cool name"
+    assert command.default_member_permissions == 365234123
     assert command.defaults_to_ephemeral is True
+    assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
@@ -126,8 +131,25 @@ def test_as_slash_command_when_wrapping_command(
     ]
 ):
 
-    command = tanjun.as_slash_command("a_very", "cool name")(other_command)
+    command = tanjun.as_slash_command(
+        "a_very",
+        "cool name",
+        always_defer=False,
+        default_member_permissions=423123,
+        default_to_ephemeral=True,
+        dm_enabled=False,
+        is_global=True,
+        sort_options=True,
+    )(other_command)
 
+    assert command._always_defer is False
+    assert command.name == "a_very"
+    assert command.description == "cool name"
+    assert command.default_member_permissions == 423123
+    assert command.defaults_to_ephemeral is True
+    assert command.is_dm_enabled is False
+    assert command.is_global is True
+    assert command._builder._sort_options is True
     assert command.callback is other_command.callback
     assert command._wrapped_command is other_command
     assert isinstance(command, tanjun.SlashCommand)
@@ -139,7 +161,9 @@ def test_as_slash_command_with_defaults():
     command = tanjun.as_slash_command("a_very", "cool name")(mock_callback)
 
     assert command._always_defer is False
+    assert command.default_member_permissions is None
     assert command.defaults_to_ephemeral is None
+    assert command.is_dm_enabled is None
     assert command.is_global is True
     assert command._builder._sort_options is True
     assert isinstance(command, tanjun.SlashCommand)
@@ -647,13 +671,18 @@ class TestSlashCommandGroup:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         mock_command_group = mock.Mock(tanjun.abc.SlashCommandGroup)
         command_group = (
-            tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command).add_command(mock_command_group)
+            tanjun.SlashCommandGroup("yee", "nsoosos")
+            .add_command(mock_command)
+            .add_command(mock_command_group)
+            .bind_component(mock.Mock())
         )
 
-        result = command_group.build()
+        result = command_group.build(
+            component=mock.Mock(default_app_cmd_permissions=None, dms_enabled_for_app_cmds=None)
+        )
 
         assert result.default_member_permissions is hikari.UNDEFINED
-        assert result.is_dm_enabled is True
+        assert result.is_dm_enabled is hikari.UNDEFINED
         assert result == (
             tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
             .add_option(
@@ -678,12 +707,38 @@ class TestSlashCommandGroup:
 
     def test_build_with_optional_fields(self):
         command_group = tanjun.SlashCommandGroup(
-            "yee", "nsoosos", default_member_permissions=hikari.Permissions(45123), dm_enabled=False
+            "yee", "nsoosos", dm_enabled=False, default_member_permissions=hikari.Permissions(4321123)
         )
 
         result = command_group.build()
 
-        assert result.default_member_permissions is hikari.Permissions(45123)
+        assert result.default_member_permissions == 4321123
+        assert result.is_dm_enabled is False
+        assert result.options == []
+
+    def test_build_with_bound_component_field_inheritance(self):
+        command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(5412123), dms_enabled_for_app_cmds=True)
+        )
+
+        result = command_group.build()
+
+        assert result.default_member_permissions == 5412123
+        assert result.is_dm_enabled is True
+        assert result.options == []
+
+    def test_build_with_passed_component_field_inheritance(self):
+        command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(54312312), dms_enabled_for_app_cmds=True)
+        )
+
+        result = command_group.build(
+            component=mock.Mock(
+                default_app_cmd_permissions=hikari.Permissions(66554433), dms_enabled_for_app_cmds=False
+            )
+        )
+
+        assert result.default_member_permissions == 66554433
         assert result.is_dm_enabled is False
         assert result.options == []
 
