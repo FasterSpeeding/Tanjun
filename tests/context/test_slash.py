@@ -38,6 +38,7 @@ import asyncio
 import datetime
 import types
 import typing
+from collections import abc as collections
 from unittest import mock
 
 import alluka
@@ -49,7 +50,13 @@ import tanjun
 _T = typing.TypeVar("_T")
 
 
-def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
+def stub_class(
+    cls: typing.Type[_T],
+    /,
+    args: collections.Sequence[typing.Any] = (),
+    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    **namespace: typing.Any,
+) -> _T:
     namespace["__slots__"] = ()
 
     for name in getattr(cls, "__abstractmethods__", None) or ():
@@ -58,7 +65,7 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)
+    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
 
 
 @pytest.fixture()
@@ -162,7 +169,8 @@ class TestSlashOption:
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
             resolve_to_mentionable=resolve_to_mentionable,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.ATTACHMENT))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.ATTACHMENT)),
+        )
 
         result = option.resolve_value()
 
@@ -186,7 +194,8 @@ class TestSlashOption:
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
             resolve_to_mentionable=resolve_to_mentionable,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.CHANNEL))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.CHANNEL)),
+        )
 
         result = option.resolve_value()
 
@@ -210,7 +219,8 @@ class TestSlashOption:
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
             resolve_to_mentionable=resolve_to_mentionable,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE)),
+        )
 
         result = option.resolve_value()
 
@@ -234,7 +244,8 @@ class TestSlashOption:
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
             resolve_to_mentionable=resolve_to_mentionable,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.USER))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.USER)),
+        )
 
         result = option.resolve_value()
 
@@ -258,7 +269,8 @@ class TestSlashOption:
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
             resolve_to_mentionable=resolve_to_mentionable,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.MENTIONABLE))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.MENTIONABLE)),
+        )
 
         result = option.resolve_value()
 
@@ -421,7 +433,8 @@ class TestSlashOption:
             tanjun.context.SlashOption,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.USER))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.USER)),
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -436,7 +449,8 @@ class TestSlashOption:
             tanjun.context.SlashOption,
             resolve_to_role=resolve_to_role,
             resolve_to_user=resolve_to_user,
-        )(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE))
+            args=(mock.Mock(), mock.Mock(type=hikari.OptionType.ROLE)),
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -548,8 +562,11 @@ class TestSlashOption:
 class TestAppCommandContext:
     @pytest.fixture()
     def context(self, mock_client: mock.Mock) -> tanjun.context.slash.AppCommandContext:
-        return stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
-            mock_client, mock.AsyncMock(options=None), mock.Mock()
+        return stub_class(
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock,
+            mark_not_found=mock.AsyncMock(),
+            args=(mock_client, mock.AsyncMock(options=None), mock.Mock()),
         )
 
     def test_author_property(self, context: tanjun.context.slash.AppCommandContext):
@@ -565,12 +582,18 @@ class TestAppCommandContext:
         assert context.created_at is context.interaction.created_at
 
     def test_expires_at_property(self):
-        context = stub_class(tanjun.context.slash.AppCommandContext, type=mock.Mock, mark_not_found=mock.AsyncMock())(
-            mock.Mock(),
-            mock.Mock(
-                created_at=datetime.datetime(2021, 11, 15, 5, 42, 6, 445670, tzinfo=datetime.timezone.utc), options=None
+        context = stub_class(
+            tanjun.context.slash.AppCommandContext,
+            type=mock.Mock,
+            mark_not_found=mock.AsyncMock(),
+            args=(
+                mock.Mock(),
+                mock.Mock(
+                    created_at=datetime.datetime(2021, 11, 15, 5, 42, 6, 445670, tzinfo=datetime.timezone.utc),
+                    options=None,
+                ),
+                mock.Mock(),
             ),
-            mock.Mock(),
         )
 
         assert context.expires_at == datetime.datetime(2021, 11, 15, 5, 57, 6, 445670, tzinfo=datetime.timezone.utc)
@@ -599,8 +622,10 @@ class TestAppCommandContext:
     @pytest.mark.asyncio()
     async def test__auto_defer(self, mock_client: mock.Mock):
         defer = mock.AsyncMock()
-        context = stub_class(tanjun.context.slash.AppCommandContext, defer=defer)(
-            mock_client, mock.Mock(options=None), mock.Mock()
+        context = stub_class(
+            tanjun.context.slash.AppCommandContext,
+            defer=defer,
+            args=(mock_client, mock.Mock(options=None), mock.Mock()),
         )
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -645,8 +670,10 @@ class TestAppCommandContext:
 
     def test_start_defer_timer(self, mock_client: mock.Mock):
         auto_defer = mock.Mock()
-        context = stub_class(tanjun.context.slash.AppCommandContext, _auto_defer=auto_defer)(
-            mock_client, mock.Mock(options=None), mock.Mock()
+        context = stub_class(
+            tanjun.context.slash.AppCommandContext,
+            _auto_defer=auto_defer,
+            args=(mock_client, mock.Mock(options=None), mock.Mock()),
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
@@ -727,7 +754,8 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock,
             delete_initial_response=mock_delete_initial_response,
-        )(mock.Mock(), mock.Mock(options=None), mock.Mock())
+            args=(mock.Mock(), mock.Mock(options=None), mock.Mock()),
+        )
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -741,8 +769,10 @@ class TestAppCommandContext:
             side_effect=hikari.NotFoundError(url="", headers={}, raw_body=None)
         )
         context = stub_class(
-            tanjun.context.slash.AppCommandContext, delete_initial_response=mock_delete_initial_response
-        )(mock.Mock(), mock.Mock(options=None), mock.Mock())
+            tanjun.context.slash.AppCommandContext,
+            delete_initial_response=mock_delete_initial_response,
+            args=(mock.Mock(), mock.Mock(options=None), mock.Mock()),
+        )
 
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
@@ -809,7 +839,8 @@ class TestAppCommandContext:
             tanjun.context.slash.AppCommandContext,
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
-        )(mock_client, mock_interaction, mock_register_task)
+            args=(mock_client, mock_interaction, mock_register_task),
+        )
 
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -864,7 +895,8 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock_interaction, mock_register_task)
+            args=(mock_client, mock_interaction, mock_register_task),
+        )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
@@ -887,7 +919,8 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock_interaction, mock_register_task)
+            args=(mock_client, mock_interaction, mock_register_task),
+        )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             await context.edit_initial_response("bye", delete_after=delete_after)
@@ -909,7 +942,8 @@ class TestAppCommandContext:
             type=mock.Mock(),
             mark_not_found=mock.AsyncMock(),
             _delete_initial_response_after=mock_delete_initial_response_after,
-        )(mock_client, mock_interaction, mock_register_task)
+            args=(mock_client, mock_interaction, mock_register_task),
+        )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
             with pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"):

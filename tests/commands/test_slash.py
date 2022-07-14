@@ -39,6 +39,7 @@ import re
 import types
 import typing
 import warnings
+from collections import abc as collections
 from unittest import mock
 
 import hikari
@@ -50,7 +51,13 @@ from tanjun.context import base as base_context
 _T = typing.TypeVar("_T")
 
 
-def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
+def stub_class(
+    cls: type[_T],
+    /,
+    args: collections.Sequence[typing.Any] = (),
+    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    **namespace: typing.Any,
+) -> _T:
     namespace["__slots__"] = ()
 
     for name in getattr(cls, "__abstractmethods__", None) or ():
@@ -59,7 +66,7 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)
+    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
 
 
 def test_slash_command_group():
@@ -536,53 +543,53 @@ class TestBaseSlashCommand:
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
         ):
-            stub_class(tanjun.commands.BaseSlashCommand)(name, "desccc")
+            stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
 
     def test__init__when_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
-            stub_class(tanjun.commands.BaseSlashCommand)("VooDOo", "desccc")
+            stub_class(tanjun.commands.BaseSlashCommand, args=("VooDOo", "desccc"))
 
     def test__init__when_description_too_long(self):
         with pytest.raises(
             ValueError,
             match="The command description cannot be over 100 characters in length",
         ):
-            stub_class(tanjun.commands.BaseSlashCommand)("gary", "x" * 101)
+            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
 
     def test_defaults_to_ephemeral_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand)("hi", "no")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"))
 
         assert command.set_ephemeral_default(True).defaults_to_ephemeral is True
 
     def test_description_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand)("hi", "desccc")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
 
     def test_is_global_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yeet", "No", is_global=False)
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"is_global": False})
 
         assert command.is_global is False
 
     def test_name_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.name == "yee"
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.set_parent(mock_parent).parent is mock_parent
 
     def test_tracked_command_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
         mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command is mock_command
 
     def test_tracked_command_id_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
         mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command_id is mock_command.id
@@ -595,7 +602,7 @@ class TestBaseSlashCommand:
         mock_context = mock.Mock()
 
         command = (
-            stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+            stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
             .add_check(mock_callback)
             .add_check(mock_other_callback)
         )
@@ -611,7 +618,7 @@ class TestBaseSlashCommand:
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
         mock_parent = mock.MagicMock()
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         result = command.copy(parent=mock_parent)
 
@@ -621,7 +628,7 @@ class TestBaseSlashCommand:
 
     def test_load_into_component_when_no_parent(self):
         mock_component = mock.Mock()
-        command = stub_class(tanjun.commands.BaseSlashCommand)("yee", "nsoosos")
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         command.load_into_component(mock_component)
 
@@ -779,8 +786,8 @@ class TestSlashCommandGroup:
 
     @pytest.mark.asyncio()
     async def test_execute_when_not_found(self):
-        command_group = stub_class(tanjun.SlashCommandGroup, check_context=mock.AsyncMock(return_value=True))(
-            "yee", "nsoosos"
+        command_group = stub_class(
+            tanjun.SlashCommandGroup, check_context=mock.AsyncMock(return_value=True), args=("yee", "nsoosos")
         )
         mock_context = mock.AsyncMock()
         mock_context.interaction.options = [mock.Mock()]

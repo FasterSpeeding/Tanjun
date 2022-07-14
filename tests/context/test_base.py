@@ -36,6 +36,7 @@
 
 import types
 import typing
+from collections import abc as collections
 from unittest import mock
 
 import alluka
@@ -49,7 +50,13 @@ from tanjun.context import base as base_context
 _T = typing.TypeVar("_T")
 
 
-def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
+def stub_class(
+    cls: typing.Type[_T],
+    /,
+    args: collections.Sequence[typing.Any] = (),
+    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    **namespace: typing.Any,
+) -> _T:
     namespace["__slots__"] = ()
 
     for name in getattr(cls, "__abstractmethods__", None) or ():
@@ -58,7 +65,7 @@ def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)
+    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
 
 
 @pytest.fixture()
@@ -77,7 +84,7 @@ class TestBaseContext:
         self,
         mock_client: mock.Mock,
     ) -> base_context.BaseContext:
-        return stub_class(base_context.BaseContext)(mock_client)
+        return stub_class(base_context.BaseContext, args=(mock_client,))
 
     def test_cache_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):
         assert context.cache is mock_client.cache
@@ -100,14 +107,14 @@ class TestBaseContext:
     def test_shard_property(self, mock_client: mock.Mock):
         mock_shard = mock.Mock()
         mock_client.shards = mock.MagicMock(spec=traits.ShardAware, shard_count=5, shards={2: mock_shard})
-        context = stub_class(base_context.BaseContext, guild_id=hikari.Snowflake(123321123312))(mock_client)
+        context = stub_class(base_context.BaseContext, guild_id=hikari.Snowflake(123321123312), args=(mock_client,))
 
         assert context.shard is mock_shard
 
     def test_shard_property_when_dm(self, mock_client: mock.Mock):
         mock_shard = mock.Mock()
         mock_client.shards = mock.Mock(shards={0: mock_shard})
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client)
+        context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 
         assert context.shard is mock_shard
 
@@ -179,7 +186,7 @@ class TestBaseContext:
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
     def test_get_channel_when_cacheless(self):
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock.Mock(cache=None))
+        context = stub_class(base_context.BaseContext, guild_id=None, args=(mock.Mock(cache=None),))
 
         assert context.get_channel() is None
 
@@ -189,13 +196,13 @@ class TestBaseContext:
         mock_client.cache.get_guild.assert_called_once_with(context.guild_id)
 
     def test_get_guild_when_cacheless(self):
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock.Mock(cache=None))
+        context = stub_class(base_context.BaseContext, guild_id=None, args=(mock.Mock(cache=None),))
 
         assert context.get_guild() is None
 
     def test_get_guild_when_dm_bound(self):
         mock_client = mock.MagicMock()
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client)
+        context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 
         assert context.get_guild() is None
         mock_client.cache.get_guild.assert_not_called()
@@ -218,7 +225,7 @@ class TestBaseContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_guild_when_dm_bound(self, mock_client: mock.Mock):
-        context = stub_class(base_context.BaseContext, guild_id=None)(mock_client)
+        context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 
         result = await context.fetch_guild()
 
