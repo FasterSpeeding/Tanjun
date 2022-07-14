@@ -2569,8 +2569,16 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """The type of this application command."""
 
     @abc.abstractmethod
-    def build(self) -> hikari.api.CommandBuilder:
+    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.CommandBuilder:
         """Get a builder object for this command.
+
+        Parameters
+        ----------
+        component
+            The component to inherit config like `default_member_permissions` and
+            `is_dm_enabled` from if not explicitly set on the command.
+
+            This defaults to the command's linked component.
 
         Returns
         -------
@@ -2629,8 +2637,16 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """The type of this command."""
 
     @abc.abstractmethod
-    def build(self) -> hikari.api.SlashCommandBuilder:
+    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.SlashCommandBuilder:
         """Get a builder object for this command.
+
+        Parameters
+        ----------
+        component
+            The component to inherit config like `default_member_permissions` and
+            `is_dm_enabled` from if not explicitly set on the command.
+
+            This defaults to the command's linked component.
 
         Returns
         -------
@@ -2711,8 +2727,16 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSi
         """Object of the actual command this object tracks if set."""
 
     @abc.abstractmethod
-    def build(self) -> hikari.api.ContextMenuCommandBuilder:
+    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         """Get a builder object for this command.
+
+        Parameters
+        ----------
+        component
+            The component to inherit config like `default_member_permissions` and
+            `is_dm_enabled` from if not explicitly set on the command.
+
+            This defaults to the command's linked component.
 
         Returns
         -------

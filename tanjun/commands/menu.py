@@ -295,16 +295,6 @@ def as_user_menu(
     )
 
 
-_MenuCommandBuilderT = typing.TypeVar("_MenuCommandBuilderT", bound="_MenuCommandBuilder")
-
-
-class _MenuCommandBuilder(hikari.impl.ContextMenuCommandBuilder):
-    __slots__ = ()
-
-    def inherit_permissions(self, client: tanjun.Client, component: tanjun.Component, /) -> None:
-        raise NotImplementedError
-
-
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
@@ -522,9 +512,21 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._type
 
-    def build(self) -> hikari.api.ContextMenuCommandBuilder:
+    def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return _MenuCommandBuilder(self._type, self._name)  # type: ignore
+        builder = hikari.impl.ContextMenuCommandBuilder(self._type, self._name)  # type: ignore
+
+        component = component or self._component
+        if not component:
+            return builder
+
+        if self._default_member_permissions is None and component.default_app_cmd_permissions is not None:
+            builder.set_default_member_permissions(component.default_app_cmd_permissions)
+
+        if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
+            builder.set_dm_enabled(component.dms_enabled_for_app_cmds)
+
+        return builder
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.

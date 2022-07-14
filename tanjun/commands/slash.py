@@ -749,9 +749,6 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
 
-    def inherit_permissions(self, client: tanjun.Client, component: tanjun.Component, /) -> None:
-        raise NotImplementedError
-
     def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
         if self._options:
             self._has_been_sorted = False
@@ -1016,7 +1013,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
-    def build(self) -> special_endpoints_api.SlashCommandBuilder:
+    def build(
+        self, *, component: typing.Optional[tanjun.Component] = None
+    ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _SlashCommandBuilder(self._name, self._description, False)
 
@@ -1036,6 +1035,16 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
                     options=command_builder.options,
                 )
             )
+
+        component = component or self._component
+        if not component:
+            return builder
+
+        if self._default_member_permissions is None and component.default_app_cmd_permissions is not None:
+            builder.set_default_member_permissions(component.default_app_cmd_permissions)
+
+        if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
+            builder.set_dm_enabled(component.dms_enabled_for_app_cmds)
 
         return builder
 
@@ -1168,7 +1177,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         "_client",
         "_float_autocompletes",
         "_int_autocompletes",
-        "_is_dm_enabled",
         "_str_autocompletes",
         "_tracked_options",
         "_wrapped_command",
@@ -1349,9 +1357,23 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         return self
 
-    def build(self) -> special_endpoints_api.SlashCommandBuilder:
+    def build(
+        self, *, component: typing.Optional[tanjun.Component] = None
+    ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._builder.sort().copy()
+        builder = self._builder.sort().copy()
+
+        component = component or self._component
+        if not component:
+            return builder
+
+        if self._default_member_permissions is None and component.default_app_cmd_permissions is not None:
+            builder.set_default_member_permissions(component.default_app_cmd_permissions)
+
+        if self._is_dm_enabled is None and component.dms_enabled_for_app_cmds is not None:
+            builder.set_dm_enabled(component.dms_enabled_for_app_cmds)
+
+        return builder
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         super().load_into_component(component)

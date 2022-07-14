@@ -729,21 +729,17 @@ class Client(tanjun.Client):
             .set_type_dependency(type(self), self)
             .set_type_dependency(hikari.api.RESTClient, rest)
             .set_type_dependency(type(rest), rest)
+            ._maybe_set_type_dep(hikari.api.Cache, cache)
+            ._maybe_set_type_dep(type(cache), cache)
+            ._maybe_set_type_dep(hikari.api.EventManager, events)
+            ._maybe_set_type_dep(type(events), events)
+            ._maybe_set_type_dep(hikari.api.InteractionServer, server)
+            ._maybe_set_type_dep(type(server), server)
+            ._maybe_set_type_dep(hikari.ShardAware, shards)
+            ._maybe_set_type_dep(type(shards), shards)
+            ._maybe_set_type_dep(hikari.api.VoiceComponent, voice)
+            ._maybe_set_type_dep(type(voice), voice)
         )
-        if cache:
-            self.set_type_dependency(hikari.api.Cache, cache).set_type_dependency(type(cache), cache)
-
-        if events:
-            self.set_type_dependency(hikari.api.EventManager, events).set_type_dependency(type(events), events)
-
-        if server:
-            self.set_type_dependency(hikari.api.InteractionServer, server).set_type_dependency(type(server), server)
-
-        if shards:
-            self.set_type_dependency(hikari.ShardAware, shards).set_type_dependency(type(shards), shards)
-
-        if voice:
-            self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
 
         dependencies.set_standard_dependencies(self)
         self._schedule_startup_registers(
@@ -754,6 +750,12 @@ class Client(tanjun.Client):
             user_ids=user_ids,
             _stack_level=_stack_level,
         )
+
+    def _maybe_set_type_dep(self: _ClientT, type_: type[_T], value: typing.Optional[_T]) -> _ClientT:
+        if value is not None:
+            self.set_type_dependency(type_, value)
+
+        return self
 
     def _schedule_startup_registers(
         self,
@@ -1306,6 +1308,8 @@ class Client(tanjun.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
+        message_ids = message_ids or {}
+        user_ids = user_ids or {}
         names_to_commands: dict[tuple[hikari.CommandType, str], tanjun.AppCommand[typing.Any]] = {}
         conflicts: set[tuple[hikari.CommandType, str]] = set()
         builders: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
@@ -1323,19 +1327,23 @@ class Client(tanjun.Client):
             command_id = None
             if builder.type is hikari.CommandType.USER:
                 user_count += 1
-                if user_ids:
-                    command_id = user_ids.get(command.name)
+                command_id = user_ids.get(command.name)
 
             elif builder.type is hikari.CommandType.MESSAGE:
                 message_count += 1
-                if message_ids:
-                    command_id = message_ids.get(command.name)
+                command_id = message_ids.get(command.name)
 
             elif builder.type is hikari.CommandType.SLASH:
                 slash_count += 1
 
             if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
+
+            if builder.default_member_permissions is hikari.UNDEFINED:
+                builder.set_default_member_permissions(self.default_app_cmd_permissions)
+
+            if builder.is_dm_enabled is hikari.UNDEFINED:
+                builder.set_dm_enabled(self.dms_enabled_for_app_cmds)
 
             builders[key] = builder
 
@@ -1354,9 +1362,7 @@ class Client(tanjun.Client):
         if user_count > 5:
             raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
 
-        if not application:
-            application = self._cached_application_id or await self.fetch_rest_application_id()
-
+        application = application or self._cached_application_id or await self.fetch_rest_application_id()
         target_type = "global" if guild is hikari.UNDEFINED else f"guild {int(guild)}"
 
         if not force:
@@ -1375,17 +1381,6 @@ class Client(tanjun.Client):
         for response in responses:
             if not guild:
                 names_to_commands[(response.type, response.name)].set_tracked_command(response)  # TODO: is this fine?
-
-            if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
-                _LOGGER.warning(
-                    "ID mismatch found for %s %s command %r, expected %s but got %s. "
-                    "This suggests that any previous permissions set for this command will have been lost.",
-                    target_type,
-                    response.type,
-                    response.name,
-                    expected_id,
-                    response.id,
-                )
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):
