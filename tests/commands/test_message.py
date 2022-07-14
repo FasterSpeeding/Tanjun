@@ -30,13 +30,13 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import types
-import typing
-
 # pyright: reportIncompatibleMethodOverride=none
 # pyright: reportUnknownMemberType=none
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
+
+import types
+import typing
 from collections import abc as collections
 from unittest import mock
 
