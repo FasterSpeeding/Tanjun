@@ -30,14 +30,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
+# This leads to too many false-positives around mocks.
+
 import asyncio
 import datetime
 import types
 import typing
-
-# pyright: reportUnknownMemberType=none
-# pyright: reportPrivateUsage=none
-# This leads to too many false-positives around mocks.
 from collections import abc as collections
 from unittest import mock
 
