@@ -580,6 +580,13 @@ class TestBaseSlashCommand:
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
 
+    def test_default_member_permissions_property(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"default_member_permissions": 54312312}
+        )
+
+        assert command.default_member_permissions == 54312312
+
     def test_defaults_to_ephemeral_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"))
 
@@ -589,6 +596,11 @@ class TestBaseSlashCommand:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
+
+    def test_is_dm_enabled_property(self):
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
+
+        assert command.is_dm_enabled is False
 
     def test_is_global_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"is_global": False})

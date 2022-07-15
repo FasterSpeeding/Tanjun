@@ -246,6 +246,14 @@ class TestMenuCommand:
 
         assert command.callback is mock_callback
 
+    def test_default_member_permissions_property(self):
+        mock_callback = mock.Mock()
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock_callback, hikari.CommandType.MESSAGE, "a", default_member_permissions=hikari.Permissions(6541231)
+        )
+
+        assert command.default_member_permissions == 6541231
+
     def test_defaults_to_ephemeral_property(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](
             mock.Mock(), hikari.CommandType.MESSAGE, "a", default_to_ephemeral=True
@@ -257,6 +265,13 @@ class TestMenuCommand:
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a")
 
         assert command.defaults_to_ephemeral is None
+
+    def test_is_dm_enabled_property(self):
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(), hikari.CommandType.MESSAGE, "a", dm_enabled=False
+        )
+
+        assert command.is_dm_enabled is False
 
     def test_is_global_property(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](

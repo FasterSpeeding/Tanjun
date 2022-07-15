@@ -662,6 +662,22 @@ class TestClient:
     async def test_declare_application_commands(self):
         ...
 
+    def test_set_default_app_command_permissions(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_default_app_command_permissions(hikari.Permissions(5421123))
+
+        assert result is client
+        assert client.default_app_cmd_permissions == 5421123
+
+    def test_set_default_app_command_permissions(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_dms_enabled_for_app_cmds(False)
+
+        assert result is True
+        assert client.dms_enabled_for_app_cmds is False
+
     @pytest.mark.skip(reason="TODO")
     def test_set_hikari_trait_injectors(self):
         ...
