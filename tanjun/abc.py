@@ -3060,10 +3060,9 @@ class Component(abc.ABC):
         """Whether application commands in this component should be enabled in DMs.
 
         !!! note
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][].
-
-        !!! note
-            If this is [None][] then the default from the parent client is used.
+            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][] and
+            if both that and this are [None][] then the default from the parent
+            client is used.
         """
 
     @property
