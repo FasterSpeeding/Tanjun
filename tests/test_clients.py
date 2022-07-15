@@ -675,7 +675,7 @@ class TestClient:
 
         result = client.set_dms_enabled_for_app_cmds(False)
 
-        assert result is True
+        assert result is client
         assert client.dms_enabled_for_app_cmds is False
 
     @pytest.mark.skip(reason="TODO")
