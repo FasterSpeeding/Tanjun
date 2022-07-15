@@ -70,10 +70,19 @@ def stub_class(
 
 
 def test_slash_command_group():
-    command = tanjun.slash_command_group("a_name", "very", default_to_ephemeral=True, is_global=False)
+    command = tanjun.slash_command_group(
+        "a_name",
+        "very",
+        default_member_permissions=hikari.Permissions(43123),
+        default_to_ephemeral=True,
+        dm_enabled=False,
+        is_global=False,
+    )
 
     assert command.name == "a_name"
+    assert command.default_member_permissions == 43123
     assert command.description == "very"
+    assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command.defaults_to_ephemeral is True
     assert isinstance(command, tanjun.SlashCommandGroup)
@@ -83,7 +92,9 @@ def test_slash_command_group_with_default():
     command = tanjun.slash_command_group("a_name", "very")
 
     assert command.tracked_command_id is None
+    assert command.default_member_permissions is None
     assert command.defaults_to_ephemeral is None
+    assert command.is_dm_enabled is None
     assert command.is_global is True
     assert isinstance(command, tanjun.SlashCommandGroup)
 

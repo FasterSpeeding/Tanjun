@@ -106,7 +106,9 @@ def slash_command_group(
     description: str,
     /,
     *,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> SlashCommandGroup:
     r"""Create a slash command group.
@@ -186,7 +188,9 @@ def slash_command_group(
     return SlashCommandGroup(
         name,
         description,
+        default_member_permissions=default_member_permissions,
         default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
         is_global=is_global,
     )
 
