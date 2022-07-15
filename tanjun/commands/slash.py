@@ -1372,9 +1372,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         builder = self._builder.sort().copy()
 
         component = component or self._component
-        if not component:
-            return builder
-
         if self._default_member_permissions is None and component.default_app_cmd_permissions is not None:
             builder.set_default_member_permissions(component.default_app_cmd_permissions)
 
