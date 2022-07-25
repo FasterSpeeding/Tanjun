@@ -57,7 +57,7 @@ flake8-html==0.4.2
     # via -r dev-requirements/flake8.in
 flake8-if-statements==0.1
     # via -r dev-requirements/flake8.in
-flake8-isort==4.1.1
+flake8-isort==4.1.2.post0
     # via -r dev-requirements/flake8.in
 flake8-mutable==1.2
     # via -r dev-requirements/flake8.in
@@ -116,8 +116,6 @@ stdlib-list==0.8.0
     # via mr-proper
 stevedore==3.5.0
     # via bandit
-testfixtures==6.18.5
-    # via flake8-isort
 tomli==2.0.1
     # via
     #   black
