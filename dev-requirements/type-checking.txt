@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=dev-requirements/type-checking.txt dev-requirements/type-checking.in
 #
-mypy==0.961
+mypy==0.971
     # via -r dev-requirements/type-checking.in
 mypy-extensions==0.4.3
     # via mypy
