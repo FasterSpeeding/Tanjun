@@ -42,6 +42,7 @@ name = "tanjun"
 line-length     = 120
 target-version  = ["py39"]
 include         = ".*pyi?$"
+extend-exclude = ["^/tanjun/_vendor/.*"]
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
@@ -65,6 +66,7 @@ profile = "black"
 force_single_line = true
 
 [tool.pyright]
+exclude = ["tanjun/_vendor"]
 include = ["examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
@@ -100,3 +102,6 @@ warn_redundant_casts = false
 # compatibility with pyright
 allow_redefinition = true
 disable_error_code = ["return-value"]
+
+# Ignore vendored modules
+exclude = ["tanjun/_vendor/"]
