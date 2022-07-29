@@ -219,6 +219,7 @@ def as_slash_command(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
+    validate_arg_names: bool = True,
 ) -> _ResultProto:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
@@ -282,6 +283,8 @@ def as_slash_command(
         If this is [True][] then the options are re-sorted to meet the requirement
         from Discord that required command options be listed before optional
         ones.
+    validate_arg_names
+        Whether to validate that option names match the command callback's signature.
 
     Returns
     -------
@@ -315,6 +318,7 @@ def as_slash_command(
                 dm_enabled=dm_enabled,
                 is_global=is_global,
                 sort_options=sort_options,
+                validate_arg_names=validate_arg_names,
                 _wrapped_command=callback,
             )
 
@@ -328,6 +332,7 @@ def as_slash_command(
             dm_enabled=dm_enabled,
             is_global=is_global,
             sort_options=sort_options,
+            validate_arg_names=validate_arg_names,
         )
 
     return decorator
@@ -1180,6 +1185,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     __slots__ = (
         "_always_defer",
+        "_arg_names",
         "_builder",
         "_callback",
         "_client",
@@ -1204,6 +1210,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
+        validate_arg_names: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -1222,6 +1229,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
+        validate_arg_names: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -1239,6 +1247,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
+        validate_arg_names: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         r"""Initialise a slash command.
@@ -1298,6 +1307,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             If this is [True][] then the options are re-sorted to meet the requirement
             from Discord that required command options be listed before optional
             ones.
+        validate_arg_names
+            Whether to validate that option names match the command callback's signature.
 
         Raises
         ------
@@ -1320,6 +1331,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             callback = callback.callback
 
         self._always_defer = always_defer
+        self._arg_names = utilities.get_kwargs(callback) if validate_arg_names else None
         self._builder = _SlashCommandBuilder(name, description, sort_options)
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
@@ -1410,7 +1422,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        _validate_name(name)
         if len(description) > 100:
             raise ValueError("The option description cannot be over 100 characters in length")
 
@@ -1419,6 +1430,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         if min_value and max_value and min_value > max_value:
             raise ValueError("The min value cannot be greater than the max value")
+
+        _validate_name(name)
+        if self._arg_names is not None and name not in self._arg_names:
+            raise ValueError(f"{name} is not a valid keyword argument for {self._callback}")
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):

@@ -1428,11 +1428,12 @@ class Option(Parameter):
 class ShlexParser(AbstractOptionParser):
     """A shlex based [AbstractOptionParser][tanjun.parsing.AbstractOptionParser] implementation."""
 
-    __slots__ = ("_arguments", "_client", "_component", "_options")
+    __slots__ = ("_arguments", "_callback_arg_names", "_client", "_component", "_options")
 
     def __init__(self) -> None:
         """Initialise a shlex parser."""
         self._arguments: list[Argument] = []
+        self._callback_arg_names: list[tuple[str, collections.Container[str]]] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._component: typing.Optional[tanjun.Component] = None
         self._options: list[Option] = []  # TODO: maybe switch to dict[str, Option] and assert doesn't already exist
@@ -1453,6 +1454,11 @@ class ShlexParser(AbstractOptionParser):
         inst._arguments = [argument.copy() for argument in self._arguments]
         inst._options = [option.copy() for option in self._options]
         return inst
+
+    def _assert_key(self, key: str, /) -> None:
+        for callback_name, names in self._callback_arg_names:
+            if key not in names:
+                raise ValueError(f"{key} is not a valid keyword argument for {callback_name}")
 
     @typing.overload
     def add_argument(
@@ -1509,6 +1515,7 @@ class ShlexParser(AbstractOptionParser):
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
+        self._assert_key(key)
         argument = Argument(
             key,
             converters=converters,
@@ -1591,6 +1598,7 @@ class ShlexParser(AbstractOptionParser):
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
+        self._assert_key(key)
         option = Option(
             key,
             name,
@@ -1633,6 +1641,14 @@ class ShlexParser(AbstractOptionParser):
     ) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
         # <<inherited docstring from AbstractOptionParser>>.
         return _SemanticShlex(ctx, self._arguments, self._options).parse()
+
+    def validate_arg_names(self, callback_name: str, names: collections.Container[str], /) -> None:
+        # <<inherited docstring from AbstractOptionParser>>.
+        self._callback_arg_names.append((callback_name, names))
+
+        for parameter in itertools.chain(self._options, self._arguments):
+            if parameter.key not in names:
+                raise ValueError(f"{parameter.key} is not a valid keyword argument for {callback_name}")
 
 
 def with_parser(command: _CommandT, /) -> _CommandT:

@@ -2859,6 +2859,10 @@ class MessageParser(abc.ABC):
             If the message could not be parsed.
         """
 
+    @abc.abstractmethod
+    def validate_arg_names(self, callback_name: str, names: collections.Container[str], /) -> None:
+        ...
+
 
 class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[_CommandCallbackSigT]):
     """Standard interface of a message command."""
