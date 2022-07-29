@@ -308,19 +308,11 @@ def as_slash_command(
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            return SlashCommand(
-                callback.callback,
-                name,
-                description,
-                always_defer=always_defer,
-                default_member_permissions=default_member_permissions,
-                default_to_ephemeral=default_to_ephemeral,
-                dm_enabled=dm_enabled,
-                is_global=is_global,
-                sort_options=sort_options,
-                validate_arg_names=validate_arg_names,
-                _wrapped_command=callback,
-            )
+            wrapped_command = callback
+            callback = callback.callback
+
+        else:
+            wrapped_command = None
 
         return SlashCommand(
             callback,
@@ -333,6 +325,7 @@ def as_slash_command(
             is_global=is_global,
             sort_options=sort_options,
             validate_arg_names=validate_arg_names,
+            _wrapped_command=wrapped_command,
         )
 
     return decorator

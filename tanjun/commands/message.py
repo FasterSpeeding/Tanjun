@@ -99,11 +99,15 @@ def as_message_command(name: str, /, *names: str, validate_arg_names: bool = Tru
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            return MessageCommand(
-                callback.callback, name, *names, validate_arg_names=validate_arg_names, _wrapped_command=callback
-            )
+            wrapped_command = callback
+            callback = callback.callback
 
-        return MessageCommand(callback, name, *names, validate_arg_names=validate_arg_names)
+        else:
+            wrapped_command = None
+
+        return MessageCommand(
+            callback, name, *names, validate_arg_names=validate_arg_names, _wrapped_command=wrapped_command
+        )
 
     return decorator
 
@@ -153,16 +157,20 @@ def as_message_command_group(
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            return MessageCommandGroup(
-                callback.callback,
-                name,
-                *names,
-                strict=strict,
-                validate_arg_names=validate_arg_names,
-                _wrapped_command=callback,
-            )
+            wrapped_command = callback
+            callback = callback.callback
 
-        return MessageCommandGroup(callback, name, *names, strict=strict, validate_arg_names=validate_arg_names)
+        else:
+            wrapped_command = None
+
+        return MessageCommandGroup(
+            callback,
+            name,
+            *names,
+            strict=strict,
+            validate_arg_names=validate_arg_names,
+            _wrapped_command=wrapped_command,
+        )
 
     return decorator
 
