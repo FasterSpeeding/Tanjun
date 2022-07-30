@@ -58,7 +58,6 @@ __all__: list[str] = [
     "with_user_slash_option",
 ]
 
-from . import annotations
 from .menu import MenuCommand
 from .menu import as_message_menu
 from .menu import as_user_menu

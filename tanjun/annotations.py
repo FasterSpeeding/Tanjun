@@ -61,11 +61,11 @@ from collections import abc as collections
 
 import hikari
 
-from .. import conversion
-from .. import parsing
-from .._vendor import inspect
-from . import message
-from . import slash
+from . import conversion
+from . import parsing
+from ._vendor import inspect
+from .commands import message
+from .commands import slash
 
 _ChoiceUnion = typing.Union[int, float, str]
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
