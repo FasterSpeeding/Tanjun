@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Parameter annotation based strategy for declaring command arguments.
+"""Parameter annotation based strategy for declaring slash and message command arguments.
 
 Community Resources:
 
@@ -140,6 +140,22 @@ class Max:
     ) -> None:
         raise NotImplementedError
     ```
+
+    Alternatively, the slice syntax and `range` may be used to set the min and
+    max values for a float or integesr arguments (where the start is inclusive
+    and stop is exclusive). These default to a min_value of `0` if the start
+    isn't specified.
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        float_value: Annotated[annotations.Float, 1.5:101.5],
+        int_value: Annotated[annotations.Int, range(5, 100)],
+    ) -> None:
+        raise NotImplementedError
+    ```
     """
 
     __slots__ = ("_value",)
@@ -164,6 +180,22 @@ class Min:
     async def command(
         ctx: tanjun.abc.Context,
         age: Annotated[annotations.Int, "How old are you?", Max(130), Min(13)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    Alternatively, the slice syntax and `range` may be used to set the min and
+    max values for a float or integesr arguments (where the start is inclusive
+    and stop is exclusive). These default to a min_value of `0` if the start
+    isn't specified.
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        float_value: Annotated[annotations.Float, 1.5:101.5],
+        int_value: Annotated[annotations.Int, range(5, 100)],
     ) -> None:
         raise NotImplementedError
     ```
