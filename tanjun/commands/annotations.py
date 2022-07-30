@@ -56,14 +56,14 @@ from collections import abc as collections
 
 import hikari
 
+from .. import abc as tanjun
 from .. import conversion
 from .. import parsing
 from .._vendor import inspect
-from . import message
 from . import slash
 
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
-_CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
+_CommandUnion = typing.Union[slash.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any]]
 _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
 _ConverterSig = typing.Union[
     collections.Callable[[str], typing.Any],
@@ -167,7 +167,7 @@ _OPTION_TYPE_TO_CONVERTER: dict[type[typing.Any], tuple[_ConverterSig, ...]] = {
     hikari.Member: (conversion.to_member,),
     typing.Union[hikari.User, hikari.Role]: (conversion.to_user, conversion.to_role),
     hikari.Role: (conversion.to_role,),
-    str: (str,),
+    str: (),
     hikari.User: (conversion.to_user,),
 }
 
@@ -184,7 +184,7 @@ class _ArgConfig:
     min_value: typing.Union[float, int, None] = None
     option_type: typing.Optional[type[typing.Any]] = None
 
-    def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
+    def to_message_option(self, command: tanjun.MessageCommand[typing.Any], /) -> None:
         if self.converters:
             converters = self.converters
 
