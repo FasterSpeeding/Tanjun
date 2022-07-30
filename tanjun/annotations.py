@@ -64,9 +64,12 @@ from collections import abc as collections
 
 import hikari
 
+from tanjun import abc as tanjun
+
 from . import conversion
 from . import parsing
 from ._vendor import inspect
+from .commands import menu
 from .commands import message
 from .commands import slash
 
@@ -411,6 +414,22 @@ def _parse_type(type_: typing.Any) -> typing.Any:
     return type_
 
 
+def _collect_wrapped(
+    command: typing.Union[
+        menu.MenuCommand[typing.Any, typing.Any], message.MessageCommand[typing.Any], slash.SlashCommand[typing.Any]
+    ]
+) -> list[tanjun.ExecutableCommand[typing.Any]]:
+    results: list[tanjun.ExecutableCommand[typing.Any]] = []
+    wrapped_command = command.wrapped_command
+
+    while wrapped_command:
+        results.append(wrapped_command)
+        wrapped_command = command.wrapped_command
+
+    return results
+
+
+def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:
     """Set a command's arguments based on its signature.
 
     To declare arguments a you will have to do one of two things:
@@ -461,8 +480,8 @@ def _parse_type(type_: typing.Any) -> typing.Any:
     ```py
     async def message_command(
         ctx: tanjun.abc.MessageContext,
+        name: Str,
         enable: typing.Optional[Bool] = None,
-        name: typing.Optional[Str] = None,
     ) -> None:
         ...
     ```
@@ -471,6 +490,9 @@ def _parse_type(type_: typing.Any) -> typing.Any:
     ----------
     command : tanjun.SlashCommand | tanjun.MessageCommand
         The message or slash command to set the arguments for.
+    follow_wrapped
+        Whether this should also set the arguments for any command objects
+        `command` wraps.
 
     Returns
     -------
@@ -483,7 +505,21 @@ def _parse_type(type_: typing.Any) -> typing.Any:
         # As a note, this fails on some "signature-less" builtin functions/types like str.
         return command
 
-    is_slash = isinstance(command, slash.SlashCommand)
+    message_commands: list[message.MessageCommand[typing.Any]] = []
+    slash_commands: list[slash.SlashCommand[typing.Any]] = []
+
+    if isinstance(command, slash.SlashCommand):
+        slash_commands.append(command)
+    else:
+        message_commands.append(command)
+
+    if follow_wrapped:
+        for sub_command in _collect_wrapped(command):
+            if isinstance(sub_command, message.MessageCommand):
+                message_commands.append(sub_command)
+
+            elif isinstance(sub_command, slash.SlashCommand):
+                slash_commands.append(sub_command)
 
     for parameter in signature.parameters.values():
         if parameter.annotation is parameter.empty or typing.get_origin(parameter.annotation) is not typing.Annotated:
@@ -516,12 +552,10 @@ def _parse_type(type_: typing.Any) -> typing.Any:
             elif isinstance(arg, range):
                 raise NotImplementedError("A5 said 'scary'")
 
-        if is_slash:
-            assert isinstance(command, slash.SlashCommand)
-            arg_config.to_slash_option(command)
+        for slash_command in slash_commands:
+            arg_config.to_slash_option(slash_command)
 
-        else:
-            assert isinstance(command, message.MessageCommand)
-            arg_config.to_message_option(command)
+        for message_command in message_commands:
+            arg_config.to_message_option(message_command)
 
     return command

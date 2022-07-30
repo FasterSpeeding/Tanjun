@@ -1362,6 +1362,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._str_autocompletes.copy()
 
+    @property
+    def wrapped_command(self) -> typing.Optional[tanjun.ExecutableCommand[typing.Any]]:
+        """The command object this wraps, if any."""
+        self._wrapped_command
+
     def bind_client(self: _SlashCommandT, client: tanjun.Client, /) -> _SlashCommandT:
         self._client = client
         super().bind_client(client)
