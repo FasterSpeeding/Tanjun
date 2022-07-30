@@ -32,8 +32,9 @@
 """Parameter annotation based strategy for declaring command arguments.
 
 Community Resources:
+
 * An alternative implementation which relies more on documentation parsing
-  can be found at https://github.com/thesadru/tanchi.
+  can be found at <https://github.com/thesadru/tanchi>.
 """
 from __future__ import annotations
 
@@ -56,6 +57,8 @@ __all__: list[str] = [
 ]
 
 import dataclasses
+import sys
+import types
 import typing
 from collections import abc as collections
 
@@ -66,6 +69,12 @@ from . import parsing
 from ._vendor import inspect
 from .commands import message
 from .commands import slash
+
+if sys.version_info >= (3, 10):
+    _UnionTypes = frozenset((typing.Union, types.UnionType))
+
+else:
+    _UnionTypes = frozenset((typing.Union,))
 
 _ChoiceUnion = typing.Union[int, float, str]
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
@@ -83,7 +92,7 @@ Attachment = typing.Annotated[hikari.Attachment, _OPTION_MARKER]
 """An argument which accepts a file.
 
 !!! warning
-    Currently, this is only supported for slash commands.
+    This is currently only supported for slash commands.
 """
 
 Bool = typing.Annotated[bool, _OPTION_MARKER]
@@ -236,7 +245,7 @@ class Converted:
             during parsing.
 
             Only the first converter to pass will be used.
-        other_converters
+        *other_converters
             Other first converter(s) this argument should use to handle values passed to it
             during parsing.
 
@@ -387,13 +396,27 @@ class _ArgConfig:
     }
 
 
-def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
+def _parse_type(type_: typing.Any) -> typing.Any:
+    if typing.get_origin(type_) not in _UnionTypes:
+        return type_
+
+    for sub_type in typing.get_args(type_):
+        if typing.get_origin(sub_type) is not typing.Annotated:
+            continue
+
+        args = typing.get_args(sub_type)
+        if _OPTION_MARKER in args:
+            return args[0]
+
+    return type_
+
+
     """Set a command's arguments based on its signature.
 
     To declare arguments a you will have to do one of two things:
 
     1. Using any of the following types as an argument's type-hint (this may be
-        the first argument to [typing.Annotated][]) will mark it as injected:
+        as the first argument to [typing.Annotated][]) will mark it as injected:
 
         * [tanjun.annotations.Bool][]
         * [tanjun.annotations.Channel][]
@@ -405,35 +428,35 @@ def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
         * [tanjun.annotations.Str][]
         * [tanjun.annotations.User][]
 
-    ```py
-    @tanjun.as_slash_command("name", "description")
-    async def command(
-        ctx: tanjun.abc.SlashContext,
+        ```py
+        @tanjun.as_slash_command("name", "description")
+        async def command(
+            ctx: tanjun.abc.SlashContext,
 
-        # Here the option's descrition is passed as a string to Annotated,
-        # this is neccessary for slash commands but ignored for message commands.
-        name: Annotated[Str, "The character's name"],
+            # Here the option's description is passed as a string to Annotated:
+            # this is necessary for slash commands but ignored for message commands.
+            name: Annotated[Str, "The character's name"],
 
-        # `= False` declares this field as optional, with it defaulting to `False`
-        # if not specified.
-        lawyer: Annotated[Bool, "Whether they're a lawyer"] = False,
-    ) -> None:
-        raise NotImplementedError
-    ```
+            # `= False` declares this field as optional, with it defaulting to `False`
+            # if not specified.
+            lawyer: Annotated[Bool, "Whether they're a lawyer"] = False,
+        ) -> None:
+            raise NotImplementedError
+        ```
 
     2. By passing [tanjun.annotations.Converted][] as one of the other arguments to
-        [typing.Annotaed][] to declare it as a string option with converters.
+        [typing.Annotated][] to declare it as a string option with converters.
 
-    ```py
-    async def command(
-        ctx: tanjun.abc.SlashContext,
-        value: Annotated[CustomType, Converted(CustomType.from_str)],
-    ) -> None:
-        raise NotImplementedError
-    ```
+        ```py
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            value: Annotated[CustomType, Converted(CustomType.from_str)],
+        ) -> None:
+            raise NotImplementedError
+        ```
 
-    It should be noted that wrapping in [typing.Annotated][] isn't neccesary for
-    message commands as message command arguments don't have descriptions.
+    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+    message commands options as they don't have descriptions.
 
     ```py
     async def message_command(
@@ -470,7 +493,7 @@ def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
         args = typing.get_args(parameter.annotation)
         for arg in args[1:]:
             if arg is _OPTION_MARKER:
-                arg_config.option_type = args[0]
+                arg_config.option_type = _parse_type(args[0])
 
             elif isinstance(arg, Choices):
                 arg_config.choices = arg.choices
