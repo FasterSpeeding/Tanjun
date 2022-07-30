@@ -78,8 +78,8 @@ if sys.version_info >= (3, 10):
 else:
     _UnionTypes = frozenset((typing.Union,))
 
-_ChoiceUnion = typing.Union[int, float, str]
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
+_ChoiceUnion = typing.Union[int, float, str]
 _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
 _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
 _ConverterSig = typing.Union[
@@ -112,6 +112,7 @@ Int = typing.Annotated[int, _OPTION_MARKER]
 Member = typing.Annotated[hikari.Member, _OPTION_MARKER]
 """An argument which takes a guild member."""
 
+_MentionableUnion = typing.Union[hikari.User, hikari.Role]
 Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OPTION_MARKER]
 """An argument which takes a user or role."""
 
@@ -281,14 +282,14 @@ def _ensure_values(
     return typing.cast(collections.Mapping[str, _T], mapping)
 
 
-_OPTION_TYPE_TO_CONVERTER: dict[type[typing.Any], tuple[_ConverterSig, ...]] = {
+_OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], tuple[_ConverterSig, ...]] = {
     # hikari.Attachment: NotImplemented,
     bool: (conversion.to_bool,),
     hikari.PartialChannel: (conversion.to_channel,),
     float: (float,),
     int: (int,),
     hikari.Member: (conversion.to_member,),
-    typing.Union[hikari.User, hikari.Role]: (conversion.to_user, conversion.to_role),
+    _MentionableUnion: (conversion.to_user, conversion.to_role),
     hikari.Role: (conversion.to_role,),
     str: (),
     hikari.User: (conversion.to_user,),
@@ -324,7 +325,7 @@ class _ArgConfig:
             converters = self.converters
 
         elif self.option_type:
-            converters = _OPTION_TYPE_TO_CONVERTER[self.option_type]
+            converters = _OPTION_TYPE_TO_CONVERTERS[self.option_type]
 
         else:
             return
@@ -395,9 +396,7 @@ class _ArgConfig:
             max_value=_ensure_value("max", int, self.max_value),
         ),
         hikari.Member: lambda self, c, d: c.add_member_option(self.name, d, default=self._slash_default()),
-        typing.Union[hikari.User, hikari.Role]: lambda self, c, d: c.add_mentionable_option(
-            self.name, d, default=self._slash_default()
-        ),
+        _MentionableUnion: lambda self, c, d: c.add_mentionable_option(self.name, d, default=self._slash_default()),
         hikari.Role: lambda self, c, d: c.add_role_option(self.name, d, default=self._slash_default()),
         str: lambda self, c, d: c.add_str_option(
             self.name,
@@ -411,7 +410,7 @@ class _ArgConfig:
 
 
 def _parse_type(type_: typing.Any) -> typing.Any:
-    if typing.get_origin(type_) not in _UnionTypes:
+    if typing.get_origin(type_) not in _UnionTypes or type_ == _MentionableUnion:
         return type_
 
     for sub_type in typing.get_args(type_):
