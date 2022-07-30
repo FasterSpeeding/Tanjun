@@ -29,10 +29,26 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""."""
+"""Parameter annotation based strategy for declaring command arguments."""
 from __future__ import annotations
 
-__all__: list[str] = []
+__all__: list[str] = [
+    "Attachment",
+    "Bool",
+    "Channel",
+    "Choices",
+    "Converted",
+    "Float",
+    "Int",
+    "Max",
+    "Member",
+    "Mentionable",
+    "Min",
+    "Role",
+    "Str",
+    "User",
+    "with_annotated_args",
+]
 
 import dataclasses
 import typing
