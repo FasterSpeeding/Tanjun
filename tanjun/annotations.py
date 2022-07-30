@@ -56,7 +56,7 @@ __all__: list[str] = [
     "with_annotated_args",
 ]
 
-import dataclasses
+import operator
 import sys
 import types
 import typing
@@ -64,8 +64,7 @@ from collections import abc as collections
 
 import hikari
 
-from tanjun import abc as tanjun
-
+from . import abc as tanjun
 from . import conversion
 from . import parsing
 from ._vendor import inspect
@@ -296,17 +295,29 @@ _OPTION_TYPE_TO_CONVERTER: dict[type[typing.Any], tuple[_ConverterSig, ...]] = {
 }
 
 
-@dataclasses.dataclass
 class _ArgConfig:
-    name: str
-    default: typing.Any
-    channel_types: typing.Optional[list[type[hikari.PartialChannel]]] = None
-    choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-    converters: typing.Optional[collections.Sequence[_ConverterSig]] = None
-    description: typing.Optional[str] = None
-    max_value: typing.Union[float, int, None] = None
-    min_value: typing.Union[float, int, None] = None
-    option_type: typing.Optional[type[typing.Any]] = None
+    __slots__ = (
+        "name",
+        "default",
+        "channel_types",
+        "choices",
+        "converters",
+        "description",
+        "max_value",
+        "min_value",
+        "option_type",
+    )
+
+    def __init__(self, name: str, default: typing.Any, /) -> None:
+        self.name = name
+        self.default = default
+        self.channel_types: typing.Optional[list[type[hikari.PartialChannel]]] = None
+        self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
+        self.converters: typing.Optional[collections.Sequence[_ConverterSig]] = None
+        self.description: typing.Optional[str] = None
+        self.max_value: typing.Union[float, int, None] = None
+        self.min_value: typing.Union[float, int, None] = None
+        self.option_type: typing.Optional[type[typing.Any]] = None
 
     def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
         if self.converters:
@@ -372,8 +383,8 @@ class _ArgConfig:
             d,
             choices=_ensure_values("choice", float, self.choices),
             default=self._slash_default(),
-            min_value=_ensure_value("min", float, self.min_value),
-            max_value=_ensure_value("max", float, self.max_value),
+            min_value=self.min_value,  # TODO: explicitly cast to float?
+            max_value=self.max_value,
         ),
         int: lambda self, c, d: c.add_int_option(
             self.name,
@@ -429,7 +440,7 @@ def _collect_wrapped(
     return results
 
 
-def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:
+def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:  # noqa: C901
     """Set a command's arguments based on its signature.
 
     To declare arguments a you will have to do one of two things:
@@ -546,11 +557,15 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             elif isinstance(arg, Min):
                 arg_config.min_value = arg.value
 
-            elif isinstance(arg, slice):
-                raise NotImplementedError("A5 said 'scary'")
-
-            elif isinstance(arg, range):
-                raise NotImplementedError("A5 said 'scary'")
+            elif isinstance(arg, (range, slice)):
+                # Slice's attributes are all Any so we need to cast to int.
+                if arg.step is None or operator.index(arg.step) > 0:
+                    arg_config.min_value = operator.index(arg.start) if arg.start is not None else 0
+                    arg_config.max_value = operator.index(arg.stop) - 1
+                else:
+                    # start will have to have been specified for this to be reached.
+                    arg_config.min_value = operator.index(arg.stop) - 1
+                    arg_config.max_value = operator.index(arg.start)
 
         for slash_command in slash_commands:
             arg_config.to_slash_option(slash_command)
