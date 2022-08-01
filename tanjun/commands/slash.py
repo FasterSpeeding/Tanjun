@@ -53,6 +53,7 @@ __all__: list[str] = [
 ]
 
 import copy
+import itertools
 import re
 import typing
 import warnings
@@ -586,7 +587,7 @@ def with_member_slash_option(
     return lambda c: c.add_member_option(name, description, default=default)
 
 
-_channel_types: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
+_CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
     hikari.GuildTextChannel: {hikari.ChannelType.GUILD_TEXT},
     hikari.DMChannel: {hikari.ChannelType.DM},
     hikari.GuildVoiceChannel: {hikari.ChannelType.GUILD_VOICE},
@@ -597,13 +598,13 @@ _channel_types: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
 }
 
 
-for _channel_cls, _types in _channel_types.copy().items():
+for _channel_cls, _types in _CHANNEL_TYPES.copy().items():
     for _mro_type in _channel_cls.mro():
         if isinstance(_mro_type, type) and issubclass(_mro_type, hikari.PartialChannel):
             try:
-                _channel_types[_mro_type].update(_types)
+                _CHANNEL_TYPES[_mro_type].update(_types)
             except KeyError:
-                _channel_types[_mro_type] = _types.copy()
+                _CHANNEL_TYPES[_mro_type] = _types.copy()
 
 
 def with_channel_slash_option(
@@ -2055,7 +2056,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
-        types: typing.Optional[collections.Collection[type[hikari.PartialChannel]]] = None,
+        types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a channel option to a slash command.
@@ -2079,7 +2080,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
             If this is left as undefined then this option will be required.
         types
-            A collection of the channel classes this option should accept.
+            A collection of the channel classes and types this option should accept.
 
             If left as [None][] or empty then the option will allow all channel types.
         pass_as_kwarg
@@ -2107,11 +2108,15 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        import itertools
-
         if types:
             try:
-                channel_types = list(set(itertools.chain.from_iterable(map(_channel_types.__getitem__, types))))
+                channel_types = list(
+                    set(
+                        itertools.chain.from_iterable(
+                            (type_,) if isinstance(type_, int) else _CHANNEL_TYPES[type_] for type_ in types
+                        )
+                    )
+                )
 
             except KeyError as exc:
                 raise ValueError(f"Unknown channel type {exc.args[0]}") from exc

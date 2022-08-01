@@ -50,8 +50,10 @@ __all__: list[str] = [
     "Member",
     "Mentionable",
     "Min",
+    "Ranged",
     "Role",
     "Str",
+    "TheseChannels",
     "User",
     "with_annotated_args",
 ]
@@ -80,6 +82,7 @@ else:
     _UnionTypes = frozenset((typing.Union,))
 
 _T = typing.TypeVar("_T")
+_ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
 _ChoiceUnion = typing.Union[int, float, str]
 _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
@@ -89,6 +92,7 @@ _ConverterSig = typing.Union[
     collections.Callable[[str], _T],
 ]
 _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
+_MentionableUnion = typing.Union[hikari.User, hikari.Role]
 _NumberT = typing.TypeVar("_NumberT", float, int)
 
 _OPTION_MARKER = object()
@@ -115,7 +119,6 @@ Int = typing.Annotated[int, _OPTION_MARKER]
 Member = typing.Annotated[hikari.Member, _OPTION_MARKER]
 """An argument which takes a guild member."""
 
-_MentionableUnion = typing.Union[hikari.User, hikari.Role]
 Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OPTION_MARKER]
 """An argument which takes a user or role."""
 
@@ -129,10 +132,36 @@ User = typing.Annotated[hikari.User, _OPTION_MARKER]
 """An argument which takes a user."""
 
 
+class _TheseChannelsMeta(type):
+    def __getitem__(
+        cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
+    ) -> type[hikari.PartialChannel]:
+        if not isinstance(value, typing.Collection):
+            value = (value,)
+
+        return typing.Annotated[hikari.PartialChannel, TheseChannels(*value), _OPTION_MARKER]
+
+
+class TheseChannels(metaclass=_TheseChannelsMeta):
+    __slots__ = "_channel_types"
+
+    def __init__(
+        self,
+        channel_type: _ChannelTypeIsh,
+        /,
+        *other_types: _ChannelTypeIsh,
+    ) -> None:
+        self._channel_types = (channel_type, *other_types)
+
+    @property
+    def channel_types(self) -> collections.Sequence[_ChannelTypeIsh]:
+        return self._channel_types
+
+
 class _MaxMeta(type):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         type_ = type(value)
-        return typing.Annotated[type_, Max(value)]
+        return typing.Annotated[type_, Max(value), _OPTION_MARKER]
 
 
 class Max(metaclass=_MaxMeta):
@@ -181,7 +210,7 @@ class Max(metaclass=_MaxMeta):
 class _MinMeta(type):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         type_ = type(value)
-        return typing.Annotated[type_, Min(value)]
+        return typing.Annotated[type_, Min(value), _OPTION_MARKER]
 
 
 class Min(metaclass=_MinMeta):
@@ -228,20 +257,11 @@ class Min(metaclass=_MinMeta):
 
 
 class _RangedMeta(type):
-    @typing.overload
-    def __getitem__(cls, range_: tuple[int, int], /) -> type[int]:
-        ...
-
-    @typing.overload
-    def __getitem__(cls, range_: tuple[float, float], /) -> type[float]:
-        ...
-
-    # Overloads are used here over a type var as they gives more desierable ordering behaviour.
-    def __getitem__(
-        cls, range_: typing.Union[tuple[int, int], tuple[float, float]], /
-    ) -> typing.Union[type[int], type[float]]:
-        type_ = type(range_[0])
-        return typing.Annotated[type_, Ranged(range_[0], range_[1])]
+    def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
+        # This better matches how type checking (well pyright at least) will
+        # prefer to go to float if either value is float.
+        type_ = type(range_[0]) if issubclass(type(range_[0]), float) else type(range_[1])
+        return typing.Annotated[type_, Ranged(range_[0], range_[1]), _OPTION_MARKER]
 
 
 class Ranged(metaclass=_RangedMeta):
@@ -441,7 +461,7 @@ class _ArgConfig:
     def __init__(self, name: str, default: typing.Any, /) -> None:
         self.name = name
         self.default = default
-        self.channel_types: typing.Optional[list[type[hikari.PartialChannel]]] = None
+        self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
         self.description: typing.Optional[str] = None
@@ -507,7 +527,9 @@ class _ArgConfig:
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(self.name, d, default=self._slash_default()),
         bool: lambda self, c, d: c.add_bool_option(self.name, d, default=self._slash_default()),
-        hikari.PartialChannel: lambda self, c, d: c.add_channel_option(self.name, d, default=self._slash_default()),
+        hikari.PartialChannel: lambda self, c, d: c.add_channel_option(
+            self.name, d, default=self._slash_default(), types=self.channel_types
+        ),
         float: lambda self, c, d: c.add_float_option(
             self.name,
             d,
@@ -680,6 +702,9 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             # Ignore this if a TypeOveride is found as it takes priority.
             if arg is _OPTION_MARKER and arg_config.option_type is None:
                 arg_config.option_type = _parse_type(args[0])
+
+            elif isinstance(arg, TheseChannels):
+                arg_config.channel_types = arg.channel_types
 
             elif isinstance(arg, Choices):
                 arg_config.choices = arg.choices
