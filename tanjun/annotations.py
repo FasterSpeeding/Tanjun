@@ -56,6 +56,7 @@ __all__: list[str] = [
     "with_annotated_args",
 ]
 
+import enum
 import operator
 import sys
 import types
@@ -78,15 +79,17 @@ if sys.version_info >= (3, 10):
 else:
     _UnionTypes = frozenset((typing.Union,))
 
+_T = typing.TypeVar("_T")
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
 _ChoiceUnion = typing.Union[int, float, str]
 _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
 _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
 _ConverterSig = typing.Union[
-    collections.Callable[[str], typing.Any],
-    collections.Callable[[str], collections.Coroutine[typing.Any, typing.Any, typing.Any]],
+    collections.Callable[[str], collections.Coroutine[typing.Any, typing.Any, _T]],
+    collections.Callable[[str], _T],
 ]
-_T = typing.TypeVar("_T")
+_EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
+_NumberT = typing.TypeVar("_NumberT", float, int)
 
 _OPTION_MARKER = object()
 
@@ -126,7 +129,13 @@ User = typing.Annotated[hikari.User, _OPTION_MARKER]
 """An argument which takes a user."""
 
 
-class Max:
+class _MaxMeta(type):
+    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
+        type_ = type(value)
+        return typing.Annotated[type_, Max(value)]
+
+
+class Max(metaclass=_MaxMeta):
     """Inclusive maximum value for a [Float][] or [Int][] argument.
 
     Examples
@@ -169,7 +178,13 @@ class Max:
         return self._value
 
 
-class Min:
+class _MinMeta(type):
+    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
+        type_ = type(value)
+        return typing.Annotated[type_, Min(value)]
+
+
+class Min(metaclass=_MinMeta):
     """Inclusive minimum value for a [Float][] or [Int][] argument.
 
     Examples
@@ -212,11 +227,73 @@ class Min:
         return self._value
 
 
-class Choices:
+class _RangedMeta(type):
+    @typing.overload
+    def __getitem__(cls, range_: tuple[int, int], /) -> type[int]:
+        ...
+
+    @typing.overload
+    def __getitem__(cls, range_: tuple[float, float], /) -> type[float]:
+        ...
+
+    # Overloads are used here over a type var as they gives more desierable ordering behaviour.
+    def __getitem__(
+        cls, range_: typing.Union[tuple[int, int], tuple[float, float]], /
+    ) -> typing.Union[type[int], type[float]]:
+        type_ = type(range_[0])
+        return typing.Annotated[type_, Ranged(range_[0], range_[1])]
+
+
+class Ranged(metaclass=_RangedMeta):
+    __slots__ = ("_max_value", "_min_value")
+
+    def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
+        self._max_value = max_value
+        self._min_value = min_value
+
+    @property
+    def max_value(self) -> typing.Union[int, float]:
+        return self._max_value
+
+    @property
+    def min_value(self) -> typing.Union[int, float]:
+        return self._min_value
+
+
+class _TypeOverride:
+    __slots__ = ("_override",)
+
+    def __init__(self, override: type[typing.Any], /) -> None:
+        self._override = override
+
+    @property
+    def override(self) -> type[typing.Any]:
+        return self._override
+
+
+class _ChoicesMeta(type):
+    def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
+        if issubclass(enum_, int):
+            type_ = int
+
+        elif issubclass(enum_, str):
+            type_ = str
+
+        elif issubclass(enum_, float):
+            type_ = float
+
+        else:
+            raise ValueError("Enum must be a subclsas of str, float or int")
+
+        return typing.Annotated[enum_, Choices(enum_.__members__), Converted(enum_), _TypeOverride(type_)]
+
+
+class Choices(metaclass=_ChoicesMeta):
     """Assign up to 25 choices for a slash command option.
 
     !!! warning
-        This is currently ignored for message commands.
+        This is currently ignored for message commands and is only
+        valid for string, integer and float options.
 
     Examples
     --------
@@ -265,22 +342,42 @@ class Choices:
         return self._choices
 
 
-class Converted:
-    """Marked an argument as type [Str][] with converters."""
+class _ConvertedMeta(type):
+    def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
+        if not isinstance(converters, tuple):
+            converters = (converters,)
+
+        return typing.Annotated[typing.Any, Converted(*converters)]
+
+
+class Converted(metaclass=_ConvertedMeta):
+    """Marked an argument as type [Str][] with converters.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("beep", "boop")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        value: Converted[callback, other_callback],
+    )
+    ```
+    """
 
     __slots__ = ("_converters",)
 
-    def __init__(self, converter: _ConverterSig, /, *other_converters: _ConverterSig) -> None:
+    def __init__(self, converter: _ConverterSig[typing.Any], /, *other_converters: _ConverterSig[typing.Any]) -> None:
         """Create a converted instance.
 
         Parameters
         ----------
-        converter
+        converter : collections.abc.Callable
             The first converter this argument should use to handle values passed to it
             during parsing.
 
             Only the first converter to pass will be used.
-        *other_converters
+        *other_converters : collections.abc.Callable
             Other first converter(s) this argument should use to handle values passed to it
             during parsing.
 
@@ -289,7 +386,7 @@ class Converted:
         self._converters = [converter, *other_converters]
 
     @property
-    def converters(self) -> collections.Sequence[_ConverterSig]:
+    def converters(self) -> collections.Sequence[_ConverterSig[typing.Any]]:
         """A sequence of the converters."""
         return self._converters
 
@@ -314,7 +411,7 @@ def _ensure_values(
     return typing.cast(collections.Mapping[str, _T], mapping)
 
 
-_OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], tuple[_ConverterSig, ...]] = {
+_OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], _ConverterSig[typing.Any]] = {
     # hikari.Attachment: NotImplemented,
     bool: (conversion.to_bool,),
     hikari.PartialChannel: (conversion.to_channel,),
@@ -346,7 +443,7 @@ class _ArgConfig:
         self.default = default
         self.channel_types: typing.Optional[list[type[hikari.PartialChannel]]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.converters: typing.Optional[collections.Sequence[_ConverterSig]] = None
+        self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
         self.description: typing.Optional[str] = None
         self.max_value: typing.Union[float, int, None] = None
         self.min_value: typing.Union[float, int, None] = None
@@ -511,7 +608,17 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
         ```py
         async def command(
             ctx: tanjun.abc.SlashContext,
-            value: Annotated[CustomType, Converted(CustomType.from_str)],
+            value: Annotated[Converted[CustomType.from_str]],
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+        or
+
+        ```py
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            value: Annotated[OtherType, Converted(parse_value)],
         ) -> None:
             raise NotImplementedError
         ```
@@ -570,7 +677,8 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
         arg_config = _ArgConfig(parameter.name, parameter.default)
         args = typing.get_args(parameter.annotation)
         for arg in args[1:]:
-            if arg is _OPTION_MARKER:
+            # Ignore this if a TypeOveride is found as it takes priority.
+            if arg is _OPTION_MARKER and arg_config.option_type is None:
                 arg_config.option_type = _parse_type(args[0])
 
             elif isinstance(arg, Choices):
@@ -591,12 +699,10 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             elif isinstance(arg, (range, slice)):
                 # Slice's attributes are all Any so we need to cast to int.
                 if arg.step is None or operator.index(arg.step) > 0:
-                    arg_config.min_value = operator.index(arg.start) if arg.start is not None else 0
-                    arg_config.max_value = operator.index(arg.stop) - 1
-                else:
-                    # start will have to have been specified for this to be reached.
-                    arg_config.min_value = operator.index(arg.stop) - 1
-                    arg_config.max_value = operator.index(arg.start)
+                    arg_config.min_value, arg_config.max_value = _slice_to_min_max(arg)
+
+            elif isinstance(arg, _TypeOverride):
+                arg_config.option_type = arg.override
 
         for slash_command in slash_commands:
             arg_config.to_slash_option(slash_command)
@@ -605,3 +711,18 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             arg_config.to_message_option(message_command)
 
     return command
+
+
+def _slice_to_min_max(
+    value: typing.Union[range, slice], /
+) -> tuple[typing.Union[int, float], typing.Union[int, float]]:
+    # Slice's attributes are all Any so we need to cast to int.
+    if value.step is None or operator.index(value.step) > 0:
+        min_value = operator.index(value.start) if value.start is not None else 0
+        max_value = operator.index(value.stop) - 1
+    else:
+        # start will have to have been specified for this to be reached.
+        min_value = operator.index(value.stop) - 1
+        max_value = operator.index(value.start)
+
+    return min_value, max_value
