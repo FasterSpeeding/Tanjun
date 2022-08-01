@@ -14,7 +14,7 @@ certifi==2022.6.15
     #   httpx
 colorlog==6.6.0
     # via nox
-distlib==0.3.4
+distlib==0.3.5
     # via virtualenv
 filelock==3.7.1
     # via virtualenv
@@ -40,12 +40,10 @@ pyparsing==3.0.9
     # via packaging
 rfc3986[idna2008]==1.5.0
     # via httpx
-six==1.16.0
-    # via virtualenv
 sniffio==1.2.0
     # via
     #   anyio
     #   httpcore
     #   httpx
-virtualenv==20.15.1
+virtualenv==20.16.2
     # via nox

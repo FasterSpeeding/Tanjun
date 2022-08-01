@@ -11,7 +11,9 @@ ghp-import==2.1.0
 griffe==0.22.0
     # via mkdocstrings-python
 importlib-metadata==4.12.0
-    # via mkdocs
+    # via
+    #   markdown
+    #   mkdocs
 jinja2==3.1.2
     # via
     #   mkdocs
@@ -73,5 +75,5 @@ six==1.16.0
     # via python-dateutil
 watchdog==2.1.9
     # via mkdocs
-zipp==3.8.0
+zipp==3.8.1
     # via importlib-metadata
