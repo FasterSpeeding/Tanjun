@@ -44,12 +44,14 @@ __all__: list[str] = [
     "Channel",
     "Choices",
     "Converted",
+    "Describe",
     "Float",
     "Int",
     "Max",
     "Member",
     "Mentionable",
     "Min",
+    "Name",
     "Ranged",
     "Role",
     "Str",
@@ -143,7 +145,7 @@ class _TheseChannelsMeta(type):
 
 
 class TheseChannels(metaclass=_TheseChannelsMeta):
-    __slots__ = "_channel_types"
+    __slots__ = ("_channel_types",)
 
     def __init__(
         self,
@@ -305,6 +307,7 @@ class _ChoicesMeta(type):
         else:
             raise ValueError("Enum must be a subclsas of str, float or int")
 
+        # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.Annotated[enum_, Choices(enum_.__members__), Converted(enum_), _TypeOverride(type_)]
 
 
@@ -411,6 +414,45 @@ class Converted(metaclass=_ConvertedMeta):
         return self._converters
 
 
+class _DescribeMeta(type):
+    def __getitem__(cls, values: tuple[type[_T], str], /) -> type[_T]:
+        type_ = values[0]
+        return typing.Annotated[type_, values[1]]
+
+
+class Describe(metaclass=_DescribeMeta):
+    __slots__ = ()
+
+
+class Name:
+    __slots__ = ("_message_names", "_slash_name")
+
+    def __init__(
+        self,
+        both: typing.Optional[str] = None,
+        /,
+        *,
+        message: typing.Union[typing.Optional[str], collections.Sequence[str]] = None,
+        slash: typing.Optional[str] = None,
+    ) -> None:
+        if message and isinstance(message, str):
+            message = [message]
+
+        elif both and not message:
+            message = "--" + both.replace("_", "-")
+
+        self._message_names = message
+        self._slash_name = slash or both
+
+    @property
+    def message_names(self) -> typing.Optional[collections.Sequence[str]]:
+        return self._message_names
+
+    @property
+    def slash_name(self) -> typing.Optional[str]:
+        return self._slash_name
+
+
 def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]) -> typing.Optional[_T]:
     if value is None or isinstance(value, type_):
         return value
@@ -447,27 +489,35 @@ _OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], _ConverterSig[typing.Any]] = 
 
 class _ArgConfig:
     __slots__ = (
-        "name",
-        "default",
+        "aliases",
         "channel_types",
         "choices",
         "converters",
+        "custom_aliases",
+        "default",
         "description",
+        "key",
         "max_value",
+        "message_names",
         "min_value",
         "option_type",
+        "slash_name",
     )
 
-    def __init__(self, name: str, default: typing.Any, /) -> None:
-        self.name = name
-        self.default = default
+    def __init__(self, key: str, default: typing.Any, /) -> None:
+        self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
+        self.custom_aliases = False
+        self.default = default
         self.description: typing.Optional[str] = None
+        self.key = key
         self.max_value: typing.Union[float, int, None] = None
+        self.message_names: collections.Sequence[str] = ["--" + key.replace("_", "-")]
         self.min_value: typing.Union[float, int, None] = None
         self.option_type: typing.Optional[type[typing.Any]] = None
+        self.slash_name = key
 
     def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
         if self.converters:
@@ -489,9 +539,9 @@ class _ArgConfig:
             parser = parsing.ShlexParser()
             command.set_parser(parser)
 
-        if self.default is inspect.Parameter.empty:
+        if self.default is inspect.Parameter.empty and not self.custom_aliases:  # TODO: stick with this?
             parser.add_argument(
-                self.name,
+                self.key,
                 converters=converters,
                 min_value=self.min_value,
                 max_value=self.max_value,
@@ -499,8 +549,8 @@ class _ArgConfig:
 
         else:
             parser.add_option(
-                self.name,
-                "--" + self.name.replace("_", "-"),
+                self.key,
+                *self.message_names,
                 converters=converters,
                 default=self.default,
                 min_value=self.min_value,
@@ -525,38 +575,51 @@ class _ArgConfig:
         type[typing.Any],
         collections.Callable[[_ArgConfig, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
     ] = {
-        hikari.Attachment: lambda self, c, d: c.add_attachment_option(self.name, d, default=self._slash_default()),
-        bool: lambda self, c, d: c.add_bool_option(self.name, d, default=self._slash_default()),
+        hikari.Attachment: lambda self, c, d: c.add_attachment_option(
+            self.slash_name, d, default=self._slash_default(), key=self.key
+        ),
+        bool: lambda self, c, d: c.add_bool_option(self.slash_name, d, default=self._slash_default(), key=self.key),
         hikari.PartialChannel: lambda self, c, d: c.add_channel_option(
-            self.name, d, default=self._slash_default(), types=self.channel_types
+            self.slash_name, d, default=self._slash_default(), key=self.key, types=self.channel_types
         ),
         float: lambda self, c, d: c.add_float_option(
-            self.name,
+            self.slash_name,
             d,
             choices=_ensure_values("choice", float, self.choices),
             default=self._slash_default(),
+            key=self.key,
             min_value=self.min_value,  # TODO: explicitly cast to float?
             max_value=self.max_value,
         ),
         int: lambda self, c, d: c.add_int_option(
-            self.name,
+            self.slash_name,
             d,
             choices=_ensure_values("choice", int, self.choices),
             default=self._slash_default(),
+            key=self.key,
             min_value=_ensure_value("min", int, self.min_value),
             max_value=_ensure_value("max", int, self.max_value),
         ),
-        hikari.Member: lambda self, c, d: c.add_member_option(self.name, d, default=self._slash_default()),
-        _MentionableUnion: lambda self, c, d: c.add_mentionable_option(self.name, d, default=self._slash_default()),
-        hikari.Role: lambda self, c, d: c.add_role_option(self.name, d, default=self._slash_default()),
+        hikari.Member: lambda self, c, d: c.add_member_option(
+            self.slash_name, d, default=self._slash_default(), key=self.key
+        ),
+        _MentionableUnion: lambda self, c, d: c.add_mentionable_option(
+            self.slash_name, d, default=self._slash_default(), key=self.key
+        ),
+        hikari.Role: lambda self, c, d: c.add_role_option(
+            self.slash_name, d, default=self._slash_default(), key=self.key
+        ),
         str: lambda self, c, d: c.add_str_option(
-            self.name,
+            self.slash_name,
             d,
             choices=_ensure_values("choice", str, self.choices),
             converters=self.converters or (),
             default=self._slash_default(),
+            key=self.key,
         ),
-        hikari.User: lambda self, c, d: c.add_user_option(self.name, d, default=self._slash_default()),
+        hikari.User: lambda self, c, d: c.add_user_option(
+            self.slash_name, d, default=self._slash_default(), key=self.key
+        ),
     }
 
 
@@ -590,86 +653,7 @@ def _collect_wrapped(
     return results
 
 
-def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:  # noqa: C901
-    """Set a command's arguments based on its signature.
-
-    To declare arguments a you will have to do one of two things:
-
-    1. Using any of the following types as an argument's type-hint (this may be
-        as the first argument to [typing.Annotated][]) will mark it as injected:
-
-        * [tanjun.annotations.Bool][]
-        * [tanjun.annotations.Channel][]
-        * [tanjun.annotations.Float][]
-        * [tanjun.annotations.Int][]
-        * [tanjun.annotations.Member][]
-        * [tanjun.annotations.Mentionable][]
-        * [tanjun.annotations.Role][]
-        * [tanjun.annotations.Str][]
-        * [tanjun.annotations.User][]
-
-        ```py
-        @tanjun.as_slash_command("name", "description")
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-
-            # Here the option's description is passed as a string to Annotated:
-            # this is necessary for slash commands but ignored for message commands.
-            name: Annotated[Str, "The character's name"],
-
-            # `= False` declares this field as optional, with it defaulting to `False`
-            # if not specified.
-            lawyer: Annotated[Bool, "Whether they're a lawyer"] = False,
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-    2. By passing [tanjun.annotations.Converted][] as one of the other arguments to
-        [typing.Annotated][] to declare it as a string option with converters.
-
-        ```py
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-            value: Annotated[Converted[CustomType.from_str]],
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-        or
-
-        ```py
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-            value: Annotated[OtherType, Converted(parse_value)],
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
-    message commands options as they don't have descriptions.
-
-    ```py
-    async def message_command(
-        ctx: tanjun.abc.MessageContext,
-        name: Str,
-        enable: typing.Optional[Bool] = None,
-    ) -> None:
-        ...
-    ```
-
-    Parameters
-    ----------
-    command : tanjun.SlashCommand | tanjun.MessageCommand
-        The message or slash command to set the arguments for.
-    follow_wrapped
-        Whether this should also set the arguments for any command objects
-        `command` wraps.
-
-    Returns
-    -------
-    tanjun.SlashCommand | tanjun.MessageCommand
-        The command object to enable using this as a decorator.
-    """
+def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:  # noqa: C901
     try:
         signature = inspect.signature(command.callback, follow_wrapped=True)
     except ValueError:  # If we can't inspect it then we have to assume this is a NO
@@ -703,9 +687,6 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             if arg is _OPTION_MARKER and arg_config.option_type is None:
                 arg_config.option_type = _parse_type(args[0])
 
-            elif isinstance(arg, TheseChannels):
-                arg_config.channel_types = arg.channel_types
-
             elif isinstance(arg, Choices):
                 arg_config.choices = arg.choices
 
@@ -721,10 +702,19 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             elif isinstance(arg, Min):
                 arg_config.min_value = arg.value
 
+            elif isinstance(arg, Name):
+                arg_config.slash_name = arg.slash_name or arg_config.slash_name
+                if arg.message_names is not None:
+                    arg_config.message_names = arg.message_names
+                    arg_config.custom_aliases = True
+
             elif isinstance(arg, (range, slice)):
                 # Slice's attributes are all Any so we need to cast to int.
                 if arg.step is None or operator.index(arg.step) > 0:
                     arg_config.min_value, arg_config.max_value = _slice_to_min_max(arg)
+
+            elif isinstance(arg, TheseChannels):
+                arg_config.channel_types = arg.channel_types
 
             elif isinstance(arg, _TypeOverride):
                 arg_config.option_type = arg.override
@@ -736,6 +726,112 @@ def with_annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = Fa
             arg_config.to_message_option(message_command)
 
     return command
+
+
+@typing.overload
+def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
+    ...
+
+
+@typing.overload
+def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
+    ...
+
+
+def with_annotated_args(
+    command: typing.Optional[_CommandUnionT] = None, /, *, follow_wrapped: bool = False
+) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
+    """Set a command's arguments based on its signature.
+
+    To declare arguments a you will have to do one of two things:
+
+    1. Using any of the following types as an argument's type-hint (this may be
+        as the first argument to [typing.Annotated][]) will mark it as injected:
+
+        * [tanjun.annotations.Bool][]
+        * [tanjun.annotations.Channel][]
+        * [tanjun.annotations.Float][]
+        * [tanjun.annotations.Int][]
+        * [tanjun.annotations.Member][]
+        * [tanjun.annotations.Mentionable][]
+        * [tanjun.annotations.Role][]
+        * [tanjun.annotations.Str][]
+        * [tanjun.annotations.User][]
+
+        ```py
+        @tanjun.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("name")
+        @tanjun.as_slash_command("name", "description")
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+
+            # Here the option's description is passed as a string to Annotated:
+            # this is necessary for slash commands but ignored for message commands.
+            name: Annotated[Str, "The character's name"],
+
+            # `= False` declares this field as optional, with it defaulting to `False`
+            # if not specified.
+            lawyer: Annotated[Bool, "Whether they're a lawyer"] = False,
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+    2. By passing [tanjun.annotations.Converted][] as one of the other arguments to
+        [typing.Annotated][] to declare it as a string option with converters.
+
+        ```py
+        @tanjun.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("e")
+        @tanjun.as_slash_command("e", "description")
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            value: Annotated[Converted[CustomType.from_str]],
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+        or
+
+        ```py
+        @tanjun.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("e")
+        @tanjun.as_slash_command("e", "description")
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            value: Annotated[OtherType, Converted(parse_value)],
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+    message commands options as they don't have descriptions.
+
+    ```py
+    async def message_command(
+        ctx: tanjun.abc.MessageContext,
+        name: Str,
+        enable: typing.Optional[Bool] = None,
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    command : tanjun.SlashCommand | tanjun.MessageCommand
+        The message or slash command to set the arguments for.
+    follow_wrapped
+        Whether this should also set the arguments for any command objects
+        `command` wraps.
+
+    Returns
+    -------
+    tanjun.SlashCommand | tanjun.MessageCommand
+        The command object to enable using this as a decorator.
+    """
+    if not command:
+        return lambda c: _annotated_args(c, follow_wrapped=follow_wrapped)
+
+    return _annotated_args(command, follow_wrapped=follow_wrapped)
 
 
 def _slice_to_min_max(

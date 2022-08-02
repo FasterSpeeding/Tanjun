@@ -342,6 +342,7 @@ def with_attachment_slash_option(
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an attachment option to a slash command.
@@ -364,7 +365,7 @@ def with_attachment_slash_option(
         Decorator callback which adds the option to the command.
     """
     return lambda command: command.add_attachment_option(
-        name, description, default=default, pass_as_kwarg=pass_as_kwarg
+        name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg
     )
 
 
@@ -377,6 +378,7 @@ def with_str_slash_option(
     choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
@@ -405,6 +407,7 @@ def with_str_slash_option(
         choices=choices,
         converters=converters,
         default=default,
+        key=key,
         pass_as_kwarg=pass_as_kwarg,
         _stack_level=1,
     )
@@ -419,6 +422,7 @@ def with_int_slash_option(
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
     min_value: typing.Optional[int] = None,
     max_value: typing.Optional[int] = None,
     pass_as_kwarg: bool = True,
@@ -449,6 +453,7 @@ def with_int_slash_option(
         default=default,
         choices=choices,
         converters=converters,
+        key=key,
         min_value=min_value,
         max_value=max_value,
         pass_as_kwarg=pass_as_kwarg,
@@ -466,6 +471,7 @@ def with_float_slash_option(
     choices: typing.Optional[collections.Mapping[str, float]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
     min_value: typing.Optional[float] = None,
     max_value: typing.Optional[float] = None,
     pass_as_kwarg: bool = True,
@@ -497,6 +503,7 @@ def with_float_slash_option(
         default=default,
         choices=choices,
         converters=converters,
+        key=key,
         min_value=min_value,
         max_value=max_value,
         pass_as_kwarg=pass_as_kwarg,
@@ -505,7 +512,13 @@ def with_float_slash_option(
 
 
 def with_bool_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a boolean option to a slash command.
 
@@ -526,11 +539,17 @@ def with_bool_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_bool_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_bool_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_user_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a user option to a slash command.
 
@@ -556,11 +575,11 @@ def with_user_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_user_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_user_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_member_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT
+    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, key: typing.Optional[str] = None
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
@@ -584,7 +603,7 @@ def with_member_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_member_option(name, description, default=default)
+    return lambda c: c.add_member_option(name, description, default=default, key=key)
 
 
 _CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
@@ -614,6 +633,7 @@ def with_channel_slash_option(
     *,
     types: typing.Union[collections.Collection[type[hikari.PartialChannel]], None] = None,
     default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
@@ -638,11 +658,19 @@ def with_channel_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_channel_option(name, description, types=types, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_channel_option(
+        name, description, types=types, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+    )
 
 
 def with_role_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a role option to a slash command.
 
@@ -663,11 +691,17 @@ def with_role_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_role_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_role_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_mentionable_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a mentionable option to a slash command.
 
@@ -692,15 +726,16 @@ def with_mentionable_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_mentionable_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_mentionable_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
 
 
 class _TrackedOption:
-    __slots__ = ("converters", "default", "is_always_float", "is_only_member", "name", "type")
+    __slots__ = ("converters", "default", "is_always_float", "is_only_member", "key", "name", "type")
 
     def __init__(
         self,
         *,
+        key: str,
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
         always_float: bool = False,
@@ -712,6 +747,7 @@ class _TrackedOption:
         self.default = default
         self.is_always_float = always_float
         self.is_only_member = only_member
+        self.key = key
         self.name = name
         self.type = option_type
 
@@ -1415,6 +1451,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         min_value: typing.Union[int, float, None] = None,
         max_value: typing.Union[int, float, None] = None,
         only_member: bool = False,
@@ -1485,6 +1522,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 always_float=always_float,
                 converters=converters,
                 default=default,
+                key=key or name,
                 only_member=only_member,
             )
         return self
@@ -1496,6 +1534,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add an attachment option to the slash command.
@@ -1550,6 +1589,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             description,
             hikari.OptionType.ATTACHMENT,
             default=default,
+            key=key,
             pass_as_kwarg=pass_as_kwarg,
         )
 
@@ -1563,6 +1603,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
@@ -1667,6 +1708,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             choices=actual_choices,
             converters=converters,
             default=default,
+            key=key,
             pass_as_kwarg=pass_as_kwarg,
         )
 
@@ -1685,6 +1727,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         choices: typing.Optional[collections.Mapping[str, int]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         min_value: typing.Optional[int] = None,
         max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
@@ -1765,6 +1808,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             choices=choices,
             converters=converters,
             default=default,
+            key=key,
             min_value=min_value,
             max_value=max_value,
             pass_as_kwarg=pass_as_kwarg,
@@ -1787,6 +1831,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         choices: typing.Optional[collections.Mapping[str, float]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         min_value: typing.Optional[float] = None,
         max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
@@ -1873,6 +1918,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             choices=choices,
             converters=converters,
             default=default,
+            key=key,
             min_value=float(min_value) if min_value is not None else None,
             max_value=float(max_value) if max_value is not None else None,
             pass_as_kwarg=pass_as_kwarg,
@@ -1892,6 +1938,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a boolean option to a slash command.
@@ -1935,7 +1982,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name, description, hikari.OptionType.BOOLEAN, default=default, pass_as_kwarg=pass_as_kwarg
+            name, description, hikari.OptionType.BOOLEAN, default=default, key=key, pass_as_kwarg=pass_as_kwarg
         )
 
     def add_user_option(
@@ -1945,6 +1992,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a user option to a slash command.
@@ -1993,7 +2041,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        return self._add_option(name, description, hikari.OptionType.USER, default=default, pass_as_kwarg=pass_as_kwarg)
+        return self._add_option(
+            name, description, hikari.OptionType.USER, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+        )
 
     def add_member_option(
         self: _SlashCommandT,
@@ -2002,6 +2052,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
     ) -> _SlashCommandT:
         r"""Add a member option to a slash command.
 
@@ -2047,7 +2098,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        return self._add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
+        return self._add_option(name, description, hikari.OptionType.USER, default=default, key=key, only_member=True)
 
     def add_channel_option(
         self: _SlashCommandT,
@@ -2056,6 +2107,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
@@ -2130,6 +2182,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             hikari.OptionType.CHANNEL,
             channel_types=channel_types,
             default=default,
+            key=key,
             pass_as_kwarg=pass_as_kwarg,
         )
 
@@ -2140,6 +2193,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a role option to a slash command.
@@ -2182,7 +2236,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        return self._add_option(name, description, hikari.OptionType.ROLE, default=default, pass_as_kwarg=pass_as_kwarg)
+        return self._add_option(
+            name, description, hikari.OptionType.ROLE, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+        )
 
     def add_mentionable_option(
         self: _SlashCommandT,
@@ -2191,6 +2247,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         r"""Add a mentionable option to a slash command.
@@ -2238,7 +2295,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
+            name, description, hikari.OptionType.MENTIONABLE, default=default, key=key, pass_as_kwarg=pass_as_kwarg
         )
 
     def set_float_autocomplete(
@@ -2488,7 +2545,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                     )
 
                 else:
-                    keyword_args[tracked_option.name] = tracked_option.default
+                    keyword_args[tracked_option.key] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
                 member: typing.Optional[hikari.InteractionMember] = None
@@ -2497,19 +2554,19 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                         f"Couldn't find member for provided user: {option.value}", tracked_option.name
                     )
 
-                keyword_args[option.name] = member or option.resolve_to_user()
+                keyword_args[tracked_option.key] = member or option.resolve_to_user()
 
             elif option.type is hikari.OptionType.CHANNEL:
-                keyword_args[option.name] = option.resolve_to_channel()
+                keyword_args[tracked_option.key] = option.resolve_to_channel()
 
             elif option.type is hikari.OptionType.ROLE:
-                keyword_args[option.name] = option.resolve_to_role()
+                keyword_args[tracked_option.key] = option.resolve_to_role()
 
             elif option.type is hikari.OptionType.MENTIONABLE:
-                keyword_args[option.name] = option.resolve_to_mentionable()
+                keyword_args[tracked_option.key] = option.resolve_to_mentionable()
 
             elif option.type is hikari.OptionType.ATTACHMENT:
-                keyword_args[option.name] = option.resolve_to_attachment()
+                keyword_args[tracked_option.key] = option.resolve_to_attachment()
 
             else:
                 value = option.value
@@ -2521,7 +2578,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 if tracked_option.converters:
                     value = await tracked_option.convert(ctx, option.value)
 
-                keyword_args[option.name] = value
+                keyword_args[tracked_option.key] = value
 
         return keyword_args
 

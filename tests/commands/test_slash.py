@@ -188,6 +188,7 @@ def test_with_attachment_slash_option():
         "meow_meow",
         "nyaa_nyaa",
         default="h",
+        key="meow",
         pass_as_kwarg=False,
     )(mock_command)
 
@@ -196,6 +197,7 @@ def test_with_attachment_slash_option():
         "meow_meow",
         "nyaa_nyaa",
         default="h",
+        key="meow",
         pass_as_kwarg=False,
     )
 
@@ -207,7 +209,7 @@ def test_with_attachment_slash_option_with_defaults():
 
     assert result is mock_command.add_attachment_option.return_value
     mock_command.add_attachment_option.assert_called_once_with(
-        "meow", "nyaa", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "meow", "nyaa", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -223,6 +225,7 @@ def test_with_str_slash_option():
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
         default="ANY",
+        key="bang",
         pass_as_kwarg=False,
     )(mock_command)
 
@@ -234,6 +237,7 @@ def test_with_str_slash_option():
         default="ANY",
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
+        key="bang",
         pass_as_kwarg=False,
         _stack_level=1,
     )
@@ -252,6 +256,7 @@ def test_with_str_slash_option_with_defaults():
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
+        key=None,
         pass_as_kwarg=True,
         _stack_level=1,
     )
@@ -269,6 +274,7 @@ def test_with_int_slash_option():
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
+        key="eep",
         min_value=1123,
         max_value=312123,
         pass_as_kwarg=False,
@@ -282,6 +288,7 @@ def test_with_int_slash_option():
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
+        key="eep",
         min_value=1123,
         max_value=312123,
         pass_as_kwarg=False,
@@ -302,6 +309,7 @@ def test_with_int_slash_option_with_defaults():
         choices=None,
         converters=(),
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        key=None,
         min_value=None,
         max_value=None,
         pass_as_kwarg=True,
@@ -322,6 +330,7 @@ def test_with_float_slash_option():
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
         default=21.321,
+        key="blam",
         min_value=56.234,
         max_value=765.234,
         pass_as_kwarg=False,
@@ -336,6 +345,7 @@ def test_with_float_slash_option():
         default=21.321,
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
+        key="blam",
         min_value=56.234,
         max_value=765.234,
         pass_as_kwarg=False,
@@ -357,6 +367,7 @@ def test_with_float_slash_option_with_defaults():
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
+        key=None,
         min_value=None,
         max_value=None,
         pass_as_kwarg=True,
@@ -367,10 +378,14 @@ def test_with_float_slash_option_with_defaults():
 def test_with_bool_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_bool_slash_option("bool", "bool me man", default=False, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_bool_slash_option("bool", "bool me man", default=False, key="audience", pass_as_kwarg=False)(
+        mock_command
+    )
 
     assert result is mock_command.add_bool_option.return_value
-    mock_command.add_bool_option.assert_called_once_with("bool", "bool me man", default=False, pass_as_kwarg=False)
+    mock_command.add_bool_option.assert_called_once_with(
+        "bool", "bool me man", default=False, key="audience", pass_as_kwarg=False
+    )
 
 
 def test_with_bool_slash_option_with_defaults():
@@ -380,20 +395,20 @@ def test_with_bool_slash_option_with_defaults():
 
     assert result is mock_command.add_bool_option.return_value
     mock_command.add_bool_option.assert_called_once_with(
-        "bool", "bool me man", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "bool", "bool me man", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
 def test_with_user_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_user_slash_option("victim", "who're we getting next?", default=123321, pass_as_kwarg=False)(
-        mock_command
-    )
+    result = tanjun.with_user_slash_option(
+        "victim", "who're we getting next?", default=123321, key="op", pass_as_kwarg=False
+    )(mock_command)
 
     assert result is mock_command.add_user_option.return_value
     mock_command.add_user_option.assert_called_once_with(
-        "victim", "who're we getting next?", default=123321, pass_as_kwarg=False
+        "victim", "who're we getting next?", default=123321, key="op", pass_as_kwarg=False
     )
 
 
@@ -404,17 +419,21 @@ def test_with_user_slash_option_with_defaults():
 
     assert result is mock_command.add_user_option.return_value
     mock_command.add_user_option.assert_called_once_with(
-        "victim", "who're we getting next?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "victim",
+        "who're we getting next?",
+        default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        key=None,
+        pass_as_kwarg=True,
     )
 
 
 def test_with_member_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321)(mock_command)
+    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321, key="member")(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321)
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321, key="member")
 
 
 def test_with_member_slash_option_with_defaults():
@@ -424,7 +443,7 @@ def test_with_member_slash_option_with_defaults():
 
     assert result is mock_command.add_member_option.return_value
     mock_command.add_member_option.assert_called_once_with(
-        "no", "hihihi?", default=tanjun.commands.slash.UNDEFINED_DEFAULT
+        "no", "hihihi?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None
     )
 
 
@@ -432,12 +451,22 @@ def test_with_channel_slash_option():
     mock_command = mock.MagicMock()
 
     result = tanjun.with_channel_slash_option(
-        "channel", "channel?", types=(hikari.GuildCategory, hikari.TextableChannel), default=333, pass_as_kwarg=False
+        "channel",
+        "channel?",
+        types=(hikari.GuildCategory, hikari.TextableChannel),
+        default=333,
+        key="neko",
+        pass_as_kwarg=False,
     )(mock_command)
 
     assert result is mock_command.add_channel_option.return_value
     mock_command.add_channel_option.assert_called_once_with(
-        "channel", "channel?", types=(hikari.GuildCategory, hikari.TextableChannel), default=333, pass_as_kwarg=False
+        "channel",
+        "channel?",
+        types=(hikari.GuildCategory, hikari.TextableChannel),
+        default=333,
+        key="neko",
+        pass_as_kwarg=False,
     )
 
 
@@ -448,17 +477,21 @@ def test_with_channel_slash_option_with_defaults():
 
     assert result is mock_command.add_channel_option.return_value
     mock_command.add_channel_option.assert_called_once_with(
-        "channel", "channel?", types=None, default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "channel", "channel?", types=None, default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
 def test_with_role_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_role_slash_option("role", "role?", default=333, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_role_slash_option("role", "role?", default=333, key="paradise", pass_as_kwarg=False)(
+        mock_command
+    )
 
     assert result is mock_command.add_role_option.return_value
-    mock_command.add_role_option.assert_called_once_with("role", "role?", default=333, pass_as_kwarg=False)
+    mock_command.add_role_option.assert_called_once_with(
+        "role", "role?", default=333, key="paradise", pass_as_kwarg=False
+    )
 
 
 def test_with_role_slash_option_with_defaults():
@@ -468,17 +501,21 @@ def test_with_role_slash_option_with_defaults():
 
     assert result is mock_command.add_role_option.return_value
     mock_command.add_role_option.assert_called_once_with(
-        "role", "role?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "role", "role?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
 def test_with_mentionable_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_mentionable_slash_option("mentu", "mentu?", default=333, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_mentionable_slash_option("mentu", "mentu?", default=333, key="gun", pass_as_kwarg=False)(
+        mock_command
+    )
 
     assert result is mock_command.add_mentionable_option.return_value
-    mock_command.add_mentionable_option.assert_called_once_with("mentu", "mentu?", default=333, pass_as_kwarg=False)
+    mock_command.add_mentionable_option.assert_called_once_with(
+        "mentu", "mentu?", default=333, key="gun", pass_as_kwarg=False
+    )
 
 
 def test_with_mentionable_slash_option_with_defaults():
@@ -488,7 +525,7 @@ def test_with_mentionable_slash_option_with_defaults():
 
     assert result is mock_command.add_mentionable_option.return_value
     mock_command.add_mentionable_option.assert_called_once_with(
-        "mentu", "mentu?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "mentu", "mentu?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -497,6 +534,7 @@ class Test_TrackedOption:
         mock_converter = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="name",
+            key="meow",
             option_type=hikari.OptionType.FLOAT,
             always_float=False,
             converters=[mock_converter],
@@ -505,6 +543,7 @@ class Test_TrackedOption:
         )
 
         assert option.name == "name"
+        assert option.key == "meow"
         assert option.type is hikari.OptionType.FLOAT
         assert option.is_always_float is False
         assert option.converters == [mock_converter]
@@ -514,7 +553,7 @@ class Test_TrackedOption:
     @pytest.mark.asyncio()
     async def test_convert_when_no_converters(self):
         mock_value = mock.Mock()
-        option = tanjun.commands.slash._TrackedOption(name="hi", option_type=hikari.OptionType.INTEGER)
+        option = tanjun.commands.slash._TrackedOption(name="hi", key="bye", option_type=hikari.OptionType.INTEGER)
 
         assert await option.convert(mock.Mock(), mock_value) is mock_value
 
@@ -528,7 +567,7 @@ class Test_TrackedOption:
         mock_context.call_with_async_di = mock.AsyncMock(side_effect=[exc_1, exc_2])
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
-            name="no", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
+            name="no", key="beep", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
         )
 
         with pytest.raises(tanjun.ConversionError) as exc_info:
@@ -552,6 +591,7 @@ class Test_TrackedOption:
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="no",
+            key="boop",
             option_type=hikari.OptionType.FLOAT,
             converters=[mock_converter_1, mock_converter_2, mock_converter_3],
         )
