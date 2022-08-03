@@ -45,6 +45,7 @@ __all__: list[str] = [
     "Choices",
     "Converted",
     "Describe",
+    "Flag",
     "Float",
     "Int",
     "Max",
@@ -132,165 +133,6 @@ Str = typing.Annotated[str, _OPTION_MARKER]
 
 User = typing.Annotated[hikari.User, _OPTION_MARKER]
 """An argument which takes a user."""
-
-
-class _TheseChannelsMeta(type):
-    def __getitem__(
-        cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
-    ) -> type[hikari.PartialChannel]:
-        if not isinstance(value, typing.Collection):
-            value = (value,)
-
-        return typing.Annotated[hikari.PartialChannel, TheseChannels(*value), _OPTION_MARKER]
-
-
-class TheseChannels(metaclass=_TheseChannelsMeta):
-    __slots__ = ("_channel_types",)
-
-    def __init__(
-        self,
-        channel_type: _ChannelTypeIsh,
-        /,
-        *other_types: _ChannelTypeIsh,
-    ) -> None:
-        self._channel_types = (channel_type, *other_types)
-
-    @property
-    def channel_types(self) -> collections.Sequence[_ChannelTypeIsh]:
-        return self._channel_types
-
-
-class _MaxMeta(type):
-    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
-        type_ = type(value)
-        return typing.Annotated[type_, Max(value), _OPTION_MARKER]
-
-
-class Max(metaclass=_MaxMeta):
-    """Inclusive maximum value for a [Float][] or [Int][] argument.
-
-    Examples
-    --------
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("beep", "meow")
-    async def command(
-        ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, Max(130), Min(13)],
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    Alternatively, the slice syntax and `range` may be used to set the min and
-    max values for a float or integesr arguments (where the start is inclusive
-    and stop is exclusive). These default to a min_value of `0` if the start
-    isn't specified.
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("meow", "description")
-    async def command(
-        ctx: tanjun.abc.SlashContext,
-        float_value: Annotated[annotations.Float, 1.5:101.5],
-        int_value: Annotated[annotations.Int, range(5, 100)],
-    ) -> None:
-        raise NotImplementedError
-    ```
-    """
-
-    __slots__ = ("_value",)
-
-    def __init__(self, value: typing.Union[int, float], /) -> None:
-        self._value = value
-
-    @property
-    def value(self) -> typing.Union[int, float]:
-        """The maximum value."""
-        return self._value
-
-
-class _MinMeta(type):
-    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
-        type_ = type(value)
-        return typing.Annotated[type_, Min(value), _OPTION_MARKER]
-
-
-class Min(metaclass=_MinMeta):
-    """Inclusive minimum value for a [Float][] or [Int][] argument.
-
-    Examples
-    --------
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("beep", "meow")
-    async def command(
-        ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, "How old are you?", Max(130), Min(13)],
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    Alternatively, the slice syntax and `range` may be used to set the min and
-    max values for a float or integesr arguments (where the start is inclusive
-    and stop is exclusive). These default to a min_value of `0` if the start
-    isn't specified.
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("meow", "description")
-    async def command(
-        ctx: tanjun.abc.SlashContext,
-        float_value: Annotated[annotations.Float, 1.5:101.5],
-        int_value: Annotated[annotations.Int, range(5, 100)],
-    ) -> None:
-        raise NotImplementedError
-    ```
-    """
-
-    __slots__ = ("_value",)
-
-    def __init__(self, value: typing.Union[int, float], /) -> None:
-        self._value = value
-
-    @property
-    def value(self) -> typing.Union[int, float]:
-        """The minimum value."""
-        return self._value
-
-
-class _RangedMeta(type):
-    def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
-        # This better matches how type checking (well pyright at least) will
-        # prefer to go to float if either value is float.
-        type_ = type(range_[0]) if issubclass(type(range_[0]), float) else type(range_[1])
-        return typing.Annotated[type_, Ranged(range_[0], range_[1]), _OPTION_MARKER]
-
-
-class Ranged(metaclass=_RangedMeta):
-    __slots__ = ("_max_value", "_min_value")
-
-    def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
-        self._max_value = max_value
-        self._min_value = min_value
-
-    @property
-    def max_value(self) -> typing.Union[int, float]:
-        return self._max_value
-
-    @property
-    def min_value(self) -> typing.Union[int, float]:
-        return self._min_value
-
-
-class _TypeOverride:
-    __slots__ = ("_override",)
-
-    def __init__(self, override: type[typing.Any], /) -> None:
-        self._override = override
-
-    @property
-    def override(self) -> type[typing.Any]:
-        return self._override
 
 
 class _ChoicesMeta(type):
@@ -424,33 +266,227 @@ class Describe(metaclass=_DescribeMeta):
     __slots__ = ()
 
 
+class _FlagMeta(type):
+    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+        return typing.Annotated[type_, Flag()]
+
+
+class Flag(metaclass=_FlagMeta):
+    __slots__ = (
+        "_aliases",
+        "_empty_value",
+    )
+
+    def __init__(
+        self,
+        *,
+        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+        aliases: typing.Optional[collections.Sequence[str]] = None,
+    ) -> None:
+        self._aliases = aliases
+        self._empty_value = empty_value
+
+    @property
+    def aliases(self) -> typing.Optional[collections.Sequence[str]]:
+        return self._aliases
+
+    @property
+    def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
+        return self._empty_value
+
+
+class _GreedyMeta(type):
+    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+        return typing.Annotated[type_, Greedy()]
+
+
+class Greedy(metaclass=_GreedyMeta):
+    __slots__ = ()
+
+
+class _MaxMeta(type):
+    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
+        type_ = type(value)
+        return typing.Annotated[type_, Max(value), _OPTION_MARKER]
+
+
+class Max(metaclass=_MaxMeta):
+    """Inclusive maximum value for a [Float][] or [Int][] argument.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("beep", "meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+        age: Annotated[annotations.Int, Max(130), Min(13)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    Alternatively, the slice syntax and `range` may be used to set the min and
+    max values for a float or integesr arguments (where the start is inclusive
+    and stop is exclusive). These default to a min_value of `0` if the start
+    isn't specified.
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        float_value: Annotated[annotations.Float, 1.5:101.5],
+        int_value: Annotated[annotations.Int, range(5, 100)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
+    __slots__ = ("_value",)
+
+    def __init__(self, value: typing.Union[int, float], /) -> None:
+        self._value = value
+
+    @property
+    def value(self) -> typing.Union[int, float]:
+        """The maximum value."""
+        return self._value
+
+
+class _MinMeta(type):
+    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
+        type_ = type(value)
+        return typing.Annotated[type_, Min(value), _OPTION_MARKER]
+
+
+class Min(metaclass=_MinMeta):
+    """Inclusive minimum value for a [Float][] or [Int][] argument.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("beep", "meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+        age: Annotated[annotations.Int, "How old are you?", Max(130), Min(13)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    Alternatively, the slice syntax and `range` may be used to set the min and
+    max values for a float or integesr arguments (where the start is inclusive
+    and stop is exclusive). These default to a min_value of `0` if the start
+    isn't specified.
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        float_value: Annotated[annotations.Float, 1.5:101.5],
+        int_value: Annotated[annotations.Int, range(5, 100)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
+    __slots__ = ("_value",)
+
+    def __init__(self, value: typing.Union[int, float], /) -> None:
+        self._value = value
+
+    @property
+    def value(self) -> typing.Union[int, float]:
+        """The minimum value."""
+        return self._value
+
+
 class Name:
-    __slots__ = ("_message_names", "_slash_name")
+    __slots__ = ("_message_name", "_slash_name")
 
     def __init__(
         self,
         both: typing.Optional[str] = None,
         /,
         *,
-        message: typing.Union[typing.Optional[str], collections.Sequence[str]] = None,
+        message: typing.Optional[str] = None,
         slash: typing.Optional[str] = None,
     ) -> None:
-        if message and isinstance(message, str):
-            message = [message]
-
-        elif both and not message:
+        if both and not message:
             message = "--" + both.replace("_", "-")
 
-        self._message_names = message
+        self._message_name = message
         self._slash_name = slash or both
 
     @property
-    def message_names(self) -> typing.Optional[collections.Sequence[str]]:
-        return self._message_names
+    def message_name(self) -> typing.Optional[str]:
+        return self._message_name
 
     @property
     def slash_name(self) -> typing.Optional[str]:
         return self._slash_name
+
+
+class _RangedMeta(type):
+    def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
+        # This better matches how type checking (well pyright at least) will
+        # prefer to go to float if either value is float.
+        type_ = type(range_[0]) if issubclass(type(range_[0]), float) else type(range_[1])
+        return typing.Annotated[type_, Ranged(range_[0], range_[1]), _OPTION_MARKER]
+
+
+class Ranged(metaclass=_RangedMeta):
+    __slots__ = ("_max_value", "_min_value")
+
+    def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
+        self._max_value = max_value
+        self._min_value = min_value
+
+    @property
+    def max_value(self) -> typing.Union[int, float]:
+        return self._max_value
+
+    @property
+    def min_value(self) -> typing.Union[int, float]:
+        return self._min_value
+
+
+class _TypeOverride:
+    __slots__ = ("_override",)
+
+    def __init__(self, override: type[typing.Any], /) -> None:
+        self._override = override
+
+    @property
+    def override(self) -> type[typing.Any]:
+        return self._override
+
+
+class _TheseChannelsMeta(type):
+    def __getitem__(
+        cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
+    ) -> type[hikari.PartialChannel]:
+        if not isinstance(value, typing.Collection):
+            value = (value,)
+
+        return typing.Annotated[hikari.PartialChannel, TheseChannels(*value), _OPTION_MARKER]
+
+
+class TheseChannels(metaclass=_TheseChannelsMeta):
+    __slots__ = ("_channel_types",)
+
+    def __init__(
+        self,
+        channel_type: _ChannelTypeIsh,
+        /,
+        *other_types: _ChannelTypeIsh,
+    ) -> None:
+        self._channel_types = (channel_type, *other_types)
+
+    @property
+    def channel_types(self) -> collections.Sequence[_ChannelTypeIsh]:
+        return self._channel_types
 
 
 def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]) -> typing.Optional[_T]:
@@ -493,12 +529,13 @@ class _ArgConfig:
         "channel_types",
         "choices",
         "converters",
-        "custom_aliases",
         "default",
         "description",
+        "is_flag",
+        "is_greedy",
         "key",
         "max_value",
-        "message_names",
+        "message_name",
         "min_value",
         "option_type",
         "slash_name",
@@ -509,12 +546,12 @@ class _ArgConfig:
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
-        self.custom_aliases = False
         self.default = default
         self.description: typing.Optional[str] = None
+        self.is_greedy = False
         self.key = key
         self.max_value: typing.Union[float, int, None] = None
-        self.message_names: collections.Sequence[str] = ["--" + key.replace("_", "-")]
+        self.message_name = "--" + key.replace("_", "-")
         self.min_value: typing.Union[float, int, None] = None
         self.option_type: typing.Optional[type[typing.Any]] = None
         self.slash_name = key
@@ -539,10 +576,11 @@ class _ArgConfig:
             parser = parsing.ShlexParser()
             command.set_parser(parser)
 
-        if self.default is inspect.Parameter.empty and not self.custom_aliases:  # TODO: stick with this?
+        if self.default is inspect.Parameter.empty and not self.is_flag:  # TODO: stick with this?
             parser.add_argument(
                 self.key,
                 converters=converters,
+                greedy=self.is_greedy,
                 min_value=self.min_value,
                 max_value=self.max_value,
             )
@@ -550,7 +588,8 @@ class _ArgConfig:
         else:
             parser.add_option(
                 self.key,
-                *self.message_names,
+                self.message_name,
+                *self.aliases or (),
                 converters=converters,
                 default=self.default,
                 min_value=self.min_value,
@@ -693,6 +732,13 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
             elif isinstance(arg, Converted):
                 arg_config.converters = arg.converters
 
+            elif isinstance(arg, Flag):
+                arg_config.aliases = arg.aliases
+                arg_config.is_flag = True
+
+            elif isinstance(arg, Greedy):
+                arg_config.is_greedy = True
+
             elif isinstance(arg, str):
                 arg_config.description = arg
 
@@ -704,9 +750,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
 
             elif isinstance(arg, Name):
                 arg_config.slash_name = arg.slash_name or arg_config.slash_name
-                if arg.message_names is not None:
-                    arg_config.message_names = arg.message_names
-                    arg_config.custom_aliases = True
+                arg_config.message_name = arg.message_name or arg_config.message_name
 
             elif isinstance(arg, (range, slice)):
                 # Slice's attributes are all Any so we need to cast to int.
