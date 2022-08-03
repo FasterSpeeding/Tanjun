@@ -19,8 +19,8 @@ or [tutorials and articles](https://patchwork.systems/programming/hikari-discord
 
 # Community Resources
 
-* An alternative implementation of command signature parsing which relies more
-  on documentation parsing can be found at <https://github.com/thesadru/tanchi>.
+* An alternative implementation of command signature parsing for slash commands (which relies more
+  on documentation parsing) can be found at <https://github.com/thesadru/tanchi>.
 
 # Support
 

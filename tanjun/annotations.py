@@ -33,8 +33,8 @@
 
 Community Resources:
 
-* An alternative implementation which relies more on documentation parsing
-  can be found at <https://github.com/thesadru/tanchi>.
+* An alternative implementation for slash commands (which relies more on
+  documentation parsing) can be found at <https://github.com/thesadru/tanchi>.
 """
 from __future__ import annotations
 
@@ -277,10 +277,16 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
 
 Color = Converted[conversion.to_color]
+"""An argument which takes a color."""
+
 Colour = Color
+"""An argument which takes a colour."""
+
 Datetime = Converted[conversion.to_datetime]
+"""An argument which takes a datetime."""
 
 Snowflake = Converted[conversion.parse_snowflake]
+"""An argument which takes a snowflake."""
 
 
 class _DescribeMeta(type):
@@ -290,6 +296,22 @@ class _DescribeMeta(type):
 
 
 class Describe(metaclass=_DescribeMeta):
+    """Short hand for adding the description for an argument.
+
+    This is just shorthand for `Annotated[Type, "description"]`.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        argument: Describe[Str, "description"],
+    ) -> None:
+        raise NotImplementedError
+    """
+
     __slots__ = ()
 
 
@@ -299,23 +321,74 @@ class _FlagMeta(type):
 
 
 class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
+    """Mark an argument as a flag/option for message command parsing.
+
+    This indicates that the argument should be specified by name (e.g. `--name`)
+    rather than positonally and is no-op for slash commands.
+
+    Adding a default to an argument will also make it a flag/option.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        flag_value: Flag[Bool],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        flag_value: Annotated[Bool, Flag(empty_value=True, aliases=("-f",))] = False,
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
     __slots__ = ("_aliases", "_empty_value")
 
     def __init__(
         self,
         *,
-        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
         aliases: typing.Optional[collections.Sequence[str]] = None,
+        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
     ) -> None:
+        """Create a flag instance.
+
+        Arguments
+        ---------
+        aliases
+            Other names the flag may be triggered by.
+
+            This does not override the argument's name.
+        empty_value
+            Value to pass for the argument if the flag is provided without a value.
+
+            If left undefined then an explicit value will always be needed.
+        """
         self._aliases = aliases
         self._empty_value = empty_value
 
     @property
     def aliases(self) -> typing.Optional[collections.Sequence[str]]:
+        """The aliases set for this flag.
+
+        These do not override the flag's name.
+        """
         return self._aliases
 
     @property
     def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
+        """The value to pass for the argument if the flag is provided without a value.
+
+        If this is undefined then a value will always need to be passed for the flag.
+        """
         return self._empty_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -329,6 +402,36 @@ class _GreedyMeta(type):
 
 
 class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
+    """Mark an argument as "greedy" for message command parsing.
+
+    This means that it'll consume the rest of the positional arguments,
+    can only be applied to one positional argument and is no-op for slash
+    commands and flags.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        greedy_arg: Greedy[Str],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    or
+
+    ```py
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        greedy_arg: Annotated[Str, Greedy()],
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
     __slots__ = ()
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -376,11 +479,18 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
     __slots__ = ("_value",)
 
     def __init__(self, value: typing.Union[int, float], /) -> None:
+        """Create an argument maximum value.
+
+        Arguments
+        ---------
+        value
+            The maximum allowed value allowed for an argument.
+        """
         self._value = value
 
     @property
     def value(self) -> typing.Union[int, float]:
-        """The maximum value."""
+        """The maximum allowed value."""
         return self._value
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -428,11 +538,18 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
     __slots__ = ("_value",)
 
     def __init__(self, value: typing.Union[int, float], /) -> None:
+        """Create an argument minimum value.
+
+        Arguments
+        ---------
+        value
+            The minimum value allowed for an argument.
+        """
         self._value = value
 
     @property
     def value(self) -> typing.Union[int, float]:
-        """The minimum value."""
+        """The minimum allowed  value."""
         return self._value
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -440,6 +557,22 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
 
 
 class Name(_ConfigIdentifier):
+    """Override the inferred name used to declare an option.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nyaa")
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+        resource_type: Annotated[Str, Name("type"), "The type of resource to get."]
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
     __slots__ = ("_message_name", "_slash_name")
 
     def __init__(
@@ -450,6 +583,27 @@ class Name(_ConfigIdentifier):
         message: typing.Optional[str] = None,
         slash: typing.Optional[str] = None,
     ) -> None:
+        """Create an argument name override.
+
+        Arguments
+        ---------
+        both
+            If provided, the name to use for this option in message and slash
+            commands.
+
+            This will be reformatted a bit for message commands (prefixed with
+            `--` and `.replace("_", "-")`) and is only used for message flag
+            options.
+        message
+            The name to use for this option in message commands.
+
+            This takes priority over `both`, is not reformatted and only is
+            only used for flag options.
+        slash
+            The name to use for this option in slash commands.
+
+            This takes priority over `both`.
+        """
         if both and not message:
             message = "--" + both.replace("_", "-")
 
@@ -458,10 +612,12 @@ class Name(_ConfigIdentifier):
 
     @property
     def message_name(self) -> typing.Optional[str]:
+        """The name to use for this option in message commands."""
         return self._message_name
 
     @property
     def slash_name(self) -> typing.Optional[str]:
+        """The name to use for this option in slash commands."""
         return self._slash_name
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -478,18 +634,58 @@ class _RangedMeta(type):
 
 
 class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
+    """Declare the range limit for an `Int` or `Float` argument.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nyaa")
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+        number_arg: Annotated[Int, Ranged(0, 69)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    ```py
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nyaa")
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+        number_arg: Ranged[0, 69],
+    ) -> None:
+        raise NotImplementedError
+    ```
+    Here the argument type is inferred from whether integers or floats
+    are passed to `Ranged[...]`
+    """
+
     __slots__ = ("_max_value", "_min_value")
 
     def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
+        """Create an argument range limit.
+
+        Arguments
+        ---------
+        min_value
+            The minimum allowed value for this argument.
+        max_value
+            The maximum allowed value for this argument.
+        """
         self._max_value = max_value
         self._min_value = min_value
 
     @property
     def max_value(self) -> typing.Union[int, float]:
+        """The maximum allowed value for this argument."""
         return self._max_value
 
     @property
     def min_value(self) -> typing.Union[int, float]:
+        """The minimum allowed value for this argument."""
         return self._min_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -506,11 +702,8 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 
 
 class _SnowflakeOrMeta(type):
-    def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        sub_type = typing.get_args(type_)[0] if typing.get_origin(type_) is typing.Annotated else type_
-        sub_types = typing.get_args(sub_type) if typing.get_origin(sub_type) in _UnionTypes else (sub_type,)
-
-        for sub_type in sub_types:
+    def __getitem__(cls, type_: type[_T], /) -> typing.Union[type[hikari.Snowflake], type[_T]]:
+        for sub_type in _snoop_types(type_):
             try:
                 parser = _SNOWFLAKE_PARSERS[sub_type]
 
@@ -523,17 +716,69 @@ class _SnowflakeOrMeta(type):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.Annotated[type_, descriptor]
+        return typing.Annotated[typing.Union[type[hikari.Snowflake], type_], descriptor]
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
+    """Mark an argument as taking an object or its ID.
+
+    This allows for the argument to be declared as taking the object for slash
+    commands without requiring that the message command equivalent fetch the
+    object each time for the following types:
+
+    * [hikari.users.User][]
+    * [hikari.guilds.Role][]
+    * [hikari.guilds.Member][]
+    * [hikari.channels.PartialChannel][]
+    * `hikari.User | hikari.Role`
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nyaa")
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+        user: Annotated[User, SnowflakeOr(parse_id=parse_user_id), "The user to target."],
+    ) -> None:
+        user_id = hikari.Snowflake(user)
+    ```
+
+    ```py
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nyaa")
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context,
+
+        # When using SnowflakeOr as a type-hint, the `parse_id` callback is
+        # automatically set to the mention format for the specified for the
+        # passed type if applicable.
+        user: Annotated[SnowflakeOr[User], "The user to target."],
+    ) -> None:
+        user_id = hikari.Snowflake(user)
+    ```
+    """
+
     __slots__ = ("_parse_id",)
 
     def __init__(self, *, parse_id: collections.Callable[[str], hikari.Snowflake] = conversion.parse_snowflake) -> None:
+        """Create a snowflake or argument marker.
+
+        Arguments
+        ---------
+        parse_id
+            The function used to parse the argument's ID.
+
+            This can be used to restrain this to only accepting certain mention
+            formats.
+        """
         self._parse_id = parse_id
 
     @property
     def parse_id(self) -> collections.Callable[[str], hikari.Snowflake]:
+        """Callback used to parse this argument's ID."""
         return self._parse_id
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -565,6 +810,11 @@ class _TheseChannelsMeta(type):
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
+    """Declare the type of channels a slash command partial channel argument can target.
+
+    This is no-op for message commands and will not restrain the argument right now.
+    """
+
     __slots__ = ("_channel_types",)
 
     def __init__(
@@ -573,10 +823,20 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         /,
         *other_types: _ChannelTypeIsh,
     ) -> None:
+        """Create a slash command argument channel restraint.
+
+        Arguments
+        ---------
+        channel_type
+            A channel type to restrain this argument by.
+        *channel_types
+            Other channel types to restrain this argument by.
+        """
         self._channel_types = (channel_type, *other_types)
 
     @property
     def channel_types(self) -> collections.Sequence[_ChannelTypeIsh]:
+        """Sequence of the channel types this is constrainted by."""
         return self._channel_types
 
     def set_config(self, config: _ArgConfig, /) -> None:
@@ -843,7 +1103,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
 
         arg_config = _ArgConfig(parameter.name, parameter.default)
         for arg in _snoop_annotation_args(parameter.annotation):
-            # Ignore this if a TypeOveride is found as it takes priority.
+            # Ignore this if a TypeOveride has been found as it takes priority.
             if arg is _OPTION_MARKER and arg_config.option_type is None:
                 try:
                     arg_config.option_type = next(_snoop_types(parameter.annotation))
@@ -898,11 +1158,14 @@ def with_annotated_args(
 
         * [tanjun.annotations.Bool][]
         * [tanjun.annotations.Channel][]
+        * [tanjun.annotations.Color][]/[tanjun.annotations.Colour][]
+        * [tanjun.annotations.Datetime]
         * [tanjun.annotations.Float][]
         * [tanjun.annotations.Int][]
         * [tanjun.annotations.Member][]
         * [tanjun.annotations.Mentionable][]
         * [tanjun.annotations.Role][]
+        * [tanjun.annotations.Snowflake]
         * [tanjun.annotations.Str][]
         * [tanjun.annotations.User][]
 
@@ -924,8 +1187,9 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-    2. By passing [tanjun.annotations.Converted][] as one of the other arguments to
-        [typing.Annotated][] to declare it as a string option with converters.
+    2. By assigning [tanjun.annotations.Converted][]...
+
+        Either as one of the other arguments to [typing.Annotated][]
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
@@ -933,12 +1197,12 @@ def with_annotated_args(
         @tanjun.as_slash_command("e", "description")
         async def command(
             ctx: tanjun.abc.SlashContext,
-            value: Annotated[Converted[CustomType.from_str]],
+            value: Annotated[OtherType, Converted(parse_value), "description"],
         ) -> None:
             raise NotImplementedError
         ```
 
-        or
+        or as the type hint
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
@@ -946,7 +1210,7 @@ def with_annotated_args(
         @tanjun.as_slash_command("e", "description")
         async def command(
             ctx: tanjun.abc.SlashContext,
-            value: Annotated[OtherType, Converted(parse_value)],
+            value: Annotated[Converted[CustomType.from_str], "description"],
         ) -> None:
             raise NotImplementedError
         ```
@@ -958,6 +1222,7 @@ def with_annotated_args(
     async def message_command(
         ctx: tanjun.abc.MessageContext,
         name: Str,
+        converted: Converted[Type.from_str],
         enable: typing.Optional[Bool] = None,
     ) -> None:
         ...
