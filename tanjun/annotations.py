@@ -43,10 +43,14 @@ __all__: list[str] = [
     "Bool",
     "Channel",
     "Choices",
+    "Color",
+    "Colour",
     "Converted",
+    "Datetime",
     "Describe",
     "Flag",
     "Float",
+    "Greedy",
     "Int",
     "Max",
     "Member",
@@ -55,6 +59,8 @@ __all__: list[str] = [
     "Name",
     "Ranged",
     "Role",
+    "Snowflake",
+    "SnowflakeOr",
     "Str",
     "TheseChannels",
     "User",
@@ -62,6 +68,7 @@ __all__: list[str] = [
 ]
 
 import enum
+import itertools
 import operator
 import sys
 import types
@@ -135,6 +142,13 @@ User = typing.Annotated[hikari.User, _OPTION_MARKER]
 """An argument which takes a user."""
 
 
+class _ConfigIdentifier:
+    __slots__ = ()
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        raise NotImplementedError
+
+
 class _ChoicesMeta(type):
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
         if issubclass(enum_, int):
@@ -153,7 +167,7 @@ class _ChoicesMeta(type):
         return typing.Annotated[enum_, Choices(enum_.__members__), Converted(enum_), _TypeOverride(type_)]
 
 
-class Choices(metaclass=_ChoicesMeta):
+class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
     """Assign up to 25 choices for a slash command option.
 
     !!! warning
@@ -206,6 +220,9 @@ class Choices(metaclass=_ChoicesMeta):
         """Mapping of up to 25 choices for the slash command option."""
         return self._choices
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.choices = self.choices
+
 
 class _ConvertedMeta(type):
     def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
@@ -215,7 +232,7 @@ class _ConvertedMeta(type):
         return typing.Annotated[typing.Any, Converted(*converters)]
 
 
-class Converted(metaclass=_ConvertedMeta):
+class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
     """Marked an argument as type [Str][] with converters.
 
     Examples
@@ -255,6 +272,16 @@ class Converted(metaclass=_ConvertedMeta):
         """A sequence of the converters."""
         return self._converters
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.converters = self.converters
+
+
+Color = Converted[conversion.to_color]
+Colour = Color
+Datetime = Converted[conversion.to_datetime]
+
+Snowflake = Converted[conversion.parse_snowflake]
+
 
 class _DescribeMeta(type):
     def __getitem__(cls, values: tuple[type[_T], str], /) -> type[_T]:
@@ -271,11 +298,8 @@ class _FlagMeta(type):
         return typing.Annotated[type_, Flag()]
 
 
-class Flag(metaclass=_FlagMeta):
-    __slots__ = (
-        "_aliases",
-        "_empty_value",
-    )
+class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
+    __slots__ = ("_aliases", "_empty_value")
 
     def __init__(
         self,
@@ -294,14 +318,21 @@ class Flag(metaclass=_FlagMeta):
     def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
         return self._empty_value
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.aliases = self.aliases
+        config.is_flag = True
+
 
 class _GreedyMeta(type):
     def __getitem__(self, type_: type[_T], /) -> type[_T]:
         return typing.Annotated[type_, Greedy()]
 
 
-class Greedy(metaclass=_GreedyMeta):
+class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
     __slots__ = ()
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.is_greedy = True
 
 
 class _MaxMeta(type):
@@ -310,7 +341,7 @@ class _MaxMeta(type):
         return typing.Annotated[type_, Max(value), _OPTION_MARKER]
 
 
-class Max(metaclass=_MaxMeta):
+class Max(_ConfigIdentifier, metaclass=_MaxMeta):
     """Inclusive maximum value for a [Float][] or [Int][] argument.
 
     Examples
@@ -352,6 +383,9 @@ class Max(metaclass=_MaxMeta):
         """The maximum value."""
         return self._value
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.max_value = self.value
+
 
 class _MinMeta(type):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
@@ -359,7 +393,7 @@ class _MinMeta(type):
         return typing.Annotated[type_, Min(value), _OPTION_MARKER]
 
 
-class Min(metaclass=_MinMeta):
+class Min(_ConfigIdentifier, metaclass=_MinMeta):
     """Inclusive minimum value for a [Float][] or [Int][] argument.
 
     Examples
@@ -401,8 +435,11 @@ class Min(metaclass=_MinMeta):
         """The minimum value."""
         return self._value
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.min_value = self.value
 
-class Name:
+
+class Name(_ConfigIdentifier):
     __slots__ = ("_message_name", "_slash_name")
 
     def __init__(
@@ -427,6 +464,10 @@ class Name:
     def slash_name(self) -> typing.Optional[str]:
         return self._slash_name
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.slash_name = self.slash_name or config.slash_name
+        config.message_name = self.message_name or config.message_name
+
 
 class _RangedMeta(type):
     def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
@@ -436,7 +477,7 @@ class _RangedMeta(type):
         return typing.Annotated[type_, Ranged(range_[0], range_[1]), _OPTION_MARKER]
 
 
-class Ranged(metaclass=_RangedMeta):
+class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     __slots__ = ("_max_value", "_min_value")
 
     def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
@@ -451,8 +492,55 @@ class Ranged(metaclass=_RangedMeta):
     def min_value(self) -> typing.Union[int, float]:
         return self._min_value
 
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.max_value = self.max_value
+        config.min_value = self.min_value
 
-class _TypeOverride:
+
+_SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Snowflake]] = {
+    hikari.PartialChannel: conversion.parse_channel_id,
+    hikari.User: conversion.parse_user_id,
+    hikari.Role: conversion.parse_role_id,
+    hikari.User: conversion.parse_user_id,
+}
+
+
+class _SnowflakeOrMeta(type):
+    def __getitem__(cls, type_: type[_T], /) -> type[_T]:
+        sub_type = typing.get_args(type_)[0] if typing.get_origin(type_) is typing.Annotated else type_
+        sub_types = typing.get_args(sub_type) if typing.get_origin(sub_type) in _UnionTypes else (sub_type,)
+
+        for sub_type in sub_types:
+            try:
+                parser = _SNOWFLAKE_PARSERS[sub_type]
+
+            except (KeyError, TypeError):  # Also catch unhashable
+                pass
+
+            else:
+                descriptor = SnowflakeOr(parse_id=parser)
+
+        else:
+            descriptor = SnowflakeOr()
+
+        return typing.Annotated[type_, descriptor]
+
+
+class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
+    __slots__ = ("_parse_id",)
+
+    def __init__(self, *, parse_id: collections.Callable[[str], hikari.Snowflake] = conversion.parse_snowflake) -> None:
+        self._parse_id = parse_id
+
+    @property
+    def parse_id(self) -> collections.Callable[[str], hikari.Snowflake]:
+        return self._parse_id
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.snowflake_converter = self.parse_id
+
+
+class _TypeOverride(_ConfigIdentifier):
     __slots__ = ("_override",)
 
     def __init__(self, override: type[typing.Any], /) -> None:
@@ -461,6 +549,9 @@ class _TypeOverride:
     @property
     def override(self) -> type[typing.Any]:
         return self._override
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.option_type = self.override
 
 
 class _TheseChannelsMeta(type):
@@ -473,7 +564,7 @@ class _TheseChannelsMeta(type):
         return typing.Annotated[hikari.PartialChannel, TheseChannels(*value), _OPTION_MARKER]
 
 
-class TheseChannels(metaclass=_TheseChannelsMeta):
+class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
     __slots__ = ("_channel_types",)
 
     def __init__(
@@ -487,6 +578,9 @@ class TheseChannels(metaclass=_TheseChannelsMeta):
     @property
     def channel_types(self) -> collections.Sequence[_ChannelTypeIsh]:
         return self._channel_types
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.channel_types = self.channel_types
 
 
 def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]) -> typing.Optional[_T]:
@@ -523,6 +617,11 @@ _OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], _ConverterSig[typing.Any]] = 
 }
 
 
+_MESSAGE_ID_ONLY: frozenset[type[typing.Any]] = frozenset(
+    [hikari.User, hikari.Role, hikari.Member, hikari.PartialChannel, _MentionableUnion]
+)
+
+
 class _ArgConfig:
     __slots__ = (
         "aliases",
@@ -539,6 +638,7 @@ class _ArgConfig:
         "min_value",
         "option_type",
         "slash_name",
+        "snowflake_converter",
     )
 
     def __init__(self, key: str, default: typing.Any, /) -> None:
@@ -546,22 +646,28 @@ class _ArgConfig:
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
-        self.default = default
+        self.default: typing.Any = default
         self.description: typing.Optional[str] = None
-        self.is_greedy = False
-        self.key = key
+        self.is_flag: bool = False
+        self.is_greedy: bool = False
+        self.key: str = key
         self.max_value: typing.Union[float, int, None] = None
-        self.message_name = "--" + key.replace("_", "-")
+        self.message_name: str = "--" + key.replace("_", "-")
         self.min_value: typing.Union[float, int, None] = None
         self.option_type: typing.Optional[type[typing.Any]] = None
-        self.slash_name = key
+        self.slash_name: str = key
+        self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
 
     def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
         if self.converters:
             converters = self.converters
 
         elif self.option_type:
-            converters = _OPTION_TYPE_TO_CONVERTERS[self.option_type]
+            if self.snowflake_converter and self.option_type in _MESSAGE_ID_ONLY:
+                converters = (self.snowflake_converter,)
+
+            else:
+                converters = _OPTION_TYPE_TO_CONVERTERS[self.option_type]
 
         else:
             return
@@ -608,9 +714,9 @@ class _ArgConfig:
             if not self.description:
                 raise RuntimeError("Missing slash command description")
 
-            self._SLASH_OPTION_ADDER[option_type](self, command, self.description)
+            self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
 
-    _SLASH_OPTION_ADDER: dict[
+    SLASH_OPTION_ADDER: dict[
         type[typing.Any],
         collections.Callable[[_ArgConfig, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
     ] = {
@@ -662,19 +768,35 @@ class _ArgConfig:
     }
 
 
-def _parse_type(type_: typing.Any) -> typing.Any:
-    if typing.get_origin(type_) not in _UnionTypes or type_ == _MentionableUnion:
-        return type_
+_OPTION_TYPES = {*_ArgConfig.SLASH_OPTION_ADDER, *_OPTION_TYPE_TO_CONVERTERS}
 
-    for sub_type in typing.get_args(type_):
-        if typing.get_origin(sub_type) is not typing.Annotated:
-            continue
 
-        args = typing.get_args(sub_type)
-        if _OPTION_MARKER in args:
-            return args[0]
+def _snoop_types(type_: typing.Any) -> collections.Iterator[typing.Any]:
+    origin = typing.get_origin(type_)
+    if origin in _UnionTypes:
+        if type_ == _MentionableUnion:
+            yield type_
 
-    return type_
+        else:
+            yield from itertools.chain.from_iterable(map(_snoop_types, typing.get_args(type_)))
+
+    elif origin is typing.Annotated:
+        yield from _snoop_types(typing.get_args(type_)[0])
+
+    else:
+        if type_ in _OPTION_TYPES:
+            yield type_
+
+
+def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any]:
+    origin = typing.get_origin(type_)
+    if origin is typing.Annotated:
+        args = typing.get_args(type_)
+        yield from _snoop_annotation_args(args[0])
+        yield from args[1:]
+
+    elif origin in _UnionTypes:
+        yield from map(_snoop_annotation_args, typing.get_args(origin))
 
 
 def _collect_wrapped(
@@ -692,9 +814,9 @@ def _collect_wrapped(
     return results
 
 
-def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:  # noqa: C901
+def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:
     try:
-        signature = inspect.signature(command.callback, follow_wrapped=True)
+        signature = inspect.signature(command.callback, eval_str=True)
     except ValueError:  # If we can't inspect it then we have to assume this is a NO
         # As a note, this fails on some "signature-less" builtin functions/types like str.
         return command
@@ -716,52 +838,34 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
                 slash_commands.append(sub_command)
 
     for parameter in signature.parameters.values():
-        if parameter.annotation is parameter.empty or typing.get_origin(parameter.annotation) is not typing.Annotated:
+        if typing.get_origin(parameter.annotation) is not typing.Annotated:
             continue
 
         arg_config = _ArgConfig(parameter.name, parameter.default)
-        args = typing.get_args(parameter.annotation)
-        for arg in args[1:]:
+        for arg in _snoop_annotation_args(parameter.annotation):
             # Ignore this if a TypeOveride is found as it takes priority.
             if arg is _OPTION_MARKER and arg_config.option_type is None:
-                arg_config.option_type = _parse_type(args[0])
+                try:
+                    arg_config.option_type = next(_snoop_types(parameter.annotation))
 
-            elif isinstance(arg, Choices):
-                arg_config.choices = arg.choices
+                except StopIteration:
+                    raise RuntimeError(f"{parameter.annotation} is not an expected type") from None
 
-            elif isinstance(arg, Converted):
-                arg_config.converters = arg.converters
-
-            elif isinstance(arg, Flag):
-                arg_config.aliases = arg.aliases
-                arg_config.is_flag = True
-
-            elif isinstance(arg, Greedy):
-                arg_config.is_greedy = True
+            elif isinstance(arg, _ConfigIdentifier):
+                arg.set_config(arg_config)
 
             elif isinstance(arg, str):
                 arg_config.description = arg
 
-            elif isinstance(arg, Max):
-                arg_config.max_value = arg.value
-
-            elif isinstance(arg, Min):
-                arg_config.min_value = arg.value
-
-            elif isinstance(arg, Name):
-                arg_config.slash_name = arg.slash_name or arg_config.slash_name
-                arg_config.message_name = arg.message_name or arg_config.message_name
-
             elif isinstance(arg, (range, slice)):
                 # Slice's attributes are all Any so we need to cast to int.
                 if arg.step is None or operator.index(arg.step) > 0:
-                    arg_config.min_value, arg_config.max_value = _slice_to_min_max(arg)
-
-            elif isinstance(arg, TheseChannels):
-                arg_config.channel_types = arg.channel_types
-
-            elif isinstance(arg, _TypeOverride):
-                arg_config.option_type = arg.override
+                    arg_config.min_value = operator.index(arg.start) if arg.start is not None else 0
+                    arg_config.max_value = operator.index(arg.stop) - 1
+                else:
+                    # start will have to have been specified for this to be reached.
+                    arg_config.min_value = operator.index(arg.stop) - 1
+                    arg_config.max_value = operator.index(arg.start)
 
         for slash_command in slash_commands:
             arg_config.to_slash_option(slash_command)
@@ -876,18 +980,3 @@ def with_annotated_args(
         return lambda c: _annotated_args(c, follow_wrapped=follow_wrapped)
 
     return _annotated_args(command, follow_wrapped=follow_wrapped)
-
-
-def _slice_to_min_max(
-    value: typing.Union[range, slice], /
-) -> tuple[typing.Union[int, float], typing.Union[int, float]]:
-    # Slice's attributes are all Any so we need to cast to int.
-    if value.step is None or operator.index(value.step) > 0:
-        min_value = operator.index(value.start) if value.start is not None else 0
-        max_value = operator.index(value.stop) - 1
-    else:
-        # start will have to have been specified for this to be reached.
-        min_value = operator.index(value.stop) - 1
-        max_value = operator.index(value.start)
-
-    return min_value, max_value
