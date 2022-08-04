@@ -315,12 +315,7 @@ class Describe(metaclass=_DescribeMeta):
     __slots__ = ()
 
 
-class _FlagMeta(type):
-    def __getitem__(self, type_: type[_T], /) -> type[_T]:
-        return typing.Annotated[type_, Flag()]
-
-
-class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
+class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
@@ -335,28 +330,19 @@ class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
-        flag_value: Flag[Bool],
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_message_command("message")
-    async def command(
-        ctx: tanjun.abc.MessageContext,
         flag_value: Annotated[Bool, Flag(empty_value=True, aliases=("-f",))] = False,
     ) -> None:
         raise NotImplementedError
     ```
     """
 
-    __slots__ = ("_aliases", "_empty_value")
+    __slots__ = ("_aliases", "_default", "_empty_value")
 
     def __init__(
         self,
         *,
         aliases: typing.Optional[collections.Sequence[str]] = None,
+        default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED,
         empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
     ) -> None:
         """Create a flag instance.
@@ -367,12 +353,18 @@ class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
             Other names the flag may be triggered by.
 
             This does not override the argument's name.
+        default
+            The flag's default value.
+
+            If not specified then the default in the signature for this argument
+            is used.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
             If left undefined then an explicit value will always be needed.
         """
         self._aliases = aliases
+        self._default = default
         self._empty_value = empty_value
 
     @property
@@ -384,6 +376,14 @@ class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
         return self._aliases
 
     @property
+    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+        """The flag's default.
+
+        If not specified then the default in the signature for this argument
+        will be used.
+        """
+
+    @property
     def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
         """The value to pass for the argument if the flag is provided without a value.
 
@@ -392,8 +392,13 @@ class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
         return self._empty_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
+        if self._default is not parsing.UNDEFINED:
+            config.default = self._default
+
+        if config.default is parsing.UNDEFINED:
+            raise RuntimeError(f"Flag argument {config.key!r} must have a default")
+
         config.aliases = self.aliases
-        config.is_flag = True
 
 
 class _GreedyMeta(type):
@@ -890,7 +895,6 @@ class _ArgConfig:
         "converters",
         "default",
         "description",
-        "is_flag",
         "is_greedy",
         "key",
         "max_value",
@@ -908,7 +912,6 @@ class _ArgConfig:
         self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
         self.default: typing.Any = default
         self.description: typing.Optional[str] = None
-        self.is_flag: bool = False
         self.is_greedy: bool = False
         self.key: str = key
         self.max_value: typing.Union[float, int, None] = None
@@ -942,7 +945,7 @@ class _ArgConfig:
             parser = parsing.ShlexParser()
             command.set_parser(parser)
 
-        if self.default is inspect.Parameter.empty and not self.is_flag:  # TODO: stick with this?
+        if self.default is parsing.UNDEFINED:  # TODO: stick with this?
             parser.add_argument(
                 self.key,
                 converters=converters,
@@ -963,7 +966,7 @@ class _ArgConfig:
             )
 
     def _slash_default(self) -> typing.Any:
-        return slash.UNDEFINED_DEFAULT if self.default is inspect.Parameter.empty else self.default
+        return slash.UNDEFINED_DEFAULT if self.default is parsing.UNDEFINED else self.default
 
     def to_slash_option(self, command: slash.SlashCommand[typing.Any], /) -> None:
         option_type = self.option_type
@@ -1101,7 +1104,9 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
         if typing.get_origin(parameter.annotation) is not typing.Annotated:
             continue
 
-        arg_config = _ArgConfig(parameter.name, parameter.default)
+        arg_config = _ArgConfig(
+            parameter.name, parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
+        )
         for arg in _snoop_annotation_args(parameter.annotation):
             # Ignore this if a TypeOveride has been found as it takes priority.
             if arg is _OPTION_MARKER and arg_config.option_type is None:
