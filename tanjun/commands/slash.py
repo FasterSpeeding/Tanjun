@@ -1559,6 +1559,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1649,6 +1654,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1769,6 +1779,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         min_value
             The option's (inclusive) minimum value.
         max_value
@@ -1879,6 +1894,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         min_value
             The option's (inclusive) minimum value.
         max_value
@@ -1957,6 +1977,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -2016,6 +2041,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -2080,6 +2110,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
 
         Returns
         -------
@@ -2135,6 +2170,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             A collection of the channel classes and types this option should accept.
 
             If left as [None][] or empty then the option will allow all channel types.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -2212,6 +2252,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -2270,6 +2315,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+        key
+            Name of the argument this option's value should be passed to.
+
+            This defaults to the first name provided in `name` and is no-op
+            if `pass_as_kwarg` is [False][].
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.

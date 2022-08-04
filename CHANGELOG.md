@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - V2 application permissions and `dms_enabled` config to slash and menu commands.
 - Signature name validation for command options.
+- `wrapped_command` properties to `tanjun.SlashCommand`, `tanjun.MessageCommand` and `tanjun.MenuCommand`
+  for interospecting wrapped commands.
+- `key` argument to the `add_{}_slash_option` methods and `with_{}_slash_option` functions to allow the
+  argument's name in the callback's signature to be different from the option's declared name.
+- Signature type-hint based command option declaration for both message and slash commands. More
+  information about this can be found in [tanjun.annotations][].
 
 ## [2.5.3a1] - 2022-07-04
 ### Added
