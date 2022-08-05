@@ -707,7 +707,7 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 
 
 class _SnowflakeOrMeta(type):
-    def __getitem__(cls, type_: type[_T], /) -> typing.Union[type[hikari.Snowflake], type[_T]]:
+    def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
         for sub_type in _snoop_types(type_):
             try:
                 parser = _SNOWFLAKE_PARSERS[sub_type]
@@ -721,7 +721,7 @@ class _SnowflakeOrMeta(type):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.Annotated[typing.Union[type[hikari.Snowflake], type_], descriptor]
+        return typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor]
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
