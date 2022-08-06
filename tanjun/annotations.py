@@ -67,6 +67,7 @@ __all__: list[str] = [
     "with_annotated_args",
 ]
 
+import abc
 import enum
 import itertools
 import operator
@@ -142,14 +143,14 @@ User = typing.Annotated[hikari.User, _OPTION_MARKER]
 """An argument which takes a user."""
 
 
-class _ConfigIdentifier:
+class _ConfigIdentifier(abc.ABC):
     __slots__ = ()
 
     def set_config(self, config: _ArgConfig, /) -> None:
         raise NotImplementedError
 
 
-class _ChoicesMeta(type):
+class _ChoicesMeta(abc.ABCMeta):
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
         if issubclass(enum_, int):
             type_ = int
@@ -224,7 +225,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
         config.choices = self.choices
 
 
-class _ConvertedMeta(type):
+class _ConvertedMeta(abc.ABCMeta):
     def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
@@ -289,7 +290,7 @@ Snowflake = Converted[conversion.parse_snowflake]
 """An argument which takes a snowflake."""
 
 
-class _DescribeMeta(type):
+class _DescribeMeta(abc.ABCMeta):
     def __getitem__(cls, values: tuple[type[_T], str], /) -> type[_T]:
         type_ = values[0]
         return typing.Annotated[type_, values[1]]
@@ -401,7 +402,7 @@ class Flag(_ConfigIdentifier):
         config.aliases = self.aliases
 
 
-class _GreedyMeta(type):
+class _GreedyMeta(abc.ABCMeta):
     def __getitem__(self, type_: type[_T], /) -> type[_T]:
         return typing.Annotated[type_, Greedy()]
 
@@ -443,7 +444,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
         config.is_greedy = True
 
 
-class _MaxMeta(type):
+class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         type_ = type(value)
         return typing.Annotated[type_, Max(value), _OPTION_MARKER]
@@ -502,7 +503,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         config.max_value = self.value
 
 
-class _MinMeta(type):
+class _MinMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         type_ = type(value)
         return typing.Annotated[type_, Min(value), _OPTION_MARKER]
@@ -630,7 +631,7 @@ class Name(_ConfigIdentifier):
         config.message_name = self.message_name or config.message_name
 
 
-class _RangedMeta(type):
+class _RangedMeta(abc.ABCMeta):
     def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
@@ -706,7 +707,7 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 }
 
 
-class _SnowflakeOrMeta(type):
+class _SnowflakeOrMeta(abc.ABCMeta):
     def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
         for sub_type in _snoop_types(type_):
             try:
@@ -804,7 +805,7 @@ class _TypeOverride(_ConfigIdentifier):
         config.option_type = self.override
 
 
-class _TheseChannelsMeta(type):
+class _TheseChannelsMeta(abc.ABCMeta):
     def __getitem__(
         cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
     ) -> type[hikari.PartialChannel]:
