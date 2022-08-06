@@ -47,7 +47,6 @@ __all__: list[str] = [
     "Colour",
     "Converted",
     "Datetime",
-    "Describe",
     "Flag",
     "Float",
     "Greedy",
@@ -154,18 +153,21 @@ class _ChoicesMeta(abc.ABCMeta):
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
         if issubclass(enum_, int):
             type_ = int
+            choices = Choices(enum_.__members__)
 
         elif issubclass(enum_, str):
             type_ = str
+            choices = Choices(enum_.__members__)
 
         elif issubclass(enum_, float):
             type_ = float
+            choices = Choices(enum_.__members__)
 
         else:
             raise ValueError("Enum must be a subclsas of str, float or int")
 
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
-        return typing.Annotated[enum_, Choices(enum_.__members__), Converted(enum_), _TypeOverride(type_)]
+        return typing.cast(type[_EnumT], typing.Annotated[enum_, choices, Converted(enum_), _TypeOverride(type_)])
 
 
 class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
@@ -290,32 +292,6 @@ Snowflake = Converted[conversion.parse_snowflake]
 """An argument which takes a snowflake."""
 
 
-class _DescribeMeta(abc.ABCMeta):
-    def __getitem__(cls, values: tuple[type[_T], str], /) -> type[_T]:
-        type_ = values[0]
-        return typing.Annotated[type_, values[1]]
-
-
-class Describe(metaclass=_DescribeMeta):
-    """Short hand for adding the description for an argument.
-
-    This is just shorthand for `Annotated[Type, "description"]`.
-
-    Examples
-    --------
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("name", "description")
-    async def command(
-        ctx: tanjun.abc.SlashContext,
-        argument: Describe[Str, "description"],
-    ) -> None:
-        raise NotImplementedError
-    """
-
-    __slots__ = ()
-
-
 class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
@@ -404,7 +380,7 @@ class Flag(_ConfigIdentifier):
 
 class _GreedyMeta(abc.ABCMeta):
     def __getitem__(self, type_: type[_T], /) -> type[_T]:
-        return typing.Annotated[type_, Greedy()]
+        return typing.cast(type[_T], typing.Annotated[type_, Greedy()])
 
 
 class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
@@ -446,8 +422,10 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
 
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
-        type_ = type(value)
-        return typing.Annotated[type_, Max(value), _OPTION_MARKER]
+        if isinstance(value, int):
+            return typing.Annotated[int, Max(value), _OPTION_MARKER]
+
+        return typing.Annotated[float, Max(value), _OPTION_MARKER]
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
@@ -505,8 +483,10 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 
 class _MinMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
-        type_ = type(value)
-        return typing.Annotated[type_, Min(value), _OPTION_MARKER]
+        if isinstance(value, int):
+            return typing.Annotated[int, Min(value), _OPTION_MARKER]
+
+        return typing.Annotated[float, Min(value), _OPTION_MARKER]
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
@@ -635,8 +615,10 @@ class _RangedMeta(abc.ABCMeta):
     def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
-        type_ = type(range_[0]) if issubclass(type(range_[0]), float) else type(range_[1])
-        return typing.Annotated[type_, Ranged(range_[0], range_[1]), _OPTION_MARKER]
+        if isinstance(range_[0], float) or isinstance(range_[1], float):
+            return typing.Annotated[float, Ranged(range_[0], range_[1]), _OPTION_MARKER]
+
+        return typing.Annotated[int, Ranged(range_[0], range_[1]), _OPTION_MARKER]
 
 
 class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
@@ -722,7 +704,10 @@ class _SnowflakeOrMeta(abc.ABCMeta):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor]
+        return typing.cast(
+            type[typing.Union[hikari.Snowflake, _T]],
+            typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
+        )
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
