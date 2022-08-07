@@ -510,7 +510,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     @property
     def wrapped_command(self) -> typing.Optional[tanjun.ExecutableCommand[typing.Any]]:
         """The command object this wraps, if any."""
-        self._wrapped_command
+        return self._wrapped_command
 
     def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.

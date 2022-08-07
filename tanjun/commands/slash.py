@@ -1402,7 +1402,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     @property
     def wrapped_command(self) -> typing.Optional[tanjun.ExecutableCommand[typing.Any]]:
         """The command object this wraps, if any."""
-        self._wrapped_command
+        return self._wrapped_command
 
     def bind_client(self: _SlashCommandT, client: tanjun.Client, /) -> _SlashCommandT:
         self._client = client
@@ -1464,7 +1464,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         if len(self._builder.options) == 25:
             raise ValueError("Slash commands cannot have more than 25 options")
 
-        if min_value and max_value and min_value > max_value:
+        if min_value is not None and max_value is not None and min_value > max_value:
             raise ValueError("The min value cannot be greater than the max value")
 
         _validate_name(name)

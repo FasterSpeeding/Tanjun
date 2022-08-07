@@ -275,7 +275,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     @property
     def wrapped_command(self) -> typing.Optional[tanjun.ExecutableCommand[typing.Any]]:
         """The command object this wraps, if any."""
-        self._wrapped_command
+        return self._wrapped_command
 
     def bind_client(self: _MessageCommandT, client: tanjun.Client, /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.

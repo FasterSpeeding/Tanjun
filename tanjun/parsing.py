@@ -1244,6 +1244,24 @@ class Parameter:
         return self._is_multi
 
     @property
+    def max_value(self) -> typing.Optional[_CmpProto[typing.Any]]:
+        """If set, this parameters's parsed values will have to be less than or equal to this.
+
+        If any converters are provided then this should be compatible with the
+        result of them.
+        """
+        return self._max_value
+
+    @property
+    def min_value(self) -> typing.Optional[_CmpProto[typing.Any]]:
+        """If set, this parameters's parsed values will have to be greater than or equal to this.
+
+        If any converters are provided then this should be compatible with the
+        result of them.
+        """
+        return self._min_value
+
+    @property
     def key(self) -> str:
         """The key of this parameter used to pass the result to the command's callback."""
         return self._key
