@@ -45,11 +45,12 @@ import random
 import typing
 from collections import abc as collections
 
+import hikari
+
 from . import abc as tanjun
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    import hikari
 
     from . import schedules as schedules_
 

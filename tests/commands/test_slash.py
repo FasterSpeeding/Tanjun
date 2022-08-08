@@ -1848,10 +1848,13 @@ class TestSlashCommand:
     @pytest.mark.parametrize(
         ("classes", "int_types"),
         [
-            ([hikari.TextableGuildChannel], [hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS]),
+            (
+                [hikari.TextableGuildChannel],
+                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+            ),
             (
                 [hikari.TextableGuildChannel, hikari.GuildNewsChannel],
-                [hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
             ),
             ([hikari.GuildVoiceChannel], [hikari.ChannelType.GUILD_VOICE]),
             (
@@ -1870,7 +1873,8 @@ class TestSlashCommand:
         command.add_channel_option("channel", "chaaa", types=classes)
 
         option = command.build().options[0]
-        assert option.channel_types == int_types
+        assert len(option.channel_types or ()) == len(int_types or ())
+        assert set(option.channel_types or ()) == set(int_types or ())
 
     def test_add_channel_option_with_invalid_type(self, command: tanjun.SlashCommand[typing.Any]):
         with pytest.raises(ValueError, match="Unknown channel type <class 'bool'>"):
