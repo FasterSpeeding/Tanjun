@@ -74,7 +74,7 @@ class _ResultProto(typing.Protocol):
         raise NotImplementedError
 
 
-def as_message_command(name: str, /, *names: str) -> _ResultProto:
+def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -83,6 +83,8 @@ def as_message_command(name: str, /, *names: str) -> _ResultProto:
         The command name.
     *names
         Variable positional arguments of other names for the command.
+    validate_arg_keys
+        Whether to validate that option keys match the command callback's signature.
 
     Returns
     -------
@@ -95,14 +97,17 @@ def as_message_command(name: str, /, *names: str) -> _ResultProto:
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(
-        callback: _CallbackishT[_CommandCallbackSigT],
-        /,
-    ) -> MessageCommand[_CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            return MessageCommand(callback.callback, name, *names, _wrapped_command=callback)
+            wrapped_command = callback
+            callback = callback.callback
 
-        return MessageCommand(callback, name, *names)
+        else:
+            wrapped_command = None
+
+        return MessageCommand(
+            callback, name, *names, validate_arg_keys=validate_arg_keys, _wrapped_command=wrapped_command
+        )
 
     return decorator
 
@@ -120,7 +125,9 @@ class _GroupResultProto(typing.Protocol):
         raise NotImplementedError
 
 
-def as_message_command_group(name: str, /, *names: str, strict: bool = False) -> _GroupResultProto:
+def as_message_command_group(
+    name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
+) -> _GroupResultProto:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -134,6 +141,8 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
 
         This allows for a more optimised command search pattern to be used and
         enforces that command names are unique to a single command within the group.
+    validate_arg_keys
+        Whether to validate that option keys match the command callback's signature.
 
     Returns
     -------
@@ -148,9 +157,20 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            return MessageCommandGroup(callback.callback, name, *names, strict=strict, _wrapped_command=callback)
+            wrapped_command = callback
+            callback = callback.callback
 
-        return MessageCommandGroup(callback, name, *names, strict=strict)
+        else:
+            wrapped_command = None
+
+        return MessageCommandGroup(
+            callback,
+            name,
+            *names,
+            strict=strict,
+            validate_arg_keys=validate_arg_keys,
+            _wrapped_command=wrapped_command,
+        )
 
     return decorator
 
@@ -158,7 +178,7 @@ def as_message_command_group(name: str, /, *names: str, strict: bool = False) ->
 class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageCommand[_CommandCallbackSigT]):
     """Standard implementation of a message command."""
 
-    __slots__ = ("_callback", "_names", "_parent", "_parser", "_wrapped_command")
+    __slots__ = ("_arg_names", "_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
     @typing.overload
     def __init__(
@@ -167,6 +187,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         name: str,
         /,
         *names: str,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -178,6 +199,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         name: str,
         /,
         *names: str,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -188,6 +210,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         name: str,
         /,
         *names: str,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         """Initialise a message command.
@@ -204,11 +227,14 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             The command name.
         *names
             Variable positional arguments of other names for the command.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
         """
         super().__init__()
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
+        self._arg_names = utilities.get_kwargs(callback) if validate_arg_keys else None
         self._callback: _CommandCallbackSigT = callback
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
@@ -282,6 +308,9 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
     def set_parser(self: _MessageCommandT, parser: typing.Optional[tanjun.MessageParser], /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
+        if parser and self._arg_names is not None:
+            parser.validate_arg_keys(self.callback.__name__, self._arg_names)
+
         self._parser = parser
         return self
 
@@ -352,6 +381,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         /,
         *names: str,
         strict: bool = False,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -364,6 +394,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         /,
         *names: str,
         strict: bool = False,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -375,6 +406,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         /,
         *names: str,
         strict: bool = False,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         """Initialise a message command group.
@@ -396,8 +428,10 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
             This allows for a more optimised command search pattern to be used and
             enforces that command names are unique to a single command within the group.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
         """
-        super().__init__(callback, name, *names, _wrapped_command=_wrapped_command)
+        super().__init__(callback, name, *names, validate_arg_keys=validate_arg_keys, _wrapped_command=_wrapped_command)
         self._commands: list[tanjun.MessageCommand[typing.Any]] = []
         self._is_strict = strict
         self._names_to_commands: dict[str, tanjun.MessageCommand[typing.Any]] = {}

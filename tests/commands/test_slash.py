@@ -35,6 +35,7 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import inspect
 import re
 import types
 import typing
@@ -996,6 +997,43 @@ class TestSlashCommand:
             load_into_component.assert_called_once_with(mock_component)
 
         mock_other_command.load_into_component.assert_called_once_with(mock_component)
+
+    def test__add_option_when_no_signature(self):
+        with pytest.raises(ValueError, match=".+"):
+            inspect.Signature.from_callable(int)
+
+        command = tanjun.SlashCommand(int, "name", "description")  # type: ignore
+
+        command.add_str_option("meow", "description").add_int_option("nom", "nom")
+
+    def test__add_option_when_kwargs(self):
+        @tanjun.as_slash_command("name", "description")
+        async def command(ctx: tanjun.abc.SlashContext, **kwargs: typing.Any):
+            ...
+
+        command.add_str_option("meow", "description").add_int_option("nom", "nom")
+
+    def test__add_option_when_valid_name(self):
+        @tanjun.as_slash_command("name", "description")
+        async def command(ctx: tanjun.abc.SlashContext, meowth: str, bam: int):
+            ...
+
+        command.add_str_option("meowth", "description").add_int_option("bam", "bam")
+
+    def test__add_option_when_invalid_key(self):
+        @tanjun.as_slash_command("name", "description")
+        async def command(ctx: tanjun.abc.SlashContext, *args: str):
+            ...
+
+        with pytest.raises(ValueError, match=f"'meow' is not a valid keyword argument for {command.callback}"):
+            command.add_str_option("meow", "description")
+
+    def test__add_option_when_invalid_key_but_not_validating(self):
+        @tanjun.as_slash_command("name", "description", validate_arg_keys=False)
+        async def command(ctx: tanjun.abc.SlashContext):
+            ...
+
+        command.add_str_option("name", "description")
 
     def test_add_attachment_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_attachment_option("me", "ow", default="no attached")

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - V2 application permissions and `dms_enabled` config to slash and menu commands.
+- Signature name validation for command options.
 
 ## [2.5.3a1] - 2022-07-04
 ### Added

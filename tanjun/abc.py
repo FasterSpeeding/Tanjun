@@ -2859,6 +2859,23 @@ class MessageParser(abc.ABC):
             If the message could not be parsed.
         """
 
+    @abc.abstractmethod
+    def validate_arg_keys(self, callback_name: str, names: collections.Container[str], /) -> None:
+        """Validate that callback's keyword arguments are all valid for this parser.
+
+        Parameters
+        ----------
+        callback_name
+            The callback's name for use in raised errors.
+        names
+            Key names of the callback's keyword arguments.
+
+        Raises
+        ------
+        ValueError
+            If any of the parameter keys aren't valid for this parser.
+        """
+
 
 class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[_CommandCallbackSigT]):
     """Standard interface of a message command."""
@@ -2918,6 +2935,12 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         -------
         Self
             The command instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If this parser's option keys aren't valid for this command when
+            `validate_arg_keys` is [True][].
         """
 
     @abc.abstractmethod

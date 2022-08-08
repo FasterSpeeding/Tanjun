@@ -76,17 +76,11 @@ def _as_menu(
         callback: _CallbackishT[_MenuCommandCallbackSigT], /
     ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            return MenuCommand(
-                callback.callback,
-                type_,
-                name,
-                always_defer=always_defer,
-                default_member_permissions=default_member_permissions,
-                default_to_ephemeral=default_to_ephemeral,
-                dm_enabled=dm_enabled,
-                is_global=is_global,
-                _wrapped_command=callback,
-            )
+            wrapped_command = callback
+            callback = callback.callback
+
+        else:
+            wrapped_command = None
 
         return MenuCommand(
             callback,
@@ -97,6 +91,7 @@ def _as_menu(
             default_to_ephemeral=default_to_ephemeral,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            _wrapped_command=wrapped_command,
         )
 
     return decorator

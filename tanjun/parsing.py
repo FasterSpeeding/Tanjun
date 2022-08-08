@@ -234,6 +234,12 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         -------
         Self
             This parser to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If `key` isn't valid for any of the commands this parser is linked
+            to where `validate_arg_keys` is [True][].
         """
 
     @typing.overload
@@ -341,6 +347,12 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         -------
         Self
             This parser to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If `key` isn't valid for any of the commands this parser is linked
+            to where `validate_arg_keys` is [True][].
         """
 
 
@@ -585,6 +597,18 @@ def with_argument(
         this decorator call then this will set
         [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_argument("command", converters=int, default=42)
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_message_command("command")
+    async def command(self, ctx: tanjun.abc.Context, /, argument: int):
+        ...
+    ```
+
     Parameters
     ----------
     key
@@ -621,17 +645,11 @@ def with_argument(
     collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
         Decorator function for the message command this argument is being added to.
 
-    Examples
-    --------
-    ```python
-    import tanjun
-
-    @tanjun.parsing.with_argument("command", converters=int, default=42)
-    @tanjun.parsing.with_parser
-    @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.abc.Context, /, argument: int):
-        ...
-    ```
+    Raises
+    ------
+    ValueError
+        If `key` isn't valid for any of the commands this command's parser is
+        linked to where `validate_arg_keys` is [True][].
     """
 
     def decorator(command: _CommandT, /) -> _CommandT:
@@ -712,6 +730,18 @@ def with_greedy_argument(
         this decorator call then this will set
         [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_greedy_argument("command", converters=StringView)
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_message_command("command")
+    async def command(self, ctx: tanjun.abc.Context, /, argument: StringView):
+        ...
+    ```
+
     Parameters
     ----------
     key
@@ -743,17 +773,11 @@ def with_greedy_argument(
     collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
         Decorator function for the message command this argument is being added to.
 
-    Examples
-    --------
-    ```python
-    import tanjun
-
-    @tanjun.parsing.with_greedy_argument("command", converters=StringView)
-    @tanjun.parsing.with_parser
-    @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.abc.Context, /, argument: StringView):
-        ...
-    ```
+    Raises
+    ------
+    ValueError
+        If `key` isn't valid for any of the commands this command's parser is
+        linked to where `validate_arg_keys` is [True][].
     """
     return with_argument(
         key, converters=converters, default=default, greedy=True, max_value=max_value, min_value=min_value
@@ -824,6 +848,18 @@ def with_multi_argument(
         this decorator call then this will set
         [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_multi_argument("command", converters=int)
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_message_command("command")
+    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
+        ...
+    ```
+
     Parameters
     ----------
     key
@@ -855,17 +891,11 @@ def with_multi_argument(
     collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
         Decorator function for the message command this argument is being added to.
 
-    Examples
-    --------
-    ```python
-    import tanjun
-
-    @tanjun.parsing.with_multi_argument("command", converters=int)
-    @tanjun.parsing.with_parser
-    @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
-        ...
-    ```
+    Raises
+    ------
+    ValueError
+        If `key` isn't valid for any of the commands this command's parser is
+        linked to where `validate_arg_keys` is [True][].
     """
     return with_argument(
         key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=True
@@ -937,6 +967,18 @@ def with_option(
         this decorator call then this will set
         [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_option("command", converters=int, default=42)
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_message_command("command")
+    async def command(self, ctx: tanjun.abc.Context, /, argument: int):
+        ...
+    ```
+
     Parameters
     ----------
     key
@@ -979,17 +1021,11 @@ def with_option(
     collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
         Decorator function for the message command this option is being added to.
 
-    Examples
-    --------
-    ```python
-    import tanjun
-
-    @tanjun.parsing.with_option("command", converters=int, default=42)
-    @tanjun.parsing.with_parser
-    @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.abc.Context, /, argument: int):
-        ...
-    ```
+    Raises
+    ------
+    ValueError
+        If `key` isn't valid for any of the commands this command's parser is
+        linked to where `validate_arg_keys` is [True][].
     """
 
     def decorator(command: _CommandT, /) -> _CommandT:
@@ -1074,6 +1110,18 @@ def with_multi_option(
         this decorator call then this will set
         [ShlexParser][tanjun.parsing.ShlexParser] as the parser.
 
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_multi_option("command", converters=int, default=())
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_message_command("command")
+    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
+        ...
+    ```
+
     Parameters
     ----------
     key
@@ -1114,17 +1162,11 @@ def with_multi_option(
     collections.abc.Callable[[tanjun.abc.MessageCommand], tanjun.abc.MessageCommand]:
         Decorator function for the message command this option is being added to.
 
-    Examples
-    --------
-    ```python
-    import tanjun
-
-    @tanjun.parsing.with_multi_option("command", converters=int, default=())
-    @tanjun.parsing.with_parser
-    @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
-        ...
-    ```
+    Raises
+    ------
+    ValueError
+        If `key` isn't valid for any of the commands this command's parser is
+        linked to where `validate_arg_keys` is [True][].
     """
     return with_option(
         key,
@@ -1428,11 +1470,12 @@ class Option(Parameter):
 class ShlexParser(AbstractOptionParser):
     """A shlex based [AbstractOptionParser][tanjun.parsing.AbstractOptionParser] implementation."""
 
-    __slots__ = ("_arguments", "_client", "_component", "_options")
+    __slots__ = ("_arguments", "_callback_arg_names", "_client", "_component", "_options")
 
     def __init__(self) -> None:
         """Initialise a shlex parser."""
         self._arguments: list[Argument] = []
+        self._callback_arg_names: list[tuple[str, collections.Container[str]]] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._component: typing.Optional[tanjun.Component] = None
         self._options: list[Option] = []  # TODO: maybe switch to dict[str, Option] and assert doesn't already exist
@@ -1453,6 +1496,11 @@ class ShlexParser(AbstractOptionParser):
         inst._arguments = [argument.copy() for argument in self._arguments]
         inst._options = [option.copy() for option in self._options]
         return inst
+
+    def _assert_key(self, key: str, /) -> None:
+        for callback_name, names in self._callback_arg_names:
+            if key not in names:
+                raise ValueError(f"{key!r} is not a valid keyword argument for {callback_name}")
 
     @typing.overload
     def add_argument(
@@ -1509,6 +1557,7 @@ class ShlexParser(AbstractOptionParser):
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
+        self._assert_key(key)
         argument = Argument(
             key,
             converters=converters,
@@ -1591,6 +1640,7 @@ class ShlexParser(AbstractOptionParser):
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
+        self._assert_key(key)
         option = Option(
             key,
             name,
@@ -1633,6 +1683,14 @@ class ShlexParser(AbstractOptionParser):
     ) -> collections.Coroutine[typing.Any, typing.Any, dict[str, typing.Any]]:
         # <<inherited docstring from AbstractOptionParser>>.
         return _SemanticShlex(ctx, self._arguments, self._options).parse()
+
+    def validate_arg_keys(self, callback_name: str, names: collections.Container[str], /) -> None:
+        # <<inherited docstring from AbstractOptionParser>>.
+        self._callback_arg_names.append((callback_name, names))
+
+        for parameter in itertools.chain(self._options, self._arguments):
+            if parameter.key not in names:
+                raise ValueError(f"{parameter.key!r} is not a valid keyword argument for {callback_name}")
 
 
 def with_parser(command: _CommandT, /) -> _CommandT:

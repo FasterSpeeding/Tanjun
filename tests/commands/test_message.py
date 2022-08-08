@@ -35,6 +35,7 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import inspect
 import types
 import typing
 from collections import abc as collections
@@ -180,6 +181,133 @@ class TestMessageCommand:
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
 
         assert command.parser is mock_parser
+
+    def test_set_parser(self):
+        @tanjun.as_message_command("meow")
+        async def command(ctx: tanjun.abc.MessageContext, name: str, value: int, beep: bool):
+            ...
+
+        parser = tanjun.parsing.ShlexParser().validate_arg_keys("other", ["name", "value"])
+        command.set_parser(parser)
+        tanjun.with_argument("name")(command)
+        tanjun.with_option("value", "--value", default=None)(command)
+        tanjun.with_argument("beep")(command)
+
+    def test_set_parser_when_no_signature(self):
+        with pytest.raises(ValueError, match=".+"):
+            inspect.Signature.from_callable(int)
+
+        command: tanjun.MessageCommand[typing.Any] = tanjun.MessageCommand(int, "name")  # type: ignore
+
+        tanjun.with_option("meow", "--nyaa", default=123)(command)
+        tanjun.with_argument("meow")(command)
+
+    def test_set_parser_when_invalid_argument_key(self):
+        @tanjun.as_message_command("meow")
+        async def meow_command(ctx: tanjun.abc.MessageContext, *args: str, name: str):
+            ...
+
+        parser = tanjun.parsing.ShlexParser().validate_arg_keys("other", ["name", "beep"])
+        meow_command.set_parser(parser)
+
+        with pytest.raises(ValueError, match="'beep' is not a valid keyword argument for meow_command"):
+            tanjun.with_argument("beep")(meow_command)
+
+    def test_set_parser_when_invalid_option_key(self):
+        @tanjun.as_message_command("meow")
+        async def command_name(ctx: tanjun.abc.MessageContext, *args: str, name: str):
+            ...
+
+        parser = tanjun.parsing.ShlexParser().validate_arg_keys("other", ["name", "nock"])
+        command_name.set_parser(parser)
+
+        with pytest.raises(ValueError, match="'nock' is not a valid keyword argument for command_name"):
+            tanjun.with_option("nock", "--nock", default=123)(command_name)
+
+    def test_set_parser_when_invalid_key_but_not_validating(self):
+        @tanjun.as_message_command("meow", validate_arg_keys=False)
+        async def command(ctx: tanjun.abc.MessageContext, name: str):
+            ...
+
+        tanjun.with_option("meow", "--nyaa", default=123)(command)
+        tanjun.with_argument("meow")(command)
+
+    def test_set_parser_when_invalid_argument_key_added_afterwards(self):
+        @tanjun.with_argument("name")
+        @tanjun.as_message_command("meow")
+        async def next_command(ctx: tanjun.abc.MessageContext, name: str):
+            ...
+
+        with pytest.raises(ValueError, match="'se' is not a valid keyword argument for next_command"):
+            tanjun.with_argument("se")(next_command)
+
+    def test_set_parser_when_invalid_option_key_added_afterwards(self):
+        @tanjun.with_option("name", "--name", default="")
+        @tanjun.as_message_command("meow")
+        async def nyaa_command(ctx: tanjun.abc.MessageContext, name: str):
+            ...
+
+        with pytest.raises(ValueError, match="'boop' is not a valid keyword argument for nyaa_command"):
+            tanjun.with_option("boop", "--boop", default=123)(nyaa_command)
+
+    def test_set_parser_when_invalid_option_key_added_afterwards_but_not_validating(self):
+        @tanjun.with_argument("blam")
+        @tanjun.with_option("name", "--name", default="")
+        @tanjun.as_message_command("meow", validate_arg_keys=False)
+        async def command(ctx: tanjun.abc.MessageContext, name: str, blam: int):
+            ...
+
+        tanjun.with_option("boop", "--boop", default=123)(command)
+        tanjun.with_argument("not_a_name")(command)
+
+    def test_set_parser_when_argument_key_invalid_for_other_linked_callback(self):
+        @tanjun.as_message_command("name", "description")
+        async def command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str):
+            ...
+
+        parser = tanjun.parsing.ShlexParser()
+        parser.validate_arg_keys("test_callback", ["meow", "bye"])
+        tanjun.with_argument("meow")(command.set_parser(parser))
+
+        with pytest.raises(ValueError, match="'meowed' is not a valid keyword argument for test_callback"):
+            tanjun.with_argument("meowed")(command)
+
+    def test_set_parser_when_option_key_invalid_for_other_linked_callback(self):
+        @tanjun.as_message_command("name", "description")
+        async def command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool):
+            ...
+
+        parser = tanjun.parsing.ShlexParser()
+        parser.validate_arg_keys("test_callback", ["eep", "e"])
+        tanjun.with_option("eep", "--eep", default=None)(command.set_parser(parser))
+
+        with pytest.raises(ValueError, match="'nyaned' is not a valid keyword argument for test_callback"):
+            tanjun.with_option("nyaned", "--nyaned", default=123)(command)
+
+    def test_set_parser_when_existing_argument_not_valid_for_callback(self):
+        @tanjun.as_message_command("name", "description")
+        async def eep_command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str):
+            ...
+
+        parser = tanjun.parsing.ShlexParser().add_argument("meow").add_argument("meowed").add_argument("namer")
+
+        with pytest.raises(ValueError, match="'namer' is not a valid keyword argument for eep_command"):
+            eep_command.set_parser(parser)
+
+    def test_set_parser_when_existing_option_not_valid_for_callback(self):
+        @tanjun.as_message_command("name", "description")
+        async def test_command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool):
+            ...
+
+        parser = (
+            tanjun.parsing.ShlexParser()
+            .add_option("eep", "--eep", default=None)
+            .add_option("nyaned", "--nyaned", default=None)
+            .add_option("bang", "--bang", default=123)
+        )
+
+        with pytest.raises(ValueError, match="'bang' is not a valid keyword argument for test_command"):
+            test_command.set_parser(parser)
 
     def test_bind_client(self):
         mock_client = mock.Mock()
