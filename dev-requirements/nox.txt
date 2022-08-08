@@ -28,7 +28,7 @@ idna==3.3
     # via
     #   anyio
     #   rfc3986
-nox==2022.1.7
+nox==2022.8.7
     # via -r dev-requirements/nox.in
 packaging==21.3
     # via nox
@@ -40,8 +40,6 @@ pyparsing==3.0.9
     # via packaging
 rfc3986[idna2008]==1.5.0
     # via httpx
-six==1.16.0
-    # via virtualenv
 sniffio==1.2.0
     # via
     #   anyio
