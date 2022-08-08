@@ -465,7 +465,15 @@ _KEYWORD_TYPES = {inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_O
 def get_kwargs(callback: collections.Callable[..., typing.Any]) -> list[str] | None:
     names: list[str] = []
 
-    for parameter in inspect.Signature.from_callable(callback).parameters.values():
+    try:
+        signature = inspect.Signature.from_callable(callback)
+
+    except ValueError:
+        # When "no signature [is] found" for a callback/type, we just don't
+        # know what parameters it has so we have to assume var keyword.
+        return None
+
+    for parameter in signature.parameters.values():
         if parameter.kind is parameter.VAR_KEYWORD:
             return None
 
