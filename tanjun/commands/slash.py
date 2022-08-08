@@ -1536,6 +1536,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         return self._add_option(
             name,
@@ -1623,6 +1625,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         if choices is None:
             actual_choices = None
@@ -1744,6 +1748,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option has more than 25 choices.
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         self._add_option(
             name,
@@ -1850,6 +1856,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option has more than 25 choices.
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         self._add_option(
             name,
@@ -1917,6 +1925,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         return self._add_option(
             name, description, hikari.OptionType.BOOLEAN, default=default, pass_as_kwarg=pass_as_kwarg
@@ -1974,6 +1984,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         return self._add_option(name, description, hikari.OptionType.USER, default=default, pass_as_kwarg=pass_as_kwarg)
 
@@ -2026,6 +2038,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         return self._add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
@@ -2085,6 +2099,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If an invalid type is passed in `types`.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         import itertools
 
@@ -2153,6 +2169,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         return self._add_option(name, description, hikari.OptionType.ROLE, default=default, pass_as_kwarg=pass_as_kwarg)
 
@@ -2206,6 +2224,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If `name` isn't valid for this command's callback when
+              `validate_arg_names` is [True][].
         """
         return self._add_option(
             name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
