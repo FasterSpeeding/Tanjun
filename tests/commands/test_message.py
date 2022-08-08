@@ -257,10 +257,11 @@ class TestMessageCommand:
         async def command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str):
             ...
 
-        parser = tanjun.parsing.ShlexParser().validate_arg_keys("test_callback", ["meow", "bye"])
+        parser = tanjun.parsing.ShlexParser()
+        parser.validate_arg_keys("test_callback", ["meow", "bye"])
         tanjun.with_argument("meow")(command.set_parser(parser))
 
-        with pytest.raises(ValueError, match="`meowed` is not a valid keyword argument for test_callback"):
+        with pytest.raises(ValueError, match="'meowed' is not a valid keyword argument for test_callback"):
             tanjun.with_argument("meowed")(command)
 
     def test_set_parser_when_option_key_invalid_for_other_linked_callback(self):
@@ -268,10 +269,11 @@ class TestMessageCommand:
         async def command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool):
             ...
 
-        parser = tanjun.parsing.ShlexParser().validate_arg_keys("test_callback", ["eep", "e"])
+        parser = tanjun.parsing.ShlexParser()
+        parser.validate_arg_keys("test_callback", ["eep", "e"])
         tanjun.with_option("eep", "--eep", default=None)(command.set_parser(parser))
 
-        with pytest.raises(ValueError, match="`nyaned` is not a valid keyword argument for test_callback"):
+        with pytest.raises(ValueError, match="'nyaned' is not a valid keyword argument for test_callback"):
             tanjun.with_option("nyaned", "--nyaned", default=123)(command)
 
     def test_bind_client(self):
