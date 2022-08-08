@@ -396,8 +396,14 @@ class TestClient:
 
         assert client.events is mock_events
 
+    def test_default_app_cmd_permissions_property(self) -> None:
+        assert tanjun.Client(mock.Mock()).default_app_cmd_permissions == hikari.Permissions.NONE
+
     def test_defaults_to_ephemeral_property(self) -> None:
         assert tanjun.Client(mock.Mock()).defaults_to_ephemeral is False
+
+    def test_dms_enabled_for_app_cmds(self) -> None:
+        assert tanjun.Client(mock.Mock()).dms_enabled_for_app_cmds is True
 
     def test_hooks_property(self) -> None:
         mock_hooks = mock.Mock()

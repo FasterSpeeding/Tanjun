@@ -70,8 +70,14 @@ class TestComponent:
 
         assert component.metadata == {"foo": "bar"}
 
+    def test_default_app_cmd_permissions_property(self):
+        assert tanjun.Component().default_app_cmd_permissions is None
+
     def test_defaults_to_ephemeral_property(self):
         assert tanjun.Component().defaults_to_ephemeral is None
+
+    def test_dms_enabled_for_app_cmds_property(self):
+        assert tanjun.Component().dms_enabled_for_app_cmds is None
 
     @pytest.mark.asyncio()
     async def test__add_task(self):
@@ -212,6 +218,16 @@ class TestComponent:
                 match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
             ):
                 component.load_from_scope()
+
+    def test_set_default_app_command_permissions(self):
+        component = tanjun.Component().set_default_app_command_permissions(3123)
+
+        assert component.default_app_cmd_permissions == hikari.Permissions(3123)
+
+    def test_set_dms_enabled_for_app_cmds(self):
+        component = tanjun.Component().set_dms_enabled_for_app_cmds(False)
+
+        assert component.dms_enabled_for_app_cmds is False
 
     def test_set_ephemeral_default(self):
         client = tanjun.Component().set_ephemeral_default(False)

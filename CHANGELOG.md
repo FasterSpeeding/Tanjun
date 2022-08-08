@@ -6,8 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- V2 aplication permissions and `dms_enabled` config to slash commands and menu commands
-  + config inheritance from the parent component or client for these new configs.
+- V2 application permissions and `dms_enabled` config to slash and menu commands.
 
 ## [2.5.3a1] - 2022-07-04
 ### Added
