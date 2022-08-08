@@ -396,8 +396,14 @@ class TestClient:
 
         assert client.events is mock_events
 
+    def test_default_app_cmd_permissions_property(self) -> None:
+        assert tanjun.Client(mock.Mock()).default_app_cmd_permissions == hikari.Permissions.NONE
+
     def test_defaults_to_ephemeral_property(self) -> None:
         assert tanjun.Client(mock.Mock()).defaults_to_ephemeral is False
+
+    def test_dms_enabled_for_app_cmds(self) -> None:
+        assert tanjun.Client(mock.Mock()).dms_enabled_for_app_cmds is True
 
     def test_hooks_property(self) -> None:
         mock_hooks = mock.Mock()
@@ -484,6 +490,29 @@ class TestClient:
 
     @pytest.mark.asyncio()
     async def test_declare_application_command_when_command_id_provided(self):
+        rest = mock.AsyncMock()
+        client = tanjun.Client(rest)
+        rest.edit_application_command.return_value = mock.Mock()
+        mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(hikari.api.SlashCommandBuilder)
+
+        result = await client.declare_application_command(mock_command, 123321, application=54123, guild=65234)
+
+        assert result is rest.edit_application_command.return_value
+        rest.edit_application_command.assert_called_once_with(
+            54123,
+            123321,
+            guild=65234,
+            name=mock_command.build.return_value.name,
+            description=mock_command.build.return_value.description,
+            options=mock_command.build.return_value.options,
+        )
+        rest.create_slash_command.assert_not_called()
+        mock_command.build.assert_called_once_with()
+        mock_command.set_tracked_command.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_declare_application_command_when_command_id_provided_and_slash_command(self):
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
@@ -589,16 +618,10 @@ class TestClient:
 
         result = await client.declare_application_command(mock_command, application=54123, guild=65234)
 
-        assert result is rest.create_slash_command.return_value
-        rest.create_slash_command.assert_called_once_with(
-            54123,
-            guild=65234,
-            name=mock_command.build.return_value.name,
-            description=mock_command.build.return_value.description,
-            options=mock_command.build.return_value.options,
-        )
+        assert result is mock_command.build.return_value.create.return_value
         rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
+        mock_command.build.return_value.create.assert_awaited_once_with(rest, 54123, guild=65234)
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -611,16 +634,10 @@ class TestClient:
 
         result = await client.declare_application_command(mock_command, guild=65234)
 
-        assert result is rest.create_slash_command.return_value
-        rest.create_slash_command.assert_called_once_with(
-            54123123,
-            guild=65234,
-            name=mock_command.build.return_value.name,
-            description=mock_command.build.return_value.description,
-            options=mock_command.build.return_value.options,
-        )
+        assert result is mock_command.build.return_value.create.return_value
         rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
+        mock_command.build.return_value.create.assert_awaited_once_with(rest, 54123123, guild=65234)
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -637,23 +654,35 @@ class TestClient:
 
         result = await client.declare_application_command(mock_command, guild=65234)
 
-        assert result is rest.create_slash_command.return_value
-        rest.create_slash_command.assert_called_once_with(
-            fetch_rest_application_id_.return_value,
-            guild=65234,
-            name=mock_command.build.return_value.name,
-            description=mock_command.build.return_value.description,
-            options=mock_command.build.return_value.options,
-        )
+        assert result is mock_command.build.return_value.create.return_value
         fetch_rest_application_id_.assert_called_once_with()
         rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
+        mock_command.build.return_value.create.assert_awaited_once_with(
+            rest, fetch_rest_application_id_.return_value, guild=65234
+        )
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
     async def test_declare_application_commands(self):
         ...
+
+    def test_set_set_default_app_command_permissions(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_default_app_command_permissions(hikari.Permissions(5421123))
+
+        assert result is client
+        assert client.default_app_cmd_permissions == 5421123
+
+    def test_set_default_app_command_permissions(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_dms_enabled_for_app_cmds(False)
+
+        assert result is client
+        assert client.dms_enabled_for_app_cmds is False
 
     @pytest.mark.skip(reason="TODO")
     def test_set_hikari_trait_injectors(self):

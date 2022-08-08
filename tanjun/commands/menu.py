@@ -67,7 +67,9 @@ def _as_menu(
     name: str,
     type_: _MenuTypeT,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[_MenuTypeT]:
     def decorator(
@@ -79,7 +81,9 @@ def _as_menu(
                 type_,
                 name,
                 always_defer=always_defer,
+                default_member_permissions=default_member_permissions,
                 default_to_ephemeral=default_to_ephemeral,
+                dm_enabled=dm_enabled,
                 is_global=is_global,
                 _wrapped_command=callback,
             )
@@ -89,7 +93,9 @@ def _as_menu(
             type_,
             name,
             always_defer=always_defer,
+            default_member_permissions=default_member_permissions,
             default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
             is_global=is_global,
         )
 
@@ -116,7 +122,9 @@ def as_message_menu(
     /,
     *,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
     """Build a message [tanjun.MenuCommand][] by decorating a function.
@@ -149,12 +157,22 @@ def as_message_menu(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
 
@@ -176,7 +194,15 @@ def as_message_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-    return _as_menu(name, hikari.CommandType.MESSAGE, always_defer, default_to_ephemeral, is_global)
+    return _as_menu(
+        name,
+        hikari.CommandType.MESSAGE,
+        always_defer=always_defer,
+        default_member_permissions=default_member_permissions,
+        default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
+        is_global=is_global,
+    )
 
 
 def as_user_menu(
@@ -184,7 +210,9 @@ def as_user_menu(
     /,
     *,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
     """Build a user [tanjun.MenuCommand][] by decorating a function.
@@ -219,12 +247,22 @@ def as_user_menu(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
 
@@ -246,7 +284,15 @@ def as_user_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-    return _as_menu(name, hikari.CommandType.USER, always_defer, default_to_ephemeral, is_global)
+    return _as_menu(
+        name,
+        hikari.CommandType.USER,
+        always_defer=always_defer,
+        default_member_permissions=default_member_permissions,
+        default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
+        is_global=is_global,
+    )
 
 
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -258,8 +304,10 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     __slots__ = (
         "_always_defer",
         "_callback",
+        "_default_member_permissions",
         "_defaults_to_ephemeral",
         "_description",
+        "_is_dm_enabled",
         "_is_global",
         "_name",
         "_parent",
@@ -279,7 +327,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -294,7 +344,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -308,7 +360,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
@@ -344,12 +398,22 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         always_defer
             Whether the contexts this command is executed with should always be deferred
             before being passed to the command's callback.
+        default_member_permissions
+            Member permissions necessary to utilize this command by default.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
             If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
+        dm_enabled
+            Whether this command is enabled in DMs with the bot.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         is_global
             Whether this command is a global command.
 
@@ -381,9 +445,14 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
+        if default_member_permissions is not None:
+            default_member_permissions = hikari.Permissions(default_member_permissions)
+
         self._always_defer = always_defer
         self._callback = callback
+        self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
+        self._is_dm_enabled = dm_enabled
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
@@ -405,18 +474,27 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         return self._callback
 
     @property
+    def default_member_permissions(self) -> typing.Optional[hikari.Permissions]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._default_member_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         return self._defaults_to_ephemeral
 
     @property
+    def is_dm_enabled(self) -> typing.Optional[bool]:
+        return self._is_dm_enabled
+
+    @property
     def is_global(self) -> bool:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._name
 
     @property
@@ -426,20 +504,33 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     @property
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
     @property
     def type(self) -> _MenuTypeT:
-        # <<inherited docstring from tanjun.abc.MenuCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._type
 
-    def build(self) -> hikari.api.ContextMenuCommandBuilder:
+    def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        return hikari.impl.ContextMenuCommandBuilder(self._type, self._name)  # type: ignore
+        builder = hikari.impl.ContextMenuCommandBuilder(self._type, self._name)  # type: ignore
+
+        component = component or self._component
+        if self._default_member_permissions is not None:
+            builder.set_default_member_permissions(self._default_member_permissions)
+        elif component and component.default_app_cmd_permissions is not None:
+            builder.set_default_member_permissions(component.default_app_cmd_permissions)
+
+        if self._is_dm_enabled is not None:
+            builder.set_is_dm_enabled(self._is_dm_enabled)
+        elif component and component.dms_enabled_for_app_cmds is not None:
+            builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
+
+        return builder
 
     def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.MenuCommand>>.
         if not isinstance(command, hikari.ContextMenuCommand):
             raise TypeError("Command must be a ContextMenuCommand")
 

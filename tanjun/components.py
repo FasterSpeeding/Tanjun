@@ -45,11 +45,12 @@ import random
 import typing
 from collections import abc as collections
 
+import hikari
+
 from . import abc as tanjun
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    import hikari
 
     from . import schedules as schedules_
 
@@ -161,7 +162,9 @@ class Component(tanjun.Component):
         "_checks",
         "_client",
         "_client_callbacks",
+        "_default_app_cmd_permissions",
         "_defaults_to_ephemeral",
+        "_dms_enabled_for_app_cmds",
         "_hooks",
         "_is_strict",
         "_listeners",
@@ -200,7 +203,9 @@ class Component(tanjun.Component):
         self._checks: list[tanjun.CheckSig] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
+        self._default_app_cmd_permissions: typing.Optional[hikari.Permissions] = None
         self._defaults_to_ephemeral: typing.Optional[bool] = None
+        self._dms_enabled_for_app_cmds: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun.AnyHooks] = None
         self._is_strict = strict
         self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig]] = {}
@@ -233,9 +238,18 @@ class Component(tanjun.Component):
         return self._client
 
     @property
+    def default_app_cmd_permissions(self) -> typing.Optional[hikari.Permissions]:
+        return self._default_app_cmd_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._defaults_to_ephemeral
+
+    @property
+    def dms_enabled_for_app_cmds(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.Component>>.
+        return self._dms_enabled_for_app_cmds
 
     @property
     def hooks(self) -> typing.Optional[tanjun.AnyHooks]:
@@ -406,6 +420,54 @@ class Component(tanjun.Component):
             if isinstance(value, AbstractComponentLoader):
                 value.load_into_component(self)
 
+        return self
+
+    def set_default_app_command_permissions(
+        self: _ComponentT, permissions: typing.Union[int, hikari.Permissions, None], /
+    ) -> _ComponentT:
+        """Set the default member permissions needed for this component's commands.
+
+        !!! warning
+            This may be overridden by guild staff and does not apply to admins.
+
+        Parameters
+        ----------
+        permissions
+            The default member permissions needed for this component's application commands.
+
+            If this is left as [None][] then this config will be inherited from
+            the parent client.
+
+            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+            and if this is left as [None][] then this config will be inherited
+            from the parent client.
+
+        Returns
+        -------
+        Self
+            This client to enable method chaining.
+        """
+        self._default_app_cmd_permissions = hikari.Permissions(permissions) if permissions is not None else None
+        return self
+
+    def set_dms_enabled_for_app_cmds(self: _ComponentT, state: typing.Optional[bool], /) -> _ComponentT:
+        """Set whether this component's commands should be enabled in DMs.
+
+        Parameters
+        ----------
+        state
+            Whether to enable this component's commands in DMs.
+
+            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
+            and if this is left as [None][] then this config will be inherited
+            from the parent client.
+
+        Returns
+        -------
+        Self
+            This client to enable method chaining.
+        """
+        self._dms_enabled_for_app_cmds = state
         return self
 
     def set_ephemeral_default(self: _ComponentT, state: typing.Optional[bool], /) -> _ComponentT:

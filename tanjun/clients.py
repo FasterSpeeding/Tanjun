@@ -444,6 +444,13 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
     if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id or builder.type != command.type:
         return False
 
+    builder_dm_enabled = True if builder.is_dm_enabled is hikari.UNDEFINED else builder.is_dm_enabled
+    default_perms = builder.default_member_permissions or hikari.Permissions.NONE
+    builder_default_perms = command.default_member_permissions or hikari.Permissions.NONE
+
+    if builder_dm_enabled is not command.is_dm_enabled or default_perms != builder_default_perms:
+        return False
+
     if isinstance(command, hikari.SlashCommand):
         assert isinstance(builder, hikari.api.SlashCommandBuilder)
         if builder.name != command.name or builder.description != command.description:
@@ -504,11 +511,9 @@ class Client(tanjun.Client):
         "_checks",
         "_client_callbacks",
         "_components",
+        "_default_app_cmd_permissions",
         "_defaults_to_ephemeral",
-        "_make_autocomplete_context",
-        "_make_menu_context",
-        "_make_message_context",
-        "_make_slash_context",
+        "_dms_enabled_for_app_cmds",
         "_events",
         "_grab_mention_prefix",
         "_hooks",
@@ -520,6 +525,10 @@ class Client(tanjun.Client):
         "_is_closing",
         "_listeners",
         "_loop",
+        "_make_autocomplete_context",
+        "_make_menu_context",
+        "_make_message_context",
+        "_make_slash_context",
         "_message_hooks",
         "_metadata",
         "_modules",
@@ -673,11 +682,9 @@ class Client(tanjun.Client):
         self._checks: list[tanjun.CheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
-        self._defaults_to_ephemeral: bool = False
-        self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
-        self._make_menu_context: _MenuContextMakerProto = context.MenuContext
-        self._make_message_context: _MessageContextMakerProto = context.MessageContext
-        self._make_slash_context: _SlashContextMakerProto = context.SlashContext
+        self._default_app_cmd_permissions = hikari.Permissions.NONE
+        self._defaults_to_ephemeral = False
+        self._dms_enabled_for_app_cmds = True
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
@@ -693,6 +700,10 @@ class Client(tanjun.Client):
             dict[tanjun.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig]],
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
+        self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
+        self._make_menu_context: _MenuContextMakerProto = context.MenuContext
+        self._make_message_context: _MessageContextMakerProto = context.MessageContext
+        self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._message_hooks: typing.Optional[tanjun.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
@@ -718,21 +729,17 @@ class Client(tanjun.Client):
             .set_type_dependency(type(self), self)
             .set_type_dependency(hikari.api.RESTClient, rest)
             .set_type_dependency(type(rest), rest)
+            ._maybe_set_type_dep(hikari.api.Cache, cache)
+            ._maybe_set_type_dep(type(cache), cache)
+            ._maybe_set_type_dep(hikari.api.EventManager, events)
+            ._maybe_set_type_dep(type(events), events)
+            ._maybe_set_type_dep(hikari.api.InteractionServer, server)
+            ._maybe_set_type_dep(type(server), server)
+            ._maybe_set_type_dep(hikari.ShardAware, shards)
+            ._maybe_set_type_dep(type(shards), shards)
+            ._maybe_set_type_dep(hikari.api.VoiceComponent, voice)
+            ._maybe_set_type_dep(type(voice), voice)
         )
-        if cache:
-            self.set_type_dependency(hikari.api.Cache, cache).set_type_dependency(type(cache), cache)
-
-        if events:
-            self.set_type_dependency(hikari.api.EventManager, events).set_type_dependency(type(events), events)
-
-        if server:
-            self.set_type_dependency(hikari.api.InteractionServer, server).set_type_dependency(type(server), server)
-
-        if shards:
-            self.set_type_dependency(hikari.ShardAware, shards).set_type_dependency(type(shards), shards)
-
-        if voice:
-            self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
 
         dependencies.set_standard_dependencies(self)
         self._schedule_startup_registers(
@@ -743,6 +750,12 @@ class Client(tanjun.Client):
             user_ids=user_ids,
             _stack_level=_stack_level,
         )
+
+    def _maybe_set_type_dep(self: _ClientT, type_: type[_T], value: typing.Optional[_T]) -> _ClientT:
+        if value is not None:
+            self.set_type_dependency(type_, value)
+
+        return self
 
     def _schedule_startup_registers(
         self,
@@ -1001,9 +1014,19 @@ class Client(tanjun.Client):
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
 
     @property
+    def default_app_cmd_permissions(self) -> hikari.Permissions:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._default_app_cmd_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._defaults_to_ephemeral
+
+    @property
+    def dms_enabled_for_app_cmds(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._dms_enabled_for_app_cmds
 
     @property
     def message_accepts(self) -> MessageAcceptsEnum:
@@ -1264,22 +1287,7 @@ class Client(tanjun.Client):
             )
 
         else:
-            if isinstance(builder, hikari.api.SlashCommandBuilder):
-                response = await self._rest.create_slash_command(
-                    application,
-                    guild=guild,
-                    name=builder.name,
-                    description=builder.description,
-                    options=builder.options,
-                )
-
-            elif isinstance(builder, hikari.api.ContextMenuCommandBuilder):
-                response = await self._rest.create_context_menu_command(
-                    application, builder.type, builder.name, guild=guild  # type: ignore
-                )
-
-            else:
-                raise NotImplementedError(f"Unknown command builder type {builder.type}.")
+            response = await builder.create(self._rest, application, guild=guild)
 
         if not guild:
             command.set_tracked_command(response)  # TODO: is this fine?
@@ -1300,6 +1308,8 @@ class Client(tanjun.Client):
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
+        message_ids = message_ids or {}
+        user_ids = user_ids or {}
         names_to_commands: dict[tuple[hikari.CommandType, str], tanjun.AppCommand[typing.Any]] = {}
         conflicts: set[tuple[hikari.CommandType, str]] = set()
         builders: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
@@ -1317,19 +1327,23 @@ class Client(tanjun.Client):
             command_id = None
             if builder.type is hikari.CommandType.USER:
                 user_count += 1
-                if user_ids:
-                    command_id = user_ids.get(command.name)
+                command_id = user_ids.get(command.name)
 
             elif builder.type is hikari.CommandType.MESSAGE:
                 message_count += 1
-                if message_ids:
-                    command_id = message_ids.get(command.name)
+                command_id = message_ids.get(command.name)
 
             elif builder.type is hikari.CommandType.SLASH:
                 slash_count += 1
 
             if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
+
+            if builder.default_member_permissions is hikari.UNDEFINED:
+                builder.set_default_member_permissions(self.default_app_cmd_permissions)
+
+            if builder.is_dm_enabled is hikari.UNDEFINED:
+                builder.set_is_dm_enabled(self.dms_enabled_for_app_cmds)
 
             builders[key] = builder
 
@@ -1348,9 +1362,7 @@ class Client(tanjun.Client):
         if user_count > 5:
             raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
 
-        if not application:
-            application = self._cached_application_id or await self.fetch_rest_application_id()
-
+        application = application or self._cached_application_id or await self.fetch_rest_application_id()
         target_type = "global" if guild is hikari.UNDEFINED else f"guild {int(guild)}"
 
         if not force:
@@ -1369,17 +1381,6 @@ class Client(tanjun.Client):
         for response in responses:
             if not guild:
                 names_to_commands[(response.type, response.name)].set_tracked_command(response)  # TODO: is this fine?
-
-            if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
-                _LOGGER.warning(
-                    "ID mismatch found for %s %s command %r, expected %s but got %s. "
-                    "This suggests that any previous permissions set for this command will have been lost.",
-                    target_type,
-                    response.type,
-                    response.name,
-                    expected_id,
-                    response.id,
-                )
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):
@@ -1404,6 +1405,53 @@ class Client(tanjun.Client):
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
+        return self
+
+    def set_default_app_command_permissions(
+        self: _ClientT, permissions: typing.Union[int, hikari.Permissions], /
+    ) -> _ClientT:
+        """Set the default member permissions needed for this client's commands.
+
+        !!! warning
+            This may be overridden by guild staff and does not apply to admins.
+
+        Parameters
+        ----------
+        permissions
+            The default member permissions needed for this client's application commands.
+
+            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+            and [tanjun.abc.Component.default_app_cmd_permissions][]; if this is
+            left as [None][] then this config will be inherited from the parent
+            client.
+
+        Returns
+        -------
+        Self
+            This client to enable method chaining.
+        """
+        self._default_app_cmd_permissions = hikari.Permissions(permissions)
+        return self
+
+    def set_dms_enabled_for_app_cmds(self: _ClientT, state: bool, /) -> _ClientT:
+        """Set whether this clients's commands should be enabled in DMs.
+
+        Parameters
+        ----------
+        state
+            Whether to enable this client's commands in DMs.
+
+            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
+            and [tanjun.abc.Component.dms_enabled_for_app_cmds][]; if this is
+            left as [None][] then this config will be inherited from the parent
+            client.
+
+        Returns
+        -------
+        Self
+            This client to enable method chaining.
+        """
+        self._dms_enabled_for_app_cmds = state
         return self
 
     def set_ephemeral_default(self: _ClientT, state: bool, /) -> _ClientT:

@@ -106,7 +106,9 @@ def slash_command_group(
     description: str,
     /,
     *,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> SlashCommandGroup:
     r"""Create a slash command group.
@@ -150,12 +152,22 @@ def slash_command_group(
         This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
     description
         The description of the command group.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
 
@@ -176,7 +188,9 @@ def slash_command_group(
     return SlashCommandGroup(
         name,
         description,
+        default_member_permissions=default_member_permissions,
         default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
         is_global=is_global,
     )
 
@@ -200,7 +214,9 @@ def as_slash_command(
     /,
     *,
     always_defer: bool = False,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
 ) -> _ResultProto:
@@ -241,12 +257,22 @@ def as_slash_command(
     always_defer
         Whether the contexts this command is executed with should always be deferred
         before being passed to the command's callback.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     default_to_ephemeral
         Whether this command's responses should default to ephemeral unless flags
         are set to override this.
 
         If this is left as [None][] then the default set on the parent command(s),
         component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
     is_global
         Whether this command is a global command.
     sort_options
@@ -284,7 +310,9 @@ def as_slash_command(
                 name,
                 description,
                 always_defer=always_defer,
+                default_member_permissions=default_member_permissions,
                 default_to_ephemeral=default_to_ephemeral,
+                dm_enabled=dm_enabled,
                 is_global=is_global,
                 sort_options=sort_options,
                 _wrapped_command=callback,
@@ -295,7 +323,9 @@ def as_slash_command(
             name,
             description,
             always_defer=always_defer,
+            default_member_permissions=default_member_permissions,
             default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
             is_global=is_global,
             sort_options=sort_options,
         )
@@ -718,11 +748,11 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         description: str,
         sort_options: bool,
         *,
-        id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,  # noqa: A002
+        id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        super().__init__(name, description, id=id)  # type: ignore
-        self._options_dict: dict[str, hikari.CommandOption] = {}
+        super().__init__(name, description, id=id_)  # type: ignore
         self._has_been_sorted = True
+        self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
 
     def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
@@ -752,12 +782,10 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         return self
 
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
-    def copy(
-        self,
-    ) -> _SlashCommandBuilder:
-        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id=self.id)
+    def copy(self, /) -> _SlashCommandBuilder:
+        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id_=self.id)
 
-        for option in self._options:
+        for option in self.options:
             builder.add_option(option)
 
         return builder
@@ -766,7 +794,16 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlashCommand):
     """Base class used for the standard slash command implementations."""
 
-    __slots__ = ("_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent", "_tracked_command")
+    __slots__ = (
+        "_default_member_permissions",
+        "_defaults_to_ephemeral",
+        "_description",
+        "_is_dm_enabled",
+        "_is_global",
+        "_name",
+        "_parent",
+        "_tracked_command",
+    )
 
     def __init__(
         self,
@@ -774,7 +811,9 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         description: str,
         /,
         *,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
     ) -> None:
         super().__init__()
@@ -782,31 +821,46 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
+        if default_member_permissions is not None:
+            default_member_permissions = hikari.Permissions(default_member_permissions)
+
+        self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
+        self._is_dm_enabled = dm_enabled
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.SlashCommand] = None
 
     @property
+    def default_member_permissions(self) -> typing.Optional[hikari.Permissions]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._default_member_permissions
+
+    @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._defaults_to_ephemeral
 
     @property
-    def description(self) -> str:
+    def description(self) -> str:  # TODO: this feels like a mistake
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._description
 
     @property
+    def is_dm_enabled(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._is_dm_enabled
+
+    @property
     def is_global(self) -> bool:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._name
 
     @property
@@ -821,16 +875,16 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
 
     @property
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._tracked_command.id if self._tracked_command else None
 
     @property
     def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
-        # <<inherited docstring from tanjun.abc.SlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         return hikari.CommandType.SLASH
 
     def set_tracked_command(self: _BaseSlashCommandT, command: hikari.PartialCommand, /) -> _BaseSlashCommandT:
-        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
         if not isinstance(command, hikari.SlashCommand):
             raise TypeError("The tracked command must be a slash command")
 
@@ -894,7 +948,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         be callable functions themselves.
     """
 
-    __slots__ = "_commands"
+    __slots__ = ("_commands",)
 
     def __init__(
         self,
@@ -902,7 +956,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         description: str,
         /,
         *,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
     ) -> None:
         r"""Initialise a slash command group.
@@ -920,12 +976,22 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
         description
             The description of the command group.
+        default_member_permissions
+            Member permissions necessary to utilize this command by default.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
             If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
+        dm_enabled
+            Whether this command is enabled in DMs with the bot.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         is_global
             Whether this command is a global command.
 
@@ -938,7 +1004,14 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
         """
-        super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+        super().__init__(
+            name,
+            description,
+            default_member_permissions=default_member_permissions,
+            default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
+            is_global=is_global,
+        )
         self._commands: dict[str, tanjun.BaseSlashCommand] = {}
 
     @property
@@ -946,9 +1019,12 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
-    def build(self) -> special_endpoints_api.SlashCommandBuilder:
+    def build(
+        self, *, component: typing.Optional[tanjun.Component] = None
+    ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _SlashCommandBuilder(self._name, self._description, False)
+
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -965,6 +1041,18 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
                     options=command_builder.options,
                 )
             )
+
+        component = component or self._component
+
+        if self._default_member_permissions is not None:
+            builder.set_default_member_permissions(self._default_member_permissions)
+        elif component and component.default_app_cmd_permissions is not None:
+            builder.set_default_member_permissions(component.default_app_cmd_permissions)
+
+        if self._is_dm_enabled is not None:
+            builder.set_is_dm_enabled(self._is_dm_enabled)
+        elif component and component.dms_enabled_for_app_cmds is not None:
+            builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
 
         return builder
 
@@ -1111,7 +1199,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1127,7 +1217,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1142,7 +1234,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_defer: bool = False,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1179,12 +1273,22 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         always_defer
             Whether the contexts this command is executed with should always be deferred
             before being passed to the command's callback.
+        default_member_permissions
+            Member permissions necessary to utilize this command by default.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         default_to_ephemeral
             Whether this command's responses should default to ephemeral unless flags
             are set to override this.
 
             If this is left as [None][] then the default set on the parent command(s),
             component or client will be in effect.
+        dm_enabled
+            Whether this command is enabled in DMs with the bot.
+
+            If this is [None][] then the configuration for the parent component or client
+            will be used.
         is_global
             Whether this command is a global command.
         sort_options
@@ -1204,7 +1308,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
         """
-        super().__init__(name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+        super().__init__(
+            name,
+            description,
+            default_member_permissions=default_member_permissions,
+            default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
+            is_global=is_global,
+        )
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
@@ -1238,6 +1349,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     @property
     def int_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteCallbackSig]:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._int_autocompletes.copy()
 
     @property
@@ -1253,9 +1365,24 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         return self
 
-    def build(self) -> special_endpoints_api.SlashCommandBuilder:
+    def build(
+        self, *, component: typing.Optional[tanjun.Component] = None
+    ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._builder.sort().copy()
+        builder = self._builder.sort().copy()
+
+        component = component or self._component
+        if self._default_member_permissions is not None:
+            builder.set_default_member_permissions(self._default_member_permissions)
+        elif component and component.default_app_cmd_permissions is not None:
+            builder.set_default_member_permissions(component.default_app_cmd_permissions)
+
+        if self._is_dm_enabled is not None:
+            builder.set_is_dm_enabled(self._is_dm_enabled)
+        elif component and component.dms_enabled_for_app_cmds is not None:
+            builder.set_is_dm_enabled(component.dms_enabled_for_app_cmds)
+
+        return builder
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         super().load_into_component(component)

@@ -70,10 +70,19 @@ def stub_class(
 
 
 def test_slash_command_group():
-    command = tanjun.slash_command_group("a_name", "very", default_to_ephemeral=True, is_global=False)
+    command = tanjun.slash_command_group(
+        "a_name",
+        "very",
+        default_member_permissions=hikari.Permissions(43123),
+        default_to_ephemeral=True,
+        dm_enabled=False,
+        is_global=False,
+    )
 
     assert command.name == "a_name"
+    assert command.default_member_permissions == 43123
     assert command.description == "very"
+    assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command.defaults_to_ephemeral is True
     assert isinstance(command, tanjun.SlashCommandGroup)
@@ -83,7 +92,9 @@ def test_slash_command_group_with_default():
     command = tanjun.slash_command_group("a_name", "very")
 
     assert command.tracked_command_id is None
+    assert command.default_member_permissions is None
     assert command.defaults_to_ephemeral is None
+    assert command.is_dm_enabled is None
     assert command.is_global is True
     assert isinstance(command, tanjun.SlashCommandGroup)
 
@@ -95,15 +106,20 @@ def test_as_slash_command():
         "a_very",
         "cool name",
         always_defer=True,
+        default_member_permissions=365234123,
         default_to_ephemeral=True,
+        dm_enabled=False,
         is_global=False,
         sort_options=False,
     )(mock_callback)
 
     assert command._always_defer is True
+    assert command.callback is mock_callback
     assert command.name == "a_very"
     assert command.description == "cool name"
+    assert command.default_member_permissions == 365234123
     assert command.defaults_to_ephemeral is True
+    assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
@@ -126,8 +142,25 @@ def test_as_slash_command_when_wrapping_command(
     ]
 ):
 
-    command = tanjun.as_slash_command("a_very", "cool name")(other_command)
+    command = tanjun.as_slash_command(
+        "a_very",
+        "cool name",
+        always_defer=False,
+        default_member_permissions=423123,
+        default_to_ephemeral=True,
+        dm_enabled=False,
+        is_global=True,
+        sort_options=True,
+    )(other_command)
 
+    assert command._always_defer is False
+    assert command.name == "a_very"
+    assert command.description == "cool name"
+    assert command.default_member_permissions == 423123
+    assert command.defaults_to_ephemeral is True
+    assert command.is_dm_enabled is False
+    assert command.is_global is True
+    assert command._builder._sort_options is True
     assert command.callback is other_command.callback
     assert command._wrapped_command is other_command
     assert isinstance(command, tanjun.SlashCommand)
@@ -139,7 +172,9 @@ def test_as_slash_command_with_defaults():
     command = tanjun.as_slash_command("a_very", "cool name")(mock_callback)
 
     assert command._always_defer is False
+    assert command.default_member_permissions is None
     assert command.defaults_to_ephemeral is None
+    assert command.is_dm_enabled is None
     assert command.is_global is True
     assert command._builder._sort_options is True
     assert isinstance(command, tanjun.SlashCommand)
@@ -556,6 +591,13 @@ class TestBaseSlashCommand:
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
 
+    def test_default_member_permissions_property(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"default_member_permissions": 54312312}
+        )
+
+        assert command.default_member_permissions == 54312312
+
     def test_defaults_to_ephemeral_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"))
 
@@ -565,6 +607,11 @@ class TestBaseSlashCommand:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
+
+    def test_is_dm_enabled_property(self):
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
+
+        assert command.is_dm_enabled is False
 
     def test_is_global_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"is_global": False})
@@ -647,11 +694,18 @@ class TestSlashCommandGroup:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         mock_command_group = mock.Mock(tanjun.abc.SlashCommandGroup)
         command_group = (
-            tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command).add_command(mock_command_group)
+            tanjun.SlashCommandGroup("yee", "nsoosos")
+            .add_command(mock_command)
+            .add_command(mock_command_group)
+            .bind_component(mock.Mock())
         )
 
-        result = command_group.build()
+        result = command_group.build(
+            component=mock.Mock(default_app_cmd_permissions=None, dms_enabled_for_app_cmds=None)
+        )
 
+        assert result.default_member_permissions is hikari.UNDEFINED
+        assert result.is_dm_enabled is hikari.UNDEFINED
         assert result == (
             tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
             .add_option(
@@ -673,6 +727,43 @@ class TestSlashCommandGroup:
                 )
             )
         )
+
+    def test_build_with_optional_fields(self):
+        command_group = tanjun.SlashCommandGroup(
+            "yee", "nsoosos", dm_enabled=False, default_member_permissions=hikari.Permissions(4321123)
+        )
+
+        result = command_group.build()
+
+        assert result.default_member_permissions == 4321123
+        assert result.is_dm_enabled is False
+        assert result.options == []
+
+    def test_build_with_bound_component_field_inheritance(self):
+        command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(5412123), dms_enabled_for_app_cmds=True)
+        )
+
+        result = command_group.build()
+
+        assert result.default_member_permissions == 5412123
+        assert result.is_dm_enabled is True
+        assert result.options == []
+
+    def test_build_with_passed_component_field_inheritance(self):
+        command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
+            mock.Mock(default_app_cmd_permissions=hikari.Permissions(54312312), dms_enabled_for_app_cmds=True)
+        )
+
+        result = command_group.build(
+            component=mock.Mock(
+                default_app_cmd_permissions=hikari.Permissions(66554433), dms_enabled_for_app_cmds=False
+            )
+        )
+
+        assert result.default_member_permissions == 66554433
+        assert result.is_dm_enabled is False
+        assert result.options == []
 
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
@@ -1757,10 +1848,13 @@ class TestSlashCommand:
     @pytest.mark.parametrize(
         ("classes", "int_types"),
         [
-            ([hikari.TextableGuildChannel], [hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS]),
+            (
+                [hikari.TextableGuildChannel],
+                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+            ),
             (
                 [hikari.TextableGuildChannel, hikari.GuildNewsChannel],
-                [hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
             ),
             ([hikari.GuildVoiceChannel], [hikari.ChannelType.GUILD_VOICE]),
             (
@@ -1779,7 +1873,8 @@ class TestSlashCommand:
         command.add_channel_option("channel", "chaaa", types=classes)
 
         option = command.build().options[0]
-        assert option.channel_types == int_types
+        assert len(option.channel_types or ()) == len(int_types or ())
+        assert set(option.channel_types or ()) == set(int_types or ())
 
     def test_add_channel_option_with_invalid_type(self, command: tanjun.SlashCommand[typing.Any]):
         with pytest.raises(ValueError, match="Unknown channel type <class 'bool'>"):
