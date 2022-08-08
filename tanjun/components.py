@@ -422,7 +422,7 @@ class Component(tanjun.Component):
         return self
 
     def set_default_app_command_permissions(
-        self: _ComponentT, permissions: typing.Optional[hikari.Permissions], /
+        self: _ComponentT, permissions: typing.Union[int, hikari.Permissions, None], /
     ) -> _ComponentT:
         """Set the default member permissions needed for this component's commands.
 
@@ -446,7 +446,7 @@ class Component(tanjun.Component):
         Self
             This client to enable method chaining.
         """
-        self._default_app_cmd_permissions = permissions
+        self._default_app_cmd_permissions = hikari.Permissions(permissions) if permissions is not None else None
         return self
 
     def set_dms_enabled_for_app_cmds(self: _ComponentT, state: typing.Optional[bool], /) -> _ComponentT:

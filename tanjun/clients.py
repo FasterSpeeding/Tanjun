@@ -1407,7 +1407,9 @@ class Client(tanjun.Client):
         self._auto_defer_after = float(time) if time is not None else None
         return self
 
-    def set_default_app_command_permissions(self: _ClientT, permissions: hikari.Permissions, /) -> _ClientT:
+    def set_default_app_command_permissions(
+        self: _ClientT, permissions: typing.Union[int, hikari.Permissions], /
+    ) -> _ClientT:
         """Set the default member permissions needed for this client's commands.
 
         !!! warning
@@ -1428,7 +1430,7 @@ class Client(tanjun.Client):
         Self
             This client to enable method chaining.
         """
-        self._default_app_cmd_permissions = permissions
+        self._default_app_cmd_permissions = hikari.Permissions(permissions)
         return self
 
     def set_dms_enabled_for_app_cmds(self: _ClientT, state: bool, /) -> _ClientT:
