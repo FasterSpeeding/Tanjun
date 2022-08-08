@@ -1020,16 +1020,16 @@ class TestSlashCommand:
 
         command.add_str_option("meowth", "description").add_int_option("bam", "bam")
 
-    def test__add_option_when_invalid_name(self):
+    def test__add_option_when_invalid_key(self):
         @tanjun.as_slash_command("name", "description")
-        async def command(ctx: tanjun.abc.SlashContext):
+        async def command(ctx: tanjun.abc.SlashContext, *args: str):
             ...
 
         with pytest.raises(ValueError, match=f"'meow' is not a valid keyword argument for {command.callback}"):
             command.add_str_option("meow", "description")
 
-    def test__add_option_when_invalid_name_but_not_validating(self):
-        @tanjun.as_slash_command("name", "description", validate_arg_names=False)
+    def test__add_option_when_invalid_key_but_not_validating(self):
+        @tanjun.as_slash_command("name", "description", validate_arg_keys=False)
         async def command(ctx: tanjun.abc.SlashContext):
             ...
 

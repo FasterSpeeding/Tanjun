@@ -2860,7 +2860,7 @@ class MessageParser(abc.ABC):
         """
 
     @abc.abstractmethod
-    def validate_arg_names(self, callback_name: str, names: collections.Container[str], /) -> None:
+    def validate_arg_keys(self, callback_name: str, names: collections.Container[str], /) -> None:
         """Validate that callback's keyword arguments are all valid for this parser.
 
         Parameters
@@ -2868,12 +2868,12 @@ class MessageParser(abc.ABC):
         callback_name
             The callback's name for use in raised errors.
         names
-            Names of the callback's keyword arguments.
+            Key names of the callback's keyword arguments.
 
         Raises
         ------
         ValueError
-            If any of the parameter names aren't valid for this parser.
+            If any of the parameter keys aren't valid for this parser.
         """
 
 
@@ -2940,7 +2940,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         ------
         ValueError
             If this parser's option keys aren't valid for this command when
-            `validate_arg_names` is [True][].
+            `validate_arg_keys` is [True][].
         """
 
     @abc.abstractmethod

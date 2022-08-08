@@ -239,7 +239,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         ------
         ValueError
             If `key` isn't valid for any of the commands this parser is linked
-            to where `validate_arg_names` is [True][].
+            to where `validate_arg_keys` is [True][].
         """
 
     @typing.overload
@@ -352,7 +352,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         ------
         ValueError
             If `key` isn't valid for any of the commands this parser is linked
-            to where `validate_arg_names` is [True][].
+            to where `validate_arg_keys` is [True][].
         """
 
 
@@ -649,7 +649,7 @@ def with_argument(
     ------
     ValueError
         If `key` isn't valid for any of the commands this command's parser is
-        linked to where `validate_arg_names` is [True][].
+        linked to where `validate_arg_keys` is [True][].
     """
 
     def decorator(command: _CommandT, /) -> _CommandT:
@@ -777,7 +777,7 @@ def with_greedy_argument(
     ------
     ValueError
         If `key` isn't valid for any of the commands this command's parser is
-        linked to where `validate_arg_names` is [True][].
+        linked to where `validate_arg_keys` is [True][].
     """
     return with_argument(
         key, converters=converters, default=default, greedy=True, max_value=max_value, min_value=min_value
@@ -895,7 +895,7 @@ def with_multi_argument(
     ------
     ValueError
         If `key` isn't valid for any of the commands this command's parser is
-        linked to where `validate_arg_names` is [True][].
+        linked to where `validate_arg_keys` is [True][].
     """
     return with_argument(
         key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=True
@@ -1025,7 +1025,7 @@ def with_option(
     ------
     ValueError
         If `key` isn't valid for any of the commands this command's parser is
-        linked to where `validate_arg_names` is [True][].
+        linked to where `validate_arg_keys` is [True][].
     """
 
     def decorator(command: _CommandT, /) -> _CommandT:
@@ -1166,7 +1166,7 @@ def with_multi_option(
     ------
     ValueError
         If `key` isn't valid for any of the commands this command's parser is
-        linked to where `validate_arg_names` is [True][].
+        linked to where `validate_arg_keys` is [True][].
     """
     return with_option(
         key,
@@ -1684,13 +1684,13 @@ class ShlexParser(AbstractOptionParser):
         # <<inherited docstring from AbstractOptionParser>>.
         return _SemanticShlex(ctx, self._arguments, self._options).parse()
 
-    def validate_arg_names(self, callback_name: str, names: collections.Container[str], /) -> None:
+    def validate_arg_keys(self, callback_name: str, names: collections.Container[str], /) -> None:
         # <<inherited docstring from AbstractOptionParser>>.
         self._callback_arg_names.append((callback_name, names))
 
         for parameter in itertools.chain(self._options, self._arguments):
             if parameter.key not in names:
-                raise ValueError(f"{parameter.key} is not a valid keyword argument for {callback_name}")
+                raise ValueError(f"{parameter.key!r} is not a valid keyword argument for {callback_name}")
 
 
 def with_parser(command: _CommandT, /) -> _CommandT:

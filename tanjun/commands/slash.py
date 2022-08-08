@@ -219,7 +219,7 @@ def as_slash_command(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-    validate_arg_names: bool = True,
+    validate_arg_keys: bool = True,
 ) -> _ResultProto:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
@@ -283,8 +283,8 @@ def as_slash_command(
         If this is [True][] then the options are re-sorted to meet the requirement
         from Discord that required command options be listed before optional
         ones.
-    validate_arg_names
-        Whether to validate that option names match the command callback's signature.
+    validate_arg_keys
+        Whether to validate that option keys match the command callback's signature.
 
     Returns
     -------
@@ -324,7 +324,7 @@ def as_slash_command(
             dm_enabled=dm_enabled,
             is_global=is_global,
             sort_options=sort_options,
-            validate_arg_names=validate_arg_names,
+            validate_arg_keys=validate_arg_keys,
             _wrapped_command=wrapped_command,
         )
 
@@ -1203,7 +1203,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
-        validate_arg_names: bool = True,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -1222,7 +1222,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
-        validate_arg_names: bool = True,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -1240,7 +1240,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
         sort_options: bool = True,
-        validate_arg_names: bool = True,
+        validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         r"""Initialise a slash command.
@@ -1300,8 +1300,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             If this is [True][] then the options are re-sorted to meet the requirement
             from Discord that required command options be listed before optional
             ones.
-        validate_arg_names
-            Whether to validate that option names match the command callback's signature.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
 
         Raises
         ------
@@ -1324,7 +1324,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._arg_names = utilities.get_kwargs(callback) if validate_arg_names else None
+        self._arg_names = utilities.get_kwargs(callback) if validate_arg_keys else None
         self._builder = _SlashCommandBuilder(name, description, sort_options)
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
@@ -1537,7 +1537,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         return self._add_option(
             name,
@@ -1626,7 +1626,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option has more than 25 choices.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         if choices is None:
             actual_choices = None
@@ -1749,7 +1749,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         self._add_option(
             name,
@@ -1857,7 +1857,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         self._add_option(
             name,
@@ -1926,7 +1926,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         return self._add_option(
             name, description, hikari.OptionType.BOOLEAN, default=default, pass_as_kwarg=pass_as_kwarg
@@ -1985,7 +1985,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option has more than 25 choices.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         return self._add_option(name, description, hikari.OptionType.USER, default=default, pass_as_kwarg=pass_as_kwarg)
 
@@ -2039,7 +2039,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         return self._add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
@@ -2100,7 +2100,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If an invalid type is passed in `types`.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         import itertools
 
@@ -2170,7 +2170,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         return self._add_option(name, description, hikari.OptionType.ROLE, default=default, pass_as_kwarg=pass_as_kwarg)
 
@@ -2225,7 +2225,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
-              `validate_arg_names` is [True][].
+              `validate_arg_keys` is [True][].
         """
         return self._add_option(
             name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
