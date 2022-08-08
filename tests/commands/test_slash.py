@@ -999,7 +999,7 @@ class TestSlashCommand:
         mock_other_command.load_into_component.assert_called_once_with(mock_component)
 
     def test__add_option_when_no_signature(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
         command = tanjun.SlashCommand(int, "name", "description")  # type: ignore

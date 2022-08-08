@@ -192,7 +192,7 @@ class TestMessageCommand:
         tanjun.with_argument("beep")(command)
 
     def test_set_parser_when_no_signature(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
         command: tanjun.MessageCommand[typing.Any] = tanjun.MessageCommand(int, "name")  # type: ignore
