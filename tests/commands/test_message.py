@@ -254,18 +254,18 @@ class TestMessageCommand:
 
     def test_set_parser_when_argument_key_invalid_for_other_linked_callback(self):
         @tanjun.as_message_command("name", "description")
-        async def command(ctx: tanjun.abc.MessageContext, name: str, meow: str):
+        async def command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str):
             ...
 
         parser = tanjun.parsing.ShlexParser().validate_arg_keys("test_callback", ["meow", "bye"])
         tanjun.with_argument("meow")(command.set_parser(parser))
 
-        with pytest.raises(ValueError, match="`nyaned` is not a valid keyword argument for test_callback"):
-            tanjun.with_argument("nyaned")(command)
+        with pytest.raises(ValueError, match="`meowed` is not a valid keyword argument for test_callback"):
+            tanjun.with_argument("meowed")(command)
 
     def test_set_parser_when_option_key_invalid_for_other_linked_callback(self):
         @tanjun.as_message_command("name", "description")
-        async def command(ctx: tanjun.abc.MessageContext, name: str, eep: str):
+        async def command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool):
             ...
 
         parser = tanjun.parsing.ShlexParser().validate_arg_keys("test_callback", ["eep", "e"])
