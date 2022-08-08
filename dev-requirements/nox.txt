@@ -40,6 +40,8 @@ pyparsing==3.0.9
     # via packaging
 rfc3986[idna2008]==1.5.0
     # via httpx
+six==1.16.0
+    # via virtualenv
 sniffio==1.2.0
     # via
     #   anyio
