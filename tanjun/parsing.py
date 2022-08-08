@@ -1500,7 +1500,7 @@ class ShlexParser(AbstractOptionParser):
     def _assert_key(self, key: str, /) -> None:
         for callback_name, names in self._callback_arg_names:
             if key not in names:
-                raise ValueError(f"{key} is not a valid keyword argument for {callback_name}")
+                raise ValueError(f"{key!r} is not a valid keyword argument for {callback_name}")
 
     @typing.overload
     def add_argument(

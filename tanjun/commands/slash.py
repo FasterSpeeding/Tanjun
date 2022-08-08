@@ -1426,7 +1426,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         _validate_name(name)
         if self._arg_names is not None and name not in self._arg_names:
-            raise ValueError(f"{name} is not a valid keyword argument for {self._callback}")
+            raise ValueError(f"{name!r} is not a valid keyword argument for {self._callback}")
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
