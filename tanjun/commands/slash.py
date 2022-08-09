@@ -2203,13 +2203,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         """
         if types:
             try:
-                channel_types = list(
-                    set(
-                        itertools.chain.from_iterable(
-                            (type_,) if isinstance(type_, int) else _CHANNEL_TYPES[type_] for type_ in types
-                        )
-                    )
+                types_iter = itertools.chain.from_iterable(
+                    (type_,) if isinstance(type_, int) else _CHANNEL_TYPES[type_] for type_ in types
                 )
+                channel_types = list(set(types_iter))
 
             except KeyError as exc:
                 raise ValueError(f"Unknown channel type {exc.args[0]}") from exc

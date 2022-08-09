@@ -706,6 +706,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
 
             else:
                 descriptor = SnowflakeOr(parse_id=parser)
+                break
 
         else:
             descriptor = SnowflakeOr()
@@ -844,7 +845,9 @@ def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]
     if value is None or isinstance(value, type_):
         return value
 
-    raise ValueError(f"{name.capitalize()} value of type {type(value)} is not valid for an {type_.__name__} argument")
+    raise ValueError(
+        f"{name.capitalize()} value of type {type(value).__name__} is not valid for a {type_.__name__} argument"
+    )
 
 
 def _ensure_values(
@@ -855,7 +858,9 @@ def _ensure_values(
 
     for value in mapping.values():
         if not isinstance(value, type_):
-            raise ValueError(f"{name.capitalize()} of type {type(value)} is not valid for a {type_.__name__} argument")
+            raise ValueError(
+                f"{name.capitalize()} of type {type(value).__name__} is not valid for a {type_.__name__} argument"
+            )
 
     return typing.cast(collections.Mapping[str, _T], mapping)
 
