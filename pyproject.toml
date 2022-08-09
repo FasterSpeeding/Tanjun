@@ -60,10 +60,12 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
+omit = ["tanjun/_vendor/*"]
 
 [tool.isort]
 profile = "black"
 force_single_line = true
+skip = ["alluka/_vendor"]
 
 [tool.pyright]
 exclude = ["tanjun/_vendor"]
