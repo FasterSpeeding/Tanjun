@@ -689,7 +689,6 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
     hikari.PartialChannel: conversion.parse_channel_id,
     hikari.User: conversion.parse_user_id,
     hikari.Role: conversion.parse_role_id,
-    hikari.User: conversion.parse_user_id,
 }
 
 
@@ -984,6 +983,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", float, self.choices),
+            converters=self.converters or (),
             default=self._slash_default(),
             key=self.key,
             min_value=self.min_value,  # TODO: explicitly cast to float?
@@ -993,6 +993,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", int, self.choices),
+            converters=self.converters or (),
             default=self._slash_default(),
             key=self.key,
             min_value=_ensure_value("min", int, self.min_value),

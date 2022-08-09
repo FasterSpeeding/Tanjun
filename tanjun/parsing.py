@@ -93,6 +93,7 @@ _MaybeIterable = typing.Union[collections.Iterable[_T], _T]
 class UndefinedT:
     """Singleton used to indicate an undefined value within parsing logic."""
 
+    __slots__ = ()
     __singleton: typing.Optional[UndefinedT] = None
 
     def __new__(cls) -> UndefinedT:
