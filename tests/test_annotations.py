@@ -35,6 +35,7 @@
 import enum
 import typing
 from collections import abc as collections
+from unittest import mock
 
 import alluka
 import hikari
@@ -44,16 +45,31 @@ import tanjun
 from tanjun import annotations
 
 
-def test_with_message_command():
-    ...
-
-
 def test_with_message_command_and_incompatible_parser_set():
-    ...
+    mock_parser = mock.Mock(tanjun.abc.MessageParser)
+
+    @tanjun.as_message_command("command")
+    async def command(ctx: tanjun.abc.MessageContext, foo: annotations.Int):
+        ...
+
+    command.set_parser(mock_parser)
+
+    with pytest.raises(TypeError, match="Expected parser to be an instance of tanjun.parsing.AbstractOptionParser"):
+        annotations.with_annotated_args(command)
 
 
-def test_with_slash_command():
-    ...
+def test_with_nested_message_command_and_incompatible_parser_set():
+    mock_parser = mock.Mock(tanjun.abc.MessageParser)
+
+    @tanjun.as_message_command("command")
+    @tanjun.as_slash_command("command", "description")
+    async def command(ctx: tanjun.abc.MessageContext, foo: typing.Annotated[annotations.Int, "desc"]):
+        ...
+
+    command.set_parser(mock_parser)
+
+    with pytest.raises(TypeError, match="Expected parser to be an instance of tanjun.parsing.AbstractOptionParser"):
+        annotations.with_annotated_args(follow_wrapped=True)(command)
 
 
 def test_with_no_annotations():
@@ -101,20 +117,54 @@ def test_with_slash_command_missing_option_description():
         annotations.with_annotated_args(callback)
 
 
-def test_when_wrapping_slash():
-    ...
+def test_when_wrapping_slash_but_not_follow_wrapped():
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("meep")
+    @tanjun.as_slash_command("boop", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: typing.Annotated[annotations.Int, "description"],
+        other_field: typing.Annotated[annotations.Str, "yo"] = "",
+    ):
+        ...
+
+    assert isinstance(command.wrapped_command, tanjun.SlashCommand)
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert command.parser.arguments
+    assert command.parser.options
+    assert command.wrapped_command.build().options == []
+    assert command.wrapped_command._tracked_options == {}
 
 
-def test_when_wrapping_slash_and_follow_wrapped():
-    ...
+def test_when_wrapping_message_but_not_follow_wrapped():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("boop", "description")
+    @tanjun.as_message_command("meep")
+    async def command(ctx: tanjun.abc.Context, field: typing.Annotated[annotations.Int, "description"]):
+        ...
+
+    assert command.build().options
+    assert command._tracked_options
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
 
 
-def test_when_wrapping_message():
-    ...
+def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
+    @tanjun.as_slash_command("boop", "description")
+    @tanjun.as_message_command("meep")
+    async def command(ctx: tanjun.abc.Context, field: typing.Annotated[annotations.Int, "description"]):
+        ...
 
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    command.wrapped_command.set_parser(tanjun.ShlexParser())
 
-def test_when_wrapping_message_and_follow_wrapped():
-    ...
+    annotations.with_annotated_args(command)
+
+    assert command.build().options
+    assert command._tracked_options
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert command.wrapped_command.parser.arguments == []
+    assert command.wrapped_command.parser.options == []
 
 
 def test_with_with_std_range():
@@ -132,6 +182,7 @@ def test_with_with_std_range():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="value",
+            channel_types=None,
             description="nyaa",
             is_required=True,
             min_value=123,
@@ -140,6 +191,7 @@ def test_with_with_std_range():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="other_value",
+            channel_types=None,
             description="sex",
             is_required=False,
             min_value=22,
@@ -166,6 +218,7 @@ def test_with_with_std_range():
     assert option.names == ["--other-value"]
     assert option.converters == [int]
     assert option.default == 44
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value == 5567
     assert option.min_value == 22
@@ -186,6 +239,7 @@ def test_with_std_slice():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="value",
+            channel_types=None,
             description="meow",
             is_required=True,
             min_value=324,
@@ -194,6 +248,7 @@ def test_with_std_slice():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="other_value",
+            channel_types=None,
             description="blam",
             is_required=False,
             min_value=444,
@@ -220,6 +275,7 @@ def test_with_std_slice():
     assert option.names == ["--other-value"]
     assert option.converters == [int]
     assert option.default == 44
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value == 554
     assert option.min_value == 444
@@ -355,6 +411,7 @@ def test_choices(
         hikari.CommandOption(
             type=option_type,
             name="nope",
+            channel_types=None,
             description="default",
             is_required=True,
             choices=result,
@@ -362,6 +419,7 @@ def test_choices(
         hikari.CommandOption(
             type=option_type,
             name="boo",
+            channel_types=None,
             description="be",
             is_required=False,
             choices=result,
@@ -413,6 +471,7 @@ def test_with_generic_float_choices():
         hikari.CommandOption(
             type=hikari.OptionType.FLOAT,
             name="nom",
+            channel_types=None,
             description="description",
             is_required=True,
             choices=[
@@ -425,6 +484,7 @@ def test_with_generic_float_choices():
         hikari.CommandOption(
             type=hikari.OptionType.FLOAT,
             name="boom",
+            channel_types=None,
             description="bag",
             is_required=False,
             choices=[
@@ -474,6 +534,7 @@ def test_with_generic_float_choices():
     assert option.names == ["--boom"]
     assert option.converters == [Choices]
     assert option.default is Choices.Blam
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -499,6 +560,7 @@ def test_with_generic_int_choices():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="nat",
+            channel_types=None,
             description="meow",
             is_required=True,
             choices=[
@@ -510,6 +572,7 @@ def test_with_generic_int_choices():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="bag",
+            channel_types=None,
             description="bagette",
             is_required=False,
             choices=[
@@ -558,6 +621,7 @@ def test_with_generic_int_choices():
     assert option.names == ["--bag"]
     assert option.converters == [Choices]
     assert option.default is Choices.Bazman
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -584,6 +648,7 @@ def test_with_generic_str_choices():
         hikari.CommandOption(
             type=hikari.OptionType.STRING,
             name="ny",
+            channel_types=None,
             description="fat",
             is_required=True,
             choices=[
@@ -596,6 +661,7 @@ def test_with_generic_str_choices():
         hikari.CommandOption(
             type=hikari.OptionType.STRING,
             name="aa",
+            channel_types=None,
             description="bat",
             is_required=False,
             choices=[
@@ -645,6 +711,7 @@ def test_with_generic_str_choices():
     assert option.names == ["--aa"]
     assert option.converters == [Choices]
     assert option.default is Choices.Sis
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -667,11 +734,53 @@ def test_with_generic_converted():
 
 
 def test_with_flag():
-    ...
+    empty_value = mock.Mock()
+
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("meow")
+    async def callback(
+        ctx: tanjun.abc.MessageContext,
+        eep: typing.Annotated[
+            annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value, default=1231)
+        ] = 545454,
+    ) -> None:
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert len(callback.parser.arguments) == 0
+    assert len(callback.parser.options) == 1
+    option = callback.parser.options[0]
+    assert option.key == "eep"
+    assert option.names == ["--eep", "--hi", "--bye"]
+    assert option.converters == [int]
+    assert option.default == 1231
+    assert option.empty_value is empty_value
+    assert option.is_multi is False
+    assert option.max_value is None
+    assert option.min_value is None
 
 
 def test_with_flag_inferred_default():
-    ...
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("meow")
+    async def callback(
+        ctx: tanjun.abc.MessageContext,
+        eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("--hi", "--bye"))] = 123,
+    ) -> None:
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert len(callback.parser.arguments) == 0
+    assert len(callback.parser.options) == 1
+    option = callback.parser.options[0]
+    assert option.key == "eep"
+    assert option.names == ["--eep", "--hi", "--bye"]
+    assert option.converters == [int]
+    assert option.default == 123
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.max_value is None
+    assert option.min_value is None
 
 
 def test_with_flag_missing_default():
@@ -679,7 +788,7 @@ def test_with_flag_missing_default():
     async def callback(
         ctx: tanjun.abc.MessageContext,
         noooo: typing.Annotated[annotations.Int, annotations.Flag()],
-        eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("hi",))] = 123,
+        eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("--hi",))] = 123,
     ) -> None:
         ...
 
@@ -755,6 +864,7 @@ def test_with_generic_max(
         hikari.CommandOption(
             type=otype,
             name="number",
+            channel_types=None,
             description="eee",
             is_required=True,
             min_value=None,
@@ -763,6 +873,7 @@ def test_with_generic_max(
         hikari.CommandOption(
             type=otype,
             name="other_number",
+            channel_types=None,
             description="eep",
             is_required=False,
             min_value=None,
@@ -805,6 +916,7 @@ def test_with_generic_max(
     assert option.names == ["--other-number"]
     assert option.converters == [converter]
     assert option.default == 54234
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value == value
     assert option.min_value is None
@@ -840,6 +952,7 @@ def test_with_generic_min(
         hikari.CommandOption(
             type=otype,
             name="number",
+            channel_types=None,
             description="bee",
             is_required=True,
             min_value=value,
@@ -848,6 +961,7 @@ def test_with_generic_min(
         hikari.CommandOption(
             type=otype,
             name="other_number",
+            channel_types=None,
             description="buzz",
             is_required=False,
             min_value=value,
@@ -890,6 +1004,7 @@ def test_with_generic_min(
     assert option.names == ["--other-number"]
     assert option.converters == [converter]
     assert option.default == 321
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value == value
@@ -916,6 +1031,7 @@ def test_with_overridden_name():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="boop",
+            channel_types=None,
             description="Nope",
             is_required=True,
             min_value=None,
@@ -924,6 +1040,7 @@ def test_with_overridden_name():
         hikari.CommandOption(
             type=hikari.OptionType.STRING,
             name="meep_meep",
+            channel_types=None,
             description="Description",
             is_required=False,
             min_value=None,
@@ -966,6 +1083,7 @@ def test_with_overridden_name():
     assert option.names == ["--meep-meep"]
     assert option.converters == []
     assert option.default == "meowow"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -990,6 +1108,7 @@ def test_with_individually_overridden_name():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="oop",
+            channel_types=None,
             description="Nope",
             is_required=True,
             min_value=None,
@@ -998,6 +1117,7 @@ def test_with_individually_overridden_name():
         hikari.CommandOption(
             type=hikari.OptionType.STRING,
             name="n",
+            channel_types=None,
             description="Description",
             is_required=False,
             min_value=None,
@@ -1040,6 +1160,7 @@ def test_with_individually_overridden_name():
     assert option.names == ["--boop-oop"]
     assert option.converters == []
     assert option.default == "meowow"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -1062,6 +1183,7 @@ def test_with_overridden_slash_name():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="nom",
+            channel_types=None,
             description="EEEE",
             is_required=True,
             min_value=None,
@@ -1070,6 +1192,7 @@ def test_with_overridden_slash_name():
         hikari.CommandOption(
             type=hikari.OptionType.STRING,
             name="sex",
+            channel_types=None,
             description="AAAA",
             is_required=False,
             min_value=None,
@@ -1112,6 +1235,7 @@ def test_with_overridden_slash_name():
     assert option.names == ["--nya"]
     assert option.converters == []
     assert option.default == "meow"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -1133,6 +1257,7 @@ def test_with_overridden_message_name():
         hikari.CommandOption(
             type=hikari.OptionType.STRING,
             name="meow_meow",
+            channel_types=None,
             description="Description",
             is_required=False,
             min_value=None,
@@ -1157,6 +1282,7 @@ def test_with_overridden_message_name():
     assert option.names == ["--blam-blam"]
     assert option.converters == []
     assert option.default == "neko"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value is None
     assert option.min_value is None
@@ -1179,6 +1305,7 @@ def test_with_ranged():
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="value",
+            channel_types=None,
             description="meow",
             is_required=True,
             min_value=44,
@@ -1187,6 +1314,7 @@ def test_with_ranged():
         hikari.CommandOption(
             type=hikari.OptionType.FLOAT,
             name="other_value",
+            channel_types=None,
             description="bye bye",
             is_required=False,
             min_value=5433,
@@ -1211,6 +1339,7 @@ def test_with_ranged():
     assert option.names == ["--other-value"]
     assert option.converters == [float]
     assert option.default == 5
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value == 6524.32
     assert option.min_value == 5433
@@ -1247,6 +1376,7 @@ def test_with_generic_ranged(
         hikari.CommandOption(
             type=otype,
             name="number",
+            channel_types=None,
             description="meow",
             is_required=True,
             min_value=min_value,
@@ -1255,6 +1385,7 @@ def test_with_generic_ranged(
         hikari.CommandOption(
             type=otype,
             name="other_number",
+            channel_types=None,
             description="nom",
             is_required=False,
             min_value=min_value,
@@ -1297,6 +1428,7 @@ def test_with_generic_ranged(
     assert option.names == ["--other-number"]
     assert option.converters == [converter]
     assert option.default == 443
+    assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.max_value == max_value
     assert option.min_value == min_value
@@ -1330,12 +1462,146 @@ def test_with_generic_snowflake_or():
     ...
 
 
-def test_with_these_channels():
-    ...
+@pytest.mark.parametrize(
+    ("channel_types", "expected_types"),
+    [
+        (
+            (hikari.TextableGuildChannel, hikari.ChannelType.GUILD_STAGE),
+            {
+                hikari.ChannelType.GUILD_TEXT,
+                hikari.ChannelType.GUILD_NEWS,
+                hikari.ChannelType.GUILD_VOICE,
+                hikari.ChannelType.GUILD_STAGE,
+            },
+        ),
+        (
+            types := (hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GROUP_DM),
+            set(types),
+        ),
+        (
+            (hikari.GuildVoiceChannel, hikari.DMChannel, hikari.GuildTextChannel),
+            {hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.DM, hikari.ChannelType.GUILD_TEXT},
+        ),
+    ],
+)
+def test_with_these_channels(
+    channel_types: collections.Sequence[typing.Union[hikari.ChannelType, type[hikari.PartialChannel]]],
+    expected_types: set[hikari.ChannelType],
+):
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        foo: typing.Annotated[annotations.Channel, annotations.TheseChannels(*channel_types), "meow"],
+        bar: typing.Annotated[
+            typing.Optional[annotations.Channel], annotations.TheseChannels(*channel_types), "boom"
+        ] = None,
+    ):
+        ...
+
+    assert len(command.build().options) == 2
+    option = command.build().options[0]
+    assert option.type is hikari.OptionType.CHANNEL
+    assert option.name == "foo"
+    assert option.description == "meow"
+    assert option.is_required is True
+    assert option.min_value is None
+    assert option.max_value is None
+    assert option.channel_types
+    assert len(option.channel_types) == len(expected_types)
+    assert set(option.channel_types) == expected_types
+
+    option = command.build().options[1]
+    assert option.type is hikari.OptionType.CHANNEL
+    assert option.name == "bar"
+    assert option.description == "boom"
+    assert option.is_required is False
+    assert option.min_value is None
+    assert option.max_value is None
+    assert option.channel_types
+    assert len(option.channel_types) == len(expected_types)
+    assert set(option.channel_types) == expected_types
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["foo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "foo"
+    assert tracked_option.name == "foo"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    tracked_option = command._tracked_options["bar"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "bar"
+    assert tracked_option.name == "bar"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
 
 
 def test_with_generic_these_channels():
-    ...
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        bb: typing.Annotated[annotations.TheseChannels[hikari.GuildChannel], "nep"],
+        bat: typing.Annotated[
+            typing.Optional[annotations.TheseChannels[hikari.GuildVoiceChannel, hikari.PrivateChannel]], "bip"
+        ] = None,
+    ):
+        ...
 
+    assert len(command.build().options) == 2
+    option = command.build().options[0]
+    assert option.type is hikari.OptionType.CHANNEL
+    assert option.name == "bb"
+    assert option.description == "nep"
+    assert option.is_required is True
+    assert option.min_value is None
+    assert option.max_value is None
+    assert option.channel_types
+    assert len(option.channel_types) == 5
+    assert set(option.channel_types) == {
+        hikari.ChannelType.GUILD_CATEGORY,
+        hikari.ChannelType.GUILD_NEWS,
+        hikari.ChannelType.GUILD_STAGE,
+        hikari.ChannelType.GUILD_TEXT,
+        hikari.ChannelType.GUILD_VOICE,
+    }
 
-# choice not str, choice not int, choice not float
+    option = command.build().options[1]
+    assert option.type is hikari.OptionType.CHANNEL
+    assert option.name == "bat"
+    assert option.description == "bip"
+    assert option.is_required is False
+    assert option.min_value is None
+    assert option.max_value is None
+    assert option.channel_types
+    assert len(option.channel_types) == 3
+    assert set(option.channel_types) == {
+        hikari.ChannelType.DM,
+        hikari.ChannelType.GROUP_DM,
+        hikari.ChannelType.GUILD_VOICE,
+    }
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["bb"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "bb"
+    assert tracked_option.name == "bb"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    tracked_option = command._tracked_options["bat"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "bat"
+    assert tracked_option.name == "bat"
+    assert tracked_option.type is hikari.OptionType.CHANNEL

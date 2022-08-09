@@ -380,6 +380,7 @@ class Flag(_ConfigIdentifier):
             raise ValueError(f"Flag argument {config.key!r} must have a default")
 
         config.aliases = self.aliases
+        config.empty_value = self.empty_value
 
 
 class _GreedyMeta(abc.ABCMeta):
@@ -886,6 +887,7 @@ class _ArgConfig:
         "converters",
         "default",
         "description",
+        "empty_value",
         "is_greedy",
         "key",
         "max_value",
@@ -903,6 +905,7 @@ class _ArgConfig:
         self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
         self.default: typing.Any = default
         self.description: typing.Optional[str] = None
+        self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
         self.key: str = key
         self.max_value: typing.Union[float, int, None] = None
@@ -952,6 +955,7 @@ class _ArgConfig:
                 *self.aliases or (),
                 converters=converters,
                 default=self.default,
+                empty_value=self.empty_value,
                 min_value=self.min_value,
                 max_value=self.max_value,
             )
@@ -1052,7 +1056,7 @@ def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any
         yield from args[1:]
 
     elif origin in _UnionTypes:
-        yield from map(_snoop_annotation_args, typing.get_args(origin))
+        yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing.get_args(type_)))
 
 
 class _WrappedProto(typing.Protocol):
