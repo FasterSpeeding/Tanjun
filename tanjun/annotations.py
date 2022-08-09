@@ -240,7 +240,7 @@ class _ConvertedMeta(abc.ABCMeta):
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
-    """Marked an argument as type [Str][] with converters.
+    """Marked an argument as type [tanjun.annotations.Str][] with converters.
 
     Examples
     --------
@@ -433,7 +433,7 @@ class _MaxMeta(abc.ABCMeta):
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
-    """Inclusive maximum value for a [Float][] or [Int][] argument.
+    """Inclusive maximum value for a [tanjun.annotations.Float][] or [tanjun.annotations.Int][] argument.
 
     Examples
     --------
@@ -494,7 +494,7 @@ class _MinMeta(abc.ABCMeta):
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
-    """Inclusive minimum value for a [Float][] or [Int][] argument.
+    """Inclusive minimum value for a [tanjun.annotations.Float][] or [tanjun.annotations.Int][] argument.
 
     Examples
     --------
@@ -823,7 +823,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         ---------
         channel_type
             A channel type to restrain this argument by.
-        *channel_types
+        *other_types
             Other channel types to restrain this argument by.
         """
         self._channel_types = (channel_type, *other_types)

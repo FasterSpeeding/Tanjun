@@ -135,7 +135,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             these cache components aren't necessary but simply avoid the converter
             from falling back to REST requests.
 
-        This will be [hikari.config.CacheComponents.NONE][] if the converter doesn't
+        This will be [hikari.api.config.CacheComponents.NONE][] if the converter doesn't
         make cache calls.
         """
 
