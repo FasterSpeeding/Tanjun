@@ -34,7 +34,9 @@
 
 import enum
 import typing
+from collections import abc as collections
 
+import alluka
 import hikari
 import pytest
 
@@ -54,8 +56,49 @@ def test_with_slash_command():
     ...
 
 
+def test_with_no_annotations():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "nyaa")
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context, injected: alluka.Injected[int], other_injected: str = alluka.inject(type=str)
+    ) -> None:
+        ...
+
+    assert command.build().options == []
+    assert command._tracked_options == {}
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
+
+
+def test_with_no_annotations_but_message_parser_already_set():
+    @tanjun.as_message_command("meow")
+    async def command(
+        ctx: tanjun.abc.Context, injected: alluka.Injected[int], other_injected: str = alluka.inject(type=str)
+    ) -> None:
+        ...
+
+    command.set_parser(tanjun.ShlexParser())
+
+    annotations.with_annotated_args(command)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert command.parser.arguments == []
+    assert command.parser.options == []
+
+
 def test_with_slash_command_missing_option_description():
-    ...
+    @tanjun.as_slash_command("meep", "description")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        meow: typing.Annotated[annotations.Bool, "ok"],
+        miss: annotations.Str,
+        nyaa: typing.Annotated[annotations.Channel, "bye"],
+    ) -> None:
+        ...
+
+    with pytest.raises(ValueError, match="Missing description for argument 'miss'"):
+        annotations.with_annotated_args(callback)
 
 
 def test_when_wrapping_slash():
@@ -182,23 +225,170 @@ def test_with_std_slice():
     assert option.min_value == 444
 
 
-def test_with_no_annotations():
-    ...
+_ChoiceT = typing.TypeVar("_ChoiceT", str, int, float)
 
 
-def test_with_annotated_args_generic_choices_overrides_type():
-    ...
+@pytest.mark.parametrize(
+    ("type_cls", "option_type", "choices", "result"),
+    [
+        # With choices dict
+        (
+            annotations.Int,
+            hikari.OptionType.INTEGER,
+            {"pico": 4, "nano": 33, "micro": 69, "milli": 420},
+            [
+                hikari.CommandChoice(name="pico", value=4),
+                hikari.CommandChoice(name="nano", value=33),
+                hikari.CommandChoice(name="micro", value=69),
+                hikari.CommandChoice(name="milli", value=420),
+            ],
+        ),
+        (
+            annotations.Str,
+            hikari.OptionType.STRING,
+            {"Great": "man", "Amazon": "rainforest", "Go": "home", "Yeet": "beep"},
+            [
+                hikari.CommandChoice(name="Great", value="man"),
+                hikari.CommandChoice(name="Amazon", value="rainforest"),
+                hikari.CommandChoice(name="Go", value="home"),
+                hikari.CommandChoice(name="Yeet", value="beep"),
+            ],
+        ),
+        (
+            annotations.Float,
+            hikari.OptionType.FLOAT,
+            {"Small": 6.9420, "medium": 69.420, "large": 240.69},
+            [
+                hikari.CommandChoice(name="Small", value=6.9420),
+                hikari.CommandChoice(name="medium", value=69.420),
+                hikari.CommandChoice(name="large", value=240.69),
+            ],
+        ),
+        # With sequence of choice tuples
+        (
+            annotations.Int,
+            hikari.OptionType.INTEGER,
+            [("Beep", 541234), ("Boop", 12343), ("Boom", 3433), ("Nyaa", 1919191), ("Slutty", 696969)],
+            [
+                hikari.CommandChoice(name="Beep", value=541234),
+                hikari.CommandChoice(name="Boop", value=12343),
+                hikari.CommandChoice(name="Boom", value=3433),
+                hikari.CommandChoice(name="Nyaa", value=1919191),
+                hikari.CommandChoice(name="Slutty", value=696969),
+            ],
+        ),
+        (
+            annotations.Str,
+            hikari.OptionType.STRING,
+            [("Halo", "yeet"), ("Catgirl", "neko"), ("Meow", "slutty"), ("Trans", "gender")],
+            [
+                hikari.CommandChoice(name="Halo", value="yeet"),
+                hikari.CommandChoice(name="Catgirl", value="neko"),
+                hikari.CommandChoice(name="Meow", value="slutty"),
+                hikari.CommandChoice(name="Trans", value="gender"),
+            ],
+        ),
+        (
+            annotations.Float,
+            hikari.OptionType.FLOAT,
+            [("Happy", 0.0), ("Sad", 99.999), ("where", 39393.2)],
+            [
+                hikari.CommandChoice(name="Happy", value=0.0),
+                hikari.CommandChoice(name="Sad", value=99.999),
+                hikari.CommandChoice(name="where", value=39393.2),
+            ],
+        ),
+        # With sequence of choice values
+        (
+            annotations.Int,
+            hikari.OptionType.INTEGER,
+            [123, 543, 234, 765, 876],
+            [
+                hikari.CommandChoice(name="123", value=123),
+                hikari.CommandChoice(name="543", value=543),
+                hikari.CommandChoice(name="234", value=234),
+                hikari.CommandChoice(name="765", value=765),
+                hikari.CommandChoice(name="876", value=876),
+            ],
+        ),
+        (
+            annotations.Str,
+            hikari.OptionType.STRING,
+            ["hi", "bye", "meow", "nyaa", "trans"],
+            [
+                hikari.CommandChoice(name="hi", value="hi"),
+                hikari.CommandChoice(name="bye", value="bye"),
+                hikari.CommandChoice(name="meow", value="meow"),
+                hikari.CommandChoice(name="nyaa", value="nyaa"),
+                hikari.CommandChoice(name="trans", value="trans"),
+            ],
+        ),
+        (
+            annotations.Float,
+            hikari.OptionType.FLOAT,
+            [543.1234, 123.654, 123.543, 123.432],
+            [
+                hikari.CommandChoice(name="543.1234", value=543.1234),
+                hikari.CommandChoice(name="123.654", value=123.654),
+                hikari.CommandChoice(name="123.543", value=123.543),
+                hikari.CommandChoice(name="123.432", value=123.432),
+            ],
+        ),
+    ],
+)
+def test_choices(
+    type_cls: type[_ChoiceT],
+    option_type: hikari.OptionType,
+    choices: collections.Sequence[_ChoiceT],
+    result: collections.Sequence[hikari.CommandChoice],
+):
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("command", "description")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],
+        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = "hi",
+    ):
+        ...
+
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=option_type,
+            name="nope",
+            description="default",
+            is_required=True,
+            choices=result,
+        ),
+        hikari.CommandOption(
+            type=option_type,
+            name="boo",
+            description="be",
+            is_required=False,
+            choices=result,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["nope"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is (option_type is hikari.OptionType.FLOAT)
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "nope"
+    assert tracked_option.name == "nope"
+    assert tracked_option.type is option_type
+
+    tracked_option = callback._tracked_options["boo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "hi"
+    assert tracked_option.is_always_float is (option_type is hikari.OptionType.FLOAT)
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "boo"
+    assert tracked_option.name == "boo"
+    assert tracked_option.type is option_type
 
 
-def test_with_mapping_choices():
-    ...
-
-
-def test_with_tuples_choices():
-    ...
-
-
-def test_with_sequence_of_choices():
+def test_choices_and_mixed_values():
     ...
 
 
@@ -485,19 +675,58 @@ def test_with_flag_inferred_default():
 
 
 def test_with_flag_missing_default():
-    ...
+    @tanjun.as_message_command("meow")
+    async def callback(
+        ctx: tanjun.abc.MessageContext,
+        noooo: typing.Annotated[annotations.Int, annotations.Flag()],
+        eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("hi",))] = 123,
+    ) -> None:
+        ...
 
-
-def test_with_inferred_flag():
-    ...
+    with pytest.raises(ValueError, match="Flag argument 'noooo' must have a default"):
+        annotations.with_annotated_args(callback)
 
 
 def test_with_greedy():
-    ...
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("command")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        meep: typing.Annotated[annotations.Int, annotations.Greedy()],
+    ):
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert len(callback.parser.arguments) == 1
+    argument = callback.parser.arguments[0]
+    assert argument.key == "meep"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.max_value is None
+    assert argument.min_value is None
 
 
 def test_with_generic_greedy():
-    ...
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("command")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        meep: annotations.Greedy[annotations.Str],
+    ):
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert len(callback.parser.arguments) == 1
+    argument = callback.parser.arguments[0]
+    assert argument.key == "meep"
+    assert argument.converters == []
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.max_value is None
+    assert argument.min_value is None
 
 
 def test_with_max():
@@ -671,7 +900,266 @@ def test_with_min_when_not_valid_for_type():
 
 
 def test_with_overridden_name():
-    ...
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("command", "description")
+    @tanjun.as_message_command("command")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        nyaa: typing.Annotated[annotations.Int, annotations.Name("boop"), "Nope"],
+        meow: typing.Annotated[annotations.Str, annotations.Name("meep_meep"), "Description"] = "meowow",
+    ):
+        ...
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="boop",
+            description="Nope",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="meep_meep",
+            description="Description",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["boop"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "nyaa"
+    assert tracked_option.name == "boop"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = callback._tracked_options["meep_meep"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "meowow"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "meow"
+    assert tracked_option.name == "meep_meep"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "nyaa"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.max_value is None
+    assert argument.min_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "meow"
+    assert option.names == ["--meep-meep"]
+    assert option.converters == []
+    assert option.default == "meowow"
+    assert option.is_multi is False
+    assert option.max_value is None
+    assert option.min_value is None
+
+
+def test_with_individually_overridden_name():
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("command", "description")
+    @tanjun.as_message_command("command")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        nyaa: typing.Annotated[annotations.Int, annotations.Name("nom", slash="oop"), "Nope"],
+        meow: typing.Annotated[
+            annotations.Str, annotations.Name("nom2", slash="n", message="--boop-oop"), "Description"
+        ] = "meowow",
+    ):
+        ...
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="oop",
+            description="Nope",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="n",
+            description="Description",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["oop"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "nyaa"
+    assert tracked_option.name == "oop"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = callback._tracked_options["n"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "meowow"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "meow"
+    assert tracked_option.name == "n"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "nyaa"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.max_value is None
+    assert argument.min_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "meow"
+    assert option.names == ["--boop-oop"]
+    assert option.converters == []
+    assert option.default == "meowow"
+    assert option.is_multi is False
+    assert option.max_value is None
+    assert option.min_value is None
+
+
+def test_with_overridden_slash_name():
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("command", "description")
+    @tanjun.as_message_command("command")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        necc: typing.Annotated[annotations.Int, annotations.Name(slash="nom"), "EEEE"],
+        nya: typing.Annotated[annotations.Str, annotations.Name(slash="sex"), "AAAA"] = "meow",
+    ):
+        ...
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="nom",
+            description="EEEE",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="sex",
+            description="AAAA",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["nom"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "necc"
+    assert tracked_option.name == "nom"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = callback._tracked_options["sex"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "meow"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "nya"
+    assert tracked_option.name == "sex"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "necc"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.max_value is None
+    assert argument.min_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "nya"
+    assert option.names == ["--nya"]
+    assert option.converters == []
+    assert option.default == "meow"
+    assert option.is_multi is False
+    assert option.max_value is None
+    assert option.min_value is None
+
+
+def test_with_overridden_message_name():
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("command", "description")
+    @tanjun.as_message_command("command")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        meow_meow: typing.Annotated[annotations.Str, annotations.Name(message="--blam-blam"), "Description"] = "neko",
+    ):
+        ...
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="meow_meow",
+            description="Description",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        )
+    ]
+
+    assert len(callback._tracked_options) == 1
+    tracked_option = callback._tracked_options["meow_meow"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "neko"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "meow_meow"
+    assert tracked_option.name == "meow_meow"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert len(callback.wrapped_command.parser.arguments) == 0
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "meow_meow"
+    assert option.names == ["--blam-blam"]
+    assert option.converters == []
+    assert option.default == "neko"
+    assert option.is_multi is False
+    assert option.max_value is None
+    assert option.min_value is None
 
 
 def test_with_ranged():
@@ -814,15 +1302,19 @@ def test_with_generic_ranged(
     assert option.min_value == min_value
 
 
-def test_with_ranged_when_not_valid_for_type():
-    ...
-
-
 def test_with_snowflake_or():
     ...
 
 
 def test_with_generic_snowflake_or_for_channel():
+    ...
+
+
+def test_with_generic_snowflake_or_for_member():
+    ...
+
+
+def test_with_generic_snowflake_or_for_mentionable():
     ...
 
 

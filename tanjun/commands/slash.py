@@ -1467,9 +1467,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         if min_value is not None and max_value is not None and min_value > max_value:
             raise ValueError("The min value cannot be greater than the max value")
 
+        key = key or name
         _validate_name(name)
-        if self._arg_names is not None and name not in self._arg_names:
-            raise ValueError(f"{name!r} is not a valid keyword argument for {self._callback}")
+        if self._arg_names is not None and key not in self._arg_names:
+            raise ValueError(f"{key!r} is not a valid keyword argument for {self._callback}")
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
@@ -1522,7 +1523,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 always_float=always_float,
                 converters=converters,
                 default=default,
-                key=key or name,
+                key=key,
                 only_member=only_member,
             )
         return self

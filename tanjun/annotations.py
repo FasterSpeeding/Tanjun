@@ -377,7 +377,7 @@ class Flag(_ConfigIdentifier):
             config.default = self._default
 
         if config.default is parsing.UNDEFINED:
-            raise RuntimeError(f"Flag argument {config.key!r} must have a default")
+            raise ValueError(f"Flag argument {config.key!r} must have a default")
 
         config.aliases = self.aliases
 
@@ -685,7 +685,9 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
         config.min_value = self.min_value
 
 
+# _MESSAGE_ID_ONLY
 _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Snowflake]] = {
+    hikari.Member: conversion.parse_user_id,
     hikari.PartialChannel: conversion.parse_channel_id,
     hikari.User: conversion.parse_user_id,
     hikari.Role: conversion.parse_role_id,
@@ -964,7 +966,7 @@ class _ArgConfig:
 
         if option_type:
             if not self.description:
-                raise RuntimeError("Missing slash command description")
+                raise ValueError(f"Missing description for argument {self.key!r}")
 
             self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
 
@@ -982,7 +984,7 @@ class _ArgConfig:
         float: lambda self, c, d: c.add_float_option(
             self.slash_name,
             d,
-            choices=_ensure_values("choice", float, self.choices),
+            choices=_ensure_values("choice", float, self.choices),  # TODO: can we pass ints here as well?
             converters=self.converters or (),
             default=self._slash_default(),
             key=self.key,
