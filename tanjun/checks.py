@@ -480,6 +480,10 @@ class OwnPermissionCheck(_Check):
         if ctx.guild_id is None:
             permissions = utilities.DM_PERMISSIONS
 
+        elif isinstance(ctx, tanjun.SlashContext):
+            assert ctx.interaction.app_permissions is not None
+            permissions = ctx.interaction.app_permissions
+
         elif ctx.cache and (member := ctx.cache.get_member(ctx.guild_id, my_user)):
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
