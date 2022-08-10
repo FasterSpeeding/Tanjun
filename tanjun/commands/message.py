@@ -309,7 +309,12 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     def set_parser(self: _MessageCommandT, parser: typing.Optional[tanjun.MessageParser], /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if parser and self._arg_names is not None:
-            parser.validate_arg_keys(self.callback.__name__, self._arg_names)
+            try:
+                name = self.callback.__name__
+            except AttributeError:  # Not all callables have names
+                name = repr(self.callback)
+
+            parser.validate_arg_keys(name, self._arg_names)
 
         self._parser = parser
         return self
