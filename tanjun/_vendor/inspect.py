@@ -1,7 +1,6 @@
 # See ./inspect.py for the general license this falls  under.
 
-# Vendored from https://github.com/python/cpython/blob/3.10/Lib/inspect.py
-# 83aef4d34022f293336f606dba8598cc7ac8f9f2
+# Vendored from https://github.com/python/cpython/blob/83aef4d34022f293336f606dba8598cc7ac8f9f2/Lib/inspect.py (3.10)
 """Get useful information from live Python objects.
 
 This module encapsulates the interface provided by the internal special
