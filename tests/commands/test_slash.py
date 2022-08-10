@@ -124,7 +124,7 @@ def test_as_slash_command():
     assert command.is_global is False
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 @pytest.mark.parametrize(
@@ -163,7 +163,7 @@ def test_as_slash_command_when_wrapping_command(
     assert command.is_global is True
     assert command._builder._sort_options is True
     assert command.callback is other_command.callback
-    assert command._wrapped_command is other_command
+    assert command.wrapped_command is other_command
     assert isinstance(command, tanjun.SlashCommand)
 
 

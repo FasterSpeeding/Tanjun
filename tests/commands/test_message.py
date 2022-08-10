@@ -74,7 +74,7 @@ def test_as_message_command():
 
     assert command.names == ["a", "b"]
     assert command.callback is mock_callback
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 @pytest.mark.parametrize(
@@ -94,7 +94,7 @@ def test_as_message_command_when_wrapping_command(
 ):
     command = tanjun.as_message_command("a", "b")(other_command)
 
-    assert command._wrapped_command is other_command
+    assert command.wrapped_command is other_command
     assert command.callback is other_command.callback
 
 
@@ -105,7 +105,7 @@ def test_as_message_command_group():
     assert command.names == ["c", "b"]
     assert command.is_strict is True
     assert command.callback is mock_callback
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 @pytest.mark.parametrize(
@@ -125,7 +125,7 @@ def test_as_message_command_group_when_wrapping_command(
 ):
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
 
-    assert command._wrapped_command is other_command
+    assert command.wrapped_command is other_command
     assert command.callback is other_command.callback
 
 

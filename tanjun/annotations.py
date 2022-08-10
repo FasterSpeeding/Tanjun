@@ -109,48 +109,60 @@ _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
 _MentionableUnion = typing.Union[hikari.User, hikari.Role]
 _NumberT = typing.TypeVar("_NumberT", float, int)
 
-_OPTION_MARKER = object()
 
-Attachment = typing.Annotated[hikari.Attachment, _OPTION_MARKER]
+class _ConfigIdentifier(abc.ABC):
+    __slots__ = ()
+
+    @abc.abstractmethod
+    def set_config(self, config: _ArgConfig, /) -> None:
+        raise NotImplementedError
+
+
+class _OptionMarker(_ConfigIdentifier):
+    __slots__ = ("_type",)
+
+    def __init__(self, type_: typing.Any, /) -> None:
+        self._type = type_
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        # Ignore this if a TypeOveride has been found as it takes priority.
+        if config.option_type is None:
+            config.option_type = self._type
+
+
+Attachment = typing.Annotated[hikari.Attachment, _OptionMarker(hikari.Attachment)]
 """An argument which accepts a file.
 
 !!! warning
     This is currently only supported for slash commands.
 """
 
-Bool = typing.Annotated[bool, _OPTION_MARKER]
+Bool = typing.Annotated[bool, _OptionMarker(bool)]
 """An argument which takes a bool-like value."""
 
-Channel = typing.Annotated[hikari.PartialChannel, _OPTION_MARKER]
+Channel = typing.Annotated[hikari.PartialChannel, _OptionMarker(hikari.PartialChannel)]
 """An argument which takes a channel."""
 
-Float = typing.Annotated[float, _OPTION_MARKER]
+Float = typing.Annotated[float, _OptionMarker(float)]
 """An argument which takes a floating point number."""
 
-Int = typing.Annotated[int, _OPTION_MARKER]
+Int = typing.Annotated[int, _OptionMarker(int)]
 """An argument which takes an integer."""
 
-Member = typing.Annotated[hikari.Member, _OPTION_MARKER]
+Member = typing.Annotated[hikari.Member, _OptionMarker(hikari.Member)]
 """An argument which takes a guild member."""
 
-Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OPTION_MARKER]
+Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OptionMarker(_MentionableUnion)]
 """An argument which takes a user or role."""
 
-Role = typing.Annotated[hikari.Role, _OPTION_MARKER]
+Role = typing.Annotated[hikari.Role, _OptionMarker(hikari.Role)]
 """An argument which takes a role."""
 
-Str = typing.Annotated[str, _OPTION_MARKER]
+Str = typing.Annotated[str, _OptionMarker(str)]
 """An argument which takes string input."""
 
-User = typing.Annotated[hikari.User, _OPTION_MARKER]
+User = typing.Annotated[hikari.User, _OptionMarker(hikari.User)]
 """An argument which takes a user."""
-
-
-class _ConfigIdentifier(abc.ABC):
-    __slots__ = ()
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        raise NotImplementedError
 
 
 class _ChoicesMeta(abc.ABCMeta):
@@ -428,9 +440,9 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.Annotated[int, Max(value), _OPTION_MARKER]
+            return typing.Annotated[Int, Max(value)]
 
-        return typing.Annotated[float, Max(value), _OPTION_MARKER]
+        return typing.Annotated[Float, Max(value)]
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
@@ -489,9 +501,9 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 class _MinMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.Annotated[int, Min(value), _OPTION_MARKER]
+            return typing.Annotated[Int, Min(value)]
 
-        return typing.Annotated[float, Min(value), _OPTION_MARKER]
+        return typing.Annotated[Float, Min(value)]
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
@@ -621,9 +633,9 @@ class _RangedMeta(abc.ABCMeta):
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
         if isinstance(range_[0], float) or isinstance(range_[1], float):
-            return typing.Annotated[float, Ranged(range_[0], range_[1]), _OPTION_MARKER]
+            return typing.Annotated[Float, Ranged(range_[0], range_[1])]
 
-        return typing.Annotated[int, Ranged(range_[0], range_[1]), _OPTION_MARKER]
+        return typing.Annotated[Int, Ranged(range_[0], range_[1])]
 
 
 class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
@@ -804,7 +816,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, typing.Collection):
             value = (value,)
 
-        return typing.Annotated[hikari.PartialChannel, TheseChannels(*value), _OPTION_MARKER]
+        return typing.Annotated[Channel, TheseChannels(*value)]
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
@@ -866,7 +878,7 @@ def _ensure_values(
 
 
 _OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], _ConverterSig[typing.Any]] = {
-    # hikari.Attachment: NotImplemented,
+    hikari.Attachment: NotImplemented,
     bool: (conversion.to_bool,),
     hikari.PartialChannel: (conversion.to_channel,),
     float: (float,),
@@ -928,8 +940,11 @@ class _ArgConfig:
             if self.snowflake_converter and self.option_type in _MESSAGE_ID_ONLY:
                 converters = (self.snowflake_converter,)
 
+            elif (converters_ := _OPTION_TYPE_TO_CONVERTERS[self.option_type]) is not NotImplemented:
+                converters = converters_
+
             else:
-                converters = _OPTION_TYPE_TO_CONVERTERS[self.option_type]
+                return
 
         else:
             return
@@ -1124,15 +1139,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
             parameter.name, parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         )
         for arg in _snoop_annotation_args(parameter.annotation):
-            # Ignore this if a TypeOveride has been found as it takes priority.
-            if arg is _OPTION_MARKER and arg_config.option_type is None:
-                try:
-                    arg_config.option_type = next(_snoop_types(parameter.annotation))
-
-                except StopIteration:
-                    raise RuntimeError(f"{parameter.annotation} is not an expected type") from None
-
-            elif isinstance(arg, _ConfigIdentifier):
+            if isinstance(arg, _ConfigIdentifier):
                 arg.set_config(arg_config)
 
             elif isinstance(arg, str):
