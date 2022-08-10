@@ -923,8 +923,16 @@ def test_with_generic_str_choices():
     assert option.max_value is None
 
 
-def test_with_generic_choices_when_enum_isnt_int_str_or_float():
+def test_with_generic_choices_when_enum_has_no_other_base():
     class Choices(enum.Enum):
+        ...
+
+    with pytest.raises(ValueError, match="Enum must be a subclsas of str, float or int"):
+        annotations.Choices[Choices]
+
+
+def test_with_generic_choices_when_enum_isnt_int_str_or_float():
+    class Choices(bytes, enum.Enum):
         ...
 
     with pytest.raises(ValueError, match="Enum must be a subclsas of str, float or int"):
