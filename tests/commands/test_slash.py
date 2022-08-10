@@ -453,7 +453,7 @@ def test_with_channel_slash_option():
     result = tanjun.with_channel_slash_option(
         "channel",
         "channel?",
-        types=(hikari.GuildCategory, hikari.TextableChannel),
+        types=(hikari.GuildCategory, hikari.TextableChannel, hikari.ChannelType.GROUP_DM, hikari.ChannelType.DM),
         default=333,
         key="neko",
         pass_as_kwarg=False,
@@ -463,7 +463,7 @@ def test_with_channel_slash_option():
     mock_command.add_channel_option.assert_called_once_with(
         "channel",
         "channel?",
-        types=(hikari.GuildCategory, hikari.TextableChannel),
+        types=(hikari.GuildCategory, hikari.TextableChannel, hikari.ChannelType.GROUP_DM, hikari.ChannelType.DM),
         default=333,
         key="neko",
         pass_as_kwarg=False,
@@ -1973,8 +1973,23 @@ class TestSlashCommand:
                 [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
             ),
             (
-                [hikari.TextableGuildChannel, hikari.GuildNewsChannel],
-                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+                types := [hikari.ChannelType.GROUP_DM, hikari.ChannelType.DM, hikari.ChannelType.GUILD_NEWS],
+                types,
+            ),
+            (
+                [
+                    hikari.TextableGuildChannel,
+                    hikari.GuildNewsChannel,
+                    hikari.ChannelType.DM,
+                    hikari.ChannelType.GUILD_STAGE,
+                ],
+                [
+                    hikari.ChannelType.GUILD_VOICE,
+                    hikari.ChannelType.GUILD_TEXT,
+                    hikari.ChannelType.GUILD_NEWS,
+                    hikari.ChannelType.DM,
+                    hikari.ChannelType.GUILD_STAGE,
+                ],
             ),
             ([hikari.GuildVoiceChannel], [hikari.ChannelType.GUILD_VOICE]),
             (
@@ -1987,7 +2002,7 @@ class TestSlashCommand:
     def test_add_channel_option_types_behaviour(
         self,
         command: tanjun.SlashCommand[typing.Any],
-        classes: list[type[hikari.PartialChannel]],
+        classes: list[typing.Union[type[hikari.PartialChannel], int]],
         int_types: typing.Optional[list[int]],
     ):
         command.add_channel_option("channel", "chaaa", types=classes)

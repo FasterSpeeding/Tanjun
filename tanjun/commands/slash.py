@@ -631,7 +631,7 @@ def with_channel_slash_option(
     description: str,
     /,
     *,
-    types: typing.Union[collections.Collection[type[hikari.PartialChannel]], None] = None,
+    types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     pass_as_kwarg: bool = True,
