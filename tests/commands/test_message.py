@@ -309,6 +309,19 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match="'bang' is not a valid keyword argument for test_command"):
             test_command.set_parser(parser)
 
+    def test_set_parser_when_callback_has_no_name(self):
+        class OtherCallback:
+            async def __call__(self, ctx: tanjun.abc.Context, name: str, beep: int) -> None:
+                ...
+
+        other_callback = OtherCallback()
+        assert not hasattr(other_callback, "__name__")
+        parser = tanjun.parsing.ShlexParser()
+        tanjun.MessageCommand(other_callback, "name", validate_arg_keys=True).set_parser(parser)
+
+        with pytest.raises(ValueError, match=f"'boop' is not a valid keyword argument for {repr(other_callback)}"):
+            parser.add_argument("boop")
+
     def test_bind_client(self):
         mock_client = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
