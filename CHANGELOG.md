@@ -5,7 +5,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [2.5.3a1] - 2022-07-02
+
+## [2.5.4a1] - 2022-08-11
+### Added
+- V2 application permissions and `dms_enabled` config to slash and menu commands.
+- Signature name validation for command options.
+- `wrapped_command` properties to `tanjun.SlashCommand`, `tanjun.MessageCommand` and `tanjun.MenuCommand`
+  for interospecting wrapped commands.
+- `key` argument to the `add_{}_slash_option` methods and `with_{}_slash_option` functions to allow the
+  argument's name in the callback's signature to be different from the option's declared name.
+- Signature type-hint based command option declaration for both message and slash commands. More
+  information about this can be found in [tanjun.annotations][].
+- Allow multiple events to be passed to `Client.with_listener`/`Component.with_listener` in one call.
+
+### Changed
+- If no events are passed to `Client.with_listener`/`Component.with_listener` it will now try to infer
+  the event type(s) from the callback's type-hints.
+
+### Fixed
+- Slash command parent command tracking.
+
+## [2.5.3a1] - 2022-07-04
 ### Added
 - Support for sending attachments with `Context.respond`, `CommandError` and
   `SlashContext.create_initial_response`.
@@ -603,7 +623,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.3a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.4a1...HEAD
+[2.5.4a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.3a1...v2.5.4a1
 [2.5.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.2a1...v2.5.3a1
 [2.5.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.1a1...v2.5.2a1
 [2.5.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.0a1...v2.5.1a1

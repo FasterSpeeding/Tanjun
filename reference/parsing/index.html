@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.3.9">
     
     
       
@@ -337,6 +337,20 @@
     <li class="md-nav__item">
       <a href="../abc/" class="md-nav__link">
         tanjun.abc
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotations/" class="md-nav__link">
+        tanjun.annotations
       </a>
     </li>
   
@@ -709,6 +723,20 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.max_value" class="md-nav__link">
+    max_value()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.min_value" class="md-nav__link">
+    min_value()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1062,6 +1090,20 @@
           <li class="md-nav__item">
   <a href="#tanjun.parsing.Parameter.key" class="md-nav__link">
     key()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.max_value" class="md-nav__link">
+    max_value()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.min_value" class="md-nav__link">
+    min_value()
   </a>
   
 </li>
@@ -1500,6 +1542,28 @@ with the result of them.</p>
     </tbody>
   </table>
 
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this parser is linked
+to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
@@ -1693,6 +1757,28 @@ with the result of them.</p>
           </td>
           <td class="doc-returns-details">
             <p>This parser to enable chained calls.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this parser is linked
+to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
           </td>
         </tr>
     </tbody>
@@ -2436,6 +2522,54 @@ this parameter (with each entry being converted separately.)</p>
 
 </div>
 
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.max_value" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">max_value</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.parsing.Parameter.max_value" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>If set, this parameters's parsed values will have to be less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible with the
+result of them.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.min_value" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">min_value</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.parsing.Parameter.min_value" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>If set, this parameters's parsed values will have to be greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible with the
+result of them.</p>
+
+  </div>
+
+</div>
+
 
 
   </div>
@@ -2567,6 +2701,16 @@ argument is located in a command's signature.</p>
 this decorator call then this will set
 <a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
 </div>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -2718,15 +2862,27 @@ with the result of them.</p>
     </tbody>
   </table>
 
-<p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="o">...</span>
-</code></pre></div>
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this command's parser is
+linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -2762,6 +2918,16 @@ argument is located in a command's signature.</p>
 this decorator call then this will set
 <a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
 </div>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_greedy_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">StringView</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">StringView</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -2880,15 +3046,27 @@ with the result of them.</p>
     </tbody>
   </table>
 
-<p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_greedy_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">StringView</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">StringView</span><span class="p">):</span>
-    <span class="o">...</span>
-</code></pre></div>
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this command's parser is
+linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -2926,6 +3104,16 @@ this decorator call then this will set
 <a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
 </div>
 
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+    <span class="o">...</span>
+</code></pre></div>
+
   <table>
     <thead>
       <tr>
@@ -3043,15 +3231,27 @@ with the result of them.</p>
     </tbody>
   </table>
 
-<p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-    <span class="o">...</span>
-</code></pre></div>
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this command's parser is
+linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -3080,6 +3280,16 @@ a default is set.</p>
 this decorator call then this will set
 <a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
 </div>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -3241,15 +3451,27 @@ with the result of them.</p>
     </tbody>
   </table>
 
-<p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-    <span class="o">...</span>
-</code></pre></div>
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this command's parser is
+linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
@@ -3274,6 +3496,16 @@ with the result of them.</p>
 this decorator call then this will set
 <a class="autorefs autorefs-internal" href="#tanjun.parsing.ShlexParser">ShlexParser</a> as the parser.</p>
 </div>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -3451,15 +3683,27 @@ with the result of them.</p>
     </tbody>
   </table>
 
-<p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="o">...</span>
-</code></pre></div>
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>key</code> isn't valid for any of the commands this command's parser is
+linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
