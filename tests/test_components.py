@@ -37,7 +37,9 @@
 
 import asyncio
 import inspect
+import sys
 import types
+import typing
 from unittest import mock
 
 import hikari
@@ -1037,6 +1039,165 @@ class TestComponent:
 
         assert result is mock_listener
         add_listener.assert_called_once_with(hikari.Event, mock_listener)
+
+    def test_with_listener_no_provided_event(self):
+        async def callback(foo) -> None:  # type: ignore
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        with pytest.raises(ValueError, match="Missing event argument annotation"):
+            component.with_listener()(callback)
+
+        add_listener.assert_not_called()
+
+    def test_with_listener_no_provided_event_callback_has_no_signature(self):
+        with pytest.raises(ValueError, match=".+"):
+            inspect.Signature.from_callable(int)
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        with pytest.raises(ValueError, match="Missing event type"):
+            component.with_listener()(int)  # type: ignore
+
+        add_listener.assert_not_called()
+
+    def test_with_listener_missing_positional_event_arg(self):
+        async def callback(*, event: hikari.Event, **kwargs: str) -> None:
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        with pytest.raises(ValueError, match="Missing positional event argument"):
+            component.with_listener()(callback)
+
+        add_listener.assert_not_called()
+
+    def test_with_listener_no_args(self):
+        async def callback() -> None:
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        with pytest.raises(ValueError, match="Missing positional event argument"):
+            component.with_listener()(callback)
+
+        add_listener.assert_not_called()
+
+    def test_with_listener_with_multiple_events(self):
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+        mock_callback = mock.Mock()
+
+        result = component.with_listener(hikari.GuildAvailableEvent, hikari.GuildLeaveEvent, hikari.GuildChannelEvent)(
+            mock_callback
+        )
+
+        assert result is mock_callback
+        add_listener.assert_has_calls(
+            [
+                mock.call(hikari.GuildAvailableEvent, mock_callback),
+                mock.call(hikari.GuildLeaveEvent, mock_callback),
+                mock.call(hikari.GuildChannelEvent, mock_callback),
+            ]
+        )
+
+    def test_with_listener_with_type_hint(self):
+        async def callback(event: hikari.BanCreateEvent) -> None:
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        result = component.with_listener()(callback)
+
+        assert result is callback
+        add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
+
+    def test_with_listener_with_positional_only_type_hint(self):
+        async def callback(event: hikari.BanDeleteEvent, /) -> None:
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        result = component.with_listener()(callback)
+
+        assert result is callback
+        add_listener.assert_called_once_with(hikari.BanDeleteEvent, callback)
+
+    def test_with_listener_with_var_positional_type_hint(self):
+        async def callback(*event: hikari.BanEvent) -> None:
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        result = component.with_listener()(callback)
+
+        assert result is callback
+        add_listener.assert_called_once_with(hikari.BanEvent, callback)
+
+    def test_with_listener_with_type_hint_union(self):
+        async def callback(event: typing.Union[hikari.RoleEvent, hikari.GuildEvent]) -> None:
+            ...
+
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
+
+        result = component.with_listener()(callback)
+
+        assert result is callback
+        add_listener.assert_has_calls(
+            [
+                mock.call(hikari.RoleEvent, callback),
+                mock.call(hikari.GuildEvent, callback),
+            ]
+        )
+
+    # These tests covers syntax which was introduced in 3.10
+    if sys.version_info >= (3, 10):
+
+        def test_with_listener_with_type_hint_310_union(self):
+            async def callback(event: hikari.ShardEvent | hikari.VoiceEvent) -> None:
+                ...
+
+            add_listener = mock.Mock()
+            component: tanjun.Component = types.new_class(
+                "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+            )()
+
+            result = component.with_listener()(callback)
+
+            assert result is callback
+            add_listener.assert_has_calls(
+                [
+                    mock.call(hikari.ShardEvent, callback),
+                    mock.call(hikari.VoiceEvent, callback),
+                ]
+            )
 
     def test_add_on_close(self):
         mock_callback = mock.Mock()

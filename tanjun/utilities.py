@@ -45,7 +45,6 @@ __all__: list[str] = [
 ]
 
 import asyncio
-import inspect
 import sys
 import types
 import typing
@@ -492,13 +491,28 @@ def get_kwargs(callback: collections.Callable[..., typing.Any]) -> list[str] | N
     return names
 
 
+_POSITIONAL_TYPES = {
+    inspect.Parameter.POSITIONAL_ONLY,
+    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+    inspect.Parameter.VAR_POSITIONAL,
+}
+
+
 def infer_listener_types(
     callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], /
 ) -> collections.Sequence[type[hikari.Event]]:
     try:
-        parameter = next(iter(inspect.Signature.from_callable(callback, eval_str=True).parameters.values()))
+        signature = inspect.Signature.from_callable(callback, eval_str=True)
+    except ValueError:  #  Callback has no signature
+        raise ValueError("Missing event type") from None
+
+    try:
+        parameter = next(iter(signature.parameters.values()))
 
     except StopIteration:
+        parameter = None
+
+    if not parameter or parameter.kind not in _POSITIONAL_TYPES:
         raise ValueError("Missing positional event argument") from None
 
     if parameter.annotation is parameter.empty:
