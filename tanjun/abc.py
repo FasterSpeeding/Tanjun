@@ -2656,6 +2656,21 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """
 
     @abc.abstractmethod
+    def copy(self: _T, *, parent: typing.Optional[SlashCommandGroup] = None) -> _T:
+        """Create a copy of this command.
+
+        Parameters
+        ----------
+        parent
+            The parent of the copy.
+
+        Returns
+        -------
+        Self
+            The copy.
+        """
+
+    @abc.abstractmethod
     def set_parent(self: _T, parent: typing.Optional[SlashCommandGroup], /) -> _T:
         raise NotImplementedError
 
