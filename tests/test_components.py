@@ -1173,7 +1173,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanEvent, callback)
 
     def test_with_listener_with_type_hint_union(self):
-        async def callback(event: typing.Union[hikari.RoleEvent, hikari.GuildEvent]) -> None:
+        async def callback(event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]) -> None:
             ...
 
         add_listener = mock.Mock()
@@ -1224,7 +1224,7 @@ class TestComponent:
     if sys.version_info >= (3, 10):
 
         def test_with_listener_with_type_hint_310_union(self):
-            async def callback(event: hikari.ShardEvent | hikari.VoiceEvent) -> None:
+            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None:
                 ...
 
             add_listener = mock.Mock()
