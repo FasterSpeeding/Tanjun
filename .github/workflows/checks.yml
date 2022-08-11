@@ -102,16 +102,16 @@ jobs:
   # TODO: Could we switch over to gather coverage from the normal test runs and combining
   # the result once https://github.com/nedbat/coveragepy/issues/1002 is fixed?
   upload-coverage:
-    needs: [test]
+    # needs: [test]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.9  # 10
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.9"  # 10
 
       - name: install prerequisites
         run: |

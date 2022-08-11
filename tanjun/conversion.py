@@ -135,7 +135,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             these cache components aren't necessary but simply avoid the converter
             from falling back to REST requests.
 
-        This will be [hikari.config.CacheComponents.NONE][] if the converter doesn't
+        This will be [hikari.api.config.CacheComponents.NONE][] if the converter doesn't
         make cache calls.
         """
 
@@ -1393,7 +1393,7 @@ def to_datetime(value: str, /) -> datetime.datetime:
     """Parse a datetime from Discord's datetime format.
 
     More information on this format can be found at
-    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+    <https://discord.com/developers/docs/reference#message-formatting-timestamp-styles>
 
     Parameters
     ----------
@@ -1426,7 +1426,7 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
     """Format a datetime as Discord's datetime format.
 
     More information on this format can be found at
-    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+    <https://discord.com/developers/docs/reference#message-formatting-timestamp-styles>
 
     Parameters
     ----------
@@ -1436,7 +1436,7 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
         The style to use.
 
         The valid styles can be found at
-        https://discord.com/developers/docs/reference#message-formatting-formats.
+        <https://discord.com/developers/docs/reference#message-formatting-formats>.
 
     Returns
     -------

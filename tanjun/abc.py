@@ -315,7 +315,7 @@ class Context(alluka.Context):
 
         !!! note
             This performs an API call. Consider using [tanjun.abc.Context.get_channel][]
-            if you have [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
+            if you have [hikari.api.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
 
         Returns
         -------
@@ -354,7 +354,7 @@ class Context(alluka.Context):
 
         !!! note
             This performs an API call. Consider using [tanjun.abc.Context.get_guild][]
-            if you have [hikari.config.CacheComponents.GUILDS][] cache component enabled.
+            if you have [hikari.api.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
         -------
@@ -390,7 +390,7 @@ class Context(alluka.Context):
         """Retrieve the channel the context was invoked in from the cache.
 
         !!! note
-            This method requires the [hikari.config.CacheComponents.GUILD_CHANNELS][]
+            This method requires the [hikari.api.config.CacheComponents.GUILD_CHANNELS][]
             cache component.
 
         Returns
@@ -406,7 +406,7 @@ class Context(alluka.Context):
         """Fetch the guild that the context was invoked in.
 
         !!! note
-            This method requires [hikari.config.CacheComponents.GUILDS][] cache
+            This method requires [hikari.api.config.CacheComponents.GUILDS][] cache
             component enabled.
 
         Returns
@@ -1915,7 +1915,7 @@ class AutocompleteContext(alluka.Context):
 
         !!! note
             This performs an API call. Consider using [tanjun.abc.AutocompleteContext.get_channel][]
-            if you have [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
+            if you have [hikari.api.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
 
         Returns
         -------
@@ -1954,7 +1954,7 @@ class AutocompleteContext(alluka.Context):
 
         !!! note
             This performs an API call. Consider using [tanjun.abc.AutocompleteContext.get_guild][]
-            if you have [hikari.config.CacheComponents.GUILDS][] cache component enabled.
+            if you have [hikari.api.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
         -------
@@ -1990,7 +1990,7 @@ class AutocompleteContext(alluka.Context):
         """Retrieve the channel the context was invoked in from the cache.
 
         !!! note
-            This method requires the [hikari.config.CacheComponents.GUILD_CHANNELS][] cache component.
+            This method requires the [hikari.api.config.CacheComponents.GUILD_CHANNELS][] cache component.
 
         Returns
         -------
@@ -2005,7 +2005,7 @@ class AutocompleteContext(alluka.Context):
         """Fetch the guild that the context was invoked in.
 
         !!! note
-            This method requires [hikari.config.CacheComponents.GUILDS][] cache component enabled.
+            This method requires [hikari.api.config.CacheComponents.GUILDS][] cache component enabled.
 
         Returns
         -------

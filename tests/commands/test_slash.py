@@ -124,7 +124,7 @@ def test_as_slash_command():
     assert command.is_global is False
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 @pytest.mark.parametrize(
@@ -163,7 +163,7 @@ def test_as_slash_command_when_wrapping_command(
     assert command.is_global is True
     assert command._builder._sort_options is True
     assert command.callback is other_command.callback
-    assert command._wrapped_command is other_command
+    assert command.wrapped_command is other_command
     assert isinstance(command, tanjun.SlashCommand)
 
 
@@ -188,6 +188,7 @@ def test_with_attachment_slash_option():
         "meow_meow",
         "nyaa_nyaa",
         default="h",
+        key="meow",
         pass_as_kwarg=False,
     )(mock_command)
 
@@ -196,6 +197,7 @@ def test_with_attachment_slash_option():
         "meow_meow",
         "nyaa_nyaa",
         default="h",
+        key="meow",
         pass_as_kwarg=False,
     )
 
@@ -207,7 +209,7 @@ def test_with_attachment_slash_option_with_defaults():
 
     assert result is mock_command.add_attachment_option.return_value
     mock_command.add_attachment_option.assert_called_once_with(
-        "meow", "nyaa", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "meow", "nyaa", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -223,6 +225,7 @@ def test_with_str_slash_option():
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
         default="ANY",
+        key="bang",
         pass_as_kwarg=False,
     )(mock_command)
 
@@ -234,6 +237,7 @@ def test_with_str_slash_option():
         default="ANY",
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
+        key="bang",
         pass_as_kwarg=False,
         _stack_level=1,
     )
@@ -252,6 +256,7 @@ def test_with_str_slash_option_with_defaults():
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
+        key=None,
         pass_as_kwarg=True,
         _stack_level=1,
     )
@@ -269,6 +274,7 @@ def test_with_int_slash_option():
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
+        key="eep",
         min_value=1123,
         max_value=312123,
         pass_as_kwarg=False,
@@ -282,6 +288,7 @@ def test_with_int_slash_option():
         choices={"a": 123},
         converters=[mock_converter],
         default=321123,
+        key="eep",
         min_value=1123,
         max_value=312123,
         pass_as_kwarg=False,
@@ -302,6 +309,7 @@ def test_with_int_slash_option_with_defaults():
         choices=None,
         converters=(),
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        key=None,
         min_value=None,
         max_value=None,
         pass_as_kwarg=True,
@@ -322,6 +330,7 @@ def test_with_float_slash_option():
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
         default=21.321,
+        key="blam",
         min_value=56.234,
         max_value=765.234,
         pass_as_kwarg=False,
@@ -336,6 +345,7 @@ def test_with_float_slash_option():
         default=21.321,
         choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
+        key="blam",
         min_value=56.234,
         max_value=765.234,
         pass_as_kwarg=False,
@@ -357,6 +367,7 @@ def test_with_float_slash_option_with_defaults():
         default=tanjun.commands.slash.UNDEFINED_DEFAULT,
         choices=None,
         converters=(),
+        key=None,
         min_value=None,
         max_value=None,
         pass_as_kwarg=True,
@@ -367,10 +378,14 @@ def test_with_float_slash_option_with_defaults():
 def test_with_bool_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_bool_slash_option("bool", "bool me man", default=False, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_bool_slash_option("bool", "bool me man", default=False, key="audience", pass_as_kwarg=False)(
+        mock_command
+    )
 
     assert result is mock_command.add_bool_option.return_value
-    mock_command.add_bool_option.assert_called_once_with("bool", "bool me man", default=False, pass_as_kwarg=False)
+    mock_command.add_bool_option.assert_called_once_with(
+        "bool", "bool me man", default=False, key="audience", pass_as_kwarg=False
+    )
 
 
 def test_with_bool_slash_option_with_defaults():
@@ -380,20 +395,20 @@ def test_with_bool_slash_option_with_defaults():
 
     assert result is mock_command.add_bool_option.return_value
     mock_command.add_bool_option.assert_called_once_with(
-        "bool", "bool me man", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "bool", "bool me man", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
 def test_with_user_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_user_slash_option("victim", "who're we getting next?", default=123321, pass_as_kwarg=False)(
-        mock_command
-    )
+    result = tanjun.with_user_slash_option(
+        "victim", "who're we getting next?", default=123321, key="op", pass_as_kwarg=False
+    )(mock_command)
 
     assert result is mock_command.add_user_option.return_value
     mock_command.add_user_option.assert_called_once_with(
-        "victim", "who're we getting next?", default=123321, pass_as_kwarg=False
+        "victim", "who're we getting next?", default=123321, key="op", pass_as_kwarg=False
     )
 
 
@@ -404,17 +419,21 @@ def test_with_user_slash_option_with_defaults():
 
     assert result is mock_command.add_user_option.return_value
     mock_command.add_user_option.assert_called_once_with(
-        "victim", "who're we getting next?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "victim",
+        "who're we getting next?",
+        default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        key=None,
+        pass_as_kwarg=True,
     )
 
 
 def test_with_member_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321)(mock_command)
+    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321, key="member")(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321)
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321, key="member")
 
 
 def test_with_member_slash_option_with_defaults():
@@ -424,7 +443,7 @@ def test_with_member_slash_option_with_defaults():
 
     assert result is mock_command.add_member_option.return_value
     mock_command.add_member_option.assert_called_once_with(
-        "no", "hihihi?", default=tanjun.commands.slash.UNDEFINED_DEFAULT
+        "no", "hihihi?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None
     )
 
 
@@ -432,12 +451,22 @@ def test_with_channel_slash_option():
     mock_command = mock.MagicMock()
 
     result = tanjun.with_channel_slash_option(
-        "channel", "channel?", types=(hikari.GuildCategory, hikari.TextableChannel), default=333, pass_as_kwarg=False
+        "channel",
+        "channel?",
+        types=(hikari.GuildCategory, hikari.TextableChannel, hikari.ChannelType.GROUP_DM, hikari.ChannelType.DM),
+        default=333,
+        key="neko",
+        pass_as_kwarg=False,
     )(mock_command)
 
     assert result is mock_command.add_channel_option.return_value
     mock_command.add_channel_option.assert_called_once_with(
-        "channel", "channel?", types=(hikari.GuildCategory, hikari.TextableChannel), default=333, pass_as_kwarg=False
+        "channel",
+        "channel?",
+        types=(hikari.GuildCategory, hikari.TextableChannel, hikari.ChannelType.GROUP_DM, hikari.ChannelType.DM),
+        default=333,
+        key="neko",
+        pass_as_kwarg=False,
     )
 
 
@@ -448,17 +477,21 @@ def test_with_channel_slash_option_with_defaults():
 
     assert result is mock_command.add_channel_option.return_value
     mock_command.add_channel_option.assert_called_once_with(
-        "channel", "channel?", types=None, default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "channel", "channel?", types=None, default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
 def test_with_role_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_role_slash_option("role", "role?", default=333, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_role_slash_option("role", "role?", default=333, key="paradise", pass_as_kwarg=False)(
+        mock_command
+    )
 
     assert result is mock_command.add_role_option.return_value
-    mock_command.add_role_option.assert_called_once_with("role", "role?", default=333, pass_as_kwarg=False)
+    mock_command.add_role_option.assert_called_once_with(
+        "role", "role?", default=333, key="paradise", pass_as_kwarg=False
+    )
 
 
 def test_with_role_slash_option_with_defaults():
@@ -468,17 +501,21 @@ def test_with_role_slash_option_with_defaults():
 
     assert result is mock_command.add_role_option.return_value
     mock_command.add_role_option.assert_called_once_with(
-        "role", "role?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "role", "role?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
 def test_with_mentionable_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_mentionable_slash_option("mentu", "mentu?", default=333, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_mentionable_slash_option("mentu", "mentu?", default=333, key="gun", pass_as_kwarg=False)(
+        mock_command
+    )
 
     assert result is mock_command.add_mentionable_option.return_value
-    mock_command.add_mentionable_option.assert_called_once_with("mentu", "mentu?", default=333, pass_as_kwarg=False)
+    mock_command.add_mentionable_option.assert_called_once_with(
+        "mentu", "mentu?", default=333, key="gun", pass_as_kwarg=False
+    )
 
 
 def test_with_mentionable_slash_option_with_defaults():
@@ -488,7 +525,7 @@ def test_with_mentionable_slash_option_with_defaults():
 
     assert result is mock_command.add_mentionable_option.return_value
     mock_command.add_mentionable_option.assert_called_once_with(
-        "mentu", "mentu?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "mentu", "mentu?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -497,6 +534,7 @@ class Test_TrackedOption:
         mock_converter = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="name",
+            key="meow",
             option_type=hikari.OptionType.FLOAT,
             always_float=False,
             converters=[mock_converter],
@@ -505,6 +543,7 @@ class Test_TrackedOption:
         )
 
         assert option.name == "name"
+        assert option.key == "meow"
         assert option.type is hikari.OptionType.FLOAT
         assert option.is_always_float is False
         assert option.converters == [mock_converter]
@@ -514,7 +553,7 @@ class Test_TrackedOption:
     @pytest.mark.asyncio()
     async def test_convert_when_no_converters(self):
         mock_value = mock.Mock()
-        option = tanjun.commands.slash._TrackedOption(name="hi", option_type=hikari.OptionType.INTEGER)
+        option = tanjun.commands.slash._TrackedOption(name="hi", key="bye", option_type=hikari.OptionType.INTEGER)
 
         assert await option.convert(mock.Mock(), mock_value) is mock_value
 
@@ -528,7 +567,7 @@ class Test_TrackedOption:
         mock_context.call_with_async_di = mock.AsyncMock(side_effect=[exc_1, exc_2])
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
-            name="no", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
+            name="no", key="beep", option_type=hikari.OptionType.FLOAT, converters=[mock_converter_1, mock_converter_2]
         )
 
         with pytest.raises(tanjun.ConversionError) as exc_info:
@@ -552,6 +591,7 @@ class Test_TrackedOption:
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="no",
+            key="boop",
             option_type=hikari.OptionType.FLOAT,
             converters=[mock_converter_1, mock_converter_2, mock_converter_3],
         )
@@ -1004,21 +1044,21 @@ class TestSlashCommand:
 
         command = tanjun.SlashCommand(int, "name", "description")  # type: ignore
 
-        command.add_str_option("meow", "description").add_int_option("nom", "nom")
+        command.add_str_option("meow", "description").add_int_option("nom", "nom", key="no")
 
     def test__add_option_when_kwargs(self):
         @tanjun.as_slash_command("name", "description")
         async def command(ctx: tanjun.abc.SlashContext, **kwargs: typing.Any):
             ...
 
-        command.add_str_option("meow", "description").add_int_option("nom", "nom")
+        command.add_str_option("meow", "description").add_int_option("nom", "nom", key="no")
 
     def test__add_option_when_valid_name(self):
         @tanjun.as_slash_command("name", "description")
         async def command(ctx: tanjun.abc.SlashContext, meowth: str, bam: int):
             ...
 
-        command.add_str_option("meowth", "description").add_int_option("bam", "bam")
+        command.add_str_option("meowth", "description").add_int_option("bams", "bams", key="bam")
 
     def test__add_option_when_invalid_key(self):
         @tanjun.as_slash_command("name", "description")
@@ -1028,6 +1068,14 @@ class TestSlashCommand:
         with pytest.raises(ValueError, match=f"'meow' is not a valid keyword argument for {command.callback}"):
             command.add_str_option("meow", "description")
 
+    def test__add_option_when_invalid_overridden_key(self):
+        @tanjun.as_slash_command("name", "description")
+        async def command(ctx: tanjun.abc.SlashContext, *args: str, meow: str):
+            ...
+
+        with pytest.raises(ValueError, match=f"'yeet' is not a valid keyword argument for {command.callback}"):
+            command.add_str_option("meow", "description", key="yeet")
+
     def test__add_option_when_invalid_key_but_not_validating(self):
         @tanjun.as_slash_command("name", "description", validate_arg_keys=False)
         async def command(ctx: tanjun.abc.SlashContext):
@@ -1035,8 +1083,15 @@ class TestSlashCommand:
 
         command.add_str_option("name", "description")
 
+    def test__add_option_when_invalid_overriden_key_but_not_validating(self):
+        @tanjun.as_slash_command("name", "description", validate_arg_keys=False)
+        async def command(ctx: tanjun.abc.SlashContext, meow: str):
+            ...
+
+        command.add_str_option("meow", "description", key="pet")
+
     def test_add_attachment_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_attachment_option("me", "ow", default="no attached")
+        command.add_attachment_option("me", "ow", default="no attached", key="bbb")
 
         option = command.build().options[0]
         assert option.name == "me"
@@ -1050,6 +1105,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "bbb"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.ATTACHMENT
         assert tracked.default == "no attached"
@@ -1073,6 +1129,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.ATTACHMENT
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1092,7 +1149,12 @@ class TestSlashCommand:
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_str_option(
-            "boom", "No u", choices={"Aye": "aye", "Bye man": "bye"}, converters=[mock_converter], default="ayya"
+            "boom",
+            "No u",
+            choices={"Aye": "aye", "Bye man": "bye"},
+            converters=[mock_converter],
+            default="ayya",
+            key="ayaya",
         )
 
         option = command.build().options[0]
@@ -1110,6 +1172,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "ayaya"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default == "ayya"
@@ -1136,6 +1199,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1170,6 +1234,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1192,6 +1257,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1256,7 +1322,9 @@ class TestSlashCommand:
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
 
-        command.add_int_option("see", "seesee", choices={"hi": 1, "no": 21}, converters=[mock_converter], default="nya")
+        command.add_int_option(
+            "see", "seesee", choices={"hi": 1, "no": 21}, converters=[mock_converter], default="nya", key="ayayayaya"
+        )
 
         option = command.build().options[0]
         assert option.name == "see"
@@ -1270,6 +1338,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "ayayayaya"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
         assert tracked.default == "nya"
@@ -1320,6 +1389,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1342,6 +1412,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1408,6 +1479,7 @@ class TestSlashCommand:
             choices={"no": 4.4, "ok": 6.9},
             converters=[mock_converter],
             default="eaf",
+            key="meow",
         )
 
         option = command.build().options[0]
@@ -1425,6 +1497,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "meow"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.FLOAT
         assert tracked.default == "eaf"
@@ -1516,6 +1589,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.FLOAT
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1575,7 +1649,7 @@ class TestSlashCommand:
             command.add_float_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_bool_option("eaassa", "saas", default="feel")
+        command.add_bool_option("eaassa", "saas", default="feel", key="o")
 
         option = command.build().options[0]
         assert option.name == "eaassa"
@@ -1589,6 +1663,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "o"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.BOOLEAN
         assert tracked.default == "feel"
@@ -1611,6 +1686,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.BOOLEAN
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1667,7 +1743,7 @@ class TestSlashCommand:
             command.add_bool_option("namae", "aye")
 
     def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_user_option("yser", "nanm", default="nou")
+        command.add_user_option("yser", "nanm", default="nou", key="oh")
 
         option = command.build().options[0]
         assert option.name == "yser"
@@ -1681,6 +1757,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "oh"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.USER
         assert tracked.default == "nou"
@@ -1703,6 +1780,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.USER
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1759,7 +1837,7 @@ class TestSlashCommand:
             command.add_user_option("namae", "aye")
 
     def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_member_option("ddddd", "sssss", default="dsasds")
+        command.add_member_option("ddddd", "sssss", default="dsasds", key="key2")
 
         option = command.build().options[0]
         assert option.name == "ddddd"
@@ -1773,6 +1851,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "key2"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.USER
         assert tracked.default == "dsasds"
@@ -1795,6 +1874,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.USER
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1839,7 +1919,7 @@ class TestSlashCommand:
             command.add_member_option("namae", "aye")
 
     def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_channel_option("c", "d", default="eee")
+        command.add_channel_option("c", "d", default="eee", key="eep")
 
         option = command.build().options[0]
         assert option.name == "c"
@@ -1853,6 +1933,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "eep"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.CHANNEL
         assert tracked.default == "eee"
@@ -1876,6 +1957,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.CHANNEL
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -1891,8 +1973,23 @@ class TestSlashCommand:
                 [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
             ),
             (
-                [hikari.TextableGuildChannel, hikari.GuildNewsChannel],
-                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+                types := [hikari.ChannelType.GROUP_DM, hikari.ChannelType.DM, hikari.ChannelType.GUILD_NEWS],
+                types,
+            ),
+            (
+                [
+                    hikari.TextableGuildChannel,
+                    hikari.GuildNewsChannel,
+                    hikari.ChannelType.DM,
+                    hikari.ChannelType.GUILD_STAGE,
+                ],
+                [
+                    hikari.ChannelType.GUILD_VOICE,
+                    hikari.ChannelType.GUILD_TEXT,
+                    hikari.ChannelType.GUILD_NEWS,
+                    hikari.ChannelType.DM,
+                    hikari.ChannelType.GUILD_STAGE,
+                ],
             ),
             ([hikari.GuildVoiceChannel], [hikari.ChannelType.GUILD_VOICE]),
             (
@@ -1905,7 +2002,7 @@ class TestSlashCommand:
     def test_add_channel_option_types_behaviour(
         self,
         command: tanjun.SlashCommand[typing.Any],
-        classes: list[type[hikari.PartialChannel]],
+        classes: list[typing.Union[type[hikari.PartialChannel], int]],
         int_types: typing.Optional[list[int]],
     ):
         command.add_channel_option("channel", "chaaa", types=classes)
@@ -1964,7 +2061,7 @@ class TestSlashCommand:
             command.add_channel_option("namae", "aye")
 
     def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_role_option("jhjh", "h", default="shera")
+        command.add_role_option("jhjh", "h", default="shera", key="catra")
 
         option = command.build().options[0]
         assert option.name == "jhjh"
@@ -1978,6 +2075,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "catra"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.ROLE
         assert tracked.default == "shera"
@@ -2000,6 +2098,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.ROLE
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
@@ -2053,7 +2152,7 @@ class TestSlashCommand:
             command.add_role_option("namae", "aye")
 
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_mentionable_option("単純", "iwi", default="ywy")
+        command.add_mentionable_option("単純", "iwi", default="ywy", key="neko")
 
         option = command.build().options[0]
         assert option.name == "単純"
@@ -2067,6 +2166,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == "neko"
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.MENTIONABLE
         assert tracked.default == "ywy"
@@ -2089,6 +2189,7 @@ class TestSlashCommand:
         assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
+        assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.MENTIONABLE
         assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT

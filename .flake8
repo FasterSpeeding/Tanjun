@@ -32,3 +32,5 @@ statistics =            False
 
 accept-encodings =      utf-8
 docstring-convention =  numpy
+exclude =
+    tanjun/_vendor/

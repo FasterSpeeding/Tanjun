@@ -96,7 +96,7 @@ There are also
 [written tutorials](https://patchwork.systems/programming/hikari-discord-bot/index.html)
 that cover making a bot from scratch through to advanced concepts like Dependency Injection.
 """
-from __future__ import annotations
+from __future__ import annotations as _
 
 __all__: list[str] = [
     "AnyHooks",
@@ -141,6 +141,7 @@ __all__: list[str] = [
     "__url__",
     "__version__",
     "abc",
+    "annotations",
     "as_interval",
     "as_loader",
     "as_message_command",
@@ -221,6 +222,7 @@ from alluka import inject
 from alluka import inject as injected
 
 from . import abc
+from . import annotations
 from . import context
 from . import utilities
 from .abc import ClientCallbackNames

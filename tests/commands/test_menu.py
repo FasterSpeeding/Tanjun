@@ -65,7 +65,7 @@ def test_as_message_menu():
     assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command.callback is mock_callback
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 def test_as_message_menu_with_defaults():
@@ -83,7 +83,7 @@ def test_as_message_menu_with_defaults():
     assert command.is_dm_enabled is None
     assert command.is_global is True
     assert command.callback is mock_callback
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 @pytest.mark.parametrize(
@@ -117,7 +117,7 @@ def test_as_message_menu_when_wrapping_command(
     assert command.is_global is True
     assert command.type is hikari.CommandType.MESSAGE
     assert command.callback is other_command.callback
-    assert command._wrapped_command is other_command
+    assert command.wrapped_command is other_command
     assert isinstance(command, tanjun.MenuCommand)
 
 
@@ -143,7 +143,7 @@ def test_as_user_menu():
     assert command.is_dm_enabled is False
     assert command.is_global is False
     assert command.callback is mock_callback
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 def test_as_user_menu_with_defaults():
@@ -160,7 +160,7 @@ def test_as_user_menu_with_defaults():
     assert command.is_dm_enabled is None
     assert command.is_global is True
     assert command.callback is mock_callback
-    assert command._wrapped_command is None
+    assert command.wrapped_command is None
 
 
 @pytest.mark.parametrize(
@@ -194,7 +194,7 @@ def test_as_user_menu_when_wrapping_command(
     assert command.is_global is False
     assert command.type is hikari.CommandType.USER
     assert command.callback is other_command.callback
-    assert command._wrapped_command is other_command
+    assert command.wrapped_command is other_command
     assert isinstance(command, tanjun.MenuCommand)
 
 
