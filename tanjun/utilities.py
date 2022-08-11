@@ -45,6 +45,7 @@ __all__: list[str] = [
 ]
 
 import asyncio
+import itertools
 import sys
 import types
 import typing
@@ -498,6 +499,18 @@ _POSITIONAL_TYPES = {
 }
 
 
+def _snoop_types(type_: typing.Any, /) -> collections.Iterator[typing.Any]:
+    origin = typing.get_origin(type_)
+    if origin in _UnionTypes:
+        yield from itertools.chain.from_iterable(map(_snoop_types, typing.get_args(type_)))
+
+    elif origin is typing.Annotated:
+        yield from _snoop_types(typing.get_args(type_)[0])
+
+    else:
+        yield type_
+
+
 def infer_listener_types(
     callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], /
 ) -> collections.Sequence[type[hikari.Event]]:
@@ -518,15 +531,9 @@ def infer_listener_types(
     if parameter.annotation is parameter.empty:
         raise ValueError("Missing event argument annotation") from None
 
-    if typing.get_origin(parameter.annotation) in _UnionTypes:
-        types = typing.get_args(parameter.annotation)
-
-    else:
-        types = (parameter.annotation,)
-
     event_types: list[type[hikari.Event]] = []
 
-    for type_ in types:
+    for type_ in _snoop_types(parameter.annotation):
         try:
             if issubclass(type_, hikari.Event):
                 event_types.append(type_)

@@ -124,6 +124,10 @@ class _OptionMarker(_ConfigIdentifier):
     def __init__(self, type_: typing.Any, /) -> None:
         self._type = type_
 
+    @property
+    def type(self) -> typing.Any:
+        return self._type
+
     def set_config(self, config: _ArgConfig, /) -> None:
         # Ignore this if a TypeOveride has been found as it takes priority.
         if config.option_type is None:
@@ -709,9 +713,12 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 
 class _SnowflakeOrMeta(abc.ABCMeta):
     def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
-        for sub_type in _snoop_types(type_):
+        for entry in _snoop_annotation_args(type_):
+            if not isinstance(entry, _OptionMarker):
+                continue
+
             try:
-                parser = _SNOWFLAKE_PARSERS[sub_type]
+                parser = _SNOWFLAKE_PARSERS[entry.type]
 
             except (KeyError, TypeError):  # Also catch unhashable
                 pass
@@ -1046,26 +1053,6 @@ class _ArgConfig:
             self.slash_name, d, default=self._slash_default(), key=self.key
         ),
     }
-
-
-_OPTION_TYPES = {*_ArgConfig.SLASH_OPTION_ADDER, *_OPTION_TYPE_TO_CONVERTERS}
-
-
-def _snoop_types(type_: typing.Any) -> collections.Iterator[typing.Any]:
-    origin = typing.get_origin(type_)
-    if origin in _UnionTypes:
-        if type_ == _MentionableUnion:
-            yield type_
-
-        else:
-            yield from itertools.chain.from_iterable(map(_snoop_types, typing.get_args(type_)))
-
-    elif origin is typing.Annotated:
-        yield from _snoop_types(typing.get_args(type_)[0])
-
-    else:
-        if type_ in _OPTION_TYPES:
-            yield type_
 
 
 def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any]:
