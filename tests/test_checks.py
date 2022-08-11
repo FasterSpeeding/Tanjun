@@ -917,18 +917,6 @@ class TestAuthorPermissionCheck:
 
         assert result is False
 
-    foo = (
-        hikari.Permissions.ADD_REACTIONS
-        | hikari.Permissions.VIEW_CHANNEL
-        | hikari.Permissions.SEND_MESSAGES
-        | hikari.Permissions.EMBED_LINKS
-        | hikari.Permissions.ATTACH_FILES
-        | hikari.Permissions.READ_MESSAGE_HISTORY
-        | hikari.Permissions.USE_EXTERNAL_EMOJIS
-        | hikari.Permissions.USE_EXTERNAL_STICKERS
-        | hikari.Permissions.USE_APPLICATION_COMMANDS
-    )
-
     @pytest.mark.parametrize(
         ("required_perms", "missing_perms"),
         [
@@ -990,7 +978,92 @@ class TestAuthorPermissionCheck:
 
 @pytest.mark.asyncio()
 class TestOwnPermissionCheck:
-    ...
+    async def test(self):
+        ...
+
+    async def test_when_no_cache(self):
+        ...
+
+    async def test_when_no_async_cache(self):
+        ...
+
+    async def test_when_missing_perms(self):
+        ...
+
+    async def test_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        ...
+
+    async def test_when_missing_perms_and_error_message(self):
+        ...
+
+    async def test_when_missing_perms_and_halt_execution(self):
+        ...
+
+    async def test_when_missing_perms_when_member_cached(self):
+        ...
+
+    async def test_when_missing_perms_when_member_cached_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        ...
+
+    async def test_when_missing_perms_when_member_cached_and_error_message(self):
+        ...
+
+    async def test_when_missing_perms_when_member_cached_and_halt_execution(self):
+        ...
+
+    async def test_when_missing_perms_when_member_async_cached(self):
+        ...
+
+    async def test_when_missing_perms_when_member_async_cached_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        ...
+
+    async def test_when_missing_perms_when_member_async_cached_and_error_message(self):
+        ...
+
+    async def test_when_missing_perms_when_member_async_cached_and_halt_execution(self):
+        ...
+
+    async def test_for_interaction_context_with_app_permissions(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
+    ):
+        ...
+
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms(self):
+        ...
+
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        ...
+
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message(self):
+        ...
+
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_halt_execution(self):
+        ...
+
+    async def test_for_dm(self, required_perms: hikari.Permissions):
+        ...
+
+    async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions):
+        ...
+
+    async def test_for_dm_when_missing_perms_and_error_callback(
+        self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        ...
+
+    async def test_for_dm_when_missing_perms_and_error_message(self):
+        ...
+
+    async def test_for_dm_when_missing_perms_and_halt_execution(self):
+        ...
 
 
 def test_with_dm_check(command: mock.Mock):
