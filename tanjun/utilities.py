@@ -45,13 +45,16 @@ __all__: list[str] = [
 ]
 
 import asyncio
-import inspect
+import itertools
+import sys
+import types
 import typing
 from collections import abc as collections
 
 import hikari
 
 from . import errors
+from ._vendor import inspect
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
@@ -60,6 +63,12 @@ if typing.TYPE_CHECKING:
 _KeyT = typing.TypeVar("_KeyT")
 _OtherValueT = typing.TypeVar("_OtherValueT")
 _ValueT = typing.TypeVar("_ValueT")
+
+if sys.version_info >= (3, 10):
+    _UnionTypes = frozenset((typing.Union, types.UnionType))
+
+else:
+    _UnionTypes = frozenset((typing.Union,))
 
 
 async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
@@ -481,3 +490,58 @@ def get_kwargs(callback: collections.Callable[..., typing.Any]) -> list[str] | N
             names.append(parameter.name)
 
     return names
+
+
+_POSITIONAL_TYPES = {
+    inspect.Parameter.POSITIONAL_ONLY,
+    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+    inspect.Parameter.VAR_POSITIONAL,
+}
+
+
+def _snoop_types(type_: typing.Any, /) -> collections.Iterator[typing.Any]:
+    origin = typing.get_origin(type_)
+    if origin in _UnionTypes:
+        yield from itertools.chain.from_iterable(map(_snoop_types, typing.get_args(type_)))
+
+    elif origin is typing.Annotated:
+        yield from _snoop_types(typing.get_args(type_)[0])
+
+    else:
+        yield type_
+
+
+def infer_listener_types(
+    callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], /
+) -> collections.Sequence[type[hikari.Event]]:
+    try:
+        signature = inspect.Signature.from_callable(callback, eval_str=True)
+    except ValueError:  # Callback has no signature
+        raise ValueError("Missing event type") from None
+
+    try:
+        parameter = next(iter(signature.parameters.values()))
+
+    except StopIteration:
+        parameter = None
+
+    if not parameter or parameter.kind not in _POSITIONAL_TYPES:
+        raise ValueError("Missing positional event argument") from None
+
+    if parameter.annotation is parameter.empty:
+        raise ValueError("Missing event argument annotation") from None
+
+    event_types: list[type[hikari.Event]] = []
+
+    for type_ in _snoop_types(parameter.annotation):
+        try:
+            if issubclass(type_, hikari.Event):
+                event_types.append(type_)
+
+        except TypeError:
+            pass
+
+    if not event_types:
+        raise TypeError(f"No valid event types found in the signature of {callback}") from None
+
+    return event_types

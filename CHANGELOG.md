@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   argument's name in the callback's signature to be different from the option's declared name.
 - Signature type-hint based command option declaration for both message and slash commands. More
   information about this can be found in [tanjun.annotations][].
+- Allow multiple events to be passed to `Client.with_listener`/`Component.with_listener` in one call.
+
+### Changed
+- If no events are passed to `Client.with_listener`/`Component.with_listener` it will now try to infer
+  the event type(s) from the callback's type-hints.
 
 ## [2.5.3a1] - 2022-07-04
 ### Added

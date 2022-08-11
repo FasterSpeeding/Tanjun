@@ -38,8 +38,10 @@ import asyncio
 # This leads to too many false-positives around mocks.
 import base64
 import importlib
+import inspect
 import pathlib
 import random
+import sys
 import tempfile
 import textwrap
 import typing
@@ -1091,6 +1093,260 @@ class TestClient:
 
         assert result is mock_callback
         add_listener_.assert_called_once_with(hikari.GuildAvailableEvent, mock_callback)
+
+    def test_with_listener_no_provided_event(self):
+        async def callback(foo) -> None:  # type: ignore
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        with pytest.raises(ValueError, match="Missing event argument annotation"):
+            client.with_listener()(callback)
+
+        add_listener_.assert_not_called()
+
+    def test_with_listener_no_provided_event_callback_has_no_signature(self):
+        with pytest.raises(ValueError, match=".+"):
+            inspect.Signature.from_callable(int)
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        with pytest.raises(ValueError, match="Missing event type"):
+            client.with_listener()(int)  # type: ignore
+
+        add_listener_.assert_not_called()
+
+    def test_with_listener_missing_positional_event_arg(self):
+        async def callback(*, event: hikari.Event, **kwargs: str) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        with pytest.raises(ValueError, match="Missing positional event argument"):
+            client.with_listener()(callback)
+
+        add_listener_.assert_not_called()
+
+    def test_with_listener_no_args(self):
+        async def callback() -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        with pytest.raises(ValueError, match="Missing positional event argument"):
+            client.with_listener()(callback)
+
+        add_listener_.assert_not_called()
+
+    def test_with_listener_with_multiple_events(self):
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+        mock_callback = mock.Mock()
+
+        result = client.with_listener(hikari.GuildAvailableEvent, hikari.GuildLeaveEvent, hikari.GuildChannelEvent)(
+            mock_callback
+        )
+
+        assert result is mock_callback
+        add_listener_.assert_has_calls(
+            [
+                mock.call(hikari.GuildAvailableEvent, mock_callback),
+                mock.call(hikari.GuildLeaveEvent, mock_callback),
+                mock.call(hikari.GuildChannelEvent, mock_callback),
+            ]
+        )
+
+    def test_with_listener_with_type_hint(self):
+        async def callback(event: hikari.BanCreateEvent) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        result = client.with_listener()(callback)
+
+        assert result is callback
+        add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
+
+    def test_with_listener_with_type_hint_in_annotated(self):
+        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        result = client.with_listener()(callback)
+
+        assert result is callback
+        add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
+
+    def test_with_listener_with_positional_only_type_hint(self):
+        async def callback(event: hikari.BanDeleteEvent, /) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        result = client.with_listener()(callback)
+
+        assert result is callback
+        add_listener_.assert_called_once_with(hikari.BanDeleteEvent, callback)
+
+    def test_with_listener_with_var_positional_type_hint(self):
+        async def callback(*event: hikari.BanEvent) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        result = client.with_listener()(callback)
+
+        assert result is callback
+        add_listener_.assert_called_once_with(hikari.BanEvent, callback)
+
+    def test_with_listener_with_type_hint_union(self):
+        async def callback(event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        result = client.with_listener()(callback)
+
+        assert result is callback
+        add_listener_.assert_has_calls(
+            [
+                mock.call(hikari.RoleEvent, callback),
+                mock.call(hikari.GuildEvent, callback),
+            ]
+        )
+
+    def test_with_listener_with_type_hint_union_nested_annotated(self):
+        async def callback(
+            event: typing.Annotated[
+                typing.Union[
+                    typing.Annotated[typing.Union[hikari.RoleEvent, hikari.ReactionDeleteEvent], 123, 321],
+                    hikari.GuildEvent,
+                ],
+                True,
+                "meow",
+            ]
+        ) -> None:
+            ...
+
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+
+        result = client.with_listener()(callback)
+
+        assert result is callback
+        add_listener_.assert_has_calls(
+            [
+                mock.call(hikari.RoleEvent, callback),
+                mock.call(hikari.ReactionDeleteEvent, callback),
+                mock.call(hikari.GuildEvent, callback),
+            ]
+        )
+
+    # These tests covers syntax which was introduced in 3.10
+    if sys.version_info >= (3, 10):
+
+        def test_with_listener_with_type_hint_310_union(self):
+            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None:
+                ...
+
+            add_listener_ = mock.Mock()
+
+            class StubClient(tanjun.Client):
+                add_listener = add_listener_
+
+            client = StubClient(mock.Mock())
+
+            result = client.with_listener()(callback)
+
+            assert result is callback
+            add_listener_.assert_has_calls(
+                [
+                    mock.call(hikari.ShardEvent, callback),
+                    mock.call(hikari.VoiceEvent, callback),
+                ]
+            )
+
+        def test_with_listener_with_type_hint_310_union_nested_annotated(self):
+            async def callback(
+                event: typing.Annotated[
+                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent,
+                    True,
+                    "meow",
+                ]
+            ) -> None:
+                ...
+
+            add_listener_ = mock.Mock()
+
+            class StubClient(tanjun.Client):
+                add_listener = add_listener_
+
+            client = StubClient(mock.Mock())
+
+            result = client.with_listener()(callback)
+
+            assert result is callback
+            add_listener_.assert_has_calls(
+                [
+                    mock.call(hikari.BanEvent, callback),
+                    mock.call(hikari.GuildEvent, callback),
+                    mock.call(hikari.InviteEvent, callback),
+                ]
+            )
 
     def test_add_prefix(self):
         client = tanjun.Client(mock.Mock())
