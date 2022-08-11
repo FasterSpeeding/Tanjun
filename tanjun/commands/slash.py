@@ -1096,7 +1096,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     ) -> _SlashCommandGroupT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
-        inst._commands = {name: command.copy() for name, command in self._commands.items()}
+        inst._commands = {name: command.copy(parent=inst) for name, command in self._commands.items()}
         return inst
 
     def add_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
