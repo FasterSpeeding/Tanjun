@@ -46,12 +46,15 @@ __all__: list[str] = [
 
 import asyncio
 import inspect
+import sys
+import types
 import typing
 from collections import abc as collections
 
 import hikari
 
 from . import errors
+from ._vendor import inspect
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
@@ -60,6 +63,12 @@ if typing.TYPE_CHECKING:
 _KeyT = typing.TypeVar("_KeyT")
 _OtherValueT = typing.TypeVar("_OtherValueT")
 _ValueT = typing.TypeVar("_ValueT")
+
+if sys.version_info >= (3, 10):
+    _UnionTypes = frozenset((typing.Union, types.UnionType))
+
+else:
+    _UnionTypes = frozenset((typing.Union,))
 
 
 async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
@@ -481,3 +490,37 @@ def get_kwargs(callback: collections.Callable[..., typing.Any]) -> list[str] | N
             names.append(parameter.name)
 
     return names
+
+
+def infer_listener_types(
+    callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], /
+) -> collections.Sequence[type[hikari.Event]]:
+    try:
+        parameter = next(iter(inspect.Signature.from_callable(callback, eval_str=True).parameters.values()))
+
+    except StopIteration:
+        raise ValueError("Missing positional event argument") from None
+
+    if parameter.annotation is parameter.empty:
+        raise ValueError("Missing event argument annotation") from None
+
+    if typing.get_origin(parameter.annotation) in _UnionTypes:
+        types = typing.get_args(parameter.annotation)
+
+    else:
+        types = (parameter.annotation,)
+
+    event_types: list[type[hikari.Event]] = []
+
+    for type_ in types:
+        try:
+            if issubclass(type_, hikari.Event):
+                event_types.append(type_)
+
+        except TypeError:
+            pass
+
+    if not event_types:
+        raise TypeError(f"No valid event types found in the signature of {callback}") from None
+
+    return event_types

@@ -3379,22 +3379,31 @@ class Component(abc.ABC):
             The component to enable chained calls.
         """
 
-    # TODO: make event optional?
     @abc.abstractmethod
     def with_listener(
-        self, event_type: type[hikari.Event], /
-    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT,]:
+        self, *event_types: type[hikari.Event]
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         """Add a listener to this component through a decorator call.
 
         Parameters
         ----------
-        event_type
-            The event to listen for.
+        *event_types
+            One or more event types to listen for.
+
+            If none are provided then the event type(s) will be inferred from
+            the callback's type-hints.
 
         Returns
         -------
         collections.abc.Callable[[ListenerCallbackSig], ListenerCallbackSig]
             Decorator callback which takes listener to add.
+
+        Raises
+        ------
+        ValueError
+            If nothing was passed for `event_types` and no subclasses of
+            [hikari.events.base_events.Event][] are found in the type-hint
+            for the callback's first argument.
         """
 
     @abc.abstractmethod
@@ -4301,7 +4310,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def with_listener(
-        self, event_type: type[hikari.Event], /
+        self, *event_types: type[hikari.Event]
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         """Add an event listener to this client through a decorator call.
 
@@ -4317,8 +4326,11 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        event_type
-            The event type to listener for.
+        *event_types
+            One or more event types to listen for.
+
+            If none are provided then the event type(s) will be inferred from
+            the callback's type-hints.
 
         Returns
         -------
@@ -4329,6 +4341,13 @@ class Client(abc.ABC):
             always takes at least one positional arg of type
             [hikari.events.base_events.Event][] regardless of client
             implementation detail.
+
+        Raises
+        ------
+        ValueError
+            If nothing was passed for `event_types` and no subclasses of
+            [hikari.events.base_events.Event][] are found in the type-hint
+            for the callback's first argument.
         """
 
     @abc.abstractmethod

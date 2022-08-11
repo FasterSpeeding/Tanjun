@@ -1027,11 +1027,13 @@ class Component(tanjun.Component):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: type[hikari.Event], /
+        self, *event_types: type[hikari.Event]
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         def decorator(callback: _ListenerCallbackSigT) -> _ListenerCallbackSigT:
-            self.add_listener(event_type, callback)
+            for event_type in event_types or utilities.infer_listener_types(callback):
+                self.add_listener(event_type, callback)
+
             return callback
 
         return decorator
