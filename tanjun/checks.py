@@ -480,29 +480,16 @@ class OwnPermissionCheck(_Check):
         if ctx.guild_id is None:
             permissions = utilities.DM_PERMISSIONS
 
+        elif isinstance(ctx, tanjun.SlashContext):
+            assert ctx.interaction.app_permissions is not None
+            permissions = ctx.interaction.app_permissions
+
         elif ctx.cache and (member := ctx.cache.get_member(ctx.guild_id, my_user)):
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         else:
-            try:
-                member = await member_cache.get_from_guild(ctx.guild_id, my_user.id) if member_cache else None
-            except dependencies.EntryNotFound:
-                # If we're not in the Guild then we have to assume the application
-                # is still in there and that we likely won't be able to do anything.
-                # TODO: re-visit this later.
-                return self._handle_result(False, self._permissions)
-            except dependencies.CacheMissError:
-                member = None
-
-            try:
-                member = member or await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
-
-            except hikari.NotFoundError:
-                # If we're not in the Guild then we have to assume the application
-                # is still in there and that we likely won't be able to do anything.
-                # TODO: re-visit this later.
-                return self._handle_result(False, self._permissions)
-
+            member = await member_cache.get_from_guild(ctx.guild_id, my_user.id, default=None) if member_cache else None
+            member = member or await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         missing_permissions = ~permissions & self._permissions
