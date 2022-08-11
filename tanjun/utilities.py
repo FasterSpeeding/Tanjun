@@ -503,7 +503,7 @@ def infer_listener_types(
 ) -> collections.Sequence[type[hikari.Event]]:
     try:
         signature = inspect.Signature.from_callable(callback, eval_str=True)
-    except ValueError:  #  Callback has no signature
+    except ValueError:  # Callback has no signature
         raise ValueError("Missing event type") from None
 
     try:
