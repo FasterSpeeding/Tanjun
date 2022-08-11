@@ -723,7 +723,7 @@ class TestAuthorPermissionCheck:
             await check(mock_context)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_when_guild_user(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_for_guild_user(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
@@ -862,145 +862,610 @@ class TestAuthorPermissionCheck:
 class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test_when_no_cache(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test_when_no_async_cache(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=None, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
+
+    @pytest.mark.parametrize(*PERMISSIONS)
+    async def test_when_no_caches(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=None, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is False
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="meow meow")
+
+        with pytest.raises(tanjun.CommandError, match="meow meow"), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_when_missing_perms_when_member_cached(
-        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
-    ):
-        ...
+    async def test_for_cached_member(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.cache.get_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_cached_and_missing_perms_and_error_callback(
+    async def test_for_cached_member_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is False
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.cache.get_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_cached_and_missing_perms_and_error_message(
+    async def test_for_cached_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.cache.get_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_cached_and_missing_perms_and_halt_execution(
+    async def test_for_cached_member_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="meowth")
+
+        with pytest.raises(tanjun.CommandError, match="meowth"), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.cache.get_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_cached_member_when_missing_perms_and_halt_execution(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.cache.get_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_when_missing_perms_when_member_async_cached(
-        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
-    ):
-        ...
+    async def test_for_async_cached_member(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_member_cache.get_from_guild.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_async_cached_and_missing_perms(
+    async def test_for_async_cached_member_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is False
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_member_cache.get_from_guild.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_async_cached_and_missing_perms_and_error_callback(
+    async def test_for_async_cached_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_member_cache.get_from_guild.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_async_cached_and_missing_perms_and_error_message(
+    async def test_for_async_cached_member_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="nom")
+
+        with pytest.raises(tanjun.CommandError, match="nom"), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_member_cache.get_from_guild.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
-    async def test_when_missing_perms_when_member_async_cached_and_missing_perms_and_halt_execution(
+    async def test_for_async_cached_member_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_member_cache.get_from_guild.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is False
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="bees")
+
+        with pytest.raises(tanjun.CommandError, match="bees"), mock.patch.object(
+            tanjun.utilities, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*DM_PERMISSIONS)
     async def test_for_dm(self, required_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is True
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
     async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
+
+        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+            result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        assert result is False
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_DM_PERMISSIONS)
     async def test_for_dm_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        ...
+        class StubError(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(side_effect=StubError)
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
+
+        with pytest.raises(StubError), mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        mock_error_callback.assert_called_once_with(missing_perms)
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
     async def test_for_dm_when_missing_perms_and_error_message(self, required_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="beep")
+
+        with pytest.raises(tanjun.CommandError, match="beep"), mock.patch.object(
+            tanjun.utilities, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
     async def test_for_dm_when_missing_perms_and_halt_execution(self, required_perms: hikari.Permissions):
-        ...
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
+
+        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
+            tanjun.utilities, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
 
 
 def test_with_dm_check(command: mock.Mock):
