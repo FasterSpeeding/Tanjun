@@ -1134,17 +1134,15 @@ class TestComponent:
         async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None:
             ...
 
-        add_listener_ = mock.Mock()
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
 
-        class StubClient(tanjun.Client):
-            add_listener = add_listener_
-
-        client = StubClient(mock.Mock())
-
-        result = client.with_listener()(callback)
+        result = component.with_listener()(callback)
 
         assert result is callback
-        add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
+        add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_positional_only_type_hint(self):
         async def callback(event: hikari.BanDeleteEvent, /) -> None:
@@ -1206,17 +1204,15 @@ class TestComponent:
         ) -> None:
             ...
 
-        add_listener_ = mock.Mock()
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
 
-        class StubClient(tanjun.Client):
-            add_listener = add_listener_
-
-        client = StubClient(mock.Mock())
-
-        result = client.with_listener()(callback)
+        result = component.with_listener()(callback)
 
         assert result is callback
-        add_listener_.assert_has_calls(
+        add_listener.assert_has_calls(
             [
                 mock.call(hikari.RoleEvent, callback),
                 mock.call(hikari.ReactionDeleteEvent, callback),
@@ -1256,17 +1252,15 @@ class TestComponent:
             ) -> None:
                 ...
 
-            add_listener_ = mock.Mock()
+            add_listener = mock.Mock()
+            component: tanjun.Component = types.new_class(
+                "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+            )()
 
-            class StubClient(tanjun.Client):
-                add_listener = add_listener_
-
-            client = StubClient(mock.Mock())
-
-            result = client.with_listener()(callback)
+            result = component.with_listener()(callback)
 
             assert result is callback
-            add_listener_.assert_has_calls(
+            add_listener.assert_has_calls(
                 [
                     mock.call(hikari.BanEvent, callback),
                     mock.call(hikari.GuildEvent, callback),
