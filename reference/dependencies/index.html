@@ -2123,8 +2123,8 @@ and <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hika
 <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.AsyncCache.get" class="headerlink" title="Permanent link">#</a></h4>
@@ -2332,8 +2332,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <code class="highlight language-python"><span class="nb">len</span><span class="p">()</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.CacheIterator.len" class="headerlink" title="Permanent link">#</a></h4>
@@ -2451,8 +2451,8 @@ doesn't exist.</p>
 <code class="highlight language-python"><span class="n">get_from_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.ChannelBoundCache.get_from_channel" class="headerlink" title="Permanent link">#</a></h4>
@@ -2765,8 +2765,8 @@ which indicates that the cache is sure that the entry doesn't exist.</p>
 <code class="highlight language-python"><span class="n">get_from_guild</span><span class="p">(</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.GuildBoundCache.get_from_guild" class="headerlink" title="Permanent link">#</a></h4>
@@ -3059,8 +3059,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.SingleStoreCache.get" class="headerlink" title="Permanent link">#</a></h4>
@@ -3592,7 +3592,7 @@ has been called.</p>
       <p>Cache the result of a callback within a dependency injection context.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is internally used by <a class="autorefs autorefs-internal" href="../#tanjun.cached_inject">cached_inject</a>.</p>
+<p>This is internally used by <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.cached_inject">cached_inject</a>.</p>
 </div>
 
   <table>
@@ -4031,8 +4031,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 <code class="highlight language-python"><span class="n">release</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter.release" class="headerlink" title="Permanent link">#</a></h4>
@@ -4054,8 +4054,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 <code class="highlight language-python"><span class="n">try_acquire</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter.try_acquire" class="headerlink" title="Permanent link">#</a></h4>
@@ -4173,8 +4173,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 <code class="highlight language-python"><span class="n">check_cooldown</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown" class="headerlink" title="Permanent link">#</a></h4>
@@ -4270,8 +4270,8 @@ if it's in cooldown else <a class="autorefs autorefs-external" href="https://doc
 <code class="highlight language-python"><span class="n">increment_cooldown</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown" class="headerlink" title="Permanent link">#</a></h4>
@@ -5618,7 +5618,7 @@ if limit is less 0 or negative.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -5721,8 +5721,8 @@ to acquire the concurrency limit.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -5900,8 +5900,8 @@ hook to the command.</p>
 <code class="highlight language-python"><span class="n">check_ownership</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.owners.AbstractOwners.check_ownership" class="headerlink" title="Permanent link">#</a></h4>
