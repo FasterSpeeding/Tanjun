@@ -228,7 +228,9 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
         ----------
         mapping
             Either a mapping of names to the choices values or a sequence
-            of `tuple[name, value]` or a sequence of string values.
+            of `tuple[name, value]` or a sequence of choice values.
+        **kwargs
+            Choice values.
         """
         if isinstance(mapping, collections.Sequence):
             mapping_ = (value if isinstance(value, tuple) else (str(value), value) for value in mapping)
