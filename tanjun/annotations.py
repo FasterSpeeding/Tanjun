@@ -346,8 +346,8 @@ class Flag(_ConfigIdentifier):
     ) -> None:
         """Create a flag instance.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         aliases
             Other names the flag may be triggered by.
 
@@ -488,8 +488,8 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
     def __init__(self, value: typing.Union[int, float], /) -> None:
         """Create an argument maximum value.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         value
             The maximum allowed value allowed for an argument.
         """
@@ -549,8 +549,8 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
     def __init__(self, value: typing.Union[int, float], /) -> None:
         """Create an argument minimum value.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         value
             The minimum value allowed for an argument.
         """
@@ -594,8 +594,8 @@ class Name(_ConfigIdentifier):
     ) -> None:
         """Create an argument name override.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         both
             If provided, the name to use for this option in message and slash
             commands.
@@ -679,8 +679,8 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
         """Create an argument range limit.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         min_value
             The minimum allowed value for this argument.
         max_value
@@ -785,8 +785,8 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
     def __init__(self, *, parse_id: collections.Callable[[str], hikari.Snowflake] = conversion.parse_snowflake) -> None:
         """Create a snowflake or argument marker.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         parse_id
             The function used to parse the argument's ID.
 
@@ -844,8 +844,8 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
     ) -> None:
         """Create a slash command argument channel restraint.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         channel_type
             A channel type to restrain this argument by.
         *other_types
