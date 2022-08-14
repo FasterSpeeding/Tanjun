@@ -51,7 +51,7 @@ __all__: list[str] = [
     "Hooks",
     "ListenerCallbackSig",
     "MenuCommand",
-    "MenuCommandCallbackSig",
+    "MenuCallbackSig",
     "MenuContext",
     "MenuHooks",
     "MessageCommand",
@@ -94,11 +94,9 @@ if typing.TYPE_CHECKING:
 _P = typing_extensions.ParamSpec("_P")
 _T = typing.TypeVar("_T")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
-_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="CommandCallbackSig")
 _ContextT_co = typing.TypeVar("_ContextT_co", covariant=True, bound="Context")
 _ContextT_contra = typing.TypeVar("_ContextT_contra", bound="Context", contravariant=True)
 _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
-_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="MenuCommandCallbackSig")
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
@@ -146,8 +144,13 @@ and either `hikari.User | hikari.InteractionMember` and/or
 [hikari.messages.Message][] dependent on the type(s) of menu this is.
 """
 
+_MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound="MenuCallbackSig[typing.Any]")
+
 MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
+_MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
+
 SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
+_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
 
 CommandCallbackSig = _CommandCallbackSig["Context", ...]
 """Type hint of the callback a callable [tanjun.abc.ExecutableCommand][] instance will operate on.
@@ -2122,7 +2125,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_on_error(self, callback: ErrorHookSig, /) -> Self:
+    def add_on_error(self: _T, callback: ErrorHookSig[_ContextT_contra], /) -> _T:
         """Add an error callback to this hook object.
 
         !!! note
@@ -2191,7 +2194,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_parser_error(self, callback: HookSig, /) -> Self:
+    def add_on_parser_error(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
         """Add a parser error callback to this hook object.
 
         Parameters
@@ -2242,7 +2245,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_post_execution(self, callback: HookSig, /) -> Self:
+    def add_post_execution(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
         """Add a post-execution callback to this hook object.
 
         Parameters
@@ -2290,7 +2293,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_pre_execution(self, callback: HookSig, /) -> Self:
+    def add_pre_execution(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
         """Add a pre-execution callback for this hook object.
 
         Parameters
@@ -2338,7 +2341,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_success(self, callback: HookSig, /) -> Self:
+    def add_on_success(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
         """Add a success callback to this hook object.
 
         Parameters
@@ -2747,14 +2750,14 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         ...
 
 
-class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[_CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[_SlashCallbackSigT]):
     """A command that can be executed in a slash context."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> _CommandCallbackSigT:
+    def callback(self) -> _SlashCallbackSigT:
         """Callback which is called during execution."""
 
     @property
@@ -2773,14 +2776,14 @@ class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[_CommandCallbackSig
         """Collection of the string option autocompletes."""
 
 
-class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSigT, _MenuTypeT]):
+class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCallbackSigT, _MenuTypeT]):
     """A contextmenu command."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> _MenuCommandCallbackSigT:
+    def callback(self) -> _MenuCallbackSigT:
         """Callback which is called during execution."""
 
     @property
@@ -2944,14 +2947,14 @@ class MessageParser(abc.ABC):
         """
 
 
-class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[_CommandCallbackSigT]):
+class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[_MessageCallbackSigT]):
     """Standard interface of a message command."""
 
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def callback(self) -> _CommandCallbackSigT:
+    def callback(self) -> _MessageCallbackSigT:
         """Callback which is called during execution.
 
         !!! note
@@ -3036,7 +3039,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         raise NotImplementedError
 
 
-class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
+class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], abc.ABC):
     """Standard interface of a message command group."""
 
     __slots__ = ()

@@ -49,14 +49,14 @@ if typing.TYPE_CHECKING:
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=tanjun.CommandCallbackSig)
-    _CommandT = typing.Union[
+    _AnyCommandT = typing.Union[
         tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
         tanjun.MessageCommand["_AnyCallbackSigT"],
         tanjun.SlashCommand["_AnyCallbackSigT"],
     ]
-    _CallbackishT = typing.Union[_CommandT["_CallbackSigT"], "_CallbackSigT"]
+    _CallbackishT = typing.Union[_AnyCommandT["_AnyCallbackSigT"], "_AnyCallbackSigT"]
 
-_CallbackSigT = typing.TypeVar("_CallbackSigT", bound=tanjun.MessageCallbackSig)
+_MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MessageCallbackSig)
 _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
@@ -64,14 +64,14 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 class _ResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[_CallbackSigT], /) -> MessageCommand[_CallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: _CallbackSigT, /) -> MessageCommand[_CallbackSigT]:
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_CallbackSigT], /) -> MessageCommand[_CallbackSigT]:
+    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
         raise NotImplementedError
 
 
@@ -98,7 +98,15 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
+    @typing.overload
+    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
+        ...
+
+    @typing.overload
+    def decorator(callback: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
+        ...
+
+    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -115,14 +123,14 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
 
 class _GroupResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[_CallbackSigT], /) -> MessageCommandGroup[_CallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: _CallbackSigT, /) -> MessageCommandGroup[_CallbackSigT]:
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_CallbackSigT], /) -> MessageCommandGroup[_CallbackSigT]:
+    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
         raise NotImplementedError
 
 
@@ -156,7 +164,15 @@ def as_message_command_group(
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(callback: _CallbackishT[_CallbackSigT], /) -> MessageCommandGroup[_CallbackSigT]:
+    @typing.overload
+    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
+        ...
+
+    @typing.overload
+    def decorator(callback: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
+        ...
+
+    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -171,15 +187,15 @@ def as_message_command_group(
     return decorator
 
 
-class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageCommand[_CallbackSigT]):
+class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageCommand[_MessageCallbackSigT]):
     """Standard implementation of a message command."""
 
     __slots__ = ("_arg_names", "_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
     @typing.overload
     def __init__(
-        self,
-        callback: _CommandT[_CallbackSigT],
+        self: MessageCommand[_AnyCallbackSigT],
+        callback: _AnyCommandT[_AnyCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -191,7 +207,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     @typing.overload
     def __init__(
         self,
-        callback: _CallbackSigT,
+        callback: _MessageCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -201,8 +217,8 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         ...
 
     def __init__(
-        self,
-        callback: _CallbackishT[_CallbackSigT],
+        self: MessageCommand[_AnyCallbackSigT],
+        callback: _CallbackishT[_AnyCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -231,7 +247,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             callback = callback.callback
 
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
-        self._callback: _CallbackSigT = callback
+        self._callback: _MessageCallbackSigT = callback
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
         self._parser: typing.Optional[tanjun.MessageParser] = None
@@ -241,7 +257,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         return f"Command <{self._names}>"
 
     if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT
+        __call__: _MessageCallbackSigT
 
     else:
 
@@ -249,7 +265,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             await self._callback(*args, **kwargs)
 
     @property
-    def callback(self) -> _CallbackSigT:
+    def callback(self) -> _MessageCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._callback
 
@@ -370,15 +386,15 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             self._wrapped_command.load_into_component(component)
 
 
-class MessageCommandGroup(MessageCommand[_CallbackSigT], tanjun.MessageCommandGroup[_CallbackSigT]):
+class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCommandGroup[_MessageCallbackSigT]):
     """Standard implementation of a message command group."""
 
     __slots__ = ("_commands",)
 
     @typing.overload
     def __init__(
-        self,
-        callback: _CommandT[_CallbackSigT],
+        self: MessageCommandGroup[_AnyCallbackSigT],
+        callback: _AnyCommandT[_AnyCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -391,7 +407,7 @@ class MessageCommandGroup(MessageCommand[_CallbackSigT], tanjun.MessageCommandGr
     @typing.overload
     def __init__(
         self,
-        callback: _CallbackSigT,
+        callback: _MessageCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -402,8 +418,8 @@ class MessageCommandGroup(MessageCommand[_CallbackSigT], tanjun.MessageCommandGr
         ...
 
     def __init__(
-        self,
-        callback: _CallbackishT[_CallbackSigT],
+        self: MessageCommandGroup[_AnyCallbackSigT],
+        callback: _CallbackishT[_AnyCallbackSigT],
         name: str,
         /,
         *names: str,

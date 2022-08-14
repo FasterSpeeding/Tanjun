@@ -48,20 +48,36 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _CommandT = typing.Union[
-        tanjun.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_MenuCommandCallbackSigT"],
-        tanjun.SlashCommand["_MenuCommandCallbackSigT"],
+    _AnyCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="tanjun.CommandCallbackSig")
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
+        tanjun.MessageCommand["_AnyCallbackSigT"],
+        tanjun.SlashCommand["_AnyCallbackSigT"],
     ]
-    _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
+    _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
 
 import hikari
 
-_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="tanjun.MenuCommandCallbackSig")
+_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="tanjun.MenuCallbackSig[typing.Any]")
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
+
+
+class _ResultProto(typing.Protocol[_MenuTypeT]):
+    @typing.overload
+    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        ...
+
+    def __call__(
+        self, _: _CallbackishT[_AnyCallbackSigT], /
+    ) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+        raise NotImplementedError
 
 
 def _as_menu(
@@ -75,9 +91,17 @@ def _as_menu(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _ResultProto[_MenuTypeT]:
+    @typing.overload
+    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+        ...
+
+    @typing.overload
+    def decorator(callback: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        ...
+
     def decorator(
-        callback: _CallbackishT[_MenuCommandCallbackSigT], /
-    ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+        callback: _CallbackishT[_AnyCallbackSigT], /
+    ) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -98,21 +122,6 @@ def _as_menu(
         )
 
     return decorator
-
-
-class _ResultProto(typing.Protocol[_MenuTypeT]):
-    @typing.overload
-    def __call__(self, _: _CommandT[_MenuCommandCallbackSigT], /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
-        ...
-
-    def __call__(
-        self, _: _CallbackishT[_MenuCommandCallbackSigT], /
-    ) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
-        raise NotImplementedError
 
 
 def as_message_menu(
@@ -317,7 +326,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[_MenuCommandCallbackSigT],
+        callback: _AnyCommandT[
+            _AnyCallbackSigT,
+        ],
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -349,8 +360,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         ...
 
     def __init__(
-        self,
-        callback: _CallbackishT[_MenuCommandCallbackSigT],
+        self: MenuCommand[_AnyCallbackSigT,_MenuTypeT],
+        callback: _CallbackishT[_AnyCallbackSigT],
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -443,7 +454,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             default_member_permissions = hikari.Permissions(default_member_permissions)
 
         self._always_defer = always_defer
-        self._callback = callback
+        self._callback: _MenuCommandCallbackSigT = callback
         self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_dm_enabled = dm_enabled
