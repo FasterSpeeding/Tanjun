@@ -74,9 +74,7 @@ class _ResultProto(typing.Protocol[_MenuTypeT]):
     def __call__(self, _: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
         ...
 
-    def __call__(
-        self, _: _CallbackishT[_AnyCallbackSigT], /
-    ) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
         raise NotImplementedError
 
 
@@ -99,9 +97,7 @@ def _as_menu(
     def decorator(callback: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
         ...
 
-    def decorator(
-        callback: _CallbackishT[_AnyCallbackSigT], /
-    ) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -326,6 +322,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     @typing.overload
     def __init__(
         self,
+        self: MenuCommand[_AnyCallbackSigT, _MenuTypeT],
         callback: _AnyCommandT[
             _AnyCallbackSigT,
         ],
@@ -360,7 +357,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         ...
 
     def __init__(
-        self: MenuCommand[_AnyCallbackSigT,_MenuTypeT],
+        self: MenuCommand[_AnyCallbackSigT, _MenuTypeT],
         callback: _CallbackishT[_AnyCallbackSigT],
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
