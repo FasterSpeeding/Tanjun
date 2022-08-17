@@ -205,6 +205,7 @@ class Reloader:
                 current_paths = set(map(pathlib.Path.absolute, path.glob("*.py")))
                 for old_path in directory[1] - current_paths:
                     del self._sys_paths[old_path]
+                    directory[1].remove(old_path)
 
                 for new_path in current_paths - directory[1]:
                     self._sys_paths[new_path] = None
@@ -213,6 +214,7 @@ class Reloader:
                 current_paths = {_to_namespace(directory[0], path): path for path in path.glob("*.py")}
                 for old_path in directory[1] - current_paths.keys():
                     del self._py_paths[old_path]
+                    directory[1].remove(old_path)
 
                 for new_path in current_paths.keys() - directory[1]:
                     self._py_paths[new_path] = _PyPathInfo(current_paths[new_path])
