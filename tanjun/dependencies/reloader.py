@@ -68,7 +68,7 @@ def _print_task_exc(
 
         except Exception as exc:
             _LOGGER.exception("Reloader crashed", exc_info=exc)
-            raise exc from None
+            raise exc from None  # noqa: R101  # use bare raise in except handler?
 
     return wrapper
 
@@ -104,9 +104,6 @@ async def _load_module(client: tanjun.Client, path: typing.Union[str, pathlib.Pa
     try:
         await client.load_modules_async(path)
         return True
-
-    except errors.ModuleStateConflict:
-        pass
 
     except Exception as exc:
         _LOGGER.exception(f"Failed to reload module {path}", exc_info=exc)
