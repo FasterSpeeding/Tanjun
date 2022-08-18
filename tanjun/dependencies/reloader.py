@@ -238,7 +238,7 @@ class Reloader:
                 continue  # There's no point trying to reload a module which cannot be unloaded.
 
             if directory[0] is None:
-                current_paths = set(filter(pathlib.Path.is_file, map(pathlib.Path.absolute, path.glob("*.py"))))
+                current_paths = set(filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py"))))
                 for old_path in directory[1] - current_paths:
                     directory[1].remove(old_path)
                     result.removed_sys_paths.append(old_path)
@@ -356,7 +356,7 @@ def _add_directory(
     if not directory.exists():
         raise FileNotFoundError(f"{directory} does not exist")
 
-    return directory.absolute(), list(map(pathlib.Path.absolute, directory.glob("*.py")))
+    return directory.resolve(), list(map(pathlib.Path.resolve, directory.glob("*.py")))
 
 
 def _add_modules(paths: tuple[typing.Union[str, pathlib.Path]]) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
