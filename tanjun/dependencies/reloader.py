@@ -37,6 +37,7 @@ __all__: list[str] = []
 import asyncio
 import datetime
 import importlib.util
+import itertools
 import logging
 import pathlib
 import typing
@@ -238,7 +239,9 @@ class Reloader:
                 continue  # There's no point trying to reload a module which cannot be unloaded.
 
             if directory[0] is None:
-                current_paths = set(map(pathlib.Path.absolute, path.glob("*.py")))
+                current_paths = set(
+                    itertools.filterfalse(pathlib.Path.is_dir, map(pathlib.Path.absolute, path.glob("*.py")))
+                )
                 for old_path in directory[1] - current_paths:
                     directory[1].remove(old_path)
                     result.removed_sys_paths.append(old_path)
