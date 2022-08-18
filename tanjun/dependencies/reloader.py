@@ -109,7 +109,7 @@ class Reloader:
         self,
         *,
         interval: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(microseconds=500000),
-        unload_on_delete: bool = False,
+        unload_on_delete: bool = True,
     ) -> None:
         if isinstance(interval, datetime.timedelta):
             interval = interval.total_seconds()
@@ -147,6 +147,9 @@ class Reloader:
             .add_client_callback(tanjun.ClientCallbackNames.CLOSING, self.stop)
             .set_type_dependency(Reloader, self)
         )
+        if client.is_alive and client.loop:
+            client.loop.call_soon_threadsafe(self.start, client)
+
         return self
 
     async def add_modules_async(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
