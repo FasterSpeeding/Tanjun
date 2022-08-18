@@ -220,7 +220,7 @@ class Reloader:
 
     def _unload_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
         try:
-            client.unload_modules()
+            client.unload_modules(path)
             return True
 
         except errors.ModuleStateConflict:
