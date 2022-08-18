@@ -155,15 +155,15 @@ class Reloader:
     async def add_directory_async(
         self: _ReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> _ReloaderT:
-        path = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory)
-        self._directories[path] = (namespace, set()) if namespace is None else (namespace, set())
+        path, info = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory, namespace)
+        self._directories[path] = info
         return self
 
     def add_directory(
         self: _ReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> _ReloaderT:
-        path = _add_directory(directory)
-        self._directories[path] = (namespace, set()) if namespace is None else (namespace, set())
+        path, info = _add_directory(directory, namespace)
+        self._directories[path] = info
         return self
 
     async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> None:
@@ -318,12 +318,14 @@ def _to_namespace(namespace: str, path: pathlib.Path, /) -> str:
     return namespace + "." + path.name.removesuffix(".py")
 
 
-def _add_directory(directory: typing.Union[str, pathlib.Path], /) -> pathlib.Path:
+def _add_directory(
+    directory: typing.Union[str, pathlib.Path], namespace: typing.Optional[str], /
+) -> tuple[pathlib.Path, _DirectoryEntry]:
     directory = pathlib.Path(directory)
     if not directory.exists():
         raise FileNotFoundError(f"{directory} does not exist")
 
-    return directory.resolve()
+    return directory.resolve(), (namespace, set()) if namespace is None else (namespace, set())
 
 
 def _add_modules(paths: tuple[typing.Union[str, pathlib.Path]], /) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
