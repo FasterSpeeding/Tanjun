@@ -200,7 +200,7 @@ class Reloader:
         return self
 
     def _scan(self) -> tuple[dict[str, int], dict[pathlib.Path, int]]:
-        for path, directory in self._directories.items():
+        for path, directory in self._directories.copy().items():
             if directory[0] is None:
                 current_paths = set(map(pathlib.Path.absolute, path.glob("*.py")))
                 for old_path in directory[1] - current_paths:
@@ -220,9 +220,9 @@ class Reloader:
                     self._py_paths[new_path] = _PyPathInfo(current_paths[new_path])
 
         py_results = {
-            path: result for path, sys_path in self._py_paths.items() if (result := _scan_one(sys_path.sys_path))
+            path: result for path, sys_path in self._py_paths.copy().items() if (result := _scan_one(sys_path.sys_path))
         }
-        sys_results = {path: result for path in self._sys_paths if (result := _scan_one(path))}
+        sys_results = {path: result for path in self._sys_paths.copy() if (result := _scan_one(path))}
         return py_results, sys_results
 
     async def scan(self, client: tanjun.Client, /) -> None:
