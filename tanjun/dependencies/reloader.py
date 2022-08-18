@@ -69,11 +69,7 @@ class _PyPathScanInfo:
         self.last_modified_at = last_modified_at
 
 
-def _scan_one(path: pathlib.Path, /) -> int:
-    return path.stat().st_mtime_ns
-
-
-def _try_scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
+def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
     try:
         return path.stat().st_mtime_ns
 
@@ -239,25 +235,33 @@ class Reloader:
 
             if directory[0] is None:
                 current_paths = set(filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py"))))
+                for new_path in current_paths - directory[1]:
+                    if time := _scan_one(new_path):
+                        result.sys_paths[new_path] = time
+
+                    else:
+                        result.removed_sys_paths.append(new_path)
+
                 for old_path in directory[1] - current_paths:
                     directory[1].remove(old_path)
                     result.removed_sys_paths.append(old_path)
 
-                for new_path in current_paths - directory[1]:
-                    result.sys_paths[new_path] = _scan_one(new_path)
-
             else:
                 current_paths = {_to_namespace(directory[0], path): path for path in path.glob("*.py")}
+                for new_path in current_paths.keys() - directory[1]:
+                    sys_path = current_paths[new_path]
+                    if time := _scan_one(sys_path):
+                        result.py_paths[new_path] = _PyPathScanInfo(sys_path, time)
+
+                    else:
+                        result.removed_py_paths.append(new_path)
+
                 for old_path in directory[1] - current_paths.keys():
                     directory[1].remove(old_path)
                     result.removed_py_paths.append(old_path)
 
-                for new_path in current_paths.keys() - directory[1]:
-                    sys_path = current_paths[new_path]
-                    result.py_paths[new_path] = _PyPathScanInfo(sys_path, _scan_one(sys_path))
-
         for path in self._sys_paths.copy():
-            if time := _try_scan_one(path):
+            if time := _scan_one(path):
                 result.sys_paths[path] = time
 
             else:
@@ -267,7 +271,7 @@ class Reloader:
             if path in self._dead_unloads:
                 continue
 
-            if time := _try_scan_one(sys_path.sys_path):
+            if time := _scan_one(sys_path.sys_path):
                 result.py_paths[path] = _PyPathScanInfo(sys_path.sys_path, time)
 
             else:
