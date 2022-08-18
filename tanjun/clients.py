@@ -2354,7 +2354,7 @@ class Client(tanjun.Client):
                 found = True
 
         if not found:
-            raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in {module_path}", module_path)
+            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in {module_path}", module_path)
 
     def _load_module(
         self, module_path: typing.Union[str, pathlib.Path]
@@ -2474,7 +2474,7 @@ class Client(tanjun.Client):
         # We assert that the old module has unloaders early to avoid unnecessarily
         # importing the new module.
         if not any(loader.has_unload for loader in old_loaders):
-            raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in old {module_path}", module_path)
+            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in old {module_path}", module_path)
 
         module = yield load_module
 
@@ -2926,5 +2926,9 @@ class _WrapLoadError:
         exc: typing.Optional[BaseException],
         exc_tb: typing.Optional[types.TracebackType],
     ) -> None:
-        if exc and isinstance(exc, Exception) and not isinstance(exc, errors.ModuleMissingLoaders):
+        if (
+            exc
+            and isinstance(exc, Exception)
+            and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
+        ):
             raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception

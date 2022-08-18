@@ -4608,7 +4608,7 @@ class Client(abc.ABC):
         ------
         tanjun.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.ModuleMissingLoaders
+        tanjun.ModuleMissingUnloaders
             If no unloaders are found in the module.
         tanjun.FailedModuleUnload
             If the old version of a module failed to unload.
@@ -4658,8 +4658,9 @@ class Client(abc.ABC):
         tanjun.ModuleStateConflict
             If the module hasn't been loaded.
         tanjun.ModuleMissingLoaders
-            If no unloaders are found in the current state of the module.
             If no loaders are found in the new state of the module.
+        tanjun.ModuleMissingUnloaders
+            If no unloaders are found in the current state of the module.
         ModuleNotFoundError
             If the module can no-longer be found at the provided path.
         """

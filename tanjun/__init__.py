@@ -121,6 +121,7 @@ __all__: list[str] = [
     "MessageHooks",
     "MissingDependencyError",
     "ModuleMissingLoaders",
+    "ModuleMissingUnloaders",
     "ModuleStateConflict",
     "NotEnoughArgumentsError",
     "ParserError",
@@ -296,6 +297,7 @@ from .errors import FailedModuleUnload
 from .errors import HaltExecution
 from .errors import MissingDependencyError
 from .errors import ModuleMissingLoaders
+from .errors import ModuleMissingUnloaders
 from .errors import ModuleStateConflict
 from .errors import NotEnoughArgumentsError
 from .errors import ParserError

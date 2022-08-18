@@ -47,6 +47,7 @@ from collections import abc as collections
 from alluka import abc as alluka
 
 from . import components
+from . import utilities
 
 if typing.TYPE_CHECKING:
     from . import abc as tanjun
@@ -340,6 +341,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     def _remove_task(self, task: asyncio.Task[None], /) -> None:
         self._tasks.remove(task)
 
+    @utilities.print_task_exc("Interval schedule crashed")
     async def _loop(self, client: alluka.Client, /) -> None:
         event_loop = asyncio.get_running_loop()
         try:
@@ -1036,6 +1038,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
     def _remove_task(self, task: asyncio.Task[None], /) -> None:
         self._tasks.remove(task)
 
+    @utilities.print_task_exc("Time schedule crashed")
     async def _loop(self, client: alluka.Client, /) -> None:
         loop = asyncio.get_running_loop()
         try:
