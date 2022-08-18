@@ -56,15 +56,7 @@ _ReloaderT = typing.TypeVar("_ReloaderT", bound="Reloader")
 class _PyPathInfo:
     __slots__ = ("sys_path", "last_modified_at")
 
-    def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: typing.Optional[int] = None) -> None:
-        self.sys_path = sys_path
-        self.last_modified_at = last_modified_at
-
-
-class _PyPathScanInfo:
-    __slots__ = ("sys_path", "last_modified_at")
-
-    def __init__(self, sys_path: pathlib.Path, last_modified_at: int, /) -> None:
+    def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: int = 0) -> None:
         self.sys_path = sys_path
         self.last_modified_at = last_modified_at
 
@@ -81,7 +73,7 @@ class _ScanResult:
     __slots__ = ("py_paths", "removed_py_paths", "removed_sys_paths", "sys_paths")
 
     def __init__(self) -> None:
-        self.py_paths: dict[str, _PyPathScanInfo] = {}
+        self.py_paths: dict[str, _PyPathInfo] = {}
         self.removed_py_paths: list[str] = []
         self.removed_sys_paths: list[pathlib.Path] = []
         self.sys_paths: dict[pathlib.Path, int] = {}
@@ -125,7 +117,7 @@ class Reloader:
         self._py_paths: dict[str, _PyPathInfo] = {}
         """Dict of module paths to info of the modules being targeted."""
 
-        self._sys_paths: dict[pathlib.Path, typing.Optional[int]] = {}
+        self._sys_paths: dict[pathlib.Path, int] = {}
         """Dict of system paths to info of files being targeted."""
 
         self._task: typing.Optional[asyncio.Task[None]] = None
@@ -151,44 +143,27 @@ class Reloader:
     async def add_modules_async(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
         py_paths, sys_paths = await asyncio.get_running_loop().run_in_executor(None, _add_modules, paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, None) for key in sys_paths)
+        self._sys_paths.update((key, 0) for key in sys_paths)
         return self
 
     def add_modules(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
         py_paths, sys_paths = _add_modules(paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, None) for key in sys_paths)
+        self._sys_paths.update((key, 0) for key in sys_paths)
         return self
-
-    def _add_directory_paths(self, paths: list[pathlib.Path], namespace: typing.Optional[str], /) -> _DirectoryEntry:
-        if namespace is None:
-            for path in paths:
-                self._sys_paths[path] = None
-
-            return (namespace, set(paths))
-
-        results = (namespace, set[str]())
-        names = results[1]
-        for path in paths:
-            name = _to_namespace(namespace, path)
-            self._py_paths[name] = _PyPathInfo(path)
-            names.add(name)
-
-        return results
 
     async def add_directory_async(
         self: _ReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> _ReloaderT:
-        path, info = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory, namespace)
-        self._directories[path] = self._add_directory_paths(info, namespace)
+        path = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory)
+        self._directories[path] = (namespace, set()) if namespace is None else (namespace, set())
         return self
 
     def add_directory(
         self: _ReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> _ReloaderT:
-        path, info = _add_directory(directory, namespace)
-        self._add_directory_paths(info, namespace)
-        self._directories[path] = self._add_directory_paths(info, namespace)
+        path = _add_directory(directory)
+        self._directories[path] = (namespace, set()) if namespace is None else (namespace, set())
         return self
 
     async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> None:
@@ -251,7 +226,7 @@ class Reloader:
                 for new_path in current_paths.keys() - directory[1]:
                     sys_path = current_paths[new_path]
                     if time := _scan_one(sys_path):
-                        result.py_paths[new_path] = _PyPathScanInfo(sys_path, time)
+                        result.py_paths[new_path] = _PyPathInfo(sys_path, last_modified_at=time)
 
                     else:
                         result.removed_py_paths.append(new_path)
@@ -272,7 +247,7 @@ class Reloader:
                 continue
 
             if time := _scan_one(sys_path.sys_path):
-                result.py_paths[path] = _PyPathScanInfo(sys_path.sys_path, time)
+                result.py_paths[path] = _PyPathInfo(sys_path.sys_path, last_modified_at=time)
 
             else:
                 result.removed_py_paths.append(path)
@@ -292,11 +267,9 @@ class Reloader:
                     self._py_paths[path] = _PyPathInfo(value.sys_path, last_modified_at=value.last_modified_at)
 
                 else:
-                    assert value.last_modified_at is not None
                     self._waiting_for_py[path] = value.last_modified_at
 
             elif not (path_info := self._py_paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
-                assert value.last_modified_at is not None
                 self._waiting_for_py[path] = value.last_modified_at
 
         for path, value in scan_result.sys_paths.items():
@@ -349,21 +322,19 @@ class Reloader:
         self._task = asyncio.create_task(self._loop(client))
 
 
-def _to_namespace(namespace: str, path: pathlib.Path) -> str:
+def _to_namespace(namespace: str, path: pathlib.Path, /) -> str:
     return namespace + "." + path.name.removesuffix(".py")
 
 
-def _add_directory(
-    directory: typing.Union[str, pathlib.Path], namespace: typing.Optional[str]
-) -> tuple[pathlib.Path, list[pathlib.Path]]:
+def _add_directory(directory: typing.Union[str, pathlib.Path], /) -> pathlib.Path:
     directory = pathlib.Path(directory)
     if not directory.exists():
         raise FileNotFoundError(f"{directory} does not exist")
 
-    return directory.resolve(), list(map(pathlib.Path.resolve, directory.glob("*.py")))
+    return directory.resolve()
 
 
-def _add_modules(paths: tuple[typing.Union[str, pathlib.Path]]) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
+def _add_modules(paths: tuple[typing.Union[str, pathlib.Path]], /) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
     py_paths: dict[str, _PyPathInfo] = {}
     sys_paths: list[pathlib.Path] = []
 
