@@ -56,7 +56,7 @@ _ReloaderT = typing.TypeVar("_ReloaderT", bound="Reloader")
 class _PyPathInfo:
     __slots__ = ("sys_path", "last_modified_at")
 
-    def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: int = 0) -> None:
+    def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: int = -1) -> None:
         self.sys_path = sys_path
         self.last_modified_at = last_modified_at
 
@@ -143,13 +143,13 @@ class Reloader:
     async def add_modules_async(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
         py_paths, sys_paths = await asyncio.get_running_loop().run_in_executor(None, _add_modules, paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, 0) for key in sys_paths)
+        self._sys_paths.update((key, -1) for key in sys_paths)
         return self
 
     def add_modules(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
         py_paths, sys_paths = _add_modules(paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, 0) for key in sys_paths)
+        self._sys_paths.update((key, -1) for key in sys_paths)
         return self
 
     async def add_directory_async(
@@ -235,21 +235,21 @@ class Reloader:
                     directory[1].remove(old_path)
                     result.removed_py_paths.append(old_path)
 
-        for path in self._sys_paths.copy():
+        for path, old_time in self._sys_paths.copy().items():
             if time := _scan_one(path):
                 result.sys_paths[path] = time
 
-            else:
+            elif old_time != -1:
                 result.removed_sys_paths.append(path)
 
-        for path, sys_path in self._py_paths.copy().items():
+        for path, info in self._py_paths.copy().items():
             if path in self._dead_unloads:
                 continue
 
-            if time := _scan_one(sys_path.sys_path):
-                result.py_paths[path] = _PyPathInfo(sys_path.sys_path, last_modified_at=time)
+            if time := _scan_one(info.sys_path):
+                result.py_paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
 
-            else:
+            elif info.last_modified_at != -1:
                 result.removed_py_paths.append(path)
 
         return result
@@ -288,19 +288,11 @@ class Reloader:
         if self._unload_on_delete:
             for path in scan_result.removed_py_paths:
                 self._unload_module(client, path)
-
-                try:
-                    del self._py_paths[path]
-                except KeyError:
-                    pass
+                self._py_paths[path].last_modified_at = -1
 
             for path in scan_result.removed_sys_paths:
                 self._unload_module(client, path)
-
-                try:
-                    del self._sys_paths[path]
-                except KeyError:
-                    pass
+                self._sys_paths[path] = -1
 
     @utilities.print_task_exc("Reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
