@@ -40,37 +40,17 @@ import importlib.util
 import logging
 import pathlib
 import typing
-from collections import abc as collections
 
 import alluka
 
 from .. import abc as tanjun
 from .. import errors
-
-if typing.TYPE_CHECKING:
-    import typing_extensions
-
-    _P = typing_extensions.ParamSpec("_P")
+from .. import utilities
 
 _LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
 _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
 _ReloaderT = typing.TypeVar("_ReloaderT", bound="Reloader")
-_T = typing.TypeVar("_T")
-
-
-def _print_task_exc(
-    callback: collections.Callable[_P, collections.Awaitable[_T]], /
-) -> collections.Callable[_P, collections.Coroutine[typing.Any, typing.Any, _T]]:
-    async def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
-        try:
-            return await callback(*args, **kwargs)
-
-        except Exception as exc:
-            _LOGGER.exception("Reloader crashed", exc_info=exc)
-            raise exc from None  # noqa: R101  # use bare raise in except handler?
-
-    return wrapper
 
 
 class _PyPathInfo:
@@ -81,7 +61,19 @@ class _PyPathInfo:
         self.last_modified_at = last_modified_at
 
 
-def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
+class _PyPathScanInfo:
+    __slots__ = ("sys_path", "last_modified_at")
+
+    def __init__(self, sys_path: pathlib.Path, last_modified_at: int, /) -> None:
+        self.sys_path = sys_path
+        self.last_modified_at = last_modified_at
+
+
+def _scan_one(path: pathlib.Path, /) -> int:
+    return path.stat().st_mtime_ns
+
+
+def _try_scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
     try:
         return path.stat().st_mtime_ns
 
@@ -89,41 +81,35 @@ def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
         return None
 
 
-async def _load_module(client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
-    try:
-        await client.reload_modules_async(path)
-        return True
+class _ScanResult:
+    __slots__ = ("py_paths", "removed_py_paths", "removed_sys_paths", "sys_paths")
 
-    except errors.ModuleStateConflict:
-        pass
-
-    except Exception as exc:
-        _LOGGER.exception(f"Failed to reload module {path}", exc_info=exc)
-        return False
-
-    try:
-        await client.load_modules_async(path)
-        return True
-
-    except Exception as exc:
-        _LOGGER.exception(f"Failed to reload module {path}", exc_info=exc)
-        return False
+    def __init__(self) -> None:
+        self.py_paths: dict[str, _PyPathScanInfo] = {}
+        self.removed_py_paths: list[str] = []
+        self.removed_sys_paths: list[pathlib.Path] = []
+        self.sys_paths: dict[pathlib.Path, int] = {}
 
 
 class Reloader:
     __slots__ = (
+        "_dead_unloads",
         "_directories",
         "_interval",
         "_py_paths",
         "_py_path_to_sys_path",
         "_sys_paths",
         "_task",
+        "_unload_on_delete",
         "_waiting_for_py",
         "_waiting_for_sys",
     )
 
     def __init__(
-        self, *, interval: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(microseconds=500000)
+        self,
+        *,
+        interval: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(microseconds=500000),
+        unload_on_delete: bool = False,
     ) -> None:
         if isinstance(interval, datetime.timedelta):
             interval = interval.total_seconds()
@@ -131,8 +117,14 @@ class Reloader:
         else:
             interval = float(interval)
 
+        self._dead_unloads: set[typing.Union[str, pathlib.Path]] = set()
+        """Set of modules which cannot be unloaded."""
+
         self._directories: dict[pathlib.Path, _DirectoryEntry] = {}
+        """Dict of paths to the metadata of tracked directories."""
+
         self._interval = interval
+        """How often this should scan for changes and (re)load modules."""
 
         self._py_paths: dict[str, _PyPathInfo] = {}
         """Dict of module paths to info of the modules being targeted."""
@@ -141,6 +133,7 @@ class Reloader:
         """Dict of system paths to info of files being targeted."""
 
         self._task: typing.Optional[asyncio.Task[None]] = None
+        self._unload_on_delete = unload_on_delete
 
         self._waiting_for_py: dict[str, int] = {}
         """Dict of module paths to the new edit time of a module that's scheduled for a reload."""
@@ -199,64 +192,137 @@ class Reloader:
         self._directories[path] = self._add_directory_paths(info, namespace)
         return self
 
-    def _scan(self) -> tuple[dict[str, int], dict[pathlib.Path, int]]:
+    async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> None:
+        try:
+            await client.reload_modules_async(path)
+            return
+
+        except errors.ModuleStateConflict:
+            pass
+
+        except (errors.FailedModuleUnload, errors.ModuleMissingUnloaders) as exc:
+            self._dead_unloads.add(path)
+            _LOGGER.exception(f"Failed to unload module {path}", exc_info=exc)
+            return
+
+        except Exception as exc:
+            _LOGGER.exception(f"Failed to reload module {path}", exc_info=exc)
+            return
+
+        try:
+            await client.load_modules_async(path)
+
+        except Exception as exc:
+            _LOGGER.exception(f"Failed to load module {path}", exc_info=exc)
+
+    def _unload_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
+        try:
+            client.unload_modules()
+            return True
+
+        except errors.ModuleStateConflict:
+            return True
+
+        except Exception as exc:
+            self._dead_unloads.add(path)
+            _LOGGER.exception(f"Failed to unload module {path}", exc_info=exc)
+            return False
+
+    def _scan(self) -> _ScanResult:
+        result = _ScanResult()
         for path, directory in self._directories.copy().items():
+            if path in self._dead_unloads:
+                continue  # There's no point trying to reload a module which cannot be unloaded.
+
             if directory[0] is None:
                 current_paths = set(map(pathlib.Path.absolute, path.glob("*.py")))
                 for old_path in directory[1] - current_paths:
-                    del self._sys_paths[old_path]
                     directory[1].remove(old_path)
+                    result.removed_sys_paths.append(old_path)
 
                 for new_path in current_paths - directory[1]:
-                    self._sys_paths[new_path] = None
+                    result.sys_paths[new_path] = _scan_one(new_path)
 
             else:
                 current_paths = {_to_namespace(directory[0], path): path for path in path.glob("*.py")}
                 for old_path in directory[1] - current_paths.keys():
-                    del self._py_paths[old_path]
                     directory[1].remove(old_path)
+                    result.removed_py_paths.append(old_path)
 
                 for new_path in current_paths.keys() - directory[1]:
-                    self._py_paths[new_path] = _PyPathInfo(current_paths[new_path])
+                    sys_path = current_paths[new_path]
+                    result.py_paths[new_path] = _PyPathScanInfo(sys_path, _scan_one(sys_path))
 
-        py_results = {
-            path: result for path, sys_path in self._py_paths.copy().items() if (result := _scan_one(sys_path.sys_path))
-        }
-        sys_results = {path: result for path in self._sys_paths.copy() if (result := _scan_one(path))}
-        return py_results, sys_results
+        for path in self._sys_paths.copy():
+            if time := _try_scan_one(path):
+                result.sys_paths[path] = time
+
+            else:
+                result.removed_sys_paths.append(path)
+
+        for path, sys_path in self._py_paths.copy().items():
+            if path in self._dead_unloads:
+                continue
+
+            if time := _try_scan_one(sys_path.sys_path):
+                result.py_paths[path] = _PyPathScanInfo(sys_path.sys_path, time)
+
+            else:
+                result.removed_py_paths.append(path)
+
+        return result
 
     async def scan(self, client: tanjun.Client, /) -> None:
         loop = asyncio.get_running_loop()
-        py_paths, sys_paths = await loop.run_in_executor(None, self._scan)
+        scan_result = await loop.run_in_executor(None, self._scan)
 
         # TODO: do we want the wait_for to be on a quicker schedule
-        for path, value in py_paths.items():
+        for path, value in scan_result.py_paths.items():
             if tracked_value := self._waiting_for_py.get(path):
-                if value == tracked_value:
+                if value.last_modified_at == tracked_value:
                     del self._waiting_for_py[path]
-                    await _load_module(client, path)
-                    self._py_paths[path].last_modified_at = value
+                    await self._load_module(client, path)
+                    self._py_paths[path] = _PyPathInfo(value.sys_path, last_modified_at=value.last_modified_at)
 
                 else:
-                    self._waiting_for_py[path] = value
+                    assert value.last_modified_at is not None
+                    self._waiting_for_py[path] = value.last_modified_at
 
-            elif not (path_info := self._py_paths.get(path)) or path_info.last_modified_at != value:
-                self._waiting_for_py[path] = value
+            elif not (path_info := self._py_paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
+                assert value.last_modified_at is not None
+                self._waiting_for_py[path] = value.last_modified_at
 
-        for path, value in sys_paths.items():
+        for path, value in scan_result.sys_paths.items():
             if tracked_value := self._waiting_for_sys.get(path):
                 if value == tracked_value:
                     del self._waiting_for_sys[path]
-                    await _load_module(client, path)
+                    await self._load_module(client, path)
                     self._sys_paths[path] = value
 
                 else:
                     self._waiting_for_sys[path] = tracked_value
 
-            elif (new_value := self._sys_paths.get(path)) is None or new_value != value:
+            elif self._sys_paths.get(path) != value:
                 self._waiting_for_sys[path] = value
 
-    @_print_task_exc
+        if self._unload_on_delete:
+            for path in scan_result.removed_py_paths:
+                self._unload_module(client, path)
+
+                try:
+                    del self._py_paths[path]
+                except KeyError:
+                    pass
+
+            for path in scan_result.removed_sys_paths:
+                self._unload_module(client, path)
+
+                try:
+                    del self._sys_paths[path]
+                except KeyError:
+                    pass
+
+    @utilities.print_task_exc("Reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
         while True:
             await asyncio.sleep(self._interval)
