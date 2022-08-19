@@ -87,7 +87,7 @@ class HotReloader:
 
     Parameters
     ----------
-    interal
+    interval
         How often this should scan files and directories for changes in seconds.
     unload_on_delete
         Whether this should unload modules when their relevant file is deleted.
