@@ -1330,7 +1330,6 @@ class Client(tanjun.Client):
 
             if isinstance(command, tanjun.AppCommand):
                 names_to_commands[key] = command
-
                 builder = command.build()
 
             else:
