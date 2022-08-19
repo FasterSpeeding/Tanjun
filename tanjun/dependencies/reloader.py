@@ -454,7 +454,26 @@ class HotReloader:
     async def _declare_commands(self, client: tanjun.Client, builders: _BuilderDict, /) -> None:
         await asyncio.sleep(self._redeclare_cmds_after)
 
-        while builders != self._scheduled_builders:
+        while True:
+            if builders == self._scheduled_builders:
+                try:
+                    await client.declare_application_commands(builders.values(), guild=self._commands_guild)
+
+                except (hikari.RateLimitedError, hikari.RateLimitTooLongError):
+                    _LOGGER.error("Timed out on command declare, will try again soon")
+
+                except Exception as exc:
+                    resource = "global" if self._commands_guild is hikari.UNDEFINED else f"guild ({self._command_task})"
+                    _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
+                    self._declared_builders = builders
+                    self._command_task = None
+                    return
+
+                except BaseException:
+                    self._declared_builders = builders
+                    self._command_task = None
+                    raise
+
             builders = self._scheduled_builders
             if self._scheduled_builders == self._declared_builders:
                 self._command_task = None
@@ -464,19 +483,9 @@ class HotReloader:
                 await asyncio.sleep(self._redeclare_cmds_after)
 
             except BaseException:
+                self._declared_builders = builders
                 self._command_task = None
                 raise
-
-        try:
-            await client.declare_application_commands(builders.values(), guild=self._commands_guild)
-
-        except Exception as exc:
-            resource = "global" if self._commands_guild is hikari.UNDEFINED else f"guild ({self._command_task})"
-            _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
-
-        finally:
-            self._declared_builders = builders
-            self._command_task = None
 
     @utilities.print_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
