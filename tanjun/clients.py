@@ -497,6 +497,33 @@ class _StartDeclarer:
         )
 
 
+class _DeclaredCommands(tanjun.DeclaredCommands):
+    __slots__ = ("_builders", "_commands", "_guild_id")
+
+    def __init__(
+        self,
+        builders: collections.Sequence[hikari.api.CommandBuilder],
+        commands: collections.Sequence[hikari.PartialCommand],
+        guild_id: typing.Optional[hikari.Snowflake],
+        /,
+    ) -> None:
+        self._builders = builders
+        self._commands = commands
+        self._guild_id = guild_id
+
+    @property
+    def builders(self) -> collections.Sequence[hikari.api.CommandBuilder]:
+        return self._builders
+
+    @property
+    def commands(self) -> collections.Sequence[hikari.PartialCommand]:
+        return self._commands
+
+    @property
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+        return self._guild_id
+
+
 def _log_clients(
     cache: typing.Optional[hikari.api.Cache],
     events: typing.Optional[hikari.api.EventManager],
@@ -1358,14 +1385,14 @@ class Client(tanjun.Client):
         user_ids = user_ids or {}
         names_to_commands: dict[tuple[hikari.CommandType, str], tanjun.AppCommand[typing.Any]] = {}
         conflicts: set[tuple[hikari.CommandType, str]] = set()
-        builders: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
+        builders_dict: dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder] = {}
         message_count = 0
         slash_count = 0
         user_count = 0
 
         for command in commands:
             key = (command.type, command.name)
-            if key in builders:
+            if key in builders_dict:
                 conflicts.add(key)
 
             if isinstance(command, tanjun.AppCommand):
@@ -1399,7 +1426,7 @@ class Client(tanjun.Client):
             if localiser:
                 localisation.localise_command(builder, localiser)
 
-            builders[key] = builder
+            builders_dict[key] = builder
 
         if conflicts:
             raise ValueError(
@@ -1421,14 +1448,15 @@ class Client(tanjun.Client):
 
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
-            if _internal.cmp_all_commands(registered_commands, builders):
+            if _internal.cmp_all_commands(registered_commands, builders_dict):
                 _LOGGER.info(
                     "Skipping bulk declare for %s application commands since they're already declared", target_type
                 )
                 return registered_commands
 
-        _LOGGER.info("Bulk declaring %s %s application commands", len(builders), target_type)
-        responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
+        _LOGGER.info("Bulk declaring %s %s application commands", len(builders_dict), target_type)
+        builders = list(builders_dict.values())
+        responses = await self._rest.set_application_commands(application, builders, guild=guild)
 
         for response in responses:  # different command_ name used here for MyPy compat
             if not guild and (command_ := names_to_commands.get((response.type, response.name))):
@@ -1442,6 +1470,10 @@ class Client(tanjun.Client):
                 ", ".join(f"{response.type}-{response.name}: {response.id}" for response in responses),
             )
 
+        await self.dispatch_client_callback(
+            tanjun.ClientCallbackNames.APP_COMMANDS_DECLARED,
+            _DeclaredCommands(builders, responses, None if guild is hikari.UNDEFINED else hikari.Snowflake(guild)),
+        )
         return responses
 
     def set_auto_defer_after(self, time: typing.Optional[float], /) -> Self:

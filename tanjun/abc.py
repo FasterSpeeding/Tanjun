@@ -3862,10 +3862,38 @@ class Component(abc.ABC):
         """
 
 
+class DeclaredCommands(abc.ABC):
+    __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def builders(self) -> collections.Sequence[hikari.api.CommandBuilder]:
+        """The declared command builders."""
+
+    @property
+    @abc.abstractmethod
+    def commands(self) -> collections.Sequence[hikari.PartialCommand]:
+        """The declared command objects."""
+
+    @property
+    @abc.abstractmethod
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+        """Id of the guild these commands were declared for.
+
+        This will be [None][] if they were declared globally.
+        """
+
+
 class ClientCallbackNames(str, enum.Enum):
     """Enum of the standard client callback names.
 
     These should be dispatched by all [tanjun.abc.Client][] implementations.
+    """
+
+    APP_COMMANDS_DECLARED = "app_commands_delcared"
+    """Called when the application commands are declared through the client.
+
+    One positional argument of type [DeclaredCommands][].
     """
 
     CLOSED = "closed"
