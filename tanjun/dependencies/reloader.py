@@ -455,6 +455,10 @@ class HotReloader:
         await asyncio.sleep(self._redeclare_cmds_after)
 
         while builders != self._scheduled_builders:
+            if self._scheduled_builders == self._declared_builders:
+                self._command_task = None
+                return
+
             try:
                 await asyncio.sleep(self._redeclare_cmds_after)
             except BaseException:
