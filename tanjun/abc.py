@@ -4001,7 +4001,7 @@ class Client(abc.ABC):
     @abc.abstractmethod
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[AppCommand[typing.Any]],
+        commands: collections.Iterable[typing.Union[AppCommand[typing.Any], hikari.api.CommandBuilder]],
         /,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
@@ -4021,7 +4021,7 @@ class Client(abc.ABC):
         Parameters
         ----------
         commands
-            Iterable of the commands to register.
+            Iterable of the commands objects or builders to register.
         command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.

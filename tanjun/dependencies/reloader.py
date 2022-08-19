@@ -37,11 +37,13 @@ __all__: list[str] = []
 import asyncio
 import datetime
 import importlib
+import itertools
 import logging
 import pathlib
 import typing
 
 import alluka
+import hikari
 
 from .. import abc as tanjun
 from .. import errors
@@ -49,6 +51,7 @@ from .. import utilities
 
 _LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
+_BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
 _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
 _HotReloaderT = typing.TypeVar("_HotReloaderT", bound="HotReloader")
 
@@ -106,11 +109,16 @@ class HotReloader:
     """
 
     __slots__ = (
+        "_command_task",
+        "_commands_guild",
         "_dead_unloads",
+        "_declared_builders",
         "_directories",
         "_interval",
         "_py_paths",
         "_py_path_to_sys_path",
+        "_redeclare_cmds_after",
+        "_scheduled_builders",
         "_sys_paths",
         "_task",
         "_unload_on_delete",
@@ -121,24 +129,37 @@ class HotReloader:
     def __init__(
         self,
         *,
+        commands_guild: typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]] = None,
         interval: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(microseconds=500000),
+        redeclare_cmds_after: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(seconds=10),
         unload_on_delete: bool = True,
     ) -> None:
-        if isinstance(interval, datetime.timedelta):
-            interval = interval.total_seconds()
+        if redeclare_cmds_after is None:
+            pass
+
+        elif isinstance(redeclare_cmds_after, datetime.timedelta):
+            redeclare_cmds_after = redeclare_cmds_after.total_seconds()
 
         else:
-            interval = float(interval)
+            redeclare_cmds_after = float(redeclare_cmds_after)
 
+        self._command_task: typing.Optional[asyncio.Task[None]] = None
+        self._commands_guild = hikari.UNDEFINED if commands_guild is None else hikari.Snowflake(commands_guild)
         self._dead_unloads: set[typing.Union[str, pathlib.Path]] = set()
         """Set of modules which cannot be unloaded."""
+        self._declared_builders: _BuilderDict = {}
+        """State of the last declared builders."""
 
         self._directories: dict[pathlib.Path, _DirectoryEntry] = {}
         """Dict of paths to the metadata of tracked directories."""
 
-        self._interval = interval
+        self._interval = interval.total_seconds() if isinstance(interval, datetime.timedelta) else float(interval)
         self._py_paths: dict[str, _PyPathInfo] = {}
         """Dict of module paths to info of the modules being targeted."""
+
+        self._redeclare_cmds_after = redeclare_cmds_after
+        self._scheduled_builders: _BuilderDict = {}
+        """State of the builders to be declared next."""
 
         self._sys_paths: dict[pathlib.Path, int] = {}
         """Dict of system paths to info of files being targeted."""
@@ -269,10 +290,10 @@ class HotReloader:
         self._directories[path] = info
         return self
 
-    async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> None:
+    async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
         try:
             await client.reload_modules_async(path)
-            return
+            return True
 
         except errors.ModuleStateConflict:
             pass
@@ -280,17 +301,19 @@ class HotReloader:
         except (errors.FailedModuleUnload, errors.ModuleMissingUnloaders) as exc:
             self._dead_unloads.add(path)
             _LOGGER.exception(f"Failed to unload module {path}", exc_info=exc)
-            return
+            return False
 
         except Exception as exc:
             _LOGGER.exception(f"Failed to reload module {path}", exc_info=exc)
-            return
+            return False
 
         try:
             await client.load_modules_async(path)
+            return True
 
         except Exception as exc:
             _LOGGER.exception(f"Failed to load module {path}", exc_info=exc)
+            return False
 
     def _unload_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
         try:
@@ -367,13 +390,15 @@ class HotReloader:
         """
         loop = asyncio.get_running_loop()
         scan_result = await loop.run_in_executor(None, self._scan)
+        changed = False
 
         # TODO: do we want the wait_for to be on a quicker schedule
         for path, value in scan_result.py_paths.items():
             if tracked_value := self._waiting_for_py.get(path):
                 if value.last_modified_at == tracked_value:
                     del self._waiting_for_py[path]
-                    await self._load_module(client, path)
+                    result = await self._load_module(client, path)
+                    changed = result or changed
                     self._py_paths[path] = value
 
                 else:
@@ -386,7 +411,8 @@ class HotReloader:
             if tracked_value := self._waiting_for_sys.get(path):
                 if value == tracked_value:
                     del self._waiting_for_sys[path]
-                    await self._load_module(client, path)
+                    result = await self._load_module(client, path)
+                    changed = result or changed
                     self._sys_paths[path] = value
 
                 else:
@@ -397,12 +423,56 @@ class HotReloader:
 
         if self._unload_on_delete:
             for path in scan_result.removed_py_paths:
-                self._unload_module(client, path)
+                result = self._unload_module(client, path)
+                changed = result or changed
                 self._py_paths[path].last_modified_at = -1
 
             for path in scan_result.removed_sys_paths:
-                self._unload_module(client, path)
+                result = self._unload_module(client, path)
+                changed = result or changed
                 self._sys_paths[path] = -1
+
+        if not changed or self._redeclare_cmds_after is None:
+            return
+
+        builders: _BuilderDict = {
+            (cmd.type, cmd.name): cmd.build()
+            for cmd in list(
+                itertools.chain(
+                    client.iter_menu_commands(global_only=True), client.iter_slash_commands(global_only=True)
+                )
+            )
+        }
+        if self._command_task:
+            if builders != self._scheduled_builders:
+                self._scheduled_builders = builders
+
+        elif builders != self._declared_builders:
+            self._scheduled_builders = builders
+            self._command_task = loop.create_task(self._declare_commands(client, builders))
+
+    async def _declare_commands(self, client: tanjun.Client, builders: _BuilderDict, /) -> None:
+        await asyncio.sleep(self._redeclare_cmds_after)
+
+        while builders != self._scheduled_builders:
+            try:
+                await asyncio.sleep(self._redeclare_cmds_after)
+            except BaseException:
+                self._command_task = None
+                raise
+
+            builders = self._scheduled_builders
+
+        try:
+            await client.declare_application_commands(builders.values(), guild=self._commands_guild)
+
+        except Exception as exc:
+            resource = "global" if self._commands_guild is hikari.UNDEFINED else f"guild ({self._command_task})"
+            _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
+
+        finally:
+            self._declared_builders = builders
+            self._command_task = None
 
     @utilities.print_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:

@@ -1302,7 +1302,7 @@ class Client(tanjun.Client):
 
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[tanjun.AppCommand[typing.Any]],
+        commands: collections.Iterable[typing.Union[tanjun.AppCommand[typing.Any], hikari.api.CommandBuilder]],
         /,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
@@ -1325,11 +1325,17 @@ class Client(tanjun.Client):
 
         for command in commands:
             key = (command.type, command.name)
-            names_to_commands[key] = command
             if key in builders:
                 conflicts.add(key)
 
-            builder = command.build()
+            if isinstance(command, tanjun.AppCommand):
+                names_to_commands[key] = command
+
+                builder = command.build()
+
+            else:
+                builder = command
+
             command_id = None
             if builder.type is hikari.CommandType.USER:
                 user_count += 1
@@ -1385,8 +1391,8 @@ class Client(tanjun.Client):
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
         for response in responses:
-            if not guild:
-                names_to_commands[(response.type, response.name)].set_tracked_command(response)  # TODO: is this fine?
+            if not guild and (command := names_to_commands[(response.type, response.name)]):
+                command.set_tracked_command(response)  # TODO: is this fine?
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):

@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `follow_wrapped` argument to the with check and with limiter decorators to allow for applying the
   limiter/check to all the commands in a decorator chain (in a similar fashion to how
   `with_parsed_annotations` behaves.
-- Hot module reloading as a development aid.
+- Hot module reloading as a bot development aid.
 
 ### Changed
 - `tanjun.ModuleMissingUnloaders` is now raised by `client.unload_modules`, `client.reload_modules` and
   `client.reload_modules_async` when the stored module has no unloaders instead of
   `tanjun.ModuleMissingLoaders`
+- [hikari.api.special_endpoints.CommandBuilder][] can also be included in the list
+  passed to `Client.declare_application_commands`'s first arg now.
 
 ### Changed
 - Moved permissions functions to [tanjun.permissions][] while keeping deprecated aliases in the now
