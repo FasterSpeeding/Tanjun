@@ -46,11 +46,11 @@ __all__: list[str] = [
     "CooldownPreExecution",
     "EntryNotFound",
     "GuildBoundCache",
+    "HotReloader",
     "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
     "LazyConstant",
     "Owners",
-    "Reloader",
     "SfCache",
     "SfChannelBound",
     "SfGuildBound",
@@ -97,7 +97,7 @@ from .limiters import with_concurrency_limit
 from .limiters import with_cooldown
 from .owners import AbstractOwners
 from .owners import Owners
-from .reloader import Reloader
+from .reloader import HotReloader
 
 
 def set_standard_dependencies(client: _tanjun.Client, /) -> None:

@@ -29,14 +29,14 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Implementation of a hot-reloader for Tanjun"""
+"""Implementation of a hot reloader for Tanjun"""
 from __future__ import annotations
 
 __all__: list[str] = []
 
 import asyncio
 import datetime
-import importlib.util
+import importlib
 import logging
 import pathlib
 import typing
@@ -50,7 +50,7 @@ from .. import utilities
 _LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
 _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
-_ReloaderT = typing.TypeVar("_ReloaderT", bound="Reloader")
+_HotReloaderT = typing.TypeVar("_HotReloaderT", bound="HotReloader")
 
 
 class _PyPathInfo:
@@ -79,7 +79,32 @@ class _ScanResult:
         self.sys_paths: dict[pathlib.Path, int] = {}
 
 
-class Reloader:
+class HotReloader:
+    """Utility class use for handling hot
+
+    !!! note
+        An instance of this can only be linked to 1 client.
+
+    Parameters
+    ----------
+    interal
+        How often this should scan files and directories for changes in seconds.
+    unload_on_delete
+        Whether this should unload modules when their relevant file is deleted.
+
+    Examples
+    --------
+    ```py
+    client = tanjun.Client.from_gateway_bot(bot)
+    (
+        tanjun.dependencies.HotReloader()
+        .add_modules("python.module.path", pathlib.Path("./module.py"))
+        .add_directory("./modules/")
+        .add_to_client(client)
+    )
+    ```
+    """
+
     __slots__ = (
         "_dead_unloads",
         "_directories",
@@ -112,8 +137,6 @@ class Reloader:
         """Dict of paths to the metadata of tracked directories."""
 
         self._interval = interval
-        """How often this should scan for changes and (re)load modules."""
-
         self._py_paths: dict[str, _PyPathInfo] = {}
         """Dict of module paths to info of the modules being targeted."""
 
@@ -129,39 +152,119 @@ class Reloader:
         self._waiting_for_sys: dict[pathlib.Path, int] = {}
         """Dict of system paths to the new edit time of a module that's scheduled for a reload."""
 
-    def add_to_client(self: _ReloaderT, client: tanjun.Client, /) -> _ReloaderT:
+    def add_to_client(self: _HotReloaderT, client: tanjun.Client, /) -> _HotReloaderT:
+        """Add this to a [tanjun.abc.Client][] instance.
+
+        This registers start and closing callbacks which handle the lifetime of
+        this and adds this as a type dependency.
+
+        Parameters
+        ----------
+        client
+            The client to link this hot reloader to.
+
+        Returns
+        -------
+        Self
+            The hot reloader to enable chained calls.
+        """
         (
             client.add_client_callback(tanjun.ClientCallbackNames.STARTED, self.start)
             .add_client_callback(tanjun.ClientCallbackNames.CLOSING, self.stop)
-            .set_type_dependency(Reloader, self)
+            .set_type_dependency(HotReloader, self)
         )
         if client.is_alive and client.loop:
             client.loop.call_soon_threadsafe(self.start, client)
 
         return self
 
-    async def add_modules_async(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
+    async def add_modules_async(self: _HotReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _HotReloaderT:
+        """Asynchronous variant of [tanjun.dependencies.reloader.HotReloader.add_modules][].
+
+        Unlike [tanjun.dependencies.reloader.HotReloader.add_modules][],
+        this method will run blocking code in a background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for [tanjun.abc.Client.load_modules][].
+        """
         py_paths, sys_paths = await asyncio.get_running_loop().run_in_executor(None, _add_modules, paths)
         self._py_paths.update(py_paths)
         self._sys_paths.update((key, -1) for key in sys_paths)
         return self
 
-    def add_modules(self: _ReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _ReloaderT:
+    def add_modules(self: _HotReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _HotReloaderT:
+        """Add modules for this hot reloader to track.
+
+        Parameters
+        ----------
+        paths
+            Module paths for this hot reloader to track.
+
+            This has the same behaviour as [tanjun.abc.Client.load_modules][
+            for how [pathlib.Path][] and [str][] are treated.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the module's file doesn't exist anymore.
+        ModuleNotFoundError
+            If the [str][] module path cannot be imported.
+        """
         py_paths, sys_paths = _add_modules(paths)
         self._py_paths.update(py_paths)
         self._sys_paths.update((key, -1) for key in sys_paths)
         return self
 
     async def add_directory_async(
-        self: _ReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> _ReloaderT:
+        self: _HotReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+    ) -> _HotReloaderT:
+        """Asynchronous variant of [tanjun.dependencies.reloader.HotReloader.add_directory][].
+
+        Unlike [tanjun.dependencies.reloader.HotReloader.add_directory][],
+        this method will run blocking code in a background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for [tanjun.dependencies.reloader.HotReloader.add_directory][].
+        """
         path, info = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory, namespace)
         self._directories[path] = info
         return self
 
     def add_directory(
-        self: _ReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> _ReloaderT:
+        self: _HotReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+    ) -> _HotReloaderT:
+        """Add a directory for this hot reloader to track.
+
+        !!! note
+            This will only reload modules directly in the target directory and
+            will not scan sub-directories.
+
+        Parameters
+        ----------
+        directory
+            Path of the directory to hot reload.
+        namespace
+            The python namespace this directory's modules should be imported
+            from, if applicable.
+
+            This work as `{namespace}.{file.name.removesuffix(".py")}` and will
+            have the same behaviour as when a [str][] is passed to
+            [tanjun.abc.Client.load_modules][] if passed.
+
+            If left as [None][] then this will have the same behaviour as when
+            a [pathlib.Path][] is passed to [tanjun.abc.Client.load_modules][].
+
+
+        Returns
+        -------
+        Self
+            The hot reloader to enable chained calls.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the directory cannot be found
+        """
         path, info = _add_directory(directory, namespace)
         self._directories[path] = info
         return self
@@ -254,7 +357,14 @@ class Reloader:
 
         return result
 
-    async def scan(self, client: tanjun.Client, /) -> None:
+    async def scan(self, client: tanjun.Client, /) -> None:  # TODO: maybe don't load pass the Client here?
+        """Manually scan this hot reloader's tracked modules for changes.
+
+        Parameters
+        ----------
+        client
+            The client to reload and unload modules in.
+        """
         loop = asyncio.get_running_loop()
         scan_result = await loop.run_in_executor(None, self._scan)
 
@@ -264,7 +374,7 @@ class Reloader:
                 if value.last_modified_at == tracked_value:
                     del self._waiting_for_py[path]
                     await self._load_module(client, path)
-                    self._py_paths[path] = _PyPathInfo(value.sys_path, last_modified_at=value.last_modified_at)
+                    self._py_paths[path] = value
 
                 else:
                     self._waiting_for_py[path] = value.last_modified_at
@@ -294,22 +404,36 @@ class Reloader:
                 self._unload_module(client, path)
                 self._sys_paths[path] = -1
 
-    @utilities.print_task_exc("Reloader crashed")
+    @utilities.print_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
         while True:
             await asyncio.sleep(self._interval)
             await self.scan(client)
 
     def stop(self) -> None:
+        """Stop the hot reloader.
+
+        Raises
+        ------
+        RuntimeError
+            If the hot reloader isn't running.
+        """
         if not self._task:
-            raise RuntimeError("Reloader not running")
+            raise RuntimeError("Hot reloader is not running")
 
         self._task.cancel()
         self._task = None
 
     def start(self, client: alluka.Injected[tanjun.Client]) -> None:
+        """Start the hot reloader.
+
+        Raises
+        ------
+        RuntimeError
+            If the hot reloader is already running.
+        """
         if self._task:
-            raise RuntimeError("Reloader already started")
+            raise RuntimeError("Hot reloader has already been started")
 
         self._task = asyncio.create_task(self._loop(client))
 
@@ -340,11 +464,11 @@ def _add_modules(paths: tuple[typing.Union[str, pathlib.Path]], /) -> tuple[dict
             sys_paths.append(raw_path)
 
         else:
-            spec = importlib.util.find_spec(raw_path)
-            if not spec or not spec.has_location or not spec.origin:
-                raise ValueError(f"{raw_path} is not a valid module path")
+            module = importlib.import_module(raw_path)
+            if not module.__file__:
+                raise RuntimeError(f"{raw_path} has no file")
 
-            path = pathlib.Path(spec.origin).resolve()
+            path = pathlib.Path(module.__file__).resolve()
             if not path.exists():
                 raise FileNotFoundError(f"{path} not found for module {raw_path}")
 
