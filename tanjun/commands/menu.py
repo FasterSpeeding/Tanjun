@@ -496,6 +496,10 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         return self._names.localised_values.copy()
 
     @property
+    def name_localizations(self) -> collections.Mapping[str, str]:
+        return self.name_localisations
+
+    @property
     def tracked_command(self) -> typing.Optional[hikari.ContextMenuCommand]:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         return self._tracked_command
