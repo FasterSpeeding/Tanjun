@@ -84,7 +84,9 @@ if typing.TYPE_CHECKING:
     ]
     _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
 
-_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
+_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(
+    r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$", flags=re.UNICODE
+)
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
