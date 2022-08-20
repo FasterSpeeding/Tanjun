@@ -54,8 +54,8 @@ __all__: list[str] = [
 
 import copy
 import itertools
-import re
 import typing
+import unicodedata
 import warnings
 from collections import abc as collections
 
@@ -84,9 +84,6 @@ if typing.TYPE_CHECKING:
     ]
     _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
 
-_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(
-    r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$", flags=re.UNICODE
-)
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
@@ -95,6 +92,44 @@ ConverterSig = typing.Union[
     collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]],
     collections.Callable[..., typing.Any],
 ]
+
+
+_SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
+_VALID_UNICODE_CATEGORIES = frozenset(
+    (
+        # L
+        "Lu",
+        "Ll",
+        "Lt",
+        "Lm",
+        "Lo",
+        # N
+        "Nd",
+        "Nl",
+        "No",
+    )
+)
+_VALID_CHARACTERS = frozenset(("-", "_"))
+
+
+def _check_char(character: str) -> bool:
+    # `^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`
+    # * `-_`` is just `-` and `_`
+    # * L (All letter characters so "Lu", "Ll", "Lt", "Lm" and "Lo")
+    # * N (all numeric characters so "Nd", "Nl" and "No")
+    # * Deva: `\u0900-\u097F`  # TODO: Deva extended?
+    # * Thai: `\u0E00-\u0E7F`
+
+    return (
+        unicodedata.category(character) in _VALID_UNICODE_CATEGORIES
+        or character in _VALID_CHARACTERS
+        or 0x0900 >= (code_point := ord(character)) <= 0x097F
+        or 0x0E00 >= code_point <= 0x0E7F
+    )
+
+
+def _validate_name(name: str) -> bool:
+    return all(map(_check_char, name))
 
 
 def slash_command_group(
@@ -879,7 +914,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         super().__init__()
         names = utilities.MaybeLocalised(name)
         names.assert_length("name", 1, 32)
-        names.assert_matches("name", _SCOMMAND_NAME_REG, lower_only=True)
+        names.assert_matches("name", _SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions = utilities.MaybeLocalised(description)
         descriptions.assert_length("description", 1, 100)
 
@@ -1650,7 +1685,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         _stack_level: int = 0,
     ) -> _SlashCommandT:
         names.assert_length("name", 1, 32)
-        names.assert_matches("name", _SCOMMAND_NAME_REG, lower_only=True)
+        names.assert_matches("name", _SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions.assert_length("description", 1, 100)
 
         if len(self._builder.options) == 25:
