@@ -1679,7 +1679,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         if self._client:
             for converter in converters:
                 if isinstance(converter, conversion.BaseConverter):
-                    converter.check_client(self._client, f"{self._names.default_value}'s slash option '{name}'")
+                    converter.check_client(
+                        self._client, f"{self._names.default_value}'s slash option '{names.default_value}'"
+                    )
 
         if choices is None:
             actual_choices: typing.Optional[list[hikari.CommandChoice]] = None

@@ -97,21 +97,21 @@ class _Check:
     def __init__(
         self,
         error: typing.Optional[collections.Callable[..., Exception]],
-        error_message: typing.Optional[str],
+        error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
     ) -> None:
         self._error = error
-        self._error_message = error_message
+        self._error_message = utilities.MaybeLocalised(error_message) if error_message else None
         self._halt_execution = halt_execution
 
-    def _handle_result(self, result: bool, /, *args: typing.Any) -> bool:
+    def _handle_result(self, ctx: tanjun.Context, result: bool, /, *args: typing.Any) -> bool:
         if not result:
             if self._error:
-                raise self._error(*args) from None
+                raise self._error(*args) from None  # TODO: also pass ctx here
             if self._halt_execution:
                 raise errors.HaltExecution from None
             if self._error_message:
-                raise errors.CommandError(self._error_message) from None
+                raise errors.CommandError(self._error_message.get_for_ctx_or_default(ctx)) from None
 
         return result
 
@@ -128,7 +128,7 @@ class OwnerCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Only bot owners can use this command",
+        error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise an owner check.
@@ -157,7 +157,7 @@ class OwnerCheck(_Check):
         ctx: tanjun.Context,
         dependency: alluka.Injected[dependencies.AbstractOwners],
     ) -> bool:
-        return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
+        return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author))
 
 
 _GuildChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
@@ -204,7 +204,9 @@ class NsfwCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a NSFW check.
@@ -235,7 +237,7 @@ class NsfwCheck(_Check):
         *,
         channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
     ) -> bool:
-        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
+        return self._handle_result(ctx, await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
 
 
 class SfwCheck(_Check):
@@ -250,7 +252,9 @@ class SfwCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a SFW check.
@@ -281,7 +285,7 @@ class SfwCheck(_Check):
         *,
         channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
     ) -> bool:
-        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
+        return self._handle_result(ctx, not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
 
 
 class DmCheck(_Check):
@@ -296,7 +300,7 @@ class DmCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in DMs",
+        error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a DM check.
@@ -321,7 +325,7 @@ class DmCheck(_Check):
         super().__init__(error, error_message, halt_execution)
 
     def __call__(self, ctx: tanjun.Context, /) -> bool:
-        return self._handle_result(ctx.guild_id is None)
+        return self._handle_result(ctx, ctx.guild_id is None)
 
 
 class GuildCheck(_Check):
@@ -336,7 +340,9 @@ class GuildCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in guild channels",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a guild check.
@@ -361,7 +367,7 @@ class GuildCheck(_Check):
         super().__init__(error, error_message, halt_execution)
 
     def __call__(self, ctx: tanjun.Context, /) -> bool:
-        return self._handle_result(ctx.guild_id is not None)
+        return self._handle_result(ctx, ctx.guild_id is not None)
 
 
 class AuthorPermissionCheck(_Check):
@@ -378,7 +384,9 @@ class AuthorPermissionCheck(_Check):
         /,
         *,
         error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-        error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise an author permission check.
@@ -448,7 +456,9 @@ class OwnPermissionCheck(_Check):
         /,
         *,
         error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-        error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a own permission check.
@@ -514,7 +524,7 @@ def with_dm_check(command: _CommandT, /) -> _CommandT:
 def with_dm_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -526,7 +536,7 @@ def with_dm_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -573,7 +583,9 @@ def with_guild_check(command: _CommandT, /) -> _CommandT:
 def with_guild_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -585,7 +597,9 @@ def with_guild_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -632,7 +646,7 @@ def with_nsfw_check(command: _CommandT, /) -> _CommandT:
 def with_nsfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -644,7 +658,7 @@ def with_nsfw_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -691,7 +705,7 @@ def with_sfw_check(command: _CommandT, /) -> _CommandT:
 def with_sfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -703,7 +717,7 @@ def with_sfw_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -750,7 +764,7 @@ def with_owner_check(command: _CommandT, /) -> _CommandT:
 def with_owner_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Only bot owners can use this command",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -762,7 +776,7 @@ def with_owner_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Only bot owners can use this command",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -804,7 +818,9 @@ def with_author_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
     error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-    error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "You don't have the permissions required to use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -855,7 +871,9 @@ def with_own_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
     error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-    error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "Bot doesn't have the permissions required to run this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -998,7 +1016,7 @@ class _AnyChecks(_Check):
         self,
         checks: list[tanjun.CheckSig],
         error: typing.Optional[collections.Callable[[], Exception]],
-        error_message: typing.Optional[str],
+        error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
         suppress: tuple[type[Exception], ...],
     ) -> None:
@@ -1018,7 +1036,7 @@ class _AnyChecks(_Check):
             except self._suppress:
                 pass
 
-        return self._handle_result(False)
+        return self._handle_result(ctx, False)
 
 
 def any_checks(
@@ -1026,7 +1044,7 @@ def any_checks(
     /,
     *checks: tanjun.CheckSig,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str],
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
@@ -1068,7 +1086,7 @@ def with_any_checks(
     /,
     *checks: tanjun.CheckSig,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str],
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),

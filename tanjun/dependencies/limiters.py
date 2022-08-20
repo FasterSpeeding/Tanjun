@@ -61,6 +61,7 @@ from .. import abc as tanjun
 from .. import conversion
 from .. import errors
 from .. import hooks
+from .. import utilities
 from . import async_cache
 from . import owners
 
@@ -662,9 +663,11 @@ class CooldownPreExecution:
         self,
         bucket_id: str,
         /,
-        *,
+        *,  # TODO: also take ctx
         error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
-        error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str]
+        ] = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -688,7 +691,7 @@ class CooldownPreExecution:
         """
         self._bucket_id = bucket_id
         self._error = error
-        self._error_message = error_message
+        self._error_message = utilities.MaybeLocalised(error_message)
         self._owners_exempt = owners_exempt
 
     async def __call__(
@@ -711,15 +714,18 @@ class CooldownPreExecution:
                 raise self._error(self._bucket_id, wait_until) from None
 
             wait_until_repr = conversion.from_datetime(wait_until, style="R")
-            raise errors.CommandError(self._error_message.format(cooldown=wait_until_repr))
+            message = self._error_message.get_for_ctx_or_default(ctx)
+            raise errors.CommandError(message.format(cooldown=wait_until_repr))
 
 
 def with_cooldown(
     bucket_id: str,
     /,
-    *,
+    *,  # TODO: also take ctx
     error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
-    error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This command is currently in cooldown. Try again {cooldown}.",
     follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1002,8 +1008,10 @@ class ConcurrencyPreExecution:
         bucket_id: str,
         /,
         *,
-        error: typing.Optional[collections.Callable[[str], Exception]] = None,
-        error_message: str = "This resource is currently busy; please try again later.",
+        error: typing.Optional[collections.Callable[[str], Exception]] = None,  # TODO: also take ctx
+        error_message: typing.Union[
+            str, collections.Mapping[str, str]
+        ] = "This resource is currently busy; please try again later.",
     ) -> None:
         """Initialise a concurrency pre-execution hook.
 
@@ -1023,7 +1031,7 @@ class ConcurrencyPreExecution:
         """
         self._bucket_id = bucket_id
         self._error = error
-        self._error_message = error_message
+        self._error_message = utilities.MaybeLocalised(error_message)
 
     async def __call__(
         self,
@@ -1034,7 +1042,7 @@ class ConcurrencyPreExecution:
             if self._error:
                 raise self._error(self._bucket_id) from None
 
-            raise errors.CommandError(self._error_message) from None
+            raise errors.CommandError(self._error_message.get_for_ctx_or_default(ctx)) from None
 
 
 class ConcurrencyPostExecution:
@@ -1071,8 +1079,10 @@ def with_concurrency_limit(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str], Exception]] = None,
-    error_message: str = "This resource is currently busy; please try again later.",
+    error: typing.Optional[collections.Callable[[str], Exception]] = None,  # TODO: also take ctx
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This resource is currently busy; please try again later.",
     follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
