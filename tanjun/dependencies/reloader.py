@@ -85,15 +85,8 @@ class _ScanResult:
 class HotReloader:
     """Utility class use for handling hot
 
-    !!! note
+    !!! warning
         An instance of this can only be linked to 1 client.
-
-    Parameters
-    ----------
-    interval
-        How often this should scan files and directories for changes in seconds.
-    unload_on_delete
-        Whether this should unload modules when their relevant file is deleted.
 
     Examples
     --------
@@ -131,9 +124,33 @@ class HotReloader:
         *,
         commands_guild: typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]] = None,
         interval: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(microseconds=500000),
-        redeclare_cmds_after: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(seconds=10),
+        redeclare_cmds_after: typing.Union[int, float, datetime.timedelta, None] = datetime.timedelta(seconds=10),
         unload_on_delete: bool = True,
     ) -> None:
+        """Initialise a hot reloader.
+
+        !!! warning
+            `redeclare_cmds_after` is not aware of commands declared outside of
+            the reloader and will lead to commands being redeclared on startup
+            when mixed with [tanjun.clients.Client.__init__][]'s
+            `declare_global_commands` argument when it is not [None][].
+
+        Parameters
+        ----------
+        commands_guild
+            Object or ID of the guild to declare commands in if `redeclare_cmds_after`
+            is not [None][].
+        interval
+            How often this should scan files and directories for changes in seconds.
+        redeclare_cmds_after
+            How often to redeclare application commands after a change to the commands
+            is detected.
+
+            If [None][] is passed here then this will not redeclare the application's
+            commands.
+        unload_on_delete
+            Whether this should unload modules when their relevant file is deleted.
+        """
         if redeclare_cmds_after is None:
             pass
 
@@ -452,6 +469,7 @@ class HotReloader:
             self._command_task = loop.create_task(self._declare_commands(client, builders))
 
     async def _declare_commands(self, client: tanjun.Client, builders: _BuilderDict, /) -> None:
+        assert self._redeclare_cmds_after is not None
         await asyncio.sleep(self._redeclare_cmds_after)
 
         while True:
