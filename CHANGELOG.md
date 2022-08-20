@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `tanjun.ModuleMissingUnloaders` is now raised by `client.unload_modules`, `client.reload_modules` and
   `client.reload_modules_async` when the stored module has no unloaders instead of
-  `tanjun.ModuleMissingLoaders`
+  `tanjun.ModuleMissingLoaders`.
 - [hikari.api.special_endpoints.CommandBuilder][] can also be included in the list
   passed to `Client.declare_application_commands`'s first arg now.
 
