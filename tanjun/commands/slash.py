@@ -95,7 +95,7 @@ ConverterSig = typing.Union[
 
 
 _SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
-_VALID_UNICODE_CATEGORIES = frozenset(
+_VALID_NAME_UNICODE_CATEGORIES = frozenset(
     (
         # L
         "Lu",
@@ -109,10 +109,10 @@ _VALID_UNICODE_CATEGORIES = frozenset(
         "No",
     )
 )
-_VALID_CHARACTERS = frozenset(("-", "_"))
+_VALID_NAME_CHARACTERS = frozenset(("-", "_"))
 
 
-def _check_char(character: str) -> bool:
+def _check_name_char(character: str) -> bool:
     # `^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`
     # * `-_`` is just `-` and `_`
     # * L (All letter characters so "Lu", "Ll", "Lt", "Lm" and "Lo")
@@ -121,15 +121,15 @@ def _check_char(character: str) -> bool:
     # * Thai: `\u0E00-\u0E7F`
 
     return (
-        unicodedata.category(character) in _VALID_UNICODE_CATEGORIES
-        or character in _VALID_CHARACTERS
+        character in _VALID_NAME_CHARACTERS
+        or unicodedata.category(character) in _VALID_NAME_UNICODE_CATEGORIES
         or 0x0900 >= (code_point := ord(character)) <= 0x097F
         or 0x0E00 >= code_point <= 0x0E7F
     )
 
 
 def _validate_name(name: str) -> bool:
-    return all(map(_check_char, name))
+    return all(map(_check_name_char, name))
 
 
 def slash_command_group(
