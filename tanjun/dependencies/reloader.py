@@ -467,6 +467,10 @@ class HotReloader:
         elif builders != self._declared_builders:
             self._scheduled_builders = builders
             self._command_task = loop.create_task(self._declare_commands(client, builders))
+            self._command_task.add_done_callback(self._clear_command_task)
+
+    def _clear_command_task(self, _: asyncio.Task[None], /) -> None:
+        self._command_task = None
 
     async def _declare_commands(self, client: tanjun.Client, builders: _BuilderDict, /) -> None:
         assert self._redeclare_cmds_after is not None
@@ -484,17 +488,17 @@ class HotReloader:
                     resource = "global" if self._commands_guild is hikari.UNDEFINED else f"guild ({self._command_task})"
                     _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
                     self._declared_builders = builders
-                    self._command_task = None
                     return
 
                 except BaseException:
                     self._declared_builders = builders
-                    self._command_task = None
                     raise
+
+                else:
+                    self._declared_builders = builders
 
             builders = self._scheduled_builders
             if self._scheduled_builders == self._declared_builders:
-                self._command_task = None
                 return
 
             try:
@@ -502,7 +506,6 @@ class HotReloader:
 
             except BaseException:
                 self._declared_builders = builders
-                self._command_task = None
                 raise
 
     @utilities.print_task_exc("Hot reloader crashed")
