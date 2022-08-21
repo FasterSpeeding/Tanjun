@@ -100,6 +100,8 @@ from __future__ import annotations as _
 
 __all__: list[str] = [
     "AnyHooks",
+    "BasicLocaliser",
+    "BasicLocalizer",
     "BucketResource",
     "Client",
     "ClientCallbackNames",
@@ -285,6 +287,8 @@ from .conversion import to_role
 from .conversion import to_snowflake
 from .conversion import to_user
 from .conversion import to_voice_state
+from .dependencies import BasicLocaliser
+from .dependencies import BasicLocalizer
 from .dependencies import BucketResource
 from .dependencies import HotReloader
 from .dependencies import InMemoryConcurrencyLimiter
