@@ -478,6 +478,9 @@ class HotReloader:
 
         while True:
             if builders == self._scheduled_builders:
+                if builders == self._declared_builders:
+                    return
+
                 try:
                     await client.declare_application_commands(builders.values(), guild=self._commands_guild)
 
@@ -498,9 +501,6 @@ class HotReloader:
                     self._declared_builders = builders
 
             builders = self._scheduled_builders
-            if self._scheduled_builders == self._declared_builders:
-                return
-
             try:
                 await asyncio.sleep(self._redeclare_cmds_after)
 
