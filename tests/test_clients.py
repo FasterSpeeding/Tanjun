@@ -36,15 +36,14 @@ import asyncio
 # pyright: reportUnknownMemberType=none
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
-import base64
 import importlib
 import inspect
 import pathlib
-import random
 import sys
 import tempfile
 import textwrap
 import typing
+import uuid
 from collections import abc as collections
 from unittest import mock
 
@@ -2007,7 +2006,7 @@ class TestClient:
             add_client_callback = mock.Mock()
 
         client = MockClient(mock.AsyncMock())
-        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        random_path = pathlib.Path(str(uuid.uuid4()).replace("-", ""))
         generator = client._load_module(random_path)
         next_ = next(generator)
 
@@ -3110,7 +3109,7 @@ class TestClient:
 
     def test__reload_modules_with_system_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
-        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        random_path = pathlib.Path(str(uuid.uuid4()).replace("-", ""))
         generator = client._reload_module(random_path)
 
         with pytest.raises(tanjun.ModuleStateConflict):
@@ -3126,7 +3125,7 @@ class TestClient:
             other_loader=mock.Mock(tanjun.abc.ClientLoader),
         )
         client = tanjun.Client(mock.AsyncMock())
-        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        random_path = pathlib.Path(str(uuid.uuid4()).replace("-", ""))
         client._path_modules[random_path] = old_module
         generator = client._reload_module(random_path)
         next_ = next(generator)
