@@ -1216,8 +1216,8 @@ def with_annotated_args(
     command : tanjun.SlashCommand | tanjun.MessageCommand
         The message or slash command to set the arguments for.
     follow_wrapped
-        Whether this should also set the arguments for any command objects
-        `command` wraps.
+        Whether this should also set the arguments on any message command
+        or slash command objects `command` wraps in a decorator call chain.
 
     Returns
     -------
