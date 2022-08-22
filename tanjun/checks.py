@@ -71,13 +71,24 @@ _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.A
 _CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
 
+def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: bool) -> _CommandT:
+    command.add_check(check)
+    if follow_wrapped:
+        for wrapped in utilities.collect_wrapped(command):
+            wrapped.add_check(check)
+
+    return command
+
+
 def _optional_kwargs(
-    command: typing.Optional[_CommandT], check: tanjun.CheckSig, /
+    command: typing.Optional[_CommandT],
+    check: tanjun.CheckSig,
+    follow_wrapped: bool,
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
-        return command.add_check(check)
+        return _add_to_command(command, check, follow_wrapped)
 
-    return lambda c: c.add_check(check)
+    return lambda c: _add_to_command(c, check, follow_wrapped)
 
 
 class _Check:
@@ -506,6 +517,7 @@ def with_dm_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in DMs",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -517,6 +529,7 @@ def with_dm_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in DMs",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a DM channel.
@@ -545,7 +558,9 @@ def with_dm_check(
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, DmCheck(error=error, halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, DmCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+    )
 
 
 @typing.overload
@@ -558,6 +573,7 @@ def with_guild_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -569,6 +585,7 @@ def with_guild_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a guild channel.
@@ -598,7 +615,7 @@ def with_guild_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, GuildCheck(error=error, halt_execution=halt_execution, error_message=error_message)
+        command, GuildCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
     )
 
 
@@ -612,6 +629,7 @@ def with_nsfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -623,6 +641,7 @@ def with_nsfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a channel that's marked as nsfw.
@@ -651,7 +670,9 @@ def with_nsfw_check(
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, NsfwCheck(error=error, halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, NsfwCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+    )
 
 
 @typing.overload
@@ -664,6 +685,7 @@ def with_sfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -675,6 +697,7 @@ def with_sfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run in a channel that's marked as sfw.
@@ -703,7 +726,9 @@ def with_sfw_check(
     tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
-    return _optional_kwargs(command, SfwCheck(error=error, halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, SfwCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+    )
 
 
 @typing.overload
@@ -716,6 +741,7 @@ def with_owner_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Only bot owners can use this command",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -727,6 +753,7 @@ def with_owner_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str] = "Only bot owners can use this command",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
@@ -756,7 +783,7 @@ def with_owner_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, OwnerCheck(error=error, halt_execution=halt_execution, error_message=error_message)
+        command, OwnerCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
     )
 
 
@@ -765,6 +792,7 @@ def with_author_permission_check(
     *,
     error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
     error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
@@ -800,8 +828,10 @@ def with_author_permission_check(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A command decorator callback which adds the check.
     """
-    return lambda command: command.add_check(
-        AuthorPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message)
+    return lambda command: _add_to_command(
+        command,
+        AuthorPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped,
     )
 
 
@@ -810,6 +840,7 @@ def with_own_permission_check(
     *,
     error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
     error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
@@ -845,12 +876,16 @@ def with_own_permission_check(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A command decorator callback which adds the check.
     """
-    return lambda command: command.add_check(
-        OwnPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message)
+    return lambda command: _add_to_command(
+        command,
+        OwnPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped,
     )
 
 
-def with_check(check: tanjun.CheckSig, /) -> collections.Callable[[_CommandT], _CommandT]:
+def with_check(
+    check: tanjun.CheckSig, /, *, follow_wrapped: bool = False
+) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a generic check to a command.
 
     Parameters
@@ -863,7 +898,7 @@ def with_check(check: tanjun.CheckSig, /) -> collections.Callable[[_CommandT], _
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A command decorator callback which adds the check.
     """
-    return lambda command: command.add_check(check)
+    return lambda command: _add_to_command(command, check, follow_wrapped)
 
 
 class _AllChecks:
@@ -909,6 +944,7 @@ def with_all_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
+    follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
@@ -927,7 +963,7 @@ def with_all_checks(
     collections.abc.Callable[[tanjun.abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
-    return lambda c: c.add_check(all_checks(check, *checks))
+    return lambda c: _add_to_command(c, all_checks(check, *checks), follow_wrapped)
 
 
 class _AnyChecks(_Check):
@@ -1008,6 +1044,7 @@ def with_any_checks(
     *checks: tanjun.CheckSig,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Optional[str],
+    follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1041,8 +1078,10 @@ def with_any_checks(
     collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the generated check to a command.
     """
-    return lambda c: c.add_check(
+    return lambda c: _add_to_command(
+        c,
         any_checks(
             check, *checks, error=error, error_message=error_message, halt_execution=halt_execution, suppress=suppress
-        )
+        ),
+        follow_wrapped,
     )

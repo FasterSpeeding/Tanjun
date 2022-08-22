@@ -60,11 +60,13 @@ from .. import abc as tanjun
 from .. import conversion
 from .. import errors
 from .. import hooks
+from .. import utilities
 from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound="tanjun.ExecutableCommand[typing.Any]")
     _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
     _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
@@ -718,6 +720,7 @@ def with_cooldown(
     *,
     error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
     error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
+    follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
@@ -752,7 +755,7 @@ def with_cooldown(
         hook to the command.
     """
 
-    def decorator(command: _CommandT, /) -> _CommandT:
+    def decorator(command: _OtherCommandT, /) -> _OtherCommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
@@ -761,6 +764,10 @@ def with_cooldown(
         hooks_.add_pre_execution(
             CooldownPreExecution(bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt)
         )
+        if follow_wrapped:
+            for wrapped in utilities.collect_wrapped(command):
+                decorator(wrapped)
+
         return command
 
     return decorator
@@ -1062,6 +1069,7 @@ def with_concurrency_limit(
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
     error_message: str = "This resource is currently busy; please try again later.",
+    follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
 
@@ -1091,7 +1099,7 @@ def with_concurrency_limit(
         A decorator that adds the concurrency limiter hooks to a command.
     """
 
-    def decorator(command: _CommandT, /) -> _CommandT:
+    def decorator(command: _OtherCommandT, /) -> _OtherCommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
@@ -1100,6 +1108,10 @@ def with_concurrency_limit(
         hooks_.add_pre_execution(
             ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
         ).add_post_execution(ConcurrencyPostExecution(bucket_id))
+        if follow_wrapped:
+            for wrapped in utilities.collect_wrapped(command):
+                decorator(wrapped)
+
         return command
 
     return decorator
