@@ -643,7 +643,7 @@ class TestClient:
         rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
         mock_command.build.return_value.set_default_member_permissions.assert_called_once_with(213321)
-        mock_command.build.return_value.set_is_dm_enabled.assert_called_once_with(None)
+        mock_command.build.return_value.set_is_dm_enabled.assert_called_once_with(False)
         mock_command.build.return_value.create.assert_awaited_once_with(rest, 54123, guild=65234)
         mock_command.set_tracked_command.assert_not_called()
 
