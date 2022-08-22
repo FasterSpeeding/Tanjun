@@ -623,6 +623,27 @@ class TestClient:
         assert result is mock_command.build.return_value.create.return_value
         rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
+        mock_command.build.return_value.set_default_member_permissions.assert_not_called()
+        mock_command.build.return_value.set_is_dm_enabled.assert_not_called()
+        mock_command.build.return_value.create.assert_awaited_once_with(rest, 54123, guild=65234)
+        mock_command.set_tracked_command.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_declare_application_command_inherits_config(self):
+        rest = mock.AsyncMock()
+        client = tanjun.Client(rest).set_default_app_command_permissions(213321).set_dms_enabled_for_app_cmds(False)
+        mock_command = mock.Mock()
+        mock_command.build.return_value = mock.Mock(
+            hikari.api.SlashCommandBuilder, default_member_permissions=hikari.UNDEFINED, is_dm_enabled=hikari.UNDEFINED
+        )
+
+        result = await client.declare_application_command(mock_command, application=54123, guild=65234)
+
+        assert result is mock_command.build.return_value.create.return_value
+        rest.edit_application_command.assert_not_called()
+        mock_command.build.assert_called_once_with()
+        mock_command.build.return_value.set_default_member_permissions.assert_called_once_with(213321)
+        mock_command.build.return_value.set_is_dm_enabled.assert_called_once_with(None)
         mock_command.build.return_value.create.assert_awaited_once_with(rest, 54123, guild=65234)
         mock_command.set_tracked_command.assert_not_called()
 
