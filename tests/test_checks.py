@@ -1469,6 +1469,8 @@ class TestOwnPermissionCheck:
 
 
 def test_with_dm_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
         assert tanjun.checks.with_dm_check(command) is command
 
@@ -1476,9 +1478,11 @@ def test_with_dm_check(command: mock.Mock):
         dm_check.assert_called_once_with(
             error=None, error_message="Command can only be used in DMs", halt_execution=False
         )
+        command.wrapped_command.add_check.assert_not_called()
 
 
 def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
@@ -1493,9 +1497,68 @@ def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
             error_message="message",
             halt_execution=True,
         )
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_dm_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
+        assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(dm_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(dm_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(dm_check.return_value)
+        dm_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in DMs", halt_execution=False
+        )
+
+
+def test_with_dm_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
+        assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(dm_check.return_value)
+        dm_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in DMs", halt_execution=False
+        )
+
+
+def test_with_dm_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.MessageCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
+        assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(dm_check.return_value)
+        dm_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in DMs", halt_execution=False
+        )
+
+
+def test_with_dm_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
+        assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(dm_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(dm_check.return_value)
+        dm_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in DMs", halt_execution=False
+        )
 
 
 def test_with_guild_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
         assert tanjun.checks.with_guild_check(command) is command
 
@@ -1503,9 +1566,11 @@ def test_with_guild_check(command: mock.Mock):
         guild_check.assert_called_once_with(
             error=None, error_message="Command can only be used in guild channels", halt_execution=False
         )
+        command.wrapped_command.add_check.assert_not_called()
 
 
 def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
@@ -1516,9 +1581,68 @@ def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
 
         command.add_check.assert_called_once_with(guild_check.return_value)
         guild_check.assert_called_once_with(error=mock_error_callback, error_message="eee", halt_execution=True)
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_guild_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
+        assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(guild_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(guild_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(guild_check.return_value)
+        guild_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in guild channels", halt_execution=False
+        )
+
+
+def test_with_guild_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
+        assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(guild_check.return_value)
+        guild_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in guild channels", halt_execution=False
+        )
+
+
+def test_with_guild_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
+        assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(guild_check.return_value)
+        guild_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in guild channels", halt_execution=False
+        )
+
+
+def test_with_guild_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
+        assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(guild_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(guild_check.return_value)
+        guild_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in guild channels", halt_execution=False
+        )
 
 
 def test_with_nsfw_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as nsfw_check:
         assert tanjun.checks.with_nsfw_check(command) is command
 
@@ -1526,9 +1650,11 @@ def test_with_nsfw_check(command: mock.Mock):
         nsfw_check.assert_called_once_with(
             error=None, error_message="Command can only be used in NSFW channels", halt_execution=False
         )
+        command.wrapped_command.add_check.assert_not_called()
 
 
 def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as nsfw_check:
@@ -1539,9 +1665,68 @@ def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
         assert result is command
         command.add_check.assert_called_once_with(nsfw_check.return_value)
         nsfw_check.assert_called_once_with(error=mock_error_callback, error_message="banned!!!", halt_execution=True)
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_nsfw_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
+        assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(nsfw_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(nsfw_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(nsfw_check.return_value)
+        nsfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in NSFW channels", halt_execution=False
+        )
+
+
+def test_with_nsfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
+        assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(nsfw_check.return_value)
+        nsfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in NSFW channels", halt_execution=False
+        )
+
+
+def test_with_nsfw_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
+        assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(nsfw_check.return_value)
+        nsfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in NSFW channels", halt_execution=False
+        )
+
+
+def test_with_nsfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
+        assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(nsfw_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(nsfw_check.return_value)
+        nsfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in NSFW channels", halt_execution=False
+        )
 
 
 def test_with_sfw_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as sfw_check:
         assert tanjun.checks.with_sfw_check(command) is command
 
@@ -1549,9 +1734,11 @@ def test_with_sfw_check(command: mock.Mock):
         sfw_check.assert_called_once_with(
             error=None, error_message="Command can only be used in SFW channels", halt_execution=False
         )
+        command.wrapped_command.add_check.assert_not_called()
 
 
 def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as sfw_check:
@@ -1562,9 +1749,69 @@ def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
         assert result is command
         command.add_check.assert_called_once_with(sfw_check.return_value)
         sfw_check.assert_called_once_with(error=mock_error_callback, error_message="bango", halt_execution=True)
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_sfw_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
+        assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(sfw_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(sfw_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(sfw_check.return_value)
+        sfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in SFW channels", halt_execution=False
+        )
+
+
+def test_with_sfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
+        assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(sfw_check.return_value)
+        sfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in SFW channels", halt_execution=False
+        )
+
+
+def test_with_sfw_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
+        assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(sfw_check.return_value)
+        sfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in SFW channels", halt_execution=False
+        )
+
+
+def test_with_sfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
+        assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(sfw_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(sfw_check.return_value)
+        sfw_check.assert_called_once_with(
+            error=None, error_message="Command can only be used in SFW channels", halt_execution=False
+        )
 
 
 def test_with_owner_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
     with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
         assert tanjun.checks.with_owner_check(command) is command
 
@@ -1572,9 +1819,11 @@ def test_with_owner_check(command: mock.Mock):
         owner_check.assert_called_once_with(
             error=None, error_message="Only bot owners can use this command", halt_execution=False
         )
+        command.wrapped_command.add_check.assert_not_called()
 
 
 def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
     mock_check = object()
     with mock.patch.object(tanjun.checks, "OwnerCheck", return_value=mock_check) as owner_check:
@@ -1587,9 +1836,84 @@ def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
 
         command.add_check.assert_called_once_with(owner_check.return_value)
         owner_check.assert_called_once_with(error=mock_error_callback, error_message="dango", halt_execution=True)
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_owner_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
+        assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(owner_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(owner_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(owner_check.return_value)
+        owner_check.assert_called_once_with(
+            error=None, error_message="Only bot owners can use this command", halt_execution=False
+        )
+
+
+def test_with_owner_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
+        assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(owner_check.return_value)
+        owner_check.assert_called_once_with(
+            error=None, error_message="Only bot owners can use this command", halt_execution=False
+        )
+
+
+def test_with_owner_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
+        assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(owner_check.return_value)
+        owner_check.assert_called_once_with(
+            error=None, error_message="Only bot owners can use this command", halt_execution=False
+        )
+
+
+def test_with_owner_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
+        assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(owner_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(owner_check.return_value)
+        owner_check.assert_called_once_with(
+            error=None, error_message="Only bot owners can use this command", halt_execution=False
+        )
 
 
 def test_with_author_permission_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
+    with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
+        result = tanjun.checks.with_author_permission_check(435213)(command)
+
+        assert result is command
+        command.add_check.assert_called_once_with(author_permission_check.return_value)
+        author_permission_check.assert_called_once_with(
+            435213,
+            error=None,
+            error_message="You don't have the permissions required to use this command",
+            halt_execution=False,
+        )
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_author_permission_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
@@ -1602,9 +1926,96 @@ def test_with_author_permission_check(command: mock.Mock):
         author_permission_check.assert_called_once_with(
             435213, error=mock_error_callback, error_message="bye", halt_execution=True
         )
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_author_permission_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
+        assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(author_permission_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(author_permission_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(author_permission_check.return_value)
+        author_permission_check.assert_called_once_with(
+            435213,
+            error=None,
+            error_message="You don't have the permissions required to use this command",
+            halt_execution=False,
+        )
+
+
+def test_with_author_permission_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
+        assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(author_permission_check.return_value)
+        author_permission_check.assert_called_once_with(
+            435213,
+            error=None,
+            error_message="You don't have the permissions required to use this command",
+            halt_execution=False,
+        )
+
+
+def test_with_author_permission_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
+        assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(author_permission_check.return_value)
+        author_permission_check.assert_called_once_with(
+            435213,
+            error=None,
+            error_message="You don't have the permissions required to use this command",
+            halt_execution=False,
+        )
+
+
+def test_with_author_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
+        assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(author_permission_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(author_permission_check.return_value)
+        author_permission_check.assert_called_once_with(
+            435213,
+            error=None,
+            error_message="You don't have the permissions required to use this command",
+            halt_execution=False,
+        )
 
 
 def test_with_own_permission_check(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
+
+    with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
+        result = tanjun.checks.with_own_permission_check(5412312)(command)
+
+        assert result is command
+        command.add_check.assert_called_once_with(own_permission_check.return_value)
+        own_permission_check.assert_called_once_with(
+            5412312,
+            error=None,
+            error_message="Bot doesn't have the permissions required to run this command",
+            halt_execution=False,
+        )
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_own_permission_check_with_keyword_arguments(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
@@ -1616,6 +2027,75 @@ def test_with_own_permission_check(command: mock.Mock):
         command.add_check.assert_called_once_with(own_permission_check.return_value)
         own_permission_check.assert_called_once_with(
             5412312, error=mock_error_callback, error_message="hi", halt_execution=True
+        )
+        command.wrapped_command.add_check.assert_not_called()
+
+
+def test_with_own_permission_check_when_follow_wrapping(command: mock.Mock):
+    command.wrapped_command = mock.Mock(
+        tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
+    )
+    with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
+        assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(own_permission_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(own_permission_check.return_value)
+        command.wrapped_command.wrapped_command.add_check.assert_called_once_with(own_permission_check.return_value)
+        own_permission_check.assert_called_once_with(
+            5412312,
+            error=None,
+            error_message="Bot doesn't have the permissions required to run this command",
+            halt_execution=False,
+        )
+
+
+def test_with_own_permission_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+    command.wrapped_command = None
+    with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
+        assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(own_permission_check.return_value)
+        own_permission_check.assert_called_once_with(
+            5412312,
+            error=None,
+            error_message="Bot doesn't have the permissions required to run this command",
+            halt_execution=False,
+        )
+
+
+def test_with_own_permission_check_when_follow_wrapping_and_unsupported_command():
+    command = mock.Mock(tanjun.abc.SlashCommand)
+    command.add_check.return_value = command
+    with pytest.raises(AttributeError):
+        command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
+        assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(own_permission_check.return_value)
+        own_permission_check.assert_called_once_with(
+            5412312,
+            error=None,
+            error_message="Bot doesn't have the permissions required to run this command",
+            halt_execution=False,
+        )
+
+
+def test_with_own_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+    command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
+        assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
+
+        command.add_check.assert_called_once_with(own_permission_check.return_value)
+        command.wrapped_command.add_check.assert_called_once_with(own_permission_check.return_value)
+        own_permission_check.assert_called_once_with(
+            5412312,
+            error=None,
+            error_message="Bot doesn't have the permissions required to run this command",
+            halt_execution=False,
         )
 
 
@@ -2025,6 +2505,7 @@ def test_with_any_checks():
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
     mock_command = mock.Mock()
+    mock_command.add_check.return_value = mock_command
     mock_error_callback = mock.Mock()
 
     class MockError(Exception):
@@ -2041,7 +2522,7 @@ def test_with_any_checks():
             halt_execution=True,
         )(mock_command)
 
-    assert result is mock_command.add_check.return_value
+    assert result is mock_command
     mock_command.add_check.assert_called_once_with(any_checks.return_value)
     any_checks.assert_called_once_with(
         mock_check_1,

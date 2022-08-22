@@ -757,19 +757,20 @@ def with_cooldown(
         A decorator that adds a [CooldownPreExecution][tanjun.dependencies.CooldownPreExecution]
         hook to the command.
     """
+    pre_execution = CooldownPreExecution(
+        bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt
+    )
 
-    def decorator(command: _OtherCommandT, /) -> _OtherCommandT:
+    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
             command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(
-            CooldownPreExecution(bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt)
-        )
-        if follow_wrapped:
+        hooks_.add_pre_execution(pre_execution)
+        if follow_wrapped and not _recursing:
             for wrapped in utilities.collect_wrapped(command):
-                decorator(wrapped)
+                decorator(wrapped, _recursing=True)
 
         return command
 
@@ -1104,19 +1105,19 @@ def with_concurrency_limit(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator that adds the concurrency limiter hooks to a command.
     """
+    pre_execution = ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
+    post_execution = ConcurrencyPostExecution(bucket_id)
 
-    def decorator(command: _OtherCommandT, /) -> _OtherCommandT:
+    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
             command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(
-            ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
-        ).add_post_execution(ConcurrencyPostExecution(bucket_id))
-        if follow_wrapped:
+        hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
+        if follow_wrapped and not _recursing:
             for wrapped in utilities.collect_wrapped(command):
-                decorator(wrapped)
+                decorator(wrapped, _recursing=True)
 
         return command
 
