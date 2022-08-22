@@ -850,7 +850,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
 
     @property
     def channel_types(self) -> collections.Sequence[_ChannelTypeIsh]:
-        """Sequence of the channel types this is constrainted by."""
+        """Sequence of the channel types this is constrained by."""
         return self._channel_types
 
     def set_config(self, config: _ArgConfig, /) -> None:

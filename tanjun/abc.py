@@ -2115,7 +2115,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             [tanjun.abc.Context][] and [Exception][]) and may be either
             synchronous or asynchronous.
 
-            Returning [True][] indicates that the error shoul be suppressed,
+            Returning [True][] indicates that the error should be suppressed,
             [False][] that it should be re-raised and [None][] that no decision
             has been made. This will be accounted for along with the decisions
             other error hooks make by majority rule.
