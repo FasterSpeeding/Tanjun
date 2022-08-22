@@ -98,7 +98,7 @@ from .limiters import with_concurrency_limit
 from .limiters import with_cooldown
 from .owners import AbstractOwners
 from .owners import Owners
-from .reloader import HotReloader
+from .reloaders import HotReloader
 
 
 def set_standard_dependencies(client: _tanjun.Client, /) -> None:
