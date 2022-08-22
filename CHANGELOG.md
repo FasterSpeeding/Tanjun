@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   limiter/check to all the commands in a decorator chain (in a similar fashion to how
   `with_parsed_annotations` behaves.
 
+### Fixed
+- Inherit the global states for `default_member_permissions` and `is_dm_enabled`
+  in `declare_application_command`.
+
 ## [2.5.4a1] - 2022-08-11
 ### Added
 - V2 application permissions and `dms_enabled` config to slash and menu commands.

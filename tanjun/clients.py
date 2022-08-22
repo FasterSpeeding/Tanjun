@@ -1265,8 +1265,13 @@ class Client(tanjun.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.PartialCommand:
         # <<inherited docstring from tanjun.abc.Client>>.
-        builder = command.build()
         application = application or self._cached_application_id or await self.fetch_rest_application_id()
+        builder = command.build()
+        if builder.default_member_permissions is hikari.UNDEFINED:
+            builder.set_default_member_permissions(self.default_app_cmd_permissions)
+
+        if builder.is_dm_enabled is hikari.UNDEFINED:
+            builder.set_is_dm_enabled(self.dms_enabled_for_app_cmds)
 
         if command_id:
             if isinstance(builder, hikari.api.SlashCommandBuilder):
