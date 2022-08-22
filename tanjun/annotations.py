@@ -86,9 +86,15 @@ from .commands import slash
 
 if sys.version_info >= (3, 10):
     _UnionTypes = frozenset((typing.Union, types.UnionType))
+    _is_typeddict = typing.is_typeddict
 
 else:
     _UnionTypes = frozenset((typing.Union,))
+    _TypedDictMeta = type(typing.TypedDict("hi", {}))
+
+    def _is_typeddict(cls: typing.Any, /) -> bool:
+        return isinstance(cls, _TypedDictMeta)
+
 
 _T = typing.TypeVar("_T")
 _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
