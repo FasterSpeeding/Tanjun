@@ -160,7 +160,7 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
 
             This won't be raised if `default` is passed.
         EntryNotFound
-            If the entry wasn't found and the the entry definietly doesn't exist.
+            If the entry wasn't found and the the entry definitely doesn't exist.
 
             This won't be raised if `default` is passed.
 
@@ -205,7 +205,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
         EntryNotFound
-            If the entry wasn't found and the the entry definietly doesn't exist.
+            If the entry wasn't found and the the entry definitely doesn't exist.
 
             This won't be raised if `default` is passed.
 
@@ -267,7 +267,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
         EntryNotFound
-            If the entry wasn't found and the the entry definietly doesn't exist.
+            If the entry wasn't found and the the entry definitely doesn't exist.
 
             This won't be raised if `default` is passed.
 
@@ -344,7 +344,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
             This won't be raised if `default` is passed.
         EntryNotFound
-            If the entry wasn't found and the the entry definietly doesn't exist.
+            If the entry wasn't found and the the entry definitely doesn't exist.
 
             This won't be raised if `default` is passed.
 

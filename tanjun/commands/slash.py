@@ -115,7 +115,7 @@ def slash_command_group(
     r"""Create a slash command group.
 
     !!! note
-        Unlike message command grups, slash command groups cannot
+        Unlike message command groups, slash command groups cannot
         be callable functions themselves.
 
     !!! note
@@ -979,7 +979,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     """Standard implementation of a slash command group.
 
     !!! note
-        Unlike message command grups, slash command groups cannot
+        Unlike message command groups, slash command groups cannot
         be callable functions themselves.
     """
 
@@ -2094,7 +2094,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         !!! warning
             Unlike the other options, this is an artificial option which adds
             a restraint to the USER option type and therefore cannot have
-            `pass_as_kwarg` set to [False][] as this artificial constaint isn't
+            `pass_as_kwarg` set to [False][] as this artificial constraint isn't
             present when its not being passed as a keyword argument.
 
         Parameters

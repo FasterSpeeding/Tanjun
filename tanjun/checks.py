@@ -412,7 +412,7 @@ class AuthorPermissionCheck(_Check):
 
         elif isinstance(ctx.member, hikari.InteractionMember):
             # Luckily, InteractionMember.permissions already handles the
-            # implicit owner and admin permssion special casing for us.
+            # implicit owner and admin permission special casing for us.
             permissions = ctx.member.permissions
 
         else:
