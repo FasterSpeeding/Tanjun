@@ -77,17 +77,12 @@ from collections import abc as collections
 
 import hikari
 
-from . import abc as tanjun
 from . import conversion
 from . import parsing
+from . import utilities
 from ._vendor import inspect
-from .commands import menu
 from .commands import message
 from .commands import slash
-
-if typing.TYPE_CHECKING:
-    import typing_extensions
-
 
 if sys.version_info >= (3, 10):
     _UnionTypes = frozenset((typing.Union, types.UnionType))
@@ -1068,35 +1063,6 @@ def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any
         yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing.get_args(type_)))
 
 
-class _WrappedProto(typing.Protocol):
-    wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
-
-
-def _has_wrapped(value: typing.Any) -> typing_extensions.TypeGuard[_WrappedProto]:
-    try:
-        value.wrapped_command
-
-    except AttributeError:
-        return False
-
-    return True
-
-
-def _collect_wrapped(
-    command: typing.Union[
-        menu.MenuCommand[typing.Any, typing.Any], message.MessageCommand[typing.Any], slash.SlashCommand[typing.Any]
-    ]
-) -> list[tanjun.ExecutableCommand[typing.Any]]:
-    results: list[tanjun.ExecutableCommand[typing.Any]] = []
-    wrapped_command = command.wrapped_command
-
-    while wrapped_command:
-        results.append(wrapped_command)
-        wrapped_command = wrapped_command.wrapped_command if _has_wrapped(wrapped_command) else None
-
-    return results
-
-
 def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:
     try:
         signature = inspect.signature(command.callback, eval_str=True)
@@ -1113,7 +1079,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
         message_commands.append(command)
 
     if follow_wrapped:
-        for sub_command in _collect_wrapped(command):
+        for sub_command in utilities.collect_wrapped(command):
             if isinstance(sub_command, message.MessageCommand):
                 message_commands.append(sub_command)
 
@@ -1250,8 +1216,8 @@ def with_annotated_args(
     command : tanjun.SlashCommand | tanjun.MessageCommand
         The message or slash command to set the arguments for.
     follow_wrapped
-        Whether this should also set the arguments for any command objects
-        `command` wraps.
+        Whether this should also set the arguments on any other command objects
+        this wraps in a decorator call chain.
 
     Returns
     -------

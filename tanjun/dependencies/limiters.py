@@ -60,11 +60,13 @@ from .. import abc as tanjun
 from .. import conversion
 from .. import errors
 from .. import hooks
+from .. import utilities
 from . import async_cache
 from . import owners
 
 if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound="tanjun.ExecutableCommand[typing.Any]")
     _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
     _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
@@ -718,6 +720,7 @@ def with_cooldown(
     *,
     error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
     error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
+    follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
@@ -742,6 +745,9 @@ def with_cooldown(
         This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
+    follow_wrapped
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     owners_exempt
         Whether owners should be exempt from the cooldown.
 
@@ -751,16 +757,21 @@ def with_cooldown(
         A decorator that adds a [CooldownPreExecution][tanjun.dependencies.CooldownPreExecution]
         hook to the command.
     """
+    pre_execution = CooldownPreExecution(
+        bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt
+    )
 
-    def decorator(command: _CommandT, /) -> _CommandT:
+    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
             command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(
-            CooldownPreExecution(bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt)
-        )
+        hooks_.add_pre_execution(pre_execution)
+        if follow_wrapped and not _recursing:
+            for wrapped in utilities.collect_wrapped(command):
+                decorator(wrapped, _recursing=True)
+
         return command
 
     return decorator
@@ -1062,6 +1073,7 @@ def with_concurrency_limit(
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
     error_message: str = "This resource is currently busy; please try again later.",
+    follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
 
@@ -1084,22 +1096,29 @@ def with_concurrency_limit(
     error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
+    follow_wrapped
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
 
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator that adds the concurrency limiter hooks to a command.
     """
+    pre_execution = ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
+    post_execution = ConcurrencyPostExecution(bucket_id)
 
-    def decorator(command: _CommandT, /) -> _CommandT:
+    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
             command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(
-            ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
-        ).add_post_execution(ConcurrencyPostExecution(bucket_id))
+        hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
+        if follow_wrapped and not _recursing:
+            for wrapped in utilities.collect_wrapped(command):
+                decorator(wrapped, _recursing=True)
+
         return command
 
     return decorator

@@ -1283,6 +1283,9 @@ def test_with_cooldown():
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
+    mock_command.wrapped_command.hooks.add_pre_execution.assert_not_called()
+    mock_command.wrapped_command.set_hooks.assert_not_called()
+
 
 def test_with_cooldown_when_no_set_hooks():
     mock_command = mock.Mock(hooks=None)
@@ -1302,6 +1305,106 @@ def test_with_cooldown_when_no_set_hooks():
         mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
         any_hooks.return_value.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
         any_hooks.assert_called_once_with()
+
+    mock_command.wrapped_command.hooks.add_pre_execution.assert_not_called()
+    mock_command.wrapped_command.set_hooks.assert_not_called()
+
+
+def test_test_with_cooldown_when_follow_wrapping():
+    mock_command = mock.Mock()
+    mock_command.wrapped_command.hooks = None
+    mock_command.wrapped_command.wrapped_command.hooks = None
+    mock_command.wrapped_command.wrapped_command.wrapped_command.wrapped_command = None
+    mock_hooks_1 = mock.Mock()
+    mock_hooks_2 = mock.Mock()
+    mock_error_callback = mock.Mock()
+
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution,
+        mock.patch.object(tanjun.hooks, "AnyHooks", side_effect=[mock_hooks_1, mock_hooks_2]) as any_hooks,
+    ):
+        tanjun.with_cooldown(
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            follow_wrapped=True,
+            owners_exempt=False,
+        )(mock_command)
+
+    any_hooks.assert_has_calls([mock.call(), mock.call()])
+    mock_hooks_1.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
+    mock_hooks_2.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
+    mock_pre_execution.assert_called_once_with(
+        "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+    )
+    mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
+    mock_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_1)
+    mock_command.wrapped_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_2)
+    mock_command.wrapped_command.wrapped_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(
+        mock_pre_execution.return_value
+    )
+
+
+def test_test_with_cooldown_when_follow_wrapping_and_not_wrapping():
+    mock_command = mock.Mock(wrapped_command=None)
+    mock_error_callback = mock.Mock()
+
+    with mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution:
+        tanjun.with_cooldown(
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            follow_wrapped=True,
+            owners_exempt=False,
+        )(mock_command)
+
+        mock_pre_execution.assert_called_once_with(
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+        )
+        mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
+
+
+def test_test_with_cooldown_when_follow_wrapping_and_unsupported_command():
+    mock_command = mock.Mock(tanjun.abc.SlashCommand)
+    mock_error_callback = mock.Mock()
+    with pytest.raises(AttributeError):
+        mock_command.wrapped_command
+
+    with mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution:
+        tanjun.with_cooldown(
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            follow_wrapped=True,
+            owners_exempt=False,
+        )(mock_command)
+
+        mock_pre_execution.assert_called_once_with(
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+        )
+        mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
+
+
+def test_test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
+    mock_command = mock.Mock(wrapped_command=mock.Mock(tanjun.abc.SlashCommand))
+    mock_error_callback = mock.Mock()
+    with pytest.raises(AttributeError):
+        mock_command.wrapped_command.wrapped_command
+
+    with mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution:
+        tanjun.with_cooldown(
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            follow_wrapped=True,
+            owners_exempt=False,
+        )(mock_command)
+
+        mock_pre_execution.assert_called_once_with(
+            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+        )
+        mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
+        mock_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
 
 class Test_ConcurrencyLimit:
@@ -1772,6 +1875,9 @@ def test_with_concurrency_limit():
     mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
     pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
     post_execution.assert_called_once_with("bucket me")
+    mock_command.wrapped_command.hooks.add_pre_execution.assert_not_called()
+    mock_command.wrapped_command.hooks.add_post_execution.assert_not_called()
+    mock_command.wrapped_command.set_hooks.assert_not_called()
 
 
 def test_with_concurrency_limit_makes_new_hooks():
@@ -1795,5 +1901,129 @@ def test_with_concurrency_limit_makes_new_hooks():
     mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
     any_hooks.return_value.add_pre_execution.assert_called_once_with(pre_execution.return_value)
     any_hooks.return_value.add_post_execution.assert_called_once_with(post_execution.return_value)
+    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
+    post_execution.assert_called_once_with("bucket me")
+    mock_command.wrapped_command.hooks.add_pre_execution.assert_not_called()
+    mock_command.wrapped_command.hooks.add_post_execution.assert_not_called()
+    mock_command.wrapped_command.set_hooks.assert_not_called()
+
+
+def test_test_with_concurrency_limit_when_follow_wrapping():
+    mock_command = mock.Mock()
+    mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
+    mock_command.hooks.add_post_execution.return_value = mock_command.hooks
+    mock_command.wrapped_command.hooks = None
+    mock_command.wrapped_command.wrapped_command.hooks.add_pre_execution.return_value = (
+        mock_command.wrapped_command.wrapped_command.hooks
+    )
+    mock_command.wrapped_command.wrapped_command.hooks.add_post_execution.return_value = (
+        mock_command.wrapped_command.wrapped_command.hooks
+    )
+    mock_command.wrapped_command.wrapped_command.wrapped_command.hooks = None
+    mock_command.wrapped_command.wrapped_command.wrapped_command.wrapped_command = None
+    mock_hooks_1 = mock.Mock()
+    mock_hooks_2 = mock.Mock()
+    mock_hooks_1.add_pre_execution.return_value = mock_hooks_1
+    mock_hooks_1.add_post_execution.return_value = mock_hooks_1
+    mock_hooks_2.add_pre_execution.return_value = mock_hooks_2
+    mock_hooks_2.add_post_execution.return_value = mock_hooks_2
+    mock_error_callback = mock.Mock()
+
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
+        mock.patch.object(tanjun.hooks, "AnyHooks", side_effect=[mock_hooks_1, mock_hooks_2]) as any_hooks,
+    ):
+        result = tanjun.with_concurrency_limit(
+            "bucket me", error=mock_error_callback, error_message="aye message", follow_wrapped=True
+        )(mock_command)
+
+    assert result is mock_command
+    any_hooks.assert_has_calls([mock.call(), mock.call()])
+    mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
+    mock_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_1)
+    mock_hooks_1.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_hooks_1.add_post_execution.assert_called_once_with(post_execution.return_value)
+    mock_command.wrapped_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(
+        pre_execution.return_value
+    )
+    mock_command.wrapped_command.wrapped_command.hooks.add_post_execution.assert_called_once_with(
+        post_execution.return_value
+    )
+    mock_command.wrapped_command.wrapped_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_2)
+    mock_hooks_2.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_hooks_2.add_post_execution.assert_called_once_with(post_execution.return_value)
+    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
+    post_execution.assert_called_once_with("bucket me")
+
+
+def test_test_with_concurrency_limit_when_follow_wrapping_and_not_wrapping():
+    mock_command = mock.Mock(wrapped_command=None)
+    mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
+    mock_command.hooks.add_post_execution.return_value = mock_command.hooks
+    mock_error_callback = mock.Mock()
+
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
+    ):
+        result = tanjun.with_concurrency_limit(
+            "bucket me", error=mock_error_callback, error_message="aye message", follow_wrapped=True
+        )(mock_command)
+
+    assert result is mock_command
+    mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
+    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
+    post_execution.assert_called_once_with("bucket me")
+
+
+def test_test_with_concurrency_limit_when_follow_wrapping_and_unsupported_command():
+    mock_command = mock.Mock(tanjun.abc.ExecutableCommand)
+    mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
+    mock_command.hooks.add_post_execution.return_value = mock_command.hooks
+    mock_error_callback = mock.Mock()
+    with pytest.raises(AttributeError):
+        mock_command.wrapped_command
+
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
+    ):
+        result = tanjun.with_concurrency_limit(
+            "bucket me", error=mock_error_callback, error_message="aye message", follow_wrapped=True
+        )(mock_command)
+
+    assert result is mock_command
+    mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
+    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
+    post_execution.assert_called_once_with("bucket me")
+
+
+def test_test_with_concurrency_limit_when_follow_wrapping_and_wrapping_unsupported_command():
+    mock_command = mock.Mock(wrapped_command=mock.Mock(tanjun.abc.SlashCommand))
+    mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
+    mock_command.hooks.add_post_execution.return_value = mock_command.hooks
+    mock_command.wrapped_command.hooks.add_pre_execution.return_value = mock_command.wrapped_command.hooks
+    mock_command.wrapped_command.hooks.add_post_execution.return_value = mock_command.wrapped_command.hooks
+    mock_error_callback = mock.Mock()
+    with pytest.raises(AttributeError):
+        mock_command.wrapped_command.wrapped_command
+
+    with (
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPreExecution") as pre_execution,
+        mock.patch.object(tanjun.dependencies.limiters, "ConcurrencyPostExecution") as post_execution,
+    ):
+        result = tanjun.with_concurrency_limit(
+            "bucket me", error=mock_error_callback, error_message="aye message", follow_wrapped=True
+        )(mock_command)
+
+    assert result is mock_command
+    mock_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
+    mock_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
+    mock_command.wrapped_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
     pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
     post_execution.assert_called_once_with("bucket me")

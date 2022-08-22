@@ -203,7 +203,7 @@ def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
     assert command.wrapped_command.parser.options == []
 
 
-def test_when_wrapping_unsupported_command():
+def test_when_follow_wrapping_and_wrapping_unsupported_command():
     async def mock_callback(
         ctx: tanjun.abc.MessageContext,
         value: annotations.Str,
@@ -212,6 +212,8 @@ def test_when_wrapping_unsupported_command():
         ...
 
     command = tanjun.as_message_command("beep")(mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback))
+    with pytest.raises(AttributeError):
+        command.wrapped_command.wrapped_command  # type: ignore
 
     annotations.with_annotated_args(follow_wrapped=True)(command)
 

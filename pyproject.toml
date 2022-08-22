@@ -114,13 +114,13 @@ strict-imports = true
 require-superclass = true
 require-subclass = true
 exclude-classes = """
-    tanjun.annotations:_WrappedProto
-    | tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
+    tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
     | tanjun.commands.menu:_ResultProto
     | tanjun.commands.message:(_ResultProto|_GroupResultProto)
     | tanjun.commands.slash:_ResultProto
     | tanjun.conversion:_IDMatcherSig
     | tanjun.dependencies.limiters:_InnerResourceProto
     | tanjun.schedules:_ComponentProto
+    | tanjun.utilities:_WrappedProto
 """
 exclude-modules = "tanjun._vendor"

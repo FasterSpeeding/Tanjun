@@ -58,7 +58,9 @@ from ._vendor import inspect
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
-    from . import abc
+    import typing_extensions
+
+    from . import abc as tanjun
 
 _KeyT = typing.TypeVar("_KeyT")
 _OtherValueT = typing.TypeVar("_OtherValueT")
@@ -71,7 +73,7 @@ else:
     _UnionTypes = frozenset((typing.Union,))
 
 
-async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
+async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> bool:
     foo = ctx.call_with_async_di(callback, ctx)
     if result := await foo:
         return result
@@ -79,7 +81,7 @@ async def _execute_check(ctx: abc.Context, callback: abc.CheckSig, /) -> bool:
     raise errors.FailedCheck
 
 
-async def gather_checks(ctx: abc.Context, checks: collections.Iterable[abc.CheckSig], /) -> bool:
+async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun.CheckSig], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
@@ -230,7 +232,7 @@ def calculate_permissions(
 
 
 async def _fetch_channel(
-    client: abc.Client, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
+    client: tanjun.Client, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
 ) -> hikari.GuildChannel:
     if isinstance(channel, hikari.GuildChannel):
         return channel
@@ -261,7 +263,7 @@ _GuldRoleCacheT = async_cache.SfGuildBound[hikari.Role]
 
 
 async def fetch_permissions(
-    client: abc.Client,
+    client: tanjun.Client,
     member: hikari.Member,
     /,
     *,
@@ -375,7 +377,7 @@ def calculate_everyone_permissions(
 
 
 async def fetch_everyone_permissions(
-    client: abc.Client,
+    client: tanjun.Client,
     guild_id: hikari.Snowflake,
     /,
     *,
@@ -545,3 +547,28 @@ def infer_listener_types(
         raise TypeError(f"No valid event types found in the signature of {callback}") from None
 
     return event_types
+
+
+class _WrappedProto(typing.Protocol):
+    wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
+
+
+def _has_wrapped(value: typing.Any) -> typing_extensions.TypeGuard[_WrappedProto]:
+    try:
+        value.wrapped_command
+
+    except AttributeError:
+        return False
+
+    return True
+
+
+def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any]) -> list[tanjun.ExecutableCommand[typing.Any]]:
+    results: list[tanjun.ExecutableCommand[typing.Any]] = []
+    wrapped = command.wrapped_command if _has_wrapped(command) else None
+
+    while wrapped:
+        results.append(wrapped)
+        wrapped = wrapped.wrapped_command if _has_wrapped(wrapped) else None
+
+    return results
