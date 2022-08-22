@@ -72,12 +72,11 @@ _CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _C
 
 
 def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: bool) -> _CommandT:
-    command.add_check(check)
     if follow_wrapped:
         for wrapped in utilities.collect_wrapped(command):
             wrapped.add_check(check)
 
-    return command
+    return command.add_check(check)
 
 
 def _optional_kwargs(
