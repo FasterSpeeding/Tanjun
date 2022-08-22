@@ -746,8 +746,8 @@ def with_cooldown(
     error_message
         The error message to send in response as a command error if the check fails.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     owners_exempt
         Whether owners should be exempt from the cooldown.
 
@@ -1097,8 +1097,8 @@ def with_concurrency_limit(
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
 
     Returns
     -------

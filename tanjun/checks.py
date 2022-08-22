@@ -547,8 +547,8 @@ def with_dm_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -606,8 +606,8 @@ def with_guild_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -665,8 +665,8 @@ def with_nsfw_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -724,8 +724,8 @@ def with_sfw_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -783,8 +783,8 @@ def with_owner_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -832,8 +832,8 @@ def with_author_permission_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -883,8 +883,8 @@ def with_own_permission_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -913,8 +913,8 @@ def with_check(
     check
         The check to add to this command.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
 
     Returns
     -------
@@ -981,8 +981,8 @@ def with_all_checks(
     *checks
         Additional check callbacks to combine.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
 
     Returns
     -------
@@ -1092,8 +1092,8 @@ def with_any_checks(
     error_message
         The error message to send in response as a command error if the check fails.
     follow_wrapped
-        Whether to also add this check to any message and slash commands this
-        object wraps in a decorator call chain.
+        Whether to also add this check to any other command objects this
+        command wraps in a decorator call chain.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
