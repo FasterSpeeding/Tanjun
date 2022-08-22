@@ -111,6 +111,7 @@ __all__: list[str] = [
     "FailedModuleUnload",
     "HaltExecution",
     "Hooks",
+    "HotReloader",
     "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
     "LazyConstant",
@@ -282,6 +283,7 @@ from .conversion import to_snowflake
 from .conversion import to_user
 from .conversion import to_voice_state
 from .dependencies import BucketResource
+from .dependencies import HotReloader
 from .dependencies import InMemoryConcurrencyLimiter
 from .dependencies import InMemoryCooldownManager
 from .dependencies import LazyConstant

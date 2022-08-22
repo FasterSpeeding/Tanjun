@@ -63,6 +63,7 @@ __all__: list[str] = [
     "inject_lc",
     "limiters",
     "owners",
+    "reloaders",
     "set_standard_dependencies",
     "with_concurrency_limit",
     "with_cooldown",
