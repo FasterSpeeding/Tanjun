@@ -45,8 +45,10 @@ from .. import hooks as hooks_
 from . import base
 
 if typing.TYPE_CHECKING:
+    import typing_extensions
     from typing_extensions import Self
 
+    _P = typing_extensions.ParamSpec("_P")
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
     _AnyCommandT = typing.Union[
@@ -241,13 +243,12 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
 
-    if typing.TYPE_CHECKING:
-        __call__: _MessageCallbackSigT
-
-    else:
-
-        async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+    async def __call__(
+        self: MessageCommand[collections.Callable[_P, collections.Coroutine[typing.Any, typing.Any, None]]],
+        *args: _P.args,
+        **kwargs: _P.kwargs,
+    ) -> None:
+        await self._callback(*args, **kwargs)
 
     @property
     def callback(self) -> _MessageCallbackSigT:

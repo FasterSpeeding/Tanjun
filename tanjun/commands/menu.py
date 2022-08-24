@@ -48,6 +48,7 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    import typing_extensions
     from typing_extensions import Self
 
     _AnyCallbackSigT = typing.TypeVar(
@@ -509,13 +510,12 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self._type: _MenuTypeT = type_  # MyPy bug causes this to need an explicit annotation.
         self._wrapped_command = _wrapped_command
 
-    if typing.TYPE_CHECKING:
-        __call__: _AnyMenuCallbackSigT
-
-    else:
-
-        async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+    async def __call__(
+        self: MenuCommand[collections.Callable[_P, collections.Coroutine[typing.Any, typing.Any, None]], _MenuTypeT],
+        *args: _P.args,
+        **kwargs: _P.kwargs,
+    ) -> None:
+        await self._callback(*args, **kwargs)
 
     @property
     def callback(self) -> _AnyMenuCallbackSigT:
