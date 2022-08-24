@@ -70,6 +70,7 @@ from .._internal import localisation
 from . import base
 
 if typing.TYPE_CHECKING:
+    import typing_extensions
     from hikari.api import special_endpoints as special_endpoints_api
     from typing_extensions import Self
 
@@ -1606,13 +1607,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
 
-    if typing.TYPE_CHECKING:
-        __call__: _SlashCallbackSigT
-
-    else:
-
-        async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+    async def __call__(
+        self: SlashCommand[collections.Callable[_P, _CoroT[None]]], *args: _P.args, **kwargs: _P.kwargs
+    ) -> None:
+        await self._callback(*args, **kwargs)
 
     @property
     def callback(self) -> _SlashCallbackSigT:
