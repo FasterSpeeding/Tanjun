@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = []
 
 import asyncio
+import functools
 import itertools
 import logging
 import sys
@@ -271,12 +272,15 @@ def infer_listener_types(
     return event_types
 
 
-def print_task_exc(
+def log_task_exc(
     message: str, /
 ) -> collections.Callable[[collections.Callable[_P, collections.Awaitable[_T]]], collections.Callable[_P, _CoroT[_T]]]:
+    """Log the exception when a task raises instead of leaving it up to the gods."""
+
     def decorator(
         callback: collections.Callable[_P, collections.Awaitable[_T]], /
     ) -> collections.Callable[_P, _CoroT[_T]]:
+        @functools.wraps(callback)
         async def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
             try:
                 return await callback(*args, **kwargs)

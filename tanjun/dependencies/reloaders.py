@@ -508,7 +508,7 @@ class HotReloader:
                 self._declared_builders = builders
                 raise
 
-    @_internal.print_task_exc("Hot reloader crashed")
+    @_internal.log_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
         while True:
             await asyncio.sleep(self._interval)
