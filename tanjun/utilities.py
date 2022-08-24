@@ -34,14 +34,11 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "ALL_PERMISSIONS",
-    "CastedView",
     "DM_PERMISSIONS",
     "calculate_everyone_permissions",
     "calculate_permissions",
     "fetch_everyone_permissions",
     "fetch_permissions",
-    "gather_checks",
-    "match_prefix_names",
 ]
 
 import asyncio
@@ -82,20 +79,6 @@ async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> b
 
 
 async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun.CheckSig], /) -> bool:
-    """Gather a collection of checks.
-
-    Parameters
-    ----------
-    ctx
-        The context to check.
-    checks
-        An iterable of injectable checks.
-
-    Returns
-    -------
-    bool
-        Whether all the checks passed or not.
-    """
     try:
         await asyncio.gather(*(_execute_check(ctx, check) for check in checks))
         # InjectableCheck will raise FailedCheck if a false is received so if
@@ -107,20 +90,6 @@ async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun
 
 
 def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typing.Optional[str]:
-    """Search for a matching name in a string.
-
-    Parameters
-    ----------
-    content
-        The string to match names against.
-    names
-        The names to search for.
-
-    Returns
-    -------
-    str | None
-        The name that matched or None if no name matched.
-    """
     for name in names:
         # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
         # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
