@@ -32,8 +32,6 @@
 
 import pytest
 
-import tanjun
-
 
 def test():
     ...

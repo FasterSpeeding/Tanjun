@@ -45,9 +45,9 @@ import typing
 import alluka
 import hikari
 
+from .. import _internal
 from .. import abc as tanjun
 from .. import errors
-from .. import utilities
 
 _LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
@@ -508,7 +508,7 @@ class HotReloader:
                 self._declared_builders = builders
                 raise
 
-    @utilities.print_task_exc("Hot reloader crashed")
+    @_internal.print_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
         while True:
             await asyncio.sleep(self._interval)
