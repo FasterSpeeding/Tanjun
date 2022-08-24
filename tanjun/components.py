@@ -47,8 +47,8 @@ from collections import abc as collections
 
 import hikari
 
+from . import _internal
 from . import abc as tanjun
-from . import utilities
 
 if typing.TYPE_CHECKING:
 
@@ -306,7 +306,7 @@ class Component(tanjun.Component):
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        return utilities.CastedView(self._listeners, lambda x: x.copy())
+        return _internal.CastedView(self._listeners, lambda x: x.copy())
 
     @property
     def metadata(self) -> dict[typing.Any, typing.Any]:
@@ -1031,7 +1031,7 @@ class Component(tanjun.Component):
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
         def decorator(callback: _ListenerCallbackSigT) -> _ListenerCallbackSigT:
-            for event_type in event_types or utilities.infer_listener_types(callback):
+            for event_type in event_types or _internal.infer_listener_types(callback):
                 self.add_listener(event_type, callback)
 
             return callback
@@ -1180,7 +1180,7 @@ class Component(tanjun.Component):
         return self
 
     async def _check_context(self, ctx: tanjun.Context, /) -> bool:
-        return await utilities.gather_checks(ctx, self._checks)
+        return await _internal.gather_checks(ctx, self._checks)
 
     async def _check_message_context(
         self, ctx: tanjun.MessageContext, /
@@ -1222,7 +1222,7 @@ class Component(tanjun.Component):
             return
 
         for command in self._message_commands:
-            if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
+            if (name_ := _internal.match_prefix_names(content, command.names)) is not None:
                 yield name_, command
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun.BaseSlashCommand]:

@@ -61,10 +61,11 @@ from collections import abc as collections
 import alluka
 import hikari
 
+from . import _internal
 from . import abc as tanjun
 from . import dependencies
 from . import errors
-from . import utilities
+from . import permissions
 
 _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
@@ -73,7 +74,7 @@ _CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _C
 
 def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: bool) -> _CommandT:
     if follow_wrapped:
-        for wrapped in utilities.collect_wrapped(command):
+        for wrapped in _internal.collect_wrapped(command):
             wrapped.add_check(check)
 
     return command.add_check(check)
@@ -413,23 +414,21 @@ class AuthorPermissionCheck(_Check):
             # something like a webhook or guild visitor with no real permissions
             # outside of some basic set of send messages.
             if ctx.guild_id:
-                permissions = await utilities.fetch_everyone_permissions(
-                    ctx.client, ctx.guild_id, channel=ctx.channel_id
-                )
+                perms = await permissions.fetch_everyone_permissions(ctx.client, ctx.guild_id, channel=ctx.channel_id)
 
             else:
-                permissions = utilities.DM_PERMISSIONS
+                perms = permissions.DM_PERMISSIONS
 
         elif isinstance(ctx.member, hikari.InteractionMember):
             # Luckily, InteractionMember.permissions already handles the
             # implicit owner and admin permission special casing for us.
-            permissions = ctx.member.permissions
+            perms = ctx.member.permissions
 
         else:
-            permissions = await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
+            perms = await permissions.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
-        missing_permissions = ~permissions & self._permissions
-        return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
+        missing_perms = ~perms & self._permissions
+        return self._handle_result(missing_perms is hikari.Permissions.NONE, missing_perms)
 
 
 _MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
@@ -488,22 +487,22 @@ class OwnPermissionCheck(_Check):
         member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
         if ctx.guild_id is None:
-            permissions = utilities.DM_PERMISSIONS
+            perms = permissions.DM_PERMISSIONS
 
         elif isinstance(ctx, tanjun.SlashContext):
             assert ctx.interaction.app_permissions is not None
-            permissions = ctx.interaction.app_permissions
+            perms = ctx.interaction.app_permissions
 
         elif ctx.cache and (member := ctx.cache.get_member(ctx.guild_id, my_user)):
-            permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
+            perms = await permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         else:
             member = await member_cache.get_from_guild(ctx.guild_id, my_user.id, default=None) if member_cache else None
             member = member or await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
-            permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
+            perms = await permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-        missing_permissions = ~permissions & self._permissions
-        return self._handle_result(missing_permissions is hikari.Permissions.NONE, missing_permissions)
+        missing_perms = ~perms & self._permissions
+        return self._handle_result(missing_perms is hikari.Permissions.NONE, missing_perms)
 
 
 @typing.overload

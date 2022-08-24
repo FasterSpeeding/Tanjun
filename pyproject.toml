@@ -120,7 +120,7 @@ exclude-classes = """
     | tanjun.commands.slash:_ResultProto
     | tanjun.conversion:_IDMatcherSig
     | tanjun.dependencies.limiters:_InnerResourceProto
+    | tanjun._internal:_WrappedProto
     | tanjun.schedules:_ComponentProto
-    | tanjun.utilities:_WrappedProto
 """
 exclude-modules = "tanjun._vendor"

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   limiter/check to all the commands in a decorator chain (in a similar fashion to how
   `with_parsed_annotations` behaves.
 
+### Changed
+- Moved permissions functions to [tanjun.permissions][] while keeping deprecated aliases in the now
+  deprecated module [tanjun.utilities][]
+
 ### Fixed
 - Inherit the global states for `default_member_permissions` and `is_dm_enabled`
   in `declare_application_command`.

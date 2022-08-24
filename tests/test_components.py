@@ -46,6 +46,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun import _internal
 
 mock_global_loader_1 = mock.Mock(tanjun.components.AbstractComponentLoader)
 mock_global_loader_2 = mock.Mock(tanjun.components.AbstractComponentLoader)
@@ -1450,9 +1451,7 @@ class TestComponent:
         mock_command = mock.Mock(names=("yamida is", "ok"))
         component = tanjun.Component().add_message_command(mock_other_command).add_message_command(mock_command)
 
-        with mock.patch.object(
-            tanjun.utilities, "match_prefix_names", side_effect=[None, "yamida is"]
-        ) as match_prefix_names:
+        with mock.patch.object(_internal, "match_prefix_names", side_effect=[None, "yamida is"]) as match_prefix_names:
             result = component.check_message_name("yamida is gay")
 
             assert list(result) == [("yamida is", mock_command)]
@@ -1470,7 +1469,7 @@ class TestComponent:
             .add_message_command(mock.Mock(names=("yamida is", "ok")))
         )
 
-        with mock.patch.object(tanjun.utilities, "match_prefix_names", return_value=None) as match_prefix_names:
+        with mock.patch.object(_internal, "match_prefix_names", return_value=None) as match_prefix_names:
             result = component.check_message_name("yeeyt")
 
             assert list(result) == []
@@ -1488,7 +1487,7 @@ class TestComponent:
             tanjun.Component(strict=True).add_message_command(mock_command).add_message_command(mock_other_command)
         )
 
-        with mock.patch.object(tanjun.utilities, "match_prefix_names") as match_prefix_names:
+        with mock.patch.object(_internal, "match_prefix_names") as match_prefix_names:
             result = component.check_message_name("bro no")
 
             assert list(result) == [("bro", mock_command)]
@@ -1497,7 +1496,7 @@ class TestComponent:
     def test_check_message_name_when_strict_and_not_found(self):
         component = tanjun.Component(strict=True).add_message_command(mock.Mock(names=("a", "g", "d")))
 
-        with mock.patch.object(tanjun.utilities, "match_prefix_names") as match_prefix_names:
+        with mock.patch.object(_internal, "match_prefix_names") as match_prefix_names:
             result = component.check_message_name("bro no")
 
             assert list(result) == []

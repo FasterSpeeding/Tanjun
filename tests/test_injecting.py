@@ -34,6 +34,8 @@
 
 from unittest import mock
 
+import alluka
+
 import tanjun
 
 
@@ -45,3 +47,30 @@ def test_as_self_injecting():
 
     assert result.callback is mock_callback
     assert result._client is mock_client.injector
+
+
+def test_aliases():
+    assert set(tanjun.injecting.__all__) == {
+        "AbstractInjectionContext",
+        "BasicInjectionContext",
+        "CallbackSig",
+        "Injected",
+        "InjectorClient",
+        "SelfInjectingCallback",
+        "UNDEFINED",
+        "Undefined",
+        "UndefinedOr",
+        "as_self_injecting",
+        "inject",
+        "injected",
+    }
+    assert tanjun.injecting.SelfInjectingCallback is alluka.AsyncSelfInjecting
+    assert tanjun.injecting.BasicInjectionContext is alluka.BasicContext
+    assert tanjun.injecting.InjectorClient is alluka.Client
+    assert tanjun.injecting.Injected is alluka.Injected
+    assert tanjun.injecting.inject is alluka.inject
+    assert tanjun.injecting.injected is alluka.inject
+    assert tanjun.injecting.UNDEFINED is alluka.abc.UNDEFINED
+    assert tanjun.injecting.CallbackSig is alluka.abc.CallbackSig
+    assert tanjun.injecting.AbstractInjectionContext is alluka.abc.Context
+    assert tanjun.injecting.Undefined is alluka.abc.Undefined

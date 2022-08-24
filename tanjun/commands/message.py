@@ -38,11 +38,11 @@ import copy
 import typing
 from collections import abc as collections
 
+from .. import _internal
 from .. import abc as tanjun
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
-from .. import utilities
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -234,7 +234,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
 
-        self._arg_names = utilities.get_kwargs(callback) if validate_arg_keys else None
+        self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
         self._callback: _CommandCallbackSigT = callback
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
@@ -327,7 +327,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     async def check_context(self, ctx: tanjun.MessageContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         ctx.set_command(self)
-        result = await utilities.gather_checks(ctx, self._checks)
+        result = await _internal.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
 
@@ -549,7 +549,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
             return
 
         for command in self._commands:
-            if (name_ := utilities.match_prefix_names(content, command.names)) is not None:
+            if (name_ := _internal.match_prefix_names(content, command.names)) is not None:
                 yield name_, command
 
     async def execute(

@@ -56,11 +56,11 @@ from collections import abc as collections
 import alluka
 import hikari
 
+from .. import _internal
 from .. import abc as tanjun
 from .. import conversion
 from .. import errors
 from .. import hooks
-from .. import utilities
 from . import async_cache
 from . import owners
 
@@ -769,7 +769,7 @@ def with_cooldown(
 
         hooks_.add_pre_execution(pre_execution)
         if follow_wrapped and not _recursing:
-            for wrapped in utilities.collect_wrapped(command):
+            for wrapped in _internal.collect_wrapped(command):
                 decorator(wrapped, _recursing=True)
 
         return command
@@ -1116,7 +1116,7 @@ def with_concurrency_limit(
 
         hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
         if follow_wrapped and not _recursing:
-            for wrapped in utilities.collect_wrapped(command):
+            for wrapped in _internal.collect_wrapped(command):
                 decorator(wrapped, _recursing=True)
 
         return command

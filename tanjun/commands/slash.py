@@ -61,12 +61,12 @@ from collections import abc as collections
 
 import hikari
 
+from .. import _internal
 from .. import abc as tanjun
 from .. import components
 from .. import conversion
 from .. import errors
 from .. import hooks as hooks_
-from .. import utilities
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -957,7 +957,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     async def check_context(self, ctx: tanjun.SlashContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         ctx.set_command(self)
-        result = await utilities.gather_checks(ctx, self._checks)
+        result = await _internal.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
 
@@ -1361,7 +1361,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             callback = callback.callback
 
         self._always_defer = always_defer
-        self._arg_names = utilities.get_kwargs(callback) if validate_arg_keys else None
+        self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
         self._builder = _SlashCommandBuilder(name, description, sort_options)
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
