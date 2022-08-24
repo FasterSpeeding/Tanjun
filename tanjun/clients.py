@@ -59,12 +59,12 @@ import alluka
 import hikari
 from hikari import traits as hikari_traits
 
+from . import _internal
 from . import abc as tanjun
 from . import context
 from . import dependencies
 from . import errors
 from . import hooks
-from . import utilities
 
 if typing.TYPE_CHECKING:
     import types
@@ -1071,7 +1071,7 @@ class Client(tanjun.Client):
     def listeners(
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
-        return utilities.CastedView(
+        return _internal.CastedView(
             self._listeners,
             lambda x: [callback.callback for callback in x.values()],
         )
@@ -1752,7 +1752,7 @@ class Client(tanjun.Client):
         return check
 
     async def check(self, ctx: tanjun.Context, /) -> bool:
-        return await utilities.gather_checks(ctx, self._checks)
+        return await _internal.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun.Component, /, *, add_injector: bool = False) -> _ClientT:
         """Add a component to this client.
@@ -1916,7 +1916,7 @@ class Client(tanjun.Client):
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
         def decorator(callback: _ListenerCallbackSigT, /) -> _ListenerCallbackSigT:
-            for event_type in event_types or utilities.infer_listener_types(callback):
+            for event_type in event_types or _internal.infer_listener_types(callback):
                 self.add_listener(event_type, callback)
 
             return callback

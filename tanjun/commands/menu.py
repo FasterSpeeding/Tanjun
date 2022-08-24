@@ -36,11 +36,11 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
+from .. import _internal
 from .. import abc as tanjun
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
-from .. import utilities
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -561,7 +561,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     async def check_context(self, ctx: tanjun.MenuContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         ctx.set_command(self)
-        result = await utilities.gather_checks(ctx, self._checks)
+        result = await _internal.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
 

@@ -47,6 +47,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun import _internal
 from tanjun.context import base as base_context
 
 _T = typing.TypeVar("_T")
@@ -695,7 +696,7 @@ class TestBaseSlashCommand:
             .add_check(mock_other_callback)
         )
 
-        with mock.patch.object(tanjun.utilities, "gather_checks", new=mock.AsyncMock()) as gather_checks:
+        with mock.patch.object(_internal, "gather_checks", new=mock.AsyncMock()) as gather_checks:
             result = await command.check_context(mock_context)
 
             gather_checks.assert_awaited_once_with(mock_context, [mock_callback, mock_other_callback])

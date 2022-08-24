@@ -167,6 +167,7 @@ __all__: list[str] = [
     "injected",
     "injecting",
     "parsing",
+    "permissions",
     "schedules",
     "slash_command_group",
     "to_bool",
@@ -224,6 +225,7 @@ from alluka import inject as injected
 from . import abc
 from . import annotations
 from . import context
+from . import permissions
 from . import utilities
 from .abc import ClientCallbackNames
 from .checks import with_all_checks

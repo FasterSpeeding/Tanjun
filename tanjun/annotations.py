@@ -77,9 +77,9 @@ from collections import abc as collections
 
 import hikari
 
+from . import _internal
 from . import conversion
 from . import parsing
-from . import utilities
 from ._vendor import inspect
 from .commands import message
 from .commands import slash
@@ -1079,7 +1079,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
         message_commands.append(command)
 
     if follow_wrapped:
-        for sub_command in utilities.collect_wrapped(command):
+        for sub_command in _internal.collect_wrapped(command):
             if isinstance(sub_command, message.MessageCommand):
                 message_commands.append(sub_command)
 

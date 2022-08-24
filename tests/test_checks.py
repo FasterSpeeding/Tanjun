@@ -539,7 +539,7 @@ MISSING_DM_PERMISSIONS = (
     [
         (
             hikari.Permissions.all_permissions(),
-            hikari.Permissions.all_permissions() & ~tanjun.utilities.DM_PERMISSIONS,
+            hikari.Permissions.all_permissions() & ~tanjun.permissions.DM_PERMISSIONS,
         ),
         (
             _p := hikari.Permissions.MANAGE_CHANNELS
@@ -575,7 +575,7 @@ PERMISSIONS = (
     ],
 )
 
-DM_PERMISSIONS = ("required_perms", list(_perm_combos(tanjun.utilities.DM_PERMISSIONS)))
+DM_PERMISSIONS = ("required_perms", list(_perm_combos(tanjun.permissions.DM_PERMISSIONS)))
 
 
 @pytest.mark.asyncio()
@@ -585,7 +585,7 @@ class TestAuthorPermissionCheck:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context)
 
         assert result is True
@@ -601,7 +601,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
         with mock.patch.object(
-            tanjun.utilities,
+            tanjun.permissions,
             "fetch_permissions",
             return_value=actual_perms,
         ) as fetch_permissions:
@@ -624,7 +624,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
 
         with pytest.raises(StubError), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context)
 
@@ -642,7 +642,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="yeet feet")
 
         with pytest.raises(tanjun.CommandError, match="yeet feet"), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context)
 
@@ -658,7 +658,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context)
 
@@ -728,7 +728,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
         with mock.patch.object(
-            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
         ) as fetch_everyone_permissions:
             result = await check(mock_context)
 
@@ -745,7 +745,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
         with mock.patch.object(
-            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
         ) as fetch_everyone_permissions:
             result = await check(mock_context)
 
@@ -766,7 +766,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
 
         with pytest.raises(StubError), mock.patch.object(
-            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
         ) as fetch_everyone_permissions:
             await check(mock_context)
 
@@ -783,7 +783,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="beat yo meow")
 
         with pytest.raises(tanjun.CommandError, match="beat yo meow"), mock.patch.object(
-            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
         ) as fetch_everyone_permissions:
             await check(mock_context)
 
@@ -799,7 +799,7 @@ class TestAuthorPermissionCheck:
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_everyone_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
         ) as fetch_everyone_permissions:
             await check(mock_context)
 
@@ -870,7 +870,7 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is True
@@ -891,7 +891,7 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is True
@@ -909,7 +909,7 @@ class TestOwnPermissionCheck:
         mock_own_user = mock.Mock()
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=None, my_user=mock_own_user)
 
         assert result is True
@@ -927,7 +927,7 @@ class TestOwnPermissionCheck:
         mock_own_user = mock.Mock()
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=None, my_user=mock_own_user)
 
         assert result is True
@@ -948,7 +948,7 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is False
@@ -976,7 +976,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
         with pytest.raises(StubError), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1001,7 +1001,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="meow meow")
 
         with pytest.raises(tanjun.CommandError, match="meow meow"), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1025,7 +1025,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1045,7 +1045,7 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is True
@@ -1067,7 +1067,7 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is False
@@ -1094,7 +1094,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
         with pytest.raises(StubError), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1118,7 +1118,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="meowth")
 
         with pytest.raises(tanjun.CommandError, match="meowth"), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1141,7 +1141,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1161,7 +1161,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is True
@@ -1183,7 +1183,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is False
@@ -1210,7 +1210,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
         with pytest.raises(StubError), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1234,7 +1234,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="nom")
 
         with pytest.raises(tanjun.CommandError, match="nom"), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1257,7 +1257,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_permissions", return_value=actual_perms
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1279,7 +1279,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is True
@@ -1299,7 +1299,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is False
@@ -1323,7 +1323,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+        with pytest.raises(StubError), mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1344,7 +1344,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="bees")
 
         with pytest.raises(tanjun.CommandError, match="bees"), mock.patch.object(
-            tanjun.utilities, "fetch_permissions"
+            tanjun.permissions, "fetch_permissions"
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1365,7 +1365,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_permissions"
+            tanjun.permissions, "fetch_permissions"
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1382,7 +1382,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is True
@@ -1399,7 +1399,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message=None)
 
-        with mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions:
             result = await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         assert result is False
@@ -1422,7 +1422,7 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(tanjun.utilities, "fetch_permissions") as fetch_permissions:
+        with pytest.raises(StubError), mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1440,7 +1440,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="beep")
 
         with pytest.raises(tanjun.CommandError, match="beep"), mock.patch.object(
-            tanjun.utilities, "fetch_permissions"
+            tanjun.permissions, "fetch_permissions"
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
@@ -1458,7 +1458,7 @@ class TestOwnPermissionCheck:
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
         with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.utilities, "fetch_permissions"
+            tanjun.permissions, "fetch_permissions"
         ) as fetch_permissions:
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
