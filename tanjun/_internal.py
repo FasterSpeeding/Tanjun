@@ -456,7 +456,7 @@ class MaybeLocalised:
                 raise ValueError(f"Invalid {self._field_name} provided, {value!r} must be lowercase")
 
     def assert_length(self, min_length: int, max_length: int, /) -> None:
-        """Assert that all the values' lengths in this are within a certain inclusive range.
+        """Assert that all the lengths in this are within a certain inclusive range.
 
         Parameters
         ----------
@@ -468,7 +468,7 @@ class MaybeLocalised:
         Raises
         ------
         ValueError
-            If any of the values' lengths in this are outside of the provided range.
+            If any of the lengths in this are outside of the provided range.
         """
         if self.localised_values is None:
             real_max_len = len(self.default_value)
