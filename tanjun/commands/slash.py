@@ -912,11 +912,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        names = _internal.MaybeLocalised(name)
-        names.assert_length("name", 1, 32)
-        names.assert_matches("name", _SCOMMAND_NAME_REG, _validate_name, lower_only=True)
-        descriptions = _internal.MaybeLocalised(description)
-        descriptions.assert_length("description", 1, 100)
+        names = _internal.MaybeLocalised("name", name)
+        names.assert_length(1, 32)
+        names.assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
+        descriptions = _internal.MaybeLocalised("description", description)
+        descriptions.assert_length(1, 100)
 
         if default_member_permissions is not None:
             default_member_permissions = hikari.Permissions(default_member_permissions)
@@ -1684,9 +1684,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        names.assert_length("name", 1, 32)
-        names.assert_matches("name", _SCOMMAND_NAME_REG, _validate_name, lower_only=True)
-        descriptions.assert_length("description", 1, 100)
+        names.assert_length(1, 32)
+        names.assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
+        descriptions.assert_length(1, 100)
 
         if len(self._builder.options) == 25:
             raise ValueError("Slash commands cannot have more than 25 options")
@@ -1829,8 +1829,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.ATTACHMENT,
             default=default,
             key=key,
@@ -1964,8 +1964,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 else:
                     actual_choices[choice.capitalize()] = choice
 
-        names = _internal.MaybeLocalised(name)
-        descriptions = _internal.MaybeLocalised(description)
+        names = _internal.MaybeLocalised("name", name)
+        descriptions = _internal.MaybeLocalised("description", description)
         self._add_option(
             names,
             descriptions,
@@ -2073,8 +2073,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        names = _internal.MaybeLocalised(name)
-        descriptions = _internal.MaybeLocalised(description)
+        names = _internal.MaybeLocalised("name", name)
+        descriptions = _internal.MaybeLocalised("description", description)
         self._add_option(
             names,
             descriptions,
@@ -2190,8 +2190,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """
-        names = _internal.MaybeLocalised(name)
-        descriptions = _internal.MaybeLocalised(description)
+        names = _internal.MaybeLocalised("name", name)
+        descriptions = _internal.MaybeLocalised("description", description)
         self._add_option(
             names,
             descriptions,
@@ -2269,8 +2269,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.BOOLEAN,
             default=default,
             key=key,
@@ -2339,8 +2339,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.USER,
             default=default,
             key=key,
@@ -2406,8 +2406,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.USER,
             default=default,
             key=key,
@@ -2493,8 +2493,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             channel_types = None
 
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.CHANNEL,
             channel_types=channel_types,
             default=default,
@@ -2558,8 +2558,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.ROLE,
             default=default,
             key=key,
@@ -2626,8 +2626,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """
         return self._add_option(
-            _internal.MaybeLocalised(name),
-            _internal.MaybeLocalised(description),
+            _internal.MaybeLocalised("name", name),
+            _internal.MaybeLocalised("description", description),
             hikari.OptionType.MENTIONABLE,
             default=default,
             key=key,

@@ -101,7 +101,7 @@ class _Check:
         halt_execution: bool,
     ) -> None:
         self._error = error
-        self._error_message = _internal.MaybeLocalised(error_message) if error_message else None
+        self._error_message = _internal.MaybeLocalised("error_message", error_message) if error_message else None
         self._halt_execution = halt_execution
 
     def _handle_result(self, ctx: tanjun.Context, result: bool, /, *args: typing.Any) -> bool:
@@ -436,7 +436,7 @@ class AuthorPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(missing_perms is hikari.Permissions.NONE, missing_perms)
+        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, missing_perms)
 
 
 _MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
@@ -512,7 +512,7 @@ class OwnPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(missing_perms is hikari.Permissions.NONE, missing_perms)
+        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, missing_perms)
 
 
 @typing.overload

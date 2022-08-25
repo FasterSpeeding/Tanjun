@@ -359,24 +359,39 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
 class MaybeLocalised:
     """Class used for handling name and description localisation."""
 
-    __slots__ = ("default_value", "id", "localised_values")
+    __slots__ = ("default_value", "_field_name", "id", "localised_values")
 
     def __init__(
         self,
-        # TODO: switch to taking field name in init.
+        field_name: str,
         field: typing.Union[str, collections.Mapping[str, str], collections.Iterable[tuple[str, str]]],
         /,
     ) -> None:
-        """Initalise an instance of MaybeLocalised.
+        """Initialise an instance of MaybeLocalised.
 
         Parameters
         ----------
+        field_name
+            Name of the field being localised.
+
+            This is used in raised exceptions.
+        field
+            The string value(s) to use for this value.
+
+            If a [str][] is passed here then this will be used as the default
+            value and the field's id for overloading it with the localiser.
+
+            When a mapping is passed here, this should be a mapping of locales
+            to values. If an "id" fieldis included then this will be used as the
+            id for overloading it with the localiser and the first real value
+            will be used as the default value.
 
         Raises
         ------
         RuntimeError
-            If an empty
+            If no default value is provided when `filed` is a mapping.
         """
+        self._field_name = field_name
         if isinstance(field, str):
             self.default_value = field
             self.id: typing.Optional[str] = None
@@ -387,8 +402,8 @@ class MaybeLocalised:
             self.id = self.localised_values.pop("id", None)
             value_iter = iter(self.localised_values.items())
             entry = next(value_iter, None)
-            if entry is None:  # TODO: not just the descriptions
-                raise RuntimeError("No default description given")
+            if entry is None:
+                raise RuntimeError(f"No default {field_name} given")
 
             self.default_value = entry[1]
 
@@ -411,14 +426,12 @@ class MaybeLocalised:
         return self.default_value
 
     def assert_matches(
-        self, field_name: str, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
+        self, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
     ) -> None:
         """Assert that all the values in this match a localised pattern.
 
         Parameters
         ----------
-        field_name
-            The field name (used in raised exceptions).
         pattern
             A string representation of the pattern for use in raised exceptions.
         match
@@ -436,19 +449,17 @@ class MaybeLocalised:
         for value in values_iter:
             if not match(value):
                 raise ValueError(
-                    f"Invalid {field_name} provided, {value!r} doesn't match the required regex `{pattern}`"
+                    f"Invalid {self._field_name} provided, {value!r} doesn't match the required regex `{pattern}`"
                 )
 
             if lower_only and value.lower() != value:
-                raise ValueError(f"Invalid {field_name} provided, {value!r} must be lowercase")
+                raise ValueError(f"Invalid {self._field_name} provided, {value!r} must be lowercase")
 
-    def assert_length(self, field_name: str, min_length: int, max_length: int, /) -> None:
+    def assert_length(self, min_length: int, max_length: int, /) -> None:
         """Assert that all the values' lengths in this are within a certain inclusive range.
 
         Parameters
         ----------
-        field_name
-            Name of the field (used in raised exceptions).
         min_length
             The inclusive minimum length for this.
         max_length
@@ -457,7 +468,7 @@ class MaybeLocalised:
         Raises
         ------
         ValueError
-            If any of the values' lenghts in this are outside of the provided range.
+            If any of the values' lengths in this are outside of the provided range.
         """
         if self.localised_values is None:
             real_max_len = len(self.default_value)
@@ -469,10 +480,10 @@ class MaybeLocalised:
 
         if real_max_len > max_length:
             raise ValueError(
-                f"{field_name.capitalize()} must be less than or equal to {max_length} characters in length"
+                f"{self._field_name.capitalize()} must be less than or equal to {max_length} characters in length"
             )
 
         if real_min_len < min_length:
             raise ValueError(
-                f"{field_name.capitalize()} must be greater than or equal to {min_length} characters in length"
+                f"{self._field_name.capitalize()} must be greater than or equal to {min_length} characters in length"
             )
