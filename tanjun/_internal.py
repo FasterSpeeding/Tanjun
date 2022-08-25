@@ -354,3 +354,125 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
         options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
 
     return options or ()
+
+
+class MaybeLocalised:
+    """Class used for handling name and description localisation."""
+
+    __slots__ = ("default_value", "id", "localised_values")
+
+    def __init__(
+        self,
+        # TODO: switch to taking field name in init.
+        field: typing.Union[str, collections.Mapping[str, str], collections.Iterable[tuple[str, str]]],
+        /,
+    ) -> None:
+        """Initalise an instance of MaybeLocalised.
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+        RuntimeError
+            If an empty
+        """
+        if isinstance(field, str):
+            self.default_value = field
+            self.id: typing.Optional[str] = None
+            self.localised_values: dict[str, str] = {}
+
+        else:
+            self.localised_values = dict(field)
+            self.id = self.localised_values.pop("id", None)
+            value_iter = iter(self.localised_values.items())
+            entry = next(value_iter, None)
+            if entry is None:  # TODO: not just the descriptions
+                raise RuntimeError("No default description given")
+
+            self.default_value = entry[1]
+
+    def get_for_ctx_or_default(self, ctx: tanjun.Context, /) -> str:
+        """Get the localised value for a context.
+
+        Parameters
+        ----------
+        ctx
+            The context to localise for.
+
+        Returns
+        -------
+        str
+            The localised value or the default value.
+        """
+        if self.localised_values and isinstance(ctx, tanjun.SlashContext):
+            return self.localised_values.get(ctx.interaction.locale, self.default_value)
+
+        return self.default_value
+
+    def assert_matches(
+        self, field_name: str, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
+    ) -> None:
+        """Assert that all the values in this match a localised pattern.
+
+        Parameters
+        ----------
+        field_name
+            The field name (used in raised exceptions).
+        pattern
+            A string representation of the pattern for use in raised exceptions.
+        match
+            Pattern match callback.
+        lower_only
+            Whether this should also assert that all values are considered
+            lowercase.
+        """
+        if self.localised_values is None:
+            values_iter = iter((self.default_value,))
+
+        else:
+            values_iter = iter(self.localised_values.values())
+
+        for value in values_iter:
+            if not match(value):
+                raise ValueError(
+                    f"Invalid {field_name} provided, {value!r} doesn't match the required regex `{pattern}`"
+                )
+
+            if lower_only and value.lower() != value:
+                raise ValueError(f"Invalid {field_name} provided, {value!r} must be lowercase")
+
+    def assert_length(self, field_name: str, min_length: int, max_length: int, /) -> None:
+        """Assert that all the values' lengths in this are within a certain inclusive range.
+
+        Parameters
+        ----------
+        field_name
+            Name of the field (used in raised exceptions).
+        min_length
+            The inclusive minimum length for this.
+        max_length
+            The inclusive maximum length for this.
+
+        Raises
+        ------
+        ValueError
+            If any of the values' lenghts in this are outside of the provided range.
+        """
+        if self.localised_values is None:
+            real_max_len = len(self.default_value)
+            real_min_len = len(self.default_value)
+
+        else:
+            real_max_len = max(map(len, self.localised_values.values()))
+            real_min_len = min(map(len, self.localised_values.values()))
+
+        if real_max_len > max_length:
+            raise ValueError(
+                f"{field_name.capitalize()} must be less than or equal to {max_length} characters in length"
+            )
+
+        if real_min_len < min_length:
+            raise ValueError(
+                f"{field_name.capitalize()} must be greater than or equal to {min_length} characters in length"
+            )

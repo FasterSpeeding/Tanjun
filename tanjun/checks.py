@@ -101,7 +101,7 @@ class _Check:
         halt_execution: bool,
     ) -> None:
         self._error = error
-        self._error_message = utilities.MaybeLocalised(error_message) if error_message else None
+        self._error_message = _internal.MaybeLocalised(error_message) if error_message else None
         self._halt_execution = halt_execution
 
     def _handle_result(self, ctx: tanjun.Context, result: bool, /, *args: typing.Any) -> bool:

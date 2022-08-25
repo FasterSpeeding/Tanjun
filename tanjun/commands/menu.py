@@ -430,7 +430,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             * If the command name has uppercase characters.
         """
         super().__init__()
-        names = utilities.MaybeLocalised(name)
+        names = _internal.MaybeLocalised(name)
         names.assert_length("name", 1, 32)
 
         if type_ not in _VALID_TYPES:
