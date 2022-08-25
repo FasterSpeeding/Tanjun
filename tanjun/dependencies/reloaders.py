@@ -308,29 +308,37 @@ class HotReloader:
         return self
 
     async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
-        try:
-            await client.reload_modules_async(path)
-            return True
+        for method in (client.reload_modules_async, client.load_modules_async):
+            try:
+                await method(path)
+                return True
 
-        except errors.ModuleStateConflict:
-            pass
+            except errors.ModuleStateConflict:
+                pass
 
-        except (errors.FailedModuleUnload, errors.ModuleMissingUnloaders) as exc:
-            self._dead_unloads.add(path)
-            _LOGGER.exception(f"Failed to unload module {path}", exc_info=exc)
-            return False
+            except errors.FailedModuleLoad as exc:
+                _LOGGER.error("Failed to load module `%s`", path, exc_info=exc.__cause__)
+                return False
 
-        except Exception as exc:
-            _LOGGER.exception(f"Failed to reload module {path}", exc_info=exc)
-            return False
+            except errors.ModuleMissingLoaders:
+                _LOGGER.error("Cannot load module `%s` with no loaders", path)
+                return False
 
-        try:
-            await client.load_modules_async(path)
-            return True
+            except errors.FailedModuleUnload as exc:
+                self._dead_unloads.add(path)
+                _LOGGER.exception(
+                    "Failed to unload module `%s`; hot reloading is now disabled for this module", path, exc_info=exc
+                )
+                return False
 
-        except Exception as exc:
-            _LOGGER.exception(f"Failed to load module {path}", exc_info=exc)
-            return False
+            except errors.ModuleMissingUnloaders:
+                self._dead_unloads.add(path)
+                _LOGGER.exception(
+                    "Cannot reload module `%s` with no unloaders; hot reloading is now disabled for this module", path
+                )
+                return False
+
+        return False
 
     def _unload_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
         try:
@@ -340,10 +348,20 @@ class HotReloader:
         except errors.ModuleStateConflict:
             return True
 
-        except Exception as exc:
-            self._dead_unloads.add(path)
-            _LOGGER.exception(f"Failed to unload module {path}", exc_info=exc)
-            return False
+        except errors.FailedModuleUnload as exc:
+            _LOGGER.exception(
+                "Failed to unload module `%s`; hot reloading is now disabled for this module",
+                path,
+                exc_info=exc.__cause__,
+            )
+
+        except errors.ModuleMissingUnloaders:
+            _LOGGER.exception(
+                "Cannot unload module `%s` with no unloaders; hot reloading is now disabled for this module", path
+            )
+
+        self._dead_unloads.add(path)
+        return False
 
     def _scan(self) -> _ScanResult:
         result = _ScanResult()
