@@ -327,7 +327,9 @@ class HotReloader:
             except errors.FailedModuleUnload as exc:
                 self._dead_unloads.add(path)
                 _LOGGER.exception(
-                    "Failed to unload module `%s`; hot reloading is now disabled for this module", path, exc_info=exc
+                    "Failed to unload module `%s`; hot reloading is now disabled for this module",
+                    path,
+                    exc_info=exc.__cause__,
                 )
                 return False
 
