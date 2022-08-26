@@ -1628,6 +1628,22 @@ def test_with_generic_greedy():
     assert argument.max_value is None
 
 
+def test_with_length():
+    ...
+
+
+def test_with_length_when_min_specificed():
+    ...
+
+
+def test_with_generic_length():
+    ...
+
+
+def test_with_generic_length_when_min_specificed():
+    ...
+
+
 @pytest.mark.parametrize(
     ("type_", "value", "raw_type", "option_type"),
     [
