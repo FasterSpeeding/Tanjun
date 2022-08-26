@@ -227,6 +227,8 @@ def test_with_str_slash_option():
         converters=[mock_converter],
         default="ANY",
         key="bang",
+        min_length=543,
+        max_length=6543,
         pass_as_kwarg=False,
     )(mock_command)
 
@@ -239,6 +241,8 @@ def test_with_str_slash_option():
         choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
         key="bang",
+        min_length=543,
+        max_length=6543,
         pass_as_kwarg=False,
         _stack_level=1,
     )
@@ -258,6 +262,8 @@ def test_with_str_slash_option_with_defaults():
         choices=None,
         converters=(),
         key=None,
+        min_length=None,
+        max_length=None,
         pass_as_kwarg=True,
         _stack_level=1,
     )
@@ -1219,6 +1225,8 @@ class TestSlashCommand:
             converters=[mock_converter],
             default="ayya",
             key="ayaya",
+            min_length=234,
+            max_length=5432,
         )
 
         option = command.build().options[0]
@@ -1231,7 +1239,9 @@ class TestSlashCommand:
             hikari.CommandChoice(name="Aye", value="aye"),
             hikari.CommandChoice(name="Bye man", value="bye"),
         ]
+        assert option.min_length == 234
         assert option.min_value is None
+        assert option.max_length == 5432
         assert option.max_value is None
         assert option.channel_types is None
 
@@ -1316,7 +1326,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.STRING
         assert option.choices is None
+        assert option.min_length is None
         assert option.min_value is None
+        assert option.max_length is None
         assert option.max_value is None
         assert option.channel_types is None
 
@@ -1383,6 +1395,57 @@ class TestSlashCommand:
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_str_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
+    def test_add_str_option_when_min_length_is_greater_than_max_length(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="`min_length` cannot be greater than `max_length`"):
+            command.add_str_option("a", "b", min_length=434, max_length=432)
+
+    def test_add_str_option_when_min_length_is_equal_to_max_length(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option("beat", "yeet", min_length=43, max_length=43)
+
+        option = command.build().options[0]
+        assert option.min_length == 43
+        assert option.max_length == 43
+
+    def test_add_str_option_when_min_length_is_less_than_0(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="`min_length` must be greater than or equal to 0"):
+            command.add_str_option("bb", "aa", min_length=-1)
+
+    def test_add_str_option_when_min_length_is_0(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option("bb", "aa", min_length=0)
+
+        option = command.build().options[0]
+        assert option.min_length == 0
+
+    def test_add_str_option_when_min_length_is_greater_than_6000(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="`min_length` must be less than or equal to 6000"):
+            command.add_str_option("bbbb", "aaa", min_length=6001)
+
+    def test_add_str_option_when_min_length_is_6000(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option("bb", "aa", min_length=6000)
+
+        option = command.build().options[0]
+        assert option.min_length == 6000
+
+    def test_add_str_option_when_max_length_is_less_than_1(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="`max_length` must be greater than or equal to 1"):
+            command.add_str_option("bbbbbb", "aaaa", max_length=0)
+
+    def test_add_str_option_when_max_length_is_0(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option("bb", "aa", min_length=0)
+
+        option = command.build().options[0]
+        assert option.min_length == 0
+
+    def test_add_str_option_when_max_length_is_greater_than_6000(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="`max_length` must be less than or equal to 6000"):
+            command.add_str_option("bbbbbbbbb", "aaaaaa", max_length=6001)
+
+    def test_add_str_option_when_max_length_is_6000(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option("bb", "aa", max_length=6000)
+
+        option = command.build().options[0]
+        assert option.max_length == 6000
+
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
 
@@ -1420,14 +1483,16 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.INTEGER
         assert option.choices is None
+        assert option.min_length is None
         assert option.min_value == 123321
+        assert option.max_length is None
         assert option.max_value == 6451231
         assert option.channel_types is None
 
         assert option.name in command._tracked_options
 
     def test_add_int_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.raises(ValueError, match="The min value cannot be greater than the max value"):
+        with pytest.raises(ValueError, match="`min_value` cannot be greater than the `max_value`"):
             command.add_int_option(
                 "sesese",
                 "asasasa",
@@ -1579,7 +1644,9 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.FLOAT
         assert option.choices is None
+        assert option.min_length is None
         assert option.min_value == 5213.123
+        assert option.max_length is None
         assert option.max_value == 6523.123
         assert option.channel_types is None
 
@@ -1595,14 +1662,16 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.FLOAT
         assert option.choices is None
+        assert option.min_length is None
         assert option.min_value == 3543.0
+        assert option.max_length is None
         assert option.max_value == 54123.0
         assert option.channel_types is None
 
         assert option.name in command._tracked_options
 
     def test_add_float_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.raises(ValueError, match="The min value cannot be greater than the max value"):
+        with pytest.raises(ValueError, match="`min_value` cannot be greater than the `max_value`"):
             command.add_float_option(
                 "sesese",
                 "asasasa",
