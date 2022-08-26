@@ -541,6 +541,85 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
         config.is_greedy = True
 
 
+class _LengthMeta(abc.ABCMeta):
+    def __getitem__(cls, value: typing.Union[int, tuple[int, int]], /) -> type[str]:
+        if isinstance(value, int):
+            obj = Length(value)
+
+        else:
+            obj = Length(*value)
+
+        return typing.Annotated[Str, obj]
+
+
+class Length(_ConfigIdentifier, metaclass=_LengthMeta):
+    """Define length restraints for a string option.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "blam")
+    async def command(
+        ctx: tanjun.abc.Context,
+        max_and_min: typing.Annotated[annotations.Int, Length(123, 321)],
+        max_only: typing.Annotated[annotations.Int, Length(123)],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    or
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "blam")
+    async def command(
+        ctx: tanjun.abc.Context,
+        max_and_min: typing.Annotated[Length[123, 433], "meow"],
+        max_only: typing.Annotated[Length[433], "meow"],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    where `Length[...]` follows the same semantics as Length's `__init__`.
+    """
+
+    __slots__ = ("min_length", "max_length")
+
+    @typing.overload
+    def __init__(self, max_length: int, /) -> None:
+        ...
+
+    @typing.overload
+    def __init__(self, min_length: int, max_length: int, /) -> None:
+        ...
+
+    def __init__(self, min_or_max_length: int, max_length: typing.Optional[int] = None, /) -> None:
+        """Initialise a length constraint.
+
+        Parameters
+        ----------
+        min_or_max_length
+            If `max_length` is left as [None][] then this will be used as the
+            maximum length and the minimum length will be `0`.
+        max_length
+            The maximum length this string argument can be.
+
+            Defaults to `6000`.
+        """
+        if max_length is None:
+            self.min_length = 0
+            self.max_length = min_or_max_length
+
+        else:
+            self.min_length = min_or_max_length
+            self.max_length = max_length
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.min_length = self.min_length
+        config.max_length = self.max_length
+
+
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
@@ -985,9 +1064,11 @@ class _ArgConfig:
         "is_greedy",
         "is_positional",
         "key",
+        "min_length",
+        "min_value",
+        "max_length",
         "max_value",
         "message_name",
-        "min_value",
         "option_type",
         "slash_name",
         "snowflake_converter",
@@ -1004,9 +1085,11 @@ class _ArgConfig:
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
         self.key: str = key
+        self.min_length: typing.Optional[int] = None
+        self.min_value: typing.Union[float, int, None] = None
+        self.max_length: typing.Optional[int] = None
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
-        self.min_value: typing.Union[float, int, None] = None
         self.option_type: typing.Optional[type[typing.Any]] = None
         self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
@@ -1124,6 +1207,8 @@ class _ArgConfig:
             converters=self.converters or (),
             default=self._slash_default(),
             key=self.key,
+            min_length=self.min_length,
+            max_length=self.max_length,
         ),
         hikari.User: lambda self, c, d: c.add_user_option(
             self.slash_name, d, default=self._slash_default(), key=self.key
