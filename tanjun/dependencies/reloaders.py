@@ -385,7 +385,9 @@ class HotReloader:
                     result.removed_sys_paths.append(old_path)
 
             else:
-                current_paths = {_to_namespace(directory[0], path): path for path in path.glob("*.py")}
+                current_paths = {
+                    _to_namespace(directory[0], path): path for path in path.glob("*.py") if path.is_file()
+                }
                 for new_path in current_paths.keys() - directory[1]:
                     sys_path = current_paths[new_path]
                     if time := _scan_one(sys_path):
