@@ -950,12 +950,12 @@ VoiceStateConverter = ToVoiceState
 """Deprecated alias of [tanjun.conversion.ToVoiceState][]."""
 
 
-class _IDMatcherSig(typing.Protocol):
+class _IDMatcherSigProto(typing.Protocol):
     def __call__(self, value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         raise NotImplementedError
 
 
-def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSig:
+def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
     def parse(value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         """Parse a snowflake from a string or int value.
 
@@ -1056,7 +1056,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
 
 _SNOWFLAKE_REGEX = re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>")
-parse_snowflake: _IDMatcherSig = _make_snowflake_parser(_SNOWFLAKE_REGEX)
+parse_snowflake: _IDMatcherSigProto = _make_snowflake_parser(_SNOWFLAKE_REGEX)
 """Parse a snowflake from a string or int value.
 
 Parameters
@@ -1092,7 +1092,7 @@ list[hikari.Snowflake]
 """
 
 _CHANNEL_ID_REGEX = re.compile(r"<#(\d+)>")
-parse_channel_id: _IDMatcherSig = _make_snowflake_parser(_CHANNEL_ID_REGEX)
+parse_channel_id: _IDMatcherSigProto = _make_snowflake_parser(_CHANNEL_ID_REGEX)
 """Parse a channel ID from a string or int value.
 
 Parameters
@@ -1128,7 +1128,7 @@ list[hikari.Snowflake]
 """
 
 _EMOJI_ID_REGEX = re.compile(r"<a?:\w+:(\d+)>")
-parse_emoji_id: _IDMatcherSig = _make_snowflake_parser(_EMOJI_ID_REGEX)
+parse_emoji_id: _IDMatcherSigProto = _make_snowflake_parser(_EMOJI_ID_REGEX)
 """Parse an Emoji ID from a string or int value.
 
 Parameters
@@ -1166,7 +1166,7 @@ list[hikari.Snowflake]
 """
 
 _ROLE_ID_REGEX = re.compile(r"<@&(\d+)>")
-parse_role_id: _IDMatcherSig = _make_snowflake_parser(_ROLE_ID_REGEX)
+parse_role_id: _IDMatcherSigProto = _make_snowflake_parser(_ROLE_ID_REGEX)
 """Parse a role ID from a string or int value.
 
 Parameters
@@ -1204,7 +1204,7 @@ list[hikari.Snowflake]
 """
 
 _USER_ID_REGEX = re.compile(r"<@!?(\d+)>")
-parse_user_id: _IDMatcherSig = _make_snowflake_parser(_USER_ID_REGEX)
+parse_user_id: _IDMatcherSigProto = _make_snowflake_parser(_USER_ID_REGEX)
 """Parse a user ID from a string or int value.
 
 Parameters
