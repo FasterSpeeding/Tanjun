@@ -42,6 +42,7 @@ import typing
 
 import hikari
 
+from .. import _internal
 from .. import abc as tanjun
 from . import base
 
@@ -278,19 +279,6 @@ class SlashOption(tanjun.SlashOption):
                 return result
 
         raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a user")
-
-
-_OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)
-_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
-    [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
-)
-
-
-def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /) -> collections.Sequence[_OptionT]:
-    while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
-        options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
-
-    return options or ()
 
 
 class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
@@ -1023,12 +1011,10 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         self._on_not_found = on_not_found
 
         self._command: typing.Optional[tanjun.BaseSlashCommand] = None
-        if options := flatten_options(interaction.options):
-            self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
-
-        else:
-            self._options = {}
-
+        self._options = {
+            option.name: SlashOption(interaction.resolved, option)
+            for option in _internal.flatten_options(interaction.options)
+        }
         (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
 
     @property

@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Interface for an optional asynchronous gateway cache dependency.
+r"""Interface for an optional asynchronous gateway cache dependency.
 
 This allows you to share data between instances using something like a redis cache
 (for example) and will be used by standard Tanjun components as well as
@@ -39,7 +39,7 @@ extensions if implemented.
     While there aren't any standard implementations for these interfaces, a
     Redis implementation of this for the types found in Hikari's gateway cache
     can be found in [hikari-sake](https://github.com/FasterSpeeding/Sake)
-    \\>=v1.0.1a1 (exposed by [RedisResource.add_to_tanjun][]).
+    \>=v1.0.1a1 (exposed by [RedisResource.add_to_tanjun][]).
 
 Tanjun will use the following type dependencies for these interfaces if they are
 registered with the client:
