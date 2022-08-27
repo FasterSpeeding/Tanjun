@@ -299,3 +299,28 @@ def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any]) -> list[tanju
         wrapped = wrapped.wrapped_command if _has_wrapped(wrapped) else None
 
     return results
+
+
+_OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)
+_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
+    [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
+)
+
+
+def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /) -> collections.Sequence[_OptionT]:
+    """Flatten the options of a slash/autocomplete interaction.
+
+    Parameters
+    ----------
+    options
+        The options to flatten.
+
+    Returns
+    -------
+    collections.abc.Sequence[_OptionT]
+        A sequence of the actual command options.
+    """
+    while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
+        options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
+
+    return options or ()

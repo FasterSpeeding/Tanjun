@@ -24,6 +24,7 @@ flake8==4.0.1
     #   flake8-coding
     #   flake8-comprehensions
     #   flake8-deprecated
+    #   flake8-docstrings
     #   flake8-executable
     #   flake8-html
     #   flake8-isort
@@ -46,6 +47,8 @@ flake8-coding==1.3.2
 flake8-comprehensions==3.10.0
     # via -r dev-requirements/flake8.in
 flake8-deprecated==1.3
+    # via -r dev-requirements/flake8.in
+flake8-docstrings==1.6
     # via -r dev-requirements/flake8.in
 flake8-executable==2.1.1
     # via -r dev-requirements/flake8.in
@@ -104,6 +107,8 @@ pycodestyle==2.8.0
     #   flake8
     #   flake8-bandit
     #   flake8-print
+pydocstyle==6.1.1
+    # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
 pygments==2.12.0

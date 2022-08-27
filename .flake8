@@ -7,6 +7,8 @@ ignore =
     CFQ002,    # Function has too many arguments.
     D102,      # Missing docstring in public method.
     D105,      # Magic methods not having a docstring.
+    D401,      # Conflits with property doc-strings too much.
+    D404,      # Conflits with property doc-strings too much.
     D412,      # No blank lines allowed between a section header and its content
     E402,      # Module level import not at top of file (isn't compatible with our import style).
     IFSTMT001  # "use a oneliner here".
@@ -20,8 +22,10 @@ ignore =
 # F403: cannot detect unused vars if we use starred import
 # F405: __all__ field may be undefined or defined from star imports
 per-file-ignores =
-    # Doc errors don't matter in the tests
-    tests/*.py:         D100, D104
+    # Doc errors don't matter in the tests, noxfile nor py.typed
+    noxfile.py:         D100, D101, D103
+    tanjun/py.typed:    D100
+    tests/*.py:         D100, D101, D103, D104
 
 max-complexity =        20
 max-function-length =   100
@@ -32,5 +36,6 @@ statistics =            False
 
 accept-encodings =      utf-8
 docstring-convention =  numpy
+ignore-decorators =     overload
 exclude =
     tanjun/_vendor/

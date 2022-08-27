@@ -1520,7 +1520,7 @@ _TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callabl
 }
 
 
-def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.ConverterSig[typing.Any]:
+def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.ConverterSig[typing.Any]:  # noqa: D103
     return _TYPE_OVERRIDES.get(cls, cls)
 
 

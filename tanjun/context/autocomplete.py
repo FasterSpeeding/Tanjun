@@ -41,8 +41,8 @@ import alluka
 import hikari
 from hikari import snowflakes
 
+from .. import _internal
 from .. import abc as tanjun
-from . import slash
 
 if typing.TYPE_CHECKING:
     import asyncio
@@ -82,14 +82,12 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         self._has_responded = False
         self._interaction = interaction
 
-        options = slash.flatten_options(interaction.options)
         focused: typing.Optional[hikari.AutocompleteInteractionOption] = None
         self._options: dict[str, hikari.AutocompleteInteractionOption] = {}
-        if options := slash.flatten_options(interaction.options):
-            for option in options:
-                self._options[option.name] = option
-                if option.is_focused:
-                    focused = self._options[option.name]
+        for option in _internal.flatten_options(interaction.options):
+            self._options[option.name] = option
+            if option.is_focused:
+                focused = self._options[option.name]
 
         assert focused is not None
         self._focused = focused

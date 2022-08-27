@@ -899,6 +899,8 @@ class Context(alluka.Context):
 
 
 class MessageContext(Context, abc.ABC):
+    """Interface of a message command specific context."""
+
     __slots__ = ()
 
     @property
