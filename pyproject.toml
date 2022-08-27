@@ -24,7 +24,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
-    "Typing :: Typed"
+    "Typing :: Typed",
 ]
 dependencies = ["alluka~=0.1", "hikari~=2.0.0.dev110"]
 dynamic = ["description", "version"]
@@ -113,14 +113,5 @@ exclude = ["tanjun/_vendor/"]
 strict-imports = true
 require-superclass = true
 require-subclass = true
-exclude-classes = """
-    tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
-    | tanjun.commands.menu:_ResultProto
-    | tanjun.commands.message:(_ResultProto|_GroupResultProto)
-    | tanjun.commands.slash:_ResultProto
-    | tanjun.conversion:_IDMatcherSig
-    | tanjun.dependencies.limiters:_InnerResourceProto
-    | tanjun._internal:_WrappedProto
-    | tanjun.schedules:_ComponentProto
-"""
+exclude-classes = """tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor) | .*Proto"""
 exclude-modules = "tanjun._vendor"

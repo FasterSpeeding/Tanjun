@@ -552,7 +552,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
         Returns
         -------
-        SelfT
+        Self
             This command to allow for chaining.
         """
         self._defaults_to_ephemeral = state

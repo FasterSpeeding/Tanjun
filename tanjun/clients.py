@@ -647,9 +647,10 @@ class Client(tanjun.Client):
             Raises for the following reasons:
 
             * If `event_managed` is `True` when `event_manager` is `None`.
-            * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.
+            * If `command_ids` is passed when multiple guild ids are provided for
+              `declare_global_commands`.
             * If `command_ids` is passed when `declare_global_commands` is `False`.
-        """  # noqa: E501 - line too long
+        """
         # InjectorClient.__init__
         super().__init__()
         if _LOGGER.isEnabledFor(logging.INFO):
@@ -900,7 +901,7 @@ class Client(tanjun.Client):
         user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
-        """  # noqa: E501 - line too long
+        """
         return (
             cls(
                 rest=bot.rest,
@@ -985,7 +986,7 @@ class Client(tanjun.Client):
         user_ids
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
-        """  # noqa: E501 - line too long
+        """
         return cls(
             rest=bot.rest,
             server=bot.interaction_server,
