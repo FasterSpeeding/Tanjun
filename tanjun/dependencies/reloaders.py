@@ -377,7 +377,8 @@ class HotReloader:
                     if time := _scan_one(new_path):
                         result.sys_paths[new_path] = time
 
-                    else:
+                    elif new_path in directory[1]:
+                        directory[1].remove(new_path)
                         result.removed_sys_paths.append(new_path)
 
                 for old_path in directory[1] - current_paths:
@@ -393,8 +394,9 @@ class HotReloader:
                     if time := _scan_one(sys_path):
                         result.py_paths[new_path] = _PyPathInfo(sys_path, last_modified_at=time)
 
-                    else:
+                    elif new_path in directory[1]:
                         result.removed_py_paths.append(new_path)
+                        directory[1].remove(new_path)
 
                 for old_path in directory[1] - current_paths.keys():
                     directory[1].remove(old_path)

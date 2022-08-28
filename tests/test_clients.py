@@ -2006,7 +2006,7 @@ class TestClient:
             add_client_callback = mock.Mock()
 
         client = MockClient(mock.AsyncMock())
-        random_path = pathlib.Path(str(uuid.uuid4()).replace("-", ""))
+        random_path = pathlib.Path(uuid.uuid4().hex)
         generator = client._load_module(random_path)
         next_ = next(generator)
 
@@ -3109,7 +3109,7 @@ class TestClient:
 
     def test__reload_modules_with_system_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
-        random_path = pathlib.Path(str(uuid.uuid4()).replace("-", ""))
+        random_path = pathlib.Path(uuid.uuid4().hex)
         generator = client._reload_module(random_path)
 
         with pytest.raises(tanjun.ModuleStateConflict):
@@ -3125,7 +3125,7 @@ class TestClient:
             other_loader=mock.Mock(tanjun.abc.ClientLoader),
         )
         client = tanjun.Client(mock.AsyncMock())
-        random_path = pathlib.Path(str(uuid.uuid4()).replace("-", ""))
+        random_path = pathlib.Path(uuid.uuid4().hex)
         client._path_modules[random_path] = old_module
         generator = client._reload_module(random_path)
         next_ = next(generator)
