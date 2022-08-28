@@ -477,7 +477,10 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
 
     if isinstance(command, hikari.SlashCommand):
         assert isinstance(builder, hikari.api.SlashCommandBuilder)
-        if builder.name != command.name or builder.description != command.description:
+        if (
+            builder.description != command.description
+            or builder.description_localizations != command.description_localizations
+        ):
             return False
 
         command_options = command.options or ()
@@ -486,7 +489,8 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
 
         return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
 
-    return True
+    # name doesn't need to be checked as `builder` will be `None` if that didn't match.
+    return builder.name_localizations == command.name_localizations
 
 
 class _StartDeclarer:
