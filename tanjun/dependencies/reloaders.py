@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Implementation of a hot reloader for Tanjun"""
+"""Implementation of a hot reloader for Tanjun."""
 from __future__ import annotations
 
 __all__: list[str] = []
@@ -83,7 +83,7 @@ class _ScanResult:
 
 
 class HotReloader:
-    """Utility class use for handling hot
+    """Manages hot reloading modules for a Tanjun client..
 
     !!! warning
         An instance of this can only be linked to 1 client.
