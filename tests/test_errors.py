@@ -205,6 +205,14 @@ class TestModuleMissingLoaders:
         assert error.path == "bar"
 
 
+class TestModuleMissingUnloaders:
+    def test___init__(self):
+        error = tanjun.ModuleMissingUnloaders("beep", "boop")
+
+        assert error.message == "beep"
+        assert error.path == "boop"
+
+
 class TestModuleStateConflict:
     def test___init__(self):
         error = tanjun.ModuleStateConflict("esxd", "dsaasd")

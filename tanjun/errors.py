@@ -41,6 +41,7 @@ __all__: list[str] = [
     "HaltExecution",
     "MissingDependencyError",
     "ModuleMissingLoaders",
+    "ModuleMissingUnloaders",
     "ModuleStateConflict",
     "NotEnoughArgumentsError",
     "ParserError",
@@ -401,7 +402,7 @@ class TooManyArgumentsError(ParserError):
 
 
 class ModuleMissingLoaders(RuntimeError, TanjunError):
-    """Error raised when a module is missing loaders or unloaders."""
+    """Error raised when a module is missing loaders."""
 
     def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
         self._message = message
@@ -414,7 +415,25 @@ class ModuleMissingLoaders(RuntimeError, TanjunError):
 
     @property
     def path(self) -> typing.Union[str, pathlib.Path]:
-        """The path of the module which is missing loaders or unloaders."""
+        """The path of the module which is missing loaders."""
+        return self._path
+
+
+class ModuleMissingUnloaders(RuntimeError, TanjunError):
+    """Error raised when a module is missing unloaders."""
+
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
+        self._message = message
+        self._path = path
+
+    @property
+    def message(self) -> str:
+        """The error message."""
+        return self._message
+
+    @property
+    def path(self) -> typing.Union[str, pathlib.Path]:
+        """The path of the module which is missing unloaders."""
         return self._path
 
 

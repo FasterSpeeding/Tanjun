@@ -35,7 +35,9 @@ from __future__ import annotations
 __all__: list[str] = []
 
 import asyncio
+import functools
 import itertools
+import logging
 import sys
 import types
 import typing
@@ -51,9 +53,15 @@ if typing.TYPE_CHECKING:
 
     from . import abc as tanjun
 
+    _P = typing_extensions.ParamSpec("_P")
+
+
 _KeyT = typing.TypeVar("_KeyT")
-_OtherValueT = typing.TypeVar("_OtherValueT")
-_ValueT = typing.TypeVar("_ValueT")
+_OtherT = typing.TypeVar("_OtherT")
+_T = typing.TypeVar("_T")
+_CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
+
+_LOGGER = logging.getLogger("hikari.tanjun")
 
 if sys.version_info >= (3, 10):
     _UnionTypes = frozenset((typing.Union, types.UnionType))
@@ -122,17 +130,17 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}
 
 
-class CastedView(collections.Mapping[_KeyT, _OtherValueT], typing.Generic[_KeyT, _ValueT, _OtherValueT]):
+class CastedView(collections.Mapping[_KeyT, _OtherT], typing.Generic[_KeyT, _T, _OtherT]):
     """Utility class for exposing an immutable casted view of a dict."""
 
     __slots__ = ("_buffer", "_cast", "_raw_data")
 
-    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: collections.Callable[[_ValueT], _OtherValueT]) -> None:
-        self._buffer: dict[_KeyT, _OtherValueT] = {} if raw_data else _EMPTY_BUFFER
+    def __init__(self, raw_data: dict[_KeyT, _T], cast: collections.Callable[[_T], _OtherT]) -> None:
+        self._buffer: dict[_KeyT, _OtherT] = {} if raw_data else _EMPTY_BUFFER
         self._cast = cast
         self._raw_data = raw_data
 
-    def __getitem__(self, key: _KeyT, /) -> _OtherValueT:
+    def __getitem__(self, key: _KeyT, /) -> _OtherT:
         try:
             return self._buffer[key]
 
@@ -262,6 +270,28 @@ def infer_listener_types(
         raise TypeError(f"No valid event types found in the signature of {callback}") from None
 
     return event_types
+
+
+def log_task_exc(
+    message: str, /
+) -> collections.Callable[[collections.Callable[_P, collections.Awaitable[_T]]], collections.Callable[_P, _CoroT[_T]]]:
+    """Log the exception when a task raises instead of leaving it up to the gods."""
+
+    def decorator(
+        callback: collections.Callable[_P, collections.Awaitable[_T]], /
+    ) -> collections.Callable[_P, _CoroT[_T]]:
+        @functools.wraps(callback)
+        async def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
+            try:
+                return await callback(*args, **kwargs)
+
+            except Exception as exc:
+                _LOGGER.exception(message, exc_info=exc)
+                raise exc from None  # noqa: R101  # use bare raise in except handler?
+
+        return wrapper
+
+    return decorator
 
 
 class _WrappedProto(typing.Protocol):

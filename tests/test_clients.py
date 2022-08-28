@@ -36,15 +36,14 @@ import asyncio
 # pyright: reportUnknownMemberType=none
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
-import base64
 import importlib
 import inspect
 import pathlib
-import random
 import sys
 import tempfile
 import textwrap
 import typing
+import uuid
 from collections import abc as collections
 from unittest import mock
 
@@ -2007,7 +2006,7 @@ class TestClient:
             add_client_callback = mock.Mock()
 
         client = MockClient(mock.AsyncMock())
-        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        random_path = pathlib.Path(uuid.uuid4().hex)
         generator = client._load_module(random_path)
         next_ = next(generator)
 
@@ -2305,7 +2304,7 @@ class TestClient:
         path = pathlib.Path("rewwewew")
         client._path_modules[path.resolve()] = mock_module
 
-        with pytest.raises(tanjun.ModuleMissingLoaders):
+        with pytest.raises(tanjun.ModuleMissingUnloaders):
             client.unload_modules(path)
 
         assert client._path_modules[path.resolve()] is mock_module
@@ -2323,7 +2322,7 @@ class TestClient:
         path = pathlib.Path("./123dsaasd")
         client._path_modules[path.resolve()] = mock_module
 
-        with pytest.raises(tanjun.ModuleMissingLoaders):
+        with pytest.raises(tanjun.ModuleMissingUnloaders):
             client.unload_modules(path)
 
         assert client._path_modules[path.resolve()] is mock_module
@@ -2426,7 +2425,7 @@ class TestClient:
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
             client.load_modules("senpai.uwu")
 
-            with pytest.raises(tanjun.ModuleMissingLoaders):
+            with pytest.raises(tanjun.ModuleMissingUnloaders):
                 client.unload_modules("senpai.uwu")
 
             import_module.assert_called_once_with("senpai.uwu")
@@ -2448,7 +2447,7 @@ class TestClient:
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
             client.load_modules("okokok.nok")
 
-            with pytest.raises(tanjun.ModuleMissingLoaders):
+            with pytest.raises(tanjun.ModuleMissingUnloaders):
                 client.unload_modules("okokok.nok")
 
             import_module.assert_called_once_with("okokok.nok")
@@ -2552,7 +2551,7 @@ class TestClient:
 
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
             generator = client._reload_module("waifus")
-            with pytest.raises(tanjun.ModuleMissingLoaders):
+            with pytest.raises(tanjun.ModuleMissingUnloaders):
                 next(generator)
 
             reload.assert_not_called()
@@ -2691,7 +2690,7 @@ class TestClient:
         with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
             generator = client._reload_module("waifus")
 
-            with pytest.raises(tanjun.ModuleMissingLoaders):
+            with pytest.raises(tanjun.ModuleMissingUnloaders):
                 next(generator)
 
             reload.assert_not_called()
@@ -2911,7 +2910,7 @@ class TestClient:
         client._path_modules[path] = old_module
         generator = client._reload_module(path)
 
-        with pytest.raises(tanjun.ModuleMissingLoaders):
+        with pytest.raises(tanjun.ModuleMissingUnloaders):
             next(generator)
 
         priv_loader.load.assert_not_called()
@@ -3046,7 +3045,7 @@ class TestClient:
         file.flush()
         generator = client._reload_module(path)
 
-        with pytest.raises(tanjun.ModuleMissingLoaders):
+        with pytest.raises(tanjun.ModuleMissingUnloaders):
             next(generator)
 
         priv_loader.assert_not_called()
@@ -3110,7 +3109,7 @@ class TestClient:
 
     def test__reload_modules_with_system_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
-        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        random_path = pathlib.Path(uuid.uuid4().hex)
         generator = client._reload_module(random_path)
 
         with pytest.raises(tanjun.ModuleStateConflict):
@@ -3126,7 +3125,7 @@ class TestClient:
             other_loader=mock.Mock(tanjun.abc.ClientLoader),
         )
         client = tanjun.Client(mock.AsyncMock())
-        random_path = pathlib.Path(base64.urlsafe_b64encode(random.randbytes(64)).decode())
+        random_path = pathlib.Path(uuid.uuid4().hex)
         client._path_modules[random_path] = old_module
         generator = client._reload_module(random_path)
         next_ = next(generator)

@@ -46,6 +46,7 @@ __all__: list[str] = [
     "CooldownPreExecution",
     "EntryNotFound",
     "GuildBoundCache",
+    "HotReloader",
     "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
     "LazyConstant",
@@ -62,6 +63,7 @@ __all__: list[str] = [
     "inject_lc",
     "limiters",
     "owners",
+    "reloaders",
     "set_standard_dependencies",
     "with_concurrency_limit",
     "with_cooldown",
@@ -96,6 +98,7 @@ from .limiters import with_concurrency_limit
 from .limiters import with_cooldown
 from .owners import AbstractOwners
 from .owners import Owners
+from .reloaders import HotReloader
 
 
 def set_standard_dependencies(client: _tanjun.Client, /) -> None:

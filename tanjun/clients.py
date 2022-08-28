@@ -1302,7 +1302,7 @@ class Client(tanjun.Client):
 
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[tanjun.AppCommand[typing.Any]],
+        commands: collections.Iterable[typing.Union[tanjun.AppCommand[typing.Any], hikari.api.CommandBuilder]],
         /,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         *,
@@ -1325,11 +1325,16 @@ class Client(tanjun.Client):
 
         for command in commands:
             key = (command.type, command.name)
-            names_to_commands[key] = command
             if key in builders:
                 conflicts.add(key)
 
-            builder = command.build()
+            if isinstance(command, tanjun.AppCommand):
+                names_to_commands[key] = command
+                builder = command.build()
+
+            else:
+                builder = command
+
             command_id = None
             if builder.type is hikari.CommandType.USER:
                 user_count += 1
@@ -1385,8 +1390,8 @@ class Client(tanjun.Client):
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
         for response in responses:
-            if not guild:
-                names_to_commands[(response.type, response.name)].set_tracked_command(response)  # TODO: is this fine?
+            if not guild and (command := names_to_commands.get((response.type, response.name))):
+                command.set_tracked_command(response)  # TODO: is this fine?
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):
@@ -2354,7 +2359,7 @@ class Client(tanjun.Client):
                 found = True
 
         if not found:
-            raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in {module_path}", module_path)
+            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in {module_path}", module_path)
 
     def _load_module(
         self, module_path: typing.Union[str, pathlib.Path]
@@ -2474,7 +2479,7 @@ class Client(tanjun.Client):
         # We assert that the old module has unloaders early to avoid unnecessarily
         # importing the new module.
         if not any(loader.has_unload for loader in old_loaders):
-            raise errors.ModuleMissingLoaders(f"Didn't find any unloaders in old {module_path}", module_path)
+            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in old {module_path}", module_path)
 
         module = yield load_module
 
@@ -2926,5 +2931,9 @@ class _WrapLoadError:
         exc: typing.Optional[BaseException],
         exc_tb: typing.Optional[types.TracebackType],
     ) -> None:
-        if exc and isinstance(exc, Exception) and not isinstance(exc, errors.ModuleMissingLoaders):
+        if (
+            exc
+            and isinstance(exc, Exception)
+            and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
+        ):
             raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception

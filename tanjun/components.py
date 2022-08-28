@@ -36,13 +36,12 @@ __all__: list[str] = ["AbstractComponentLoader", "Component", "OnCallbackSig"]
 
 import abc
 import asyncio
-import base64
 import copy
 import inspect
 import itertools
 import logging
-import random
 import typing
+import uuid
 from collections import abc as collections
 
 import hikari
@@ -215,7 +214,7 @@ class Component(tanjun.Component):
         self._message_commands: list[tanjun.MessageCommand[typing.Any]] = []
         self._message_hooks: typing.Optional[tanjun.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
-        self._name = name or base64.b64encode(random.randbytes(32)).decode()
+        self._name = name or str(uuid.uuid4())
         self._names_to_commands: dict[str, tanjun.MessageCommand[typing.Any]] = {}
         self._on_close: list[OnCallbackSig] = []
         self._on_open: list[OnCallbackSig] = []
