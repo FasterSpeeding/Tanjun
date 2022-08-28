@@ -6,6 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.1a1] - 2022-08-29
+### Added
+- `follow_wrapped` argument to the with check and with limiter decorators to allow for applying the
+  limiter/check to all the commands in a decorator chain (in a similar fashion to how
+  `with_parsed_annotations` behaves.
+- Hot module reloading as a bot development aid.
+
+### Changed
+- `tanjun.ModuleMissingUnloaders` is now raised by `client.unload_modules`, `client.reload_modules` and
+  `client.reload_modules_async` when the stored module has no unloaders instead of
+  `tanjun.ModuleMissingLoaders`.
+- [hikari.api.special_endpoints.CommandBuilder][] can also be included in the list
+  passed to `Client.declare_application_commands`'s first arg now.
+
+### Changed
+- Moved permissions functions to [tanjun.permissions][] while keeping deprecated aliases in the now
+  deprecated module [tanjun.utilities][]
+
+### Fixed
+- Inherit the global states for `default_member_permissions` and `is_dm_enabled`
+  in `declare_application_command`.
+
 ## [2.5.4a1] - 2022-08-11
 ### Added
 - V2 application permissions and `dms_enabled` config to slash and menu commands.
@@ -623,7 +645,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.4a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.1a1...HEAD
+[2.6.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.4a1...v2.6.1a1
 [2.5.4a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.3a1...v2.5.4a1
 [2.5.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.2a1...v2.5.3a1
 [2.5.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.1a1...v2.5.2a1

@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.3.9">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.1d29e8d0.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.69437709.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
@@ -79,7 +79,7 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -756,6 +756,20 @@
     <li class="md-nav__item">
       <a href="../parsing/" class="md-nav__link">
         tanjun.parsing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../permissions/" class="md-nav__link">
+        tanjun.permissions
       </a>
     </li>
   
@@ -2207,7 +2221,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_all_checks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_all_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_all_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_all_checks" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2254,6 +2268,23 @@ rather than concurrently.</p>
             </p>
           </td>
         </tr>
+        <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
     </tbody>
   </table>
 
@@ -2287,7 +2318,7 @@ rather than concurrently.</p>
 
 
 <h2 id="tanjun.checks.with_any_checks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_any_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">))</span></code>
+<code class="highlight language-python"><span class="n">with_any_checks</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">checks</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">))</span></code>
 
 <a href="#tanjun.checks.with_any_checks" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2364,6 +2395,23 @@ rather than concurrently.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -2430,7 +2478,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_author_permission_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_author_permission_check</span><span class="p">(</span><span class="n">permissions</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s2">&quot;You don&#39;t have the permissions required to use this command&quot;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_author_permission_check</span><span class="p">(</span><span class="n">permissions</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s2">&quot;You don&#39;t have the permissions required to use this command&quot;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_author_permission_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2502,6 +2550,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -2552,7 +2617,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2577,6 +2642,23 @@ end the execution search when it fails instead of returning <a class="autorefs a
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.CheckSig" href="../abc/#tanjun.abc.CheckSig">CheckSig</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
                 </span>
             </p>
           </td>
@@ -2614,7 +2696,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_dm_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_dm_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in DMs&#39;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_dm_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in DMs&#39;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_dm_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2683,6 +2765,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -2733,7 +2832,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_guild_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_guild_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in guild channels&#39;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_guild_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in guild channels&#39;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_guild_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2802,6 +2901,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -2852,7 +2968,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_nsfw_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_nsfw_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in NSFW channels&#39;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_nsfw_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in NSFW channels&#39;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_nsfw_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2921,6 +3037,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -2971,7 +3104,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_own_permission_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_own_permission_check</span><span class="p">(</span><span class="n">permissions</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s2">&quot;Bot doesn&#39;t have the permissions required to run this command&quot;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_own_permission_check</span><span class="p">(</span><span class="n">permissions</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s2">&quot;Bot doesn&#39;t have the permissions required to run this command&quot;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_own_permission_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -3043,6 +3176,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -3093,7 +3243,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_owner_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_owner_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Only bot owners can use this command&#39;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_owner_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Only bot owners can use this command&#39;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_owner_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -3162,6 +3312,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -3212,7 +3379,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 
 
 <h2 id="tanjun.checks.with_sfw_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_sfw_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in SFW channels&#39;</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_sfw_check</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_message</span><span class="o">=</span><span class="s1">&#39;Command can only be used in SFW channels&#39;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">halt_execution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.checks.with_sfw_check" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -3281,6 +3448,23 @@ search to continue.</p>
           </td>
         </tr>
         <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether to also add this check to any other command objects this
+command wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>halt_execution</code></td>
           <td class="doc-param-details">
             <p>Whether this check should raise <a class="autorefs autorefs-internal" href="../#tanjun.HaltExecution">tanjun.HaltExecution</a> to
@@ -3333,6 +3517,9 @@ end the execution search when it fails instead of returning <a class="autorefs a
   </div>
 
 </div>
+
+
+
 
               
             </article>
@@ -3400,10 +3587,11 @@ end the execution search when it fails instead of returning <a class="autorefs a
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9c69f0bc.min.js"></script>
       
     
   </body>

@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.3.9">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.1d29e8d0.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.69437709.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
@@ -79,7 +79,7 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -651,6 +651,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tanjun.errors.ModuleMissingUnloaders" class="md-nav__link">
+    ModuleMissingUnloaders
+  </a>
+  
+    <nav class="md-nav" aria-label="ModuleMissingUnloaders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.errors.ModuleMissingUnloaders.message" class="md-nav__link">
+    message()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.errors.ModuleMissingUnloaders.path" class="md-nav__link">
+    path()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tanjun.errors.ModuleStateConflict" class="md-nav__link">
     ModuleStateConflict
   </a>
@@ -789,6 +816,20 @@
     <li class="md-nav__item">
       <a href="../parsing/" class="md-nav__link">
         tanjun.parsing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../permissions/" class="md-nav__link">
+        tanjun.permissions
       </a>
     </li>
   
@@ -1001,6 +1042,33 @@
         
           <li class="md-nav__item">
   <a href="#tanjun.errors.ModuleMissingLoaders.path" class="md-nav__link">
+    path()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.errors.ModuleMissingUnloaders" class="md-nav__link">
+    ModuleMissingUnloaders
+  </a>
+  
+    <nav class="md-nav" aria-label="ModuleMissingUnloaders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.errors.ModuleMissingUnloaders.message" class="md-nav__link">
+    message()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.errors.ModuleMissingUnloaders.path" class="md-nav__link">
     path()
   </a>
   
@@ -1971,7 +2039,7 @@ other commands from being tried.</p>
         Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#RuntimeError">RuntimeError</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.errors.TanjunError" href="#tanjun.errors.TanjunError">TanjunError</a></code></p>
 
   
-      <p>Error raised when a module is missing loaders or unloaders.</p>
+      <p>Error raised when a module is missing loaders.</p>
 
 
 
@@ -2025,7 +2093,91 @@ other commands from being tried.</p>
 
   <div class="doc doc-contents ">
   
-      <p>The path of the module which is missing loaders or unloaders.</p>
+      <p>The path of the module which is missing loaders.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="tanjun.errors.ModuleMissingUnloaders" class="doc doc-heading">
+        <code>ModuleMissingUnloaders</code>
+
+
+<a href="#tanjun.errors.ModuleMissingUnloaders" class="headerlink" title="Permanent link">#</a></h2>
+
+
+  <div class="doc doc-contents ">
+      <p class="doc doc-class-bases">
+        Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#RuntimeError">RuntimeError</a></code>, <code><a class="autorefs autorefs-internal" title="tanjun.errors.TanjunError" href="#tanjun.errors.TanjunError">TanjunError</a></code></p>
+
+  
+      <p>Error raised when a module is missing unloaders.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.errors.ModuleMissingUnloaders.message" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">message</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.errors.ModuleMissingUnloaders.message" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>The error message.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.errors.ModuleMissingUnloaders.path" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.errors.ModuleMissingUnloaders.path" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>The path of the module which is missing unloaders.</p>
 
   </div>
 
@@ -2482,6 +2634,9 @@ if not applicable.</p>
 
 </div>
 
+
+
+
               
             </article>
             
@@ -2548,10 +2703,11 @@ if not applicable.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9c69f0bc.min.js"></script>
       
     
   </body>
