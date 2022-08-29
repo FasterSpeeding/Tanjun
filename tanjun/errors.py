@@ -36,6 +36,7 @@ __all__: list[str] = [
     "CommandError",
     "ConversionError",
     "FailedCheck",
+    "FailedModuleImport",
     "FailedModuleLoad",
     "FailedModuleUnload",
     "HaltExecution",
@@ -468,6 +469,21 @@ class FailedModuleLoad(TanjunError):
     __cause__: Exception
     """The root error."""
 
+    def __init__(self, path: typing.Union[str, pathlib.Path], /) -> None:
+        self._path = path
+
+    @property
+    def path(self) -> typing.Union[str, pathlib.Path]:
+        """The path of the module which caused the error."""
+        return self._path
+
+
+class FailedModuleImport(FailedModuleLoad):
+    """Error raised when a module failed to import.
+
+    This is a specialisation of [tanjun.errors.FailedModuleLoad][].
+    """
+
 
 class FailedModuleUnload(TanjunError):
     """Error raised when a module fails to unload.
@@ -481,3 +497,11 @@ class FailedModuleUnload(TanjunError):
 
     __cause__: Exception
     """The root error."""
+
+    def __init__(self, path: typing.Union[str, pathlib.Path], /) -> None:
+        self._path = path
+
+    @property
+    def path(self) -> typing.Union[str, pathlib.Path]:
+        """The path of the module which caused the error."""
+        return self._path

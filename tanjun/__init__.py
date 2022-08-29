@@ -107,6 +107,7 @@ __all__: list[str] = [
     "Component",
     "ConversionError",
     "FailedCheck",
+    "FailedModuleImport",
     "FailedModuleLoad",
     "FailedModuleUnload",
     "HaltExecution",
@@ -294,6 +295,7 @@ from .dependencies import with_cooldown
 from .errors import CommandError
 from .errors import ConversionError
 from .errors import FailedCheck
+from .errors import FailedModuleImport
 from .errors import FailedModuleLoad
 from .errors import FailedModuleUnload
 from .errors import HaltExecution

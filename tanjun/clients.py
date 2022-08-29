@@ -69,12 +69,15 @@ from . import hooks
 if typing.TYPE_CHECKING:
     import types
 
+    import typing_extensions
+
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
     _T = typing.TypeVar("_T")
+    _P = typing_extensions.ParamSpec("_P")
 
     class _AutocompleteContextMakerProto(typing.Protocol):
         def __call__(
@@ -2339,6 +2342,38 @@ class Client(tanjun.Client):
         self._message_hooks = hooks
         return self
 
+    def load_directory(
+        self: _ClientT,
+        directory: typing.Union[str, pathlib.Path],
+        /,
+        *,
+        namespace: typing.Optional[str] = None,
+    ) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        paths = _scan_directory(pathlib.Path(directory), namespace)
+        for path in paths:
+            try:
+                self.load_modules(path)
+            except errors.ModuleStateConflict:
+                pass
+            except errors.ModuleMissingLoaders:
+                _LOGGER.info("Ignoring load_directory target `%s` with no loaders", path)
+
+        return self
+
+    async def load_directory_async(
+        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+    ) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        paths = asyncio.get_running_loop().run_in_executor(None, _scan_directory, pathlib.Path(directory), namespace)
+        for path in paths:
+            try:
+                await self.load_directory_async(path)
+            except errors.ModuleStateConflict:
+                pass
+            except errors.ModuleMissingLoaders:
+                _LOGGER.info("Ignoring load_directory target `%s` with no loaders", path)
+
     def _call_loaders(
         self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun.ClientLoader], /
     ) -> None:
@@ -2371,7 +2406,7 @@ class Client(tanjun.Client):
             _LOGGER.info("Loading from %s", module_path)
             module = yield lambda: importlib.import_module(module_path)
 
-            with _WrapLoadError(errors.FailedModuleLoad):
+            with _WrapLoadError(errors.FailedModuleLoad, module_path):
                 self._call_loaders(module_path, _get_loaders(module, module_path))
 
             self._modules[module_path] = module
@@ -2383,7 +2418,7 @@ class Client(tanjun.Client):
             _LOGGER.info("Loading from %s", module_path)
             module = yield lambda: _get_path_module(module_path)
 
-            with _WrapLoadError(errors.FailedModuleLoad):
+            with _WrapLoadError(errors.FailedModuleLoad, module_path):
                 self._call_loaders(module_path, _get_loaders(module, module_path))
 
             self._path_modules[module_path] = module
@@ -2396,7 +2431,7 @@ class Client(tanjun.Client):
 
             generator = self._load_module(module_path)
             load_module = next(generator)
-            with _WrapLoadError(errors.FailedModuleLoad):
+            with _WrapLoadError(errors.FailedModuleImport, module_path):
                 module = load_module()
 
             try:
@@ -2417,7 +2452,7 @@ class Client(tanjun.Client):
 
             generator = self._load_module(module_path)
             load_module = next(generator)
-            with _WrapLoadError(errors.FailedModuleLoad):
+            with _WrapLoadError(errors.FailedModuleImport, module_path):
                 module = await loop.run_in_executor(None, load_module)
 
             try:
@@ -2442,7 +2477,7 @@ class Client(tanjun.Client):
                 raise errors.ModuleStateConflict(f"Module {module_path!s} not loaded", module_path)
 
             _LOGGER.info("Unloading from %s", module_path)
-            with _WrapLoadError(errors.FailedModuleUnload):
+            with _WrapLoadError(errors.FailedModuleUnload, module_path):
                 self._call_unloaders(module_path, _get_loaders(module, module_path))
 
             del modules_dict[module_path]
@@ -2490,7 +2525,7 @@ class Client(tanjun.Client):
         if not any(loader.has_load for loader in loaders):
             raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
 
-        with _WrapLoadError(errors.FailedModuleUnload):
+        with _WrapLoadError(errors.FailedModuleUnload, module_path):
             # This will never raise MissingLoaders as we assert this earlier
             self._call_unloaders(module_path, old_loaders)
 
@@ -2499,7 +2534,7 @@ class Client(tanjun.Client):
             self._call_loaders(module_path, loaders)
         except Exception as exc:
             self._call_loaders(module_path, old_loaders)
-            raise errors.FailedModuleLoad from exc
+            raise errors.FailedModuleLoad(module_path) from exc
         else:
             modules_dict[module_path] = module
 
@@ -2511,7 +2546,7 @@ class Client(tanjun.Client):
 
             generator = self._reload_module(module_path)
             load_module = next(generator)
-            with _WrapLoadError(errors.FailedModuleLoad):
+            with _WrapLoadError(errors.FailedModuleLoad, module_path):
                 module = load_module()
 
             try:
@@ -2532,7 +2567,7 @@ class Client(tanjun.Client):
 
             generator = self._reload_module(module_path)
             load_module = next(generator)
-            with _WrapLoadError(errors.FailedModuleLoad):
+            with _WrapLoadError(errors.FailedModuleLoad, module_path):
                 module = await loop.run_in_executor(None, load_module)
 
             try:
@@ -2874,6 +2909,13 @@ class Client(tanjun.Client):
         return await future
 
 
+def _scan_directory(path: pathlib.Path, namespace: typing.Optional[str]) -> list[typing.Union[pathlib.Path, str]]:
+    if namespace:
+        return [namespace + "." + path.name.removesuffix(".py") for path in path.glob("*.py") if path.is_file()]
+
+    return [path for path in path.glob("*.py") if path.is_file()]
+
+
 def _normalize_path(path: pathlib.Path) -> pathlib.Path:
     try:  # TODO: test behaviour around this
         path = path.expanduser()
@@ -2917,10 +2959,18 @@ def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
 
 
 class _WrapLoadError:
-    __slots__ = ("_error",)
+    __slots__ = ("_args", "_error", "_kwargs")
 
-    def __init__(self, error: collections.Callable[[], Exception], /) -> None:
+    def __init__(
+        self,
+        error: collections.Callable[_P, Exception],
+        /,
+        *args: _P.args,
+        **kwargs: _P.kwargs,
+    ) -> None:
+        self._args = args
         self._error = error
+        self._kwargs = kwargs
 
     def __enter__(self) -> None:
         pass
@@ -2936,4 +2986,4 @@ class _WrapLoadError:
             and isinstance(exc, Exception)
             and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
         ):
-            raise self._error() from exc  # noqa: R102 unnecessary parenthesis on raised exception
+            raise self._error(*self._args, **self._kwargs) from exc  # noqa: R102

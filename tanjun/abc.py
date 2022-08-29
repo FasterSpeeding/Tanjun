@@ -4496,6 +4496,64 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
+    def load_directory(
+        self: _T,
+        directory: typing.Union[str, pathlib.Path],
+        /,
+        *,
+        namespace: typing.Optional[str] = None,
+    ) -> _T:
+        """Load entities into this client from the modules in a directory.
+
+        The same loading rules for [tanjun.abc.Client.load_modules][] apply here.
+
+        Parameters
+        ----------
+        directory
+            Name of the directory to load modules from.
+        namespace
+            The python namespace this directory's modules should be imported
+            from, if applicable.
+
+            This work as `{namespace}.{file.name.removesuffix(".py")}` and will
+            have the same behaviour as when a [str][] is passed to
+            [tanjun.abc.Client.load_modules][] if passed.
+
+            If left as [None][] then this will have the same behaviour as when
+            a [pathlib.Path][] is passed to [tanjun.abc.Client.load_modules][].
+
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
+
+        Raises
+        ------
+        tanjun.FailedModuleLoad
+            If any of the modules in this directory failed to load.
+
+            This includes if it failed to import or if one of its loaders raised.
+            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
+        ModuleNotFoundError
+            If any of the modules isn't found.
+
+            This likely indicates that `namespace` is wrong.
+        """
+
+    @abc.abstractmethod
+    async def load_directory_async(
+        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+    ) -> None:
+        """Asynchronous variant of [tanjun.abc.Client.load_directory][].
+
+        Unlike [tanjun.abc.Client.load_directory][], this method will run
+        blocking code in a background thread.
+
+        For more information on the behaviour of this method see the
+        documentation for [tanjun.abc.Client.load_directory][].
+        """
+
+    @abc.abstractmethod
     def load_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Load entities into this client from modules based on present loaders.
 
