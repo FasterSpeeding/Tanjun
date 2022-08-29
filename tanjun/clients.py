@@ -2365,10 +2365,12 @@ class Client(tanjun.Client):
         self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
-        paths = asyncio.get_running_loop().run_in_executor(None, _scan_directory, pathlib.Path(directory), namespace)
+        paths = await asyncio.get_running_loop().run_in_executor(
+            None, _scan_directory, pathlib.Path(directory), namespace
+        )
         for path in paths:
             try:
-                await self.load_directory_async(path)
+                await self.load_modules_async(path)
             except errors.ModuleStateConflict:
                 pass
             except errors.ModuleMissingLoaders:
