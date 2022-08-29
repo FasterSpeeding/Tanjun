@@ -3760,8 +3760,8 @@ class Client(abc.ABC):
         This defaults to [True][].
 
         !!! note
-            This may be overridden by [tanjun.abc.AppCommand.dms_enabled_for_app_cmds][]
-            and [tanjun.abc.Component.is_dm_enabled][].
+            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
+            and [tanjun.abc.Component.dms_enabled_for_app_cmds][].
         """
 
     @property
@@ -4597,7 +4597,7 @@ class Client(abc.ABC):
             Path of one or more modules to unload.
 
             These should be the same path(s) which were passed to
-            [tanjun.abc.Client.load_module][].
+            [tanjun.abc.Client.load_modules][].
 
         Returns
         -------
@@ -4636,7 +4636,7 @@ class Client(abc.ABC):
             Paths of one or more module to unload.
 
             These should be the same paths which were passed to
-            [tanjun.abc.Client.load_module][].
+            [tanjun.abc.Client.load_modules][].
 
         Returns
         -------

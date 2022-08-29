@@ -217,9 +217,9 @@ class HotReloader:
         return self
 
     async def add_modules_async(self: _HotReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _HotReloaderT:
-        """Asynchronous variant of [tanjun.dependencies.reloader.HotReloader.add_modules][].
+        """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_modules][].
 
-        Unlike [tanjun.dependencies.reloader.HotReloader.add_modules][],
+        Unlike [tanjun.dependencies.reloaders.HotReloader.add_modules][],
         this method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
@@ -235,7 +235,7 @@ class HotReloader:
 
         Parameters
         ----------
-        paths
+        *paths
             Module paths for this hot reloader to track.
 
             This has the same behaviour as [tanjun.abc.Client.load_modules][
@@ -256,13 +256,13 @@ class HotReloader:
     async def add_directory_async(
         self: _HotReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> _HotReloaderT:
-        """Asynchronous variant of [tanjun.dependencies.reloader.HotReloader.add_directory][].
+        """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_directory][].
 
-        Unlike [tanjun.dependencies.reloader.HotReloader.add_directory][],
+        Unlike [tanjun.dependencies.reloaders.HotReloader.add_directory][],
         this method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.dependencies.reloader.HotReloader.add_directory][].
+        documentation for [tanjun.dependencies.reloaders.HotReloader.add_directory][].
         """
         path, info = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory, namespace)
         self._directories[path] = info
