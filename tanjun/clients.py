@@ -344,8 +344,8 @@ def as_unloader(
 
     !!! note
         This is the inverse of [tanjun.as_loader][] and is only necessary if
-        you wish to use the [tanjun.Client.unload_module][] or
-        [tanjun.Client.reload_module][].
+        you wish to use the [tanjun.Client.unload_modules][] or
+        [tanjun.Client.reload_modules][].
 
     Parameters
     ----------

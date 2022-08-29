@@ -39,7 +39,7 @@ extensions if implemented.
     While there aren't any standard implementations for these interfaces, a
     Redis implementation of this for the types found in Hikari's gateway cache
     can be found in [hikari-sake](https://github.com/FasterSpeeding/Sake)
-    \>=v1.0.1a1 (exposed by [RedisResource.add_to_tanjun][]).
+    \>=v1.0.1a1 (exposed by [sake.redis.ResourceClient.add_to_tanjun][]).
 
 Tanjun will use the following type dependencies for these interfaces if they are
 registered with the client:
