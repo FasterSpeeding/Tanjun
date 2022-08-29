@@ -30,15 +30,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import asyncio
-
 # pyright: reportIncompatibleMethodOverride=none
 # pyright: reportUnknownMemberType=none
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
+import asyncio
 import importlib
 import inspect
 import pathlib
+import shutil
 import sys
 import tempfile
 import textwrap
@@ -1744,6 +1744,249 @@ class TestClient:
 
         assert result is client
         assert client.slash_hooks is None
+
+    def test_load_directory(self):
+        mock_load_modules = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "she.py").write_text("laughs")
+            (temp_dir / "so.txt").write_text("hard,")
+            (temp_dir / "I.py").write_text("watch")
+            (temp_dir / "her.py").write_text("balance")
+            (temp_dir / "her").write_text("lose")
+
+            client.load_directory(temp_dir)
+
+            mock_load_modules.assert_has_calls(
+                [mock.call(temp_dir / "she.py"), mock.call(temp_dir / "I.py"), mock.call(temp_dir / "her.py")],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    def test_load_directory_with_namespace(self):
+        mock_load_modules = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "So.py").write_text("she'll")
+            (temp_dir / "never").write_text("leave")
+            (temp_dir / "her.txt").write_text("bedroom")
+            (temp_dir / "in.py").write_text("this")
+            (temp_dir / "this.py").write_text("community")
+
+            client.load_directory(temp_dir, namespace="trans.pride")
+
+            mock_load_modules.assert_has_calls(
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    def test_load_directory_when_suppressed_error_raised(self):
+        mock_load_modules = mock.Mock(
+            side_effect=[tanjun.ModuleMissingLoaders("b", "by"), tanjun.ModuleStateConflict("nyaa.meow", "sleep"), None]
+        )
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "So.py").write_text("she'll")
+            (temp_dir / "never").write_text("leave")
+            (temp_dir / "her.txt").write_text("bedroom")
+            (temp_dir / "in.py").write_text("this")
+            (temp_dir / "this.py").write_text("community")
+
+            client.load_directory(temp_dir, namespace="trans.pride")
+
+            mock_load_modules.assert_has_calls(
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    def test_load_directory_when_fails_to_load(self):
+        mock_exc = tanjun.FailedModuleLoad("trans.rights")
+        mock_load_modules = mock.Mock(side_effect=[None, mock_exc])
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "So.py").write_text("she'll")
+            (temp_dir / "never").write_text("leave")
+            (temp_dir / "her.txt").write_text("bedroom")
+            (temp_dir / "in.py").write_text("this")
+
+            with pytest.raises(tanjun.FailedModuleLoad) as exc:
+                client.load_directory(temp_dir, namespace="trans.pride")
+
+            assert exc.value is mock_exc
+            mock_load_modules.assert_has_calls(
+                [
+                    mock.call("trans.pride.So"),
+                    mock.call("trans.pride.in"),
+                ],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async(self):
+
+        mock_load_modules = mock.AsyncMock()
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules_async = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "she.py").write_text("laughs")
+            (temp_dir / "so.txt").write_text("hard,")
+            (temp_dir / "I.py").write_text("watch")
+            (temp_dir / "her.py").write_text("balance")
+            (temp_dir / "her").write_text("lose")
+
+            await client.load_directory_async(temp_dir)
+
+            mock_load_modules.assert_has_awaits(
+                [mock.call(temp_dir / "she.py"), mock.call(temp_dir / "I.py"), mock.call(temp_dir / "her.py")],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_with_namespace(self):
+        mock_load_modules = mock.AsyncMock()
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules_async = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "So.py").write_text("she'll")
+            (temp_dir / "never").write_text("leave")
+            (temp_dir / "her.txt").write_text("bedroom")
+            (temp_dir / "in.py").write_text("this")
+            (temp_dir / "this.py").write_text("community")
+
+            await client.load_directory_async(temp_dir, namespace="trans.pride")
+
+            mock_load_modules.assert_has_awaits(
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_when_suppressed_error_raised(self):
+        mock_load_modules = mock.AsyncMock(
+            side_effect=[tanjun.ModuleMissingLoaders("b", "by"), tanjun.ModuleStateConflict("nyaa.meow", "sleep"), None]
+        )
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules_async = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "So.py").write_text("she'll")
+            (temp_dir / "never").write_text("leave")
+            (temp_dir / "her.txt").write_text("bedroom")
+            (temp_dir / "in.py").write_text("this")
+            (temp_dir / "this.py").write_text("community")
+
+            await client.load_directory_async(temp_dir, namespace="trans.pride")
+
+            mock_load_modules.assert_has_awaits(
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_when_fails_to_load(self):
+        mock_exc = tanjun.FailedModuleLoad("trans.rights")
+        mock_load_modules = mock.AsyncMock(side_effect=[None, mock_exc])
+
+        class StubClient(tanjun.Client):
+            __slots__ = ()
+
+            load_modules_async = mock_load_modules
+
+        client = StubClient(mock.Mock())
+
+        temp_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            (temp_dir / "So.py").write_text("she'll")
+            (temp_dir / "never").write_text("leave")
+            (temp_dir / "her.txt").write_text("bedroom")
+            (temp_dir / "in.py").write_text("this")
+
+            with pytest.raises(tanjun.FailedModuleLoad) as exc:
+                await client.load_directory_async(temp_dir, namespace="trans.pride")
+
+            assert exc.value is mock_exc
+            mock_load_modules.assert_has_awaits(
+                [
+                    mock.call("trans.pride.So"),
+                    mock.call("trans.pride.in"),
+                ],
+                any_order=True,
+            )
+
+        finally:
+            shutil.rmtree(temp_dir)
 
     @pytest.fixture()
     def file(self) -> collections.Iterator[typing.IO[str]]:
