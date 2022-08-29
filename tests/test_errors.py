@@ -219,3 +219,17 @@ class TestModuleStateConflict:
 
         assert error.message == "esxd"
         assert error.path == "dsaasd"
+
+
+class TestFailedModuleLoad:
+    def test___init__(self):
+        error = tanjun.FailedModuleLoad("beat/my/boobs")
+
+        assert error.path == "beat/my/boobs"
+
+
+class TestFailedModuleUnload:
+    def test___init__(self):
+        error = tanjun.FailedModuleUnload("yeet/ok")
+
+        assert error.path == "yeet/ok"

@@ -1745,6 +1745,41 @@ class TestClient:
         assert result is client
         assert client.slash_hooks is None
 
+    def test_load_directory(self):
+        ...
+
+    def test_load_directory_when_module_already_loaded(self):
+        ...
+
+    def test_load_directory_when_module_has_no_loaders(self):
+        ...
+
+    def test_load_directory_when_module_import_raises(self):
+        ...
+
+    def test_load_directory_when_module_loader_raises(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_when_module_already_loaded(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_when_module_has_no_loaders(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_when_module_import_raises(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_load_directory_async_when_module_loader_raises(self):
+        ...
+
     @pytest.fixture()
     def file(self) -> collections.Iterator[typing.IO[str]]:
         # A try, finally is used to delete the file rather than relying on delete=True behaviour
