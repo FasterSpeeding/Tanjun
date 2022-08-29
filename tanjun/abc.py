@@ -4505,7 +4505,8 @@ class Client(abc.ABC):
     ) -> _T:
         """Load entities into this client from the modules in a directory.
 
-        The same loading rules for [tanjun.abc.Client.load_modules][] apply here.
+        The same loading rules for [tanjun.abc.Client.load_modules][] mostly
+        apply here but modules with no loaders are quietly ignored.
 
         Parameters
         ----------
@@ -4534,10 +4535,10 @@ class Client(abc.ABC):
 
             This includes if it failed to import or if one of its loaders raised.
             The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
-        ModuleNotFoundError
-            If any of the modules isn't found.
 
-            This likely indicates that `namespace` is wrong.
+            Modules with no loaders are ignored.
+        ModuleNotFoundError
+            If any of the modules aren't found.
         """
 
     @abc.abstractmethod
