@@ -1137,6 +1137,81 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self._commands[command.name] = command
         return self
 
+    def as_slash_command(
+        self,
+        name: str,
+        description: str,
+        /,
+        *,
+        always_defer: bool = False,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        sort_options: bool = True,
+        validate_arg_keys: bool = True,
+    ) -> collections.Callable[[_CommandCallbackSigT], SlashCommand[_CommandCallbackSigT]]:
+        r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
+
+        !!! note
+            If you want your first response to be ephemeral while using
+            `always_defer`, you must set `default_to_ephemeral` to `True`.
+
+        Parameters
+        ----------
+        name
+            The command's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+        description
+            The command's description.
+            This should be inclusively between 1-100 characters in length.
+        always_defer
+            Whether the contexts this command is executed with should always be deferred
+            before being passed to the command's callback.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+        sort_options
+            Whether this command should sort its set options based on whether
+            they're required.
+
+            If this is [True][] then the options are re-sorted to meet the requirement
+            from Discord that required command options be listed before optional
+            ones.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
+
+        Returns
+        -------
+        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+            The decorator callback used to make a [tanjun.SlashCommand][].
+
+            This can either wrap a raw command callback or another callable command instance
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][])
+            and will manage loading the other command into a component when using
+            [tanjun.Component.load_from_scope][].
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name has uppercase characters.
+            * If the description is over 100 characters long.
+        """
+        return lambda callback: self.with_command(
+            as_slash_command(
+                name,
+                description,
+                always_defer=always_defer,
+                default_to_ephemeral=default_to_ephemeral,
+                sort_options=sort_options,
+                validate_arg_keys=validate_arg_keys,
+            )(callback)
+        )
+
     def remove_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Remove a command from this group.
 
