@@ -129,10 +129,6 @@ def as_message_menu(
         the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
-    !!! warning
-        `default_member_permissions`, "dm_enabled" and `is_global` are
-        ignored for commands within slash command groups.
-
     !!! note
         If you want your first response to be ephemeral while using
         `always_defer`, you must set `default_to_ephemeral` to `True`.
@@ -220,10 +216,6 @@ def as_user_menu(
         Under the standard implementation, `is_global` is used to determine whether
         the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
-
-    !!! warning
-        `default_member_permissions`, "dm_enabled" and `is_global` are
-        ignored for commands within slash command groups.
 
     !!! note
         If you want your first response to be ephemeral while using
@@ -375,10 +367,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             Under the standard implementation, `is_global` is used to determine whether
             the command should be bulk set by [tanjun.Client.declare_global_commands][]
             or when `declare_global_commands` is True
-
-        !!! warning
-            `default_member_permissions`, "dm_enabled" and `is_global` are
-            ignored for commands within slash command groups.
 
         !!! note
             If you want your first response to be ephemeral while using
