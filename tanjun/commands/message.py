@@ -527,9 +527,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
             The decorator callback used to make a [tanjun.MessageCommand][].
 
             This can either wrap a raw command callback or another callable command instance
-            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
-            and will manage loading the other command into a component when using
-            [tanjun.Component.load_from_scope][].
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
         """
 
         def decorator(
@@ -564,9 +562,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
             The decorator callback used to make a [tanjun.MessageCommandGroup][].
 
             This can either wrap a raw command callback or another callable command instance
-            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
-            and will manage loading the other command into a component when using
-            [tanjun.Component.load_from_scope][].
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
         """
 
         def decorator(
