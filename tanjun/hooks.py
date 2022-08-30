@@ -357,7 +357,7 @@ AnyHooks = Hooks[tanjun.Context]
 """
 
 MenuHooks = Hooks[tanjun.MenuContext]
-"""Hooks that can be used with a message context.
+"""Hooks that can be used with a menu context.
 
 !!! note
     This is shorthand for `Hooks[tanjun.abc.MenuContext]`.

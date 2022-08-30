@@ -118,6 +118,10 @@ def slash_command_group(
         Unlike message command groups, slash command groups cannot
         be callable functions themselves.
 
+    !!! warning
+        `default_member_permissions`, "dm_enabled" and `is_global` are
+        ignored for command groups within other slash command groups.
+
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
         the command should be bulk set by [tanjun.Client.declare_global_commandsadd_command
@@ -230,7 +234,8 @@ def as_slash_command(
         or when `declare_global_commands` is True
 
     !!! warning
-        `is_global` is ignored for commands within slash command groups.
+        `default_member_permissions`, "dm_enabled" and `is_global` are
+        ignored for commands within slash command groups.
 
     !!! note
         If you want your first response to be ephemeral while using
@@ -1003,6 +1008,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             whether the command should be bulk set by [tanjun.Client.declare_global_commands][]
             or when `declare_global_commands` is True
 
+        !!! warning
+            `default_member_permissions`, "dm_enabled" and `is_global` are
+            ignored for commands groups within another slash command groups.
+
         Parameters
         ----------
         name
@@ -1288,7 +1297,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             or when `declare_global_commands` is True
 
         !!! warning
-            `is_global` is ignored for commands within slash command groups.
+            `default_member_permissions`, "dm_enabled" and `is_global` are
+            ignored for commands within slash command groups.
 
         !!! note
             If you want your first response to be ephemeral while using
