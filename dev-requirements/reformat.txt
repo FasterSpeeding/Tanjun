@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=dev-requirements/reformat.txt dev-requirements/reformat.in
 #
-black==22.6.0
+black==22.8.0
     # via -r dev-requirements/reformat.in
 click==8.1.3
     # via black
@@ -21,6 +21,4 @@ sort-all==1.2.0
 tokenize-rt==4.2.1
     # via sort-all
 tomli==2.0.1
-    # via black
-typing-extensions==4.3.0
     # via black
