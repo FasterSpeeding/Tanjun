@@ -2561,7 +2561,12 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """The type of this application command."""
 
     @abc.abstractmethod
-    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.CommandBuilder:
+    def build(
+        self,
+        *,
+        component: typing.Optional[Component] = None,
+        persist_edits: bool = False
+    ) -> hikari.api.CommandBuilder:
         """Get a builder object for this command.
 
         Parameters
@@ -2571,6 +2576,8 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
             `is_dm_enabled` from if not explicitly set on the command.
 
             This defaults to the command's linked component.
+        persist_edits
+            If [True][] then edits to this builder will be presisted for the command.
 
         Returns
         -------
@@ -2630,7 +2637,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """The type of this command."""
 
     @abc.abstractmethod
-    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.SlashCommandBuilder:
+    def build(self, *, component: typing.Optional[Component] = None, persist_edits: bool = False) -> hikari.api.SlashCommandBuilder:
         """Get a builder object for this command.
 
         Parameters
@@ -2640,6 +2647,8 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
             `is_dm_enabled` from if not explicitly set on the command.
 
             This defaults to the command's linked component.
+        persist_edits
+            If [True][] then edits to this builder will be presisted for the command.
 
         Returns
         -------
@@ -2735,7 +2744,7 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSi
         """Object of the actual command this object tracks if set."""
 
     @abc.abstractmethod
-    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.ContextMenuCommandBuilder:
+    def build(self, *, component: typing.Optional[Component] = None, persist_edits: bool = False) -> hikari.api.ContextMenuCommandBuilder:
         """Get a builder object for this command.
 
         Parameters
@@ -2745,6 +2754,8 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCommandCallbackSi
             `is_dm_enabled` from if not explicitly set on the command.
 
             This defaults to the command's linked component.
+        persist_edits
+            If [True][] then edits to this builder will be presisted for the command.
 
         Returns
         -------

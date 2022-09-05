@@ -299,6 +299,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     __slots__ = (
         "_always_defer",
+        "_builder",
         "_callback",
         "_default_member_permissions",
         "_defaults_to_ephemeral",
@@ -443,6 +444,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             default_member_permissions = hikari.Permissions(default_member_permissions)
 
         self._always_defer = always_defer
+        self._builder = hikari.impl.ContextMenuCommandBuilder(self._type, self._name)
         self._callback = callback
         self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
@@ -515,7 +517,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         """The command object this wraps, if any."""
         return self._wrapped_command
 
-    def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
+    def build(self, *, component: typing.Optional[tanjun.Component] = None, persist_edits: bool = False) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         builder = hikari.impl.ContextMenuCommandBuilder(
             self._type,

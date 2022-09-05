@@ -1124,7 +1124,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         return self
 
     def build(
-        self, *, component: typing.Optional[tanjun.Component] = None
+        self, *, component: typing.Optional[tanjun.Component] = None, persist_edits: bool = False
     ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _SlashCommandBuilder(
@@ -1625,11 +1625,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         return self
 
     def build(
-        self, *, component: typing.Optional[tanjun.Component] = None
+        self, *, component: typing.Optional[tanjun.Component] = None, persist_edits: bool = False
     ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = self._builder.sort().copy()
+        if persist_edits:
+            return self._builder.sort()
 
+        builder = self._builder.sort().copy()
         component = component or self._component
         if self._default_member_permissions is not None:
             builder.set_default_member_permissions(self._default_member_permissions)
