@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.2a1] - 2022-09-05
+### Added
+- [tanjun.abc.CLient.load_directory][] and [tanjun.abc.Client.load_directory_async][] for loading all
+  the modules in a directory.
+- `path` properties to [tanjun.errors.FailedModuleLoad][] and [tanjun.errors.FailedModuleUnload][]
+  to indicate which module failed to load/unload.
+- [tanjun.errors.FailedModuleImport][] specialisation of [tanjun.errors.FailedModuleLoad][] for
+  differentiating between the two cases when necessary.
+
 ## [2.6.1a1] - 2022-08-29
 ### Added
 - `follow_wrapped` argument to the with check and with limiter decorators to allow for applying the
@@ -22,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Moved permissions functions to [tanjun.permissions][] while keeping deprecated aliases in the now
-  deprecated module [tanjun.utilities][]
+  deprecated module `tanjun.utilities`.
 
 ### Fixed
 - Inherit the global states for `default_member_permissions` and `is_dm_enabled`
@@ -645,7 +654,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.1a1...HEAD
+2.6.2a1
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.2a1...HEAD
+[2.6.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.1a1...v2.6.2a1
 [2.6.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.4a1...v2.6.1a1
 [2.5.4a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.3a1...v2.5.4a1
 [2.5.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.2a1...v2.5.3a1
