@@ -78,12 +78,12 @@ if typing.TYPE_CHECKING:
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _AnyCommandT = typing.Union[
         tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_AnyCallbackSigT"],
-        tanjun.SlashCommand["_AnyCallbackSigT"],
+        tanjun.MessageCommand["_AnyCallbackSigT"]
     ]
     _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
 
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
+_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
@@ -237,11 +237,12 @@ class _ResultProto(typing.Protocol):
         ...
 
     @typing.overload
-    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
+    def __call__(self, _: tanjun.SlashCommand[_AnyCallbackSigT], /) -> SlashCommand[_AnyCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> SlashCommand[_AnyCallbackSigT]:
-        raise NotImplementedError
+    @typing.overload
+    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
+        ...
 
 
 def as_slash_command(

@@ -565,7 +565,7 @@ class Component(tanjun.Component):
         self._slash_hooks = hooks
         return self
 
-    def add_check(self: _ComponentT, check: tanjun.AnyCheckSig, /) -> _ComponentT:
+    def add_check(self, *checks: tanjun.AnyCheckSig) -> Self:
         """Add a command check to this component to be used for all its commands.
 
         Parameters
@@ -584,7 +584,7 @@ class Component(tanjun.Component):
 
         return self
 
-    def remove_check(self: _ComponentT, check: tanjun.AnyCheckSig, /) -> _ComponentT:
+    def remove_check(self, check: tanjun.AnyCheckSig, /) -> Self:
         """Remove a command check from this component.
 
         Parameters

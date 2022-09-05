@@ -84,6 +84,7 @@ if typing.TYPE_CHECKING:
 
     _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
+    _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="CommandCallbackSig")
     _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound="ErrorHookSig")
     _HookSigT = typing.TypeVar("_HookSigT", bound="HookSig")
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound="ListenerCallbackSig")
@@ -132,10 +133,13 @@ MessageCheckSig = _CheckSig["MessageContext", ...]
 SlashCheckSig = _CheckSig["SlashContext", ...]
 
 
-_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
+_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], collections.Coroutine[typing.Any, typing.Any, None]]
 
 _MenuValueT = typing.TypeVar("_MenuValueT", hikari.User, hikari.InteractionMember)
-_ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], None]
+_ManuCallbackSig = collections.Callable[
+    typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P],
+    collections.Coroutine[typing.Any, typing.Any, None]
+]
 MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
 """Type hint of a context menu command callback.
 
@@ -2125,7 +2129,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_on_error(self: _T, callback: ErrorHookSig[_ContextT_contra], /) -> _T:
+    def add_on_error(self, callback: ErrorHookSig[_ContextT_contra], /) -> Self:
         """Add an error callback to this hook object.
 
         !!! note
@@ -2194,7 +2198,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_parser_error(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
+    def add_on_parser_error(self, callback: HookSig[_ContextT_contra], /) -> Self:
         """Add a parser error callback to this hook object.
 
         Parameters
@@ -2245,7 +2249,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_post_execution(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
+    def add_post_execution(self, callback: HookSig[_ContextT_contra], /) -> Self:
         """Add a post-execution callback to this hook object.
 
         Parameters
@@ -2293,7 +2297,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_pre_execution(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
+    def add_pre_execution(self, callback: HookSig[_ContextT_contra], /) -> Self:
         """Add a pre-execution callback for this hook object.
 
         Parameters
@@ -2341,7 +2345,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_success(self: _T, callback: HookSig[_ContextT_contra], /) -> _T:
+    def add_on_success(self, callback: HookSig[_ContextT_contra], /) -> Self:
         """Add a success callback to this hook object.
 
         Parameters
@@ -2495,7 +2499,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def add_check(self, *checks: CheckSig) -> Self:  # TODO: remove or add with_check?
+    def add_check(self, *checks: CheckSig[_ContextT_co]) -> Self:  # TODO: remove or add with_check?
         """Add a check to the command.
 
         Parameters
@@ -2510,7 +2514,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def remove_check(self, check: CheckSig, /) -> Self:
+    def remove_check(self, check: CheckSig[_ContextT_co], /) -> Self:
         """Remove a check from the command.
 
         Parameters

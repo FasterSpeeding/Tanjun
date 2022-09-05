@@ -153,6 +153,7 @@ __all__: list[str] = [
     "dependencies",
     "errors",
     "hooks",
+    "MenuHooks",
     "inject",
     "inject_lc",
     "injected",
@@ -298,6 +299,7 @@ from .hooks import AnyHooks
 from .hooks import Hooks
 from .hooks import MessageHooks
 from .hooks import SlashHooks
+from .hooks import MenuHooks
 from .injecting import as_self_injecting
 from .parsing import ShlexParser
 from .parsing import with_argument

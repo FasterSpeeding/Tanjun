@@ -48,9 +48,8 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _AnyCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="tanjun.CommandCallbackSig")
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound="tanjun.CommandCallbackSig")
     _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
         tanjun.MessageCommand["_AnyCallbackSigT"],
         tanjun.SlashCommand["_AnyCallbackSigT"],
     ]
@@ -71,11 +70,15 @@ class _ResultProto(typing.Protocol[_MenuTypeT]):
         ...
 
     @typing.overload
+    def __call__(self, _: tanjun.MenuCommand[_AnyCallbackSigT, typing.Any], /)  -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+        ...
+
+    @typing.overload
     def __call__(self, _: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
-        raise NotImplementedError
+    # def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+    #     raise NotImplementedError
 
 
 def _as_menu(
@@ -321,11 +324,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     @typing.overload
     def __init__(
-        self,
         self: MenuCommand[_AnyCallbackSigT, _MenuTypeT],
-        callback: _AnyCommandT[
-            _AnyCallbackSigT,
-        ],
+        callback: _AnyCommandT[_AnyCallbackSigT,],
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,

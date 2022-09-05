@@ -51,8 +51,7 @@ if typing.TYPE_CHECKING:
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=tanjun.CommandCallbackSig)
     _AnyCommandT = typing.Union[
         tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_AnyCallbackSigT"],
-        tanjun.SlashCommand["_AnyCallbackSigT"],
+        tanjun.SlashCommand["_AnyCallbackSigT"]
     ]
     _CallbackishT = typing.Union[_AnyCommandT["_AnyCallbackSigT"], "_AnyCallbackSigT"]
 
@@ -127,11 +126,12 @@ class _GroupResultProto(typing.Protocol):
         ...
 
     @typing.overload
-    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
+    def __call__(self, _: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
-        raise NotImplementedError
+    @typing.overload
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
+        ...
 
 
 def as_message_command_group(

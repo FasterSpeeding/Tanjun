@@ -1756,7 +1756,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def add_check(self: _ClientT, check: tanjun.AnyCheckSig, /) -> _ClientT:
+    def add_check(self, *checks: tanjun.AnyCheckSig) -> Self:
         """Add a generic check to this client.
 
         This will be applied to both message and slash command execution.
@@ -1779,7 +1779,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_check(self: _ClientT, check: tanjun.AnyCheckSig, /) -> _ClientT:
+    def remove_check(self, check: tanjun.AnyCheckSig, /) -> Self:
         """Remove a check from the client.
 
         Parameters

@@ -98,7 +98,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self._metadata[key] = value
         return self
 
-    def add_check(self: _PartialCommandT, check: tanjun.AnyCheckSig, /) -> _PartialCommandT:
+    def add_check(self, *checks: tanjun.AnyCheckSig) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         for check in checks:
             if check not in self._checks:
@@ -106,7 +106,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
 
         return self
 
-    def remove_check(self: _PartialCommandT, check: tanjun.AnyCheckSig, /) -> _PartialCommandT:
+    def remove_check(self, check: tanjun.AnyCheckSig, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)
         return self

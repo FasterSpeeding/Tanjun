@@ -69,10 +69,11 @@ from ._internal import cache
 from ._internal import localisation
 
 if typing.TYPE_CHECKING:
+    _ContextT_contra = typing.TypeVar("_ContextT_contra", bound=tanjun.Context, contravariant=True)
 
-    class _AnyCallback(typing.Protocol):
+    class _AnyCallback(typing.Protocol[_ContextT_contra]):
         async def __call__(
-            self, ctx: tanjun.Context, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
+            self, ctx: _ContextT_contra, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
         ) -> bool:
             raise NotImplementedError
 
@@ -80,9 +81,10 @@ if typing.TYPE_CHECKING:
 _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
 _CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
+_ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
 
 
-def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: bool) -> _CommandT:
+def _add_to_command(command: _CommandT, check: tanjun.AnyCheckSig, follow_wrapped: bool) -> _CommandT:
     if follow_wrapped:
         for wrapped in _internal.collect_wrapped(command):
             wrapped.add_check(check)
@@ -91,9 +93,7 @@ def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: 
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT], check: tanjun.AnyCheckSig, /
-    check: tanjun.CheckSig,
-    follow_wrapped: bool,
+    command: typing.Optional[_CommandT], check: tanjun.AnyCheckSig, follow_wrapped: bool
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
         return _add_to_command(command, check, follow_wrapped)
@@ -982,7 +982,7 @@ def with_own_permission_check(
 
 
 def with_check(
-    check: tanjun.CheckSig, /, *, follow_wrapped: bool = False
+    check: tanjun.AnyCheckSig, /, *, follow_wrapped: bool = False
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a generic check to a command.
 
@@ -1002,13 +1002,13 @@ def with_check(
     return lambda command: _add_to_command(command, check, follow_wrapped)
 
 
-class _AllChecks:
+class _AllChecks(typing.Generic[_ContextT]):
     __slots__ = ("_checks", "__weakref__")
 
-    def __init__(self, checks: list[tanjun.CheckSig]) -> None:
+    def __init__(self, checks: list[tanjun.CheckSig[_ContextT]]) -> None:
         self._checks = checks
 
-    async def __call__(self, ctx: tanjun.Context, /) -> bool:
+    async def __call__(self, ctx: _ContextT, /) -> bool:
         for check in self._checks:  # noqa: SIM111
             if not await ctx.call_with_async_di(check, ctx):
                 return False
@@ -1017,8 +1017,8 @@ class _AllChecks:
 
 
 def all_checks(
-    check: tanjun.CheckSig, /, *checks: tanjun.CheckSig
-) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+    check: tanjun.CheckSig[_ContextT], /, *checks: tanjun.CheckSig[_ContextT]
+) -> collections.Callable[[_ContextT], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1036,12 +1036,12 @@ def all_checks(
     collections.abc.Callable[[tanjun.abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
-    return _AllChecks([check, *checks])
+    return _AllChecks[_ContextT]([check, *checks])
 
 
 def with_all_checks(
-    check: tanjun.CheckSig, /, *checks: tanjun.CheckSig, follow_wrapped: bool = False
-) -> collections.Callable[[_CommandT], _CommandT]:
+    check: tanjun.AnyCheckSig, /, *checks: tanjun.AnyCheckSig, follow_wrapped: bool = False
+) -> collections.Callable[[_CommandT], _CommandT]:  # TODO: specialise  with overloading
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1065,12 +1065,12 @@ def with_all_checks(
     return lambda c: _add_to_command(c, all_checks(check, *checks), follow_wrapped)
 
 
-class _AnyChecks(_Check):
+class _AnyChecks(_Check, typing.Generic[_ContextT]):
     __slots__ = ("_checks", "_suppress")
 
     def __init__(
         self,
-        checks: list[tanjun.CheckSig],
+        checks: list[tanjun.CheckSig[_ContextT]],
         error: typing.Optional[collections.Callable[[], Exception]],
         error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
@@ -1081,11 +1081,7 @@ class _AnyChecks(_Check):
         self._suppress = suppress
 
     async def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: _ContextT, /, *, localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None
     ) -> bool:
         for check in self._checks:
             try:
@@ -1102,14 +1098,14 @@ class _AnyChecks(_Check):
 
 
 def any_checks(
-    check: tanjun.CheckSig,
+    check: tanjun.CheckSig[_ContextT],
     /,
-    *checks: tanjun.CheckSig,
+    *checks: tanjun.CheckSig[_ContextT],
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> _AnyCallback:
+) -> _AnyCallback[_ContextT]:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1143,13 +1139,14 @@ def any_checks(
     collections.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the generated check to a command.
     """
-    return _AnyChecks([check, *checks], error, error_message, halt_execution, suppress)
+    return _AnyChecks[_ContextT]([check, *checks], error, error_message, halt_execution, suppress)
 
 
+# Specialising this would be too much boiler plate so for now this just isn't getting that feature.
 def with_any_checks(
-    check: tanjun.CheckSig,
+    check: tanjun.AnyCheckSig,
     /,
-    *checks: tanjun.CheckSig,
+    *checks: tanjun.AnyCheckSig,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,

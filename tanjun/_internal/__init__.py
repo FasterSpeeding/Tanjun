@@ -57,6 +57,7 @@ if typing.TYPE_CHECKING:
 
     _P = typing_extensions.ParamSpec("_P")
 
+    _ContextT = typing.TypeVar("_ContextT", bound=abc.Context)
     _TreeT = dict[
         typing.Union[str, "_IndexKeys"],
         typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
@@ -88,21 +89,21 @@ NoDefault = typing.Literal[_NoDefaultEnum.VALUE]
 """The type of `NO_DEFAULT`."""
 
 
-async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> bool:
+async def _execute_check(ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /) -> bool:
     if result := await ctx.call_with_async_di(callback, ctx):
         return result
 
     raise errors.FailedCheck
 
 
-async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun.CheckSig], /) -> bool:
+async def gather_checks(ctx: _ContextT, checks: collections.Iterable[tanjun.CheckSig[_ContextT]], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
-    ctx
+    ctx : tanjun.abc.Context
         The context to check.
-    checks
+    checks : collections.abc.Iterable[tanjun.abc.CheckSig]
         An iterable of injectable checks.
 
     Returns
