@@ -1762,6 +1762,8 @@ class TestClient:
             (temp_dir / "I.py").write_text("watch")
             (temp_dir / "her.py").write_text("balance")
             (temp_dir / "her").write_text("lose")
+            (temp_dir / "dir.py").mkdir()
+            (temp_dir / "dir.py" / "sex.py").write_text("yeet")
 
             client.load_directory(temp_dir)
 
@@ -1790,6 +1792,8 @@ class TestClient:
             (temp_dir / "her.txt").write_text("bedroom")
             (temp_dir / "in.py").write_text("this")
             (temp_dir / "this.py").write_text("community")
+            (temp_dir / "dirty.py").mkdir()
+            (temp_dir / "dirty.py" / "sexy.py").write_text("yeet")
 
             client.load_directory(temp_dir, namespace="trans.pride")
 
@@ -1883,6 +1887,8 @@ class TestClient:
             (temp_dir / "I.py").write_text("watch")
             (temp_dir / "her.py").write_text("balance")
             (temp_dir / "her").write_text("lose")
+            (temp_dir / "dir.py").mkdir()
+            (temp_dir / "dir.py" / "sex.py").write_text("yeet")
 
             await client.load_directory_async(temp_dir)
 
@@ -1912,6 +1918,8 @@ class TestClient:
             (temp_dir / "her.txt").write_text("bedroom")
             (temp_dir / "in.py").write_text("this")
             (temp_dir / "this.py").write_text("community")
+            (temp_dir / "dirty.py").mkdir()
+            (temp_dir / "dirty.py" / "sexy.py").write_text("yeet")
 
             await client.load_directory_async(temp_dir, namespace="trans.pride")
 
