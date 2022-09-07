@@ -127,8 +127,6 @@ tomli==2.0.1
     # via
     #   black
     #   flake8-black
-typing-extensions==4.3.0
-    # via black
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

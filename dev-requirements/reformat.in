@@ -1,4 +1,4 @@
 # Remember to also update the vers in .pre-commit-config.yaml when changing reformat dependencies!!!
-black==22.6.0
+black==22.8.0
 isort==5.10.1
 sort-all==1.2.0
