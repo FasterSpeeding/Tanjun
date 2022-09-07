@@ -563,8 +563,8 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     @tanjun.as_slash_command("meow", "blam")
     async def command(
         ctx: tanjun.abc.Context,
-        max_and_min: typing.Annotated[annotations.Int, Length(123, 321)],
-        max_only: typing.Annotated[annotations.Int, Length(123)],
+        max_and_min: typing.Annotated[annotations.Str, Length(123, 321)],
+        max_only: typing.Annotated[annotations.Str, Length(123)],
     ) -> None:
         raise NotImplementedError
     ```
@@ -585,7 +585,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     where `Length[...]` follows the same semantics as Length's `__init__`.
     """
 
-    __slots__ = ("min_length", "max_length")
+    __slots__ = ("_min_length", "_max_length")
 
     @typing.overload
     def __init__(self, max_length: int, /) -> None:
@@ -609,16 +609,26 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
             Defaults to `6000`.
         """
         if max_length is None:
-            self.min_length = 0
-            self.max_length = min_or_max_length
+            self._min_length = 0
+            self._max_length = min_or_max_length
 
         else:
-            self.min_length = min_or_max_length
-            self.max_length = max_length
+            self._min_length = min_or_max_length
+            self._max_length = max_length
+
+    @property
+    def min_length(self) -> int:
+        """The minimum length of this string option."""
+        return self._min_length
+
+    @property
+    def max_length(self) -> int:
+        """The maximum length of this string option."""
+        return self._max_length
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.min_length = self.min_length
-        config.max_length = self.max_length
+        config.min_length = self._min_length
+        config.max_length = self._max_length
 
 
 class _MaxMeta(abc.ABCMeta):
