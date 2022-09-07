@@ -485,8 +485,7 @@ class HotReloader:
             )
         }
         if self._command_task:
-            if builders != self._scheduled_builders:
-                self._scheduled_builders = builders
+            self._scheduled_builders = builders
 
         elif builders != self._declared_builders:
             self._scheduled_builders = builders
@@ -512,7 +511,7 @@ class HotReloader:
                     _LOGGER.error("Timed out on command declare, will try again soon")
 
                 except Exception as exc:
-                    resource = "global" if self._commands_guild is hikari.UNDEFINED else f"guild ({self._command_task})"
+                    resource = f"guild ({self._command_task})" if self._commands_guild else "global"
                     _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
                     self._declared_builders = builders
                     return
