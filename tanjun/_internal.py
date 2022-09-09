@@ -471,12 +471,12 @@ class MaybeLocalised:
             If any of the lengths in this are outside of the provided range.
         """
         if self.localised_values is None:
-            real_max_len = len(self.default_value)
-            real_min_len = len(self.default_value)
+            real_min_len = real_max_len = len(self.default_value)
 
         else:
-            real_max_len = max(map(len, self.localised_values.values()))
-            real_min_len = min(map(len, self.localised_values.values()))
+            lengths = sorted(map(len, self.localised_values.values()))
+            real_max_len = lengths[-1]
+            real_min_len = lengths[0]
 
         if real_max_len > max_length:
             raise ValueError(
