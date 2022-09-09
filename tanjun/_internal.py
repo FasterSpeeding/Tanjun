@@ -440,11 +440,11 @@ class MaybeLocalised:
             Whether this should also assert that all values are considered
             lowercase.
         """
-        if self.localised_values is None:
-            values_iter = iter((self.default_value,))
+        if self.localised_values:
+            values_iter = iter(self.localised_values.values())
 
         else:
-            values_iter = iter(self.localised_values.values())
+            values_iter = iter((self.default_value,))
 
         for value in values_iter:
             if not match(value):
@@ -470,13 +470,13 @@ class MaybeLocalised:
         ValueError
             If any of the lengths in this are outside of the provided range.
         """
-        if self.localised_values is None:
-            real_min_len = real_max_len = len(self.default_value)
+        if self.localised_values:
+            lengths = sorted(map(len, self.localised_values.values()))
+            real_min_len = lengths[0]
+            real_max_len = lengths[-1]
 
         else:
-            lengths = sorted(map(len, self.localised_values.values()))
-            real_max_len = lengths[-1]
-            real_min_len = lengths[0]
+            real_min_len = real_max_len = len(self.default_value)
 
         if real_max_len > max_length:
             raise ValueError(
