@@ -146,7 +146,7 @@ def as_message_menu(
     Parameters
     ----------
     name
-        The command's name.
+        The command's name (supports [localisation][]).
 
         This must be between 1 and 32 characters in length.
     always_defer
@@ -236,7 +236,7 @@ def as_user_menu(
     Parameters
     ----------
     name
-        The command's name.
+        The command's name (supports [localisation][]).
 
         This must be between 1 and 32 characters in length.
     always_defer
@@ -386,7 +386,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             Only [hikari.commands.CommandType.USER][] and [hikari.commands.CommandType.MESSAGE][]
             are valid here.
         name
-            The command's name.
+            The command's name (supports [localisation][]).
 
             This must be between 1 and 32 characters in length.
         always_defer

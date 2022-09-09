@@ -182,11 +182,13 @@ def slash_command_group(
     Parameters
     ----------
     name
-        The name of the command group.
+        The name of the command group (supports [localisation][]).
 
-        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
     description
-        The description of the command group.
+        The description of the command group (supports [localisation][]).
+
+        This should be inclusively between 1-100 characters in length.
     default_member_permissions
         Member permissions necessary to utilize this command by default.
 
@@ -216,10 +218,10 @@ def slash_command_group(
     ValueError
         Raises a value error for any of the following reasons:
 
-        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """
+    """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
     return SlashCommandGroup(
         name,
         description,
@@ -285,11 +287,12 @@ def as_slash_command(
     Parameters
     ----------
     name
-        The command's name.
+        The command's name (supports [localisation][]).
 
-        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
     description
-        The command's description.
+        The command's description (supports [localisation][]).
+
         This should be inclusively between 1-100 characters in length.
     always_defer
         Whether the contexts this command is executed with should always be deferred
@@ -337,10 +340,10 @@ def as_slash_command(
     ValueError
         Raises a value error for any of the following reasons:
 
-        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """
+    """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)  # noqa: D202
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
@@ -1088,11 +1091,13 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Parameters
         ----------
         name
-            The name of the command group.
+            The name of the command group (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The description of the command group.
+            The description of the command group (supports [localisation][]).
+
+            This should be inclusively between 1-100 characters in length.
         default_member_permissions
             Member permissions necessary to utilize this command by default.
 
@@ -1117,10 +1122,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         super().__init__(
             name,
             description,
@@ -1525,11 +1530,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             argument of type [tanjun.abc.SlashContext][], returns `None` and may use
             dependency injection to access other services.
         name
-            The command's name.
+            The command's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The command's description.
+            The command's description (supports [localisation][]).
+
             This should be inclusively between 1-100 characters in length.
         always_defer
             Whether the contexts this command is executed with should always be deferred
@@ -1567,10 +1573,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         super().__init__(
             name,
             description,
@@ -1784,16 +1790,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
-
-        Other Parameters
-        ----------------
         default
             The option's default value.
 
@@ -1821,13 +1824,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
             _internal.MaybeLocalised("name", name),
             _internal.MaybeLocalised("description", description),
@@ -1863,11 +1866,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         autocomplete
@@ -1928,7 +1931,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
@@ -1938,7 +1941,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_length` is greater than `max_length`.
             * If `min_length` is less than `0` or greater than `6000`.
             * If `max_length` is less than `1` or greater than `6000`.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         if choices is None:
             actual_choices = None
 
@@ -2006,11 +2009,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         autocomplete
@@ -2064,7 +2067,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
@@ -2072,7 +2075,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         names = _internal.MaybeLocalised("name", name)
         descriptions = _internal.MaybeLocalised("description", description)
         self._add_option(
@@ -2117,11 +2120,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         always_float
@@ -2181,7 +2184,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
@@ -2189,7 +2192,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         names = _internal.MaybeLocalised("name", name)
         descriptions = _internal.MaybeLocalised("description", description)
         self._add_option(
@@ -2228,11 +2231,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2261,13 +2264,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
             _internal.MaybeLocalised("name", name),
             _internal.MaybeLocalised("description", description),
@@ -2297,11 +2300,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2330,14 +2333,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
             _internal.MaybeLocalised("name", name),
             _internal.MaybeLocalised("description", description),
@@ -2371,11 +2374,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2398,13 +2401,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
             _internal.MaybeLocalised("name", name),
             _internal.MaybeLocalised("description", description),
@@ -2434,11 +2437,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2471,14 +2474,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If an invalid type is passed in `types`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         if types:
             try:
                 types_iter = itertools.chain.from_iterable(
@@ -2517,11 +2520,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2550,13 +2553,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
             _internal.MaybeLocalised("name", name),
             _internal.MaybeLocalised("description", description),
@@ -2585,11 +2588,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2618,13 +2621,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
             _internal.MaybeLocalised("name", name),
             _internal.MaybeLocalised("description", description),
@@ -2643,6 +2646,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default (first) name.
         callback
             The autocomplete callback for the option.
 
@@ -2693,6 +2699,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         name
             The option's name.
 
+            If localised names were provided for the option then this should
+            be the default (first) name.
+
         Returns
         -------
         Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
@@ -2725,6 +2734,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default (first) name.
         callback
             The autocomplete callback for the option.
 
@@ -2769,6 +2781,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         name
             The option's name.
 
+            If localised names were provided for the option then this should
+            be the default (first) name.
+
         Returns
         -------
         Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
@@ -2801,6 +2816,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default (first) name.
         callback
             The autocomplete callback for the option.
 
@@ -2844,6 +2862,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default (first) name.
 
         Returns
         -------

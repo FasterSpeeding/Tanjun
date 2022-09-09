@@ -813,3 +813,5 @@ For more information on the resources cooldowns can be set for see
 [BucketResource][tanjun.dependencies.BucketResource].
 
 <!-- # TODO: some day, document buildings commands using the flient interface -->
+
+## Localisation
