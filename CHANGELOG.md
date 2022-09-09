@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.6.2a1] - 2022-09-05
 ### Added
-- [tanjun.abc.CLient.load_directory][] and [tanjun.abc.Client.load_directory_async][] for loading all
+- [tanjun.abc.Client.load_directory][] and [tanjun.abc.Client.load_directory_async][] for loading all
   the modules in a directory.
 - `path` properties to [tanjun.errors.FailedModuleLoad][] and [tanjun.errors.FailedModuleUnload][]
   to indicate which module failed to load/unload.
