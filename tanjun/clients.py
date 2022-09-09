@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "Client",
     "ClientCallbackNames",
+    "InteractionAcceptsEnum",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
     "as_loader",
@@ -385,12 +386,19 @@ class InteractionAcceptsEnum(enum.IntFlag):
     """The possible configurations for which interaction this client should execute."""
 
     NONE = 0
+    """Set the client to execute no interactions."""
 
     AUTOCOMPLETE = enum.auto()
+    """Execute autocomplete interactions."""
 
     COMMANDS = enum.auto()
+    """Execute command interactions.
+
+    This includes slash command and context menu calls.
+    """
 
     ALL = AUTOCOMPLETE | COMMANDS
+    """Execute all the interaction types Tanjun supports."""
 
 
 _INTERACTION_ACCEPTS_TO_TYPES = {
