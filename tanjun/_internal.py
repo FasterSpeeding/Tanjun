@@ -407,6 +407,9 @@ class MaybeLocalised:
 
             self.default_value = entry[1]
 
+    def _values(self) -> collections.Iterable[str]:
+        return itertools.chain((self.default_value,), self.localised_values.values())
+
     def get_for_ctx_or_default(self, ctx: tanjun.Context, /) -> str:
         """Get the localised value for a context.
 
@@ -440,13 +443,7 @@ class MaybeLocalised:
             Whether this should also assert that all values are considered
             lowercase.
         """
-        if self.localised_values:
-            values_iter = iter(self.localised_values.values())
-
-        else:
-            values_iter = iter((self.default_value,))
-
-        for value in values_iter:
+        for value in self._values():
             if not match(value):
                 raise ValueError(
                     f"Invalid {self._field_name} provided, {value!r} doesn't match the required regex `{pattern}`"
@@ -470,13 +467,9 @@ class MaybeLocalised:
         ValueError
             If any of the lengths in this are outside of the provided range.
         """
-        if self.localised_values:
-            lengths = sorted(map(len, self.localised_values.values()))
-            real_min_len = lengths[0]
-            real_max_len = lengths[-1]
-
-        else:
-            real_min_len = real_max_len = len(self.default_value)
+        lengths = sorted(map(len, self._values()))
+        real_min_len = lengths[0]
+        real_max_len = lengths[-1]
 
         if real_max_len > max_length:
             raise ValueError(
